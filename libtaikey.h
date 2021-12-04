@@ -1,5 +1,10 @@
 ﻿#pragma once
 
+#ifdef _WIN32
+#include <Windows.h>
+#endif
+
+#include <string>
 #include <boost/locale.hpp>
 
 namespace TaiKey
@@ -8,6 +13,9 @@ namespace TaiKey
 static bool READY = false;
 inline void initialize()
 {
+#ifdef _WIN32
+    SetConsoleOutputCP(CP_UTF8);
+#endif
     boost::locale::generator gen;
     std::locale loc = gen("");
     std::locale::global(loc);
@@ -30,12 +38,12 @@ public:
 
     EngineState pushChar(char c);
     EngineState getState() const;
-
-    std::string getBuffer();
+    std::string getBuffer() const;
 
 private:
     std::string _keyBuffer;
     EngineState _state;
+    void pop_back();
 };
 
 
