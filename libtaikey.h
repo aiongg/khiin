@@ -11,8 +11,7 @@ namespace TaiKey
 {
 
 static bool READY = false;
-inline void initialize()
-{
+inline void initialize() {
 #ifdef _WIN32
     SetConsoleOutputCP(CP_UTF8);
 #endif
@@ -23,14 +22,12 @@ inline void initialize()
     READY = true;
 }
 
-enum class EngineState
-{
+enum class EngineState {
     Valid,
 };
 
 
-class TaiKeyEngine
-{
+class TaiKeyEngine {
 
 public:
     TaiKeyEngine();
