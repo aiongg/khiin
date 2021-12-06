@@ -7,3 +7,6 @@ cmake_minimum_required (VERSION 3.8)
 add_library (libtaikey "libtaikey.cpp" "libtaikey.h")
 
 # TODO: Add tests and install targets if needed.
+
+# Debug
+target_link_options(libtaikey PRIVATE "/MAP")
