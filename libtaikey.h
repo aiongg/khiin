@@ -4,11 +4,10 @@
 #include <Windows.h>
 #endif
 
-#include <string>
 #include <boost/locale.hpp>
+#include <string>
 
-namespace TaiKey
-{
+namespace TaiKey {
 
 static bool READY = false;
 inline void initialize() {
@@ -26,10 +25,9 @@ enum class EngineState {
     Valid,
 };
 
-
 class TaiKeyEngine {
 
-public:
+  public:
     TaiKeyEngine();
     void reset();
 
@@ -37,11 +35,10 @@ public:
     EngineState getState() const;
     std::string getBuffer() const;
 
-private:
+  private:
     std::string _keyBuffer;
     EngineState _state;
     void pop_back();
 };
-
 
 } // namespace TaiKey

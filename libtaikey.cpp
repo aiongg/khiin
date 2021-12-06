@@ -6,19 +6,19 @@
 #endif
 #endif
 
-#include <unordered_map>
-#include <boost/assign.hpp>
-#include <boost/format.hpp>
-#include <boost/locale.hpp>
-#include <boost/regex.hpp>
 #include <boost/algorithm/string/erase.hpp>
 #include <boost/algorithm/string/find.hpp>
 #include <boost/algorithm/string/regex.hpp>
 #include <boost/algorithm/string/replace.hpp>
+#include <boost/assign.hpp>
+#include <boost/format.hpp>
+#include <boost/locale.hpp>
 #include <boost/log/trivial.hpp>
 #include <boost/program_options.hpp>
-#include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/json_parser.hpp>
+#include <boost/property_tree/ptree.hpp>
+#include <boost/regex.hpp>
+#include <unordered_map>
 // #include <unicode/uclean.h>
 #include <utf8cpp/utf8.h>
 
@@ -28,8 +28,7 @@ using namespace std;
 using namespace boost;
 using namespace boost::locale;
 
-namespace TaiKey
-{
+namespace TaiKey {
 
 string defaultSettings = R"settings({
     "T2": "s"
@@ -56,7 +55,6 @@ void taikey_settings::load(const string &filename = "") {
 }
 */
 
-
 enum class Tone {
     NaT,
     T2,
@@ -77,35 +75,19 @@ enum class Special {
 };
 
 unordered_map<char, Tone> TONE_KEY_MAP = {
-    {'s', Tone::T2},
-    {'f', Tone::T3},
-    {'l', Tone::T5},
-    {'j', Tone::T7},
-    {'y', Tone::T8},
-    {'w', Tone::T9},
-    {'q', Tone::TK}
-};
+    {'s', Tone::T2}, {'f', Tone::T3}, {'l', Tone::T5}, {'j', Tone::T7},
+    {'y', Tone::T8}, {'w', Tone::T9}, {'q', Tone::TK}};
 
 unordered_map<Tone, string> TONE_UTF_MAP = {
-        {Tone::T2, u8"\u0301"},
-        {Tone::T3, u8"\u0300"},
-        {Tone::T5, u8"\u0302"},
-        {Tone::T6, u8"\u030c"},
-        {Tone::T7, u8"\u0304"},
-        {Tone::T8, u8"\u030d"},
-        {Tone::T9, u8"\u0306"},
-        {Tone::TK, u8"\u00b7"}
-};
+    {Tone::T2, u8"\u0301"}, {Tone::T3, u8"\u0300"}, {Tone::T5, u8"\u0302"},
+    {Tone::T6, u8"\u030c"}, {Tone::T7, u8"\u0304"}, {Tone::T8, u8"\u030d"},
+    {Tone::T9, u8"\u0306"}, {Tone::TK, u8"\u00b7"}};
 
-unordered_map<Special, char> SPEC_KEY_MAP = {
-    { Special::NasalCombo, 'n' },
-    { Special::OUCombo, 'u' }
-};
+unordered_map<Special, char> SPEC_KEY_MAP = {{Special::NasalCombo, 'n'},
+                                             {Special::OUCombo, 'u'}};
 
-string TONES[] = {
-    u8"\u0301", u8"\u0300", u8"\u0302", u8"\u030c",
-    u8"\u0304", u8"\u030d", u8"\u0306", u8"\u00b7"
-};
+string TONES[] = {u8"\u0301", u8"\u0300", u8"\u0302", u8"\u030c",
+                  u8"\u0304", u8"\u030d", u8"\u0306", u8"\u00b7"};
 
 string _getToneOfKey(const char c) {
     auto t = TONE_KEY_MAP.find(c);
@@ -136,7 +118,8 @@ string stripDiacritics(const string &s) {
 // s must be one syllable
 string placeToneOnSyllable(const string &syllable, const string &tone) {
     static regex e(u8"o[ae][mnptkh]");
-    static string ordered_vowel_matches[] = { u8"o", u8"a", u8"e", u8"u", u8"i", u8"ng", u8"m" };
+    static string ordered_vowel_matches[] = {u8"o", u8"a",  u8"e", u8"u",
+                                             u8"i", u8"ng", u8"m"};
 
     string _s = stripDiacritics(syllable);
 
@@ -147,8 +130,7 @@ string placeToneOnSyllable(const string &syllable, const string &tone) {
 
     if (regex_search(_s, match, e)) {
         found = match.position() + 1;
-    }
-    else {
+    } else {
         for (string v : ordered_vowel_matches) {
             found = _s.find(v);
 
@@ -165,7 +147,6 @@ string placeToneOnSyllable(const string &syllable, const string &tone) {
     _s.insert(found + 1, tone);
 
     return _s;
-
 }
 
 TaiKeyEngine::TaiKeyEngine() {
@@ -193,27 +174,22 @@ EngineState TaiKey::TaiKeyEngine::pushChar(const char c) {
     if (TONE_KEY_MAP.find(c) != TONE_KEY_MAP.end()) {
         string tone = _getToneOfKey(c);
         _keyBuffer = normalize(placeToneOnSyllable(_keyBuffer, tone), norm_nfc);
-    }
-    else if (_keyBuffer.back() == 'o' && c == SPEC_KEY_MAP.at(Special::OUCombo)) {
+    } else if (_keyBuffer.back() == 'o' &&
+               c == SPEC_KEY_MAP.at(Special::OUCombo)) {
         _keyBuffer += u8"\u0358";
-    }
-    else if (_keyBuffer.back() == 'n' && c == SPEC_KEY_MAP.at(Special::NasalCombo)) {
+    } else if (_keyBuffer.back() == 'n' &&
+               c == SPEC_KEY_MAP.at(Special::NasalCombo)) {
         replace_last(_keyBuffer, u8"n", u8"\u207f");
-    }
-    else if (c == '\b') {
+    } else if (c == '\b') {
         pop_back();
-    }
-    else {
+    } else {
         _keyBuffer.push_back(c);
     }
 
     return _state;
-
 }
 
-EngineState TaiKeyEngine::getState() const {
-    return _state;
-}
+EngineState TaiKeyEngine::getState() const { return _state; }
 
 std::string TaiKeyEngine::getBuffer() const {
     return normalize(_keyBuffer, norm_nfc);
