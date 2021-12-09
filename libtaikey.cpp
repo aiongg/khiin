@@ -154,42 +154,65 @@ TaiKeyEngine::TaiKeyEngine() {
         initialize();
     }
 
+    _inputMode = InputMode::Lomaji;
+
     _keyBuffer.reserve(10);
     reset();
 }
 
 void TaiKeyEngine::reset() {
     _keyBuffer.clear();
-    _state = EngineState::Valid;
+    _engineState = EngineState::Valid;
 }
 
-EngineState TaiKey::TaiKeyEngine::pushChar(const char c) {
-    BOOST_LOG_TRIVIAL(debug) << boost::format("pushChar(%1%)") % c;
+EngineState TaiKeyEngine::onKeyDown(KeyCode keyCode) {
+    BOOST_LOG_TRIVIAL(debug) << boost::format("onKeyDown(%1%)") % (char)keyCode;
 
-    if (_keyBuffer.empty()) {
-        _keyBuffer.push_back(c);
-        return _state;
+    if (_inputMode == InputMode::Lomaji) {
+        char c = (char)keyCode;
+
+        if (_keyBuffer.empty()) {
+            _keyBuffer.push_back(c);
+            return _engineState;
+        }
+
+        if (TONE_KEY_MAP.find(c) != TONE_KEY_MAP.end()) {
+            string tone = _getToneOfKey(c);
+            _keyBuffer =
+                normalize(placeToneOnSyllable(_keyBuffer, tone), norm_nfc);
+        } else if (_keyBuffer.back() == 'o' &&
+                   c == SPEC_KEY_MAP.at(Special::OUCombo)) {
+            _keyBuffer += u8"\u0358";
+        } else if (_keyBuffer.back() == 'n' &&
+                   c == SPEC_KEY_MAP.at(Special::NasalCombo)) {
+            replace_last(_keyBuffer, u8"n", u8"\u207f");
+        } else if (c == '\b') {
+            pop_back();
+        } else {
+            _keyBuffer.push_back(c);
+        }
+
+        return _engineState;
+    } else if (_inputMode == InputMode::Normal) {
+        switch (_engineState) {
+        case EngineState::Editing:
+            _handleEditing(keyCode);
+            break;
+        case EngineState::ChoosingCandidate:
+            _handleChoosingCandidate(keyCode);
+            break;
+        case EngineState::BufferByLetter:
+            _handleBufferByLetter(keyCode);
+            break;
+        case EngineState::BufferBySegment:
+            _handleBufferBySegment(keyCode);
+            break;
+        }
+        return _engineState;
     }
-
-    if (TONE_KEY_MAP.find(c) != TONE_KEY_MAP.end()) {
-        string tone = _getToneOfKey(c);
-        _keyBuffer = normalize(placeToneOnSyllable(_keyBuffer, tone), norm_nfc);
-    } else if (_keyBuffer.back() == 'o' &&
-               c == SPEC_KEY_MAP.at(Special::OUCombo)) {
-        _keyBuffer += u8"\u0358";
-    } else if (_keyBuffer.back() == 'n' &&
-               c == SPEC_KEY_MAP.at(Special::NasalCombo)) {
-        replace_last(_keyBuffer, u8"n", u8"\u207f");
-    } else if (c == '\b') {
-        pop_back();
-    } else {
-        _keyBuffer.push_back(c);
-    }
-
-    return _state;
 }
 
-EngineState TaiKeyEngine::getState() const { return _state; }
+EngineState TaiKeyEngine::getState() const { return _engineState; }
 
 std::string TaiKeyEngine::getBuffer() const {
     return normalize(_keyBuffer, norm_nfc);
@@ -204,6 +227,88 @@ void TaiKeyEngine::pop_back() {
     while (!utf8::is_valid(_keyBuffer.begin(), _keyBuffer.end())) {
         _keyBuffer.pop_back();
     }
+}
+
+int TaiKeyEngine::_getDisplayBufferLength() {
+    int len = 0;
+    for (int i = 0; i < _displayBuffer.segmentCount; i++) {
+        if (i == _displayBuffer.selectedSegment &&
+            _engineState == EngineState::BufferByLetter) {
+            len += _displayBuffer.segments[i].inputTextLength;
+        } else {
+            len += _displayBuffer.segments[i].displayTextLength;
+        }
+    }
+
+    return len;
+}
+
+void TaiKeyEngine::_handleEditing(KeyCode keyCode) {
+    switch (keyCode) {
+    case KeyCode::TK_TAB:
+    case KeyCode::TK_DOWN:
+        // switch to ByCandidates
+        return;
+    case KeyCode::TK_SPACE:
+        // switch to BySegment
+        return;
+    default:
+        // check print
+        if (isprint((char) keyCode)) {
+            // raw buffer + char
+            // calculate new display buffer & cursor
+        }
+    }
+}
+
+void TaiKeyEngine::_handleChoosingCandidate(KeyCode keyCode) {}
+
+void TaiKeyEngine::_handleBufferByLetter(KeyCode keyCode) {
+    switch (keyCode) {
+    }
+}
+
+void TaiKeyEngine::_handleBufferBySegment(KeyCode keyCode) {
+    switch (keyCode) {
+    case KeyCode::TK_RIGHT:
+        if (_displayBuffer.selectedSegment + 1 < _displayBuffer.segmentCount) {
+            _displayBuffer.selectedSegment++;
+        }
+        break;
+    case KeyCode::TK_LEFT:
+        if (_displayBuffer.selectedSegment > 0) {
+            _displayBuffer.selectedSegment--;
+        } else {
+            _setEngineState(EngineState::BufferByLetter, keyCode);
+        }
+        break;
+    default:
+        return;
+    }
+
+    return;
+}
+
+void TaiKeyEngine::_setEngineState(EngineState nextEngineState, KeyCode keyCode) {
+    EngineState prev = _engineState;
+    _engineState = nextEngineState;
+    _onChangeEngineState(prev, nextEngineState, keyCode);
+}
+
+void TaiKeyEngine::_onChangeEngineState(EngineState prev, EngineState next, KeyCode keyCode) {
+    switch (prev) {
+    case EngineState::BufferBySegment:
+        switch (next) {
+        case EngineState::BufferByLetter:
+            _bySegmentToByLetter(keyCode);
+            break;
+        }
+        break;
+    }
+}
+
+void TaiKeyEngine::_bySegmentToByLetter(KeyCode keyCode) {
+    _handleBufferByLetter(keyCode);
 }
 
 } // namespace TaiKey
