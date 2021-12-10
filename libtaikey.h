@@ -1,11 +1,12 @@
 ﻿#pragma once
 
+#include <string>
+
 #ifdef _WIN32
 #include <Windows.h>
 #endif
 
 #include <boost/locale.hpp>
-#include <string>
 
 #include "keys.h"
 
@@ -24,7 +25,7 @@ inline void initialize() {
 }
 
 enum class EngineState {
-    Valid, // remove later
+    Ready,
     Editing,
     BufferByLetter,
     BufferBySegment,
@@ -33,7 +34,7 @@ enum class EngineState {
 
 enum class InputMode {
     Normal,
-    Lomaji,
+    Pro,
 };
 
 struct DisplayBufferSegment {
@@ -53,35 +54,44 @@ struct DisplayBuffer {
     DisplayBufferSegment segments[20];
 };
 
-class TaiKeyEngine {
+class TKEngine {
 
   public:
-    TaiKeyEngine();
+    TKEngine();
     void reset();
 
-    EngineState onKeyDown(KeyCode keyCode);
+    bool onKeyDown(char c);
+    bool onKeyDown(KeyCode keyCode);
     EngineState getState() const;
     std::string getBuffer() const;
 
   private:
-    std::string _keyBuffer;
-    EngineState _engineState;
-    InputMode _inputMode;
-    void pop_back();
+    typedef bool (TKEngine::*KeyHandlerFn)(KeyCode keyCode);
 
-    void _setEngineState(EngineState nextEngineState, KeyCode keyCode);
-    void _onChangeEngineState(EngineState prev, EngineState next,
+    std::string keyBuffer_;
+    EngineState engineState_;
+    InputMode inputMode_;
+
+    void popBack_();
+
+    bool onKeyDown_(KeyCode keyCode);
+    bool onKeyDownNormal_(KeyCode keyCode);
+    bool onKeyDownPro_(KeyCode keyCode);
+
+    void setEngineState_(EngineState nextEngineState, KeyCode keyCode);
+    void onChangeEngineState_(EngineState prev, EngineState next,
                               KeyCode keyCode);
 
-    void _bySegmentToByLetter(KeyCode keyCode);
+    void bySegmentToByLetter_(KeyCode keyCode);
 
-    void _handleEditing(KeyCode keyCode);
-    void _handleChoosingCandidate(KeyCode keyCode);
-    void _handleBufferByLetter(KeyCode keyCode);
-    void _handleBufferBySegment(KeyCode keyCode);
+    bool handleKeyOnReady_(KeyCode keyCode);
+    bool handleEditing_(KeyCode keyCode);
+    bool handleChoosingCandidate_(KeyCode keyCode);
+    bool handleNavByLetter_(KeyCode keyCode);
+    bool handleNavBySegment_(KeyCode keyCode);
 
-    DisplayBuffer _displayBuffer;
-    int _getDisplayBufferLength();
+    DisplayBuffer displayBuffer_;
+    int getDisplayBufferLength_();
 };
 
 } // namespace TaiKey

@@ -6,6 +6,8 @@
 #endif
 #endif
 
+#include <unordered_map>
+
 #include <boost/algorithm/string/erase.hpp>
 #include <boost/algorithm/string/find.hpp>
 #include <boost/algorithm/string/regex.hpp>
@@ -18,7 +20,7 @@
 #include <boost/property_tree/json_parser.hpp>
 #include <boost/property_tree/ptree.hpp>
 #include <boost/regex.hpp>
-#include <unordered_map>
+
 // #include <unicode/uclean.h>
 #include <utf8cpp/utf8.h>
 
@@ -104,15 +106,15 @@ string _getToneOfKey(const char c) {
 }
 
 string stripDiacritics(const string &s) {
-    string _s = normalize(s, norm_nfd);
+    string sRet = normalize(s, norm_nfd);
     for (string tone : TONES) {
-        size_t found = _s.find(tone);
+        size_t found = sRet.find(tone);
         if (found != string::npos) {
-            _s.erase(found, tone.size());
+            sRet.erase(found, tone.size());
             break;
         }
     }
-    return _s;
+    return sRet;
 }
 
 // s must be one syllable
@@ -121,18 +123,18 @@ string placeToneOnSyllable(const string &syllable, const string &tone) {
     static string ordered_vowel_matches[] = {u8"o", u8"a",  u8"e", u8"u",
                                              u8"i", u8"ng", u8"m"};
 
-    string _s = stripDiacritics(syllable);
+    string sRet = stripDiacritics(syllable);
 
-    BOOST_LOG_TRIVIAL(debug) << boost::format("stripped syl: %1%") % _s;
+    BOOST_LOG_TRIVIAL(debug) << boost::format("stripped syl: %1%") % sRet;
 
     smatch match;
     size_t found;
 
-    if (regex_search(_s, match, e)) {
+    if (regex_search(sRet, match, e)) {
         found = match.position() + 1;
     } else {
         for (string v : ordered_vowel_matches) {
-            found = _s.find(v);
+            found = sRet.find(v);
 
             if (found != string::npos) {
                 break;
@@ -144,171 +146,203 @@ string placeToneOnSyllable(const string &syllable, const string &tone) {
         return syllable;
     }
 
-    _s.insert(found + 1, tone);
+    sRet.insert(found + 1, tone);
 
-    return _s;
+    return sRet;
 }
 
-TaiKeyEngine::TaiKeyEngine() {
+TKEngine::TKEngine() {
     if (!READY) {
         initialize();
     }
 
-    _inputMode = InputMode::Lomaji;
+    inputMode_ = InputMode::Pro;
 
-    _keyBuffer.reserve(10);
+    keyBuffer_.reserve(10);
     reset();
 }
 
-void TaiKeyEngine::reset() {
-    _keyBuffer.clear();
-    _engineState = EngineState::Valid;
+void TKEngine::reset() {
+    keyBuffer_.clear();
+    engineState_ = EngineState::Ready;
 }
 
-EngineState TaiKeyEngine::onKeyDown(KeyCode keyCode) {
+bool TKEngine::onKeyDown(char c) { return onKeyDown_((KeyCode)c); }
+
+bool TKEngine::onKeyDown(KeyCode keyCode) {
     BOOST_LOG_TRIVIAL(debug) << boost::format("onKeyDown(%1%)") % (char)keyCode;
 
-    if (_inputMode == InputMode::Lomaji) {
-        char c = (char)keyCode;
+    return onKeyDown_(keyCode);
+}
 
-        if (_keyBuffer.empty()) {
-            _keyBuffer.push_back(c);
-            return _engineState;
-        }
+bool TKEngine::onKeyDown_(KeyCode keyCode) {
+    KeyHandlerFn handler{};
 
-        if (TONE_KEY_MAP.find(c) != TONE_KEY_MAP.end()) {
-            string tone = _getToneOfKey(c);
-            _keyBuffer =
-                normalize(placeToneOnSyllable(_keyBuffer, tone), norm_nfc);
-        } else if (_keyBuffer.back() == 'o' &&
-                   c == SPEC_KEY_MAP.at(Special::OUCombo)) {
-            _keyBuffer += u8"\u0358";
-        } else if (_keyBuffer.back() == 'n' &&
-                   c == SPEC_KEY_MAP.at(Special::NasalCombo)) {
-            replace_last(_keyBuffer, u8"n", u8"\u207f");
-        } else if (c == '\b') {
-            pop_back();
-        } else {
-            _keyBuffer.push_back(c);
-        }
-
-        return _engineState;
-    } else if (_inputMode == InputMode::Normal) {
-        switch (_engineState) {
+    switch (inputMode_) {
+    case InputMode::Pro:
+        handler = &TKEngine::onKeyDownPro_;
+        break;
+    case InputMode::Normal:
+        switch (engineState_) {
+        case EngineState::Ready:
+            handler = &TKEngine::handleKeyOnReady_;
+            break;
         case EngineState::Editing:
-            _handleEditing(keyCode);
-            break;
-        case EngineState::ChoosingCandidate:
-            _handleChoosingCandidate(keyCode);
-            break;
-        case EngineState::BufferByLetter:
-            _handleBufferByLetter(keyCode);
+            handler = &TKEngine::handleEditing_;
             break;
         case EngineState::BufferBySegment:
-            _handleBufferBySegment(keyCode);
+            handler = &TKEngine::handleNavBySegment_;
+            break;
+        case EngineState::BufferByLetter:
+            handler = &TKEngine::handleNavByLetter_;
+            break;
+        case EngineState::ChoosingCandidate:
+            handler = &TKEngine::handleChoosingCandidate_;
             break;
         }
-        return _engineState;
     }
+
+    if (handler)
+        return (this->*handler)(keyCode);
+    return false;
 }
 
-EngineState TaiKeyEngine::getState() const { return _engineState; }
+EngineState TKEngine::getState() const { return engineState_; }
 
-std::string TaiKeyEngine::getBuffer() const {
-    return normalize(_keyBuffer, norm_nfc);
+std::string TKEngine::getBuffer() const {
+    return normalize(keyBuffer_, norm_nfc);
 }
 
-void TaiKeyEngine::pop_back() {
-    if (_keyBuffer.empty()) {
+void TKEngine::popBack_() {
+    if (keyBuffer_.empty()) {
         return;
     }
 
-    _keyBuffer.pop_back();
-    while (!utf8::is_valid(_keyBuffer.begin(), _keyBuffer.end())) {
-        _keyBuffer.pop_back();
+    keyBuffer_.pop_back();
+
+    while (!utf8::is_valid(keyBuffer_.begin(), keyBuffer_.end())) {
+        keyBuffer_.pop_back();
     }
 }
 
-int TaiKeyEngine::_getDisplayBufferLength() {
+int TKEngine::getDisplayBufferLength_() {
     int len = 0;
-    for (int i = 0; i < _displayBuffer.segmentCount; i++) {
-        if (i == _displayBuffer.selectedSegment &&
-            _engineState == EngineState::BufferByLetter) {
-            len += _displayBuffer.segments[i].inputTextLength;
+
+    for (int i = 0; i < displayBuffer_.segmentCount; i++) {
+        if (i == displayBuffer_.selectedSegment &&
+            engineState_ == EngineState::BufferByLetter) {
+            len += displayBuffer_.segments[i].inputTextLength;
         } else {
-            len += _displayBuffer.segments[i].displayTextLength;
+            len += displayBuffer_.segments[i].displayTextLength;
         }
     }
 
     return len;
 }
 
-void TaiKeyEngine::_handleEditing(KeyCode keyCode) {
+// Pro Mode key handler methods
+
+bool TKEngine::onKeyDownPro_(KeyCode keyCode) {
+    char c = (char)keyCode;
+
+    if (keyBuffer_.empty()) {
+        keyBuffer_.push_back(c);
+        return true;
+    }
+
+    if (TONE_KEY_MAP.find(c) != TONE_KEY_MAP.end()) {
+        string tone = _getToneOfKey(c);
+        keyBuffer_ = normalize(placeToneOnSyllable(keyBuffer_, tone), norm_nfc);
+    } else if (keyBuffer_.back() == 'o' &&
+               c == SPEC_KEY_MAP.at(Special::OUCombo)) {
+        keyBuffer_ += u8"\u0358";
+    } else if (keyBuffer_.back() == 'n' &&
+               c == SPEC_KEY_MAP.at(Special::NasalCombo)) {
+        replace_last(keyBuffer_, u8"n", u8"\u207f");
+    } else if (c == '\b') {
+        popBack_();
+    } else {
+        keyBuffer_.push_back(c);
+    }
+
+    return true;
+}
+
+// Normal Mode key handler methods
+
+bool TKEngine::handleKeyOnReady_(KeyCode keyCode) { return false; }
+
+bool TKEngine::handleEditing_(KeyCode keyCode) {
     switch (keyCode) {
     case KeyCode::TK_TAB:
     case KeyCode::TK_DOWN:
         // switch to ByCandidates
-        return;
+        return true;
     case KeyCode::TK_SPACE:
         // switch to BySegment
-        return;
+        return true;
     default:
         // check print
-        if (isprint((char) keyCode)) {
+        if (isprint((char)keyCode)) {
             // raw buffer + char
             // calculate new display buffer & cursor
         }
     }
+
+    return false;
 }
 
-void TaiKeyEngine::_handleChoosingCandidate(KeyCode keyCode) {}
-
-void TaiKeyEngine::_handleBufferByLetter(KeyCode keyCode) {
-    switch (keyCode) {
-    }
+bool TKEngine::handleChoosingCandidate_(KeyCode keyCode) {
+    switch (keyCode) {}
+    return false;
 }
 
-void TaiKeyEngine::_handleBufferBySegment(KeyCode keyCode) {
+bool TKEngine::handleNavByLetter_(KeyCode keyCode) {
+    switch (keyCode) {}
+    return false;
+}
+
+bool TKEngine::handleNavBySegment_(KeyCode keyCode) {
     switch (keyCode) {
     case KeyCode::TK_RIGHT:
-        if (_displayBuffer.selectedSegment + 1 < _displayBuffer.segmentCount) {
-            _displayBuffer.selectedSegment++;
+        if (displayBuffer_.selectedSegment + 1 < displayBuffer_.segmentCount) {
+            displayBuffer_.selectedSegment++;
         }
-        break;
+        return true;
     case KeyCode::TK_LEFT:
-        if (_displayBuffer.selectedSegment > 0) {
-            _displayBuffer.selectedSegment--;
+        if (displayBuffer_.selectedSegment > 0) {
+            displayBuffer_.selectedSegment--;
         } else {
-            _setEngineState(EngineState::BufferByLetter, keyCode);
+            setEngineState_(EngineState::BufferByLetter, keyCode);
         }
-        break;
+        return true;
     default:
-        return;
+        return false;
     }
-
-    return;
 }
 
-void TaiKeyEngine::_setEngineState(EngineState nextEngineState, KeyCode keyCode) {
-    EngineState prev = _engineState;
-    _engineState = nextEngineState;
-    _onChangeEngineState(prev, nextEngineState, keyCode);
+void TKEngine::setEngineState_(EngineState nextEngineState,
+                                   KeyCode keyCode) {
+    EngineState prev = engineState_;
+    engineState_ = nextEngineState;
+    onChangeEngineState_(prev, nextEngineState, keyCode);
 }
 
-void TaiKeyEngine::_onChangeEngineState(EngineState prev, EngineState next, KeyCode keyCode) {
+void TKEngine::onChangeEngineState_(EngineState prev, EngineState next,
+                                        KeyCode keyCode) {
     switch (prev) {
     case EngineState::BufferBySegment:
         switch (next) {
         case EngineState::BufferByLetter:
-            _bySegmentToByLetter(keyCode);
+            bySegmentToByLetter_(keyCode);
             break;
         }
         break;
     }
 }
 
-void TaiKeyEngine::_bySegmentToByLetter(KeyCode keyCode) {
-    _handleBufferByLetter(keyCode);
+void TKEngine::bySegmentToByLetter_(KeyCode keyCode) {
+    handleNavByLetter_(keyCode);
 }
 
 } // namespace TaiKey
