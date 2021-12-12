@@ -8,6 +8,8 @@
 
 #include <boost/locale.hpp>
 
+#include "buffer.h"
+#include "errors.h"
 #include "keys.h"
 
 namespace TaiKey {
@@ -39,9 +41,11 @@ enum class InputMode {
 
 struct DisplayBufferSegment {
     int rawTextLength;
+    int numberTextLength;
     int inputTextLength;
     int displayTextLength;
     std::string rawText;
+    std::string numberText;
     std::string inputText;
     std::string displayText;
 };
@@ -60,35 +64,37 @@ class TKEngine {
     TKEngine();
     void reset();
 
-    bool onKeyDown(char c);
-    bool onKeyDown(KeyCode keyCode);
+    retval_t onKeyDown(char c);
+    retval_t onKeyDown(KeyCode keyCode);
+
     EngineState getState() const;
     std::string getBuffer() const;
 
   private:
-    typedef bool (TKEngine::*KeyHandlerFn)(KeyCode keyCode);
+    typedef retval_t (TKEngine::*KeyHandlerFn)(KeyCode keyCode);
 
     std::string keyBuffer_;
     EngineState engineState_;
     InputMode inputMode_;
+    ToneKeys toneKeys_;
 
     void popBack_();
 
-    bool onKeyDown_(KeyCode keyCode);
-    bool onKeyDownNormal_(KeyCode keyCode);
-    bool onKeyDownPro_(KeyCode keyCode);
+    retval_t onKeyDown_(KeyCode keyCode);
+    retval_t onKeyDownNormal_(KeyCode keyCode);
+    retval_t onKeyDownPro_(KeyCode keyCode);
 
-    void setEngineState_(EngineState nextEngineState, KeyCode keyCode);
-    void onChangeEngineState_(EngineState prev, EngineState next,
+    retval_t setEngineState_(EngineState nextEngineState, KeyCode keyCode);
+    retval_t handleStateTransition_(EngineState prev, EngineState next,
                               KeyCode keyCode);
 
-    void bySegmentToByLetter_(KeyCode keyCode);
+    retval_t bySegmentToByLetter_(KeyCode keyCode);
 
-    bool handleKeyOnReady_(KeyCode keyCode);
-    bool handleEditing_(KeyCode keyCode);
-    bool handleChoosingCandidate_(KeyCode keyCode);
-    bool handleNavByLetter_(KeyCode keyCode);
-    bool handleNavBySegment_(KeyCode keyCode);
+    retval_t handleKeyOnReady_(KeyCode keyCode);
+    retval_t handleEditing_(KeyCode keyCode);
+    retval_t handleChoosingCandidate_(KeyCode keyCode);
+    retval_t handleNavByLetter_(KeyCode keyCode);
+    retval_t handleNavBySegment_(KeyCode keyCode);
 
     DisplayBuffer displayBuffer_;
     int getDisplayBufferLength_();
