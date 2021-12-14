@@ -16,7 +16,7 @@ struct TNode {
     bool remove(std::string key, std::string value);
     bool hasChildren();
     bool leafCount();
-    word_wt_v search(std::string query);
+    word_wt_v searchExact(std::string query);
 
   private:
     bool remove_(std::string key, std::string value, int depth);

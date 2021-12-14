@@ -1,3 +1,5 @@
+#include <iterator>
+
 #include "trie.h"
 
 namespace TaiKey {
@@ -62,14 +64,16 @@ bool TNode::hasChildren() {
 
 bool TNode::leafCount() { return this->leaves.size(); }
 
-word_wt_v TNode::search(std::string query) {
+word_wt_v TNode::searchExact(std::string query) {
     TNode *curr = this;
-    for (char ch : query) {
-        if (curr->children.find(ch) == curr->children.end()) {
+
+    std::string::iterator it;
+    for (it = query.begin(); it < query.end(); it++) {
+        if (curr->children.find(*it) == curr->children.end()) {
             return word_wt_v();
         }
 
-        curr = curr->children[ch];
+        curr = curr->children[*it];
     }
 
     return curr->leaves;
@@ -87,5 +91,24 @@ bool TNode::removeValue_(std::string value) {
 
     return false;
 }
+
+//void crawlSentences(TNode* root, std::string input,
+//    std::vector<std::string> results) {
+//    std::string word = "";
+//    std::string::iterator it;
+//
+//    for (it = input.begin(); it < input.end(); it++) {
+//        word += *it;
+//        word_wt_v found = root->search(word);
+//        if (found.size() > 0) {
+//            word_wt_v::iterator jt;
+//            for (jt = found.begin(); jt < found.end(); jt++) {
+//                results.push_back((*jt).first);
+//            }
+//        }
+//    }
+//}
+
+TNode *tkTrie;
 
 } // namespace TaiKey

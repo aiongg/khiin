@@ -1,11 +1,22 @@
-﻿#pragma once
+#pragma once
 
 #include <string>
 #include <vector>
 
+#include "common.h"
+#include "errors.h"
+
 namespace TaiKey {
 
 typedef std::pair<int, int> cursor_t;
+
+struct Syllable {
+    std::string ascii;
+    std::string unicode;
+    std::string display;
+    Tone tone;
+    bool khin;
+};
 
 /**
  * Select candidate:
@@ -34,27 +45,6 @@ enum class ToneKeys {
     Telex,
 };
 
-enum class Tone {
-    NaT,
-    T1,
-    T2,
-    T3,
-    T4,
-    T5,
-    T6,
-    T7,
-    T8,
-    T9,
-    TK,
-};
-
-struct Syllable {
-    std::string ascii;
-    Tone tone;
-    std::string unicode; // lomaji, for display before candidate selection
-    std::string display; // lomaji or hanji, after candidate selection
-};
-
 enum CursorDirection {
     CURS_LEFT,
     CURS_RIGHT,
@@ -64,18 +54,19 @@ class Buffer {
   public:
     Buffer();
     std::string getDisplayBuffer();
-    std::string getCursor();
-    bool insert(char ch);
-    bool remove(CursorDirection dir);
-    bool moveCursor(CursorDirection dir);
+    int getCursor();
+    retval_t insert(char ch);
+    retval_t remove(CursorDirection dir);
+    retval_t moveCursor(CursorDirection dir);
     bool selectCandidate(hanlo_t candidate);
     bool setToneKeys(ToneKeys toneKeys);
 
   private:
-    Syllable syllables_[20];
+    std::vector<Syllable> syllables_;
     cursor_t cursor_;
-    int segmentOffsets_[20];
+    std::vector<int> segmentOffsets_;
     ToneKeys toneKeys_;
+    bool isCursorAtEnd();
 };
 
 } // namespace TaiKey
