@@ -11,6 +11,7 @@
 #include "common.h"
 #include "trie.h"
 
+
 namespace TaiKey {
 
 Tone getToneFromKeyMap(std::unordered_map<Tone, char> map, char ch) {
@@ -121,22 +122,58 @@ int Buffer::getCursor() {
 }
 
 retval_t Buffer::insert(char ch) {
+    // With isdigit(ch), numeric tones are enabled
+    // even in Telex mode
+    if (isdigit(ch) || toneKeys_ == ToneKeys::Numeric) {
+        return insertNumeric_(ch);
+    } else if (toneKeys_ == ToneKeys::Telex) {
+        return insertTelex_(ch);
+    }
+}
+
+retval_t Buffer::remove(CursorDirection dir) { return TK_TODO; }
+
+retval_t Buffer::moveCursor(CursorDirection dir) { return TK_TODO; }
+
+retval_t Buffer::clear() {
+    syllables_.clear();
+    syllables_.reserve(20);
+    cursor_.first = 0;
+    cursor_.second = 0;
+    segmentOffsets_.clear();
+
+    syllables_.push_back(Syllable());
+
+    return TK_TODO;
+}
+
+bool Buffer::selectCandidate(hanlo_t candidate) { return false; }
+
+bool Buffer::setToneKeys(ToneKeys toneKeys) {
+    toneKeys_ = toneKeys;
+    return true; // TODO
+}
+
+bool Buffer::isCursorAtEnd_() {
+    return (cursor_.first == syllables_.size() - 1 &&
+            cursor_.second == syllables_[cursor_.first].unicode.size());
+}
+
+retval_t Buffer::insertNumeric_(char ch) {
     Syllable *syl = &syllables_[cursor_.first];
     int *curs = &cursor_.second;
 
-    // 1. Handle tones
-    Tone tone = Tone::NaT;
+    Tone tone = getToneFromDigit(ch);
 
-    // 1a. Get the tone
-    // Numeric tones enabled, even in Telex mode
-    if (isdigit(ch)) {
-        // We can use the following to disable numeric tones in Telex Mode
-        // if (toneKeys_ == ToneKeys::Numeric) {
-        tone = getToneFromDigit(ch);
-    } else if (toneKeys_ == ToneKeys::Telex) {
-        tone = getToneFromTelex(ch);
-        checkTone78Swap(syl->unicode, tone);
-    }
+    return TK_TODO;
+}
+
+retval_t Buffer::insertTelex_(char ch) {
+    Syllable *syl = &syllables_[cursor_.first];
+    int *curs = &cursor_.second;
+
+    Tone tone = getToneFromTelex(ch);
+    checkTone78Swap(syl->unicode, tone);
 
     // 1b. handle Khin
     if (tone == Tone::TK) {
@@ -149,7 +186,11 @@ retval_t Buffer::insert(char ch) {
         syl->display.insert(0, TONE_UTF_MAP.at(Tone::TK));
         syl->khin = true;
         curs++;
-    } else if (tone != Tone::NaT) {
+
+        return TK_OK;
+    }
+
+    if (tone != Tone::NaT) {
         int prevLength = syl->display.size();
 
         syl->ascii.insert(*curs, &ch);
@@ -173,33 +214,20 @@ retval_t Buffer::insert(char ch) {
                 prevLength;
         }
 
-    } else if (isalpha(ch)) {
+        return TK_OK;
+    }
+
+    if (isalpha(ch)) {
         syl->ascii.push_back(ch);
         syl->unicode.push_back(ch);
         syl->display.push_back(ch);
 
         cursor_.second++;
-    } else {
-        return TK_ERROR;
+
+        return TK_OK;
     }
 
-    return TK_OK;
-}
-
-retval_t Buffer::remove(CursorDirection dir) { return TK_TODO; }
-
-retval_t Buffer::moveCursor(CursorDirection dir) { return TK_TODO; }
-
-bool Buffer::selectCandidate(hanlo_t candidate) { return false; }
-
-bool Buffer::setToneKeys(ToneKeys toneKeys) {
-    toneKeys_ = toneKeys;
-    return true; // TODO
-}
-
-bool Buffer::isCursorAtEnd() {
-    return (cursor_.first == syllables_.size() - 1 &&
-            cursor_.second == syllables_[cursor_.first].unicode.size());
+    return TK_ERROR;
 }
 
 } // namespace TaiKey

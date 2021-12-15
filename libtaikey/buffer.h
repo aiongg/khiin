@@ -14,8 +14,8 @@ struct Syllable {
     std::string ascii;
     std::string unicode;
     std::string display;
-    Tone tone;
-    bool khin;
+    Tone tone = Tone::NaT;
+    bool khin = false;
 };
 
 /**
@@ -58,6 +58,7 @@ class Buffer {
     retval_t insert(char ch);
     retval_t remove(CursorDirection dir);
     retval_t moveCursor(CursorDirection dir);
+    retval_t clear();
     bool selectCandidate(hanlo_t candidate);
     bool setToneKeys(ToneKeys toneKeys);
 
@@ -66,7 +67,9 @@ class Buffer {
     cursor_t cursor_;
     std::vector<int> segmentOffsets_;
     ToneKeys toneKeys_;
-    bool isCursorAtEnd();
+    bool isCursorAtEnd_();
+    retval_t insertNumeric_(char ch);
+    retval_t insertTelex_(char ch);
 };
 
 } // namespace TaiKey

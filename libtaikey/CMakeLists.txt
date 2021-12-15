@@ -1,4 +1,4 @@
-﻿# CMakeList.txt : CMake project for libtaikey, include source and define
+# CMakeList.txt : CMake project for libtaikey, include source and define
 # project specific logic here.
 #
 

@@ -1,4 +1,4 @@
-﻿// libtaikey_test.cpp : Source file for your target.
+// libtaikey_test.cpp : Source file for your target.
 //
 
 #define BOOST_TEST_DYN_LINK

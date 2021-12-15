@@ -1,4 +1,4 @@
-﻿#define BOOST_TEST_DYN_LINK
+#define BOOST_TEST_DYN_LINK
 #include <boost/test/unit_test.hpp>
 
 #include "trie.h"
@@ -23,6 +23,7 @@ BOOST_AUTO_TEST_CASE(Trie_Insert) {
                     ->children['u']
                     ->leaves[0]
                     .first == u8"貓");
+    delete root;
 }
 
 BOOST_AUTO_TEST_CASE(Trie_Search) {
@@ -33,6 +34,7 @@ BOOST_AUTO_TEST_CASE(Trie_Search) {
     
     BOOST_CHECK_EQUAL(res.size(), 1);
     BOOST_CHECK_EQUAL(res[0].first, u8"貓");
+    delete root;
 }
 
 BOOST_AUTO_TEST_CASE(Trie_Remove) {
@@ -41,6 +43,7 @@ BOOST_AUTO_TEST_CASE(Trie_Remove) {
     root->insert(u8"niau", w1);
     root->remove(u8"niau", u8"貓");
     BOOST_CHECK_EQUAL(root->children.size(), 0);
+    delete root;
 }
 
 BOOST_AUTO_TEST_SUITE_END();

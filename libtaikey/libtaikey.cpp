@@ -1,4 +1,4 @@
-﻿// libtaikey.cpp : Defines the entry point for the application.
+// libtaikey.cpp : Defines the entry point for the application.
 //
 #ifdef _WIN32
 #ifdef _MSC_VER
