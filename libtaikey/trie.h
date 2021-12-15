@@ -5,22 +5,24 @@
 
 namespace TaiKey {
 
-using word_wt = std::pair<std::string, int>;
-using word_wt_v = std::vector<word_wt>;
-
-struct TNode {
-    std::unordered_map<char, TNode *> children;
-    word_wt_v leaves;
-
-    void insert(std::string key, word_wt value);
-    bool remove(std::string key, std::string value);
-    bool hasChildren();
-    bool leafCount();
-    word_wt_v searchExact(std::string query);
+class TNode {
+  public:
+    void insert(std::string key);
+    bool remove(std::string key);
+    bool searchExact(std::string query);
+    bool isPrefix(std::string query);
+    std::vector<std::string> autocomplete(std::string query);
+    std::vector<std::string> autocompleteTone(std::string query);
 
   private:
-    bool remove_(std::string key, std::string value, int depth);
-    bool removeValue_(std::string value);
+    std::unordered_map<char, TNode *> children_;
+    bool isEndOfWord_ = false;
+
+    bool remove_(std::string key, int depth);
+    bool hasChildren_();
+    bool hasChild_(char ch);
+    TNode *findNode_(std::string query);
+    void dfs_(TNode *root, std::string query, std::string prefix, std::vector<std::string> &results);
 };
 
 } // namespace TaiKey

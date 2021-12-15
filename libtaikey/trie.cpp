@@ -1,34 +1,87 @@
 #include <iterator>
+#include <unordered_map>
 
 #include "trie.h"
 
 namespace TaiKey {
 
-void TNode::insert(std::string key, word_wt value) {
+// Public
+
+void TNode::insert(std::string key) {
     TNode *curr = this;
 
     for (auto &ch : key) {
-        if (curr->children.find(ch) == curr->children.end()) {
-            curr->children[ch] = new TNode; // need parens?
+        if (curr->children_.find(ch) == curr->children_.end()) {
+            curr->children_[ch] = new TNode; // need parens?
         }
 
-        curr = curr->children[ch];
+        curr = curr->children_[ch];
     }
 
-    curr->leaves.push_back(value);
+    curr->isEndOfWord_ = true;
 }
 
-bool TNode::remove(std::string key, std::string value) {
-    return remove_(key, value, 0);
+bool TNode::remove(std::string key) { return remove_(key, 0); }
+
+bool TNode::searchExact(std::string query) {
+    TNode *found = findNode_(query);
+    return found && found->isEndOfWord_;
 }
 
-bool TNode::remove_(std::string key, std::string value, int depth) {
+bool TNode::isPrefix(std::string query) {
+    TNode *found = findNode_(query);
+    return found && (found->isEndOfWord_ || found->hasChildren_());
+}
+
+std::vector<std::string> TNode::autocomplete(std::string query) {
+    TNode *found = findNode_(query);
+    std::vector<std::string> ret;
+
+    if (!found) {
+        return ret;
+    }
+
+    if (found->isEndOfWord_ && !found->hasChildren_()) {
+        ret.push_back(query);
+        return ret;
+    }
+
+    dfs_(found, query, "", ret);
+
+    return ret;
+}
+
+std::vector<std::string> TNode::autocompleteTone(std::string query) {
+    std::vector<std::string> ret;
+
+    if (isdigit(query.back())) {
+        return ret;
+    }
+
+    TNode *found = findNode_(query);
+
+    if (!found) {
+        return ret;
+    }
+
+    for (auto ch : "123456789") {
+        if (found->hasChild_(ch) && found->children_[ch]->isEndOfWord_) {
+            ret.push_back(query + ch);
+        }
+    }
+
+    return ret;
+}
+
+// Private
+
+bool TNode::remove_(std::string key, int depth) {
     // Last node
     if (depth == key.size()) {
-        this->removeValue_(value);
+        this->isEndOfWord_ = false;
 
-        // No more children or leaves -- delete the node
-        if (!this->hasChildren() && this->leafCount() == 0) {
+        // No other children -- delete the node
+        if (!this->hasChildren_()) {
             delete this;
             return true;
         }
@@ -38,12 +91,12 @@ bool TNode::remove_(std::string key, std::string value, int depth) {
 
     // Not yet last node, recurse on key at depth + 1
     char index = key[depth];
-    bool childRemoved = this->children[index]->remove_(key, value, depth + 1);
+    bool childRemoved = this->children_[index]->remove_(key, depth + 1);
 
     if (childRemoved) {
-        this->children.erase(index);
+        this->children_.erase(index);
 
-        if (!this->hasChildren() && this->leafCount() == 0 && depth > 0) {
+        if (!this->hasChildren_() && depth > 0) {
             delete this;
             return true;
         }
@@ -52,8 +105,8 @@ bool TNode::remove_(std::string key, std::string value, int depth) {
     return false;
 }
 
-bool TNode::hasChildren() {
-    for (const auto &it : this->children) {
+bool TNode::hasChildren_() {
+    for (const auto &it : this->children_) {
         if (it.second != NULL) {
             return true;
         }
@@ -62,53 +115,43 @@ bool TNode::hasChildren() {
     return false;
 }
 
-bool TNode::leafCount() { return this->leaves.size(); }
+bool TNode::hasChild_(char ch) {
+    for (auto &it : children_) {
+        if (it.first == ch) {
+            return true;
+        }
+    }
+    return false;
+}
 
-word_wt_v TNode::searchExact(std::string query) {
+TNode *TNode::findNode_(std::string query) {
     TNode *curr = this;
 
     std::string::iterator it;
     for (it = query.begin(); it < query.end(); it++) {
-        if (curr->children.find(*it) == curr->children.end()) {
-            return word_wt_v();
+        if (curr->children_.find(*it) == curr->children_.end()) {
+            return nullptr;
         }
 
-        curr = curr->children[*it];
+        curr = curr->children_[*it];
     }
 
-    return curr->leaves;
+    return curr;
 }
 
-bool TNode::removeValue_(std::string value) {
-    word_wt_v::const_iterator it;
-
-    for (it = leaves.begin(); it != leaves.end(); it++) {
-        if ((*it).first == value) {
-            leaves.erase(it);
-            return true;
-        }
+void TNode::dfs_(TNode *root, std::string prefix, std::string suffix,
+                 std::vector<std::string> &results) {
+    if (root->isEndOfWord_) {
+        results.push_back(prefix + suffix);
     }
 
-    return false;
+    if (!hasChildren_()) {
+        return;
+    }
+
+    for (const auto &it : root->children_) {
+        dfs_(it.second, prefix, suffix + it.first, results);
+    }
 }
-
-//void crawlSentences(TNode* root, std::string input,
-//    std::vector<std::string> results) {
-//    std::string word = "";
-//    std::string::iterator it;
-//
-//    for (it = input.begin(); it < input.end(); it++) {
-//        word += *it;
-//        word_wt_v found = root->search(word);
-//        if (found.size() > 0) {
-//            word_wt_v::iterator jt;
-//            for (jt = found.begin(); jt < found.end(); jt++) {
-//                results.push_back((*jt).first);
-//            }
-//        }
-//    }
-//}
-
-TNode *tkTrie;
 
 } // namespace TaiKey

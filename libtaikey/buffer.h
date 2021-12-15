@@ -5,6 +5,7 @@
 
 #include "common.h"
 #include "errors.h"
+#include "trie.h"
 
 namespace TaiKey {
 
@@ -16,6 +17,9 @@ struct Syllable {
     std::string display;
     Tone tone = Tone::NaT;
     bool khin = false;
+    retval_t asciiToUnicode();
+    retval_t asciiToUnicodeAndDisplay();
+    int displaySize();
 };
 
 /**
@@ -70,6 +74,9 @@ class Buffer {
     bool isCursorAtEnd_();
     retval_t insertNumeric_(char ch);
     retval_t insertTelex_(char ch);
+    std::unique_ptr<TNode> sylTrie_;
+    char lastKey_;
+    void appendNewSyllable_();
 };
 
 } // namespace TaiKey

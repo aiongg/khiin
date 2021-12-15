@@ -1,16 +1,21 @@
+#include <unordered_map>
+#include <unordered_set>
 
+#include <boost/algorithm/string.hpp>
 #include <boost/format.hpp>
 #include <boost/locale.hpp>
 #include <boost/log/trivial.hpp>
 #include <boost/regex.hpp>
-#include <unordered_map>
-#include <unordered_set>
 #include <utf8cpp/utf8.h>
 
 #include "buffer.h"
 #include "common.h"
+#include "tmp.h"
 #include "trie.h"
 
+namespace b = boost;
+namespace bloc = boost::locale;
+namespace balg = boost::algorithm;
 
 namespace TaiKey {
 
@@ -29,7 +34,7 @@ Tone getToneFromDigit(char ch) { return getToneFromKeyMap(TONE_DIGIT_MAP, ch); }
 Tone getToneFromTelex(char ch) { return getToneFromKeyMap(TONE_TELEX_MAP, ch); }
 
 std::string stripDiacritics(const std::string &s) {
-    std::string sRet = boost::locale::normalize(s, boost::locale::norm_nfd);
+    std::string sRet = bloc::normalize(s, bloc::norm_nfd);
     for (std::string tone : TONES) {
         size_t found = sRet.find(tone);
         if (found != std::string::npos) {
@@ -40,24 +45,22 @@ std::string stripDiacritics(const std::string &s) {
     return sRet;
 }
 
-boost::regex toneableLetters(u8"[aeioumn]");
+b::regex toneableLetters(u8"[aeioumn]");
 
-std::string asciiToUnicode(std::string ascii, Tone tone, bool khin) {
-    return "";
-}
+std::string placeToneOnSyllable(std::string syllable, Tone tone) {
+    if (tone == Tone::NaT) {
+        return syllable;
+    }
 
-// s must be one syllable
-std::string placeToneOnSyllable(const std::string &syllable,
-                                const std::string &tone) {
-    static boost::regex e(u8"o[ae][mnptkh]");
+    static b::regex e(u8"o[ae][mnptkh]");
     static std::string ordered_vowel_matches[] = {u8"o", u8"a",  u8"e", u8"u",
                                                   u8"i", u8"ng", u8"m"};
 
     std::string sRet = stripDiacritics(syllable);
 
-    BOOST_LOG_TRIVIAL(debug) << boost::format("stripped syl: %1%") % sRet;
+    BOOST_LOG_TRIVIAL(debug) << b::format("stripped syl: %1%") % sRet;
 
-    boost::smatch match;
+    b::smatch match;
     size_t found;
 
     if (regex_search(sRet, match, e)) {
@@ -76,7 +79,7 @@ std::string placeToneOnSyllable(const std::string &syllable,
         return syllable;
     }
 
-    sRet.insert(found + 1, tone);
+    sRet.insert(found + 1, TONE_UTF_MAP.at(tone));
 
     return sRet;
 }
@@ -95,17 +98,54 @@ void checkTone78Swap(const std::string &unicodeSyllable, Tone &tone) {
     }
 }
 
-Buffer::Buffer() : syllables_(), cursor_(0, 0), toneKeys_(ToneKeys::Numeric) {
+// Syllable
+
+retval_t Syllable::asciiToUnicode() {
+    std::string tmp = ascii;
+
+    balg::replace_first(tmp, u8"nn", U8_NN);
+    balg::replace_first(tmp, u8"ou", "o" + U8_OU);
+    balg::replace_first(tmp, u8"oo", "o" + U8_OU);
+
+    if (khin) {
+        tmp.insert(0, U8_TK);
+    }
+
+    if (tone != Tone::NaT) {
+        tmp.pop_back();
+        tmp = placeToneOnSyllable(tmp, tone);
+    }
+
+    unicode = tmp;
+
+    return TK_OK;
+}
+
+retval_t Syllable::asciiToUnicodeAndDisplay() {
+    asciiToUnicode();
+    display = bloc::normalize(unicode, bloc::norm_nfc);
+    return TK_OK;
+}
+
+int Syllable::displaySize() {
+    return utf8::distance(display.begin(), display.end());
+}
+
+// Buffer
+
+Buffer::Buffer()
+    : syllables_(), cursor_(0, 0), toneKeys_(ToneKeys::Numeric),
+      sylTrie_(tmpGetSylTrieFromFile()) {
     syllables_.reserve(20);
     syllables_.push_back(Syllable());
 }
 
 std::string Buffer::getDisplayBuffer() {
-    std::string ret = "";
+    std::vector<std::string> syls;
     for (auto &it : syllables_) {
-        ret += it.unicode;
+        syls.push_back(it.display);
     }
-    return boost::locale::normalize(ret, boost::locale::norm_nfc);
+    return balg::join(syls, u8" ");
 }
 
 int Buffer::getCursor() {
@@ -156,7 +196,7 @@ bool Buffer::setToneKeys(ToneKeys toneKeys) {
 
 bool Buffer::isCursorAtEnd_() {
     return (cursor_.first == syllables_.size() - 1 &&
-            cursor_.second == syllables_[cursor_.first].unicode.size());
+            cursor_.second == syllables_[cursor_.first].displaySize());
 }
 
 retval_t Buffer::insertNumeric_(char ch) {
@@ -169,65 +209,106 @@ retval_t Buffer::insertNumeric_(char ch) {
 }
 
 retval_t Buffer::insertTelex_(char ch) {
+    // TODO: handle telex double press
+    char lk = lastKey_;
+    lastKey_ = ch;
+
     Syllable *syl = &syllables_[cursor_.first];
     int *curs = &cursor_.second;
+    bool atEnd = isCursorAtEnd_();
 
     Tone tone = getToneFromTelex(ch);
     checkTone78Swap(syl->unicode, tone);
 
-    // 1b. handle Khin
-    if (tone == Tone::TK) {
-        if (syl->khin == true) {
+    // need function to go between ascii and display cursors.
+
+    if (lk == ch) {
+        auto start = syl->display.begin();
+        auto it = syl->display.end();
+
+        if (!atEnd) {
+            it = start + (*curs);
+        }
+
+        if (ch == 'u' && utf8::prior(it, start) == 0x0358) {
+            if (atEnd) {
+
+                appendNewSyllable_();
+                syl = &syllables_[cursor_.first];
+                (*curs) = 0;
+
+            }
+
+            BOOST_LOG_TRIVIAL(debug) << b::format("found ouu");
+        }
+    }
+
+
+    // when is tone a tone?
+    // 1. if we are at the end and there isn't already a tone
+    // 2. if we aren't at the end
+
+    bool canPlaceTone = regex_search(syl->ascii, toneableLetters);
+
+    if (canPlaceTone && tone != Tone::NaT &&
+        ((atEnd && syl->tone == Tone::NaT) || (!atEnd))) {
+        if (tone == Tone::TK) {
+            if (syl->khin == true) {
+                // TODO: How to handle if already khin?
+                return TK_TODO;
+            }
+
+            syl->khin = true;
+
+            // TODO: how to handle ascii for khin?
+            syl->asciiToUnicodeAndDisplay();
+            (*curs)++;
+
             return TK_OK;
         }
 
-        syl->ascii.insert(*curs, &ch);
-        syl->unicode.insert(0, TONE_UTF_MAP.at(Tone::TK));
-        syl->display.insert(0, TONE_UTF_MAP.at(Tone::TK));
-        syl->khin = true;
-        curs++;
-
-        return TK_OK;
-    }
-
-    if (tone != Tone::NaT) {
-        int prevLength = syl->display.size();
-
-        syl->ascii.insert(*curs, &ch);
-
-        // vowel no tone
-        // vowel + tone
-        // no vowel
-
-        if (!regex_search(syl->ascii, toneableLetters)) {
-            // cut
-            return TK_TODO;
+        if (!atEnd) {
+            syl->ascii.pop_back();
+            // Definitely a tone? Use digit
+            syl->ascii.push_back(TONE_DIGIT_MAP.at(tone));
         } else {
-            syl->tone = tone;
-            syl->unicode =
-                placeToneOnSyllable(syl->unicode, TONE_UTF_MAP.at(syl->tone));
-            syl->display =
-                boost::locale::normalize(syl->unicode, boost::locale::norm_nfc);
-
-            cursor_.second +=
-                utf8::distance(syl->display.begin(), syl->display.end()) -
-                prevLength;
+            syl->ascii.push_back(ch);
         }
 
+        syl->tone = tone;
+
+        int prevLength = syl->display.size();
+        syl->asciiToUnicodeAndDisplay();
+        cursor_.second +=
+            utf8::distance(syl->display.begin(), syl->display.end()) -
+            prevLength;
+
         return TK_OK;
     }
 
-    if (isalpha(ch)) {
+    if (atEnd) {
+        // TODO: check Trie for invalid syllables
+        if (syl->tone != Tone::NaT) {
+            appendNewSyllable_();
+            syl = &syllables_[cursor_.first];
+            (*curs) = 0;
+        }
         syl->ascii.push_back(ch);
-        syl->unicode.push_back(ch);
-        syl->display.push_back(ch);
-
-        cursor_.second++;
+        syl->asciiToUnicodeAndDisplay();
+        (*curs)++;
 
         return TK_OK;
+    } else {
+        return TK_TODO;
     }
 
     return TK_ERROR;
+}
+
+void Buffer::appendNewSyllable_() {
+    syllables_.push_back(Syllable());
+    cursor_.first++;
+    cursor_.second = 0;
 }
 
 } // namespace TaiKey

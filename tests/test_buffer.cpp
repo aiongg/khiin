@@ -54,41 +54,54 @@ BOOST_AUTO_TEST_CASE(Buffer_Telex_Suite) {
     Buffer *buf = new Buffer();
     buf->setToneKeys(ToneKeys::Telex);
 
-    buf->insert('a');
-    buf->insert('s');
-    BOOST_TEST(buf->getDisplayBuffer() == u8"á");
-    BOOST_TEST(buf->getCursor() == 1);
+    //buf->insert('a');
+    //buf->insert('s');
+    //BOOST_TEST(buf->getDisplayBuffer() == u8"á");
+    //BOOST_TEST(buf->getCursor() == 1);
+    //buf->clear();
+
+    buf->insert('o');
+    buf->insert('u');
+    BOOST_TEST(buf->getDisplayBuffer() == u8"o͘");
+    BOOST_TEST(buf->getCursor() == 2);
     buf->clear();
 
-    buf->insert('a');
-    buf->insert('s');
-    buf->insert('a');
-    BOOST_TEST(buf->getDisplayBuffer() == u8"á a");
+    buf->insert('o');
+    buf->insert('u');
+    buf->insert('u');
+    BOOST_TEST(buf->getDisplayBuffer() == u8"o u");
     BOOST_TEST(buf->getCursor() == 3);
     buf->clear();
 
-    buf->insert('a');
-    buf->insert('s');
-    buf->insert('b');
-    BOOST_TEST(buf->getDisplayBuffer() == u8"á b");
-    BOOST_TEST(buf->getCursor() == 3);
-    buf->clear();
+    //buf->insert('a');
+    //buf->insert('s');
+    //buf->insert('a');
+    //BOOST_TEST(buf->getDisplayBuffer() == u8"á a");
+    //BOOST_TEST(buf->getCursor() == 3);
+    //buf->clear();
 
-    buf->insert('a');
-    buf->insert('s');
-    buf->insert('s');
-    BOOST_TEST(buf->getDisplayBuffer() == u8"a s");
-    BOOST_TEST(buf->getCursor() == 3);
-    buf->clear();
+    //buf->insert('a');
+    //buf->insert('s');
+    //buf->insert('b');
+    //BOOST_TEST(buf->getDisplayBuffer() == u8"á b");
+    //BOOST_TEST(buf->getCursor() == 3);
+    //buf->clear();
 
-    buf->insert('a');
-    buf->insert('j');
-    buf->insert('a');
-    buf->moveCursor(CURS_LEFT);
-    buf->insert('s');
-    BOOST_TEST(buf->getDisplayBuffer() == u8"ā sa");
-    BOOST_TEST(buf->getCursor() == 3);
-    buf->clear();
+    //buf->insert('a');
+    //buf->insert('s');
+    //buf->insert('s');
+    //BOOST_TEST(buf->getDisplayBuffer() == u8"a s");
+    //BOOST_TEST(buf->getCursor() == 3);
+    //buf->clear();
+
+    //buf->insert('a');
+    //buf->insert('j');
+    //buf->insert('a');
+    //buf->moveCursor(CURS_LEFT);
+    //buf->insert('s');
+    //BOOST_TEST(buf->getDisplayBuffer() == u8"ā sa");
+    //BOOST_TEST(buf->getCursor() == 3);
+    //buf->clear();
 
     delete buf;
 }
