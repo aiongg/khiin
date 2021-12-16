@@ -59,7 +59,6 @@ void taikey_settings::load(const string &filename = "") {
 }
 */
 
-
 enum class Special {
     NasalCombo,
     NasalSolo,
@@ -67,14 +66,10 @@ enum class Special {
     OUSolo,
 };
 
-
-
 unordered_map<Special, char> SPEC_KEY_MAP = {{Special::NasalCombo, 'n'},
                                              {Special::OUCombo, 'u'}};
 
-
-
-//string _getToneOfKey(const char c) {
+// string _getToneOfKey(const char c) {
 //    auto t = TONE_KEY_MAP.find(c);
 //    if (t == TONE_KEY_MAP.end()) {
 //        return "";
@@ -88,9 +83,8 @@ unordered_map<Special, char> SPEC_KEY_MAP = {{Special::NasalCombo, 'n'},
 //    return s->second;
 //}
 
-
 // input is a string with numeric tones
-//std::string inputTelexKeyToNumericText(std::string input, char key) {
+// std::string inputTelexKeyToNumericText(std::string input, char key) {
 //    if (input.size() < 1) {
 //        input.push_back(key);
 //        return input;
@@ -129,7 +123,7 @@ unordered_map<Special, char> SPEC_KEY_MAP = {{Special::NasalCombo, 'n'},
 // constructor
 
 TKEngine::TKEngine() {
-    //if (!READY) {
+    // if (!READY) {
     //    initialize();
     //}
 
@@ -180,14 +174,14 @@ void TKEngine::popBack_() {
 int TKEngine::getDisplayBufferLength_() {
     int len = 0;
 
-    for (int i = 0; i < displayBuffer_.segmentCount; i++) {
-        if (i == displayBuffer_.selectedSegment &&
-            engineState_ == EngineState::BufferByLetter) {
-            len += displayBuffer_.segments[i].inputTextLength;
-        } else {
-            len += displayBuffer_.segments[i].displayTextLength;
-        }
-    }
+    // for (int i = 0; i < displayBuffer_.segmentCount; i++) {
+    //    if (i == displayBuffer_.selectedSegment &&
+    //        engineState_ == EngineState::BufferByLetter) {
+    //        len += displayBuffer_.segments[i].inputTextLength;
+    //    } else {
+    //        len += displayBuffer_.segments[i].displayTextLength;
+    //    }
+    //}
 
     return len;
 }
@@ -230,16 +224,17 @@ retval_t TKEngine::onKeyDown_(KeyCode keyCode) {
 // Pro Mode key handler methods
 
 retval_t TKEngine::onKeyDownPro_(KeyCode keyCode) {
-    //char c = (char)keyCode;
+    // char c = (char)keyCode;
 
-    //if (keyBuffer_.empty()) {
+    // if (keyBuffer_.empty()) {
     //    keyBuffer_.push_back(c);
     //    return TK_CONSUMED;
     //}
 
-    //if (TONE_KEY_MAP.find(c) != TONE_KEY_MAP.end()) {
+    // if (TONE_KEY_MAP.find(c) != TONE_KEY_MAP.end()) {
     //    string tone = _getToneOfKey(c);
-    //    keyBuffer_ = normalize(placeToneOnSyllable(keyBuffer_, tone), norm_nfc);
+    //    keyBuffer_ = normalize(placeToneOnSyllable(keyBuffer_, tone),
+    //    norm_nfc);
     //} else if (keyBuffer_.back() == 'o' &&
     //           c == SPEC_KEY_MAP.at(Special::OUCombo)) {
     //    keyBuffer_ += u8"\u0358";
@@ -262,27 +257,27 @@ retval_t TKEngine::handleKeyOnReady_(KeyCode keyCode) {
 }
 
 retval_t TKEngine::handleEditing_(KeyCode keyCode) {
-    if (displayBuffer_.segmentCount == 0) {
-        if (!isalpha((char)keyCode)) {
-            return TK_NOT_CONSUMED;
-        }
+    // if (displayBuffer_.segmentCount == 0) {
+    //    if (!isalpha((char)keyCode)) {
+    //        return TK_NOT_CONSUMED;
+    //    }
 
-        displayBuffer_.selectedSegment = 0;
-        displayBuffer_.cursorPosition = 1;
-        displayBuffer_.segmentCount = 1;
-        displayBuffer_.displaySegmentOffsets[0] = 1;
+    //    displayBuffer_.selectedSegment = 0;
+    //    displayBuffer_.cursorPosition = 1;
+    //    displayBuffer_.segmentCount = 1;
+    //    displayBuffer_.displaySegmentOffsets[0] = 1;
 
-        displayBuffer_.segments[0].rawText.push_back((char)keyCode);
-        displayBuffer_.segments[0].rawTextLength = 1;
-        displayBuffer_.segments[0].numberText.push_back((char)keyCode);
-        displayBuffer_.segments[0].numberTextLength = 1;
-        displayBuffer_.segments[0].inputText.push_back((char)keyCode);
-        displayBuffer_.segments[0].inputTextLength = 1;
-        displayBuffer_.segments[0].displayText.push_back((char)keyCode);
-        displayBuffer_.segments[0].displayTextLength = 1;
+    //    displayBuffer_.segments[0].rawText.push_back((char)keyCode);
+    //    displayBuffer_.segments[0].rawTextLength = 1;
+    //    displayBuffer_.segments[0].numberText.push_back((char)keyCode);
+    //    displayBuffer_.segments[0].numberTextLength = 1;
+    //    displayBuffer_.segments[0].inputText.push_back((char)keyCode);
+    //    displayBuffer_.segments[0].inputTextLength = 1;
+    //    displayBuffer_.segments[0].displayText.push_back((char)keyCode);
+    //    displayBuffer_.segments[0].displayTextLength = 1;
 
-        return TK_CONSUMED;
-    }
+    //    return TK_CONSUMED;
+    //}
 
     switch (keyCode) {
     case KeyCode::TK_TAB:
@@ -299,10 +294,10 @@ retval_t TKEngine::handleEditing_(KeyCode keyCode) {
         }
 
         // raw buffer + char
-        DisplayBufferSegment curr =
-            displayBuffer_.segments[displayBuffer_.selectedSegment];
+        // DisplayBufferSegment curr =
+        //    displayBuffer_.segments[displayBuffer_.selectedSegment];
 
-        curr.rawText += (char)keyCode;
+        // curr.rawText += (char)keyCode;
 
         // calculate new display buffer & cursor
     }
@@ -311,29 +306,30 @@ retval_t TKEngine::handleEditing_(KeyCode keyCode) {
 }
 
 retval_t TKEngine::handleChoosingCandidate_(KeyCode keyCode) {
-    switch (keyCode) {}
+    // switch (keyCode) {}
     return TK_TODO;
 }
 
 retval_t TKEngine::handleNavByLetter_(KeyCode keyCode) {
-    switch (keyCode) {}
+    // switch (keyCode) {}
     return TK_TODO;
 }
 
 retval_t TKEngine::handleNavBySegment_(KeyCode keyCode) {
     switch (keyCode) {
-    case KeyCode::TK_RIGHT:
-        if (displayBuffer_.selectedSegment + 1 < displayBuffer_.segmentCount) {
-            displayBuffer_.selectedSegment++;
-        }
-        return TK_CONSUMED;
-    case KeyCode::TK_LEFT:
-        if (displayBuffer_.selectedSegment > 0) {
-            displayBuffer_.selectedSegment--;
-        } else {
-            setEngineState_(EngineState::BufferByLetter, keyCode);
-        }
-        return TK_CONSUMED;
+    // case KeyCode::TK_RIGHT:
+    //    if (displayBuffer_.selectedSegment + 1 < displayBuffer_.segmentCount)
+    //    {
+    //        displayBuffer_.selectedSegment++;
+    //    }
+    //    return TK_CONSUMED;
+    // case KeyCode::TK_LEFT:
+    //    if (displayBuffer_.selectedSegment > 0) {
+    //        displayBuffer_.selectedSegment--;
+    //    } else {
+    //        setEngineState_(EngineState::BufferByLetter, keyCode);
+    //    }
+    //    return TK_CONSUMED;
     default:
         return TK_TODO;
     }

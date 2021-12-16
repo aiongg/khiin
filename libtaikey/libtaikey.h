@@ -39,25 +39,6 @@ enum class InputMode {
     Pro,
 };
 
-struct DisplayBufferSegment {
-    int rawTextLength;
-    int numberTextLength;
-    int inputTextLength;
-    int displayTextLength;
-    std::string rawText;
-    std::string numberText;
-    std::string inputText;
-    std::string displayText;
-};
-
-struct DisplayBuffer {
-    int segmentCount;
-    int selectedSegment;
-    int cursorPosition;
-    int displaySegmentOffsets[20];
-    DisplayBufferSegment segments[20];
-};
-
 class TKEngine {
 
   public:
@@ -73,6 +54,7 @@ class TKEngine {
   private:
     typedef retval_t (TKEngine::*KeyHandlerFn)(KeyCode keyCode);
 
+    Buffer buffer_;
     std::string keyBuffer_;
     EngineState engineState_;
     InputMode inputMode_;
@@ -96,7 +78,6 @@ class TKEngine {
     retval_t handleNavByLetter_(KeyCode keyCode);
     retval_t handleNavBySegment_(KeyCode keyCode);
 
-    DisplayBuffer displayBuffer_;
     int getDisplayBufferLength_();
 };
 

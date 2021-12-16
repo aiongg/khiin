@@ -5,7 +5,7 @@
 # Add source to this project's executable.
 add_library (libtaikey "libtaikey.h" "libtaikey.cpp"
     "keys.h" "trie.h" "trie.cpp" "errors.h" "buffer.h"
-    "buffer.cpp" "common.h" "tk_locale.h" "tmp.h" "tmp.cpp")
+    "buffer.cpp" "common.h" "tk_locale.h" "tmp.h" "tmp.cpp" "lomaji.h" "lomaji.cpp")
 
 # TODO: Add tests and install targets if needed.
 

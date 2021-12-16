@@ -17,9 +17,8 @@ struct Syllable {
     std::string display;
     Tone tone = Tone::NaT;
     bool khin = false;
-    retval_t asciiToUnicode();
     retval_t asciiToUnicodeAndDisplay();
-    int displaySize();
+    size_t displayUtf8Size();
 };
 
 /**
@@ -34,12 +33,12 @@ struct Syllable {
 // unicode: chia̍h  --> chiah   (input)
 // display: 食     --> 者      (input)
 // tone: T8        --> T4
-// 
+//
 // ascii: joah
 // unicode: joah
 // display: joah
 // tone: NaT
-// 
+//
 // cursor: <1, 1>
 
 typedef std::pair<std::string, std::string> hanlo_t;
