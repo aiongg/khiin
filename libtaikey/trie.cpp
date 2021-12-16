@@ -33,7 +33,8 @@ bool TNode::isPrefix(std::string query) {
     return found && (found->isEndOfWord_ || found->hasChildren_());
 }
 
-std::vector<std::string> TNode::autocomplete(std::string query) {
+std::vector<std::string> TNode::autocomplete(std::string query,
+                                             size_t maxDepth) {
     TNode *found = findNode_(query);
     std::vector<std::string> ret;
 
@@ -46,7 +47,7 @@ std::vector<std::string> TNode::autocomplete(std::string query) {
         return ret;
     }
 
-    dfs_(found, query, "", ret);
+    dfs_(found, query, "", ret, maxDepth);
 
     return ret;
 }
@@ -71,6 +72,25 @@ std::vector<std::string> TNode::autocompleteTone(std::string query) {
     }
 
     return ret;
+}
+
+void TNode::splitSentence(std::string query, RecursiveMap &results) {
+    std::string syl;
+
+    std::string::iterator it;
+    for (it = query.begin(); it < query.end(); it++) {
+        syl += *it;
+        auto prefixes = autocomplete(syl, syl.size());
+
+        if (prefixes.size() > 0) {
+            for (auto &it2 : prefixes) {
+                if (syl == it2) {
+                    results.map[syl] = RecursiveMap();
+                    splitSentence(std::string(it + 1, query.end()), results.map[syl]);
+                }
+            }
+        }
+    }
 }
 
 // Private
@@ -140,17 +160,17 @@ TNode *TNode::findNode_(std::string query) {
 }
 
 void TNode::dfs_(TNode *root, std::string prefix, std::string suffix,
-                 std::vector<std::string> &results) {
+                 std::vector<std::string> &results, size_t maxDepth) {
     if (root->isEndOfWord_) {
         results.push_back(prefix + suffix);
     }
 
-    if (!hasChildren_()) {
+    if (!hasChildren_() || --maxDepth == 0) {
         return;
     }
 
     for (const auto &it : root->children_) {
-        dfs_(it.second, prefix, suffix + it.first, results);
+        dfs_(it.second, prefix, suffix + it.first, results, maxDepth);
     }
 }
 

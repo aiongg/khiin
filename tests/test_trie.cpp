@@ -64,6 +64,21 @@ BOOST_AUTO_TEST_CASE(autocomplete_tone) {
     BOOST_TEST((std::find(res.begin(), res.end(), "na7") != res.end()));
 }
 
+/**
+* input: limaianne
+1. Lí mài án-ne.
+2. Lí mā iâⁿ--ê.
+3. Lí mā ian--ne.
+4. Lîm-á iâⁿ--ê.
+5. Lim ài an--ne.
+6. Lim ài án-ne.
+*/
+BOOST_AUTO_TEST_CASE(sentence_split) {
+    ins({"li", "mai", "an", "ne", "ma", "ian", "iann", "lim", "ai", "e"});
+    RecursiveMap res;
+    root->splitSentence("limaianne", res);
+}
+
 BOOST_AUTO_TEST_CASE(big_word_list) {
     std::vector<std::string> w;
     w.push_back("a");
