@@ -25,14 +25,16 @@ retval_t Syllable::asciiToUnicodeAndDisplay() {
     return TK_OK;
 }
 
-size_t Syllable::displayUtf8Size() {
-    return utf8::distance(display.begin(), display.end());
+size_t Syllable::displayUtf8Size() { return utf8Size(display); }
+
+size_t Syllable::getAsciiCursor(size_t idx) {
+    return getAsciiCursorFromUtf8(ascii, display, idx);
 }
 
 // Buffer
 
 Buffer::Buffer()
-    : syllables_(), cursor_(0, 0), toneKeys_(ToneKeys::Numeric),
+    : syllables_(), cursor_(0, 0), toneKeys_(ToneKeys::Numeric), lastKey_(),
       sylTrie_(tmpGetSylTrieFromFile()) {
     syllables_.reserve(20);
     syllables_.push_back(Syllable());
@@ -71,7 +73,62 @@ retval_t Buffer::insert(char ch) {
 
 retval_t Buffer::remove(CursorDirection dir) { return TK_TODO; }
 
-retval_t Buffer::moveCursor(CursorDirection dir) { return TK_TODO; }
+bool cursorSkipsCodepoint(uint32_t cp) {
+    return (0x0300 <= cp && cp <= 0x0358);
+}
+
+retval_t Buffer::moveCursor(CursorDirection dir) {
+    if (dir == CursorDirection::L) {
+        if (cursor_.first == 0 && cursor_.second == 0) {
+            return TK_OK;
+        }
+
+        if (cursor_.second == 0) {
+            cursor_.first--;
+            cursor_.second = syllables_[cursor_.first].displayUtf8Size();
+            return TK_OK;
+        }
+
+        const std::string u = syllables_[cursor_.first].display;
+        auto it = u.begin();
+        utf8::advance(it, cursor_.second, u.end());
+        auto cp = utf8::prior(it, u.begin());
+        while (cursorSkipsCodepoint(cp)) {
+            cp = utf8::prior(it, u.begin());
+        }
+
+        cursor_.second = utf8::distance(u.begin(), it);
+
+        return TK_OK;
+    }
+
+    if (dir == CursorDirection::R) {
+        if (isCursorAtEnd_()) {
+            return TK_OK;
+        }
+
+        const std::string u = syllables_[cursor_.first].display;
+
+        if (cursor_.second == utf8Size(u)) {
+            cursor_.first++;
+            cursor_.second = 0;
+
+            return TK_OK;
+        }
+
+        auto it = u.begin();
+        utf8::advance(it, cursor_.second, u.end());
+        auto cp = utf8::next(it, u.end());
+        while (cursorSkipsCodepoint(cp)) {
+            cp = utf8::next(it, u.end());
+        }
+        cursor_.second = utf8::distance(u.begin(), it);
+
+        return TK_OK;
+    }
+
+    return TK_ERROR;
+}
 
 retval_t Buffer::clear() {
     syllables_.clear();
@@ -99,9 +156,13 @@ bool Buffer::isCursorAtEnd_() {
 
 retval_t Buffer::insertNumeric_(char ch) {
     Syllable *syl = &syllables_[cursor_.first];
-    int *curs = &cursor_.second;
+    size_t *curs = &cursor_.second;
 
     Tone tone = getToneFromDigit(ch);
+
+    syl->ascii.push_back(ch);
+    syl->asciiToUnicodeAndDisplay();
+    (*curs)++;
 
     return TK_TODO;
 }
@@ -114,7 +175,7 @@ retval_t Buffer::insertTelex_(char ch) {
     lastKey_ = ch;
 
     Syllable *syl = &syllables_[cursor_.first];
-    int *curs = &cursor_.second;
+    size_t *curs = &cursor_.second;
     bool atEnd = isCursorAtEnd_();
 
     Tone tone = getToneFromTelex(ch);
@@ -153,8 +214,9 @@ retval_t Buffer::insertTelex_(char ch) {
     // when is tone a tone?
     // 1. if we are at the end and there isn't already a tone
     // 2. if we aren't at the end
-
-    bool canPlaceTone = regex_search(syl->ascii, toneableLetters);
+    size_t acurs = syl->getAsciiCursor(*curs);
+    bool canPlaceTone =
+        regex_search(syl->ascii.substr(0, acurs), toneableLetters);
 
     if (canPlaceTone && tone != Tone::NaT &&
         ((atEnd && syl->tone == Tone::NaT) || (!atEnd))) {
@@ -183,11 +245,9 @@ retval_t Buffer::insertTelex_(char ch) {
 
         syl->tone = tone;
 
-        int prevLength = syl->display.size();
+        int prevLength = syl->displayUtf8Size();
         syl->asciiToUnicodeAndDisplay();
-        cursor_.second +=
-            utf8::distance(syl->display.begin(), syl->display.end()) -
-            prevLength;
+        cursor_.second += syl->displayUtf8Size() - prevLength;
 
         return TK_OK;
     }
@@ -205,7 +265,11 @@ retval_t Buffer::insertTelex_(char ch) {
 
         return TK_OK;
     } else {
-        return TK_TODO;
+        syl->ascii.insert(*curs, 1, ch);
+        syl->asciiToUnicodeAndDisplay();
+        (*curs)++;
+
+        return TK_OK;
     }
 
     return TK_ERROR;

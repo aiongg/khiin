@@ -8,12 +8,12 @@ using namespace TaiKey;
 
 BOOST_AUTO_TEST_SUITE(LomajiTest);
 
-BOOST_AUTO_TEST_CASE(Lomaji_PlaceTone) {
+BOOST_AUTO_TEST_CASE(place_tone_on_syllable) {
     std::string ret = placeToneOnSyllable(u8"oan", Tone::T2);
     BOOST_TEST(ret == u8"oa\u0301n");
 }
 
-BOOST_AUTO_TEST_CASE(Lomaji_Cursors) {
+BOOST_AUTO_TEST_CASE(ascii_cursor_from_utf8) {
     std::string ascii = u8"oan5";
     std::string u8str = asciiToUtf8(ascii, Tone::T5, false);
     size_t ret;

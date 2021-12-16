@@ -32,6 +32,8 @@ std::string toNFC(std::string s) {
     return boost::locale::normalize(s, boost::locale::norm_nfc);
 }
 
+size_t utf8Size(std::string s) { return utf8::distance(s.begin(), s.end()); }
+
 std::string stripDiacritics(std::string str) {
     std::string ret = toNFD(str);
     for (std::string tone : TONES) {
@@ -112,6 +114,8 @@ Tone checkTone78Swap(std::string u8syllable, Tone tone) {
     } else if ((PTKH.find(end) != PTKH.end() && tone == Tone::T7)) {
         return Tone::T8;
     }
+
+    return tone;
 }
 
 size_t getAsciiCursorFromUtf8(std::string ascii, std::string u8str,
@@ -153,11 +157,6 @@ size_t getAsciiCursorFromUtf8(std::string ascii, std::string u8str,
     } catch (const utf8::not_enough_room &e) {
         return utf8::distance(ascii.begin(), a_it);
     }
-}
-
-str_range getAsciiSelectionFromUtf8(std::string ascii, std::string u8str,
-                                    str_iter u8begin, str_iter u8end) {
-    return str_range(ascii.begin(), ascii.end());
 }
 
 } // namespace TaiKey

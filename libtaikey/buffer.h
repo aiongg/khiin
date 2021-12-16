@@ -9,7 +9,7 @@
 
 namespace TaiKey {
 
-typedef std::pair<int, int> cursor_t;
+typedef std::pair<size_t, size_t> cursor_t;
 
 struct Syllable {
     std::string ascii;
@@ -19,6 +19,7 @@ struct Syllable {
     bool khin = false;
     retval_t asciiToUnicodeAndDisplay();
     size_t displayUtf8Size();
+    size_t getAsciiCursor(size_t unicodeCursor);
 };
 
 /**
@@ -48,9 +49,9 @@ enum class ToneKeys {
     Telex,
 };
 
-enum CursorDirection {
-    CURS_LEFT,
-    CURS_RIGHT,
+enum class CursorDirection {
+    L,
+    R,
 };
 
 class Buffer {
