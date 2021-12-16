@@ -1,0 +1,6 @@
+[submodule "TaiKeyWindows"]
+	path = TaiKeyWindows
+	url = git@gitlab.com:aiongg/TaiKeyWindows.git
+[submodule "libtaikey"]
+	path = libtaikey
+	url = git@gitlab.com:aiongg/libtaikey.git
