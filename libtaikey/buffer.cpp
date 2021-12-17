@@ -11,7 +11,6 @@
 #include "buffer.h"
 #include "common.h"
 #include "lomaji.h"
-#include "tmp.h"
 #include "trie.h"
 
 namespace TaiKey {
@@ -34,10 +33,16 @@ size_t Syllable::getAsciiCursor(size_t idx) {
 // Buffer
 
 Buffer::Buffer()
-    : syllables_(), cursor_(0, 0), toneKeys_(ToneKeys::Numeric), lastKey_(),
-      sylTrie_(tmpGetSylTrieFromFile()) {
+    : syllables_(), cursor_(0, 0), toneKeys_(ToneKeys::Numeric), lastKey_() {
     syllables_.reserve(20);
     syllables_.push_back(Syllable());
+}
+
+Buffer::Buffer(std::shared_ptr<TNode> root)
+    : syllables_(), cursor_(0, 0), toneKeys_(ToneKeys::Numeric), lastKey_() {
+    syllables_.reserve(20);
+    syllables_.push_back(Syllable());
+    sylTrie_ = root;
 }
 
 std::string Buffer::getDisplayBuffer() {

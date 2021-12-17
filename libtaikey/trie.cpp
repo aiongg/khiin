@@ -86,11 +86,43 @@ void TNode::splitSentence(std::string query, RecursiveMap &results) {
             for (auto &it2 : prefixes) {
                 if (syl == it2) {
                     results.map[syl] = RecursiveMap();
-                    splitSentence(std::string(it + 1, query.end()), results.map[syl]);
+                    splitSentence(std::string(it + 1, query.end()),
+                                  results.map[syl]);
                 }
             }
         }
     }
+}
+
+std::vector<std::string> TNode::splitSentence2(std::string query) {
+    std::vector<std::string> results;
+    std::string syl;
+    std::string::iterator it;
+
+    if (query.empty()) {
+        return results;
+    }
+
+    for (it = query.begin(); it != query.end(); it++) {
+        syl += *it;
+        if (searchExact(syl)) {
+            if (syl == query) {
+                results.push_back(syl);
+            } else {
+                auto remainderResult =
+                    splitSentence2(std::string(it + 1, query.end()));
+                for (auto &res : remainderResult) {
+                    results.push_back(syl + " " + res);
+                }
+            }
+        }
+    }
+
+    if (results.empty()) {
+        results.push_back(query);
+    }
+
+    return results;
 }
 
 // Private

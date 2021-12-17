@@ -18,6 +18,7 @@ class TNode {
     std::vector<std::string> autocomplete(std::string query, size_t maxDepth = 0);
     std::vector<std::string> autocompleteTone(std::string query);
     void TNode::splitSentence(std::string query, RecursiveMap &results);
+    std::vector<std::string>  TNode::splitSentence2(std::string query);
 
   private:
     std::unordered_map<char, TNode *> children_;

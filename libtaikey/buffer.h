@@ -57,6 +57,7 @@ enum class CursorDirection {
 class Buffer {
   public:
     Buffer();
+    Buffer(std::shared_ptr<TNode> root);
     std::string getDisplayBuffer();
     int getCursor();
     retval_t insert(char ch);
@@ -74,7 +75,7 @@ class Buffer {
     bool isCursorAtEnd_();
     retval_t insertNumeric_(char ch);
     retval_t insertTelex_(char ch);
-    std::unique_ptr<TNode> sylTrie_;
+    std::shared_ptr<TNode> sylTrie_;
     char lastKey_;
     void appendNewSyllable_();
 };

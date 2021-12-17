@@ -74,9 +74,9 @@ BOOST_AUTO_TEST_CASE(autocomplete_tone) {
 6. Lim ài án-ne.
 */
 BOOST_AUTO_TEST_CASE(sentence_split) {
-    ins({"li", "mai", "an", "ne", "ma", "ian", "iann", "lim", "ai", "e"});
-    RecursiveMap res;
-    root->splitSentence("limaianne", res);
+    ins({"li", "mai", "an", "ne", "ma", "ian", "iann", "lim", "ai", "e", "anne"});
+    auto res = root->splitSentence2("limaianne");
+    int i = 0;
 }
 
 BOOST_AUTO_TEST_CASE(big_word_list) {
@@ -1226,7 +1226,7 @@ BOOST_AUTO_TEST_CASE(big_word_list) {
     w.push_back("vi");
     w.push_back("vui");
     w.push_back("vurn");
-    
+
     ins(w);
     std::vector<std::string> res = root->autocomplete(u8"a");
     BOOST_TEST((std::find(res.begin(), res.end(), u8"ang") != res.end()));
