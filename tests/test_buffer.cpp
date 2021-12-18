@@ -2,6 +2,7 @@
 #include <boost/test/unit_test.hpp>
 
 #include "buffer.h"
+#include "db.h"
 
 using namespace TaiKey;
 

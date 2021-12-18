@@ -16,6 +16,8 @@ inline bool isDigit(std::string str) {
     return (s >> d) ? !(s >> c) : false;
 }
 
+Splitter::Splitter() {}
+
 Splitter::Splitter(const std::vector<std::string> &syllableList)
     : maxWordLength_(0) {
     size_t logListSize = log(syllableList.size());

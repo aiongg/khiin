@@ -56,10 +56,8 @@ auto sylDat = loadSyllablesDat();
 auto splitter = loadSyllableSplitter();
 
 struct WordlistFx {
-    WordlistFx() : buf(new Buffer(sylDat)), root(sylDat), ss(splitter) {}
-    ~WordlistFx() { delete buf; }
-    Buffer *buf;
-    std::shared_ptr<TNode> root;
+    WordlistFx() : ss(splitter) {}
+    ~WordlistFx() { }
     std::shared_ptr<Splitter> ss;
 };
 

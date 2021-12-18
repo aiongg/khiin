@@ -12,6 +12,7 @@ namespace TaiKey {
 
 class Splitter {
   public:
+    Splitter();
     Splitter(const std::vector<std::string> &syllableList);
     retval_t split(std::string input, std::vector<std::string> &result);
 

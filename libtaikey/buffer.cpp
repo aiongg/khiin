@@ -33,16 +33,18 @@ size_t Syllable::getAsciiCursor(size_t idx) {
 // Buffer
 
 Buffer::Buffer()
-    : syllables_(), cursor_(0, 0), toneKeys_(ToneKeys::Numeric), lastKey_() {
-    syllables_.reserve(20);
-    syllables_.push_back(Syllable());
+    : syllables_(), cursor_(0, 0), toneKeys_(ToneKeys::Numeric), lastKey_(),
+      dictTrie_(std::shared_ptr<TNode>(new TNode())),
+      sylSplitter_(std::shared_ptr<Splitter>(new Splitter())) {
+    clear();
 }
 
-Buffer::Buffer(std::shared_ptr<TNode> root)
+Buffer::Buffer(std::shared_ptr<TNode> dictTrie,
+               std::shared_ptr<Splitter> sylSplitter)
     : syllables_(), cursor_(0, 0), toneKeys_(ToneKeys::Numeric), lastKey_() {
-    syllables_.reserve(20);
-    syllables_.push_back(Syllable());
-    sylTrie_ = root;
+    clear();
+    dictTrie_ = dictTrie;
+    sylSplitter_ = sylSplitter;
 }
 
 std::string Buffer::getDisplayBuffer() {

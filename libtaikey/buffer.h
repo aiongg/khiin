@@ -5,6 +5,7 @@
 
 #include "common.h"
 #include "errors.h"
+#include "syl_splitter.h"
 #include "trie.h"
 
 namespace TaiKey {
@@ -57,7 +58,7 @@ enum class CursorDirection {
 class Buffer {
   public:
     Buffer();
-    Buffer(std::shared_ptr<TNode> root);
+    Buffer(std::shared_ptr<TNode> dictTrie, std::shared_ptr<Splitter> sylSplitter);
     std::string getDisplayBuffer();
     int getCursor();
     retval_t insert(char ch);
@@ -72,11 +73,13 @@ class Buffer {
     cursor_t cursor_;
     std::vector<int> segmentOffsets_;
     ToneKeys toneKeys_;
+    char lastKey_;
+    std::shared_ptr<TNode> dictTrie_;
+    std::shared_ptr<Splitter> sylSplitter_;
+
     bool isCursorAtEnd_();
     retval_t insertNumeric_(char ch);
     retval_t insertTelex_(char ch);
-    std::shared_ptr<TNode> sylTrie_;
-    char lastKey_;
     void appendNewSyllable_();
 };
 
