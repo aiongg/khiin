@@ -11,10 +11,15 @@ find_package (Boost REQUIRED COMPONENTS locale log regex unit_test_framework)
 include_directories (${Boost_INCLUDE_DIRS})
 
 # Include sub-projects.
+set(SQLITECPP_RUN_CPPCHECK OFF CACHE BOOL "" FORCE)
+set(SQLITECPP_RUN_CPPLINT OFF CACHE BOOL "" FORCE)
+add_subdirectory("SQLiteCpp")
+
 add_subdirectory ("libtaikey")
 
 enable_testing()
 add_subdirectory ("tests")
+
 
 add_compile_options(/FAcs)
 add_compile_options("$<$<C_COMPILER_ID:MSVC>:/utf-8>")
