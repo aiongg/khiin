@@ -29,6 +29,52 @@ void TKDB::init() {
     }
 }
 
+std::vector<std::string> TKDB::selectTrieWordlist() {
+    SQLite::Statement query(db_, "select distinct ascii from trie_map");
+    std::vector<std::string> res;
+
+    while (query.executeStep()) {
+        res.push_back(query.getColumn("ascii").getString());
+    }
+
+    return res;
+}
+
+std::vector<std::string> TKDB::selectSyllableList() {
+    SQLite::Statement query(db_, "select distinct syl from syllables_by_freq order by id asc");
+    std::vector<std::string> res;
+
+    while (query.executeStep()) {
+        res.push_back(query.getColumn("syl").getString());
+    }
+
+    return res;
+}
+
+std::vector<DictionaryRow>
+TKDB::selectDictionaryRowsByAscii(std::string ascii) {
+    std::vector<DictionaryRow> res;
+
+    SQLite::Statement query(
+        db_, "select dictionary.* from trie_map inner join dictionary on "
+             "trie_map.dictionary_id = dictionary.id where trie_map.ascii = ?");
+    query.bind(1, ascii);
+
+    while (query.executeStep()) {
+        DictionaryRow d;
+        d.id = query.getColumn("id").getInt();
+        d.chhan_id = query.getColumn("chhan_id").getInt();
+        d.lomaji = query.getColumn("lomaji").getString();
+        d.hanji = query.getColumn("hanji").getString();
+        d.weight = query.getColumn("weight").getInt();
+        d.common = query.getColumn("common").getInt();
+        d.hint = query.getColumn("hint").getString();
+        res.push_back(d);
+    }
+
+    return res;
+}
+
 int TKDB::buildTrieLookupTable_() {
     std::vector<std::string> insertions;
 
@@ -59,8 +105,8 @@ int TKDB::buildTrieLookupTable_() {
 
     SQLite::Transaction tx(db_);
 
-    db_.exec("drop table if exists trie_map");
-    db_.exec("create table trie_map (id integer primary key, ascii text, "
+    db_.exec("drop table if exists trie_map; "
+             "create table trie_map (id integer primary key, ascii text, "
              "dictionary_id id, "
              "foreign key (dictionary_id) references dictionary (id), "
              "unique(ascii, dictionary_id))");
@@ -73,29 +119,6 @@ int TKDB::buildTrieLookupTable_() {
     } catch (std::exception &e) {
         return -1;
     }
-}
-
-std::vector<DictionaryRow> TKDB::selectDictionaryByAscii(std::string ascii) {
-    std::vector<DictionaryRow> res;
-
-    SQLite::Statement query(
-        db_, "select dictionary.* from trie_map inner join dictionary on "
-             "trie_map.dictionary_id = dictionary.id where trie_map.ascii = ?");
-    query.bind(1, ascii);
-
-    while (query.executeStep()) {
-        DictionaryRow d;
-        d.id = query.getColumn("id").getInt();
-        d.chhan_id = query.getColumn("chhan_id").getInt();
-        d.lomaji = query.getColumn("lomaji").getString();
-        d.hanji = query.getColumn("hanji").getString();
-        d.weight = query.getColumn("weight").getInt();
-        d.common = query.getColumn("common").getInt();
-        d.hint = query.getColumn("hint").getString();
-        res.push_back(d);
-    }
-
-    return res;
 }
 
 } // namespace TaiKey

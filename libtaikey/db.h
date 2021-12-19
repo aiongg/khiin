@@ -22,13 +22,15 @@ class TKDB {
   public:
     TKDB(std::string dbFilename);
     void init();
+    std::vector<std::string> selectTrieWordlist();
+    std::vector<std::string> selectSyllableList();
+    std::vector<DictionaryRow> selectDictionaryRowsByAscii(std::string query);
 
   private:
     SQLite::Database db_;
     std::vector<DictionaryRow> tableDictionary_;
 
     int buildTrieLookupTable_();
-    std::vector<DictionaryRow> selectDictionaryByAscii(std::string query);
 };
 
 } // namespace TaiKey
