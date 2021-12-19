@@ -10,10 +10,15 @@ project ("TaiKey")
 find_package (Boost REQUIRED COMPONENTS locale log regex unit_test_framework)
 include_directories (${Boost_INCLUDE_DIRS})
 
+find_package(SQLiteCpp)
+
 # Include sub-projects.
-set(SQLITECPP_RUN_CPPCHECK OFF CACHE BOOL "" FORCE)
-set(SQLITECPP_RUN_CPPLINT OFF CACHE BOOL "" FORCE)
-add_subdirectory("SQLiteCpp")
+# set(SQLITECPP_RUN_CPPCHECK OFF CACHE BOOL "" FORCE)
+# set(SQLITECPP_RUN_CPPLINT OFF CACHE BOOL "" FORCE)
+# add_subdirectory("SQLiteCpp")
+
+# add_library(sqlite3 SHARED IMPORTED)
+# set_target_properties(sqlite3 PROPERTIES IMPORTED_LOCATION ${CMAKE_CURRENT_BINARY_DIR}/sqlite3/sqlite3.lib)
 
 add_subdirectory ("libtaikey")
 

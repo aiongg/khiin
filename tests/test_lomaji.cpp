@@ -13,6 +13,17 @@ BOOST_AUTO_TEST_CASE(place_tone_on_syllable) {
     BOOST_TEST(ret == u8"oa\u0301n");
 }
 
+BOOST_AUTO_TEST_CASE(utf8_to_ascii) {
+    std::string ret = utf8ToAsciiLower("á");
+    BOOST_TEST(ret == "a2");
+
+    ret = utf8ToAsciiLower("A-bí-cho̍k");
+    BOOST_TEST(ret == "a-bi2-chok8");
+
+    ret = utf8ToAsciiLower("siak ·lo̍h-·khì bān-té chhim-kheⁿ");
+    BOOST_TEST(ret == "siak loh80-khi30 ban7-te2 chhim-khenn");
+}
+
 BOOST_AUTO_TEST_CASE(ascii_cursor_from_utf8) {
     std::string ascii = u8"oan5";
     std::string u8str = asciiToUtf8(ascii, Tone::T5, false);

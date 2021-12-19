@@ -65,12 +65,41 @@ std::string asciiToUtf8(std::string ascii, Tone tone, bool khin) {
     return toNFC(ret);
 }
 
+std::string utf8ToAsciiLower(std::string u8string) {
+    boost::algorithm::trim_if(
+        u8string, [](char& c) -> bool { return c == ' ' || c == '-'; });
+    
+    if (u8string.empty()) {
+        return u8string;
+    }
+
+    u8string = toNFD(u8string);
+    boost::algorithm::replace_all(u8string, U8_NN, "nn");
+    boost::algorithm::replace_all(u8string, U8_OU, "u");
+    boost::algorithm::replace_all(u8string, U8_R, "r");
+    boost::algorithm::replace_all(u8string, U8_T2, "2");
+    boost::algorithm::replace_all(u8string, U8_T3, "3");
+    boost::algorithm::replace_all(u8string, U8_T5, "5");
+    boost::algorithm::replace_all(u8string, U8_T7, "7");
+    boost::algorithm::replace_all(u8string, U8_T8, "8");
+    boost::algorithm::replace_all(u8string, U8_T9, "9");
+    boost::algorithm::replace_all(u8string, U8_TK, "0");
+    boost::algorithm::to_lower(u8string);
+
+    static boost::regex sylWithMidNumericTone("([a-z]+)(\\d)([a-z]+)");
+    static boost::regex khinAtFront("(0)([a-z]+\\d?)");
+    u8string = boost::regex_replace(u8string, sylWithMidNumericTone, "$1$3$2");
+    u8string = boost::regex_replace(u8string, khinAtFront, "$2$1");
+
+    return u8string;
+}
+
 std::string placeToneOnSyllable(std::string u8syllable, Tone tone) {
     if (tone == Tone::NaT) {
         return u8syllable;
     }
 
-    static boost::regex e(u8"o[ae][mnptkh]");
+    static boost::regex tone_mid_ae(u8"o[ae][mnptkh]");
     static std::string ordered_vowel_matches[] = {u8"o", u8"a",  u8"e", u8"u",
                                                   u8"i", u8"ng", u8"m"};
 
@@ -81,7 +110,7 @@ std::string placeToneOnSyllable(std::string u8syllable, Tone tone) {
     boost::smatch match;
     size_t found;
 
-    if (regex_search(ret, match, e)) {
+    if (regex_search(ret, match, tone_mid_ae)) {
         found = match.position() + 1;
     } else {
         for (std::string v : ordered_vowel_matches) {

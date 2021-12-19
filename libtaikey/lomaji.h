@@ -19,6 +19,8 @@ Tone getToneFromTelex(char ch);
 
 std::string asciiToUtf8(std::string ascii, Tone tone, bool khin);
 
+std::string utf8ToAsciiLower(std::string u8string);
+
 std::string placeToneOnSyllable(std::string u8syllable, Tone tone);
 
 std::string stripDiacritics(std::string s);

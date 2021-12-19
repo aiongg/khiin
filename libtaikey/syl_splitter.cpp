@@ -20,7 +20,7 @@ Splitter::Splitter() {}
 
 Splitter::Splitter(const std::vector<std::string> &syllableList)
     : maxWordLength_(0) {
-    size_t logListSize = log(syllableList.size());
+    double logListSize = log(syllableList.size());
 
     size_t idx = 0;
     for (auto it : syllableList) {
