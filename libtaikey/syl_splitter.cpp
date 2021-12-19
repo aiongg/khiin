@@ -23,7 +23,7 @@ Splitter::Splitter(const std::vector<std::string> &syllableList)
     double logListSize = log(syllableList.size());
 
     size_t idx = 0;
-    for (auto it : syllableList) {
+    for (auto &it : syllableList) {
         costMap_[it] = log((idx + 1) * logListSize);
         maxWordLength_ = std::max(maxWordLength_, (int)it.size());
         ++idx;
@@ -55,12 +55,18 @@ retval_t Splitter::split(std::string input, std::vector<std::string> &result) {
              j++) {
 
             chunk = lcInput.substr(j, i - j);
+
+            // Split after digits
+            while (!chunk.empty() && isdigit(chunk.back())) {
+                chunk.pop_back();
+            }
+
             if (costMap_.find(chunk) == costMap_.end()) {
                 continue;
             }
 
             curCost = cost[j].first + costMap_.at(chunk);
-            if (curCost < minCost) {
+            if (curCost <= minCost) {
                 minCost = curCost;
                 minCostIdx = j;
             }

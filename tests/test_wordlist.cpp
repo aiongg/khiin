@@ -5,10 +5,10 @@
 #include <memory>
 #include <string>
 
-#include <boost/log/trivial.hpp>
 #include <boost/algorithm/string.hpp>
 #include <boost/filesystem.hpp>
 #include <boost/filesystem/string_file.hpp>
+#include <boost/log/trivial.hpp>
 
 #include "buffer.h"
 #include "syl_splitter.h"
@@ -57,7 +57,7 @@ auto splitter = loadSyllableSplitter();
 
 struct WordlistFx {
     WordlistFx() : ss(splitter) {}
-    ~WordlistFx() { }
+    ~WordlistFx() {}
     std::shared_ptr<Splitter> ss;
 };
 
@@ -77,13 +77,32 @@ BOOST_AUTO_TEST_CASE(split_sentence) {
               "ikoesinchinchengsiutiohchintoaethongkhou",
               res);
     joined = boost::algorithm::join(res, " ");
-    //BOOST_LOG_TRIVIAL(debug) << joined;
+    // BOOST_LOG_TRIVIAL(debug) << joined;
     BOOST_TEST(
         joined ==
         "gou tui tiunn kin ku ka siok the kiong e chu liau chit e siau lian ke "
         "si sim chong ba pih lai koe sin e i e si the kui bin long si bak sai "
         "kap phinn kou che beng beng si ti koe sin chin cheng siu tioh chin "
         "toa e thong khou");
+}
+
+BOOST_AUTO_TEST_CASE(split_sentence_fail) {
+    std::vector<std::string> res;
+    ss->split("goamchaiblarg", res);
+    std::string joined = boost::algorithm::join(res, " ");
+    BOOST_TEST(joined == "goa m chai b la r g");
+}
+
+BOOST_AUTO_TEST_CASE(split_sentence_digits) {
+    std::vector<std::string> res;
+    ss->split("goam7chai", res);
+    std::string joined = boost::algorithm::join(res, " ");
+    BOOST_TEST(joined == "goa m7 chai");
+
+    ss->split("goa2mchaiu7joa7chelang5ham5goa2ukangkhoan2esengtiong", res);
+    joined = boost::algorithm::join(res, " ");
+    BOOST_TEST(joined ==
+               "goa2 m chai u7 joa7 che lang5 ham5 goa2 u kang khoan2 e seng tiong");
 }
 
 BOOST_AUTO_TEST_SUITE_END();
