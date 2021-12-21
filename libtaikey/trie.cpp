@@ -7,42 +7,94 @@ namespace TaiKey {
 
 // Public
 
-void TNode::insert(std::string key) {
-    TNode *curr = this;
+Trie::Trie() {}
+
+Trie::Trie(std::vector<std::string> wordlist) {
+    for (auto &word : wordlist) {
+        this->insert(word);
+    }
+}
+
+auto Trie::insert(std::string key) -> void {
+    auto curr = &root;
 
     for (auto &ch : key) {
-        if (curr->children_.find(ch) == curr->children_.end()) {
-            curr->children_[ch] = new TNode; // need parens?
+        if (curr->children.find(ch) == curr->children.end()) {
+            curr->children[ch] = std::make_unique<Node>();
         }
 
-        curr = curr->children_[ch];
+        curr = curr->children[ch].get();
     }
 
-    curr->isEndOfWord_ = true;
+    curr->isEndOfWord = true;
 }
 
-bool TNode::remove(std::string key) { return remove_(key, 0); }
+bool Trie::remove(std::string key) {
+    auto onlyChildNodes = std::vector<std::tuple<char, Node *, bool>>();
+    auto curr = &root;
 
-bool TNode::searchExact(std::string query) {
-    TNode *found = findNode_(query);
-    return found && found->isEndOfWord_;
+    for (auto it = key.begin(); it != key.end(); it++) {
+        auto found = curr->children.find(*it);
+
+        if (found == curr->children.end()) {
+            return false; // Key not in Trie
+        }
+
+        curr = curr->children[*it].get();
+
+        if (std::next(it) == key.end() && curr->isEndOfWord) {
+            curr->isEndOfWord = false;
+        }
+
+        if (curr->children.size() > 1) {
+            onlyChildNodes.push_back(std::make_tuple(*it, curr, false));
+        } else {
+            onlyChildNodes.push_back(std::make_tuple(*it, curr, true));
+        }
+
+    }
+
+    for (auto it = onlyChildNodes.rbegin(); it != onlyChildNodes.rend();
+         it++) {
+        if (it == onlyChildNodes.rbegin()) {
+            continue;
+        }
+
+        auto &onlyChild = std::get<2>(*it);
+        auto &prevOnlyChild = std::get<2>(*std::prev(it));
+
+        if (!onlyChild && prevOnlyChild || std::next(it) == onlyChildNodes.rend()) {
+            auto &chr = std::get<0>(*it);
+            auto &node = std::get<1>(*it);
+
+            node->children.erase(chr);
+            return true;
+        }
+    }
+
+    return false;
 }
 
-bool TNode::isPrefix(std::string query) {
-    TNode *found = findNode_(query);
-    return found && (found->isEndOfWord_ || found->hasChildren_());
+auto Trie::containsWord(std::string query) -> bool {
+    auto found = find_(query);
+    return found != nullptr && found->isEndOfWord;
 }
 
-std::vector<std::string> TNode::autocomplete(std::string query,
-                                             size_t maxDepth) {
-    TNode *found = findNode_(query);
-    std::vector<std::string> ret;
+auto Trie::containsPrefix(std::string query) -> bool {
+    auto found = find_(query);
+    return found != nullptr &&
+           (found->isEndOfWord || found->children.size() > 0);
+}
 
-    if (!found) {
+auto Trie::autocomplete(std::string query, size_t maxDepth) -> VStr {
+    auto ret = VStr();
+    auto found = find_(query);
+
+    if (found == nullptr) {
         return ret;
     }
 
-    if (found->isEndOfWord_ && !found->hasChildren_()) {
+    if (found->isEndOfWord && found->children.size() == 0) {
         ret.push_back(query);
         return ret;
     }
@@ -52,21 +104,21 @@ std::vector<std::string> TNode::autocomplete(std::string query,
     return ret;
 }
 
-std::vector<std::string> TNode::autocompleteTone(std::string query) {
-    std::vector<std::string> ret;
+auto Trie::autocompleteTone(std::string query) -> VStr {
+    auto ret = VStr();
 
     if (isdigit(query.back())) {
         return ret;
     }
 
-    TNode *found = findNode_(query);
+    Node *found = find_(query);
 
     if (!found) {
         return ret;
     }
 
     for (auto ch : "123456789") {
-        if (found->hasChild_(ch) && found->children_[ch]->isEndOfWord_) {
+        if (found->hasChild(ch) && found->children[ch]->isEndOfWord) {
             ret.push_back(query + ch);
         }
     }
@@ -74,7 +126,8 @@ std::vector<std::string> TNode::autocompleteTone(std::string query) {
     return ret;
 }
 
-void TNode::splitSentence(std::string query, RecursiveMap &results) {
+// Can delete
+void Trie::splitSentence(std::string query, RecursiveMap &results) {
     std::string syl;
 
     std::string::iterator it;
@@ -94,7 +147,8 @@ void TNode::splitSentence(std::string query, RecursiveMap &results) {
     }
 }
 
-std::vector<std::string> TNode::splitSentence2(std::string query) {
+// Can delete
+std::vector<std::string> Trie::splitSentence2(std::string query) {
     std::vector<std::string> results;
     std::string syl;
     std::string::iterator it;
@@ -105,7 +159,7 @@ std::vector<std::string> TNode::splitSentence2(std::string query) {
 
     for (it = query.begin(); it != query.end(); it++) {
         syl += *it;
-        if (searchExact(syl)) {
+        if (containsWord(syl)) {
             if (syl == query) {
                 results.push_back(syl);
             } else {
@@ -127,48 +181,10 @@ std::vector<std::string> TNode::splitSentence2(std::string query) {
 
 // Private
 
-bool TNode::remove_(std::string key, int depth) {
-    // Last node
-    if (depth == key.size()) {
-        this->isEndOfWord_ = false;
+// Node
 
-        // No other children -- delete the node
-        if (!this->hasChildren_()) {
-            delete this;
-            return true;
-        }
-
-        return false;
-    }
-
-    // Not yet last node, recurse on key at depth + 1
-    char index = key[depth];
-    bool childRemoved = this->children_[index]->remove_(key, depth + 1);
-
-    if (childRemoved) {
-        this->children_.erase(index);
-
-        if (!this->hasChildren_() && depth > 0) {
-            delete this;
-            return true;
-        }
-    }
-
-    return false;
-}
-
-bool TNode::hasChildren_() {
-    for (const auto &it : this->children_) {
-        if (it.second != NULL) {
-            return true;
-        }
-    }
-
-    return false;
-}
-
-bool TNode::hasChild_(char ch) {
-    for (auto &it : children_) {
+auto Trie::Node::hasChild(char ch) -> bool {
+    for (auto &it : children) {
         if (it.first == ch) {
             return true;
         }
@@ -176,33 +192,34 @@ bool TNode::hasChild_(char ch) {
     return false;
 }
 
-TNode *TNode::findNode_(std::string query) {
-    TNode *curr = this;
+// Trie
 
-    std::string::iterator it;
-    for (it = query.begin(); it < query.end(); it++) {
-        if (curr->children_.find(*it) == curr->children_.end()) {
+auto Trie::find_(std::string query) -> Node * {
+    auto curr = &root;
+
+    for (auto it = query.begin(); it < query.end(); it++) {
+        if (curr->children.find(*it) == curr->children.end()) {
             return nullptr;
         }
 
-        curr = curr->children_[*it];
+        curr = curr->children[*it].get();
     }
 
     return curr;
 }
 
-void TNode::dfs_(TNode *root, std::string prefix, std::string suffix,
-                 std::vector<std::string> &results, size_t maxDepth) {
-    if (root->isEndOfWord_) {
+auto Trie::dfs_(Node *node, std::string prefix, std::string suffix,
+                 std::vector<std::string> &results, size_t maxDepth) -> void {
+    if (node->isEndOfWord) {
         results.push_back(prefix + suffix);
     }
 
-    if (!hasChildren_() || --maxDepth == 0) {
+    if (node->children.size() == 0 || --maxDepth == 0) {
         return;
     }
 
-    for (const auto &it : root->children_) {
-        dfs_(it.second, prefix, suffix + it.first, results, maxDepth);
+    for (const auto &it : node->children) {
+        dfs_(it.second.get(), prefix, suffix + it.first, results, maxDepth);
     }
 }
 

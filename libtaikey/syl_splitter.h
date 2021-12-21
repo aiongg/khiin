@@ -14,11 +14,11 @@ class Splitter {
   public:
     Splitter();
     Splitter(const std::vector<std::string> &syllableList);
-    retval_t split(std::string input, std::vector<std::string> &result);
+    auto split(std::string input, std::vector<std::string> &result) -> RetVal;
 
   private:
     std::unordered_map<std::string, float> costMap_;
-    int maxWordLength_;
+    int maxWordLength_ = 0;
 };
 
 } // namespace TaiKey

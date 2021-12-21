@@ -1,15 +1,17 @@
 #define BOOST_TEST_DYN_LINK
 #include <boost/test/unit_test.hpp>
 
+#include <memory>
+
 #include "trie.h"
 
 using namespace std;
 using namespace TaiKey;
 
 struct TrieFx {
-    TrieFx() : root(new TNode()) {}
-    ~TrieFx() { delete root; }
-    TNode *root;
+    TrieFx() : root(std::make_unique<Trie>()) {}
+    ~TrieFx() { }
+    unique_ptr<Trie> root;
     void ins(std::vector<std::string> words) {
         for (auto it : words) {
             root->insert(it);
@@ -21,24 +23,25 @@ BOOST_FIXTURE_TEST_SUITE(TrieTest, TrieFx);
 
 BOOST_AUTO_TEST_CASE(search) {
     root->insert(u8"niau");
-    bool res = root->searchExact(u8"niau");
+    bool res = root->containsWord(u8"niau");
 
     BOOST_TEST(res == true);
 }
 
 BOOST_AUTO_TEST_CASE(remove) {
     root->insert(u8"niau");
+    root->insert(u8"ni");
     root->remove(u8"niau");
 
-    BOOST_TEST(!root->searchExact(u8"niau"));
-    BOOST_TEST(!root->searchExact(u8"nia"));
-    BOOST_TEST(!root->searchExact(u8"ni"));
-    BOOST_TEST(!root->searchExact(u8"n"));
+    BOOST_TEST(!root->containsWord(u8"niau"));
+    BOOST_TEST(!root->containsWord(u8"nia"));
+    BOOST_TEST(root->containsWord(u8"ni"));
+    BOOST_TEST(!root->containsWord(u8"n"));
 }
 
 BOOST_AUTO_TEST_CASE(is_prefix) {
     root->insert(u8"niau");
-    BOOST_TEST(root->isPrefix(u8"nia") == true);
+    BOOST_TEST(root->containsPrefix(u8"nia") == true);
 }
 
 BOOST_AUTO_TEST_CASE(autocomplete) {

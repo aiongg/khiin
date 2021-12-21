@@ -18,8 +18,8 @@ namespace fs = boost::filesystem;
 
 using namespace TaiKey;
 
-std::shared_ptr<TNode> loadSyllablesDat() {
-    std::shared_ptr<TNode> root = std::make_unique<TNode>();
+std::shared_ptr<Trie> loadSyllablesDat() {
+    std::shared_ptr<Trie> root = std::make_unique<Trie>();
 
     if (!fs::exists("syllables.dat")) {
         return root;

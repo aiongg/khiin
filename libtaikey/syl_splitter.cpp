@@ -6,9 +6,11 @@
 
 #include "syl_splitter.h"
 
+using namespace std::string_literals;
+
 namespace TaiKey {
 
-inline bool isDigit(std::string str) {
+inline auto isDigit(std::string str) {
     std::stringstream s;
     s << str;
     double d = 0;
@@ -18,40 +20,40 @@ inline bool isDigit(std::string str) {
 
 Splitter::Splitter() {}
 
-Splitter::Splitter(const std::vector<std::string> &syllableList)
-    : maxWordLength_(0) {
-    double logListSize = log(syllableList.size());
+Splitter::Splitter(const std::vector<std::string> &syllableList) {
+    auto logListSize = static_cast<float>(log(syllableList.size()));
 
     size_t idx = 0;
     for (auto &it : syllableList) {
-        costMap_[it] = log((idx + 1) * logListSize);
+        costMap_[it] = static_cast<float>(log((idx + 1) * logListSize));
         maxWordLength_ = std::max(maxWordLength_, (int)it.size());
         ++idx;
     }
 }
 
-retval_t Splitter::split(std::string input, std::vector<std::string> &result) {
+auto Splitter::split(std::string input, std::vector<std::string> &result)
+    -> RetVal {
     result.clear();
     if (input.empty()) {
-        return TK_ERROR;
+        return RetVal::Error;
     }
 
-    std::string lcInput = input;
+    auto lcInput(input);
     std::transform(lcInput.begin(), lcInput.end(), lcInput.begin(),
                    (int (*)(int))tolower);
-    const size_t len = lcInput.size();
+    const auto len = lcInput.size();
 
     std::vector<std::pair<float, int>> cost;
     cost.reserve(len + 1);
-    cost.push_back(std::make_pair(0, -1));
-    std::string chunk = "";
-    float curCost = 0.0;
+    cost.push_back(std::make_pair(0.0f, -1));
+    auto chunk(""s);
+    auto curCost = 0.0f;
 
-    for (int i = 1; i < len + 1; i++) {
-        float minCost = cost[i - 1].first + 9e9;
-        int minCostIdx = i - 1;
+    for (auto i = 1; i < len + 1; i++) {
+        auto minCost = cost[i - 1].first + 9e9f;
+        auto minCostIdx = i - 1;
 
-        for (int j = i - maxWordLength_ > 0 ? i - maxWordLength_ : 0; j < i;
+        for (auto j = i - maxWordLength_ > 0 ? i - maxWordLength_ : 0; j < i;
              j++) {
 
             chunk = lcInput.substr(j, i - j);
@@ -75,11 +77,12 @@ retval_t Splitter::split(std::string input, std::vector<std::string> &result) {
         cost.push_back(std::make_pair(minCost, minCostIdx));
     }
 
-    int n = len;
-    int preIndex;
+    auto n = len;
+    decltype(n) preIndex;
+
     while (n > 0) {
         preIndex = cost[n].second;
-        std::string insertStr = input.substr(preIndex, n - preIndex);
+        auto insertStr = input.substr(preIndex, n - preIndex);
 
         if (!result.empty() && isDigit(insertStr + result[0])) {
             result[0] = insertStr + result[0];
@@ -89,7 +92,7 @@ retval_t Splitter::split(std::string input, std::vector<std::string> &result) {
         n = preIndex;
     }
 
-    return TK_OK;
+    return RetVal::OK;
 }
 
 } // namespace TaiKey

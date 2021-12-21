@@ -10,24 +10,24 @@ namespace TaiKey {
 using str_iter = std::string::iterator;
 using str_range = std::pair<str_iter, str_iter>;
 
-std::string toNFC(std::string s);
-std::string toNFD(std::string s);
-size_t utf8Size(std::string s);
+auto toNFC(std::string s) -> std::string;
+auto toNFD(std::string s) -> std::string;
+auto utf8Size(std::string s) -> size_t;
 
-Tone getToneFromDigit(char ch);
-Tone getToneFromTelex(char ch);
+auto getToneFromDigit(char ch) -> Tone;
+auto getToneFromTelex(char ch) -> Tone;
 
-std::string asciiToUtf8(std::string ascii, Tone tone, bool khin);
+auto asciiToUtf8(std::string ascii, Tone tone, bool khin) -> std::string;
 
-std::string utf8ToAsciiLower(std::string u8string);
+auto utf8ToAsciiLower(std::string u8string) -> std::string;
 
-std::string placeToneOnSyllable(std::string u8syllable, Tone tone);
+auto placeToneOnSyllable(std::string u8syllable, Tone tone) -> std::string;
 
-std::string stripDiacritics(std::string s);
+auto stripDiacritics(std::string s);
 
-Tone checkTone78Swap(std::string u8syllable, Tone tone);
+auto checkTone78Swap(std::string u8syllable, Tone tone) -> Tone;
 
-size_t getAsciiCursorFromUtf8(std::string ascii, std::string u8str,
-                                size_t u8cursor);
+auto getAsciiCursorFromUtf8(std::string ascii, std::string u8str,
+                            size_t u8cursor) -> size_t;
 
 } // namespace TaiKey

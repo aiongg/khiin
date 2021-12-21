@@ -45,14 +45,14 @@ class TKEngine {
     TKEngine();
     void reset();
 
-    retval_t onKeyDown(char c);
-    retval_t onKeyDown(KeyCode keyCode);
+    RetVal onKeyDown(char c);
+    RetVal onKeyDown(KeyCode keyCode);
 
     EngineState getState() const;
     std::string getBuffer() const;
 
   private:
-    typedef retval_t (TKEngine::*KeyHandlerFn)(KeyCode keyCode);
+    typedef RetVal (TKEngine::*KeyHandlerFn)(KeyCode keyCode);
 
     Buffer buffer_;
     std::string keyBuffer_;
@@ -62,21 +62,21 @@ class TKEngine {
 
     void popBack_();
 
-    retval_t onKeyDown_(KeyCode keyCode);
-    retval_t onKeyDownNormal_(KeyCode keyCode);
-    retval_t onKeyDownPro_(KeyCode keyCode);
+    RetVal onKeyDown_(KeyCode keyCode);
+    RetVal onKeyDownNormal_(KeyCode keyCode);
+    RetVal onKeyDownPro_(KeyCode keyCode);
 
-    retval_t setEngineState_(EngineState nextEngineState, KeyCode keyCode);
-    retval_t handleStateTransition_(EngineState prev, EngineState next,
+    RetVal setEngineState_(EngineState nextEngineState, KeyCode keyCode);
+    RetVal handleStateTransition_(EngineState prev, EngineState next,
                               KeyCode keyCode);
 
-    retval_t bySegmentToByLetter_(KeyCode keyCode);
+    RetVal bySegmentToByLetter_(KeyCode keyCode);
 
-    retval_t handleKeyOnReady_(KeyCode keyCode);
-    retval_t handleEditing_(KeyCode keyCode);
-    retval_t handleChoosingCandidate_(KeyCode keyCode);
-    retval_t handleNavByLetter_(KeyCode keyCode);
-    retval_t handleNavBySegment_(KeyCode keyCode);
+    RetVal handleKeyOnReady_(KeyCode keyCode);
+    RetVal handleEditing_(KeyCode keyCode);
+    RetVal handleChoosingCandidate_(KeyCode keyCode);
+    RetVal handleNavByLetter_(KeyCode keyCode);
+    RetVal handleNavBySegment_(KeyCode keyCode);
 
     int getDisplayBufferLength_();
 };

@@ -10,7 +10,7 @@
 
 namespace TaiKey {
 
-typedef std::pair<size_t, size_t> cursor_t;
+using Cursor = std::pair<size_t, size_t>;
 
 struct Syllable {
     std::string ascii;
@@ -18,9 +18,9 @@ struct Syllable {
     std::string display;
     Tone tone = Tone::NaT;
     bool khin = false;
-    retval_t asciiToUnicodeAndDisplay();
-    size_t displayUtf8Size();
-    size_t getAsciiCursor(size_t unicodeCursor);
+    auto asciiToUnicodeAndDisplay() -> RetVal;
+    auto displayUtf8Size() -> ptrdiff_t;
+    auto getAsciiCursor(size_t unicodeCursor) -> ptrdiff_t;
 };
 
 /**
@@ -43,7 +43,7 @@ struct Syllable {
 //
 // cursor: <1, 1>
 
-typedef std::pair<std::string, std::string> hanlo_t;
+using Hanlo = std::pair<std::string, std::string>;
 
 enum class ToneKeys {
     Numeric,
@@ -58,29 +58,29 @@ enum class CursorDirection {
 class Buffer {
   public:
     Buffer();
-    Buffer(std::shared_ptr<TNode> dictTrie, std::shared_ptr<Splitter> sylSplitter);
-    std::string getDisplayBuffer();
-    int getCursor();
-    retval_t insert(char ch);
-    retval_t remove(CursorDirection dir);
-    retval_t moveCursor(CursorDirection dir);
-    retval_t clear();
-    bool selectCandidate(hanlo_t candidate);
-    bool setToneKeys(ToneKeys toneKeys);
+    Buffer(std::shared_ptr<Trie> dictTrie, std::shared_ptr<Splitter> sylSplitter);
+    auto getDisplayBuffer() -> std::string;
+    auto getCursor() -> size_t;
+    auto insert(char ch) -> RetVal;
+    auto remove(CursorDirection dir) -> RetVal;
+    auto moveCursor(CursorDirection dir) -> RetVal;
+    auto clear() -> RetVal;
+    auto selectCandidate(Hanlo candidate);
+    auto setToneKeys(ToneKeys toneKeys) -> RetVal;
 
   private:
     std::vector<Syllable> syllables_;
-    cursor_t cursor_;
+    Cursor cursor_;
     std::vector<int> segmentOffsets_;
     ToneKeys toneKeys_;
     char lastKey_;
-    std::shared_ptr<TNode> dictTrie_;
+    std::shared_ptr<Trie> dictTrie_;
     std::shared_ptr<Splitter> sylSplitter_;
 
-    bool isCursorAtEnd_();
-    retval_t insertNumeric_(char ch);
-    retval_t insertTelex_(char ch);
-    void appendNewSyllable_();
+    auto isCursorAtEnd_() -> bool;
+    auto insertNumeric_(char ch) -> RetVal;
+    auto insertTelex_(char ch) -> RetVal;
+    auto appendNewSyllable_() -> void;
 };
 
 } // namespace TaiKey

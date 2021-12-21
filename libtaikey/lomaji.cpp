@@ -10,7 +10,7 @@
 
 namespace TaiKey {
 
-Tone getToneFromKeyMap(std::unordered_map<Tone, char> map, char ch) {
+auto getToneFromKeyMap(std::unordered_map<Tone, char> map, char ch) {
     for (const auto &it : map) {
         if (it.second == ch) {
             return it.first;
@@ -20,21 +20,23 @@ Tone getToneFromKeyMap(std::unordered_map<Tone, char> map, char ch) {
     return Tone::NaT;
 }
 
-Tone getToneFromDigit(char ch) { return getToneFromKeyMap(TONE_DIGIT_MAP, ch); }
+auto getToneFromDigit(char ch) -> Tone { return getToneFromKeyMap(TONE_DIGIT_MAP, ch); }
 
-Tone getToneFromTelex(char ch) { return getToneFromKeyMap(TONE_TELEX_MAP, ch); }
+auto getToneFromTelex(char ch) -> Tone { return getToneFromKeyMap(TONE_TELEX_MAP, ch); }
 
-std::string toNFD(std::string s) {
+auto toNFD(std::string s) -> std::string {
     return boost::locale::normalize(s, boost::locale::norm_nfd);
 }
 
-std::string toNFC(std::string s) {
+auto toNFC(std::string s) -> std::string {
     return boost::locale::normalize(s, boost::locale::norm_nfc);
 }
 
-size_t utf8Size(std::string s) { return utf8::distance(s.begin(), s.end()); }
+auto utf8Size(std::string s) -> size_t {
+    return static_cast<size_t>(utf8::distance(s.begin(), s.end()));
+}
 
-std::string stripDiacritics(std::string str) {
+auto stripDiacritics(std::string str) {
     std::string ret = toNFD(str);
     for (std::string tone : TONES) {
         size_t found = ret.find(tone);
@@ -46,7 +48,7 @@ std::string stripDiacritics(std::string str) {
     return ret;
 }
 
-std::string asciiToUtf8(std::string ascii, Tone tone, bool khin) {
+auto asciiToUtf8(std::string ascii, Tone tone, bool khin) -> std::string {
     std::string ret = ascii;
 
     boost::algorithm::replace_first(ret, u8"nn", U8_NN);
@@ -65,7 +67,7 @@ std::string asciiToUtf8(std::string ascii, Tone tone, bool khin) {
     return toNFC(ret);
 }
 
-std::string utf8ToAsciiLower(std::string u8string) {
+auto utf8ToAsciiLower(std::string u8string) -> std::string {
     boost::algorithm::trim_if(
         u8string, [](char& c) -> bool { return c == ' ' || c == '-'; });
     
@@ -94,7 +96,7 @@ std::string utf8ToAsciiLower(std::string u8string) {
     return u8string;
 }
 
-std::string placeToneOnSyllable(std::string u8syllable, Tone tone) {
+auto placeToneOnSyllable(std::string u8syllable, Tone tone) -> std::string {
     if (tone == Tone::NaT) {
         return u8syllable;
     }
@@ -103,12 +105,12 @@ std::string placeToneOnSyllable(std::string u8syllable, Tone tone) {
     static std::string ordered_vowel_matches[] = {u8"o", u8"a",  u8"e", u8"u",
                                                   u8"i", u8"ng", u8"m"};
 
-    std::string ret = stripDiacritics(u8syllable);
+    auto ret = stripDiacritics(u8syllable);
 
     BOOST_LOG_TRIVIAL(debug) << boost::format("stripped syl: %1%") % ret;
 
     boost::smatch match;
-    size_t found;
+    ptrdiff_t found;
 
     if (regex_search(ret, match, tone_mid_ae)) {
         found = match.position() + 1;
@@ -131,12 +133,12 @@ std::string placeToneOnSyllable(std::string u8syllable, Tone tone) {
     return ret;
 }
 
-Tone checkTone78Swap(std::string u8syllable, Tone tone) {
+auto checkTone78Swap(std::string u8syllable, Tone tone) -> Tone {
     if (u8syllable.empty() || (tone != Tone::T7 && tone != Tone::T8)) {
         return tone;
     }
 
-    char end = u8syllable.back();
+    auto end = u8syllable.back();
 
     if ((PTKH.find(end) == PTKH.end()) && tone == Tone::T8) {
         return Tone::T7;
@@ -147,18 +149,17 @@ Tone checkTone78Swap(std::string u8syllable, Tone tone) {
     return tone;
 }
 
-size_t getAsciiCursorFromUtf8(std::string ascii, std::string u8str,
-                              size_t idx) {
-    str_iter u8_it, u8_target, u8_end, a_it, a_end;
-    uint32_t ucp, acp;
+auto getAsciiCursorFromUtf8(std::string ascii, std::string u8str, size_t idx)
+    -> size_t {
+    auto u8_it = u8str.begin();
+    auto u8_target = u8str.begin();
+    auto u8_end = u8str.end();
+    auto a_it = ascii.begin();
+    auto a_end = ascii.end();
+    auto ucp = uint32_t(0);
+    auto acp = uint32_t(0);
 
-    u8_it = u8str.begin();
-    u8_target = u8str.begin();
-    u8_end = u8str.end();
-    a_it = ascii.begin();
-    a_end = ascii.end();
-
-    if (idx >= utf8::distance(u8_it, u8_end)) {
+    if (idx >= static_cast<size_t>(utf8::distance(u8_it, u8_end))) {
         u8_target = u8_end;
     } else {
         utf8::advance(u8_target, idx, u8_end);
@@ -182,9 +183,9 @@ size_t getAsciiCursorFromUtf8(std::string ascii, std::string u8str,
             }
         }
 
-        return utf8::distance(ascii.begin(), a_it);
+        return static_cast<size_t>(utf8::distance(ascii.begin(), a_it));
     } catch (const utf8::not_enough_room &e) {
-        return utf8::distance(ascii.begin(), a_it);
+        return static_cast<size_t>(utf8::distance(ascii.begin(), a_it));
     }
 }
 

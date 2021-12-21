@@ -1,35 +1,48 @@
 #pragma once
 
+#include <memory>
 #include <string>
 #include <unordered_map>
 
 namespace TaiKey {
 
+using VStr = std::vector<std::string>;
+
 struct RecursiveMap {
     std::unordered_map<std::string, RecursiveMap> map;
 };
 
-class TNode {
+class Trie {
+    struct Node;
+
   public:
-    void insert(std::string key);
-    bool remove(std::string key);
-    bool searchExact(std::string query);
-    bool isPrefix(std::string query);
-    std::vector<std::string> autocomplete(std::string query, size_t maxDepth = 0);
-    std::vector<std::string> autocompleteTone(std::string query);
-    void TNode::splitSentence(std::string query, RecursiveMap &results);
-    std::vector<std::string>  TNode::splitSentence2(std::string query);
+    Trie();
+    Trie(VStr wordlist);
+    auto insert(std::string key) -> void;
+    auto remove(std::string key) -> bool;
+    auto containsWord(std::string query) -> bool;
+    auto containsPrefix(std::string query) -> bool;
+    auto autocomplete(std::string query, size_t maxDepth = 0) -> VStr;
+    auto autocompleteTone(std::string query) -> VStr;
+
+    // Can delete
+    void Trie::splitSentence(std::string query, RecursiveMap &results);
+    VStr Trie::splitSentence2(std::string query);
 
   private:
-    std::unordered_map<char, TNode *> children_;
-    bool isEndOfWord_ = false;
+    using ChildrenType = std::unordered_map<char, std::unique_ptr<Node>>;
+    struct Node {
+        ChildrenType children;
+        bool isEndOfWord = false;
+        auto hasChild(char ch) -> bool;
+    };
 
-    bool remove_(std::string key, int depth);
-    bool hasChildren_();
-    bool hasChild_(char ch);
-    TNode *findNode_(std::string query);
-    void dfs_(TNode *root, std::string query, std::string prefix,
-              std::vector<std::string> &results, size_t maxDepth = 0);
+    Node root;
+
+    // auto remove_(std::string key, int depth) -> bool;
+    auto find_(std::string query) -> Node *;
+    auto dfs_(Node *root, std::string query, std::string prefix,
+              std::vector<std::string> &results, size_t maxDepth = 0) -> void;
 };
 
 } // namespace TaiKey

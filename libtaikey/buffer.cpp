@@ -17,16 +17,16 @@ namespace TaiKey {
 
 // Syllable
 
-retval_t Syllable::asciiToUnicodeAndDisplay() {
+auto Syllable::asciiToUnicodeAndDisplay() -> RetVal {
     unicode = asciiToUtf8(ascii, tone, khin);
     display = unicode;
 
-    return TK_OK;
+    return RetVal::OK;
 }
 
-size_t Syllable::displayUtf8Size() { return utf8Size(display); }
+auto Syllable::displayUtf8Size() -> ptrdiff_t { return utf8Size(display); }
 
-size_t Syllable::getAsciiCursor(size_t idx) {
+auto Syllable::getAsciiCursor(size_t idx) -> ptrdiff_t {
     return getAsciiCursorFromUtf8(ascii, display, idx);
 }
 
@@ -34,12 +34,12 @@ size_t Syllable::getAsciiCursor(size_t idx) {
 
 Buffer::Buffer()
     : syllables_(), cursor_(0, 0), toneKeys_(ToneKeys::Numeric), lastKey_(),
-      dictTrie_(std::shared_ptr<TNode>(new TNode())),
+      dictTrie_(std::shared_ptr<Trie>(new Trie())),
       sylSplitter_(std::shared_ptr<Splitter>(new Splitter())) {
     clear();
 }
 
-Buffer::Buffer(std::shared_ptr<TNode> dictTrie,
+Buffer::Buffer(std::shared_ptr<Trie> dictTrie,
                std::shared_ptr<Splitter> sylSplitter)
     : syllables_(), cursor_(0, 0), toneKeys_(ToneKeys::Numeric), lastKey_() {
     clear();
@@ -47,7 +47,7 @@ Buffer::Buffer(std::shared_ptr<TNode> dictTrie,
     sylSplitter_ = sylSplitter;
 }
 
-std::string Buffer::getDisplayBuffer() {
+auto Buffer::getDisplayBuffer() -> std::string {
     std::vector<std::string> syls;
     for (auto &it : syllables_) {
         syls.push_back(it.display);
@@ -55,8 +55,8 @@ std::string Buffer::getDisplayBuffer() {
     return boost::algorithm::join(syls, u8" ");
 }
 
-int Buffer::getCursor() {
-    int ret = 0;
+auto Buffer::getCursor() -> size_t {
+    auto ret = size_t(0);
 
     for (int i = 0; i < syllables_.size(); i++) {
         if (cursor_.first == i) {
@@ -66,9 +66,11 @@ int Buffer::getCursor() {
 
         ret += syllables_[i].displayUtf8Size() + 1;
     }
+
+    return ret;
 }
 
-retval_t Buffer::insert(char ch) {
+auto Buffer::insert(char ch) -> RetVal {
     // With isdigit(ch), numeric tones are enabled
     // even in Telex mode
     if (isdigit(ch) || toneKeys_ == ToneKeys::Numeric) {
@@ -76,24 +78,26 @@ retval_t Buffer::insert(char ch) {
     } else if (toneKeys_ == ToneKeys::Telex) {
         return insertTelex_(ch);
     }
+
+    return RetVal::NotConsumed;
 }
 
-retval_t Buffer::remove(CursorDirection dir) { return TK_TODO; }
+auto Buffer::remove(CursorDirection dir) -> RetVal { return RetVal::TODO; }
 
-bool cursorSkipsCodepoint(uint32_t cp) {
+auto cursorSkipsCodepoint(uint32_t cp) {
     return (0x0300 <= cp && cp <= 0x0358);
 }
 
-retval_t Buffer::moveCursor(CursorDirection dir) {
+auto Buffer::moveCursor(CursorDirection dir) -> RetVal {
     if (dir == CursorDirection::L) {
         if (cursor_.first == 0 && cursor_.second == 0) {
-            return TK_OK;
+            return RetVal::OK;
         }
 
         if (cursor_.second == 0) {
             cursor_.first--;
             cursor_.second = syllables_[cursor_.first].displayUtf8Size();
-            return TK_OK;
+            return RetVal::OK;
         }
 
         const std::string u = syllables_[cursor_.first].display;
@@ -106,12 +110,12 @@ retval_t Buffer::moveCursor(CursorDirection dir) {
 
         cursor_.second = utf8::distance(u.begin(), it);
 
-        return TK_OK;
+        return RetVal::OK;
     }
 
     if (dir == CursorDirection::R) {
         if (isCursorAtEnd_()) {
-            return TK_OK;
+            return RetVal::OK;
         }
 
         const std::string u = syllables_[cursor_.first].display;
@@ -120,7 +124,7 @@ retval_t Buffer::moveCursor(CursorDirection dir) {
             cursor_.first++;
             cursor_.second = 0;
 
-            return TK_OK;
+            return RetVal::OK;
         }
 
         auto it = u.begin();
@@ -131,13 +135,13 @@ retval_t Buffer::moveCursor(CursorDirection dir) {
         }
         cursor_.second = utf8::distance(u.begin(), it);
 
-        return TK_OK;
+        return RetVal::OK;
     }
 
-    return TK_ERROR;
+    return RetVal::Error;
 }
 
-retval_t Buffer::clear() {
+auto Buffer::clear() -> RetVal {
     syllables_.clear();
     syllables_.reserve(20);
     cursor_.first = 0;
@@ -146,22 +150,22 @@ retval_t Buffer::clear() {
 
     syllables_.push_back(Syllable());
 
-    return TK_TODO;
+    return RetVal::TODO;
 }
 
-bool Buffer::selectCandidate(hanlo_t candidate) { return false; }
+auto Buffer::selectCandidate(Hanlo candidate) { return false; }
 
-bool Buffer::setToneKeys(ToneKeys toneKeys) {
+auto Buffer::setToneKeys(ToneKeys toneKeys) -> RetVal {
     toneKeys_ = toneKeys;
-    return true; // TODO
+    return RetVal::TODO;
 }
 
-bool Buffer::isCursorAtEnd_() {
+auto Buffer::isCursorAtEnd_() -> bool {
     return (cursor_.first == syllables_.size() - 1 &&
             cursor_.second == syllables_[cursor_.first].displayUtf8Size());
 }
 
-retval_t Buffer::insertNumeric_(char ch) {
+auto Buffer::insertNumeric_(char ch) -> RetVal {
     Syllable *syl = &syllables_[cursor_.first];
     size_t *curs = &cursor_.second;
 
@@ -171,12 +175,12 @@ retval_t Buffer::insertNumeric_(char ch) {
     syl->asciiToUnicodeAndDisplay();
     (*curs)++;
 
-    return TK_TODO;
+    return RetVal::TODO;
 }
 
 boost::regex toneableLetters(u8"[aeioumn]");
 
-retval_t Buffer::insertTelex_(char ch) {
+auto Buffer::insertTelex_(char ch) -> RetVal {
     // TODO: handle telex double press
     char lk = lastKey_;
     lastKey_ = ch;
@@ -230,7 +234,7 @@ retval_t Buffer::insertTelex_(char ch) {
         if (tone == Tone::TK) {
             if (syl->khin == true) {
                 // TODO: How to handle if already khin?
-                return TK_TODO;
+                return RetVal::TODO;
             }
 
             syl->khin = true;
@@ -239,7 +243,7 @@ retval_t Buffer::insertTelex_(char ch) {
             syl->asciiToUnicodeAndDisplay();
             (*curs)++;
 
-            return TK_OK;
+            return RetVal::OK;
         }
 
         if (!atEnd) {
@@ -252,11 +256,11 @@ retval_t Buffer::insertTelex_(char ch) {
 
         syl->tone = tone;
 
-        int prevLength = syl->displayUtf8Size();
+        auto prevLength = syl->displayUtf8Size();
         syl->asciiToUnicodeAndDisplay();
         cursor_.second += syl->displayUtf8Size() - prevLength;
 
-        return TK_OK;
+        return RetVal::OK;
     }
 
     if (atEnd) {
@@ -270,19 +274,19 @@ retval_t Buffer::insertTelex_(char ch) {
         syl->asciiToUnicodeAndDisplay();
         (*curs)++;
 
-        return TK_OK;
+        return RetVal::OK;
     } else {
         syl->ascii.insert(*curs, 1, ch);
         syl->asciiToUnicodeAndDisplay();
         (*curs)++;
 
-        return TK_OK;
+        return RetVal::OK;
     }
 
-    return TK_ERROR;
+    return RetVal::Error;
 }
 
-void Buffer::appendNewSyllable_() {
+auto Buffer::appendNewSyllable_() -> void {
     syllables_.push_back(Syllable());
     cursor_.first++;
     cursor_.second = 0;

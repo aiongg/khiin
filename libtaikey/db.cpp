@@ -13,8 +13,8 @@ TKDB::TKDB(std::string dbFilename)
     init();
 }
 
-void TKDB::init() {
-    bool hasTrieMapTable = false;
+auto TKDB::init() -> void {
+    auto hasTrieMapTable = false;
 
     try {
         db_.execAndGet("select name from sqlite_master where "
@@ -29,9 +29,9 @@ void TKDB::init() {
     }
 }
 
-std::vector<std::string> TKDB::selectTrieWordlist() {
-    SQLite::Statement query(db_, "select distinct ascii from trie_map");
-    std::vector<std::string> res;
+auto TKDB::selectTrieWordlist() -> VStr {
+    auto query = SQLite::Statement(db_, "select distinct ascii from trie_map");
+    VStr res;
 
     while (query.executeStep()) {
         res.push_back(query.getColumn("ascii").getString());
@@ -40,9 +40,10 @@ std::vector<std::string> TKDB::selectTrieWordlist() {
     return res;
 }
 
-std::vector<std::string> TKDB::selectSyllableList() {
-    SQLite::Statement query(db_, "select distinct syl from syllables_by_freq order by id asc");
-    std::vector<std::string> res;
+auto TKDB::selectSyllableList() -> VStr {
+    SQLite::Statement query(
+        db_, "select distinct syl from syllables_by_freq order by id asc");
+    VStr res;
 
     while (query.executeStep()) {
         res.push_back(query.getColumn("syl").getString());
@@ -51,24 +52,22 @@ std::vector<std::string> TKDB::selectSyllableList() {
     return res;
 }
 
-std::vector<DictionaryRow>
-TKDB::selectDictionaryRowsByAscii(std::string ascii) {
-    std::vector<DictionaryRow> res;
+auto TKDB::selectDictionaryRowsByAscii(std::string ascii) -> DictRowV {
+    DictRowV res;
 
-    SQLite::Statement query(
+    auto query = SQLite::Statement(
         db_, "select dictionary.* from trie_map inner join dictionary on "
              "trie_map.dictionary_id = dictionary.id where trie_map.ascii = ?");
     query.bind(1, ascii);
 
     while (query.executeStep()) {
-        DictionaryRow d;
-        d.id = query.getColumn("id").getInt();
-        d.chhan_id = query.getColumn("chhan_id").getInt();
-        d.lomaji = query.getColumn("lomaji").getString();
-        d.hanji = query.getColumn("hanji").getString();
-        d.weight = query.getColumn("weight").getInt();
-        d.common = query.getColumn("common").getInt();
-        d.hint = query.getColumn("hint").getString();
+        DictionaryRow d{query.getColumn("id").getInt(),
+                        query.getColumn("chhan_id").getInt(),
+                        query.getColumn("input").getString(),
+                        query.getColumn("output").getString(),
+                        query.getColumn("weight").getInt(),
+                        query.getColumn("common").getInt(),
+                        query.getColumn("hint").getString()};
         res.push_back(d);
     }
 
@@ -76,19 +75,19 @@ TKDB::selectDictionaryRowsByAscii(std::string ascii) {
 }
 
 int TKDB::buildTrieLookupTable_() {
-    std::vector<std::string> insertions;
+    VStr insertions;
 
-    SQLite::Statement dictionaryQuery(db_, "select * from dictionary");
+    auto dictionaryQuery = SQLite::Statement(db_, "select * from dictionary");
 
     while (dictionaryQuery.executeStep()) {
-        int dict_id = dictionaryQuery.getColumn("id").getInt();
-        std::string asciiLomaji =
-            utf8ToAsciiLower(dictionaryQuery.getColumn("lomaji").getString());
+        auto dict_id = dictionaryQuery.getColumn("id").getInt();
+        auto asciiLomaji =
+            utf8ToAsciiLower(dictionaryQuery.getColumn("input").getString());
 
         static boost::regex rSylSep("[ -]+");
-        std::string collapsed = boost::regex_replace(asciiLomaji, rSylSep, "");
+        auto collapsed = boost::regex_replace(asciiLomaji, rSylSep, "");
         static boost::regex rInnerTone("\\d(?!$)");
-        std::string toneless = boost::regex_replace(collapsed, rInnerTone, "");
+        auto toneless = boost::regex_replace(collapsed, rInnerTone, "");
 
         insertions.push_back("('" + collapsed + "', " +
                              std::to_string(dict_id) + ")");
@@ -99,11 +98,11 @@ int TKDB::buildTrieLookupTable_() {
         }
     }
 
-    std::string insertQuery =
+    auto insertQuery =
         "insert into trie_map (ascii, dictionary_id) values " +
         boost::algorithm::join(insertions, ", ");
 
-    SQLite::Transaction tx(db_);
+    auto tx = SQLite::Transaction(db_);
 
     db_.exec("drop table if exists trie_map; "
              "create table trie_map (id integer primary key, ascii text, "
