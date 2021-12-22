@@ -19,20 +19,20 @@ namespace fs = boost::filesystem;
 using namespace TaiKey;
 
 std::shared_ptr<Trie> loadSyllablesDat() {
-    std::shared_ptr<Trie> root = std::make_unique<Trie>();
+    std::shared_ptr<Trie> trie = std::make_unique<Trie>();
 
     if (!fs::exists("syllables.dat")) {
-        return root;
+        return trie;
     }
 
     fs::ifstream fileHandler("syllables.dat");
     std::string syl;
 
     while (std::getline(fileHandler, syl)) {
-        root->insert(syl);
+        trie->insert(syl);
     }
 
-    return root;
+    return trie;
 }
 
 std::shared_ptr<Splitter> loadSyllableSplitter() {

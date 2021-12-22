@@ -4,17 +4,15 @@
 #include <string>
 #include <unordered_map>
 
-namespace TaiKey {
+#include "common.h"
 
-using VStr = std::vector<std::string>;
+namespace TaiKey {
 
 struct RecursiveMap {
     std::unordered_map<std::string, RecursiveMap> map;
 };
 
 class Trie {
-    struct Node;
-
   public:
     Trie();
     Trie(VStr wordlist);
@@ -24,12 +22,14 @@ class Trie {
     auto containsPrefix(std::string query) -> bool;
     auto autocomplete(std::string query, size_t maxDepth = 0) -> VStr;
     auto autocompleteTone(std::string query) -> VStr;
+    auto getAllWords(std::string query, bool isToneless, VStr &results) -> void;
 
-    // Can delete
+    // TODO Can delete
     void Trie::splitSentence(std::string query, RecursiveMap &results);
     VStr Trie::splitSentence2(std::string query);
 
   private:
+    struct Node;
     using ChildrenType = std::unordered_map<char, std::unique_ptr<Node>>;
     struct Node {
         ChildrenType children;

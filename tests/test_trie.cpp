@@ -9,12 +9,12 @@ using namespace std;
 using namespace TaiKey;
 
 struct TrieFx {
-    TrieFx() : root(std::make_unique<Trie>()) {}
-    ~TrieFx() { }
-    unique_ptr<Trie> root;
+    TrieFx() : trie(std::make_unique<Trie>()) {}
+    ~TrieFx() {}
+    unique_ptr<Trie> trie;
     void ins(std::vector<std::string> words) {
         for (auto it : words) {
-            root->insert(it);
+            trie->insert(it);
         }
     }
 };
@@ -22,38 +22,38 @@ struct TrieFx {
 BOOST_FIXTURE_TEST_SUITE(TrieTest, TrieFx);
 
 BOOST_AUTO_TEST_CASE(search) {
-    root->insert(u8"niau");
-    bool res = root->containsWord(u8"niau");
+    trie->insert(u8"niau");
+    bool res = trie->containsWord(u8"niau");
 
     BOOST_TEST(res == true);
 }
 
 BOOST_AUTO_TEST_CASE(remove) {
-    root->insert(u8"niau");
-    root->insert(u8"ni");
-    root->remove(u8"niau");
+    trie->insert(u8"niau");
+    trie->insert(u8"ni");
+    trie->remove(u8"niau");
 
-    BOOST_TEST(!root->containsWord(u8"niau"));
-    BOOST_TEST(!root->containsWord(u8"nia"));
-    BOOST_TEST(root->containsWord(u8"ni"));
-    BOOST_TEST(!root->containsWord(u8"n"));
+    BOOST_TEST(!trie->containsWord(u8"niau"));
+    BOOST_TEST(!trie->containsWord(u8"nia"));
+    BOOST_TEST(trie->containsWord(u8"ni"));
+    BOOST_TEST(!trie->containsWord(u8"n"));
 }
 
 BOOST_AUTO_TEST_CASE(is_prefix) {
-    root->insert(u8"niau");
-    BOOST_TEST(root->containsPrefix(u8"nia") == true);
+    trie->insert(u8"niau");
+    BOOST_TEST(trie->containsPrefix(u8"nia") == true);
 }
 
 BOOST_AUTO_TEST_CASE(autocomplete) {
     ins({u8"niau", u8"nia", u8"na"});
 
-    std::vector<std::string> res = root->autocomplete(u8"n");
+    std::vector<std::string> res = trie->autocomplete(u8"n");
     BOOST_TEST(res.size() == 3);
     BOOST_TEST((std::find(res.begin(), res.end(), "niau") != res.end()));
     BOOST_TEST((std::find(res.begin(), res.end(), "nia") != res.end()));
     BOOST_TEST((std::find(res.begin(), res.end(), "na") != res.end()));
 
-    res = root->autocomplete(u8"na");
+    res = trie->autocomplete(u8"na");
     BOOST_TEST(res.size() == 1);
     BOOST_TEST((std::find(res.begin(), res.end(), "na") != res.end()));
 }
@@ -61,10 +61,18 @@ BOOST_AUTO_TEST_CASE(autocomplete) {
 BOOST_AUTO_TEST_CASE(autocomplete_tone) {
     ins({u8"na2", u8"na7", u8"nai"});
 
-    std::vector<std::string> res = root->autocompleteTone(u8"na");
+    std::vector<std::string> res = trie->autocompleteTone(u8"na");
     BOOST_TEST(res.size() == 2);
     BOOST_TEST((std::find(res.begin(), res.end(), "na2") != res.end()));
     BOOST_TEST((std::find(res.begin(), res.end(), "na7") != res.end()));
+}
+
+BOOST_AUTO_TEST_CASE(get_all_words) {
+    ins({"cho", "cho2", "chong", "chong5", "chongthong2", "ba"});
+    auto res = VStr();
+    trie->getAllWords("chongthong", true, res);
+    BOOST_TEST(res.size() == 5);
+    BOOST_TEST((std::find(res.begin(), res.end(), "cho2") != res.end()));
 }
 
 /**
@@ -77,8 +85,9 @@ BOOST_AUTO_TEST_CASE(autocomplete_tone) {
 6. Lim ài án-ne.
 */
 BOOST_AUTO_TEST_CASE(sentence_split) {
-    ins({"li", "mai", "an", "ne", "ma", "ian", "iann", "lim", "ai", "e", "anne"});
-    auto res = root->splitSentence2("limaianne");
+    ins({"li", "mai", "an", "ne", "ma", "ian", "iann", "lim", "ai", "e",
+         "anne"});
+    auto res = trie->splitSentence2("limaianne");
     int i = 0;
 }
 
@@ -1231,7 +1240,7 @@ BOOST_AUTO_TEST_CASE(big_word_list) {
     w.push_back("vurn");
 
     ins(w);
-    std::vector<std::string> res = root->autocomplete(u8"a");
+    std::vector<std::string> res = trie->autocomplete(u8"a");
     BOOST_TEST((std::find(res.begin(), res.end(), u8"ang") != res.end()));
     BOOST_TEST((std::find(res.begin(), res.end(), u8"any") == res.end()));
 }

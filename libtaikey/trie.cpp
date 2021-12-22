@@ -5,6 +5,8 @@
 
 namespace TaiKey {
 
+using namespace std::literals::string_literals;
+
 // Public
 
 Trie::Trie() {}
@@ -51,11 +53,9 @@ bool Trie::remove(std::string key) {
         } else {
             onlyChildNodes.push_back(std::make_tuple(*it, curr, true));
         }
-
     }
 
-    for (auto it = onlyChildNodes.rbegin(); it != onlyChildNodes.rend();
-         it++) {
+    for (auto it = onlyChildNodes.rbegin(); it != onlyChildNodes.rend(); it++) {
         if (it == onlyChildNodes.rbegin()) {
             continue;
         }
@@ -63,10 +63,13 @@ bool Trie::remove(std::string key) {
         auto &onlyChild = std::get<2>(*it);
         auto &prevOnlyChild = std::get<2>(*std::prev(it));
 
-        if (!onlyChild && prevOnlyChild || std::next(it) == onlyChildNodes.rend()) {
+        if (!onlyChild && prevOnlyChild ||
+            std::next(it) == onlyChildNodes.rend()) {
             auto &chr = std::get<0>(*it);
             auto &node = std::get<1>(*it);
 
+            //does smart pointer need reset?
+            //node->children[chr].reset();
             node->children.erase(chr);
             return true;
         }
@@ -117,13 +120,50 @@ auto Trie::autocompleteTone(std::string query) -> VStr {
         return ret;
     }
 
-    for (auto ch : "123456789") {
-        if (found->hasChild(ch) && found->children[ch]->isEndOfWord) {
-            ret.push_back(query + ch);
+    static auto tones = "1234567890"s;
+
+    for (auto t : tones) {
+        if (found->hasChild(t) && found->children[t]->isEndOfWord) {
+            ret.push_back(query + t);
         }
     }
 
     return ret;
+}
+
+auto Trie::getAllWords(std::string query, bool isToneless, VStr &results)
+    -> void {
+    results.clear();
+
+    if (query.empty()) {
+        return;
+    }
+
+    if (!root.hasChild(query[0])) {
+        return;
+    }
+
+    auto curr = &root;
+    static auto tones = "1234567890"s;
+
+    for (auto it = query.begin(); it != query.end(); it++) {
+        if (curr->children.find(*it) == curr->children.end()) {
+            return;
+        }
+
+        auto substr = std::string(query.begin(), std::next(it));
+        curr = curr->children[*it].get();
+
+        if (curr->isEndOfWord) {
+            results.push_back(substr);
+        }
+
+        for (auto jt : tones) {
+            if (curr->hasChild(jt) && curr->children[jt]->isEndOfWord) {
+                results.push_back(substr + jt);
+            }
+        }
+    }
 }
 
 // Can delete
@@ -184,12 +224,7 @@ std::vector<std::string> Trie::splitSentence2(std::string query) {
 // Node
 
 auto Trie::Node::hasChild(char ch) -> bool {
-    for (auto &it : children) {
-        if (it.first == ch) {
-            return true;
-        }
-    }
-    return false;
+    return (children.find(ch) != children.end());
 }
 
 // Trie
@@ -209,7 +244,7 @@ auto Trie::find_(std::string query) -> Node * {
 }
 
 auto Trie::dfs_(Node *node, std::string prefix, std::string suffix,
-                 std::vector<std::string> &results, size_t maxDepth) -> void {
+                std::vector<std::string> &results, size_t maxDepth) -> void {
     if (node->isEndOfWord) {
         results.push_back(prefix + suffix);
     }

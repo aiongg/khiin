@@ -7,6 +7,8 @@
 
 namespace TaiKey {
 
+using VStr = std::vector<std::string>;
+
 enum class Tone {
     NaT,
     T1,

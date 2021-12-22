@@ -69,6 +69,11 @@ class Buffer {
     auto setToneKeys(ToneKeys toneKeys) -> RetVal;
 
   private:
+    auto isCursorAtEnd_() -> bool;
+    auto insertNumeric_(char ch) -> RetVal;
+    auto insertTelex_(char ch) -> RetVal;
+    auto appendNewSyllable_() -> void;
+
     std::vector<Syllable> syllables_;
     Cursor cursor_;
     std::vector<int> segmentOffsets_;
@@ -77,10 +82,6 @@ class Buffer {
     std::shared_ptr<Trie> dictTrie_;
     std::shared_ptr<Splitter> sylSplitter_;
 
-    auto isCursorAtEnd_() -> bool;
-    auto insertNumeric_(char ch) -> RetVal;
-    auto insertTelex_(char ch) -> RetVal;
-    auto appendNewSyllable_() -> void;
 };
 
 } // namespace TaiKey
