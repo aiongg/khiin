@@ -51,9 +51,9 @@ auto stripDiacritics(std::string str) {
 auto asciiToUtf8(std::string ascii, Tone tone, bool khin) -> std::string {
     std::string ret = ascii;
 
-    boost::algorithm::replace_first(ret, u8"nn", U8_NN);
-    boost::algorithm::replace_first(ret, u8"ou", "o" + U8_OU);
-    boost::algorithm::replace_first(ret, u8"oo", "o" + U8_OU);
+    boost::algorithm::replace_first(ret, "nn", U8_NN);
+    boost::algorithm::replace_first(ret, "ou", "o" + U8_OU);
+    boost::algorithm::replace_first(ret, "oo", "o" + U8_OU);
 
     if (khin) {
         ret.insert(0, U8_TK);

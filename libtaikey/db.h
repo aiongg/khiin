@@ -22,11 +22,24 @@ struct DictionaryRow {
     int weight;
     int common;
     std::string hint;
+};
+
+struct CandidateRow {
+    std::string ascii;
+    std::string output;
+    std::string hint;
+    int common;
     int unigramN;
-    int bigramN;
+};
+
+struct UnigramRow {
+    std::string gram;
+    int n;
 };
 
 using DictRows = std::vector<DictionaryRow>;
+using CandidateRows = std::vector<CandidateRow>;
+using BigramWeights = std::unordered_map<std::string, int>;
 
 class TKDB {
   public:
@@ -37,10 +50,12 @@ class TKDB {
     auto selectDictionaryRowsByAscii(std::string input, DictRows &results)
         -> void;
     auto selectDictionaryRowsByAscii(VStr inputs, DictRows &results) -> void;
-    auto selectDictionaryRowsByAsciiWithUnigram(VStr queries, DictRows &results)
-        -> void;
+    auto selectCandidatesFor(VStr queries, CandidateRows &results) -> void;
+    auto selectBigramsFor(std::string lgram, VStr rgrams,
+                          BigramWeights &results) -> void;
+    auto getUnigramCount(std::string gram) -> int;
     auto updateGramCounts(VStr &grams) -> int;
-    //auto selectBigrams(std::string lgram, VStr rgrams) -> BigramWeightMap;
+    // auto selectBigrams(std::string lgram, VStr rgrams) -> BigramWeightMap;
 
   private:
     auto buildTrieLookupTable_() -> int;

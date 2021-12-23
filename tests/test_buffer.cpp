@@ -3,11 +3,11 @@
 
 #include "buffer.h"
 
-using namespace TaiKey;
+namespace TaiKey::BufferTest {
 
-struct BufferFx {
-    BufferFx() : buf(new Buffer()) {}
-    ~BufferFx() { delete buf; }
+struct Fx {
+    Fx() : buf(new Buffer()) {}
+    ~Fx() { delete buf; }
     Buffer *buf;
     void insert(std::string sequence) {
         for (auto it : sequence) {
@@ -16,7 +16,7 @@ struct BufferFx {
     }
 };
 
-BOOST_FIXTURE_TEST_SUITE(BufferTest, BufferFx);
+BOOST_FIXTURE_TEST_SUITE(BufferTest, Fx);
 
 BOOST_AUTO_TEST_CASE(trivial) { BOOST_TEST(true); }
 
@@ -128,3 +128,5 @@ BOOST_AUTO_TEST_CASE(move_cursor_and_insert) {
 }
 
 BOOST_AUTO_TEST_SUITE_END();
+
+} // namespace TaiKey::BufferTest

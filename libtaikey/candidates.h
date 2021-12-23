@@ -15,8 +15,8 @@ enum class CColor {
 };
 
 struct Candidate {
-    std::string lomaji;
-    std::string cand;
+    std::string ascii;
+    std::string output;
     std::string hint;
     CColor color = CColor::Normal;
 };
@@ -26,7 +26,7 @@ using CandidateList = std::vector<Candidate>;
 // buffer
 // auto momomo = candidates.find(rawBuffer);
 
-//struct Candidate {
+// struct Candidate {
 //    std::string input;
 //    std::string output;
 //};
@@ -36,9 +36,16 @@ class CandidateFinder {
     CandidateFinder(TKDB &db);
     CandidateFinder(TKDB &db, Splitter &splitter, Trie &trie);
     auto findCandidates(std::string query, bool toneless,
-                        CandidateList &results) -> void;
+                        std::string prevBestGram, CandidateList &results)
+        -> void;
 
   private:
+    auto findBestCandidateByBigram_(std::string lgram, int lgramCount,
+                                    const CandidateRows &rgrams) -> size_t;
+
+    auto findBestCandidateBySplitter_(std::string input, bool toneless)
+        -> CandidateRow;
+
     TKDB &db_;
     Splitter &splitter_;
     Trie &trie_;

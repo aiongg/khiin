@@ -161,6 +161,12 @@ auto Trie::getAllWords(std::string query, bool isToneless, VStr &results)
         for (auto jt : tones) {
             if (curr->hasChild(jt) && curr->children[jt]->isEndOfWord) {
                 results.push_back(substr + jt);
+
+                // final khin after tone number
+                if (curr->children[jt]->hasChild('0') &&
+                    curr->children[jt]->children['0']->isEndOfWord) {
+                    results.push_back(substr + jt + '0');
+                }
             }
         }
     }

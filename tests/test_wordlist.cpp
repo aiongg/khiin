@@ -101,8 +101,16 @@ BOOST_AUTO_TEST_CASE(split_sentence_digits) {
 
     ss->split("goa2mchaiu7joa7chelang5ham5goa2ukangkhoan2esengtiong", res);
     joined = boost::algorithm::join(res, " ");
-    BOOST_TEST(joined ==
-               "goa2 m chai u7 joa7 che lang5 ham5 goa2 u kang khoan2 e seng tiong");
+    BOOST_TEST(
+        joined ==
+        "goa2 m chai u7 joa7 che lang5 ham5 goa2 u kang khoan2 e seng tiong");
+}
+
+BOOST_AUTO_TEST_CASE(test_can_split) {
+    BOOST_TEST(ss->canSplit("liho"));
+    BOOST_TEST(ss->canSplit("goamchaiujoachelanghamgoaukangkhoanesengtiong"));
+    BOOST_TEST(ss->canSplit("li2ho2"));
+    BOOST_TEST(!ss->canSplit("ppp"));
 }
 
 BOOST_AUTO_TEST_SUITE_END();

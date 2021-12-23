@@ -30,20 +30,16 @@ static std::string makeSQLBinder(size_t n, std::string sep) {
     return res;
 }
 
-static std::string questionMarks(size_t n) {
-    return makeSQLBinder(n, "?");
+static std::string questionMarks(size_t n) { return makeSQLBinder(n, "?"); }
+
+static std::string questionMarkPairs(size_t n) {
+    return makeSQLBinder(n, "(?, ?)");
 }
 
-static std::string unigramPair(size_t n) {
-    return makeSQLBinder(n, "(?, 1)");
-}
+static std::string unigramPair(size_t n) { return makeSQLBinder(n, "(?, 1)"); }
 
 static std::string bigramTriple(size_t n) {
     return makeSQLBinder(n, "(?, ?, 1)");
-}
-
-static std::string questionMarkPair(size_t n) {
-    return makeSQLBinder(n, "(?, ?)");
 }
 
 const std::string SELECT_DictionaryInputs = "SELECT id, input FROM dictionary";
@@ -52,7 +48,7 @@ const std::string SELECT_TrieWords = "SELECT DISTINCT ascii FROM trie_map";
 
 const std::string INSERT_TrieMap(size_t n) {
     boost::format sql("INSERT INTO trie_map(ascii, dictionary_id) VALUES %1%");
-    sql % questionMarkPair(n);
+    sql % questionMarkPairs(n);
     return sql.str();
 }
 
@@ -68,6 +64,8 @@ CREATE TABLE trie_map (
 
 const std::string INDEX_TrieMapTable =
     "CREATE INDEX trie_map_ascii_idx ON trie_map(ascii)";
+
+const std::string SELECT_Unigram = "SELECT * FROM unigram_freq WHERE gram = ?";
 
 const std::string SELECT_Syllables =
     "SELECT DISTINCT syl FROM syllables_by_freq ORDER BY id ASC";
@@ -97,7 +95,6 @@ dictionary.weight DESC,
 dictionary.chhan_id ASC)");
 
     sql % questionMarks(n);
-
     return sql.str();
 }
 
@@ -106,6 +103,7 @@ const std::string SELECT_DictionaryWithUnigrams(size_t n) {
 WITH d AS (
     SELECT
         dictionary.*,
+        trie_map.ascii
     FROM trie_map
     INNER JOIN dictionary
     ON trie_map.dictionary_id = dictionary.id
@@ -114,7 +112,7 @@ WITH d AS (
 )
 SELECT
     d.*,
-    CASE WHEN unigram_freq.n IS NULL THEN 0 ELSE unigram_freq.n END AS unigram_n "
+    CASE WHEN unigram_freq.n IS NULL THEN 0 ELSE unigram_freq.n END AS unigram_n
 FROM d
 LEFT JOIN unigram_freq
 ON d.output = unigram_freq.gram
@@ -122,11 +120,20 @@ ORDER BY
     unigram_freq.n DESC,
     length(d.input) DESC,
     d.weight DESC,
-    d.chhan_id ASC");
+    d.chhan_id ASC
 )");
 
     sql % questionMarks(n);
+    return sql.str();
+}
 
+const std::string SELECT_Bigrams(size_t n) {
+    boost::format sql(R"(
+SELECT rgram, n
+FROM bigram_freq
+WHERE lgram = ? AND rgram in (%1%))");
+
+    sql % questionMarks(n);
     return sql.str();
 }
 
@@ -141,7 +148,6 @@ INSERT INTO unigram_freq (gram, n) VALUES %1%
 ON CONFLICT DO UPDATE SET n = n + 1 WHERE gram IN (%2%))");
 
     sql % unigramPair(n) % questionMarks(n);
-
     return sql.str();
 }
 
@@ -151,7 +157,7 @@ INSERT INTO bigram_freq (lgram, rgram, n) VALUES %1%
 ON CONFLICT DO UPDATE SET n = n + 1 WHERE (lgram, rgram) IN ( 
 VALUES %2% ))");
 
-    sql % bigramTriple(n) % questionMarkPair(n);
+    sql % bigramTriple(n) % questionMarkPairs(n);
 
     return sql.str();
 }

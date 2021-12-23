@@ -20,7 +20,10 @@ inline auto isDigit(std::string str) {
 
 Splitter::Splitter() {}
 
-Splitter::Splitter(const std::vector<std::string> &syllableList) {
+Splitter::Splitter(const VStr &syllableList) {
+    std::copy(syllableList.cbegin(), syllableList.cend(),
+              std::inserter(syllableSet_, syllableSet_.begin()));
+
     auto logListSize = static_cast<float>(log(syllableList.size()));
 
     size_t idx = 0;
@@ -29,6 +32,42 @@ Splitter::Splitter(const std::vector<std::string> &syllableList) {
         maxWordLength_ = std::max(maxWordLength_, (int)it.size());
         ++idx;
     }
+}
+
+auto Splitter::canSplit(std::string input) -> bool {
+    auto len = input.size();
+    if (len == 0) {
+        return true;
+    }
+
+    std::vector<bool> dp(len + 1, false);
+    std::vector<int> matchedIndex;
+    matchedIndex.push_back(-1);
+
+    for (int i = 0; i < len; i++) {
+        auto mSize = static_cast<int>(matchedIndex.size());
+        auto found = false;
+
+        for (int j = mSize - 1; j >= 0; j--) {
+            std::string substr =
+                input.substr(matchedIndex[j] + 1, i - matchedIndex[j]);
+
+            while (!substr.empty() && isdigit(substr.back())) {
+                substr.pop_back();
+            }
+
+            if (syllableSet_.find(substr) != syllableSet_.end()) {
+                found = true;
+            }
+        }
+
+        if (found) {
+            dp[i] = true;
+            matchedIndex.push_back(i);
+        }
+    }
+
+    return dp[len - 1];
 }
 
 auto Splitter::split(std::string input, std::vector<std::string> &result)

@@ -180,6 +180,17 @@ auto Buffer::insertNumeric_(char ch) -> RetVal {
 
 boost::regex toneableLetters(u8"[aeioumn]");
 
+auto handleFuzzy(char ch) {
+    // insert ch into the raw buffer
+    // send rawbuffer to splitsyllables
+    // get back VStr of syllables
+    // display in buffer
+    // send VStr to findMultiCandidate
+    // -> 
+    // 
+    // send rawbuffer to findWordCandidates
+}
+
 auto Buffer::insertTelex_(char ch) -> RetVal {
     // TODO: handle telex double press
     char lk = lastKey_;

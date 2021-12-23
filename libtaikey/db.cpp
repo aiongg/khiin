@@ -87,8 +87,7 @@ auto TKDB::selectDictionaryRowsByAscii(VStr inputs, DictRows &results) -> void {
     }
 }
 
-auto TKDB::selectDictionaryRowsByAsciiWithUnigram(VStr inputs,
-                                                  DictRows &results) -> void {
+auto TKDB::selectCandidatesFor(VStr inputs, CandidateRows &results) -> void {
     results.clear();
 
     auto query = SQLite::Statement(
@@ -99,15 +98,38 @@ auto TKDB::selectDictionaryRowsByAsciiWithUnigram(VStr inputs,
     }
 
     while (query.executeStep()) {
-        DictionaryRow d{query.getColumn("id").getInt(),
-                        query.getColumn("chhan_id").getInt(),
-                        query.getColumn("input").getString(),
-                        query.getColumn("output").getString(),
-                        query.getColumn("weight").getInt(),
-                        query.getColumn("common").getInt(),
-                        query.getColumn("hint").getString(),
-                        query.getColumn("unigram_n").getInt()};
+        CandidateRow d{query.getColumn("ascii").getString(),
+                       query.getColumn("output").getString(),
+                       query.getColumn("hint").getString(),
+                       query.getColumn("common").getInt(),
+                       query.getColumn("unigram_n").getInt()};
         results.push_back(d);
+    }
+}
+
+auto TKDB::getUnigramCount(std::string gram) -> int {
+    auto query = SQLite::Statement(db_, SQL::SELECT_Unigram);
+    query.bind(1, gram);
+    auto found = query.executeStep();
+
+    return found ? query.getColumn("n").getInt() : 0;
+}
+
+auto TKDB::selectBigramsFor(std::string lgram, VStr rgrams,
+                            BigramWeights &results) -> void {
+    results.clear();
+
+    auto query = SQLite::Statement(db_, SQL::SELECT_Bigrams(rgrams.size()));
+
+    query.bind(1, lgram);
+
+    for (const auto &r : rgrams | boost::adaptors::indexed(2)) {
+        query.bind(static_cast<int>(r.index()), r.value());
+    }
+
+    while (query.executeStep()) {
+        results[query.getColumn("rgram").getString()] =
+            query.getColumn("n").getInt();
     }
 }
 
@@ -187,8 +209,8 @@ auto TKDB::updateGramCounts(VStr &grams) -> int {
     auto rawUnigrams = SQL::UPSERT_Unigrams(grams.size());
     auto rawBigrams = SQL::UPSERT_Bigrams(nBigrams);
 
-    BOOST_LOG_TRIVIAL(debug) << rawUnigrams;
-    BOOST_LOG_TRIVIAL(debug) << rawBigrams;
+    //BOOST_LOG_TRIVIAL(debug) << rawUnigrams;
+    //BOOST_LOG_TRIVIAL(debug) << rawBigrams;
 
     auto qUnigrams = SQLite::Statement(db_, rawUnigrams);
 
