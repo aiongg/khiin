@@ -71,8 +71,8 @@ auto TKDB::selectDictionaryRowsByAscii(VStr inputs, DictRows &results) -> void {
     auto query =
         SQLite::Statement(db_, SQL::SELECT_Dictionary_N(inputs.size()));
 
-    for (const auto &input : inputs | boost::adaptors::indexed(1)) {
-        query.bind(input.index(), input.value());
+    for (const auto &in : inputs | boost::adaptors::indexed(1)) {
+        query.bind(static_cast<int>(in.index()), in.value());
     }
 
     while (query.executeStep()) {
@@ -87,27 +87,16 @@ auto TKDB::selectDictionaryRowsByAscii(VStr inputs, DictRows &results) -> void {
     }
 }
 
-auto TKDB::selectDictionaryRowsByAsciiWithUnigram(VStr queries,
+auto TKDB::selectDictionaryRowsByAsciiWithUnigram(VStr inputs,
                                                   DictRows &results) -> void {
     results.clear();
 
-    auto qstring = "(\"" + boost::algorithm::join(queries, "\",\"") + "\") ";
     auto query = SQLite::Statement(
-        db_, "WITH d AS ( "
-             "SELECT dictionary.* FROM trie_map INNER JOIN dictionary "
-             "ON trie_map.dictionary_id = dictionary.id "
-             "WHERE trie_map.ascii IN " +
-                 qstring +
-                 "AND dictionary.weight >= 1000) "
-                 "SELECT d.*, "
-                 "CASE WHEN unigram_freq.n IS NULL THEN 0 ELSE unigram_freq.n "
-                 "END AS unigram_n "
-                 "FROM d LEFT JOIN unigram_freq "
-                 "ON d.output = unigram_freq.gram "
-                 "ORDER BY unigram_freq.n DESC, "
-                 "length(d.input) DESC, "
-                 "d.weight DESC, "
-                 "d.chhan_id ASC");
+        db_, SQL::SELECT_DictionaryWithUnigrams(inputs.size()));
+
+    for (const auto &in : inputs | boost::adaptors::indexed(1)) {
+        query.bind(static_cast<int>(in.index()), in.value());
+    }
 
     while (query.executeStep()) {
         DictionaryRow d{query.getColumn("id").getInt(),
@@ -183,9 +172,7 @@ auto TKDB::updateGramCounts(VStr &grams) -> int {
     }
 
     if (grams.size() == 1) {
-        auto oneGramQuery = SQLite::Statement(
-            db_, "INSERT INTO unigram_freq (gram, n) VALUES "
-                 "(?, 1) ON CONFLICT DO UPDATE SET n = n + 1 WHERE gram = ?");
+        auto oneGramQuery = SQLite::Statement(db_, SQL::UPSERT_OneGram);
         oneGramQuery.bind(1, grams[0]);
         oneGramQuery.bind(2, grams[0]);
         return oneGramQuery.exec();
@@ -193,21 +180,12 @@ auto TKDB::updateGramCounts(VStr &grams) -> int {
 
     // For a list of grams > 1, we need both uni- and bigram
 
-    auto nUnigrams = grams.size();
+    // auto nUnigrams = grams.size();
     // auto nBigrams = grams.size() + 1;
     auto nBigrams = grams.size() - 1;
 
-    auto rawUnigrams = "INSERT INTO unigram_freq (gram, n) VALUES " +
-                       boost::algorithm::join(VStr(nUnigrams, "(?, 1)"), ", ") +
-                       " ON CONFLICT DO UPDATE SET n = n + 1 WHERE gram IN (" +
-                       boost::algorithm::join(VStr(nUnigrams, "?"), ", ") + ")";
-
-    auto rawBigrams =
-        "INSERT INTO bigram_freq (lgram, rgram, n) VALUES " +
-        boost::algorithm::join(VStr(nBigrams, "(?, ?, 1)"), ", ") +
-        " ON CONFLICT DO UPDATE SET n = n + 1 WHERE (lgram, rgram) IN ( "
-        "VALUES " +
-        boost::algorithm::join(VStr(nBigrams, "(?, ?)"), ", ") + " )";
+    auto rawUnigrams = SQL::UPSERT_Unigrams(grams.size());
+    auto rawBigrams = SQL::UPSERT_Bigrams(nBigrams);
 
     BOOST_LOG_TRIVIAL(debug) << rawUnigrams;
     BOOST_LOG_TRIVIAL(debug) << rawBigrams;
@@ -215,8 +193,9 @@ auto TKDB::updateGramCounts(VStr &grams) -> int {
     auto qUnigrams = SQLite::Statement(db_, rawUnigrams);
 
     for (const auto &gram : grams | boost::adaptors::indexed(1)) {
-        qUnigrams.bind(gram.index(), gram.value());
-        qUnigrams.bind(gram.index() + grams.size(), gram.value());
+        qUnigrams.bind(static_cast<int>(gram.index()), gram.value());
+        qUnigrams.bind(static_cast<int>(gram.index() + grams.size()),
+                       gram.value());
     }
 
     auto qBigrams = SQLite::Statement(db_, rawBigrams);
@@ -239,9 +218,9 @@ auto TKDB::updateGramCounts(VStr &grams) -> int {
         }
 
         qBigrams.bind(++i, *it);
-        qBigrams.bind(i + 2 * nBigrams, *it);
+        qBigrams.bind(static_cast<int>(i + 2 * nBigrams), *it);
         qBigrams.bind(++i, *(++it));
-        qBigrams.bind(i + 2 * nBigrams, *it);
+        qBigrams.bind(static_cast<int>(i + 2 * nBigrams), *it);
     }
 
     auto res = qUnigrams.exec();
@@ -251,13 +230,12 @@ auto TKDB::updateGramCounts(VStr &grams) -> int {
 }
 
 int TKDB::buildTrieLookupTable_() {
-    VStr insertions;
+    std::vector<std::pair<std::string, int>> insertable;
 
-    auto dictionaryQuery =
-        SQLite::Statement(db_, "SELECT id, input FROM dictionary");
+    auto dictionaryQuery = SQLite::Statement(db_, SQL::SELECT_DictionaryInputs);
 
     while (dictionaryQuery.executeStep()) {
-        auto dict_id = dictionaryQuery.getColumn("id").getInt();
+        auto dictId = dictionaryQuery.getColumn("id").getInt();
         auto asciiLomaji =
             utf8ToAsciiLower(dictionaryQuery.getColumn("input").getString());
 
@@ -266,27 +244,28 @@ int TKDB::buildTrieLookupTable_() {
         static boost::regex rInnerTone("\\d(?!$)");
         auto toneless = boost::regex_replace(collapsed, rInnerTone, "");
 
-        insertions.push_back("('" + collapsed + "', " +
-                             std::to_string(dict_id) + ")");
+        insertable.push_back(std::make_pair(collapsed, dictId));
 
         if (collapsed != toneless) {
-            insertions.push_back("('" + toneless + "', " +
-                                 std::to_string(dict_id) + ")");
+            insertable.push_back(std::make_pair(toneless, dictId));
         }
     }
 
-    auto insertQuery = "INSERT INTO trie_map (ascii, dictionary_id) VALUES " +
-                       boost::algorithm::join(insertions, ", ");
-
     auto tx = SQLite::Transaction(db_);
 
-    db_.exec("DROP TABLE IF EXISTS trie_map; "
-             "CREATE TABLE trie_map (id INTEGER PRIMARY KEY, ascii TEXT, "
-             "dictionary_id INTEGER, "
-             "FOREIGN KEY (dictionary_id) REFERENCES dictionary (id), "
-             "UNIQUE(ascii, dictionary_id))");
-    db_.exec(insertQuery);
-    db_.exec("CREATE INDEX trie_map_ascii_idx ON trie_map (ascii)");
+    db_.exec(SQL::CREATE_TrieMapTable);
+
+    auto insertQuery =
+        SQLite::Statement(db_, SQL::INSERT_TrieMap(insertable.size()));
+    for (const auto &each : insertable | boost::adaptors::indexed(1)) {
+        insertQuery.bind(static_cast<int>(2 * each.index() - 1),
+                         each.value().first);
+        insertQuery.bind(static_cast<int>(2 * each.index()),
+                         each.value().second);
+    }
+
+    insertQuery.exec();
+    db_.exec(SQL::INDEX_TrieMapTable);
 
     try {
         tx.commit();
