@@ -14,15 +14,6 @@ enum class CColor {
     Gray,
 };
 
-struct Candidate {
-    std::string ascii;
-    std::string output;
-    std::string hint;
-    CColor color = CColor::Normal;
-};
-
-using CandidateList = std::vector<Candidate>;
-
 // buffer
 // auto momomo = candidates.find(rawBuffer);
 
@@ -33,18 +24,25 @@ using CandidateList = std::vector<Candidate>;
 
 class CandidateFinder {
   public:
-    CandidateFinder(TKDB &db);
     CandidateFinder(TKDB &db, Splitter &splitter, Trie &trie);
-    auto findCandidates(std::string query, bool toneless,
-                        std::string prevBestGram, CandidateList &results)
-        -> void;
+
+    // AltCandidates is a list of <candidate, length> pairs, with length
+    // corresponding to the number of characters consumed in the input string
+    auto findCandidates(std::string input, bool toneless, std::string lgram)
+        -> Candidates;
+    auto findPrimaryCandidate(std::string query, bool toneless,
+                              std::string lgram) -> Candidates;
+    auto findPrimaryCandidate(std::string query, bool toneless,
+                              Candidate lgram) -> Candidates;
 
   private:
+    auto sortCandidatesByBigram_(std::string lgram, int lgramCount,
+                                 Candidates &rgrams);
     auto findBestCandidateByBigram_(std::string lgram, int lgramCount,
-                                    const CandidateRows &rgrams) -> size_t;
+                                    const Candidates &rgrams) -> size_t;
 
     auto findBestCandidateBySplitter_(std::string input, bool toneless)
-        -> CandidateRow;
+        -> Candidate;
 
     TKDB &db_;
     Splitter &splitter_;

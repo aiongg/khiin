@@ -1,4 +1,4 @@
-#include "lomaji.h"
+#include <regex>
 
 #include <boost/algorithm/string.hpp>
 #include <boost/format.hpp>
@@ -7,6 +7,8 @@
 #include <boost/regex.hpp>
 
 #include <utf8cpp/utf8.h>
+
+#include "lomaji.h"
 
 namespace TaiKey {
 
@@ -20,9 +22,13 @@ auto getToneFromKeyMap(std::unordered_map<Tone, char> map, char ch) {
     return Tone::NaT;
 }
 
-auto getToneFromDigit(char ch) -> Tone { return getToneFromKeyMap(TONE_DIGIT_MAP, ch); }
+auto getToneFromDigit(char ch) -> Tone {
+    return getToneFromKeyMap(TONE_DIGIT_MAP, ch);
+}
 
-auto getToneFromTelex(char ch) -> Tone { return getToneFromKeyMap(TONE_TELEX_MAP, ch); }
+auto getToneFromTelex(char ch) -> Tone {
+    return getToneFromKeyMap(TONE_TELEX_MAP, ch);
+}
 
 auto toNFD(std::string s) -> std::string {
     return boost::locale::normalize(s, boost::locale::norm_nfd);
@@ -37,15 +43,18 @@ auto utf8Size(std::string s) -> size_t {
 }
 
 auto stripDiacritics(std::string str) {
-    std::string ret = toNFD(str);
-    for (std::string tone : TONES) {
-        size_t found = ret.find(tone);
-        if (found != std::string::npos) {
-            ret.erase(found, tone.size());
-            break;
-        }
-    }
-    return ret;
+    static std::regex tones("[\u00b7\u0300-\u030d]");
+    return std::regex_replace(toNFD(str), tones, "");
+}
+
+auto stripAsciiToAlpha(std::string str) {
+    static std::regex re("[\\d -]+");
+    return std::regex_replace(str, re, "");
+}
+
+auto cmpAsciiToUtf8(std::string ascii, std::string utf8) {
+    return stripAsciiToAlpha(ascii) ==
+           stripAsciiToAlpha(utf8ToAsciiLower(utf8));
 }
 
 auto asciiToUtf8(std::string ascii, Tone tone, bool khin) -> std::string {
@@ -69,8 +78,8 @@ auto asciiToUtf8(std::string ascii, Tone tone, bool khin) -> std::string {
 
 auto utf8ToAsciiLower(std::string u8string) -> std::string {
     boost::algorithm::trim_if(
-        u8string, [](char& c) -> bool { return c == ' ' || c == '-'; });
-    
+        u8string, [](char &c) -> bool { return c == ' ' || c == '-'; });
+
     if (u8string.empty()) {
         return u8string;
     }
@@ -177,6 +186,8 @@ auto getAsciiCursorFromUtf8(std::string ascii, std::string u8str, size_t idx)
             } else if (ucp == 0x207f) {
                 utf8::advance(a_it, 2, a_end);
                 utf8::advance(u8_it, 1, u8_end);
+            } else if (ucp == 0x0b7) {
+                utf8::advance(u8_it, 1, u8_end);
             } else {
                 utf8::advance(a_it, 1, a_end);
                 utf8::advance(u8_it, 1, u8_end);
@@ -187,6 +198,81 @@ auto getAsciiCursorFromUtf8(std::string ascii, std::string u8str, size_t idx)
     } catch (const utf8::not_enough_room &e) {
         return static_cast<size_t>(utf8::distance(ascii.begin(), a_it));
     }
+}
+
+auto advanceUtf8Lomaji(std::string::iterator &it, std::string::iterator &end) {
+    auto cp = utf8::next(it, end);
+
+    while ((0x0300 <= cp && cp <= 0x0358) || cp == 0x00b7) {
+        cp = utf8::next(it, end);
+    }
+
+    return cp;
+}
+
+auto advanceAsciiLomaji(std::string::iterator &it, std::string::iterator &end) {
+    std::advance(it, 1);
+
+    if (it == end) {
+        return;
+    }
+
+    if (isdigit(*it) || (*it == 'o' && *(it + 1) == 'u') ||
+        (*it == 'n' && *(it + 1) == 'n')) {
+        std::advance(it, 1);
+    }
+}
+
+auto spaceAsciiByLomaji(std::string ascii, std::string lomaji) -> VStr {
+    auto ret = VStr();
+
+    if (!cmpAsciiToUtf8(ascii, lomaji)) {
+        return ret;
+    }
+
+    auto a_start = ascii.begin();
+    auto a_it = ascii.begin();
+    auto a_end = ascii.end();
+    auto u8_it = lomaji.begin();
+    auto u8_end = lomaji.end();
+    auto u8_cp = uint32_t(0);
+
+    while (u8_it != u8_end && a_it != a_end) {
+        u8_cp = utf8::peek_next(u8_it, u8_end);
+
+        if (u8_cp == '-' || u8_cp == ' ') {
+            if (a_start != a_it) {
+                ret.push_back(std::string(a_start, a_it));
+                a_start = a_it;
+            }
+
+            utf8::next(u8_it, u8_end);
+        } else {
+
+            if (0x0300 <= u8_cp && u8_cp <= 0x030D) {
+                utf8::advance(u8_it, 1, u8_end);
+            } else if (u8_cp == 0x0358) {
+                utf8::advance(a_it, 1, a_end);
+                utf8::advance(u8_it, 1, u8_end);
+            } else if (u8_cp == 0x207f) {
+                utf8::advance(a_it, 2, a_end);
+                utf8::advance(u8_it, 1, u8_end);
+            } else if (u8_cp == 0x0b7) {
+                utf8::advance(u8_it, 1, u8_end);
+            } else {
+                utf8::advance(u8_it, 1, u8_end);
+                utf8::advance(a_it, 1, a_end);
+            }
+        }
+
+        while (a_it != a_end && isdigit(*a_it)) {
+            utf8::advance(a_it, 1, a_end);
+        }
+    }
+
+    ret.push_back(std::string(a_start, a_end));
+
+    return ret;
 }
 
 } // namespace TaiKey

@@ -48,7 +48,7 @@ BOOST_AUTO_TEST_CASE(update_gram_counts) {
     boost::split(v, text, boost::is_any_of(" "));
 
     auto res = db.updateGramCounts(v);
-    BOOST_TEST(res == 0);
+    BOOST_TEST(res == 23);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

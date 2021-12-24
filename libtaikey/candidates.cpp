@@ -1,3 +1,4 @@
+#include <numeric>
 #include <regex>
 #include <string>
 
@@ -13,16 +14,17 @@ namespace TaiKey {
 
 using namespace std::literals::string_literals;
 
-// CandidateFinder::CandidateFinder(TKDB &db) : db_(db) {
-//    auto syllables = db_.selectSyllableList();
-//    splitter_ = Splitter(syllables);
-//
-//    auto dictionary = db_.selectTrieWordlist();
-//    trie_ = Trie(dictionary);
-//}
-
 CandidateFinder::CandidateFinder(TKDB &db, Splitter &splitter, Trie &trie)
     : db_(db), splitter_(splitter), trie_(trie) {}
+
+static auto toCandidate(Candidate &cr, int inputSize) -> Candidate {
+    return Candidate{
+        inputSize,
+        cr.input,
+        cr.output,
+        cr.hint,
+    };
+}
 
 /**
  * Returns the number of `syllables` matched by `word`, starting
@@ -58,13 +60,32 @@ size_t alignedSyllables(const VStr &syllables, std::string word) {
     return -1;
 }
 
+// modifies rgrams
+auto CandidateFinder::sortCandidatesByBigram_(std::string lgram, int lgramCount,
+                                              Candidates &rgrams) {
+    auto bigrams = BigramWeights();
+    auto rgramOutputs = VStr();
+    for (const auto &c : rgrams) {
+        rgramOutputs.push_back(c.output);
+    }
+    db_.selectBigramsFor(lgram, rgramOutputs, bigrams);
+    for (auto &c : rgrams) {
+        c.bigramWt = static_cast<float>(bigrams.at(c.output)) /
+                     static_cast<float>(lgramCount);
+    }
+    std::sort(rgrams.begin(), rgrams.end(),
+              [](Candidate a, Candidate b) -> bool {
+                  return a.bigramWt > b.bigramWt;
+              });
+}
+
 /**
  * Makes database call to look up lgram/rgram pairs, returns
  * index in `&rgrams` of the best match
  */
 auto CandidateFinder::findBestCandidateByBigram_(std::string lgram,
                                                  int lgramCount,
-                                                 const CandidateRows &rgrams)
+                                                 const Candidates &rgrams)
     -> size_t {
     if (lgramCount == 0) {
         return 0;
@@ -92,14 +113,18 @@ auto CandidateFinder::findBestCandidateByBigram_(std::string lgram,
 }
 
 auto CandidateFinder::findBestCandidateBySplitter_(std::string input,
-                                                   bool toneless)
-    -> CandidateRow {
+                                                   bool toneless) -> Candidate {
     auto syllables = VStr();
     auto trieWords = VStr();
-    auto candRows = CandidateRows();
+    auto candRows = Candidates();
 
     splitter_.split(input, syllables);
     trie_.getAllWords(input, toneless, trieWords);
+
+    if (trieWords.size() == 0) {
+        return Candidate();
+    }
+
     auto matched = VStr();
     std::copy_if(trieWords.begin(), trieWords.end(),
                  std::back_inserter(matched), [&](std::string word) {
@@ -109,19 +134,18 @@ auto CandidateFinder::findBestCandidateBySplitter_(std::string input,
     db_.selectCandidatesFor(matched, candRows);
 
     if (candRows.empty()) {
-        return CandidateRow();
+        return Candidate();
     }
 
     return candRows[0];
 }
 
 auto CandidateFinder::findCandidates(std::string input, bool toneless,
-                                     std::string lgram, CandidateList &results)
-    -> void {
-    results.clear();
+                                     std::string lgram) -> Candidates {
+    auto rCandidates = Candidates();
 
     if (input.empty()) {
-        return;
+        return rCandidates;
     }
 
     int lgramCount = 0;
@@ -130,44 +154,81 @@ auto CandidateFinder::findCandidates(std::string input, bool toneless,
         lgramCount = db_.getUnigramCount(lgram);
     }
 
-    // if (lgram == "") {
-    //    auto cr = findBestCandidateBySplitter_(input, toneless);
-    //    lgram = cr.output;
-    //    lgramCount = cr.unigramN;
-    //} else {
-    //    lgramCount = db_.getUnigramCount(lgram);
-    //}
-
-    auto syllables = VStr();
-    splitter_.split(input, syllables);
-    auto sdeque = std::deque(syllables.cbegin(), syllables.cend());
-
-    auto sylIterA = syllables.cbegin();
-    auto sylIterB = syllables.cbegin();
     auto trieWords = VStr();
-    auto remainder = ""s;
-    auto prevBestCand = CandidateRow();
-    auto currBestCand = CandidateRow();
-    auto candRows = CandidateRows();
-    auto bigrams = BigramWeights();
+
+    trie_.getAllWords(input, toneless, trieWords);
+
+    if (trieWords.empty()) {
+        // TODO
+    }
+
+    db_.selectCandidatesFor(trieWords, rCandidates);
+
+    if (lgramCount > 0) {
+        sortCandidatesByBigram_(lgram, lgramCount, rCandidates);
+    }
+
+    for (auto &c : rCandidates) {
+        auto i = 0;
+        while (i < input.size() && c.ascii[i] == input[i]) {
+            i++;
+        }
+        if (i < c.ascii.size()) {
+            c.ascii.erase(c.ascii.begin() + i, c.ascii.end());
+        }
+    }
+
+    return rCandidates;
+}
+
+auto CandidateFinder::findPrimaryCandidate(std::string input, bool toneless,
+    std::string lgram) -> Candidates {
+    
+    int lgramCount = db_.getUnigramCount(lgram);
+    auto cLgram = Candidate();
+    cLgram.output = lgram;
+    return findPrimaryCandidate(input, toneless, cLgram);
+}
+
+auto CandidateFinder::findPrimaryCandidate(std::string input, bool toneless,
+                                           Candidate cLgram) -> Candidates {
+    auto rCandidates = Candidates();
+
+    if (input.empty()) {
+        return rCandidates;
+    }
+
+    auto lgram = cLgram.output;
+    auto lgramCount = cLgram.unigramN;
+    auto trieWords = VStr();
+    auto cbc = Candidate(); // currentBestCandidate
+    auto currCandidates = Candidates();
 
     while (!input.empty()) {
         if (lgram == "") {
-            auto cr = findBestCandidateBySplitter_(input, toneless);
-            lgram = cr.output;
-            lgramCount = cr.unigramN;
+            cbc = findBestCandidateBySplitter_(input, toneless);
+
+            if (cbc.dict_id == 0) {
+                input.erase(0, 1);
+                continue;
+            }
+
+            lgram = cbc.output;
+            lgramCount = cbc.unigramN;
 
             auto i = 0;
-            while (i < input.size() && cr.ascii[i] == input[i]) {
+            while (i < input.size() && cbc.ascii[i] == input[i]) {
                 i++;
             }
 
+            if (i < cbc.ascii.size()) {
+                cbc.ascii.erase(cbc.ascii.begin() + i, cbc.ascii.end());
+            }
+
             input.erase(0, i);
-            results.push_back(Candidate{cr.ascii, cr.output, cr.hint});
+            rCandidates.push_back(cbc);
             continue;
         }
-
-        // remainder = boost::algorithm::join(sdeque, "");
 
         trie_.getAllWords(input, toneless, trieWords);
 
@@ -180,7 +241,6 @@ auto CandidateFinder::findCandidates(std::string input, bool toneless,
 
         auto matched = VStr();
 
-        // auto matched = VStr();
         std::copy_if(trieWords.begin(), trieWords.end(),
                      std::back_inserter(matched), [&](std::string word) {
                          auto i = 0;
@@ -192,44 +252,36 @@ auto CandidateFinder::findCandidates(std::string input, bool toneless,
                              std::string(input.begin() + i, input.end()));
                      });
 
-        db_.selectCandidatesFor(matched, candRows);
+        db_.selectCandidatesFor(matched, currCandidates);
 
-        if (candRows.empty()) {
+        if (currCandidates.empty()) {
             // Try the splitter again
             lgram.clear();
             lgramCount = 0;
             continue;
         }
 
-        auto idx = findBestCandidateByBigram_(lgram, lgramCount, candRows);
-        currBestCand = candRows[idx];
+        auto idx =
+            findBestCandidateByBigram_(lgram, lgramCount, currCandidates);
+        cbc = currCandidates[idx];
 
         int i = 0;
-        while (i < input.size() && currBestCand.ascii[i] == input[i]) {
+        while (i < input.size() && cbc.ascii[i] == input[i]) {
             i++;
         }
 
-        lgram = currBestCand.output;
-        lgramCount = currBestCand.unigramN;
+        if (i < cbc.ascii.size()) {
+            cbc.ascii.erase(cbc.ascii.begin() + i, cbc.ascii.end());
+        }
 
-        results.push_back(Candidate{currBestCand.ascii, currBestCand.output,
-                                    currBestCand.hint});
+        lgram = cbc.output;
+        lgramCount = cbc.unigramN;
+
         input.erase(0, i);
-
-        // auto consumed = alignedSyllables(sdeque, currBestCand.ascii);
-
-        // results.push_back(Candidate{
-        //    boost::algorithm::join(
-        //        boost::iterator_range<std::deque<std::string>::const_iterator>(
-        //            sdeque.cbegin(), sdeque.cbegin() + consumed),
-        //        ""),
-        //    currBestCand.output,
-        //});
-
-        // sdeque.erase(sdeque.cbegin(), sdeque.cbegin() + consumed);
+        rCandidates.push_back(cbc);
     }
 
-    return;
+    return rCandidates;
 }
 
 } // namespace TaiKey

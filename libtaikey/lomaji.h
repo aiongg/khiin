@@ -30,4 +30,6 @@ auto checkTone78Swap(std::string u8syllable, Tone tone) -> Tone;
 auto getAsciiCursorFromUtf8(std::string ascii, std::string u8str,
                             size_t u8cursor) -> size_t;
 
+auto spaceAsciiByLomaji(std::string ascii, std::string lomaji) -> VStr;
+
 } // namespace TaiKey

@@ -24,12 +24,15 @@ struct DictionaryRow {
     std::string hint;
 };
 
-struct CandidateRow {
+struct Candidate {
+    int dict_id;
     std::string ascii;
+    std::string input;
     std::string output;
     std::string hint;
     int common;
     int unigramN;
+    float bigramWt;
 };
 
 struct UnigramRow {
@@ -38,11 +41,12 @@ struct UnigramRow {
 };
 
 using DictRows = std::vector<DictionaryRow>;
-using CandidateRows = std::vector<CandidateRow>;
+using Candidates = std::vector<Candidate>;
 using BigramWeights = std::unordered_map<std::string, int>;
 
 class TKDB {
   public:
+    TKDB();
     TKDB(std::string dbFilename);
     auto init() -> void;
     auto selectTrieWordlist() -> VStr;
@@ -50,7 +54,7 @@ class TKDB {
     auto selectDictionaryRowsByAscii(std::string input, DictRows &results)
         -> void;
     auto selectDictionaryRowsByAscii(VStr inputs, DictRows &results) -> void;
-    auto selectCandidatesFor(VStr queries, CandidateRows &results) -> void;
+    auto selectCandidatesFor(VStr queries, Candidates &results) -> void;
     auto selectBigramsFor(std::string lgram, VStr rgrams,
                           BigramWeights &results) -> void;
     auto getUnigramCount(std::string gram) -> int;

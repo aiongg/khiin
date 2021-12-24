@@ -22,25 +22,27 @@ struct Fx {
 BOOST_FIXTURE_TEST_SUITE(CandidateTest, Fx)
 
 BOOST_AUTO_TEST_CASE(load_candidate_finder) {
-    auto res = CandidateList();
-    cf.findCandidates("khiameng", true, "", res);
+    auto res = cf.findPrimaryCandidate("khiameng", true, "");
+    BOOST_TEST(res.size() > 0);
+}
+
+BOOST_AUTO_TEST_CASE(find_candidates) {
+    auto res = cf.findCandidates("khiameng", true, "");
     BOOST_TEST(res.size() > 0);
 }
 
 BOOST_AUTO_TEST_CASE(check_empty_search) {
-    auto res = CandidateList();
-    cf.findCandidates("", true, "", res);
+    auto res = cf.findPrimaryCandidate("", true, "");
     BOOST_TEST(res.size() == 0);
 }
 
 BOOST_AUTO_TEST_CASE(find_long_string) {
     auto test = "chetioittengsisekaisiongchanephahjihoat";
-    auto res = CandidateList();
-    cf.findCandidates(test, true, "", res);
+    auto res = cf.findPrimaryCandidate(test, true, "");
 
     auto v = std::string();
 
-    for (auto c : res) {
+    for (const auto &c : res) {
         v += c.output;
     }
     BOOST_LOG_TRIVIAL(debug) << "Input string: " << test;
@@ -54,11 +56,11 @@ BOOST_AUTO_TEST_CASE(find_long_string) {
     auto grams = VStr{u8"賛", u8"个", u8"打", u8"字", u8"法"}; 
     db.updateGramCounts(grams);
 
-    cf.findCandidates(test, true, "", res);
+    res = cf.findPrimaryCandidate(test, true, "");
 
     v.clear();
 
-    for (auto c : res) {
+    for (const auto &c : res) {
         v += c.output;
     }
 

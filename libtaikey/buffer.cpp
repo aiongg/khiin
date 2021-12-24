@@ -32,27 +32,39 @@ auto Syllable::getAsciiCursor(size_t idx) -> ptrdiff_t {
 
 // Buffer
 
-Buffer::Buffer()
-    : syllables_(), cursor_(0, 0), toneKeys_(ToneKeys::Numeric), lastKey_(),
-      dictTrie_(std::shared_ptr<Trie>(new Trie())),
-      sylSplitter_(std::shared_ptr<Splitter>(new Splitter())) {
-    clear();
-}
+// Buffer::Buffer()
+//    : syllables_(), cursor_(0, 0), toneKeys_(ToneKeys::Numeric), lastKey_(),
+//      dictTrie_(std::shared_ptr<Trie>(new Trie())),
+//      sylSplitter_(std::shared_ptr<Splitter>(new Splitter())) {
+//    clear();
+//}
+//
+// Buffer::Buffer(std::shared_ptr<Trie> dictTrie,
+//               std::shared_ptr<Splitter> sylSplitter)
+//    : syllables_(), cursor_(0, 0), toneKeys_(ToneKeys::Numeric), lastKey_() {
+//    clear();
+//    dictTrie_ = dictTrie;
+//    sylSplitter_ = sylSplitter;
+//}
 
-Buffer::Buffer(std::shared_ptr<Trie> dictTrie,
-               std::shared_ptr<Splitter> sylSplitter)
-    : syllables_(), cursor_(0, 0), toneKeys_(ToneKeys::Numeric), lastKey_() {
-    clear();
-    dictTrie_ = dictTrie;
-    sylSplitter_ = sylSplitter;
-}
+Buffer::Buffer(CandidateFinder &candidateFinder)
+    : candidateFinder_(candidateFinder) {}
 
 auto Buffer::getDisplayBuffer() -> std::string {
-    std::vector<std::string> syls;
-    for (auto &it : syllables_) {
-        syls.push_back(it.display);
+    // editing/normal/fuzzy:
+    if (primaryCandidate_.empty()) {
+        return rawBuffer_;
     }
-    return boost::algorithm::join(syls, u8" ");
+
+    auto ret = VStr();
+    auto prevIndex = 0;
+
+    for (const auto &c : primaryCandidate_) {
+        auto syls = spaceAsciiByLomaji(c.ascii, c.input);
+        ret.insert(ret.end(), syls.begin(), syls.end());
+    }
+
+    return boost::algorithm::join(ret, u8" ");
 }
 
 auto Buffer::getCursor() -> size_t {
@@ -71,13 +83,43 @@ auto Buffer::getCursor() -> size_t {
 }
 
 auto Buffer::insert(char ch) -> RetVal {
+    rawBuffer_.push_back(ch);
+
+    if (primaryCandidate_.size() > 4) {
+        auto consumed = 0;
+        auto idx = 0;
+        auto it = primaryCandidate_.begin();
+
+        while (it != primaryCandidate_.end() - 4) {
+            consumed += (*it).ascii.size();
+            it++;
+        }
+
+        while (it != primaryCandidate_.end()) {
+            it = primaryCandidate_.erase(it);
+        }
+
+        auto nextCandidate = candidateFinder_.findPrimaryCandidate(
+            std::string(rawBuffer_.begin() + consumed, rawBuffer_.end()),
+            toneMode_ == ToneMode::Fuzzy, primaryCandidate_.back());
+
+        primaryCandidate_.insert(primaryCandidate_.end(),
+                                 nextCandidate.cbegin(), nextCandidate.cend());
+    } else {
+        primaryCandidate_ = candidateFinder_.findPrimaryCandidate(
+            rawBuffer_, toneMode_ == ToneMode::Fuzzy, "");
+
+        candidates_ = candidateFinder_.findCandidates(
+            rawBuffer_, toneMode_ == ToneMode::Fuzzy, "");
+    }
+
     // With isdigit(ch), numeric tones are enabled
     // even in Telex mode
-    if (isdigit(ch) || toneKeys_ == ToneKeys::Numeric) {
-        return insertNumeric_(ch);
-    } else if (toneKeys_ == ToneKeys::Telex) {
-        return insertTelex_(ch);
-    }
+    // if (isdigit(ch) || toneKeys_ == ToneKeys::Numeric) {
+    //    return insertNumeric_(ch);
+    //} else if (toneKeys_ == ToneKeys::Telex) {
+    //    return insertTelex_(ch);
+    //}
 
     return RetVal::NotConsumed;
 }
@@ -166,6 +208,13 @@ auto Buffer::isCursorAtEnd_() -> bool {
 }
 
 auto Buffer::insertNumeric_(char ch) -> RetVal {
+    rawBuffer_.push_back(ch);
+
+    primaryCandidate_ = candidateFinder_.findPrimaryCandidate(
+        rawBuffer_, toneMode_ == ToneMode::Fuzzy, "");
+    candidates_ = candidateFinder_.findCandidates(
+        rawBuffer_, toneMode_ == ToneMode::Fuzzy, "");
+
     Syllable *syl = &syllables_[cursor_.first];
     size_t *curs = &cursor_.second;
 
@@ -186,8 +235,8 @@ auto handleFuzzy(char ch) {
     // get back VStr of syllables
     // display in buffer
     // send VStr to findMultiCandidate
-    // -> 
-    // 
+    // ->
+    //
     // send rawbuffer to findWordCandidates
 }
 

@@ -11,9 +11,11 @@ namespace TaiKey {
 
 using namespace std::literals::string_literals;
 
+// Testing only
+TKDB::TKDB() : db_(SQLite::Database(":memory:", SQLite::OPEN_READWRITE)) {}
+
 TKDB::TKDB(std::string dbFilename)
-    : db_(SQLite::Database(dbFilename,
-                           SQLite::OPEN_READWRITE | SQLite::OPEN_CREATE)) {
+    : db_(SQLite::Database(dbFilename, SQLite::OPEN_READWRITE)) {
     tableDictionary_.reserve(20000);
     init();
 }
@@ -87,7 +89,7 @@ auto TKDB::selectDictionaryRowsByAscii(VStr inputs, DictRows &results) -> void {
     }
 }
 
-auto TKDB::selectCandidatesFor(VStr inputs, CandidateRows &results) -> void {
+auto TKDB::selectCandidatesFor(VStr inputs, Candidates &results) -> void {
     results.clear();
 
     auto query = SQLite::Statement(
@@ -98,16 +100,22 @@ auto TKDB::selectCandidatesFor(VStr inputs, CandidateRows &results) -> void {
     }
 
     while (query.executeStep()) {
-        CandidateRow d{query.getColumn("ascii").getString(),
-                       query.getColumn("output").getString(),
-                       query.getColumn("hint").getString(),
-                       query.getColumn("common").getInt(),
-                       query.getColumn("unigram_n").getInt()};
+        Candidate d{query.getColumn("id").getInt(),
+                    query.getColumn("ascii").getString(),
+                    query.getColumn("input").getString(),
+                    query.getColumn("output").getString(),
+                    query.getColumn("hint").getString(),
+                    query.getColumn("common").getInt(),
+                    query.getColumn("unigram_n").getInt()};
         results.push_back(d);
     }
 }
 
 auto TKDB::getUnigramCount(std::string gram) -> int {
+    if (gram.empty()) {
+        return 0;
+    }
+
     auto query = SQLite::Statement(db_, SQL::SELECT_Unigram);
     query.bind(1, gram);
     auto found = query.executeStep();
@@ -209,8 +217,8 @@ auto TKDB::updateGramCounts(VStr &grams) -> int {
     auto rawUnigrams = SQL::UPSERT_Unigrams(grams.size());
     auto rawBigrams = SQL::UPSERT_Bigrams(nBigrams);
 
-    //BOOST_LOG_TRIVIAL(debug) << rawUnigrams;
-    //BOOST_LOG_TRIVIAL(debug) << rawBigrams;
+    // BOOST_LOG_TRIVIAL(debug) << rawUnigrams;
+    // BOOST_LOG_TRIVIAL(debug) << rawBigrams;
 
     auto qUnigrams = SQLite::Statement(db_, rawUnigrams);
 

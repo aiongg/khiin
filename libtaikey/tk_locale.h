@@ -15,7 +15,6 @@ static std::once_flag locale_init_flag;
 
 static void init_locale() {
     std::call_once(locale_init_flag, []() {
-        std::cout << "called" << std::endl;
 #ifdef _WIN32
         SetConsoleOutputCP(CP_UTF8);
 #endif

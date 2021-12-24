@@ -57,4 +57,27 @@ BOOST_AUTO_TEST_CASE(ascii_cursor_from_utf8) {
     BOOST_TEST(ret == 5);
 }
 
+BOOST_AUTO_TEST_CASE(split_ascii_by_utf8) {
+    auto r = spaceAsciiByLomaji("khiam3eng7", u8"khiàm-ēng");
+    BOOST_TEST(r.size() == 2);
+    BOOST_TEST(r[0] == "khiam3");
+    BOOST_TEST(r[1] == "eng7");
+
+    r = spaceAsciiByLomaji("khouounnla0", u8"khó͘-ò͘ⁿ ·la");
+    BOOST_TEST(r.size() == 3);
+    BOOST_TEST(r[0] == "khou");
+    BOOST_TEST(r[1] == "ounn");
+    BOOST_TEST(r[2] == "la0");
+
+    r = spaceAsciiByLomaji("oun", u8"ò-ūn");
+    BOOST_TEST(r.size() == 2);
+    BOOST_TEST(r[0] == "o");
+    BOOST_TEST(r[1] == "un");
+
+    r = spaceAsciiByLomaji("unna", u8"ûn-ná");
+    BOOST_TEST(r.size() == 2);
+    BOOST_TEST(r[0] == "un");
+    BOOST_TEST(r[1] == "na");
+}
+
 BOOST_AUTO_TEST_SUITE_END();

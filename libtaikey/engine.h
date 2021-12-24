@@ -18,15 +18,16 @@ const std::string DB_FILE = "taikey.db";
 
 class TKEngine {
   public:
+    //TKEngine();
     TKEngine(std::string tkFolder);
 
   private:
     std::filesystem::path tkFolder_;
-    Buffer buffer_;
     TKDB database_;
     Config config_;
     Splitter splitter_;
     Trie trie_;
+    std::unique_ptr<Buffer> buffer_;
     std::unique_ptr<CandidateFinder> candidateFinder_;
 };
 

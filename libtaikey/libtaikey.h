@@ -54,7 +54,7 @@ class TKEngine {
   private:
     typedef RetVal (TKEngine::*KeyHandlerFn)(KeyCode keyCode);
 
-    Buffer buffer_;
+    Buffer *buffer_;
     std::string keyBuffer_;
     EngineState engineState_;
     InputMode inputMode_;

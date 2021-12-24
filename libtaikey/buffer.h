@@ -3,6 +3,7 @@
 #include <string>
 #include <vector>
 
+#include "candidates.h"
 #include "common.h"
 #include "errors.h"
 #include "syl_splitter.h"
@@ -45,6 +46,11 @@ struct Syllable {
 
 using Hanlo = std::pair<std::string, std::string>;
 
+enum class ToneMode {
+    Fuzzy,
+    Exact,
+};
+
 enum class ToneKeys {
     Numeric,
     Telex,
@@ -58,7 +64,9 @@ enum class CursorDirection {
 class Buffer {
   public:
     Buffer();
-    Buffer(std::shared_ptr<Trie> dictTrie, std::shared_ptr<Splitter> sylSplitter);
+    // Buffer(std::shared_ptr<Trie> dictTrie, std::shared_ptr<Splitter>
+    // sylSplitter);
+    Buffer(CandidateFinder &candidateFinder);
     auto getDisplayBuffer() -> std::string;
     auto getCursor() -> size_t;
     auto insert(char ch) -> RetVal;
@@ -74,14 +82,18 @@ class Buffer {
     auto insertTelex_(char ch) -> RetVal;
     auto appendNewSyllable_() -> void;
 
+    std::string rawBuffer_;
+    Candidates primaryCandidate_;
+    Candidates candidates_;
     std::vector<Syllable> syllables_;
     Cursor cursor_;
     std::vector<int> segmentOffsets_;
-    ToneKeys toneKeys_;
-    char lastKey_;
-    std::shared_ptr<Trie> dictTrie_;
-    std::shared_ptr<Splitter> sylSplitter_;
-
+    ToneKeys toneKeys_ = ToneKeys::Numeric;
+    ToneMode toneMode_ = ToneMode::Fuzzy;
+    char lastKey_ = '\0';
+    // std::shared_ptr<Trie> dictTrie_;
+    // std::shared_ptr<Splitter> sylSplitter_;
+    CandidateFinder &candidateFinder_;
 };
 
 } // namespace TaiKey
