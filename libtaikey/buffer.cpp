@@ -50,67 +50,38 @@ auto Syllable::getAsciiCursor(size_t idx) -> ptrdiff_t {
 Buffer::Buffer(CandidateFinder &candidateFinder)
     : candidateFinder_(candidateFinder) {}
 
-auto Buffer::getDisplayBuffer() -> std::string {
-    // editing/normal/fuzzy:
-    if (primaryCandidate_.empty()) {
-        return rawBuffer_;
-    }
-
-    auto ret = VStr();
-    auto prevIndex = 0;
-
-    for (const auto &c : primaryCandidate_) {
-        auto syls = spaceAsciiByLomaji(c.ascii, c.input);
-        ret.insert(ret.end(), syls.begin(), syls.end());
-    }
-
-    return boost::algorithm::join(ret, u8" ");
-}
+auto Buffer::getDisplayBuffer() -> std::string { return displayBuffer_; }
 
 auto Buffer::getCursor() -> size_t {
-    auto ret = size_t(0);
+    return cursor2_;
+    //auto ret = size_t(0);
 
-    for (int i = 0; i < syllables_.size(); i++) {
-        if (cursor_.first == i) {
-            ret += cursor_.second;
-            return ret;
-        }
+    //for (int i = 0; i < syllables_.size(); i++) {
+    //    if (cursor_.first == i) {
+    //        ret += cursor_.second;
+    //        return ret;
+    //    }
 
-        ret += syllables_[i].displayUtf8Size() + 1;
-    }
+    //    ret += syllables_[i].displayUtf8Size() + 1;
+    //}
 
-    return ret;
+    //return ret;
 }
 
 auto Buffer::insert(char ch) -> RetVal {
-    rawBuffer_.push_back(ch);
+    /*
+     * ch must match: [A-Za-z0-9-]
+     *
+     * Cases:
+     *   1. Normal / Pro input mode
+     *   2. Numeric / Telex tones
+     *   3. Fuzzy / Exact tones
+     *   4. Lazy / Quick commit
+     */
 
-    if (primaryCandidate_.size() > 4) {
-        auto consumed = 0;
-        auto idx = 0;
-        auto it = primaryCandidate_.begin();
-
-        while (it != primaryCandidate_.end() - 4) {
-            consumed += (*it).ascii.size();
-            it++;
-        }
-
-        while (it != primaryCandidate_.end()) {
-            it = primaryCandidate_.erase(it);
-        }
-
-        auto nextCandidate = candidateFinder_.findPrimaryCandidate(
-            std::string(rawBuffer_.begin() + consumed, rawBuffer_.end()),
-            toneMode_ == ToneMode::Fuzzy, primaryCandidate_.back());
-
-        primaryCandidate_.insert(primaryCandidate_.end(),
-                                 nextCandidate.cbegin(), nextCandidate.cend());
-    } else {
-        primaryCandidate_ = candidateFinder_.findPrimaryCandidate(
-            rawBuffer_, toneMode_ == ToneMode::Fuzzy, "");
-
-        candidates_ = candidateFinder_.findCandidates(
-            rawBuffer_, toneMode_ == ToneMode::Fuzzy, "");
+    switch (inputMode_) {
+    case InputMode::Normal:
+        return insertNormal_(ch);
     }
 
     // With isdigit(ch), numeric tones are enabled
@@ -207,6 +178,46 @@ auto Buffer::isCursorAtEnd_() -> bool {
             cursor_.second == syllables_[cursor_.first].displayUtf8Size());
 }
 
+auto Buffer::insertNormal_(char ch) -> RetVal {
+    auto prevRawBufLen = rawBuffer_.size();
+    rawBuffer_.insert(rawCursor_, 1, ch);
+    rawCursor_ += 1;
+
+    if (rawCursor_ == rawBuffer_.size() && primaryCandidate_.size() > 4) {
+        auto consumed = size_t(0);
+        auto idx = 0;
+        auto it = primaryCandidate_.begin();
+
+        while (it != primaryCandidate_.end() - 4) {
+            consumed += (*it).ascii.size();
+            it++;
+        }
+
+        while (it != primaryCandidate_.end()) {
+            it = primaryCandidate_.erase(it);
+        }
+
+        auto nextCandidate = candidateFinder_.findPrimaryCandidate(
+            std::string(rawBuffer_.begin() + consumed, rawBuffer_.end()),
+            toneMode_ == ToneMode::Fuzzy, primaryCandidate_.back());
+
+        primaryCandidate_.insert(primaryCandidate_.end(),
+                                 nextCandidate.cbegin(), nextCandidate.cend());
+    } else {
+        primaryCandidate_ = candidateFinder_.findPrimaryCandidate(
+            rawBuffer_, toneMode_ == ToneMode::Fuzzy, Candidate());
+
+        candidates_ = candidateFinder_.findCandidates(
+            rawBuffer_, toneMode_ == ToneMode::Fuzzy, Candidate());
+    }
+
+    auto prevBufLen = utf8Size(displayBuffer_);
+    updateDisplayBuffer_();
+    cursor2_ += (utf8Size(displayBuffer_) - prevBufLen);
+
+    return RetVal::TODO;
+}
+
 auto Buffer::insertNumeric_(char ch) -> RetVal {
     rawBuffer_.push_back(ch);
 
@@ -271,7 +282,8 @@ auto Buffer::insertTelex_(char ch) -> RetVal {
         } else if (tone != Tone::NaT) {
             std::string tmp = toNFD(syl->unicode);
 
-            if (utf8::prior(tmp.end(), tmp.begin()) == TONE_U32_MAP.at(tone)) {
+            if (utf8::prior(tmp.end(), tmp.begin()) ==
+                ToneToUint32Map.at(tone)) {
                 syl->ascii.pop_back();
                 syl->tone = Tone::NaT;
                 syl->asciiToUnicodeAndDisplay();
@@ -309,7 +321,7 @@ auto Buffer::insertTelex_(char ch) -> RetVal {
         if (!atEnd) {
             syl->ascii.pop_back();
             // Definitely a tone? Use digit
-            syl->ascii.push_back(TONE_DIGIT_MAP.at(tone));
+            syl->ascii.push_back(ToneToDigitMap.at(tone));
         } else {
             syl->ascii.push_back(ch);
         }
@@ -350,6 +362,27 @@ auto Buffer::appendNewSyllable_() -> void {
     syllables_.push_back(Syllable());
     cursor_.first++;
     cursor_.second = 0;
+}
+
+auto Buffer::updateDisplayBuffer_() -> void {
+    // editing/normal/fuzzy:
+    if (primaryCandidate_.empty()) {
+        return;
+    }
+
+    auto buf = VStr();
+    auto prevIndex = 0;
+
+    for (const auto &c : primaryCandidate_) {
+        auto syls = spaceAsciiByLomaji(c.ascii, c.input);
+        buf.insert(buf.end(), syls.begin(), syls.end());
+    }
+
+    for (auto &syl : buf) {
+        syl = asciiToUtf8(syl);
+    }
+
+    displayBuffer_ = boost::algorithm::join(buf, u8" ");
 }
 
 } // namespace TaiKey

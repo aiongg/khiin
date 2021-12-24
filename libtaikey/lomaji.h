@@ -17,6 +17,8 @@ auto utf8Size(std::string s) -> size_t;
 auto getToneFromDigit(char ch) -> Tone;
 auto getToneFromTelex(char ch) -> Tone;
 
+auto asciiToUtf8(std::string ascii) -> std::string;
+
 auto asciiToUtf8(std::string ascii, Tone tone, bool khin) -> std::string;
 
 auto utf8ToAsciiLower(std::string u8string) -> std::string;

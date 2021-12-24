@@ -6,11 +6,31 @@
 
 namespace TaiKey {
 
+enum class InputMode {
+    Normal,
+    Pro,
+};
+
+enum class ToneKeys {
+    Numeric,
+    Telex,
+};
+
+enum class ToneMode {
+    Fuzzy,
+    Exact,
+};
+
+enum class CommitMode {
+    Lazy,
+    Quick,
+};
+
 struct Settings {
-    std::string inputMode;
-    std::string toneKeys;
-    std::string toneMode;
-    std::string commitMode;
+    InputMode inputMode;
+    ToneKeys toneKeys;
+    ToneMode toneMode;
+    CommitMode commitMode;
     bool englishCandidates;
     bool capitalizeEnglish;
     bool easyHyphen;

@@ -68,8 +68,8 @@ bool Trie::remove(std::string key) {
             auto &chr = std::get<0>(*it);
             auto &node = std::get<1>(*it);
 
-            //does smart pointer need reset?
-            //node->children[chr].reset();
+            // does smart pointer need reset?
+            // node->children[chr].reset();
             node->children.erase(chr);
             return true;
         }
@@ -158,14 +158,29 @@ auto Trie::getAllWords(std::string query, bool isToneless, VStr &results)
             results.push_back(substr);
         }
 
-        for (auto jt : tones) {
-            if (curr->hasChild(jt) && curr->children[jt]->isEndOfWord) {
-                results.push_back(substr + jt);
+        if (isToneless) {
+            if (it + 1 != query.end() && isdigit(*(it + 1))) {
+                // tone provided, skip this one
+                continue;
+            }
 
-                // final khin after tone number
-                if (curr->children[jt]->hasChild('0') &&
-                    curr->children[jt]->children['0']->isEndOfWord) {
-                    results.push_back(substr + jt + '0');
+            if (it + 1 != query.end() && isdigit(*it) && *(it + 1) != '0' &&
+                // only check for khin after provided tone
+                curr->hasChild('0') && curr->children['0']->isEndOfWord) {
+                results.push_back(substr + '0');
+                continue;
+            }
+
+            // otherwise check all tones
+            for (auto jt : tones) {
+                if (curr->hasChild(jt) && curr->children[jt]->isEndOfWord) {
+                    results.push_back(substr + jt);
+
+                    // final khin after tone number
+                    if (curr->children[jt]->hasChild('0') &&
+                        curr->children[jt]->children['0']->isEndOfWord) {
+                        results.push_back(substr + jt + '0');
+                    }
                 }
             }
         }

@@ -301,6 +301,7 @@ int TKDB::buildTrieLookupTable_() {
         tx.commit();
         return 0;
     } catch (std::exception &e) {
+        BOOST_LOG_TRIVIAL(debug) << e.what();
         return -1;
     }
 }

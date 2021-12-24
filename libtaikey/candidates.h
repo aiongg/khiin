@@ -28,6 +28,8 @@ class CandidateFinder {
 
     // AltCandidates is a list of <candidate, length> pairs, with length
     // corresponding to the number of characters consumed in the input string
+    auto findCandidates(std::string input, bool toneless, Candidate lgram)
+        -> Candidates;
     auto findCandidates(std::string input, bool toneless, std::string lgram)
         -> Candidates;
     auto findPrimaryCandidate(std::string query, bool toneless,

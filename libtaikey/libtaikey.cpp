@@ -75,8 +75,8 @@ unordered_map<Special, char> SPEC_KEY_MAP = {{Special::NasalCombo, 'n'},
 //        return "";
 //    }
 //
-//    auto s = TONE_UTF_MAP.find(t->second);
-//    if (s == TONE_UTF_MAP.end()) {
+//    auto s = ToneToUtf8Map.find(t->second);
+//    if (s == ToneToUtf8Map.end()) {
 //        return "";
 //    }
 //
@@ -112,7 +112,7 @@ unordered_map<Special, char> SPEC_KEY_MAP = {{Special::NasalCombo, 'n'},
 //        tone = Tone::T8;
 //    }
 //
-//    input.push_back(TONE_DIGIT_MAP[tone]);
+//    input.push_back(ToneToDigitMap[tone]);
 //    return input;
 //}
 

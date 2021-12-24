@@ -23,11 +23,11 @@ auto getToneFromKeyMap(std::unordered_map<Tone, char> map, char ch) {
 }
 
 auto getToneFromDigit(char ch) -> Tone {
-    return getToneFromKeyMap(TONE_DIGIT_MAP, ch);
+    return getToneFromKeyMap(ToneToDigitMap, ch);
 }
 
 auto getToneFromTelex(char ch) -> Tone {
-    return getToneFromKeyMap(TONE_TELEX_MAP, ch);
+    return getToneFromKeyMap(ToneToTelexMap, ch);
 }
 
 auto toNFD(std::string s) -> std::string {
@@ -57,6 +57,23 @@ auto cmpAsciiToUtf8(std::string ascii, std::string utf8) {
            stripAsciiToAlpha(utf8ToAsciiLower(utf8));
 }
 
+auto asciiToUtf8(std::string ascii) -> std::string {
+    bool khin = false;
+    Tone tone = Tone::NaT;
+
+    if (ascii.back() == '0') {
+        khin = true;
+        ascii.pop_back();
+    }
+
+    if (isdigit(ascii.back())) {
+        tone = getToneFromDigit(ascii.back());
+        ascii.pop_back();
+    }
+
+    return asciiToUtf8(ascii, tone, khin);
+}
+
 auto asciiToUtf8(std::string ascii, Tone tone, bool khin) -> std::string {
     std::string ret = ascii;
 
@@ -65,11 +82,17 @@ auto asciiToUtf8(std::string ascii, Tone tone, bool khin) -> std::string {
     boost::algorithm::replace_first(ret, "oo", "o" + U8_OU);
 
     if (khin) {
+        if (ret.back() == '0') {
+            ret.pop_back();
+        }
         ret.insert(0, U8_TK);
     }
 
     if (tone != Tone::NaT) {
-        ret.pop_back();
+        if (isdigit(ret.back())) {
+            ret.pop_back();
+        }
+
         ret = placeToneOnSyllable(ret, tone);
     }
 
@@ -137,7 +160,7 @@ auto placeToneOnSyllable(std::string u8syllable, Tone tone) -> std::string {
         return u8syllable;
     }
 
-    ret.insert(found + 1, TONE_UTF_MAP.at(tone));
+    ret.insert(found + 1, ToneToUtf8Map.at(tone));
 
     return ret;
 }

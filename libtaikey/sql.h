@@ -108,7 +108,6 @@ WITH d AS (
     INNER JOIN dictionary
     ON trie_map.dictionary_id = dictionary.id
     WHERE trie_map.ascii IN (%1%)
-    AND dictionary.weight >= 1000
 )
 SELECT
     d.*,

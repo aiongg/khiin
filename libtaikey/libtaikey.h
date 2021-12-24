@@ -9,6 +9,7 @@
 //#include <boost/locale.hpp>
 
 #include "buffer.h"
+#include "config.h"
 #include "errors.h"
 #include "keys.h"
 
@@ -32,11 +33,6 @@ enum class EngineState {
     BufferByLetter,
     BufferBySegment,
     ChoosingCandidate,
-};
-
-enum class InputMode {
-    Normal,
-    Pro,
 };
 
 class TKEngine {

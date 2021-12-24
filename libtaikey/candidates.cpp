@@ -31,6 +31,11 @@ static auto toCandidate(Candidate &cr, int inputSize) -> Candidate {
  * from the left; 0 if no syllables match
  */
 size_t alignedSyllables(const VStr &syllables, std::string word) {
+    if (std::find(syllables.begin(), syllables.end(), word) !=
+        syllables.end()) {
+        return 1;
+    }
+
     static std::regex toneRe("\\d+");
     auto tonelessWord = std::regex_replace(word, toneRe, "");
     auto wordIdx = size_t(0);
@@ -142,16 +147,20 @@ auto CandidateFinder::findBestCandidateBySplitter_(std::string input,
 
 auto CandidateFinder::findCandidates(std::string input, bool toneless,
                                      std::string lgram) -> Candidates {
+    auto candidate = Candidate();
+    candidate.output = lgram;
+    if (!lgram.empty()) {
+        candidate.unigramN = db_.getUnigramCount(lgram);
+    }
+    return findCandidates(input, toneless, candidate);
+}
+
+auto CandidateFinder::findCandidates(std::string input, bool toneless,
+                                     Candidate lgram) -> Candidates {
     auto rCandidates = Candidates();
 
     if (input.empty()) {
         return rCandidates;
-    }
-
-    int lgramCount = 0;
-
-    if (!lgram.empty()) {
-        lgramCount = db_.getUnigramCount(lgram);
     }
 
     auto trieWords = VStr();
@@ -164,8 +173,8 @@ auto CandidateFinder::findCandidates(std::string input, bool toneless,
 
     db_.selectCandidatesFor(trieWords, rCandidates);
 
-    if (lgramCount > 0) {
-        sortCandidatesByBigram_(lgram, lgramCount, rCandidates);
+    if (lgram.unigramN > 0) {
+        sortCandidatesByBigram_(lgram.output, lgram.unigramN, rCandidates);
     }
 
     for (auto &c : rCandidates) {
@@ -182,12 +191,13 @@ auto CandidateFinder::findCandidates(std::string input, bool toneless,
 }
 
 auto CandidateFinder::findPrimaryCandidate(std::string input, bool toneless,
-    std::string lgram) -> Candidates {
-    
-    int lgramCount = db_.getUnigramCount(lgram);
-    auto cLgram = Candidate();
-    cLgram.output = lgram;
-    return findPrimaryCandidate(input, toneless, cLgram);
+                                           std::string lgram) -> Candidates {
+    auto candidate = Candidate();
+    candidate.output = lgram;
+    if (!lgram.empty()) {
+        candidate.unigramN = db_.getUnigramCount(lgram);
+    }
+    return findPrimaryCandidate(input, toneless, candidate);
 }
 
 auto CandidateFinder::findPrimaryCandidate(std::string input, bool toneless,

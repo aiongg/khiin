@@ -5,6 +5,7 @@
 
 #include "candidates.h"
 #include "common.h"
+#include "config.h"
 #include "errors.h"
 #include "syl_splitter.h"
 #include "trie.h"
@@ -46,16 +47,6 @@ struct Syllable {
 
 using Hanlo = std::pair<std::string, std::string>;
 
-enum class ToneMode {
-    Fuzzy,
-    Exact,
-};
-
-enum class ToneKeys {
-    Numeric,
-    Telex,
-};
-
 enum class CursorDirection {
     L,
     R,
@@ -78,18 +69,25 @@ class Buffer {
 
   private:
     auto isCursorAtEnd_() -> bool;
+    auto insertNormal_(char ch) -> RetVal;
     auto insertNumeric_(char ch) -> RetVal;
     auto insertTelex_(char ch) -> RetVal;
     auto appendNewSyllable_() -> void;
+    auto updateDisplayBuffer_() -> void;
 
     std::string rawBuffer_;
+    std::string displayBuffer_;
     Candidates primaryCandidate_;
     Candidates candidates_;
     std::vector<Syllable> syllables_;
     Cursor cursor_;
+    size_t rawCursor_ = 0;
+    size_t cursor2_ = 0;
     std::vector<int> segmentOffsets_;
+    InputMode inputMode_ = InputMode::Normal;
     ToneKeys toneKeys_ = ToneKeys::Numeric;
     ToneMode toneMode_ = ToneMode::Fuzzy;
+    CommitMode commitMode_ = CommitMode::Lazy;
     char lastKey_ = '\0';
     // std::shared_ptr<Trie> dictTrie_;
     // std::shared_ptr<Splitter> sylSplitter_;

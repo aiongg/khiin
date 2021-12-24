@@ -7,7 +7,7 @@ namespace TaiKey::BufferTest {
 
 struct Fx {
     Fx()
-        : db("taikey.db"), sp(db.selectSyllableList()),
+        : db("taikey_with_trie.db"), sp(db.selectSyllableList()),
           tr(db.selectTrieWordlist()), cf(db, sp, tr), buf(cf) {}
 
     ~Fx() {}
@@ -27,29 +27,9 @@ BOOST_FIXTURE_TEST_SUITE(BufferTest, Fx);
 
 BOOST_AUTO_TEST_CASE(trivial) { BOOST_TEST(true); }
 
-BOOST_AUTO_TEST_CASE(find_primary_candidate) {
-    buf.setToneKeys(ToneKeys::Numeric);
-    insert("chetioittengsisekaisiongchanephahjihoat");
-    auto disp = buf.getDisplayBuffer();
-    BOOST_TEST(disp == "che tio it teng si se kai siong chan e phah jih oat");
-}
-
 BOOST_AUTO_TEST_CASE(create) {
     BOOST_TEST(buf.getDisplayBuffer() == "");
     BOOST_TEST(buf.getCursor() == 0);
-}
-
-BOOST_AUTO_TEST_CASE(numeric_simple) {
-    insert("a");
-    BOOST_TEST(buf.getDisplayBuffer() == u8"a");
-    BOOST_TEST(buf.getCursor() == 1);
-}
-
-BOOST_AUTO_TEST_CASE(telex_simple) {
-    buf.setToneKeys(ToneKeys::Telex);
-    insert("as");
-    BOOST_TEST(buf.getDisplayBuffer() == u8"á");
-    BOOST_TEST(buf.getCursor() == 1);
 }
 
 BOOST_AUTO_TEST_CASE(clear) {
@@ -58,6 +38,33 @@ BOOST_AUTO_TEST_CASE(clear) {
     buf.clear();
     BOOST_TEST(buf.getDisplayBuffer() == "");
     BOOST_TEST(buf.getCursor() == 0);
+}
+
+BOOST_AUTO_TEST_CASE(normal_1_simple) {
+    insert("a");
+    BOOST_TEST(buf.getDisplayBuffer() == u8"a");
+    BOOST_TEST(buf.getCursor() == 1);
+}
+
+BOOST_AUTO_TEST_CASE(normal_2_long_string) {
+    insert("chetioittengsisekaisiongchanephahjihoat");
+    auto disp = buf.getDisplayBuffer();
+    BOOST_TEST(disp == "che tio it teng si se kai siong chan e phah jih oat");
+    BOOST_TEST(buf.getCursor() == 51);
+}
+
+BOOST_AUTO_TEST_CASE(normal_3_with_tones) {
+    insert("khiam3eng");
+    auto disp = buf.getDisplayBuffer();
+    BOOST_TEST(disp == u8"khiàm eng");
+    BOOST_TEST(buf.getCursor() == 9);
+}
+
+BOOST_AUTO_TEST_CASE(normal_telex_simple) {
+    buf.setToneKeys(ToneKeys::Telex);
+    insert("as");
+    BOOST_TEST(buf.getDisplayBuffer() == u8"á");
+    BOOST_TEST(buf.getCursor() == 1);
 }
 
 BOOST_AUTO_TEST_CASE(telex_suite) {
