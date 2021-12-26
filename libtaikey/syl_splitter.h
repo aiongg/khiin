@@ -15,7 +15,8 @@ class Splitter {
     Splitter();
     Splitter(const VStr &syllableList);
     auto canSplit(std::string input) -> bool;
-    auto split(std::string input, std::vector<std::string> &result) -> RetVal;
+    auto split(std::string input) -> VStr;
+    auto split(std::string input, VStr &result) -> RetVal;
 
   private:
     std::set<std::string> syllableSet_;

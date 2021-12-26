@@ -15,13 +15,15 @@ struct RecursiveMap {
 class Trie {
   public:
     Trie();
-    Trie(VStr wordlist);
+    Trie(VStr words, VStr syllables);
     auto insert(std::string key) -> void;
     auto remove(std::string key) -> bool;
     auto containsWord(std::string query) -> bool;
     auto containsPrefix(std::string query) -> bool;
+    auto containsSyllablePrefix(std::string query) -> bool;
     auto autocomplete(std::string query, size_t maxDepth = 0) -> VStr;
     auto autocompleteTone(std::string query) -> VStr;
+    auto getAllWords(std::string query, bool isToneless) -> VStr;
     auto getAllWords(std::string query, bool isToneless, VStr &results) -> void;
 
     // TODO Can delete
@@ -37,10 +39,12 @@ class Trie {
         auto hasChild(char ch) -> bool;
     };
 
-    Node root;
+    Node wRoot;
+    Node sRoot;
 
     // auto remove_(std::string key, int depth) -> bool;
-    auto find_(std::string query) -> Node *;
+    auto insert_(Node &root, std::string key) -> void;
+    auto find_(Node &root, std::string query) -> Node *;
     auto dfs_(Node *root, std::string query, std::string prefix,
               std::vector<std::string> &results, size_t maxDepth = 0) -> void;
 };

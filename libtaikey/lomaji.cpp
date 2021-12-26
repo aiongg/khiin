@@ -1,5 +1,3 @@
-#include <regex>
-
 #include <boost/algorithm/string.hpp>
 #include <boost/format.hpp>
 #include <boost/locale.hpp>
@@ -38,26 +36,22 @@ auto toNFC(std::string s) -> std::string {
     return boost::locale::normalize(s, boost::locale::norm_nfc);
 }
 
-auto utf8Size(std::string s) -> size_t {
-    return static_cast<size_t>(utf8::distance(s.begin(), s.end()));
+auto utf8Size(std::string s) -> Utf8Size {
+    return static_cast<Utf8Size>(utf8::distance(s.begin(), s.end()));
 }
 
 auto stripDiacritics(std::string str) {
-    static std::regex tones("[\u00b7\u0300-\u030d]");
-    return std::regex_replace(toNFD(str), tones, "");
+    static boost::regex tones("[\u00b7\u0300-\u030d]");
+    return boost::regex_replace(toNFD(str), tones, "");
 }
 
-auto stripAsciiToAlpha(std::string str) {
-    static std::regex re("[\\d -]+");
-    return std::regex_replace(str, re, "");
+auto stripToAlpha(std::string str) {
+    static boost::regex re("[\\d]+");
+    return boost::replace_all_copy(boost::regex_replace(str, re, ""), "-", " ");
 }
 
-auto cmpAsciiToUtf8(std::string ascii, std::string utf8) {
-    return stripAsciiToAlpha(ascii) ==
-           stripAsciiToAlpha(utf8ToAsciiLower(utf8));
-}
-
-auto asciiToUtf8(std::string ascii) -> std::string {
+// ascii may have a tone number (digit)
+auto asciiSyllableToUtf8(std::string ascii) -> std::string {
     bool khin = false;
     Tone tone = Tone::NaT;
 
@@ -71,10 +65,12 @@ auto asciiToUtf8(std::string ascii) -> std::string {
         ascii.pop_back();
     }
 
-    return asciiToUtf8(ascii, tone, khin);
+    return asciiSyllableToUtf8(ascii, tone, khin);
 }
 
-auto asciiToUtf8(std::string ascii, Tone tone, bool khin) -> std::string {
+// ascii must not have a tone number (digit)
+auto asciiSyllableToUtf8(std::string ascii, Tone tone, bool khin)
+    -> std::string {
     std::string ret = ascii;
 
     boost::algorithm::replace_first(ret, "nn", U8_NN);
@@ -82,21 +78,19 @@ auto asciiToUtf8(std::string ascii, Tone tone, bool khin) -> std::string {
     boost::algorithm::replace_first(ret, "oo", "o" + U8_OU);
 
     if (khin) {
-        if (ret.back() == '0') {
-            ret.pop_back();
-        }
         ret.insert(0, U8_TK);
     }
 
     if (tone != Tone::NaT) {
-        if (isdigit(ret.back())) {
-            ret.pop_back();
-        }
-
         ret = placeToneOnSyllable(ret, tone);
     }
 
     return toNFC(ret);
+}
+
+str_iter advanceRet(str_iter &it, int n, str_iter &end) {
+    utf8::advance(it, n, end);
+    return std::move(it);
 }
 
 auto utf8ToAsciiLower(std::string u8string) -> std::string {
@@ -108,16 +102,23 @@ auto utf8ToAsciiLower(std::string u8string) -> std::string {
     }
 
     u8string = toNFD(u8string);
-    boost::algorithm::replace_all(u8string, U8_NN, "nn");
-    boost::algorithm::replace_all(u8string, U8_OU, "u");
-    boost::algorithm::replace_all(u8string, U8_R, "r");
-    boost::algorithm::replace_all(u8string, U8_T2, "2");
-    boost::algorithm::replace_all(u8string, U8_T3, "3");
-    boost::algorithm::replace_all(u8string, U8_T5, "5");
-    boost::algorithm::replace_all(u8string, U8_T7, "7");
-    boost::algorithm::replace_all(u8string, U8_T8, "8");
-    boost::algorithm::replace_all(u8string, U8_T9, "9");
-    boost::algorithm::replace_all(u8string, U8_TK, "0");
+    auto start = u8string.begin();
+    auto it = u8string.begin();
+    auto end = u8string.end();
+    auto u8_cp = uint32_t(0);
+
+    while (it != u8string.end()) {
+        start = it;
+        u8_cp = utf8::next(it, end);
+        if (ToneUint32ToDigitMap.find(u8_cp) != ToneUint32ToDigitMap.end()) {
+            auto &repl = ToneUint32ToDigitMap.at(u8_cp);
+            u8string.replace(start, it, repl);
+            end = u8string.end();
+            it = start;
+            std::advance(it, repl.size());
+        }
+    }
+
     boost::algorithm::to_lower(u8string);
 
     static boost::regex sylWithMidNumericTone("([a-z]+)(\\d)([a-z]+)");
@@ -139,12 +140,12 @@ auto placeToneOnSyllable(std::string u8syllable, Tone tone) -> std::string {
 
     auto ret = stripDiacritics(u8syllable);
 
-    BOOST_LOG_TRIVIAL(debug) << boost::format("stripped syl: %1%") % ret;
+    // BOOST_LOG_TRIVIAL(debug) << boost::format("stripped syl: %1%") % ret;
 
     boost::smatch match;
     ptrdiff_t found;
 
-    if (regex_search(ret, match, tone_mid_ae)) {
+    if (boost::regex_search(ret, match, tone_mid_ae)) {
         found = match.position() + 1;
     } else {
         for (std::string v : ordered_vowel_matches) {
@@ -223,79 +224,47 @@ auto getAsciiCursorFromUtf8(std::string ascii, std::string u8str, size_t idx)
     }
 }
 
-auto advanceUtf8Lomaji(std::string::iterator &it, std::string::iterator &end) {
-    auto cp = utf8::next(it, end);
+auto spaceAsciiByUtf8(std::string ascii, std::string lomaji) -> VStr {
+    // auto ret = VStr();
 
-    while ((0x0300 <= cp && cp <= 0x0358) || cp == 0x00b7) {
-        cp = utf8::next(it, end);
-    }
+    auto segments = VStr();
+    auto base = stripToAlpha(utf8ToAsciiLower(lomaji));
 
-    return cp;
-}
-
-auto advanceAsciiLomaji(std::string::iterator &it, std::string::iterator &end) {
-    std::advance(it, 1);
-
-    if (it == end) {
-        return;
-    }
-
-    if (isdigit(*it) || (*it == 'o' && *(it + 1) == 'u') ||
-        (*it == 'n' && *(it + 1) == 'n')) {
-        std::advance(it, 1);
-    }
-}
-
-auto spaceAsciiByLomaji(std::string ascii, std::string lomaji) -> VStr {
-    auto ret = VStr();
-
-    if (!cmpAsciiToUtf8(ascii, lomaji)) {
-        return ret;
-    }
+    //if (!cmpAsciiToUtf8(ascii, lomaji)) {
+    //    return segments;
+    //}
 
     auto a_start = ascii.begin();
     auto a_it = ascii.begin();
     auto a_end = ascii.end();
-    auto u8_it = lomaji.begin();
-    auto u8_end = lomaji.end();
-    auto u8_cp = uint32_t(0);
 
-    while (u8_it != u8_end && a_it != a_end) {
-        u8_cp = utf8::peek_next(u8_it, u8_end);
+    auto b_it = base.begin();
+    auto b_end = base.end();
 
-        if (u8_cp == '-' || u8_cp == ' ') {
-            if (a_start != a_it) {
-                ret.push_back(std::string(a_start, a_it));
+    while (a_it != a_end && b_it != b_end) {
+        if (*b_it == ' ') {
+            while (a_it != a_end && isdigit(*a_it)) {
+                a_it++;
+            }
+            
+            segments.push_back(std::string(a_start, a_it));
+            a_start = a_it;
+
+            if (a_it != a_end && *a_it == '-') {
+                a_it++;
+                segments.push_back(std::string(a_start, a_it));
                 a_start = a_it;
             }
 
-            utf8::next(u8_it, u8_end);
+            b_it++;
         } else {
-
-            if (0x0300 <= u8_cp && u8_cp <= 0x030D) {
-                utf8::advance(u8_it, 1, u8_end);
-            } else if (u8_cp == 0x0358) {
-                utf8::advance(a_it, 1, a_end);
-                utf8::advance(u8_it, 1, u8_end);
-            } else if (u8_cp == 0x207f) {
-                utf8::advance(a_it, 2, a_end);
-                utf8::advance(u8_it, 1, u8_end);
-            } else if (u8_cp == 0x0b7) {
-                utf8::advance(u8_it, 1, u8_end);
-            } else {
-                utf8::advance(u8_it, 1, u8_end);
-                utf8::advance(a_it, 1, a_end);
-            }
-        }
-
-        while (a_it != a_end && isdigit(*a_it)) {
-            utf8::advance(a_it, 1, a_end);
+            a_it++;
+            b_it++;
         }
     }
 
-    ret.push_back(std::string(a_start, a_end));
-
-    return ret;
+    segments.push_back(std::string(a_start, a_end));
+    return segments;
 }
 
 } // namespace TaiKey

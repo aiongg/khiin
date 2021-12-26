@@ -55,43 +55,44 @@ enum class CursorDirection {
 class Buffer {
   public:
     Buffer();
-    // Buffer(std::shared_ptr<Trie> dictTrie, std::shared_ptr<Splitter>
-    // sylSplitter);
     Buffer(CandidateFinder &candidateFinder);
+    auto clear() -> RetVal;
     auto getDisplayBuffer() -> std::string;
     auto getCursor() -> size_t;
     auto insert(char ch) -> RetVal;
-    auto remove(CursorDirection dir) -> RetVal;
     auto moveCursor(CursorDirection dir) -> RetVal;
-    auto clear() -> RetVal;
+    auto remove(CursorDirection dir) -> RetVal;
     auto selectCandidate(Hanlo candidate);
     auto setToneKeys(ToneKeys toneKeys) -> RetVal;
 
   private:
+    auto appendNewSyllable_() -> void;
+    auto findCandidateBegin() -> std::pair<size_t, Utf8Size>;
+    auto findSyllableBegin() -> std::pair<size_t, Utf8Size>;
     auto isCursorAtEnd_() -> bool;
     auto insertNormal_(char ch) -> RetVal;
     auto insertNumeric_(char ch) -> RetVal;
     auto insertTelex_(char ch) -> RetVal;
-    auto appendNewSyllable_() -> void;
     auto updateDisplayBuffer_() -> void;
 
-    std::string rawBuffer_;
-    std::string displayBuffer_;
-    Candidates primaryCandidate_;
+    CandidateFinder &candidateFinder_;
     Candidates candidates_;
-    std::vector<Syllable> syllables_;
     Cursor cursor_;
+    std::string displayBuffer_;
+    std::vector<Utf8Size> displayBufferSyllableOffsets_;
+    std::vector<Utf8Size> displayBufferCandidateOffsets_;
+    Utf8Size displayCursor_ = 0;
+    char lastKey_ = '\0';
+    Candidates primaryCandidate_;
+    std::string rawBuffer_;
+    std::vector<size_t> rawBufferSyllableOffsets_;
     size_t rawCursor_ = 0;
-    size_t cursor2_ = 0;
     std::vector<int> segmentOffsets_;
+    std::vector<Syllable> syllables_;
+    CommitMode commitMode_ = CommitMode::Lazy;
     InputMode inputMode_ = InputMode::Normal;
     ToneKeys toneKeys_ = ToneKeys::Numeric;
     ToneMode toneMode_ = ToneMode::Fuzzy;
-    CommitMode commitMode_ = CommitMode::Lazy;
-    char lastKey_ = '\0';
-    // std::shared_ptr<Trie> dictTrie_;
-    // std::shared_ptr<Splitter> sylSplitter_;
-    CandidateFinder &candidateFinder_;
 };
 
 } // namespace TaiKey

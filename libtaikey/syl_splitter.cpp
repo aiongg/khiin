@@ -60,7 +60,7 @@ auto Splitter::canSplit(std::string input) -> bool {
                 found = true;
             }
         }
-
+         
         if (found) {
             dp[i] = true;
             matchedIndex.push_back(i);
@@ -70,7 +70,12 @@ auto Splitter::canSplit(std::string input) -> bool {
     return dp[len - 1];
 }
 
-auto Splitter::split(std::string input, std::vector<std::string> &result)
+auto Splitter::split(std::string input) -> VStr { auto res = VStr();
+    split(input, res);
+    return std::move(res);
+}
+
+auto Splitter::split(std::string input, VStr &result)
     -> RetVal {
     result.clear();
     if (input.empty()) {

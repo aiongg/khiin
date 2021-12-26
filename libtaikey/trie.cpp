@@ -1,6 +1,7 @@
 #include <iterator>
 #include <unordered_map>
 
+#include "common.h"
 #include "trie.h"
 
 namespace TaiKey {
@@ -11,29 +12,22 @@ using namespace std::literals::string_literals;
 
 Trie::Trie() {}
 
-Trie::Trie(std::vector<std::string> wordlist) {
-    for (auto &word : wordlist) {
-        this->insert(word);
+Trie::Trie(VStr words, VStr syllables) {
+    for (auto &word : words) {
+        this->insert_(wRoot, word);
+    }
+    for (auto &syllable : syllables) {
+        this->insert_(sRoot, syllable);
     }
 }
 
 auto Trie::insert(std::string key) -> void {
-    auto curr = &root;
-
-    for (auto &ch : key) {
-        if (curr->children.find(ch) == curr->children.end()) {
-            curr->children[ch] = std::make_unique<Node>();
-        }
-
-        curr = curr->children[ch].get();
-    }
-
-    curr->isEndOfWord = true;
+    return insert_(wRoot, key);
 }
 
 bool Trie::remove(std::string key) {
     auto onlyChildNodes = std::vector<std::tuple<char, Node *, bool>>();
-    auto curr = &root;
+    auto curr = &wRoot;
 
     for (auto it = key.begin(); it != key.end(); it++) {
         auto found = curr->children.find(*it);
@@ -79,19 +73,25 @@ bool Trie::remove(std::string key) {
 }
 
 auto Trie::containsWord(std::string query) -> bool {
-    auto found = find_(query);
+    auto found = find_(wRoot, query);
     return found != nullptr && found->isEndOfWord;
 }
 
 auto Trie::containsPrefix(std::string query) -> bool {
-    auto found = find_(query);
+    auto found = find_(wRoot, query);
+    return found != nullptr &&
+           (found->isEndOfWord || found->children.size() > 0);
+}
+
+auto Trie::containsSyllablePrefix(std::string query) -> bool {
+    auto found = find_(sRoot, query);
     return found != nullptr &&
            (found->isEndOfWord || found->children.size() > 0);
 }
 
 auto Trie::autocomplete(std::string query, size_t maxDepth) -> VStr {
     auto ret = VStr();
-    auto found = find_(query);
+    auto found = find_(wRoot, query);
 
     if (found == nullptr) {
         return ret;
@@ -114,7 +114,7 @@ auto Trie::autocompleteTone(std::string query) -> VStr {
         return ret;
     }
 
-    Node *found = find_(query);
+    Node *found = find_(wRoot, query);
 
     if (!found) {
         return ret;
@@ -131,6 +131,13 @@ auto Trie::autocompleteTone(std::string query) -> VStr {
     return ret;
 }
 
+auto Trie::getAllWords(std::string query, bool isToneless)
+    -> VStr {
+    auto res = VStr();
+    getAllWords(query, isToneless, res);
+    return std::move(res);
+}
+
 auto Trie::getAllWords(std::string query, bool isToneless, VStr &results)
     -> void {
     results.clear();
@@ -139,11 +146,11 @@ auto Trie::getAllWords(std::string query, bool isToneless, VStr &results)
         return;
     }
 
-    if (!root.hasChild(query[0])) {
+    if (!wRoot.hasChild(query[0])) {
         return;
     }
 
-    auto curr = &root;
+    auto curr = &wRoot;
     static auto tones = "1234567890"s;
 
     for (auto it = query.begin(); it != query.end(); it++) {
@@ -250,7 +257,21 @@ auto Trie::Node::hasChild(char ch) -> bool {
 
 // Trie
 
-auto Trie::find_(std::string query) -> Node * {
+auto Trie::insert_(Node &root, std::string key) -> void {
+    auto curr = &root;
+
+    for (auto &ch : key) {
+        if (curr->children.find(ch) == curr->children.end()) {
+            curr->children[ch] = std::make_unique<Node>();
+        }
+
+        curr = curr->children[ch].get();
+    }
+
+    curr->isEndOfWord = true;
+}
+
+auto Trie::find_(Node &root, std::string query) -> Node * {
     auto curr = &root;
 
     for (auto it = query.begin(); it < query.end(); it++) {

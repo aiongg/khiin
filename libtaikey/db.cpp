@@ -1,3 +1,5 @@
+#include <unordered_set>
+
 #include <boost/algorithm/string.hpp>
 #include <boost/log/trivial.hpp>
 #include <boost/range/adaptor/indexed.hpp>
@@ -61,7 +63,7 @@ auto TKDB::selectDictionaryRowsByAscii(std::string input, DictRows &results)
                         query.getColumn("input").getString(),
                         query.getColumn("output").getString(),
                         query.getColumn("weight").getInt(),
-                        query.getColumn("common").getInt(),
+                        query.getColumn("color").getInt(),
                         query.getColumn("hint").getString()};
         results.push_back(d);
     }
@@ -83,7 +85,7 @@ auto TKDB::selectDictionaryRowsByAscii(VStr inputs, DictRows &results) -> void {
                         query.getColumn("input").getString(),
                         query.getColumn("output").getString(),
                         query.getColumn("weight").getInt(),
-                        query.getColumn("common").getInt(),
+                        query.getColumn("color").getInt(),
                         query.getColumn("hint").getString()};
         results.push_back(d);
     }
@@ -105,7 +107,7 @@ auto TKDB::selectCandidatesFor(VStr inputs, Candidates &results) -> void {
                     query.getColumn("input").getString(),
                     query.getColumn("output").getString(),
                     query.getColumn("hint").getString(),
-                    query.getColumn("common").getInt(),
+                    query.getColumn("color").getInt(),
                     query.getColumn("unigram_n").getInt()};
         results.push_back(d);
     }
@@ -262,39 +264,68 @@ auto TKDB::updateGramCounts(VStr &grams) -> int {
 int TKDB::buildTrieLookupTable_() {
     std::vector<std::pair<std::string, int>> insertable;
 
-    auto dictionaryQuery = SQLite::Statement(db_, SQL::SELECT_DictionaryInputs);
-
-    while (dictionaryQuery.executeStep()) {
-        auto dictId = dictionaryQuery.getColumn("id").getInt();
-        auto asciiLomaji =
-            utf8ToAsciiLower(dictionaryQuery.getColumn("input").getString());
-
-        static boost::regex rSylSep("[ -]+");
-        auto collapsed = boost::regex_replace(asciiLomaji, rSylSep, "");
-        static boost::regex rInnerTone("\\d(?!$)");
-        auto toneless = boost::regex_replace(collapsed, rInnerTone, "");
-
-        insertable.push_back(std::make_pair(collapsed, dictId));
-
-        if (collapsed != toneless) {
-            insertable.push_back(std::make_pair(toneless, dictId));
-        }
-    }
-
     auto tx = SQLite::Transaction(db_);
 
     db_.exec(SQL::CREATE_TrieMapTable);
 
-    auto insertQuery =
-        SQLite::Statement(db_, SQL::INSERT_TrieMap(insertable.size()));
-    for (const auto &each : insertable | boost::adaptors::indexed(1)) {
-        insertQuery.bind(static_cast<int>(2 * each.index() - 1),
-                         each.value().first);
-        insertQuery.bind(static_cast<int>(2 * each.index()),
-                         each.value().second);
+    auto dictionaryQuery = SQLite::Statement(db_, SQL::SELECT_DictionaryInputs);
+
+    auto insertQueries = std::vector<SQLite::Statement>();
+
+    while (dictionaryQuery.executeStep()) {
+        auto dictId = dictionaryQuery.getColumn("id").getInt();
+        auto ascii =
+            utf8ToAsciiLower(dictionaryQuery.getColumn("input").getString());
+        auto output = dictionaryQuery.getColumn("output").getString();
+
+        auto needsHyphens =
+            std::find(output.cbegin(), output.cend(), '-') != output.cend();
+
+        static boost::regex rInnerTone("\\d(?!$)");
+
+        boost::algorithm::replace_all(ascii, " ", "");
+        // auto asciiNoTone = boost::regex_replace(ascii, rInnerTone, "");
+        auto collapsed = boost::replace_all_copy(ascii, "-", "");
+        auto collapsedNoTone = boost::regex_replace(collapsed, rInnerTone, "");
+
+        auto uniques = std::unordered_set<std::string>();
+        if (needsHyphens) {
+            uniques.insert(ascii);
+            uniques.insert(boost::regex_replace(ascii, rInnerTone, ""));
+        }
+        uniques.insert(collapsed);
+        uniques.insert(collapsedNoTone);
+
+        for (const auto &ea : uniques) {
+            insertable.push_back(std::make_pair(ea, dictId));
+        }
+
+        if (insertable.size() > 1000) {
+            insertQueries.emplace_back(
+                SQLite::Statement(db_, SQL::INSERT_TrieMap(insertable.size())));
+            for (const auto &each : insertable | boost::adaptors::indexed(1)) {
+                insertQueries.back().bind(
+                    static_cast<int>(2 * each.index() - 1), each.value().first);
+                insertQueries.back().bind(static_cast<int>(2 * each.index()),
+                                          each.value().second);
+            }
+            insertable.clear();
+        }
     }
 
-    insertQuery.exec();
+    insertQueries.emplace_back(
+        SQLite::Statement(db_, SQL::INSERT_TrieMap(insertable.size())));
+    for (const auto &each : insertable | boost::adaptors::indexed(1)) {
+        insertQueries.back().bind(static_cast<int>(2 * each.index() - 1),
+                                  each.value().first);
+        insertQueries.back().bind(static_cast<int>(2 * each.index()),
+                                  each.value().second);
+    }
+
+    for (auto &q : insertQueries) {
+        q.exec();
+    }
+
     db_.exec(SQL::INDEX_TrieMapTable);
 
     try {

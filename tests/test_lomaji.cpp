@@ -20,13 +20,16 @@ BOOST_AUTO_TEST_CASE(utf8_to_ascii) {
     ret = utf8ToAsciiLower("A-bí-cho̍k");
     BOOST_TEST(ret == "a-bi2-chok8");
 
+    ret = utf8ToAsciiLower("àⁿ lo̍h khì");
+    BOOST_TEST(ret == "ann3 loh8 khi3");
+
     ret = utf8ToAsciiLower("siak ·lo̍h-·khì bān-té chhim-kheⁿ");
     BOOST_TEST(ret == "siak loh80-khi30 ban7-te2 chhim-khenn");
 }
 
 BOOST_AUTO_TEST_CASE(ascii_cursor_from_utf8) {
     std::string ascii = u8"oan5";
-    std::string u8str = asciiToUtf8(ascii, Tone::T5, false);
+    std::string u8str = asciiSyllableToUtf8(ascii, Tone::T5, false);
     size_t ret;
 
     ret = getAsciiCursorFromUtf8(ascii, u8str, 0);
@@ -58,26 +61,32 @@ BOOST_AUTO_TEST_CASE(ascii_cursor_from_utf8) {
 }
 
 BOOST_AUTO_TEST_CASE(split_ascii_by_utf8) {
-    auto r = spaceAsciiByLomaji("khiam3eng7", u8"khiàm-ēng");
+    auto r = spaceAsciiByUtf8("khiam3eng7", u8"khiàm-ēng");
     BOOST_TEST(r.size() == 2);
     BOOST_TEST(r[0] == "khiam3");
     BOOST_TEST(r[1] == "eng7");
 
-    r = spaceAsciiByLomaji("khouounnla0", u8"khó͘-ò͘ⁿ ·la");
+    r = spaceAsciiByUtf8("khouounnla0", u8"khó͘-ò͘ⁿ ·la");
     BOOST_TEST(r.size() == 3);
     BOOST_TEST(r[0] == "khou");
     BOOST_TEST(r[1] == "ounn");
     BOOST_TEST(r[2] == "la0");
 
-    r = spaceAsciiByLomaji("oun", u8"ò-ūn");
+    r = spaceAsciiByUtf8("oun", u8"ò-ūn");
     BOOST_TEST(r.size() == 2);
     BOOST_TEST(r[0] == "o");
     BOOST_TEST(r[1] == "un");
 
-    r = spaceAsciiByLomaji("unna", u8"ûn-ná");
+    r = spaceAsciiByUtf8("unna", u8"ûn-ná");
     BOOST_TEST(r.size() == 2);
     BOOST_TEST(r[0] == "un");
     BOOST_TEST(r[1] == "na");
+
+    r = spaceAsciiByUtf8("khiam3-eng7", u8"khiàm-ēng");
+    BOOST_TEST(r.size() == 3);
+    BOOST_TEST(r[0] == "khiam3");
+    BOOST_TEST(r[1] == "-");
+    BOOST_TEST(r[2] == "eng7");
 }
 
 BOOST_AUTO_TEST_SUITE_END();

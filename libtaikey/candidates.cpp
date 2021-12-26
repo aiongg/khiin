@@ -1,10 +1,11 @@
+#include <algorithm>
 #include <numeric>
-#include <regex>
 #include <string>
 
 #include <boost/algorithm/string.hpp>
 #include <boost/range/adaptor/filtered.hpp>
 #include <boost/range/adaptor/indexed.hpp>
+#include <boost/regex.hpp>
 
 #include "candidates.h"
 #include "syl_splitter.h"
@@ -36,8 +37,8 @@ size_t alignedSyllables(const VStr &syllables, std::string word) {
         return 1;
     }
 
-    static std::regex toneRe("\\d+");
-    auto tonelessWord = std::regex_replace(word, toneRe, "");
+    static boost::regex toneRe("\\d+");
+    auto tonelessWord = boost::regex_replace(word, toneRe, "");
     auto wordIdx = size_t(0);
     auto sylIdx = size_t(0);
 
@@ -127,7 +128,7 @@ auto CandidateFinder::findBestCandidateBySplitter_(std::string input,
     trie_.getAllWords(input, toneless, trieWords);
 
     if (trieWords.size() == 0) {
-        return Candidate();
+        return Candidate{0, syllables[0], syllables[0], syllables[0]};
     }
 
     auto matched = VStr();
@@ -139,7 +140,7 @@ auto CandidateFinder::findBestCandidateBySplitter_(std::string input,
     db_.selectCandidatesFor(matched, candRows);
 
     if (candRows.empty()) {
-        return Candidate();
+        return Candidate{0, syllables[0], syllables[0], syllables[0]};
     }
 
     return candRows[0];
@@ -200,67 +201,113 @@ auto CandidateFinder::findPrimaryCandidate(std::string input, bool toneless,
     return findPrimaryCandidate(input, toneless, candidate);
 }
 
+/**
+ * Candidate::ascii matches input string on output, even if the
+ * original result from the database included a tone number and
+ * the input string didn't (fuzzy tone mode). That is, the ascii
+ * member of a candidate matches exactly the user's raw input and
+ * can be directly compared with the raw buffer text.
+ */
 auto CandidateFinder::findPrimaryCandidate(std::string input, bool toneless,
                                            Candidate cLgram) -> Candidates {
-    auto rCandidates = Candidates();
+    auto ret = Candidates();
 
     if (input.empty()) {
-        return rCandidates;
+        return ret;
     }
 
     auto lgram = cLgram.output;
     auto lgramCount = cLgram.unigramN;
-    auto trieWords = VStr();
     auto cbc = Candidate(); // currentBestCandidate
     auto currCandidates = Candidates();
 
     while (!input.empty()) {
-        if (lgram == "") {
-            cbc = findBestCandidateBySplitter_(input, toneless);
-
-            if (cbc.dict_id == 0) {
-                input.erase(0, 1);
-                continue;
+        // case: hyphens at front, add them as separate candidate
+        if (input[0] == '-') {
+            auto it = input.begin();
+            while (it != input.end() && (*it) == '-') {
+                it++;
             }
 
-            lgram = cbc.output;
-            lgramCount = cbc.unigramN;
+            auto hyphens = std::string(input.begin(), it);
+            auto cand = Candidate{0, hyphens, hyphens, hyphens};
+            ret.emplace_back(std::move(cand));
+            input.erase(input.begin(), it);
 
-            auto i = 0;
-            while (i < input.size() && cbc.ascii[i] == input[i]) {
-                i++;
-            }
-
-            if (i < cbc.ascii.size()) {
-                cbc.ascii.erase(cbc.ascii.begin() + i, cbc.ascii.end());
-            }
-
-            input.erase(0, i);
-            rCandidates.push_back(cbc);
             continue;
         }
 
-        trie_.getAllWords(input, toneless, trieWords);
+        auto trieWords = trie_.getAllWords(input, toneless);
 
+        // case: nothing found in the trie, if it forms a prefix
+        // when combined with previous candidate, add it; otherwise
+        // make a new candidate
         if (trieWords.empty()) {
-            // Try the splitter again
+            auto it = input.begin() + 1;
+            auto &prev = ret.size() == 0 ? "" : ret.back().ascii;
+            auto canCombine = false;
+
+            auto test = prev + std::string(input.begin(), it);
+
+            while (trie_.containsSyllablePrefix(
+                prev + std::string(input.begin(), it))) {
+                canCombine = true;
+                if (it != input.end()) {
+                    it++;
+                } else {
+                    break;
+                }
+            }
+
+            auto candstr = std::string(input.begin(), it);
+            if (ret.size() > 0 && canCombine) {
+                candstr = ret.back().ascii + candstr;
+                ret.pop_back();
+            }
+
+            auto cand = Candidate{0, candstr, candstr, candstr};
+            ret.emplace_back(std::move(cand));
+            input.erase(input.begin(), it);
             lgram.clear();
             lgramCount = 0;
+
             continue;
         }
 
+        // default case: found stuff in the trie
         auto matched = VStr();
 
-        std::copy_if(trieWords.begin(), trieWords.end(),
-                     std::back_inserter(matched), [&](std::string word) {
-                         auto i = 0;
-                         while (i < input.size() && word[i] == input[i]) {
-                             i++;
-                         }
+        if (lgram == "") {
+            // At the beginning, use the syllable splitter to get best result
+            auto splitResult = splitter_.split(input);
+            std::copy_if(trieWords.begin(), trieWords.end(),
+                         std::back_inserter(matched), [&](std::string word) {
+                             return word.rfind(splitResult[0], 0) == 0;
+                         });
+        } else {
+            // Otherwise, use the best fit leaving as few dangling characters
+            // at the end as possible
+            auto stopPos = 0;
 
-                         return splitter_.canSplit(
-                             std::string(input.begin() + i, input.end()));
-                     });
+            auto canSplit = [&](std::string word) {
+                auto i = 0;
+                while (i < input.size() && word[i] == input[i]) {
+                    i++;
+                }
+
+                return splitter_.canSplit(
+                    std::string(input.begin() + i, input.end() - stopPos));
+            };
+
+            while (matched.size() == 0) {
+                std::copy_if(trieWords.begin(), trieWords.end(),
+                             std::back_inserter(matched), canSplit);
+
+                if (matched.size() == 0) {
+                    stopPos++;
+                }
+            }
+        }
 
         db_.selectCandidatesFor(matched, currCandidates);
 
@@ -271,8 +318,12 @@ auto CandidateFinder::findPrimaryCandidate(std::string input, bool toneless,
             continue;
         }
 
-        auto idx =
-            findBestCandidateByBigram_(lgram, lgramCount, currCandidates);
+        auto idx = 0;
+
+        if (lgram != "") {
+            idx = findBestCandidateByBigram_(lgram, lgramCount, currCandidates);
+        }
+
         cbc = currCandidates[idx];
 
         int i = 0;
@@ -288,10 +339,10 @@ auto CandidateFinder::findPrimaryCandidate(std::string input, bool toneless,
         lgramCount = cbc.unigramN;
 
         input.erase(0, i);
-        rCandidates.push_back(cbc);
+        ret.push_back(cbc);
     }
 
-    return rCandidates;
+    return ret;
 }
 
 } // namespace TaiKey

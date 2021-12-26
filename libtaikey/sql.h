@@ -42,7 +42,7 @@ static std::string bigramTriple(size_t n) {
     return makeSQLBinder(n, "(?, ?, 1)");
 }
 
-const std::string SELECT_DictionaryInputs = "SELECT id, input FROM dictionary";
+const std::string SELECT_DictionaryInputs = "SELECT id, input, output FROM dictionary";
 
 const std::string SELECT_TrieWords = "SELECT DISTINCT ascii FROM trie_map";
 
@@ -117,7 +117,7 @@ LEFT JOIN unigram_freq
 ON d.output = unigram_freq.gram
 ORDER BY
     unigram_freq.n DESC,
-    length(d.input) DESC,
+    d.input_length DESC,
     d.weight DESC,
     d.chhan_id ASC
 )");

@@ -7,8 +7,9 @@ namespace TaiKey::BufferTest {
 
 struct Fx {
     Fx()
-        : db("taikey_with_trie.db"), sp(db.selectSyllableList()),
-          tr(db.selectTrieWordlist()), cf(db, sp, tr), buf(cf) {}
+        : db("taikey.db"), sp(db.selectSyllableList()),
+          tr(db.selectTrieWordlist(), db.selectSyllableList()), cf(db, sp, tr),
+          buf(cf) {}
 
     ~Fx() {}
     Buffer buf;
@@ -58,6 +59,20 @@ BOOST_AUTO_TEST_CASE(normal_3_with_tones) {
     auto disp = buf.getDisplayBuffer();
     BOOST_TEST(disp == u8"khiàm eng");
     BOOST_TEST(buf.getCursor() == 9);
+}
+
+BOOST_AUTO_TEST_CASE(normal_4_with_hyphens_gisu) {
+    insert("khiam3-eng7");
+    auto disp = buf.getDisplayBuffer();
+    BOOST_TEST(disp == u8"khiàm-ēng");
+    BOOST_TEST(buf.getCursor() == 9);
+}
+
+BOOST_AUTO_TEST_CASE(normal_5_with_hyphens_no_gisu) {
+    insert("chiah8-png7");
+    auto disp = buf.getDisplayBuffer();
+    BOOST_TEST(disp == u8"chia̍h-pn̄g");
+    BOOST_TEST(buf.getCursor() == 11);
 }
 
 BOOST_AUTO_TEST_CASE(normal_telex_simple) {
@@ -122,7 +137,6 @@ BOOST_AUTO_TEST_CASE(telex_suite) {
 }
 
 BOOST_AUTO_TEST_CASE(move_cursor) {
-    buf.setToneKeys(ToneKeys::Telex);
     insert("a");
     buf.moveCursor(CursorDirection::L);
     BOOST_TEST(buf.getCursor() == 0);
@@ -136,16 +150,25 @@ BOOST_AUTO_TEST_CASE(move_cursor) {
 
     insert("aja");
     buf.moveCursor(CursorDirection::L);
+    BOOST_TEST(buf.getCursor() == 3);
+    buf.moveCursor(CursorDirection::L);
     BOOST_TEST(buf.getCursor() == 2);
+    buf.clear();
+
+    insert("ah8");
+    BOOST_TEST(buf.getCursor() == 3);
+    buf.moveCursor(CursorDirection::L);
+    BOOST_TEST(buf.getCursor() == 2);
+    buf.moveCursor(CursorDirection::L);
+    BOOST_TEST(buf.getCursor() == 0);
 }
 
 BOOST_AUTO_TEST_CASE(move_cursor_and_insert) {
-    buf.setToneKeys(ToneKeys::Telex);
     insert("aja");
     buf.moveCursor(CursorDirection::L);
-    buf.insert('s');
-    BOOST_TEST(buf.getDisplayBuffer() == u8"ā sa");
-    BOOST_TEST(buf.getCursor() == 3);
+    insert("s");
+    BOOST_TEST(buf.getDisplayBuffer() == u8"a j sa");
+    BOOST_TEST(buf.getCursor() == 5);
     buf.clear();
 }
 

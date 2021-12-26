@@ -10,7 +10,8 @@ namespace TaiKey::CandidateTest {
 struct Fx {
     Fx()
         : db("taikey.db"), splitter(db.selectSyllableList()),
-          trie(db.selectTrieWordlist()), cf(db, splitter, trie) {}
+          trie(db.selectTrieWordlist(), db.selectSyllableList()),
+          cf(db, splitter, trie) {}
     ~Fx() {}
 
     TKDB db;

@@ -20,7 +20,7 @@ struct DictionaryRow {
     std::string input;
     std::string output;
     int weight;
-    int common;
+    int color;
     std::string hint;
 };
 
@@ -30,9 +30,9 @@ struct Candidate {
     std::string input;
     std::string output;
     std::string hint;
-    int common;
-    int unigramN;
-    float bigramWt;
+    int color = 0;
+    int unigramN = 0;
+    float bigramWt = 0.0f;
 };
 
 struct UnigramRow {
