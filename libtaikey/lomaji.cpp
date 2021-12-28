@@ -202,15 +202,15 @@ auto getAsciiCursorFromUtf8(std::string ascii, std::string u8str, size_t idx)
         while (u8_it != u8_target) {
             ucp = utf8::peek_next(u8_it, u8_end);
 
-            if (0x0300 <= ucp && ucp <= 0x030D) {
+            if (U32_T3 <= ucp && ucp <= U32_T8) {
                 utf8::advance(u8_it, 1, u8_end);
-            } else if (ucp == 0x0358) {
+            } else if (ucp == U32_OU) {
                 utf8::advance(a_it, 1, a_end);
                 utf8::advance(u8_it, 1, u8_end);
-            } else if (ucp == 0x207f) {
+            } else if (ucp == U32_NN) {
                 utf8::advance(a_it, 2, a_end);
                 utf8::advance(u8_it, 1, u8_end);
-            } else if (ucp == 0x0b7) {
+            } else if (ucp == 0x0b7 /* middle dot */) {
                 utf8::advance(u8_it, 1, u8_end);
             } else {
                 utf8::advance(a_it, 1, a_end);

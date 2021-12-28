@@ -27,7 +27,7 @@ class TKEngine {
     Config config_;
     Splitter splitter_;
     Trie trie_;
-    std::unique_ptr<Buffer> buffer_;
+    std::unique_ptr<BufferManager> buffer_;
     std::unique_ptr<CandidateFinder> candidateFinder_;
 };
 

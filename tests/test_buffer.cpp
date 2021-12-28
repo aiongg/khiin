@@ -12,7 +12,7 @@ struct Fx {
           buf(cf) {}
 
     ~Fx() {}
-    Buffer buf;
+    BufferManager buf;
     TKDB db;
     CandidateFinder cf;
     Splitter sp;
@@ -73,6 +73,42 @@ BOOST_AUTO_TEST_CASE(normal_5_with_hyphens_no_gisu) {
     auto disp = buf.getDisplayBuffer();
     BOOST_TEST(disp == u8"chia̍h-pn̄g");
     BOOST_TEST(buf.getCursor() == 11);
+}
+
+BOOST_AUTO_TEST_CASE(normal_6_move_cursor_and_type) {
+    insert("siongho");
+
+    auto disp = buf.getDisplayBuffer();
+    BOOST_TEST(disp == "siong ho");
+    BOOST_TEST(buf.getCursor() == 8);
+
+    buf.moveCursor(CursorDirection::L);
+    buf.moveCursor(CursorDirection::L);
+    buf.moveCursor(CursorDirection::L);
+    buf.moveCursor(CursorDirection::L);
+    buf.moveCursor(CursorDirection::L);
+    buf.moveCursor(CursorDirection::L);
+    buf.insert('h');
+
+    disp = buf.getDisplayBuffer();
+    BOOST_TEST(disp == "sih ong ho");
+    BOOST_TEST(buf.getCursor() == 4);
+}
+
+BOOST_AUTO_TEST_CASE(normal_7_remove_chars) {
+    insert("siongho");
+    buf.remove(CursorDirection::L);
+
+    auto disp = buf.getDisplayBuffer();
+    BOOST_TEST(disp == "siong h");
+    BOOST_TEST(buf.getCursor() == 7);
+
+    buf.moveCursor(CursorDirection::L);
+    buf.remove(CursorDirection::R);
+
+    disp = buf.getDisplayBuffer();
+    BOOST_TEST(disp == "siong");
+    BOOST_TEST(buf.getCursor() == 5);
 }
 
 BOOST_AUTO_TEST_CASE(normal_telex_simple) {

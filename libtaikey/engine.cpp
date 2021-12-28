@@ -13,7 +13,7 @@ TKEngine::TKEngine(std::string tkFolder)
     trie_ = Trie(database_.selectTrieWordlist(), database_.selectSyllableList());
     candidateFinder_ = std::make_unique<CandidateFinder>(
         CandidateFinder(database_, splitter_, trie_));
-    buffer_ = std::make_unique<Buffer>(Buffer(*candidateFinder_.get()));
+    buffer_ = std::make_unique<BufferManager>(BufferManager(*candidateFinder_.get()));
 }
 
 } // namespace TaiKey

@@ -52,10 +52,10 @@ enum class CursorDirection {
     R,
 };
 
-class Buffer {
+class BufferManager {
   public:
-    Buffer();
-    Buffer(CandidateFinder &candidateFinder);
+    BufferManager();
+    BufferManager(CandidateFinder &candidateFinder);
     auto clear() -> RetVal;
     auto getDisplayBuffer() -> std::string;
     auto getCursor() -> size_t;
@@ -67,25 +67,36 @@ class Buffer {
 
   private:
     auto appendNewSyllable_() -> void;
-    auto findCandidateBegin() -> std::pair<size_t, Utf8Size>;
+    auto findCandidateAtCursor() -> size_t;
     auto findSyllableBegin() -> std::pair<size_t, Utf8Size>;
+    auto getFuzzyCandidates_() -> void;
     auto isCursorAtEnd_() -> bool;
     auto insertNormal_(char ch) -> RetVal;
     auto insertNumeric_(char ch) -> RetVal;
     auto insertTelex_(char ch) -> RetVal;
     auto updateDisplayBuffer_() -> void;
 
+    template <typename T> struct Buffer {
+        Buffer()
+            : text(""), cursor(T(0)), sylOffsets(std::vector<T>()),
+              candOffsets(std::vector<T>()) {}
+        std::string text;
+        T cursor;
+        std::vector<T> sylOffsets;
+        std::vector<T> candOffsets;
+    };
+    using RawBuffer = Buffer<size_t>;
+    using DisplayBuffer = Buffer<Utf8Size>;
+
+    RawBuffer rawBuf_;
+    DisplayBuffer dispBuf_;
+
     CandidateFinder &candidateFinder_;
     Candidates candidates_;
     Cursor cursor_;
-    std::string displayBuffer_;
-    std::vector<Utf8Size> displayBufferSyllableOffsets_;
-    std::vector<Utf8Size> displayBufferCandidateOffsets_;
     Utf8Size displayCursor_ = 0;
     char lastKey_ = '\0';
     Candidates primaryCandidate_;
-    std::string rawBuffer_;
-    std::vector<size_t> rawBufferSyllableOffsets_;
     size_t rawCursor_ = 0;
     std::vector<int> segmentOffsets_;
     std::vector<Syllable> syllables_;
