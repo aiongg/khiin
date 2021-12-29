@@ -111,6 +111,14 @@ BOOST_AUTO_TEST_CASE(normal_7_remove_chars) {
     BOOST_TEST(buf.getCursor() == 5);
 }
 
+BOOST_AUTO_TEST_CASE(normal_8_random_letters) {
+    insert("bo5wdprsfnlji7");
+
+    auto disp = buf.getDisplayBuffer();
+    BOOST_TEST(disp == "bô wdprsfnl jī");
+    BOOST_TEST(buf.getCursor() == 14);
+}
+
 BOOST_AUTO_TEST_CASE(normal_telex_simple) {
     buf.setToneKeys(ToneKeys::Telex);
     insert("as");

@@ -239,20 +239,16 @@ auto CandidateFinder::findPrimaryCandidate(std::string input, bool toneless,
 
         auto trieWords = trie_.getAllWords(input, toneless);
 
-        // case: nothing found in the trie, if it forms a prefix
-        // when combined with previous candidate, add it; otherwise
-        // make a new candidate
         if (trieWords.empty()) {
             auto it = input.begin() + 1;
-            auto &prev = ret.size() == 0 ? "" : ret.back().ascii;
-            auto canCombine = false;
 
-            auto test = prev + std::string(input.begin(), it);
-
-            while (trie_.containsSyllablePrefix(
-                prev + std::string(input.begin(), it))) {
-                canCombine = true;
-                if (it != input.end()) {
+            // Collect next letters as long as they are also not
+            // found in the Trie, put everything into this candidate
+            while (it != input.end()) {
+                if (trie_
+                        .getAllWords(std::move(std::string(it, input.end())),
+                                     toneless)
+                        .empty()) {
                     it++;
                 } else {
                     break;
@@ -260,7 +256,14 @@ auto CandidateFinder::findPrimaryCandidate(std::string input, bool toneless,
             }
 
             auto candstr = std::string(input.begin(), it);
-            if (ret.size() > 0 && canCombine) {
+            auto &prev = ret.size() == 0 ? "" : ret.back().ascii;
+
+            // If the collected letters are the whole remainder of the
+            // string, and they form a prefix when combined with the existing
+            // previous candidate, join them together
+            if (it == input.end() &&
+                trie_.containsSyllablePrefix(prev + candstr) &&
+                ret.size() > 0) {
                 candstr = ret.back().ascii + candstr;
                 ret.pop_back();
             }

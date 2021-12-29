@@ -67,29 +67,28 @@ class BufferManager {
 
   private:
     auto appendNewSyllable_() -> void;
-    auto findCandidateAtCursor() -> size_t;
-    auto findSyllableBegin() -> std::pair<size_t, Utf8Size>;
+    auto findCandidateAtCursor_() -> size_t;
+    auto findSyllableBegin_() -> std::pair<size_t, Utf8Size>;
     auto getFuzzyCandidates_() -> void;
+    auto getFuzzyCandidates_(size_t cursor) -> void;
     auto isCursorAtEnd_() -> bool;
     auto insertNormal_(char ch) -> RetVal;
     auto insertNumeric_(char ch) -> RetVal;
     auto insertTelex_(char ch) -> RetVal;
     auto updateDisplayBuffer_() -> void;
 
-    template <typename T> struct Buffer {
+    struct Buffer {
         Buffer()
-            : text(""), cursor(T(0)), sylOffsets(std::vector<T>()),
-              candOffsets(std::vector<T>()) {}
+            : text(""), cursor(0), sylOffsets(std::vector<size_t>()),
+              candOffsets(std::vector<size_t>()) {}
         std::string text;
-        T cursor;
-        std::vector<T> sylOffsets;
-        std::vector<T> candOffsets;
+        size_t cursor;
+        std::vector<size_t> sylOffsets;
+        std::vector<size_t> candOffsets;
     };
-    using RawBuffer = Buffer<size_t>;
-    using DisplayBuffer = Buffer<Utf8Size>;
 
-    RawBuffer rawBuf_;
-    DisplayBuffer dispBuf_;
+    Buffer rawBuf_;
+    Buffer dispBuf_; // all measures in utf8 code points
 
     CandidateFinder &candidateFinder_;
     Candidates candidates_;

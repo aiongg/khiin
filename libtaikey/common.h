@@ -11,15 +11,6 @@ using VStr = std::vector<std::string>;
 
 using Utf8Size = size_t; // number of UTF codepoints, 1-4 bytes
 
-//using AlignedCursor = std::pair<size_t, Utf8Size>;
-
-struct AlignedText {
-    size_t aBegin = 0;
-    size_t aEnd = 0;
-    Utf8Size uBegin = 0;
-    Utf8Size uEnd = 0;
-};
-
 enum class Tone {
     NaT,
     T1,

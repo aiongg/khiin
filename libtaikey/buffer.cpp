@@ -44,6 +44,16 @@ auto handleFuzzy(char ch) {
     // send rawbuffer to findWordCandidates
 }
 
+auto isOnlyHyphens(std::string s) {
+    for (const auto &c : s) {
+        if (c != '-') {
+            return false;
+        }
+    }
+
+    return true;
+}
+
 // Syllable
 
 auto Syllable::asciiToUnicodeAndDisplay() -> RetVal {
@@ -82,18 +92,10 @@ BufferManager::BufferManager(CandidateFinder &candidateFinder)
 // Public
 
 auto BufferManager::clear() -> RetVal {
-    rawCursor_ = 0;
-    displayCursor_ = 0;
+    rawBuf_ = Buffer();
+    dispBuf_ = Buffer();
     primaryCandidate_.clear();
     candidates_.clear();
-
-    // syllables_.clear();
-    // syllables_.reserve(20);
-    // cursor_.first = 0;
-    // cursor_.second = 0;
-    // segmentOffsets_.clear();
-
-    // syllables_.push_back(Syllable());
 
     return RetVal::TODO;
 }
@@ -102,18 +104,6 @@ auto BufferManager::getDisplayBuffer() -> std::string { return dispBuf_.text; }
 
 auto BufferManager::getCursor() -> size_t {
     return dispBuf_.cursor;
-    // auto ret = size_t(0);
-
-    // for (int i = 0; i < syllables_.size(); i++) {
-    //    if (cursor_.first == i) {
-    //        ret += cursor_.second;
-    //        return ret;
-    //    }
-
-    //    ret += syllables_[i].displayUtf8Size() + 1;
-    //}
-
-    // return ret;
 }
 
 auto BufferManager::insert(char ch) -> RetVal {
@@ -220,13 +210,13 @@ auto BufferManager::appendNewSyllable_() -> void {
     cursor_.second = 0;
 }
 
-auto BufferManager::findCandidateAtCursor() -> size_t {
+auto BufferManager::findCandidateAtCursor_() -> size_t {
     if (rawBuf_.candOffsets.size() == 0) {
         return 0;
     }
 
     auto &dbco = rawBuf_.candOffsets;
-    auto dispIt = std::upper_bound(dbco.cbegin(), dbco.cend(), rawBuf_.cursor);
+    auto dispIt = std::upper_bound(dbco.cbegin(), dbco.cend(), rawBuf_.cursor) - 1;
 
     if (dispIt == dbco.cend()) {
         return rawBuf_.candOffsets.size() - 1;
@@ -235,20 +225,19 @@ auto BufferManager::findCandidateAtCursor() -> size_t {
     return static_cast<size_t>(std::distance(dbco.cbegin(), dispIt));
 }
 
-auto BufferManager::findSyllableBegin() -> std::pair<size_t, Utf8Size> {
+auto BufferManager::findSyllableBegin_() -> std::pair<size_t, Utf8Size> {
     return std::pair<size_t, Utf8Size>();
 }
 
 auto BufferManager::getFuzzyCandidates_() -> void {
-    auto candPos = findCandidateAtCursor();
-    auto startCand = size_t(0);
-    auto rawStart = size_t(0);
+    auto candPos = findCandidateAtCursor_();
+    auto startCand = candPos > 4 ? candPos - 4 : 0;
 
-    if (candPos > 4) {
-        startCand = candPos - 4;
-        rawStart = rawBuf_.candOffsets[startCand];
-    }
+    getFuzzyCandidates_(startCand);
+}
 
+auto BufferManager::getFuzzyCandidates_(size_t startCand) -> void {
+    auto rawStart = startCand > 0 ? rawBuf_.candOffsets[startCand] : 0;
     auto consumed = size_t(0);
     auto idx = 0;
     auto it = primaryCandidate_.begin() + startCand;
@@ -311,7 +300,11 @@ auto BufferManager::insertNormal_(char ch) -> RetVal {
     rawBuf_.text.insert(rawBuf_.cursor, 1, ch);
     rawBuf_.cursor += 1;
 
-    getFuzzyCandidates_();
+    if (isCursorAtEnd_()) {
+        getFuzzyCandidates_();
+    } else {
+        getFuzzyCandidates_(findCandidateAtCursor_());
+    }
 
     return RetVal::TODO;
 }
@@ -441,16 +434,6 @@ auto BufferManager::insertTelex_(char ch) -> RetVal {
     }
 
     return RetVal::Error;
-}
-
-auto isOnlyHyphens(std::string s) {
-    for (const auto &c : s) {
-        if (c != '-') {
-            return false;
-        }
-    }
-
-    return true;
 }
 
 auto BufferManager::updateDisplayBuffer_() -> void {
