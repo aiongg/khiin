@@ -69,6 +69,7 @@ class BufferManager {
     auto appendNewSyllable_() -> void;
     auto findCandidateAtCursor_() -> size_t;
     auto findSyllableBegin_() -> std::pair<size_t, Utf8Size>;
+    auto getDispBufAt_(size_t index) -> uint32_t;
     auto getFuzzyCandidates_() -> void;
     auto getFuzzyCandidates_(size_t cursor) -> void;
     auto isCursorAtEnd_() -> bool;

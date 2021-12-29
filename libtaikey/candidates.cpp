@@ -8,6 +8,7 @@
 #include <boost/regex.hpp>
 
 #include "candidates.h"
+#include "lomaji.h"
 #include "syl_splitter.h"
 #include "trie.h"
 
@@ -287,6 +288,9 @@ auto CandidateFinder::findPrimaryCandidate(std::string input, bool toneless,
                          std::back_inserter(matched), [&](std::string word) {
                              return word.rfind(splitResult[0], 0) == 0;
                          });
+            if (matched.empty() && !splitResult.empty()) {
+                matched.emplace_back(std::move(splitResult[0]));
+            }
         } else {
             // Otherwise, use the best fit leaving as few dangling characters
             // at the end as possible
@@ -302,11 +306,11 @@ auto CandidateFinder::findPrimaryCandidate(std::string input, bool toneless,
                     std::string(input.begin() + i, input.end() - stopPos));
             };
 
-            while (matched.size() == 0) {
+            while (matched.empty()) {
                 std::copy_if(trieWords.begin(), trieWords.end(),
                              std::back_inserter(matched), canSplit);
 
-                if (matched.size() == 0) {
+                if (matched.empty()) {
                     stopPos++;
                 }
             }
@@ -314,14 +318,13 @@ auto CandidateFinder::findPrimaryCandidate(std::string input, bool toneless,
 
         db_.selectCandidatesFor(matched, currCandidates);
 
-        if (currCandidates.empty()) {
-            // Try the splitter again
-            lgram.clear();
-            lgramCount = 0;
-            continue;
+        if (currCandidates.empty() && !matched.empty()) {
+            auto utf8 = asciiSyllableToUtf8(matched[0]);
+            auto cand = Candidate{0, matched[0], utf8, utf8};
+            currCandidates.push_back(cand);
         }
 
-        auto idx = 0;
+        auto idx = size_t(0);
 
         if (lgram != "") {
             idx = findBestCandidateByBigram_(lgram, lgramCount, currCandidates);
