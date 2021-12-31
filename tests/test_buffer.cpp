@@ -105,7 +105,7 @@ BOOST_AUTO_TEST_CASE(normal_6_move_cursor_and_type) {
     insert("h");
 
     BOOST_TEST(getBuf() == "sih ong ho");
-    BOOST_TEST(getCurs() == 4);
+    BOOST_TEST(getCurs() == 3);
 }
 
 BOOST_AUTO_TEST_CASE(normal_7_remove_chars) {
@@ -174,7 +174,18 @@ BOOST_AUTO_TEST_CASE(normal_8_random_letters) {
     bksp(9);
 
     BOOST_TEST(getBuf() == "bô jī");
+    BOOST_TEST(getCurs() == 2);
+}
+
+BOOST_AUTO_TEST_CASE(normal_9_remove_tones) {
+    insert("kah8a");
+    BOOST_TEST(getBuf() == u8"ka̍h a");
+    BOOST_TEST(getCurs() == 6);
+    left(3);
     BOOST_TEST(getCurs() == 3);
+    bksp(1);
+    BOOST_TEST(getBuf() == "kha");
+    BOOST_TEST(getCurs() == 1);
 }
 
 BOOST_AUTO_TEST_CASE(normal_telex_simple) {

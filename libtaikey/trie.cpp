@@ -138,7 +138,7 @@ auto Trie::getAllWords(std::string query, bool isToneless)
     return std::move(res);
 }
 
-auto Trie::getAllWords(std::string query, bool isToneless, VStr &results)
+auto Trie::getAllWords(std::string query, bool fuzzy, VStr &results)
     -> void {
     results.clear();
 
@@ -165,7 +165,7 @@ auto Trie::getAllWords(std::string query, bool isToneless, VStr &results)
             results.push_back(substr);
         }
 
-        if (isToneless) {
+        if (fuzzy) {
             if (it + 1 != query.end() && isdigit(*(it + 1))) {
                 // tone provided, skip this one
                 continue;

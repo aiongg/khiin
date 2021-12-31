@@ -284,7 +284,6 @@ int TKDB::buildTrieLookupTable_() {
         static boost::regex rInnerTone("\\d(?!$)");
 
         boost::algorithm::replace_all(ascii, " ", "");
-        // auto asciiNoTone = boost::regex_replace(ascii, rInnerTone, "");
         auto collapsed = boost::replace_all_copy(ascii, "-", "");
         auto collapsedNoTone = boost::regex_replace(collapsed, rInnerTone, "");
 

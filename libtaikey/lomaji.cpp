@@ -149,24 +149,35 @@ auto getToneFromTelex(char ch) -> Tone {
     return getToneFromKeyMap(ToneToTelexMap, ch);
 }
 
-auto parallelNext(std::string_view ascii, size_t i, std::string_view u8string,
-                  Utf8Size j) -> std::pair<size_t, Utf8Size> {
-    auto ret = std::make_pair(size_t(i), Utf8Size(j));
+auto hasToneDiacritic(std::string str) -> bool {
+    // boost regex does not support unicode unless we use ICU version
+    static boost::regex tones(u8"\u0300|\u0301|\u0302|\u0304|\u0306|\u030D");
+    str = toNFD(str);
+    return boost::regex_search(str.cbegin(), str.cend(), tones);
+}
 
-    if (ascii.size() == i) {
-        return ret;
+auto parallelNext(std::string::iterator &a_it, std::string::iterator &a_end,
+                  std::string::iterator &u_it, std::string::iterator &u_end)
+    -> void {
+    while (u_it != u_end && (utf8::peek_next(u_it, u_end) == '-' ||
+                             utf8::peek_next(u_it, u_end) == ' ')) {
+        utf8::advance(u_it, 1, u_end);
+
+        if (a_it != a_end && a_it + 1 != a_end && *(a_it + 1) == '-') {
+            a_it++;
+        }
     }
 
-    auto a_begin = ascii.cbegin();
-    auto a_it = a_begin + i;
-    auto a_end = ascii.cend();
+    while (a_it != a_end && a_it + 1 != a_end && isdigit(*(a_it + 1))) {
+        a_it++;
+    }
 
-    auto u_begin = u8string.cbegin();
-    auto u_it = u_begin;
-    auto u_end = u8string.cend();
-    utf8::advance(u_it, j, u_end);
+    if (u_it == u_end || a_it == a_end) {
+        return;
+    }
 
     auto cp = utf8::next(u_it, u_end);
+
     a_it += asciiLettersPerCodepoint(cp);
 
     while (u_it != u_end &&
@@ -178,46 +189,27 @@ auto parallelNext(std::string_view ascii, size_t i, std::string_view u8string,
     while (a_it != a_end && isdigit(*a_it)) {
         a_it++;
     }
-
-    ret.first = std::distance(a_begin, a_it);
-    ret.second = utf8::distance(u_begin, u_it);
-
-    return ret;
 }
 
-auto parallelPrior(std::string_view ascii, size_t i, std::string_view u8string,
-                   Utf8Size j) -> std::pair<size_t, Utf8Size> {
-    auto ret = std::make_pair(size_t(i), Utf8Size(j));
-
-    if (i == 0) {
-        return ret;
+auto parallelPrior(std::string::iterator &a_it, std::string::iterator &a_begin,
+                  std::string::iterator &u_it, std::string::iterator &u_begin)
+    -> void {
+    if (a_it == a_begin || u_it == u_begin) {
+        return;
     }
 
-    auto a_begin = ascii.cbegin();
-    auto a_it = a_begin + i;
     while (a_it != a_begin && isdigit(*(a_it - 1))) {
         a_it--;
     }
 
-    auto u_begin = u8string.cbegin();
-    auto u_it = u_begin;
-    utf8::advance(u_it, j, u8string.cend());
-
     auto cp = utf8::prior(u_it, u_begin);
-    auto skipped = false;
 
     while (u_it != u_begin && cursorSkipsCodepoint(cp)) {
-        skipped = true;
         a_it -= asciiLettersPerCodepoint(cp);
         cp = utf8::prior(u_it, u_begin);
     }
 
     a_it -= asciiLettersPerCodepoint(cp);
-
-    ret.first = std::distance(a_begin, a_it);
-    ret.second = utf8::distance(u_begin, u_it);
-
-    return ret;
 }
 
 auto stripDiacritics(std::string str) {
@@ -306,7 +298,6 @@ auto spaceAsciiByUtf8(std::string ascii, std::string lomaji) -> VStr {
     segments.push_back(std::string(a_start, a_end));
     return segments;
 }
-
 
 auto toNFD(std::string s) -> std::string {
     return boost::locale::normalize(s, boost::locale::norm_nfd);

@@ -222,59 +222,60 @@ auto CandidateFinder::findPrimaryCandidate(std::string input, bool toneless,
     auto cbc = Candidate(); // currentBestCandidate
     auto currCandidates = Candidates();
 
-    while (!input.empty()) {
+    auto curr = input.cbegin();
+    auto remainder = [&]() { return std::string(curr, input.cend()); };
+    auto remainderFrom = [&](std::string::const_iterator &it) {
+        return std::string(it, input.cend());
+    };
+
+    while (curr != input.cend()) {
         // case: hyphens at front, add them as separate candidate
-        if (input[0] == '-') {
-            auto it = input.begin();
-            while (it != input.end() && (*it) == '-') {
-                it++;
+        if (*curr == '-') {
+            auto next = curr + 1;
+            while (next != input.cend() && *next == '-') {
+                next++;
             }
 
-            auto hyphens = std::string(input.begin(), it);
-            auto cand = Candidate{0, hyphens, hyphens, hyphens};
-            ret.emplace_back(std::move(cand));
-            input.erase(input.begin(), it);
+            auto hyphens = std::string(curr, next);
+            ret.emplace_back(Candidate{0, hyphens, hyphens, hyphens});
 
+            curr = next;
             continue;
         }
 
-        auto trieWords = trie_.getAllWords(input, toneless);
+        auto trieWords = trie_.getAllWords(remainder(), toneless);
 
         if (trieWords.empty()) {
-            auto it = input.begin() + 1;
+            auto next = curr + 1;
 
             // Collect next letters as long as they are also not
             // found in the Trie, put everything into this candidate
-            while (it != input.end()) {
-                if (trie_
-                        .getAllWords(std::move(std::string(it, input.end())),
-                                     toneless)
-                        .empty()) {
-                    it++;
+            while (next != input.end()) {
+                if (trie_.getAllWords(remainderFrom(next), toneless).empty()) {
+                    ++next;
                 } else {
                     break;
                 }
             }
 
-            auto candstr = std::string(input.begin(), it);
+            auto candstr = std::string(curr, next);
             auto &prev = ret.size() == 0 ? "" : ret.back().ascii;
 
             // If the collected letters are the whole remainder of the
             // string, and they form a prefix when combined with the existing
             // previous candidate, join them together
-            if (it == input.end() &&
+            if (next == input.cend() &&
                 trie_.containsSyllablePrefix(prev + candstr) &&
                 ret.size() > 0) {
                 candstr = ret.back().ascii + candstr;
                 ret.pop_back();
             }
 
-            auto cand = Candidate{0, candstr, candstr, candstr};
-            ret.emplace_back(std::move(cand));
-            input.erase(input.begin(), it);
+            ret.emplace_back(Candidate{0, candstr, candstr, candstr});
             lgram.clear();
             lgramCount = 0;
 
+            curr = next;
             continue;
         }
 
@@ -283,7 +284,8 @@ auto CandidateFinder::findPrimaryCandidate(std::string input, bool toneless,
 
         if (lgram == "") {
             // At the beginning, use the syllable splitter to get best result
-            auto splitResult = splitter_.split(input);
+            auto splitResult = splitter_.split(remainder());
+
             std::copy_if(trieWords.begin(), trieWords.end(),
                          std::back_inserter(matched), [&](std::string word) {
                              return word.rfind(splitResult[0], 0) == 0;
@@ -297,13 +299,17 @@ auto CandidateFinder::findPrimaryCandidate(std::string input, bool toneless,
             auto stopPos = 0;
 
             auto canSplit = [&](std::string word) {
-                auto i = 0;
-                while (i < input.size() && word[i] == input[i]) {
-                    i++;
+                auto input_it = std::string::const_iterator(curr);
+                auto word_it = word.cbegin();
+
+                while (input_it != input.cend() && word_it != word.cend() &&
+                       *input_it == *word_it) {
+                    ++input_it;
+                    ++word_it;
                 }
 
                 return splitter_.canSplit(
-                    std::string(input.begin() + i, input.end() - stopPos));
+                    std::string(input_it, input.cend() - stopPos));
             };
 
             while (matched.empty()) {
@@ -332,19 +338,33 @@ auto CandidateFinder::findPrimaryCandidate(std::string input, bool toneless,
 
         cbc = currCandidates[idx];
 
-        int i = 0;
-        while (i < input.size() && cbc.ascii[i] == input[i]) {
-            i++;
+        auto curr_it = std::string::const_iterator(curr);
+        auto cand_it = cbc.ascii.begin();
+
+        while (curr_it != input.cend() && cand_it != cbc.ascii.end() &&
+               *curr_it == *cand_it) {
+            curr_it++;
+            cand_it++;
         }
 
-        if (i < cbc.ascii.size()) {
-            cbc.ascii.erase(cbc.ascii.begin() + i, cbc.ascii.end());
+        if (cand_it != cbc.ascii.end()) {
+            cbc.ascii.erase(cand_it, cbc.ascii.end());
         }
+
+        // int i = 0;
+        // while (i < input.size() && cbc.ascii[i] == input[i]) {
+        //    i++;
+        //}
+
+        // if (i < cbc.ascii.size()) {
+        //    cbc.ascii.erase(cbc.ascii.begin() + i, cbc.ascii.end());
+        //}
 
         lgram = cbc.output;
         lgramCount = cbc.unigramN;
 
-        input.erase(0, i);
+        curr = curr_it;
+        // input.erase(0, i);
         ret.push_back(cbc);
     }
 

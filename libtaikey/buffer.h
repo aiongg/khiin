@@ -52,6 +52,21 @@ enum class CursorDirection {
     R,
 };
 
+class Buffer {
+  public:
+    Buffer();
+    std::string text;
+    size_t cursor;
+    std::vector<size_t> sylOffsets;
+    std::vector<size_t> candOffsets;
+
+    auto candBegin() -> std::string::iterator;
+    auto cursorIt() -> std::string::iterator;
+    auto ccursorIt() -> std::string::const_iterator;
+    auto sylBegin() -> std::string::iterator;
+    auto sylEnd() -> std::string::iterator;
+};
+
 class BufferManager {
   public:
     BufferManager();
@@ -67,26 +82,17 @@ class BufferManager {
 
   private:
     auto appendNewSyllable_() -> void;
+    auto atSyllableStart_() -> bool;
     auto findCandidateAtCursor_() -> size_t;
-    auto findSyllableBegin_() -> std::pair<size_t, Utf8Size>;
     auto getDispBufAt_(size_t index) -> uint32_t;
     auto getFuzzyCandidates_() -> void;
-    auto getFuzzyCandidates_(size_t cursor) -> void;
+    auto getFuzzyCandidates_(size_t startCand) -> void;
     auto isCursorAtEnd_() -> bool;
     auto insertNormal_(char ch) -> RetVal;
-    auto insertNumeric_(char ch) -> RetVal;
     auto insertTelex_(char ch) -> RetVal;
+    auto removeToneFromRawBuffer_() -> void;
     auto updateDisplayBuffer_() -> void;
-
-    struct Buffer {
-        Buffer()
-            : text(""), cursor(0), sylOffsets(std::vector<size_t>()),
-              candOffsets(std::vector<size_t>()) {}
-        std::string text;
-        size_t cursor;
-        std::vector<size_t> sylOffsets;
-        std::vector<size_t> candOffsets;
-    };
+    auto updateDisplayCursor_() -> void;
 
     Buffer rawBuf_;
     Buffer dispBuf_; // all measures in utf8 code points

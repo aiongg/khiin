@@ -19,18 +19,21 @@ auto getToneFromDigit(char ch) -> Tone;
 
 auto getToneFromTelex(char ch) -> Tone;
 
-auto parallelNext(std::string_view ascii, size_t i, std::string_view u8string,
-                   Utf8Size j) -> std::pair<size_t, Utf8Size>;
+auto hasToneDiacritic(std::string sv) -> bool;
 
-auto parallelPrior(std::string_view ascii, size_t i, std::string_view u8string,
-                   Utf8Size j) -> std::pair<size_t, Utf8Size>;
+auto parallelNext(std::string::iterator &a_it, std::string::iterator &a_end,
+                  std::string::iterator &u_it, std::string::iterator &u_end)
+    -> void;
+
+auto parallelPrior(std::string::iterator &a_it, std::string::iterator &a_end,
+                   std::string::iterator &u_it, std::string::iterator &u_end)
+    -> void;
+
+auto stripDiacritics(std::string s);
 
 auto placeToneOnSyllable(std::string u8syllable, Tone tone) -> std::string;
 
-auto spaceAsciiByUtf8(std::string ascii, std::string lomaji)
-    -> VStr;
-
-auto stripDiacritics(std::string s);
+auto spaceAsciiByUtf8(std::string ascii, std::string lomaji) -> VStr;
 
 auto toNFC(std::string s) -> std::string;
 
