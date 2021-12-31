@@ -209,6 +209,19 @@ BOOST_AUTO_TEST_CASE(t11_khin) {
     bksp(1);
     BOOST_TEST(getBuf() == "ho a");
     BOOST_TEST(getCurs() == 3);
+
+    reset();
+    insert("siak--lohkhi");
+    BOOST_TEST(getBuf() == "siak ·loh ·khi");
+
+    reset();
+
+    insert("--a");
+    BOOST_TEST(getBuf() == "·a");
+
+    reset();
+    insert("pinn---a");
+    BOOST_TEST(getBuf() == "piⁿ-·a");
 }
 
 BOOST_AUTO_TEST_CASE(ttelex_simple) {

@@ -83,10 +83,9 @@ BOOST_AUTO_TEST_CASE(split_ascii_by_utf8) {
     BOOST_TEST(r[1] == "na");
 
     r = spaceAsciiByUtf8("khiam3-eng7", u8"khiàm-ēng");
-    BOOST_TEST(r.size() == 3);
-    BOOST_TEST(r[0] == "khiam3");
-    BOOST_TEST(r[1] == "-");
-    BOOST_TEST(r[2] == "eng7");
+    BOOST_TEST(r.size() == 2);
+    BOOST_TEST(r[0] == "khiam3-");
+    BOOST_TEST(r[1] == "eng7");
 }
 
 BOOST_AUTO_TEST_SUITE_END();

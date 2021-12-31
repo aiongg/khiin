@@ -17,7 +17,7 @@ namespace TaiKey {
 auto static asciiLettersPerCodepoint(uint32_t cp) {
     if (cp == ' ' || (0x0300 <= cp && cp <= 0x030d)) {
         return 0;
-    } else if (cp == 0x207f || cp == 0x1e72 || cp == 0x1e73) {
+    } else if (cp == 0x207f || cp == 0x1d3a || cp == 0x1e72 || cp == 0x1e73) {
         return 2;
     }
 
@@ -45,22 +45,48 @@ auto stripToAlpha(std::string str) {
 
 // Exposed methods
 
-// ascii may have a tone number (digit)
+/**
+ * Parameter @ascii may have:
+ *     [--]letters[1-9][0][-]
+ * - A trailing tone digit, trailing 0 for khin, and trailing hyphen
+ * - Khin double-dash prefix
+ */
 auto asciiSyllableToUtf8(std::string ascii) -> std::string {
     bool khin = false;
     Tone tone = Tone::NaT;
+    bool trailingHyphen = false;
 
-    if (ascii.back() == '0') {
+    auto end = ascii.cend();
+    auto begin = ascii.cbegin();
+    --end;
+
+    if (*end == '-') {
+        trailingHyphen = true;
+        --end;
+    }
+
+    if (*end == '0') {
         khin = true;
-        ascii.pop_back();
+        --end;
     }
 
-    if (isdigit(ascii.back())) {
-        tone = getToneFromDigit(ascii.back());
-        ascii.pop_back();
+    if (isdigit(*end)) {
+        tone = getToneFromDigit(*end);
+        --end;
     }
 
-    return asciiSyllableToUtf8(ascii, tone, khin);
+    if (ascii.rfind("--", 0) == 0) {
+        khin = true;
+        begin += 2;
+    }
+
+    auto utf8 = asciiSyllableToUtf8(std::string(begin, ++end), tone, khin);
+
+    if (trailingHyphen) {
+        utf8.insert(utf8.end(), '-');
+    }
+
+    return utf8;
 }
 
 // ascii must not have a tone number (digit)
@@ -194,7 +220,7 @@ auto parallelNext(std::string::iterator &a_it, std::string::iterator &a_end,
 }
 
 auto parallelPrior(std::string::iterator &a_it, std::string::iterator &a_begin,
-                  std::string::iterator &u_it, std::string::iterator &u_begin)
+                   std::string::iterator &u_it, std::string::iterator &u_begin)
     -> void {
     if (a_it == a_begin || u_it == u_begin) {
         return;
@@ -269,10 +295,6 @@ auto spaceAsciiByUtf8(std::string ascii, std::string lomaji) -> VStr {
     auto segments = VStr();
     auto base = stripToAlpha(utf8ToAsciiLower(lomaji));
 
-    // if (!cmpAsciiToUtf8(ascii, lomaji)) {
-    //    return segments;
-    //}
-
     auto a_start = ascii.begin();
     auto a_it = ascii.begin();
     auto a_end = ascii.end();
@@ -282,23 +304,19 @@ auto spaceAsciiByUtf8(std::string ascii, std::string lomaji) -> VStr {
 
     while (a_it != a_end && b_it != b_end) {
         if (*b_it == ' ') {
-            while (a_it != a_end && isdigit(*a_it)) {
-                a_it++;
+            while (a_it != a_end && (isdigit(*a_it) || *a_it == '-')) {
+                ++a_it;
             }
 
             segments.push_back(std::string(a_start, a_it));
             a_start = a_it;
-
-            if (a_it != a_end && *a_it == '-') {
-                a_it++;
-                segments.push_back(std::string(a_start, a_it));
-                a_start = a_it;
-            }
-
-            b_it++;
+            ++b_it;
         } else {
-            a_it++;
-            b_it++;
+            while (*a_it == '-') {
+                ++a_it;
+            }
+            ++a_it;
+            ++b_it;
         }
     }
 

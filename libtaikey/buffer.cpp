@@ -136,7 +136,6 @@ auto BufferManager::insert(char ch) -> RetVal {
      *   3. Fuzzy / Exact tones
      *   4. Lazy / Quick commit
      */
-
     switch (inputMode_) {
     case InputMode::Normal:
         return insertNormal_(ch);
@@ -501,59 +500,66 @@ auto BufferManager::updateDisplayBuffer_() -> void {
 
     auto khinNextCand = false;
 
+    // Cases:
+    // 1. dictionary entry
+    // 2. lomaji, but no dictionary entry
+    // 3. dangling hyphen at the end of previous candidate
+    // 4. double hyphen (khin) at the beginning of next candidate
+    // 5. random/other
     for (const auto &c : primaryCandidate_) {
-        if (c.ascii == "--") {
-            khinNextCand = true;
-            continue;
-        } else if (isOnlyHyphens(c.ascii)) {
-            if (displayBuffer.back() == ' ') {
-                displayBuffer.pop_back();
+        if (c.dict_id == 0 && c.output.empty()) {
+            auto d = std::string(c.ascii);
+
+            if (d.rfind("--", 0) == 0) {
+                d.replace(0, 2, U8_TK);
             }
-            displayBuffer += c.ascii;
-            displayOffset += c.ascii.size() - 1;
+
+            rawSylOffsets.push_back(rawOffset);
+            rawCandOffsets.push_back(rawOffset);
+            dbSylOffsets.push_back(displayOffset);
+            dbCandOffsets.push_back(displayOffset);
+            displayBuffer += d + " ";
+            displayOffset += utf8Size(d) + 1;
+            rawOffset += c.ascii.size();
             continue;
         }
 
         auto spacedSyls = spaceAsciiByUtf8(c.ascii, c.input);
+        auto autokhin = false;
 
-        for (const auto &s : spacedSyls | boost::adaptors::indexed()) {
-            if (khinNextCand) {
-                displayBuffer += "·";
-            } else if (isOnlyHyphens(s.value())) {
-                if (displayBuffer.back() == ' ') {
-                    displayBuffer.pop_back();
-                }
-                displayBuffer += s.value();
-                displayOffset += s.value().size() - 1;
-                rawOffset += s.value().size();
-                continue;
-            }
+        for (const auto &syl : spacedSyls | boost::adaptors::indexed()) {
+            auto &str = syl.value();
 
             rawSylOffsets.push_back(rawOffset);
-
-            auto displaySyl = asciiSyllableToUtf8(s.value());
-            displayBuffer += displaySyl + " ";
-
             dbSylOffsets.push_back(displayOffset);
-
-            if (s.index() == 0) {
+            
+            if (syl.index() == 0) {
                 rawCandOffsets.push_back(rawOffset);
                 dbCandOffsets.push_back(displayOffset);
+
+                if (str.rfind("--", 0) == 0) {
+                    autokhin = true;
+                }
+            } else if (autokhin) {
+                str.insert(0, "--");
             }
-            if (khinNextCand) {
-                rawOffset += 2;
+
+            rawOffset += str.size();
+            auto displaySyl = asciiSyllableToUtf8(str);
+            displayBuffer += displaySyl;
+            displayOffset += utf8Size(displaySyl);
+            
+            if (displaySyl.back() != '-') {
+                displayBuffer += ' ';
                 displayOffset += 1;
-                khinNextCand = false;
             }
-            rawOffset += s.value().size();
-            displayOffset += utf8Size(displaySyl) + 1;
         }
+
+        autokhin = false;
     }
 
-    displayBuffer.pop_back();
-
-    if (rawBuf_.text.back() == '-') {
-        displayBuffer.push_back('-');
+    if (displayBuffer.back() == ' ') {
+        displayBuffer.pop_back();
     }
 
     rawBuf_.sylOffsets = std::move(rawSylOffsets);
@@ -564,12 +570,13 @@ auto BufferManager::updateDisplayBuffer_() -> void {
 
     updateDisplayCursor_();
 
-    BOOST_LOG_TRIVIAL(debug) << "IN:  " << dispBuf_.text;
+    BOOST_LOG_TRIVIAL(debug) << "IN:  " << rawBuf_.text;
+    BOOST_LOG_TRIVIAL(debug) << "DB:  " << dispBuf_.text;
     auto tmp = std::string();
     for (auto &pc : primaryCandidate_) {
         tmp += pc.output;
     }
-    BOOST_LOG_TRIVIAL(debug) << "OUT: " << tmp;
+    BOOST_LOG_TRIVIAL(debug) << "PC:  " << tmp;
 }
 
 auto BufferManager::updateDisplayCursor_() -> void {

@@ -228,6 +228,8 @@ auto CandidateFinder::findPrimaryCandidate(std::string input, bool toneless,
         return std::string(it, input.cend());
     };
 
+    auto hasKhinHyphens = false;
+
     while (curr != input.cend()) {
         // case: hyphens at front, add them as separate candidate
         if (*curr == '-') {
@@ -236,8 +238,29 @@ auto CandidateFinder::findPrimaryCandidate(std::string input, bool toneless,
                 next++;
             }
 
-            auto hyphens = std::string(curr, next);
-            ret.emplace_back(Candidate{0, hyphens, hyphens, hyphens});
+            auto nHyphens = std::distance(curr, next);
+
+            if (nHyphens == 1 || nHyphens == 3) {
+                // dangling hyphen on last candidate
+                if (ret.empty()) {
+                    ret.emplace_back(Candidate{0, std::string(1, '-')});
+                } else {
+                    ret.back().ascii += '-';
+                }
+            }
+            
+            if (nHyphens == 2 || nHyphens == 3) {
+                if (next == input.cend()) {
+                    ret.emplace_back(Candidate{0, std::string(2, '-')});
+                } else {
+                    // khin for next candidate
+                    hasKhinHyphens = true;
+                }
+            }
+            
+            if (nHyphens > 3) {
+                ret.emplace_back(Candidate{0, std::string(nHyphens, '-')});
+            }
 
             curr = next;
             continue;
@@ -267,11 +290,16 @@ auto CandidateFinder::findPrimaryCandidate(std::string input, bool toneless,
             if (next == input.cend() &&
                 trie_.containsSyllablePrefix(prev + candstr) &&
                 ret.size() > 0) {
-                candstr = ret.back().ascii + candstr;
+                candstr.insert(0, ret.back().ascii);
                 ret.pop_back();
             }
 
-            ret.emplace_back(Candidate{0, candstr, candstr, candstr});
+            if (hasKhinHyphens) {
+                candstr.insert(0, 2, '-');
+                hasKhinHyphens = false;
+            }
+
+            ret.emplace_back(Candidate{0, candstr});
             lgram.clear();
             lgramCount = 0;
 
@@ -354,8 +382,12 @@ auto CandidateFinder::findPrimaryCandidate(std::string input, bool toneless,
         lgram = cbc.output;
         lgramCount = cbc.unigramN;
 
-        curr = curr_it;
+        if (hasKhinHyphens) {
+            cbc.ascii.insert(0, 2, '-');
+            hasKhinHyphens = false;
+        }
         ret.push_back(cbc);
+        curr = curr_it;
     }
 
     return ret;
