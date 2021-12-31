@@ -71,6 +71,8 @@ auto asciiSyllableToUtf8(std::string ascii, Tone tone, bool khin)
     boost::algorithm::replace_first(ret, "nn", U8_NN);
     boost::algorithm::replace_first(ret, "ou", "o" + U8_OU);
     boost::algorithm::replace_first(ret, "oo", "o" + U8_OU);
+    boost::algorithm::replace_first(ret, "ur", U8_UR);
+    boost::algorithm::replace_first(ret, "or", "o" + U8_R);
 
     if (khin) {
         ret.insert(0, U8_TK);
@@ -209,7 +211,12 @@ auto parallelPrior(std::string::iterator &a_it, std::string::iterator &a_begin,
         cp = utf8::prior(u_it, u_begin);
     }
 
-    a_it -= asciiLettersPerCodepoint(cp);
+    if (cp == U32_TK && std::distance(a_begin, a_it) > 1 &&
+        *(a_it - 1) == '-' && *(a_it - 2) == '-') {
+        a_it -= 2;
+    } else {
+        a_it -= asciiLettersPerCodepoint(cp);
+    }
 }
 
 auto stripDiacritics(std::string str) {

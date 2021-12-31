@@ -35,6 +35,7 @@ const std::string U8_T8 = u8"\u030D";
 const std::string U8_T9 = u8"\u0306";
 const std::string U8_TK = u8"\u00b7";
 const std::string U8_R = u8"\u0324";
+const std::string U8_UR = u8"\u1e73";
 
 const uint32_t U32_NN = 0x207f;
 const uint32_t U32_OU = 0x0358;

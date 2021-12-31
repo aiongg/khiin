@@ -158,12 +158,6 @@ auto BufferManager::moveCursor(CursorDirection dir) -> RetVal {
         rawBuf_.cursor = std::distance(rawBuf_.text.begin(), r_it);
         dispBuf_.cursor = utf8::distance(dispBuf_.text.begin(), d_it);
 
-        // auto nextCursor = parallelPrior(rawBuf_.text, rawBuf_.cursor,
-        //                                dispBuf_.text, dispBuf_.cursor);
-
-        // rawBuf_.cursor = nextCursor.first;
-        // dispBuf_.cursor = nextCursor.second;
-
         return RetVal::OK;
     }
 
@@ -179,11 +173,6 @@ auto BufferManager::moveCursor(CursorDirection dir) -> RetVal {
         rawBuf_.cursor = std::distance(rawBuf_.text.begin(), r_it);
         dispBuf_.cursor = utf8::distance(dispBuf_.text.begin(), d_it);
 
-        // auto nextCursor = parallelNext(rawBuf_.text, rawBuf_.cursor,
-        //                               dispBuf_.text, dispBuf_.cursor);
-
-        // auto moveAscii = 0;
-
         return RetVal::OK;
     }
 
@@ -191,9 +180,14 @@ auto BufferManager::moveCursor(CursorDirection dir) -> RetVal {
 }
 
 auto BufferManager::remove(CursorDirection dir) -> RetVal {
+    auto extraSpaceInDisplay = false;
+    if (auto it = dispBuf_.ccursorIt();
+        it != dispBuf_.text.cend() && *it == ' ') {
+        extraSpaceInDisplay = true;
+    }
+
     if (dir == CursorDirection::L && rawBuf_.cursor > 0) {
-        if (atSyllableStart_()) {
-            // TODO: check for hyphens
+        if (atSyllableStart_() && *(dispBuf_.sylBegin() - 1) == ' ') {
             return moveCursor(dir);
         } else {
             auto r_it = rawBuf_.cursorIt();
@@ -231,7 +225,8 @@ auto BufferManager::remove(CursorDirection dir) -> RetVal {
     getFuzzyCandidates_(findCandidateAtCursor_());
     updateDisplayBuffer_();
 
-    if (dir == CursorDirection::L && *(dispBuf_.cursorIt() - 1) == ' ') {
+    if (dir == CursorDirection::L && *(dispBuf_.ccursorIt() - 1) == ' ' &&
+        extraSpaceInDisplay) {
         dispBuf_.cursor--;
     }
 
@@ -504,8 +499,13 @@ auto BufferManager::updateDisplayBuffer_() -> void {
     auto displayOffset = Utf8Size(0);
     auto displayBuffer = std::string();
 
+    auto khinNextCand = false;
+
     for (const auto &c : primaryCandidate_) {
-        if (isOnlyHyphens(c.ascii)) {
+        if (c.ascii == "--") {
+            khinNextCand = true;
+            continue;
+        } else if (isOnlyHyphens(c.ascii)) {
             if (displayBuffer.back() == ' ') {
                 displayBuffer.pop_back();
             }
@@ -517,7 +517,9 @@ auto BufferManager::updateDisplayBuffer_() -> void {
         auto spacedSyls = spaceAsciiByUtf8(c.ascii, c.input);
 
         for (const auto &s : spacedSyls | boost::adaptors::indexed()) {
-            if (isOnlyHyphens(s.value())) {
+            if (khinNextCand) {
+                displayBuffer += "·";
+            } else if (isOnlyHyphens(s.value())) {
                 if (displayBuffer.back() == ' ') {
                     displayBuffer.pop_back();
                 }
@@ -533,9 +535,15 @@ auto BufferManager::updateDisplayBuffer_() -> void {
             displayBuffer += displaySyl + " ";
 
             dbSylOffsets.push_back(displayOffset);
+
             if (s.index() == 0) {
                 rawCandOffsets.push_back(rawOffset);
                 dbCandOffsets.push_back(displayOffset);
+            }
+            if (khinNextCand) {
+                rawOffset += 2;
+                displayOffset += 1;
+                khinNextCand = false;
             }
             rawOffset += s.value().size();
             displayOffset += utf8Size(displaySyl) + 1;

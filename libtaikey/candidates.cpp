@@ -351,20 +351,10 @@ auto CandidateFinder::findPrimaryCandidate(std::string input, bool toneless,
             cbc.ascii.erase(cand_it, cbc.ascii.end());
         }
 
-        // int i = 0;
-        // while (i < input.size() && cbc.ascii[i] == input[i]) {
-        //    i++;
-        //}
-
-        // if (i < cbc.ascii.size()) {
-        //    cbc.ascii.erase(cbc.ascii.begin() + i, cbc.ascii.end());
-        //}
-
         lgram = cbc.output;
         lgramCount = cbc.unigramN;
 
         curr = curr_it;
-        // input.erase(0, i);
         ret.push_back(cbc);
     }
 

@@ -64,38 +64,38 @@ BOOST_AUTO_TEST_CASE(clear) {
     BOOST_TEST(getCurs() == 0);
 }
 
-BOOST_AUTO_TEST_CASE(normal_1_simple) {
+BOOST_AUTO_TEST_CASE(t01_simple) {
     insert("a");
     BOOST_TEST(getBuf() == u8"a");
     BOOST_TEST(getCurs() == 1);
 }
 
-BOOST_AUTO_TEST_CASE(normal_2_long_string) {
+BOOST_AUTO_TEST_CASE(t02_long_string) {
     insert("chetioittengsisekaisiongchanephahjihoat");
     BOOST_TEST(getBuf() ==
                "che tio it teng si se kai siong chan e phah jih oat");
     BOOST_TEST(getCurs() == 51);
 }
 
-BOOST_AUTO_TEST_CASE(normal_3_with_tones) {
+BOOST_AUTO_TEST_CASE(t03_with_tones) {
     insert("khiam3eng");
     BOOST_TEST(getBuf() == u8"khiàm eng");
     BOOST_TEST(getCurs() == 9);
 }
 
-BOOST_AUTO_TEST_CASE(normal_4_with_hyphens_gisu) {
+BOOST_AUTO_TEST_CASE(t04_with_hyphens_gisu) {
     insert("khiam3-eng7");
     BOOST_TEST(getBuf() == u8"khiàm-ēng");
     BOOST_TEST(getCurs() == 9);
 }
 
-BOOST_AUTO_TEST_CASE(normal_5_with_hyphens_no_gisu) {
+BOOST_AUTO_TEST_CASE(t05_with_hyphens_no_gisu) {
     insert("chiah8-png7");
     BOOST_TEST(getBuf() == u8"chia̍h-pn̄g");
     BOOST_TEST(getCurs() == 11);
 }
 
-BOOST_AUTO_TEST_CASE(normal_6_move_cursor_and_type) {
+BOOST_AUTO_TEST_CASE(t06_move_cursor_and_type) {
     insert("siongho");
 
     BOOST_TEST(getBuf() == "siong ho");
@@ -108,7 +108,7 @@ BOOST_AUTO_TEST_CASE(normal_6_move_cursor_and_type) {
     BOOST_TEST(getCurs() == 3);
 }
 
-BOOST_AUTO_TEST_CASE(normal_7_remove_chars) {
+BOOST_AUTO_TEST_CASE(t07_remove_chars) {
     insert("siongho");
 
     bksp(1);
@@ -153,7 +153,7 @@ BOOST_AUTO_TEST_CASE(normal_7_remove_chars) {
     BOOST_TEST(getCurs() == 5);
 
     buf.clear();
-    
+
     insert("khi3");
     BOOST_TEST(getBuf() == u8"khì");
     BOOST_TEST(getCurs() == 3);
@@ -164,7 +164,7 @@ BOOST_AUTO_TEST_CASE(normal_7_remove_chars) {
     BOOST_TEST(getCurs() == 2);
 }
 
-BOOST_AUTO_TEST_CASE(normal_8_random_letters) {
+BOOST_AUTO_TEST_CASE(t08_random_letters) {
     insert("bo5wdprsfnlji7");
 
     BOOST_TEST(getBuf() == "bô wdprsfnl jī");
@@ -177,7 +177,7 @@ BOOST_AUTO_TEST_CASE(normal_8_random_letters) {
     BOOST_TEST(getCurs() == 2);
 }
 
-BOOST_AUTO_TEST_CASE(normal_9_remove_tones) {
+BOOST_AUTO_TEST_CASE(t09_remove_tones) {
     insert("kah8a");
     BOOST_TEST(getBuf() == u8"ka̍h a");
     BOOST_TEST(getCurs() == 6);
@@ -188,7 +188,30 @@ BOOST_AUTO_TEST_CASE(normal_9_remove_tones) {
     BOOST_TEST(getCurs() == 1);
 }
 
-BOOST_AUTO_TEST_CASE(normal_telex_simple) {
+BOOST_AUTO_TEST_CASE(t10_ur_or) {
+    insert("ur");
+    BOOST_TEST(getBuf() == u8"\u1e73");
+    BOOST_TEST(getCurs() == 1);
+
+    reset();
+
+    insert("or");
+    BOOST_TEST(getBuf() == u8"o\u0324");
+    BOOST_TEST(getCurs() == 2);
+}
+
+BOOST_AUTO_TEST_CASE(t11_khin) {
+    insert("ho--a");
+    BOOST_TEST(getBuf() == "ho ·a");
+    BOOST_TEST(getCurs() == 5);
+
+    left(1);
+    bksp(1);
+    BOOST_TEST(getBuf() == "ho a");
+    BOOST_TEST(getCurs() == 3);
+}
+
+BOOST_AUTO_TEST_CASE(ttelex_simple) {
     buf.setToneKeys(ToneKeys::Telex);
     insert("as");
     BOOST_TEST(getBuf() == u8"á");
@@ -300,6 +323,57 @@ BOOST_AUTO_TEST_CASE(move_cursor_and_insert) {
     BOOST_TEST(getCurs() == 5);
     reset();
 }
+
+// BOOST_AUTO_TEST_CASE(multi_test) {
+//    auto test_strings = std::vector<std::string>{"itannalainia",
+//                                                 "iaumchiaheanne",
+//                                                 "iauchiaheanne",
+//                                                 "iiauchiaheanneou",
+//                                                 "iniauchiaheanneou",
+//                                                 "naapinnhiaboa",
+//                                                 "naapinnhiaaboeu",
+//                                                 "naapinnhiaabeu",
+//                                                 "khachiahauoe",
+//                                                 "simsianne",
+//                                                 "simsekiaho",
+//                                                 "tiasitihia",
+//                                                 "inaesitihia",
+//                                                 "inahesitihia",
+//                                                 "oathng",
+//                                                 "chiahoathng",
+//                                                 "oatihaite",
+//                                                 "ouatihaite",
+//                                                 "chiteaichiahoa",
+//                                                 "chiteaichiahoua",
+//                                                 "oanaesitihia",
+//                                                 "oanahesitihia",
+//                                                 "ahanahesitihia",
+//                                                 "chitchiahaha",
+//                                                 "chitboehia",
+//                                                 "chitbehia",
+//                                                 "hianaheboboe",
+//                                                 "hianahebobe",
+//                                                 "kannaaitihoa",
+//                                                 "sinithiann",
+//                                                 "sisinithiann",
+//                                                 "chhiti",
+//                                                 "chhitia",
+//                                                 "poetemthangchhikimhi",
+//                                                 "ohhouho",
+//                                                 "ohhooho",
+//                                                 "aiohhouhoou",
+//                                                 "aiohhoohooo",
+//                                                 "aiohhoohoou",
+//                                                 "aiohhouhooo",
+//                                                 "ohhouhoaboe",
+//                                                 "ohhoohoaboe",
+//                                                 "ohhoohoabe"};
+//
+//    for (auto &s : test_strings) {
+//        reset();
+//        insert(s);
+//    }
+//}
 
 BOOST_AUTO_TEST_SUITE_END();
 
