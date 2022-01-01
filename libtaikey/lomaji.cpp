@@ -132,47 +132,6 @@ auto checkTone78Swap(std::string u8syllable, Tone tone) -> Tone {
     return tone;
 }
 
-auto getAsciiCursorFromUtf8(std::string ascii, std::string u8str, size_t idx)
-    -> size_t {
-    auto u8_it = u8str.begin();
-    auto u8_target = u8str.begin();
-    auto u8_end = u8str.end();
-    auto a_it = ascii.begin();
-    auto ucp = uint32_t(0);
-    auto acp = uint32_t(0);
-
-    if (idx >= static_cast<size_t>(utf8u::distance(u8_it, u8_end))) {
-        u8_target = u8_end;
-    } else {
-        utf8u::advance(u8_target, idx);
-    }
-
-    try {
-        while (u8_it != u8_target) {
-            ucp = utf8u::peek_next(u8_it);
-
-            if (U32_T3 <= ucp && ucp <= U32_T8) {
-                utf8u::advance(u8_it, 1);
-            } else if (ucp == U32_OU) {
-                utf8u::advance(a_it, 1);
-                utf8u::advance(u8_it, 1);
-            } else if (ucp == U32_NN) {
-                utf8u::advance(a_it, 2);
-                utf8u::advance(u8_it, 1);
-            } else if (ucp == U32_TK) {
-                utf8u::advance(u8_it, 1);
-            } else {
-                utf8u::advance(a_it, 1);
-                utf8u::advance(u8_it, 1);
-            }
-        }
-
-        return static_cast<size_t>(utf8u::distance(ascii.begin(), a_it));
-    } catch (const utf8::not_enough_room &e) {
-        return static_cast<size_t>(utf8u::distance(ascii.begin(), a_it));
-    }
-}
-
 auto getToneFromDigit(char ch) -> Tone {
     return getToneFromKeyMap(ToneToDigitMap, ch);
 }
@@ -182,7 +141,6 @@ auto getToneFromTelex(char ch) -> Tone {
 }
 
 auto hasToneDiacritic(std::string str) -> bool {
-    // boost regex does not support unicode unless we use ICU version
     str = toNFD(str);
 
     auto b = str.cbegin();
@@ -246,11 +204,11 @@ auto parallelPrior(std::string::iterator &a_it, std::string::iterator &a_begin,
         a_it--;
     }
 
-    auto cp = utf8::prior(u_it, u_begin);
+    auto cp = utf8u::prior(u_it);
 
     while (u_it != u_begin && cursorSkipsCodepoint(cp)) {
         a_it -= asciiLettersPerCodepoint(cp);
-        cp = utf8::prior(u_it, u_begin);
+        cp = utf8u::prior(u_it);
     }
 
     if (cp == U32_TK && std::distance(a_begin, a_it) > 1 &&
@@ -311,8 +269,6 @@ auto placeToneOnSyllable(std::string u8syllable, Tone tone) -> std::string {
 }
 
 auto spaceAsciiByUtf8(std::string ascii, std::string lomaji) -> VStr {
-    // auto ret = VStr();
-
     auto segments = VStr();
     auto base = stripToAlpha(utf8ToAsciiLower(lomaji));
 
@@ -348,15 +304,13 @@ auto spaceAsciiByUtf8(std::string ascii, std::string lomaji) -> VStr {
 auto toNFD(std::string_view s) -> std::string {
     auto u32s = utf8::utf8to32(s);
     ufal::unilib::uninorms::nfd(u32s);
-
-    return utf8::utf32to8(u32s);
+    return std::move(utf8::utf32to8(u32s));
 }
 
 auto toNFC(std::string_view s) -> std::string {
     auto u32s = utf8::utf8to32(s);
     ufal::unilib::uninorms::nfc(u32s);
-
-    return utf8::utf32to8(u32s);
+    return std::move(utf8::utf32to8(u32s));
 }
 
 auto utf8Size(std::string s) -> Utf8Size {
@@ -379,7 +333,7 @@ auto utf8ToAsciiLower(std::string u8string) -> std::string {
 
     while (it != u8string.end()) {
         start = it;
-        u8_cp = utf8::next(it, end);
+        u8_cp = utf8u::next(it);
         if (ToneUint32ToDigitMap.find(u8_cp) != ToneUint32ToDigitMap.end()) {
             auto &repl = ToneUint32ToDigitMap.at(u8_cp);
             u8string.replace(start, it, repl);

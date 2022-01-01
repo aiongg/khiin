@@ -12,9 +12,6 @@ auto asciiSyllableToUtf8(std::string ascii, Tone tone, bool khin)
 
 auto checkTone78Swap(std::string u8syllable, Tone tone) -> Tone;
 
-auto getAsciiCursorFromUtf8(std::string ascii, std::string u8str,
-                            size_t u8cursor) -> size_t;
-
 auto getToneFromDigit(char ch) -> Tone;
 
 auto getToneFromTelex(char ch) -> Tone;
