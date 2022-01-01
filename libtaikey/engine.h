@@ -28,7 +28,7 @@ class TKEngine {
     Splitter splitter_;
     Trie trie_;
     std::unique_ptr<BufferManager> buffer_;
-    std::unique_ptr<CandidateFinder> candidateFinder_;
+    std::unique_ptr<CandidateFinder> candidateFinder;
 };
 
 } // namespace TaiKey

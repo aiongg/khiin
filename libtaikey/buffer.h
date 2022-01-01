@@ -14,17 +14,6 @@ namespace TaiKey {
 
 using Cursor = std::pair<size_t, size_t>;
 
-struct Syllable {
-    std::string ascii;
-    std::string unicode;
-    std::string display;
-    Tone tone = Tone::NaT;
-    bool khin = false;
-    auto asciiToUnicodeAndDisplay() -> RetVal;
-    auto displayUtf8Size() -> ptrdiff_t;
-    auto getAsciiCursor(size_t unicodeCursor) -> ptrdiff_t;
-};
-
 /**
  * Select candidate:
  * 1. display, unicode & tone from Candidate
@@ -59,6 +48,7 @@ class Buffer {
     size_t cursor;
     std::vector<size_t> sylOffsets;
     std::vector<size_t> candOffsets;
+    std::pair<size_t, size_t> editingRange;
 
     auto candBegin() -> std::string::iterator;
     auto cursorIt() -> std::string::iterator;
@@ -77,35 +67,35 @@ class BufferManager {
     auto insert(char ch) -> RetVal;
     auto moveCursor(CursorDirection dir) -> RetVal;
     auto remove(CursorDirection dir) -> RetVal;
+    auto spacebar() -> RetVal;
     auto selectCandidate(Hanlo candidate);
     auto setToneKeys(ToneKeys toneKeys) -> RetVal;
 
   private:
-    auto appendNewSyllable_() -> void;
-    auto atSyllableStart_() -> bool;
-    auto findCandidateAtCursor_() -> size_t;
+    auto atSyllableStart() -> bool;
+    auto findCandidateAtCursor() -> size_t;
+    auto empty() -> bool;
     auto getDispBufAt_(size_t index) -> uint32_t;
-    auto getFuzzyCandidates_() -> void;
-    auto getFuzzyCandidates_(size_t startCand) -> void;
-    auto isCursorAtEnd_() -> bool;
+    auto getFuzzyCandidates() -> void;
+    auto getFuzzyCandidates(size_t startCand) -> void;
+    auto isCursorAtEnd() -> bool;
     auto insertNormal_(char ch) -> RetVal;
     auto insertTelex_(char ch) -> RetVal;
-    auto removeToneFromRawBuffer_() -> void;
-    auto updateDisplayBuffer_() -> void;
-    auto updateDisplayCursor_() -> void;
+    auto removeToneFromRawBuffer() -> void;
+    auto updateDisplayBuffer() -> void;
+    auto updateDisplayCursor() -> void;
 
-    Buffer rawBuf_;
-    Buffer dispBuf_; // all measures in utf8 code points
+    Buffer rawBuf;
+    Buffer dispBuf; // all measures in utf8 code points
 
-    CandidateFinder &candidateFinder_;
-    Candidates candidates_;
+    CandidateFinder &candidateFinder;
+    Candidates candidates;
     Cursor cursor_;
     Utf8Size displayCursor_ = 0;
     char lastKey_ = '\0';
-    Candidates primaryCandidate_;
+    Candidates primaryCandidate;
     size_t rawCursor_ = 0;
     std::vector<int> segmentOffsets_;
-    std::vector<Syllable> syllables_;
     CommitMode commitMode_ = CommitMode::Lazy;
     InputMode inputMode_ = InputMode::Normal;
     ToneKeys toneKeys_ = ToneKeys::Numeric;

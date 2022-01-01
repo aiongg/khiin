@@ -35,7 +35,7 @@ auto isOnlyHyphens(std::string s) {
 
 Buffer::Buffer()
     : text(""), cursor(0), sylOffsets(std::vector<size_t>()),
-      candOffsets(std::vector<size_t>()) {}
+      candOffsets(std::vector<size_t>()), editingRange(std::make_pair(0, 0)) {}
 
 auto Buffer::cursorIt() -> std::string::iterator {
     auto it = text.begin();
@@ -91,40 +91,25 @@ auto Buffer::sylEnd() -> std::string::iterator {
     return ret;
 }
 
-// Syllable
-
-auto Syllable::asciiToUnicodeAndDisplay() -> RetVal {
-    unicode = asciiSyllableToUtf8(ascii, tone, khin);
-    display = unicode;
-
-    return RetVal::OK;
-}
-
-auto Syllable::displayUtf8Size() -> ptrdiff_t { return utf8Size(display); }
-
-auto Syllable::getAsciiCursor(size_t idx) -> ptrdiff_t {
-    return getAsciiCursorFromUtf8(ascii, display, idx);
-}
-
 // BufferManager
 
 BufferManager::BufferManager(CandidateFinder &candidateFinder)
-    : candidateFinder_(candidateFinder) {}
+    : candidateFinder(candidateFinder) {}
 
 // Public
 
 auto BufferManager::clear() -> RetVal {
-    rawBuf_ = Buffer();
-    dispBuf_ = Buffer();
-    primaryCandidate_.clear();
-    candidates_.clear();
+    rawBuf = Buffer();
+    dispBuf = Buffer();
+    primaryCandidate.clear();
+    candidates.clear();
 
     return RetVal::TODO;
 }
 
-auto BufferManager::getDisplayBuffer() -> std::string { return dispBuf_.text; }
+auto BufferManager::getDisplayBuffer() -> std::string { return dispBuf.text; }
 
-auto BufferManager::getCursor() -> size_t { return dispBuf_.cursor; }
+auto BufferManager::getCursor() -> size_t { return dispBuf.cursor; }
 
 auto BufferManager::insert(char ch) -> RetVal {
     /*
@@ -146,31 +131,31 @@ auto BufferManager::insert(char ch) -> RetVal {
 
 auto BufferManager::moveCursor(CursorDirection dir) -> RetVal {
     if (dir == CursorDirection::L) {
-        if (rawBuf_.cursor == 0) {
+        if (rawBuf.cursor == 0) {
             return RetVal::OK;
         }
 
-        auto r_it = rawBuf_.cursorIt();
-        auto d_it = dispBuf_.cursorIt();
+        auto r_it = rawBuf.cursorIt();
+        auto d_it = dispBuf.cursorIt();
 
-        parallelPrior(r_it, rawBuf_.text.begin(), d_it, dispBuf_.text.begin());
-        rawBuf_.cursor = std::distance(rawBuf_.text.begin(), r_it);
-        dispBuf_.cursor = utf8::distance(dispBuf_.text.begin(), d_it);
+        parallelPrior(r_it, rawBuf.text.begin(), d_it, dispBuf.text.begin());
+        rawBuf.cursor = std::distance(rawBuf.text.begin(), r_it);
+        dispBuf.cursor = utf8::distance(dispBuf.text.begin(), d_it);
 
         return RetVal::OK;
     }
 
     if (dir == CursorDirection::R) {
-        if (isCursorAtEnd_()) {
+        if (isCursorAtEnd()) {
             return RetVal::OK;
         }
 
-        auto r_it = rawBuf_.cursorIt();
-        auto d_it = dispBuf_.cursorIt();
+        auto r_it = rawBuf.cursorIt();
+        auto d_it = dispBuf.cursorIt();
 
-        parallelNext(r_it, rawBuf_.text.end(), d_it, dispBuf_.text.end());
-        rawBuf_.cursor = std::distance(rawBuf_.text.begin(), r_it);
-        dispBuf_.cursor = utf8::distance(dispBuf_.text.begin(), d_it);
+        parallelNext(r_it, rawBuf.text.end(), d_it, dispBuf.text.end());
+        rawBuf.cursor = std::distance(rawBuf.text.begin(), r_it);
+        dispBuf.cursor = utf8::distance(dispBuf.text.begin(), d_it);
 
         return RetVal::OK;
     }
@@ -180,53 +165,53 @@ auto BufferManager::moveCursor(CursorDirection dir) -> RetVal {
 
 auto BufferManager::remove(CursorDirection dir) -> RetVal {
     auto extraSpaceInDisplay = false;
-    if (auto it = dispBuf_.ccursorIt();
-        it != dispBuf_.text.cend() && *it == ' ') {
+    if (auto it = dispBuf.ccursorIt();
+        it != dispBuf.text.cend() && *it == ' ') {
         extraSpaceInDisplay = true;
     }
 
-    if (dir == CursorDirection::L && rawBuf_.cursor > 0) {
-        if (atSyllableStart_() && *(dispBuf_.sylBegin() - 1) == ' ') {
+    if (dir == CursorDirection::L && rawBuf.cursor > 0) {
+        if (atSyllableStart() && *(dispBuf.sylBegin() - 1) == ' ') {
             return moveCursor(dir);
         } else {
-            auto r_it = rawBuf_.cursorIt();
-            auto d_it = dispBuf_.cursorIt();
+            auto r_it = rawBuf.cursorIt();
+            auto d_it = dispBuf.cursorIt();
 
-            parallelPrior(r_it, rawBuf_.text.begin(), d_it,
-                          dispBuf_.text.begin());
+            parallelPrior(r_it, rawBuf.text.begin(), d_it,
+                          dispBuf.text.begin());
 
-            if (hasToneDiacritic(std::string(d_it, dispBuf_.cursorIt()))) {
-                removeToneFromRawBuffer_();
+            if (hasToneDiacritic(std::string(d_it, dispBuf.cursorIt()))) {
+                removeToneFromRawBuffer();
             }
 
-            rawBuf_.text.erase(r_it, rawBuf_.cursorIt());
-            rawBuf_.cursor = std::distance(rawBuf_.text.begin(), r_it);
+            rawBuf.text.erase(r_it, rawBuf.cursorIt());
+            rawBuf.cursor = std::distance(rawBuf.text.begin(), r_it);
         }
     }
 
-    if (dir == CursorDirection::R && rawBuf_.cursor < rawBuf_.text.size()) {
-        if (*(dispBuf_.cursorIt()) == ' ') {
+    if (dir == CursorDirection::R && rawBuf.cursor < rawBuf.text.size()) {
+        if (*(dispBuf.cursorIt()) == ' ') {
             return moveCursor(dir);
         } else {
-            auto r_it = rawBuf_.cursorIt();
-            auto d_it = dispBuf_.cursorIt();
+            auto r_it = rawBuf.cursorIt();
+            auto d_it = dispBuf.cursorIt();
 
-            parallelNext(r_it, rawBuf_.text.end(), d_it, dispBuf_.text.end());
+            parallelNext(r_it, rawBuf.text.end(), d_it, dispBuf.text.end());
 
-            if (hasToneDiacritic(std::string(dispBuf_.cursorIt(), d_it))) {
-                removeToneFromRawBuffer_();
+            if (hasToneDiacritic(std::string(dispBuf.cursorIt(), d_it))) {
+                removeToneFromRawBuffer();
             }
 
-            rawBuf_.text.erase(rawBuf_.cursorIt(), r_it);
+            rawBuf.text.erase(rawBuf.cursorIt(), r_it);
         }
     }
 
-    getFuzzyCandidates_(findCandidateAtCursor_());
-    updateDisplayBuffer_();
+    getFuzzyCandidates(findCandidateAtCursor());
+    updateDisplayBuffer();
 
-    if (dir == CursorDirection::L && *(dispBuf_.ccursorIt() - 1) == ' ' &&
+    if (dir == CursorDirection::L && *(dispBuf.ccursorIt() - 1) == ' ' &&
         extraSpaceInDisplay) {
-        dispBuf_.cursor--;
+        dispBuf.cursor--;
     }
 
     return RetVal::TODO;
@@ -239,27 +224,33 @@ auto BufferManager::setToneKeys(ToneKeys toneKeys) -> RetVal {
     return RetVal::TODO;
 }
 
+auto BufferManager::spacebar() -> RetVal {
+    if (empty()) {
+        return RetVal::NotConsumed;
+    }
+
+    for (auto &c : primaryCandidate) {
+        
+    }
+
+    return RetVal::TODO;
+}
+
 // Private
 
-auto BufferManager::appendNewSyllable_() -> void {
-    syllables_.push_back(Syllable());
-    cursor_.first++;
-    cursor_.second = 0;
+auto BufferManager::atSyllableStart() -> bool {
+    return std::binary_search(dispBuf.sylOffsets.begin(),
+                              dispBuf.sylOffsets.end(), dispBuf.cursor);
 }
 
-auto BufferManager::atSyllableStart_() -> bool {
-    return std::binary_search(dispBuf_.sylOffsets.begin(),
-                              dispBuf_.sylOffsets.end(), dispBuf_.cursor);
-}
-
-auto BufferManager::findCandidateAtCursor_() -> size_t {
-    if (rawBuf_.candOffsets.size() == 0) {
+auto BufferManager::findCandidateAtCursor() -> size_t {
+    if (rawBuf.candOffsets.size() == 0) {
         return 0;
     }
 
-    auto &offsets = rawBuf_.candOffsets;
+    auto &offsets = rawBuf.candOffsets;
     auto it =
-        std::upper_bound(offsets.cbegin(), offsets.cend(), rawBuf_.cursor) - 1;
+        std::upper_bound(offsets.cbegin(), offsets.cend(), rawBuf.cursor) - 1;
 
     if (it == offsets.cend()) {
         return offsets.size() - 1;
@@ -268,49 +259,51 @@ auto BufferManager::findCandidateAtCursor_() -> size_t {
     return static_cast<size_t>(std::distance(offsets.cbegin(), it));
 }
 
+auto BufferManager::empty() -> bool { return rawBuf.text.empty(); }
+
 auto BufferManager::getDispBufAt_(size_t index) -> uint32_t {
-    auto it = dispBuf_.text.cbegin();
-    utf8::advance(it, index, dispBuf_.text.cend());
-    return utf8::peek_next(it, dispBuf_.text.cend());
+    auto it = dispBuf.text.cbegin();
+    utf8::advance(it, index, dispBuf.text.cend());
+    return utf8::peek_next(it, dispBuf.text.cend());
 }
 
-auto BufferManager::getFuzzyCandidates_() -> void {
-    auto candPos = findCandidateAtCursor_();
+auto BufferManager::getFuzzyCandidates() -> void {
+    auto candPos = findCandidateAtCursor();
     auto startCand = candPos > 4 ? candPos - 4 : 0;
 
-    getFuzzyCandidates_(startCand);
+    getFuzzyCandidates(startCand);
 }
 
-auto BufferManager::getFuzzyCandidates_(size_t startCand) -> void {
-    auto rawStart = startCand > 0 ? rawBuf_.candOffsets[startCand] : 0;
+auto BufferManager::getFuzzyCandidates(size_t startCand) -> void {
+    auto rawStart = startCand > 0 ? rawBuf.candOffsets[startCand] : 0;
     auto consumed = size_t(0);
     auto idx = 0;
-    auto it = primaryCandidate_.begin() + startCand;
+    auto it = primaryCandidate.begin() + startCand;
 
-    while (it != primaryCandidate_.end()) {
-        it = primaryCandidate_.erase(it);
+    while (it != primaryCandidate.end()) {
+        it = primaryCandidate.erase(it);
     }
 
     Candidate lgram;
 
-    if (primaryCandidate_.size() > 0) {
-        lgram = primaryCandidate_[startCand - 1];
+    if (primaryCandidate.size() > 0) {
+        lgram = primaryCandidate[startCand - 1];
     } else {
         lgram = Candidate();
     }
 
     auto searchStr =
-        std::string(rawBuf_.text.begin() + rawStart, rawBuf_.text.end());
+        std::string(rawBuf.text.begin() + rawStart, rawBuf.text.end());
 
-    auto nextCandidate = candidateFinder_.findPrimaryCandidate(
+    auto nextCandidate = candidateFinder.findPrimaryCandidate(
         searchStr, toneMode_ == ToneMode::Fuzzy, lgram);
 
-    primaryCandidate_.insert(primaryCandidate_.end(), nextCandidate.cbegin(),
-                             nextCandidate.cend());
+    primaryCandidate.insert(primaryCandidate.end(), nextCandidate.cbegin(),
+                            nextCandidate.cend());
 }
 
-auto BufferManager::isCursorAtEnd_() -> bool {
-    return rawBuf_.cursor == rawBuf_.text.size();
+auto BufferManager::isCursorAtEnd() -> bool {
+    return rawBuf.cursor == rawBuf.text.size();
 }
 
 auto BufferManager::insertNormal_(char ch) -> RetVal {
@@ -324,32 +317,32 @@ auto BufferManager::insertNormal_(char ch) -> RetVal {
      *      beginning of current syllable
      *   4. Tone in middle: change tone on current syllable
      */
-    auto prevRawBufLen = rawBuf_.text.size();
-    rawBuf_.text.insert(rawBuf_.cursor, 1, ch);
-    rawBuf_.cursor += 1;
+    auto prevRawBufLen = rawBuf.text.size();
+    rawBuf.text.insert(rawBuf.cursor, 1, ch);
+    rawBuf.cursor += 1;
 
-    auto d_begin = dispBuf_.text.cbegin();
-    auto d_it = dispBuf_.ccursorIt();
+    auto d_begin = dispBuf.text.cbegin();
+    auto d_it = dispBuf.ccursorIt();
     auto stayLeft = true;
     if (d_it != d_begin) {
-        if (utf8::prior(d_it, dispBuf_.text.cbegin()) == ' ') {
+        if (utf8::prior(d_it, dispBuf.text.cbegin()) == ' ') {
             stayLeft = false;
         }
     }
 
-    if (isCursorAtEnd_()) {
-        getFuzzyCandidates_();
+    if (isCursorAtEnd()) {
+        getFuzzyCandidates();
     } else {
-        getFuzzyCandidates_(findCandidateAtCursor_());
+        getFuzzyCandidates(findCandidateAtCursor());
     }
 
-    updateDisplayBuffer_();
+    updateDisplayBuffer();
 
-    d_begin = dispBuf_.text.cbegin();
-    d_it = dispBuf_.ccursorIt();
+    d_begin = dispBuf.text.cbegin();
+    d_it = dispBuf.ccursorIt();
     if (d_it != d_begin) {
-        if (stayLeft && utf8::prior(d_it, dispBuf_.text.cbegin()) == ' ') {
-            --dispBuf_.cursor;
+        if (stayLeft && utf8::prior(d_it, dispBuf.text.cbegin()) == ' ') {
+            --dispBuf.cursor;
         }
     }
 
@@ -358,136 +351,136 @@ auto BufferManager::insertNormal_(char ch) -> RetVal {
 
 auto BufferManager::insertTelex_(char ch) -> RetVal {
     // TODO: handle telex double press
-    char lk = lastKey_;
-    lastKey_ = ch;
+    // char lk = lastKey_;
+    // lastKey_ = ch;
 
-    Syllable *syl = &syllables_[cursor_.first];
-    size_t *curs = &cursor_.second;
-    bool atEnd = isCursorAtEnd_();
+    // Syllable *syl = &syllables_[cursor_.first];
+    // size_t *curs = &cursor_.second;
+    // bool atEnd = isCursorAtEnd_();
 
-    Tone tone = getToneFromTelex(ch);
-    tone = checkTone78Swap(syl->unicode, tone);
+    // Tone tone = getToneFromTelex(ch);
+    // tone = checkTone78Swap(syl->unicode, tone);
 
-    if (lk == ch) {
-        auto start = syl->display.begin();
-        auto it = syl->display.end();
+    // if (lk == ch) {
+    //    auto start = syl->display.begin();
+    //    auto it = syl->display.end();
 
-        if (!atEnd) {
-            it = start + (*curs);
-        }
+    //    if (!atEnd) {
+    //        it = start + (*curs);
+    //    }
 
-        if (ch == 'u' && utf8::prior(it, start) == 0x0358) {
-            if (atEnd) {
-                syl->ascii.pop_back();
-                syl->asciiToUnicodeAndDisplay();
-                appendNewSyllable_();
-                syl = &syllables_[cursor_.first];
-                (*curs) = 0;
-            }
-        } else if (tone != Tone::NaT) {
-            std::string tmp = toNFD(syl->unicode);
+    //    if (ch == 'u' && utf8::prior(it, start) == 0x0358) {
+    //        if (atEnd) {
+    //            syl->ascii.pop_back();
+    //            syl->asciiToUnicodeAndDisplay();
+    //            appendNewSyllable_();
+    //            syl = &syllables_[cursor_.first];
+    //            (*curs) = 0;
+    //        }
+    //    } else if (tone != Tone::NaT) {
+    //        std::string tmp = toNFD(syl->unicode);
 
-            if (utf8::prior(tmp.end(), tmp.begin()) ==
-                ToneToUint32Map.at(tone)) {
-                syl->ascii.pop_back();
-                syl->tone = Tone::NaT;
-                syl->asciiToUnicodeAndDisplay();
-                appendNewSyllable_();
-                syl = &syllables_[cursor_.first];
-                (*curs) = 0;
-            }
-        }
-    }
+    //        if (utf8::prior(tmp.end(), tmp.begin()) ==
+    //            ToneToUint32Map.at(tone)) {
+    //            syl->ascii.pop_back();
+    //            syl->tone = Tone::NaT;
+    //            syl->asciiToUnicodeAndDisplay();
+    //            appendNewSyllable_();
+    //            syl = &syllables_[cursor_.first];
+    //            (*curs) = 0;
+    //        }
+    //    }
+    //}
 
-    // when is tone a tone?
-    // 1. if we are at the end and there isn't already a tone
-    // 2. if we aren't at the end
-    size_t acurs = syl->getAsciiCursor(*curs);
-    bool canPlaceTone =
-        boost::regex_search(syl->ascii.substr(0, acurs), toneableLetters);
+    //// when is tone a tone?
+    //// 1. if we are at the end and there isn't already a tone
+    //// 2. if we aren't at the end
+    // size_t acurs = syl->getAsciiCursor(*curs);
+    // bool canPlaceTone =
+    //    boost::regex_search(syl->ascii.substr(0, acurs), toneableLetters);
 
-    if (canPlaceTone && tone != Tone::NaT &&
-        ((atEnd && syl->tone == Tone::NaT) || (!atEnd))) {
-        if (tone == Tone::TK) {
-            if (syl->khin == true) {
-                // TODO: How to handle if already khin?
-                return RetVal::TODO;
-            }
+    // if (canPlaceTone && tone != Tone::NaT &&
+    //    ((atEnd && syl->tone == Tone::NaT) || (!atEnd))) {
+    //    if (tone == Tone::TK) {
+    //        if (syl->khin == true) {
+    //            // TODO: How to handle if already khin?
+    //            return RetVal::TODO;
+    //        }
 
-            syl->khin = true;
+    //        syl->khin = true;
 
-            // TODO: how to handle ascii for khin?
-            syl->asciiToUnicodeAndDisplay();
-            (*curs)++;
+    //        // TODO: how to handle ascii for khin?
+    //        syl->asciiToUnicodeAndDisplay();
+    //        (*curs)++;
 
-            return RetVal::OK;
-        }
+    //        return RetVal::OK;
+    //    }
 
-        if (!atEnd) {
-            syl->ascii.pop_back();
-            // Definitely a tone? Use digit
-            syl->ascii.push_back(ToneToDigitMap.at(tone));
-        } else {
-            syl->ascii.push_back(ch);
-        }
+    //    if (!atEnd) {
+    //        syl->ascii.pop_back();
+    //        // Definitely a tone? Use digit
+    //        syl->ascii.push_back(ToneToDigitMap.at(tone));
+    //    } else {
+    //        syl->ascii.push_back(ch);
+    //    }
 
-        syl->tone = tone;
+    //    syl->tone = tone;
 
-        auto prevLength = syl->displayUtf8Size();
-        syl->asciiToUnicodeAndDisplay();
-        cursor_.second += syl->displayUtf8Size() - prevLength;
+    //    auto prevLength = syl->displayUtf8Size();
+    //    syl->asciiToUnicodeAndDisplay();
+    //    cursor_.second += syl->displayUtf8Size() - prevLength;
 
-        return RetVal::OK;
-    }
+    //    return RetVal::OK;
+    //}
 
-    if (atEnd) {
-        // TODO: check Trie for invalid syllables
-        if (syl->tone != Tone::NaT) {
-            appendNewSyllable_();
-            syl = &syllables_[cursor_.first];
-            (*curs) = 0;
-        }
-        syl->ascii.push_back(ch);
-        syl->asciiToUnicodeAndDisplay();
-        (*curs)++;
+    // if (atEnd) {
+    //    // TODO: check Trie for invalid syllables
+    //    if (syl->tone != Tone::NaT) {
+    //        appendNewSyllable_();
+    //        syl = &syllables_[cursor_.first];
+    //        (*curs) = 0;
+    //    }
+    //    syl->ascii.push_back(ch);
+    //    syl->asciiToUnicodeAndDisplay();
+    //    (*curs)++;
 
-        return RetVal::OK;
-    } else {
-        syl->ascii.insert(*curs, 1, ch);
-        syl->asciiToUnicodeAndDisplay();
-        (*curs)++;
+    //    return RetVal::OK;
+    //} else {
+    //    syl->ascii.insert(*curs, 1, ch);
+    //    syl->asciiToUnicodeAndDisplay();
+    //    (*curs)++;
 
-        return RetVal::OK;
-    }
+    //    return RetVal::OK;
+    //}
 
     return RetVal::Error;
 }
 
-auto BufferManager::removeToneFromRawBuffer_() -> void {
-    auto sylBegin = rawBuf_.sylBegin();
-    auto sylIt = rawBuf_.sylEnd();
+auto BufferManager::removeToneFromRawBuffer() -> void {
+    auto sylBegin = rawBuf.sylBegin();
+    auto sylIt = rawBuf.sylEnd();
     --sylIt;
 
     while (sylIt != sylBegin) {
         if (isdigit(*sylIt) && (*sylIt) != '0') {
-            if (rawBuf_.cursorIt() - 1 == sylIt) {
-                rawBuf_.cursor--;
+            if (rawBuf.cursorIt() - 1 == sylIt) {
+                rawBuf.cursor--;
             }
 
-            rawBuf_.text.erase(sylIt, sylIt + 1);
+            rawBuf.text.erase(sylIt, sylIt + 1);
             break;
         }
         sylIt--;
     }
 }
 
-auto BufferManager::updateDisplayBuffer_() -> void {
+auto BufferManager::updateDisplayBuffer() -> void {
     // editing/normal/fuzzy:
-    if (primaryCandidate_.empty()) {
+    if (primaryCandidate.empty()) {
         return;
     }
 
-    auto currBufSize = utf8Size(dispBuf_.text);
+    auto currBufSize = utf8Size(dispBuf.text);
 
     auto rawSylOffsets = std::vector<size_t>();
     auto rawCandOffsets = std::vector<size_t>();
@@ -496,7 +489,7 @@ auto BufferManager::updateDisplayBuffer_() -> void {
 
     auto rawOffset = size_t(0);
     auto displayOffset = Utf8Size(0);
-    auto displayBuffer = std::string();
+    auto tmpDispBuf = std::string();
 
     auto khinNextCand = false;
 
@@ -506,7 +499,7 @@ auto BufferManager::updateDisplayBuffer_() -> void {
     // 3. dangling hyphen at the end of previous candidate
     // 4. double hyphen (khin) at the beginning of next candidate
     // 5. random/other
-    for (const auto &c : primaryCandidate_) {
+    for (const auto &c : primaryCandidate) {
         if (c.dict_id == 0 && c.output.empty()) {
             auto d = std::string(c.ascii);
 
@@ -518,7 +511,7 @@ auto BufferManager::updateDisplayBuffer_() -> void {
             rawCandOffsets.push_back(rawOffset);
             dbSylOffsets.push_back(displayOffset);
             dbCandOffsets.push_back(displayOffset);
-            displayBuffer += d + " ";
+            tmpDispBuf += d + " ";
             displayOffset += utf8Size(d) + 1;
             rawOffset += c.ascii.size();
             continue;
@@ -532,7 +525,7 @@ auto BufferManager::updateDisplayBuffer_() -> void {
 
             rawSylOffsets.push_back(rawOffset);
             dbSylOffsets.push_back(displayOffset);
-            
+
             if (syl.index() == 0) {
                 rawCandOffsets.push_back(rawOffset);
                 dbCandOffsets.push_back(displayOffset);
@@ -546,11 +539,11 @@ auto BufferManager::updateDisplayBuffer_() -> void {
 
             rawOffset += str.size();
             auto displaySyl = asciiSyllableToUtf8(str);
-            displayBuffer += displaySyl;
+            tmpDispBuf += displaySyl;
             displayOffset += utf8Size(displaySyl);
-            
+
             if (displaySyl.back() != '-') {
-                displayBuffer += ' ';
+                tmpDispBuf += ' ';
                 displayOffset += 1;
             }
         }
@@ -558,47 +551,47 @@ auto BufferManager::updateDisplayBuffer_() -> void {
         autokhin = false;
     }
 
-    if (displayBuffer.back() == ' ') {
-        displayBuffer.pop_back();
+    if (tmpDispBuf.back() == ' ') {
+        tmpDispBuf.pop_back();
     }
 
-    rawBuf_.sylOffsets = std::move(rawSylOffsets);
-    rawBuf_.candOffsets = std::move(rawCandOffsets);
-    dispBuf_.sylOffsets = std::move(dbSylOffsets);
-    dispBuf_.candOffsets = std::move(dbCandOffsets);
-    dispBuf_.text = std::move(displayBuffer);
+    rawBuf.sylOffsets = std::move(rawSylOffsets);
+    rawBuf.candOffsets = std::move(rawCandOffsets);
+    dispBuf.sylOffsets = std::move(dbSylOffsets);
+    dispBuf.candOffsets = std::move(dbCandOffsets);
+    dispBuf.text = std::move(tmpDispBuf);
 
-    updateDisplayCursor_();
+    updateDisplayCursor();
 
-    BOOST_LOG_TRIVIAL(debug) << "IN:  " << rawBuf_.text;
-    BOOST_LOG_TRIVIAL(debug) << "DB:  " << dispBuf_.text;
+    BOOST_LOG_TRIVIAL(debug) << "IN:  " << rawBuf.text;
+    BOOST_LOG_TRIVIAL(debug) << "DB:  " << dispBuf.text;
     auto tmp = std::string();
-    for (auto &pc : primaryCandidate_) {
+    for (auto &pc : primaryCandidate) {
         tmp += pc.output;
     }
     BOOST_LOG_TRIVIAL(debug) << "PC:  " << tmp;
 }
 
-auto BufferManager::updateDisplayCursor_() -> void {
-    if (isCursorAtEnd_()) {
-        dispBuf_.cursor =
-            utf8::distance(dispBuf_.text.begin(), dispBuf_.text.end());
+auto BufferManager::updateDisplayCursor() -> void {
+    if (isCursorAtEnd()) {
+        dispBuf.cursor =
+            utf8::distance(dispBuf.text.begin(), dispBuf.text.end());
     } else {
-        auto r_target = rawBuf_.cursorIt();
-        auto r_it = rawBuf_.candBegin();
-        auto r_end = rawBuf_.text.end();
+        auto r_target = rawBuf.cursorIt();
+        auto r_it = rawBuf.candBegin();
+        auto r_end = rawBuf.text.end();
 
-        auto currCand = findCandidateAtCursor_();
-        auto d_it = dispBuf_.text.begin();
-        utf8::advance(d_it, dispBuf_.candOffsets[findCandidateAtCursor_()],
-                      dispBuf_.text.end());
-        auto d_end = dispBuf_.text.end();
+        auto currCand = findCandidateAtCursor();
+        auto d_it = dispBuf.text.begin();
+        utf8::advance(d_it, dispBuf.candOffsets[findCandidateAtCursor()],
+                      dispBuf.text.end());
+        auto d_end = dispBuf.text.end();
 
         while (r_it != r_end && r_it != r_target && d_it != d_end) {
             parallelNext(r_it, r_end, d_it, d_end);
         }
 
-        dispBuf_.cursor = utf8::distance(dispBuf_.text.begin(), d_it);
+        dispBuf.cursor = utf8::distance(dispBuf.text.begin(), d_it);
     }
 }
 
