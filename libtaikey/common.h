@@ -57,20 +57,23 @@ const std::unordered_map<Tone, char> ToneToDigitMap = {
     {Tone::T8, '8'}, {Tone::T9, '9'}, {Tone::TK, '0'}};
 
 const std::unordered_map<Tone, std::string> ToneToUtf8Map = {
-    {Tone::T2, U8_T2}, {Tone::T3, U8_T3}, {Tone::T5, U8_T5},
-    {Tone::T7, U8_T7}, {Tone::T8, U8_T8}, {Tone::T9, U8_T9},
-    {Tone::TK, U8_TK}};
+    {Tone::T2, U8_T2}, {Tone::T3, U8_T3}, {Tone::T5, U8_T5}, {Tone::T7, U8_T7},
+    {Tone::T8, U8_T8}, {Tone::T9, U8_T9}, {Tone::TK, U8_TK}};
 
 static std::unordered_map<uint32_t, std::string> ToneUint32ToDigitMap = {
     {U32_T2, "2"}, {U32_T3, "3"}, {U32_T5, "5"}, {U32_T7, "7"}, {U32_T8, "8"},
     {U32_T9, "9"}, {U32_TK, "0"}, {U32_R, "r"},  {U32_OU, "u"}, {U32_NN, "nn"}};
 
 const std::unordered_map<Tone, uint32_t> ToneToUint32Map = {
-    {Tone::T2, U32_T2}, {Tone::T3, U32_T3}, {Tone::T5, U32_T5}, {Tone::T7, U32_T7},
-    {Tone::T8, U32_T8}, {Tone::T9, U32_T9}, {Tone::TK, U32_TK}};
+    {Tone::T2, U32_T2}, {Tone::T3, U32_T3}, {Tone::T5, U32_T5},
+    {Tone::T7, U32_T7}, {Tone::T8, U32_T8}, {Tone::T9, U32_T9},
+    {Tone::TK, U32_TK}};
 
-const std::string TONES[] = {U8_T2, U8_T3, U8_T5, u8"\u030c",
+const std::string TONES[] = {U8_T2, U8_T3, U8_T5,      u8"\u030c",
                              U8_T7, U8_T8, u8"\u0306", U8_TK};
+
+const auto U32_TONES =
+    std::vector<uint32_t>{U32_T2, U32_T3, U32_T5, U32_T7, U32_T8, U32_T9};
 
 const std::unordered_set<char> PTKH = {'P', 'T', 'K', 'H', 'p', 't', 'k', 'h'};
 

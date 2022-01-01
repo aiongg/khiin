@@ -10,8 +10,10 @@
 
 #include <utf8cpp/utf8.h>
 #include <utf8cpp/utf8/cpp17.h>
-    
+
 #include "lomaji.h"
+
+namespace utf8u = utf8::unchecked;
 
 namespace TaiKey {
 
@@ -136,39 +138,38 @@ auto getAsciiCursorFromUtf8(std::string ascii, std::string u8str, size_t idx)
     auto u8_target = u8str.begin();
     auto u8_end = u8str.end();
     auto a_it = ascii.begin();
-    auto a_end = ascii.end();
     auto ucp = uint32_t(0);
     auto acp = uint32_t(0);
 
-    if (idx >= static_cast<size_t>(utf8::distance(u8_it, u8_end))) {
+    if (idx >= static_cast<size_t>(utf8u::distance(u8_it, u8_end))) {
         u8_target = u8_end;
     } else {
-        utf8::advance(u8_target, idx, u8_end);
+        utf8u::advance(u8_target, idx);
     }
 
     try {
         while (u8_it != u8_target) {
-            ucp = utf8::peek_next(u8_it, u8_end);
+            ucp = utf8u::peek_next(u8_it);
 
             if (U32_T3 <= ucp && ucp <= U32_T8) {
-                utf8::advance(u8_it, 1, u8_end);
+                utf8u::advance(u8_it, 1);
             } else if (ucp == U32_OU) {
-                utf8::advance(a_it, 1, a_end);
-                utf8::advance(u8_it, 1, u8_end);
+                utf8u::advance(a_it, 1);
+                utf8u::advance(u8_it, 1);
             } else if (ucp == U32_NN) {
-                utf8::advance(a_it, 2, a_end);
-                utf8::advance(u8_it, 1, u8_end);
-            } else if (ucp == 0x0b7 /* middle dot */) {
-                utf8::advance(u8_it, 1, u8_end);
+                utf8u::advance(a_it, 2);
+                utf8u::advance(u8_it, 1);
+            } else if (ucp == U32_TK) {
+                utf8u::advance(u8_it, 1);
             } else {
-                utf8::advance(a_it, 1, a_end);
-                utf8::advance(u8_it, 1, u8_end);
+                utf8u::advance(a_it, 1);
+                utf8u::advance(u8_it, 1);
             }
         }
 
-        return static_cast<size_t>(utf8::distance(ascii.begin(), a_it));
+        return static_cast<size_t>(utf8u::distance(ascii.begin(), a_it));
     } catch (const utf8::not_enough_room &e) {
-        return static_cast<size_t>(utf8::distance(ascii.begin(), a_it));
+        return static_cast<size_t>(utf8u::distance(ascii.begin(), a_it));
     }
 }
 
@@ -182,9 +183,21 @@ auto getToneFromTelex(char ch) -> Tone {
 
 auto hasToneDiacritic(std::string str) -> bool {
     // boost regex does not support unicode unless we use ICU version
-    static boost::regex tones(u8"\u0300|\u0301|\u0302|\u0304|\u0306|\u030D");
     str = toNFD(str);
-    return boost::regex_search(str.cbegin(), str.cend(), tones);
+
+    auto b = str.cbegin();
+    auto e = str.cend();
+    auto b_s = U32_TONES.cbegin();
+    auto e_s = U32_TONES.cend();
+
+    while (b != e) {
+        if (std::find(b_s, e_s, utf8u::peek_next(b)) != e_s) {
+            return true;
+        }
+        utf8u::advance(b, 1);
+    }
+
+    return false;
 }
 
 auto parallelNext(std::string::iterator &a_it, std::string::iterator &a_end,
@@ -332,14 +345,14 @@ auto spaceAsciiByUtf8(std::string ascii, std::string lomaji) -> VStr {
     return segments;
 }
 
-auto toNFD(std::string s) -> std::string {
+auto toNFD(std::string_view s) -> std::string {
     auto u32s = utf8::utf8to32(s);
     ufal::unilib::uninorms::nfd(u32s);
 
     return utf8::utf32to8(u32s);
 }
 
-auto toNFC(std::string s) -> std::string {
+auto toNFC(std::string_view s) -> std::string {
     auto u32s = utf8::utf8to32(s);
     ufal::unilib::uninorms::nfc(u32s);
 

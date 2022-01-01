@@ -35,9 +35,9 @@ auto placeToneOnSyllable(std::string u8syllable, Tone tone) -> std::string;
 
 auto spaceAsciiByUtf8(std::string ascii, std::string lomaji) -> VStr;
 
-auto toNFC(std::string s) -> std::string;
+auto toNFC(std::string_view s) -> std::string;
 
-auto toNFD(std::string s) -> std::string;
+auto toNFD(std::string_view s) -> std::string;
 
 auto utf8Size(std::string s) -> Utf8Size;
 
