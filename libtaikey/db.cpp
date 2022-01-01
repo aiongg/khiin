@@ -262,15 +262,26 @@ auto TKDB::updateGramCounts(VStr &grams) -> int {
 }
 
 int TKDB::buildTrieLookupTable_() {
-    std::vector<std::pair<std::string, int>> insertable;
+    auto insertable = std::vector<std::pair<std::string, int>>();
+    auto insertQueries = std::vector<SQLite::Statement>();
+    auto chunkSize = 3000;
+
+    insertable.reserve(chunkSize);
+    insertQueries.reserve(10);
+
+    auto addQueryChunk = [&]() {
+        auto q = SQLite::Statement(db_, SQL::INSERT_TrieMap(insertable.size()));
+        for (const auto &each : insertable | boost::adaptors::indexed(1)) {
+            q.bind(static_cast<int>(2 * each.index() - 1), each.value().first);
+            q.bind(static_cast<int>(2 * each.index()), each.value().second);
+        }
+        insertQueries.emplace_back(std::move(q));
+        insertable.clear();
+    };
 
     auto tx = SQLite::Transaction(db_);
-
     db_.exec(SQL::CREATE_TrieMapTable);
-
     auto dictionaryQuery = SQLite::Statement(db_, SQL::SELECT_DictionaryInputs);
-
-    auto insertQueries = std::vector<SQLite::Statement>();
 
     while (dictionaryQuery.executeStep()) {
         auto dictId = dictionaryQuery.getColumn("id").getInt();
@@ -278,20 +289,16 @@ int TKDB::buildTrieLookupTable_() {
             utf8ToAsciiLower(dictionaryQuery.getColumn("input").getString());
         auto output = dictionaryQuery.getColumn("output").getString();
 
-        auto needsHyphens =
-            std::find(output.cbegin(), output.cend(), '-') != output.cend();
-
         static boost::regex rInnerTone("\\d(?!$)");
 
-        boost::algorithm::replace_all(ascii, " ", "");
+        boost::erase_all(ascii, " ");
+        auto noTone = boost::regex_replace(ascii, rInnerTone, "");
         auto collapsed = boost::replace_all_copy(ascii, "-", "");
-        auto collapsedNoTone = boost::regex_replace(collapsed, rInnerTone, "");
+        auto collapsedNoTone = boost::erase_all_copy(noTone, "-");
 
-        auto uniques = std::unordered_set<std::string>();
-        if (needsHyphens) {
-            uniques.insert(ascii);
-            uniques.insert(boost::regex_replace(ascii, rInnerTone, ""));
-        }
+        auto uniques = std::unordered_set<std::string>(4);
+        uniques.insert(ascii);
+        uniques.insert(noTone);
         uniques.insert(collapsed);
         uniques.insert(collapsedNoTone);
 
@@ -299,26 +306,13 @@ int TKDB::buildTrieLookupTable_() {
             insertable.push_back(std::make_pair(ea, dictId));
         }
 
-        if (insertable.size() > 1000) {
-            insertQueries.emplace_back(
-                SQLite::Statement(db_, SQL::INSERT_TrieMap(insertable.size())));
-            for (const auto &each : insertable | boost::adaptors::indexed(1)) {
-                insertQueries.back().bind(
-                    static_cast<int>(2 * each.index() - 1), each.value().first);
-                insertQueries.back().bind(static_cast<int>(2 * each.index()),
-                                          each.value().second);
-            }
-            insertable.clear();
+        if (insertable.size() > chunkSize - 4) {
+            addQueryChunk();
         }
     }
 
-    insertQueries.emplace_back(
-        SQLite::Statement(db_, SQL::INSERT_TrieMap(insertable.size())));
-    for (const auto &each : insertable | boost::adaptors::indexed(1)) {
-        insertQueries.back().bind(static_cast<int>(2 * each.index() - 1),
-                                  each.value().first);
-        insertQueries.back().bind(static_cast<int>(2 * each.index()),
-                                  each.value().second);
+    if (insertable.size() > 0) {
+        addQueryChunk();
     }
 
     for (auto &q : insertQueries) {
