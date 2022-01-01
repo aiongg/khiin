@@ -1,20 +1,20 @@
 #define BOOST_TEST_DYN_LINK
 #include <boost/test/unit_test.hpp>
 
+#include <fstream>
+#include <filesystem>
 #include <iostream>
 #include <memory>
 #include <string>
 
 #include <boost/algorithm/string.hpp>
-#include <boost/filesystem.hpp>
-#include <boost/filesystem/string_file.hpp>
 #include <boost/log/trivial.hpp>
 
 #include "buffer.h"
 #include "syl_splitter.h"
 #include "trie.h"
 
-namespace fs = boost::filesystem;
+namespace fs = std::filesystem;
 
 using namespace TaiKey;
 
@@ -25,7 +25,7 @@ std::shared_ptr<Trie> loadSyllablesDat() {
         return trie;
     }
 
-    fs::ifstream fileHandler("syllables.dat");
+    std::ifstream fileHandler("syllables.dat");
     std::string syl;
 
     while (std::getline(fileHandler, syl)) {
@@ -42,7 +42,7 @@ std::shared_ptr<Splitter> loadSyllableSplitter() {
         return std::shared_ptr<Splitter>(new Splitter(syls));
     }
 
-    fs::ifstream fileHandler("syllables.dat");
+    std::ifstream fileHandler("syllables.dat");
     std::string syl;
 
     while (std::getline(fileHandler, syl)) {

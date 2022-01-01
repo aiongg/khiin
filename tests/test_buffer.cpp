@@ -312,7 +312,7 @@ BOOST_AUTO_TEST_CASE(move_cursor) {
     BOOST_TEST(getCurs() == 0);
 
     reset();
-    insert("ouhnn8"); // o8uhN
+    insert("ouhnn8");
     BOOST_TEST(getCurs() == 5);
     left(1);
     BOOST_TEST(getCurs() == 4);

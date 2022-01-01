@@ -20,21 +20,14 @@
 #include <boost/program_options.hpp>
 #include <boost/property_tree/json_parser.hpp>
 #include <boost/property_tree/ptree.hpp>
-//#include <boost/regex.hpp>
 
-// #include <unicode/uclean.h>
 #include <utf8cpp/utf8.h>
 
 #include "libtaikey.h"
-#include "tk_locale.h"
-
-using namespace std;
-using namespace boost;
-using namespace boost::locale;
 
 namespace TaiKey {
 
-string defaultSettings = R"settings({
+std::string defaultSettings = R"settings({
     "T2": "s"
 })settings";
 
@@ -66,8 +59,8 @@ enum class Special {
     OUSolo,
 };
 
-unordered_map<Special, char> SPEC_KEY_MAP = {{Special::NasalCombo, 'n'},
-                                             {Special::OUCombo, 'u'}};
+std::unordered_map<Special, char> SPEC_KEY_MAP = {{Special::NasalCombo, 'n'},
+                                                  {Special::OUCombo, 'u'}};
 
 // string _getToneOfKey(const char c) {
 //    auto t = TONE_KEY_MAP.find(c);
@@ -127,7 +120,7 @@ TKEngine::TKEngine() {
     //    initialize();
     //}
 
-    init_locale();
+    //init_locale();
 
     inputMode_ = InputMode::Pro;
     toneKeys_ = ToneKeys::Numeric;
@@ -154,7 +147,8 @@ RetVal TKEngine::onKeyDown(KeyCode keyCode) {
 EngineState TKEngine::getState() const { return engineState_; }
 
 std::string TKEngine::getBuffer() const {
-    return normalize(keyBuffer_, norm_nfc);
+    // return normalize(keyBuffer_, norm_nfc);
+    return std::string();
 }
 
 // private members
@@ -218,8 +212,8 @@ RetVal TKEngine::onKeyDown_(KeyCode keyCode) {
     if (handler)
         return (this->*handler)(keyCode);
 
-    return 
-        
+    return
+
         RetVal::NotConsumed;
 }
 
@@ -319,27 +313,28 @@ RetVal TKEngine::handleNavByLetter_(KeyCode keyCode) {
 
 RetVal TKEngine::handleNavBySegment_(KeyCode keyCode) {
     switch (keyCode) {
-     case KeyCode::RIGHT:
-    //    if (displayBuffer_.selectedSegment + 1 < displayBuffer_.segmentCount)
-    //    {
-    //        displayBuffer_.selectedSegment++;
-    //    }
+    case KeyCode::RIGHT:
+        //    if (displayBuffer_.selectedSegment + 1 <
+        //    displayBuffer_.segmentCount)
+        //    {
+        //        displayBuffer_.selectedSegment++;
+        //    }
         return RetVal::Consumed;
-     case KeyCode::LEFT:
-    //    if (displayBuffer_.selectedSegment > 0) {
-    //        displayBuffer_.selectedSegment--;
-    //    } else {
-    //        setEngineState_(EngineState::BufferByLetter, keyCode);
-    //    }
+    case KeyCode::LEFT:
+        //    if (displayBuffer_.selectedSegment > 0) {
+        //        displayBuffer_.selectedSegment--;
+        //    } else {
+        //        setEngineState_(EngineState::BufferByLetter, keyCode);
+        //    }
         return RetVal::Consumed;
     default:
         return RetVal::TODO;
     }
 }
 
-RetVal TKEngine::setEngineState_(EngineState nextEngineState,
-                                   KeyCode keyCode) {
-    if (handleStateTransition_(engineState_, nextEngineState, keyCode) == RetVal::OK) {
+RetVal TKEngine::setEngineState_(EngineState nextEngineState, KeyCode keyCode) {
+    if (handleStateTransition_(engineState_, nextEngineState, keyCode) ==
+        RetVal::OK) {
         engineState_ = nextEngineState;
     }
 
@@ -347,7 +342,7 @@ RetVal TKEngine::setEngineState_(EngineState nextEngineState,
 }
 
 RetVal TKEngine::handleStateTransition_(EngineState prev, EngineState next,
-                                          KeyCode keyCode) {
+                                        KeyCode keyCode) {
     switch (prev) {
     case EngineState::Ready:
         switch (next) {

@@ -2,12 +2,15 @@
 
 #include <boost/algorithm/string.hpp>
 #include <boost/format.hpp>
-#include <boost/locale.hpp>
 #include <boost/log/trivial.hpp>
 #include <boost/regex.hpp>
 
-#include <utf8cpp/utf8.h>
+#include <unilib/uninorms.h>
+#include <unilib/unistrip.h>
 
+#include <utf8cpp/utf8.h>
+#include <utf8cpp/utf8/cpp17.h>
+    
 #include "lomaji.h"
 
 namespace TaiKey {
@@ -246,10 +249,15 @@ auto parallelPrior(std::string::iterator &a_it, std::string::iterator &a_begin,
 }
 
 auto stripDiacritics(std::string str) {
-    // boost regex does not support unicode unless we use ICU version
-    static boost::regex tones(
-        u8"\u00b7|\u0300|\u0301|\u0302|\u0304|\u0306|\u030D");
-    return boost::regex_replace(toNFD(str), tones, u8"");
+
+    auto u32s = utf8::utf8to32(str);
+    auto stripped = std::u32string();
+
+    for (auto &c : u32s) {
+        stripped.push_back(ufal::unilib::unistrip::strip_combining_marks(c));
+    }
+
+    return boost::erase_all_copy(utf8::utf32to8(stripped), u8"\u00b7");
 }
 
 auto placeToneOnSyllable(std::string u8syllable, Tone tone) -> std::string {
@@ -325,11 +333,17 @@ auto spaceAsciiByUtf8(std::string ascii, std::string lomaji) -> VStr {
 }
 
 auto toNFD(std::string s) -> std::string {
-    return boost::locale::normalize(s, boost::locale::norm_nfd);
+    auto u32s = utf8::utf8to32(s);
+    ufal::unilib::uninorms::nfd(u32s);
+
+    return utf8::utf32to8(u32s);
 }
 
 auto toNFC(std::string s) -> std::string {
-    return boost::locale::normalize(s, boost::locale::norm_nfc);
+    auto u32s = utf8::utf8to32(s);
+    ufal::unilib::uninorms::nfc(u32s);
+
+    return utf8::utf32to8(u32s);
 }
 
 auto utf8Size(std::string s) -> Utf8Size {
