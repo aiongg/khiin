@@ -7,9 +7,11 @@
 
 namespace TaiKey::CandidateTest {
 
+const std::string DB_FILE = "taikey.db";
+
 struct Fx {
     Fx()
-        : db("taikey.db"), splitter(db.selectSyllableList()),
+        : db(DB_FILE), splitter(db.selectSyllableList()),
           trie(db.selectTrieWordlist(), db.selectSyllableList()),
           cf(db, splitter, trie) {}
     ~Fx() {}

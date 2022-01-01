@@ -27,39 +27,6 @@ BOOST_AUTO_TEST_CASE(utf8_to_ascii) {
     BOOST_TEST(ret == "siak loh80-khi30 ban7-te2 chhim-khenn");
 }
 
-BOOST_AUTO_TEST_CASE(ascii_cursor_from_utf8) {
-    std::string ascii = u8"oan5";
-    std::string u8str = asciiSyllableToUtf8(ascii, Tone::T5, false);
-    size_t ret;
-
-    ret = getAsciiCursorFromUtf8(ascii, u8str, 0);
-    BOOST_TEST(ret == 0);
-
-    ret = getAsciiCursorFromUtf8(ascii, u8str, 1);
-    BOOST_TEST(ret == 1);
-
-    ret = getAsciiCursorFromUtf8(ascii, u8str, 2);
-    BOOST_TEST(ret == 2);
-
-    ret = getAsciiCursorFromUtf8(ascii, u8str, 3);
-    BOOST_TEST(ret == 3);
-
-    ascii = u8"hounn3";
-    u8str = u8"hò͘ⁿ";
-
-    ret = getAsciiCursorFromUtf8(ascii, u8str, 0);
-    BOOST_TEST(ret == 0);
-
-    ret = getAsciiCursorFromUtf8(ascii, u8str, 1);
-    BOOST_TEST(ret == 1);
-
-    ret = getAsciiCursorFromUtf8(ascii, u8str, 3);
-    BOOST_TEST(ret == 3);
-
-    ret = getAsciiCursorFromUtf8(ascii, u8str, 4);
-    BOOST_TEST(ret == 5);
-}
-
 BOOST_AUTO_TEST_CASE(split_ascii_by_utf8) {
     auto r = spaceAsciiByUtf8("khiam3eng7", u8"khiàm-ēng");
     BOOST_TEST(r.size() == 2);

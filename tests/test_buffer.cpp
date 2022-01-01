@@ -5,9 +5,11 @@
 
 namespace TaiKey::BufferTest {
 
+const std::string DB_FILE = "taikey.db";
+
 struct Fx {
     Fx()
-        : db("taikey.db"), sp(db.selectSyllableList()),
+        : db(DB_FILE), sp(db.selectSyllableList()),
           tr(db.selectTrieWordlist(), db.selectSyllableList()), cf(db, sp, tr),
           buf(cf) {}
 
