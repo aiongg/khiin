@@ -10,7 +10,7 @@
 #include <boost/algorithm/string.hpp>
 #include <boost/log/trivial.hpp>
 
-#include "buffer.h"
+#include "buffer_manager.h"
 #include "syl_splitter.h"
 #include "trie.h"
 

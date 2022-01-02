@@ -8,7 +8,7 @@
 
 //#include <boost/locale.hpp>
 
-#include "buffer.h"
+#include "buffer_manager.h"
 #include "config.h"
 #include "errors.h"
 #include "keys.h"

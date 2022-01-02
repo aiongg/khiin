@@ -4,8 +4,8 @@
 
 # Add source to this project's executable.
 add_library (libtaikey
-    "buffer.h"
-    "buffer.cpp"
+    "buffer_manager.h"
+    "buffer_manager.cpp"
     "candidates.h"
     "candidates.cpp"
     "common.h"
@@ -26,7 +26,7 @@ add_library (libtaikey
     "syl_splitter.cpp"
     "trie.h"
     "trie.cpp"
-)
+ "buffer.h" "buffer.cpp")
 
 # Debug
 target_link_options(libtaikey PRIVATE "/MAP")

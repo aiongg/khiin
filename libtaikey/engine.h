@@ -4,7 +4,7 @@
 #include <string>
 #include <memory>
 
-#include "buffer.h"
+#include "buffer_manager.h"
 #include "candidates.h"
 #include "config.h"
 #include "db.h"
