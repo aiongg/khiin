@@ -19,11 +19,14 @@ namespace TaiKey {
 
 // Utility methods (not exposed)
 
+auto static codepointAsciiSize = std::unordered_map<uint32_t, int>{
+    {' ', 0},    {U32_T2, 0},    {U32_T3, 0}, {U32_T5, 0},
+    {U32_T7, 0}, {U32_T8, 0},    {U32_T9, 0}, {U32_TK, 2},
+    {U32_NN, 2}, {U32_NN_UC, 2}, {U32_UR, 2}, {U32_UR_UC, 2}};
+
 auto static asciiLettersPerCodepoint(uint32_t cp) {
-    if (cp == ' ' || (0x0300 <= cp && cp <= 0x030d)) {
-        return 0;
-    } else if (cp == 0x207f || cp == 0x1d3a || cp == 0x1e72 || cp == 0x1e73) {
-        return 2;
+    if (codepointAsciiSize.find(cp) != codepointAsciiSize.end()) {
+        return codepointAsciiSize.at(cp);
     }
 
     return 1;
@@ -57,35 +60,42 @@ auto stripToAlpha(std::string str) {
  * - Khin double-dash prefix
  */
 auto asciiSyllableToUtf8(std::string ascii) -> std::string {
+    if (ascii.size() < 2) {
+        return ascii;
+    }
+
+    if (ascii == u8"--") {
+        return U8_TK;
+    }
+
     bool khin = false;
     Tone tone = Tone::NaT;
     bool trailingHyphen = false;
 
-    auto end = ascii.cend();
     auto begin = ascii.cbegin();
-    --end;
-
-    if (*end == '-') {
-        trailingHyphen = true;
-        --end;
-    }
-
-    if (*end == '0') {
-        khin = true;
-        --end;
-    }
-
-    if (isdigit(*end)) {
-        tone = getToneFromDigit(*end);
-        --end;
-    }
+    auto back = ascii.cend() - 1;
 
     if (ascii.rfind("--", 0) == 0) {
         khin = true;
         begin += 2;
     }
 
-    auto utf8 = asciiSyllableToUtf8(std::string(begin, ++end), tone, khin);
+    if (*back == '-') {
+        trailingHyphen = true;
+        --back;
+    }
+
+    if (*back == '0') {
+        khin = true;
+        --back;
+    }
+
+    if (isdigit(*back)) {
+        tone = getToneFromDigit(*back);
+        --back;
+    }
+
+    auto utf8 = asciiSyllableToUtf8(std::string(begin, ++back), tone, khin);
 
     if (trailingHyphen) {
         utf8.insert(utf8.end(), '-');

@@ -11,11 +11,25 @@ namespace TaiKey {
 // Utility
 
 auto displayFromRaw(std::string raw, std::string split) {
+    if (split.empty()) {
+        return asciiSyllableToUtf8(raw);
+    }
+
     auto display = std::string();
     auto syls = spaceAsciiByUtf8(raw, split);
+    auto autokhin = false;
 
     for (auto it = syls.begin(); it != syls.end(); ++it) {
-        display += asciiSyllableToUtf8(*it);
+        auto &s = *it;
+        if (s.size() > 2 && s[0] == '-' && s[1] == '-') {
+            autokhin = true;
+        }
+
+        if (autokhin && s[0] != '-') {
+            s.insert(0, 2, '-');
+        }
+
+        display += asciiSyllableToUtf8(s);
         if (it != syls.end() - 1 && display.back() != '-') {
             display += ' ';
         }
@@ -27,6 +41,10 @@ auto displayFromRaw(std::string raw, std::string split) {
 auto utf8back(std::string str) {
     auto end = str.cend();
     return utf8::prior(end, str.cbegin());
+}
+
+auto utf8first(std::string str) {
+    return utf8::peek_next(str.cbegin(), str.cend());
 }
 
 // SynchronizedBuffer
@@ -75,6 +93,10 @@ auto SynchronizedBuffer::editingBegin() -> SegmentIter {
     }
 
     return segments.end();
+}
+
+auto SynchronizedBuffer::empty() -> bool {
+    return segments.size() == 1 && segments[0].raw.size() == 0;
 }
 
 auto SynchronizedBuffer::erase(CursorDirection dir) -> void {
@@ -137,6 +159,17 @@ auto SynchronizedBuffer::segmentEnd() -> SegmentIter { return segments.end(); }
 
 auto SynchronizedBuffer::segmentAtCursor() -> SegmentIter {
     return segments.begin() + cursor.segment;
+}
+
+auto SynchronizedBuffer::selectPrimaryCandidate() -> void {
+    for (auto &s : segments) {
+        s.selected = true;
+        s.selectedCandidate = 0;
+        s.display = s.candidates[0].output;
+    }
+
+    cursor.setToEnd();
+    updateSegmentSpacing();
 }
 
 auto SynchronizedBuffer::setPrimaryCandidate(SegmentIter from,
@@ -245,10 +278,16 @@ auto SynchronizedBuffer::updateSegmentSpacing() -> void {
         return;
     }
 
-    for (auto &it = segments.begin(); it != segments.end() - 1; it++) {
-        auto cp = utf8back((*it).display);
-        if (cp != '-') {
-            (*it).spaced = true;
+    for (auto it = segments.begin(); it != segments.end() - 2; ++it) {
+        auto lcp = utf8back(it[0].display);
+        auto rcp = utf8first(it[1].display);
+
+        // add virtual space if either side has lomaji and
+        // left side doesn't have hyphen
+        if (lcp >= 0x2e80 && rcp >= 0x2e80) {
+            it[0].spaced = false;
+        } else if (lcp != '-') {
+            it[0].spaced = true;
         }
     }
 }

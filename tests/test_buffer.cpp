@@ -66,6 +66,10 @@ BOOST_AUTO_TEST_CASE(clear) {
     BOOST_TEST(getCurs() == 0);
 }
 
+BOOST_AUTO_TEST_CASE(spacebar_not_consumed) {
+    BOOST_TEST((buf.spacebar() == RetVal::NotConsumed));
+}
+
 BOOST_AUTO_TEST_CASE(t01_simple) {
     insert("a");
     BOOST_TEST(getBuf() == u8"a");
@@ -224,6 +228,13 @@ BOOST_AUTO_TEST_CASE(t11_khin) {
     reset();
     insert("pinn---a");
     BOOST_TEST(getBuf() == "piⁿ-·a");
+}
+
+BOOST_AUTO_TEST_CASE(t12_select_primary_candidate) {
+    insert("ho2");
+    buf.spacebar();
+    BOOST_TEST(getBuf() == u8"好");
+    BOOST_TEST(getCurs() == 1);
 }
 
 BOOST_AUTO_TEST_CASE(ttelex_simple) {

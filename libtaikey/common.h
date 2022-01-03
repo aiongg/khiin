@@ -45,8 +45,14 @@ const uint32_t U32_T5 = 0x0302;
 const uint32_t U32_T7 = 0x0304;
 const uint32_t U32_T8 = 0x030D;
 const uint32_t U32_T9 = 0x0306;
-const uint32_t U32_TK = 0x00b7;
+const uint32_t U32_TK = 0x00B7;
 const uint32_t U32_R = 0x0324;
+const uint32_t U32_NN_UC = 0x1D3A;
+const uint32_t U32_UR_UC = 0x1E72;
+const uint32_t U32_UR = 0x1E73;
+
+const std::unordered_set<uint32_t> TwoAsciiCodepoints = {
+    U32_TK, U32_NN, U32_NN_UC, U32_UR, U32_UR_UC};
 
 const std::unordered_map<Tone, char> ToneToTelexMap = {
     {Tone::T2, 's'}, {Tone::T3, 'f'}, {Tone::T5, 'l'}, {Tone::T7, 'j'},

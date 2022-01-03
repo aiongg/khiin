@@ -85,9 +85,11 @@ auto BufferManager::setToneKeys(ToneKeys toneKeys) -> RetVal {
 }
 
 auto BufferManager::spacebar() -> RetVal {
-    if (empty()) {
+    if (buffer.empty()) {
         return RetVal::NotConsumed;
     }
+
+    buffer.selectPrimaryCandidate();
 
     return RetVal::TODO;
 }

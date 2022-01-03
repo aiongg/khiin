@@ -69,6 +69,7 @@ class SynchronizedBuffer {
     auto displayCursorOffset() -> size_t;
     auto displayText() -> std::string;
     auto editingBegin() -> SegmentIter;
+    auto empty() -> bool;
     auto erase(CursorDirection dir) -> void;
     auto insert(char ch) -> void;
     auto isCursorAtEnd() -> bool;
@@ -79,6 +80,7 @@ class SynchronizedBuffer {
     auto segmentBegin() -> SegmentIter;
     auto segmentCount() -> size_t;
     auto segmentEnd() -> SegmentIter;
+    auto selectPrimaryCandidate() -> void;
     auto setPrimaryCandidate(SegmentIter from, Candidates nextPrimaryCandidate)
         -> void;
 
