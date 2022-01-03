@@ -36,12 +36,12 @@ struct Fx {
     }
     void bksp(int n) {
         for (auto i = 0; i < n; i++) {
-            buf.remove(CursorDirection::L);
+            buf.erase(CursorDirection::L);
         }
     }
     void del(int n) {
         for (auto i = 0; i < n; i++) {
-            buf.remove(CursorDirection::R);
+            buf.erase(CursorDirection::R);
         }
     }
     void reset() { buf.clear(); }
