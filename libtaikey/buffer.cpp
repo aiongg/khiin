@@ -278,7 +278,7 @@ auto SynchronizedBuffer::updateSegmentSpacing() -> void {
         return;
     }
 
-    for (auto it = segments.begin(); it != segments.end() - 2; ++it) {
+    for (auto it = segments.begin(); it != segments.end() - 1; ++it) {
         auto lcp = utf8back(it[0].display);
         auto rcp = utf8first(it[1].display);
 
