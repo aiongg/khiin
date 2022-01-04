@@ -191,7 +191,10 @@ void uninorms::decompose(std::u32string& str, bool kompatibility) {
 
     auto chr = str[i];
     size_t j;
+    #pragma warning( push )
+    #pragma warning( disable : 4018 )
     for (j = i; j && (str[j-1] < CHARS ? ccc_block[ccc_index[str[j-1] >> 8]][str[j-1] & 0xFF] : 0) > ccc; j--) str[j] = str[j-1];
+    #pragma warning( pop )
     str[j] = chr;
   }
 }
