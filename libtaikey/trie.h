@@ -27,8 +27,8 @@ class Trie {
     auto getAllWords(std::string query, bool isToneless, VStr &results) -> void;
 
     // TODO Can delete
-    void Trie::splitSentence(std::string query, RecursiveMap &results);
-    VStr Trie::splitSentence2(std::string query);
+    void splitSentence(std::string query, RecursiveMap &results);
+    VStr splitSentence2(std::string query);
 
   private:
     struct Node;

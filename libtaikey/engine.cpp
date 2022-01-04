@@ -5,7 +5,7 @@ namespace TaiKey {
 
 //TKEngine::TKEngine() {}
 
-TKEngine::TKEngine(std::string tkFolder)
+Engine::Engine(std::string tkFolder)
     : tkFolder_(tkFolder), database_((tkFolder_ /= DB_FILE).string()) {
     config_.setConfigFile((tkFolder_ /= CONFIG_FILE).string());
 

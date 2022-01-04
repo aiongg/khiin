@@ -35,27 +35,27 @@ struct Fx {
 
 BOOST_GLOBAL_FIXTURE(Fx);
 
-void feedKeys(TKEngine &e, const char *keys) {
+void feedKeys(Engine &e, const char *keys) {
     e.reset();
     for (auto c : std::string(keys)) {
         e.onKeyDown(c);
     }
 }
 BOOST_AUTO_TEST_CASE(Engine_Empty) {
-    TKEngine e;
+    Engine e;
     e.reset();
     BOOST_CHECK_EQUAL(u8"", e.getBuffer());
 }
 
 BOOST_AUTO_TEST_CASE(Engine_Buffer) {
-    TKEngine e;
+    Engine e;
     e.reset();
     feedKeys(e, u8"a");
     BOOST_CHECK_EQUAL(u8"a", e.getBuffer());
 }
 
 BOOST_AUTO_TEST_CASE(Engine_Tone) {
-    TKEngine e;
+    Engine e;
     e.reset();
     feedKeys(e, u8"as");
     BOOST_CHECK_EQUAL(u8"á", e.getBuffer());
@@ -65,14 +65,14 @@ BOOST_AUTO_TEST_CASE(Engine_Tone) {
 }
 
 BOOST_AUTO_TEST_CASE(Engine_TonePlacement) {
-    TKEngine e;
+    Engine e;
     e.reset();
     feedKeys(e, u8"uis");
     BOOST_CHECK_EQUAL(u8"úi", e.getBuffer());
 }
 
 BOOST_AUTO_TEST_CASE(Engine_Failure, *boost::unit_test::expected_failures(1)) {
-    TKEngine e;
+    Engine e;
     e.reset();
     feedKeys(e, u8"a");
     BOOST_CHECK_EQUAL(u8"b", e.getBuffer());
@@ -82,7 +82,7 @@ BOOST_AUTO_TEST_CASE(Engine_Words) {
     vector<string> expected;
     vector<string> actual;
 
-    TKEngine e;
+    Engine e;
     Fx f;
 
     for (test_w word : f.words) {
@@ -97,49 +97,49 @@ BOOST_AUTO_TEST_CASE(Engine_Words) {
 }
 
 BOOST_AUTO_TEST_CASE(Engine_OU) {
-    TKEngine e;
+    Engine e;
     e.reset();
     feedKeys(e, u8"ou");
     BOOST_CHECK_EQUAL(u8"o͘", e.getBuffer());
 }
 
 BOOST_AUTO_TEST_CASE(Engine_Nasal) {
-    TKEngine e;
+    Engine e;
     e.reset();
     feedKeys(e, u8"ann");
     BOOST_CHECK_EQUAL(u8"a\u207f", e.getBuffer());
 }
 
 BOOST_AUTO_TEST_CASE(Engine_OU_Tone) {
-    TKEngine e;
+    Engine e;
     e.reset();
     feedKeys(e, u8"ous");
     BOOST_CHECK_EQUAL(u8"ó͘", e.getBuffer());
 }
 
 BOOST_AUTO_TEST_CASE(Engine_Nasal_Tone) {
-    TKEngine e;
+    Engine e;
     e.reset();
     feedKeys(e, u8"annf");
     BOOST_CHECK_EQUAL(u8"à\u207f", e.getBuffer());
 }
 
 BOOST_AUTO_TEST_CASE(Engine_OU_ToneChange) {
-    TKEngine e;
+    Engine e;
     e.reset();
     feedKeys(e, u8"ousf");
     BOOST_CHECK_EQUAL(u8"ò͘", e.getBuffer());
 }
 
 BOOST_AUTO_TEST_CASE(Engine_Backspace) {
-    TKEngine e;
+    Engine e;
     e.reset();
     feedKeys(e, u8"sa\b");
     BOOST_CHECK_EQUAL(u8"s", e.getBuffer());
 }
 
 BOOST_AUTO_TEST_CASE(Engine_T8) {
-    TKEngine e;
+    Engine e;
     e.reset();
     feedKeys(e, u8"ahy");
     BOOST_CHECK_EQUAL(u8"a̍h", e.getBuffer());

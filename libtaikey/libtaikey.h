@@ -35,10 +35,10 @@ enum class EngineState {
     ChoosingCandidate,
 };
 
-class TKEngine {
+class Engine {
 
   public:
-    TKEngine();
+    Engine();
     void reset();
 
     RetVal onKeyDown(char c);
@@ -48,7 +48,7 @@ class TKEngine {
     std::string getBuffer() const;
 
   private:
-    typedef RetVal (TKEngine::*KeyHandlerFn)(KeyCode keyCode);
+    typedef RetVal (Engine::*KeyHandlerFn)(KeyCode keyCode);
 
     BufferManager *buffer_;
     std::string keyBuffer_;

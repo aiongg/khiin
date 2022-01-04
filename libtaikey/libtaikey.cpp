@@ -115,7 +115,7 @@ std::unordered_map<Special, char> SPEC_KEY_MAP = {{Special::NasalCombo, 'n'},
 
 // constructor
 
-TKEngine::TKEngine() {
+Engine::Engine() {
     // if (!READY) {
     //    initialize();
     //}
@@ -131,29 +131,29 @@ TKEngine::TKEngine() {
 
 // public members
 
-void TKEngine::reset() {
+void Engine::reset() {
     keyBuffer_.clear();
     engineState_ = EngineState::Ready;
 }
 
-RetVal TKEngine::onKeyDown(char c) { return onKeyDown_((KeyCode)c); }
+RetVal Engine::onKeyDown(char c) { return onKeyDown_((KeyCode)c); }
 
-RetVal TKEngine::onKeyDown(KeyCode keyCode) {
+RetVal Engine::onKeyDown(KeyCode keyCode) {
     BOOST_LOG_TRIVIAL(debug) << boost::format("onKeyDown(%1%)") % (char)keyCode;
 
     return onKeyDown_(keyCode);
 }
 
-EngineState TKEngine::getState() const { return engineState_; }
+EngineState Engine::getState() const { return engineState_; }
 
-std::string TKEngine::getBuffer() const {
+std::string Engine::getBuffer() const {
     // return normalize(keyBuffer_, norm_nfc);
     return std::string();
 }
 
 // private members
 
-void TKEngine::popBack_() {
+void Engine::popBack_() {
     if (keyBuffer_.empty()) {
         return;
     }
@@ -165,7 +165,7 @@ void TKEngine::popBack_() {
     }
 }
 
-int TKEngine::getDisplayBufferLength_() {
+int Engine::getDisplayBufferLength_() {
     int len = 0;
 
     // for (int i = 0; i < displayBuffer_.segmentCount; i++) {
@@ -182,29 +182,29 @@ int TKEngine::getDisplayBufferLength_() {
 
 // key handlers
 
-RetVal TKEngine::onKeyDown_(KeyCode keyCode) {
+RetVal Engine::onKeyDown_(KeyCode keyCode) {
     KeyHandlerFn handler{};
 
     switch (inputMode_) {
     case InputMode::Pro:
-        handler = &TKEngine::onKeyDownPro_;
+        handler = &Engine::onKeyDownPro_;
         break;
     case InputMode::Normal:
         switch (engineState_) {
         case EngineState::Ready:
-            handler = &TKEngine::handleKeyOnReady_;
+            handler = &Engine::handleKeyOnReady_;
             break;
         case EngineState::Editing:
-            handler = &TKEngine::handleEditing_;
+            handler = &Engine::handleEditing_;
             break;
         case EngineState::BufferBySegment:
-            handler = &TKEngine::handleNavBySegment_;
+            handler = &Engine::handleNavBySegment_;
             break;
         case EngineState::BufferByLetter:
-            handler = &TKEngine::handleNavByLetter_;
+            handler = &Engine::handleNavByLetter_;
             break;
         case EngineState::ChoosingCandidate:
-            handler = &TKEngine::handleChoosingCandidate_;
+            handler = &Engine::handleChoosingCandidate_;
             break;
         }
     }
@@ -219,7 +219,7 @@ RetVal TKEngine::onKeyDown_(KeyCode keyCode) {
 
 // Pro Mode key handler methods
 
-RetVal TKEngine::onKeyDownPro_(KeyCode keyCode) {
+RetVal Engine::onKeyDownPro_(KeyCode keyCode) {
     // char c = (char)keyCode;
 
     // if (keyBuffer_.empty()) {
@@ -248,11 +248,11 @@ RetVal TKEngine::onKeyDownPro_(KeyCode keyCode) {
 
 // Normal Mode key handlers
 
-RetVal TKEngine::handleKeyOnReady_(KeyCode keyCode) {
+RetVal Engine::handleKeyOnReady_(KeyCode keyCode) {
     return setEngineState_(EngineState::Editing, keyCode);
 }
 
-RetVal TKEngine::handleEditing_(KeyCode keyCode) {
+RetVal Engine::handleEditing_(KeyCode keyCode) {
     // if (displayBuffer_.segmentCount == 0) {
     //    if (!isalpha((char)keyCode)) {
     //        return TK_NOT_CONSUMED;
@@ -301,17 +301,17 @@ RetVal TKEngine::handleEditing_(KeyCode keyCode) {
     return RetVal::TODO;
 }
 
-RetVal TKEngine::handleChoosingCandidate_(KeyCode keyCode) {
+RetVal Engine::handleChoosingCandidate_(KeyCode keyCode) {
     // switch (keyCode) {}
     return RetVal::TODO;
 }
 
-RetVal TKEngine::handleNavByLetter_(KeyCode keyCode) {
+RetVal Engine::handleNavByLetter_(KeyCode keyCode) {
     // switch (keyCode) {}
     return RetVal::TODO;
 }
 
-RetVal TKEngine::handleNavBySegment_(KeyCode keyCode) {
+RetVal Engine::handleNavBySegment_(KeyCode keyCode) {
     switch (keyCode) {
     case KeyCode::RIGHT:
         //    if (displayBuffer_.selectedSegment + 1 <
@@ -332,7 +332,7 @@ RetVal TKEngine::handleNavBySegment_(KeyCode keyCode) {
     }
 }
 
-RetVal TKEngine::setEngineState_(EngineState nextEngineState, KeyCode keyCode) {
+RetVal Engine::setEngineState_(EngineState nextEngineState, KeyCode keyCode) {
     if (handleStateTransition_(engineState_, nextEngineState, keyCode) ==
         RetVal::OK) {
         engineState_ = nextEngineState;
@@ -341,7 +341,7 @@ RetVal TKEngine::setEngineState_(EngineState nextEngineState, KeyCode keyCode) {
     return RetVal::TODO;
 }
 
-RetVal TKEngine::handleStateTransition_(EngineState prev, EngineState next,
+RetVal Engine::handleStateTransition_(EngineState prev, EngineState next,
                                         KeyCode keyCode) {
     switch (prev) {
     case EngineState::Ready:
@@ -362,7 +362,7 @@ RetVal TKEngine::handleStateTransition_(EngineState prev, EngineState next,
     return RetVal::TODO;
 }
 
-RetVal TKEngine::bySegmentToByLetter_(KeyCode keyCode) {
+RetVal Engine::bySegmentToByLetter_(KeyCode keyCode) {
     return handleNavByLetter_(keyCode);
 }
 

@@ -16,10 +16,10 @@ namespace TaiKey {
 const std::string CONFIG_FILE = "taikey.json";
 const std::string DB_FILE = "taikey.db";
 
-class TKEngine {
+class Engine {
   public:
     //TKEngine();
-    TKEngine(std::string tkFolder);
+    Engine(std::string tkFolder);
 
   private:
     std::filesystem::path tkFolder_;
