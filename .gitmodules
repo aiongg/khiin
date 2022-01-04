@@ -1,5 +1,5 @@
 [submodule "TaiKeyWindows"]
-	path = TaiKeyWindows
+	path = KhiinWin
 	url = git@gitlab.com:aiongg/TaiKeyWindows.git
 [submodule "libtaikey"]
 	path = libtaikey
