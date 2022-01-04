@@ -27,5 +27,10 @@ struct version {
   static version current();
 };
 
+// Returns current version.
+version version::current() {
+  return {3, 2, 0, ""};
+}
+
 } // namespace unilib
 } // namespace ufal

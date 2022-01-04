@@ -13,7 +13,6 @@ include_directories (${Boost_INCLUDE_DIRS})
 
 find_package(SQLiteCpp)
 
-add_subdirectory("external")
 add_subdirectory ("libtaikey")
 
 target_include_directories(libtaikey PUBLIC "./external")
