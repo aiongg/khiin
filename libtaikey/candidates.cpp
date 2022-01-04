@@ -1,11 +1,11 @@
 #include <algorithm>
 #include <numeric>
+#include <regex>
 #include <string>
 
 #include <boost/algorithm/string.hpp>
 #include <boost/range/adaptor/filtered.hpp>
 #include <boost/range/adaptor/indexed.hpp>
-#include <boost/regex.hpp>
 
 #include "candidates.h"
 #include "lomaji.h"
@@ -38,8 +38,8 @@ size_t alignedSyllables(const VStr &syllables, std::string word) {
         return 1;
     }
 
-    static boost::regex toneRe("\\d+");
-    auto tonelessWord = boost::regex_replace(word, toneRe, "");
+    static std::regex toneRe("\\d+");
+    auto tonelessWord = std::regex_replace(word, toneRe, "");
     auto wordIdx = size_t(0);
     auto sylIdx = size_t(0);
 

@@ -1,3 +1,4 @@
+#include <regex>
 #include <unordered_map>
 #include <unordered_set>
 
@@ -6,7 +7,6 @@
 #include <boost/locale.hpp>
 #include <boost/log/trivial.hpp>
 #include <boost/range/adaptor/indexed.hpp>
-#include <boost/regex.hpp>
 
 #include <utf8cpp/utf8.h>
 
@@ -19,7 +19,7 @@ namespace TaiKey {
 
 // Local utility methods
 
-boost::regex toneableLetters(u8"[aeioumn]");
+std::regex toneableLetters(u8"[aeioumn]");
 
 auto isOnlyHyphens(std::string s) {
     for (const auto &c : s) {

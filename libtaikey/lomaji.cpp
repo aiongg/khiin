@@ -3,7 +3,6 @@
 #include <boost/algorithm/string.hpp>
 #include <boost/format.hpp>
 #include <boost/log/trivial.hpp>
-#include <boost/regex.hpp>
 
 #include <unilib/uninorms.h>
 #include <unilib/unistrip.h>
@@ -47,8 +46,8 @@ auto getToneFromKeyMap(std::unordered_map<Tone, char> map, char ch) {
 }
 
 auto stripToAlpha(std::string str) {
-    static boost::regex re("[\\d]+");
-    return boost::replace_all_copy(boost::regex_replace(str, re, ""), "-", " ");
+    static std::regex re("[\\d]+");
+    return boost::replace_all_copy(std::regex_replace(str, re, ""), "-", " ");
 }
 
 // Exposed methods
@@ -246,7 +245,7 @@ auto placeToneOnSyllable(std::string u8syllable, Tone tone) -> std::string {
         return u8syllable;
     }
 
-    static boost::regex tone_mid_ae(u8"o[ae][mnptkh]");
+    static std::regex tone_mid_ae(u8"o[ae][mnptkh]");
     static std::string ordered_vowel_matches[] = {u8"o", u8"a",  u8"e", u8"u",
                                                   u8"i", u8"ng", u8"m"};
 
@@ -254,10 +253,10 @@ auto placeToneOnSyllable(std::string u8syllable, Tone tone) -> std::string {
 
     // BOOST_LOG_TRIVIAL(debug) << boost::format("stripped syl: %1%") % ret;
 
-    boost::smatch match;
+    std::smatch match;
     ptrdiff_t found;
 
-    if (boost::regex_search(ret, match, tone_mid_ae)) {
+    if (std::regex_search(ret, match, tone_mid_ae)) {
         found = match.position() + 1;
     } else {
         for (std::string v : ordered_vowel_matches) {
@@ -355,10 +354,10 @@ auto utf8ToAsciiLower(std::string u8string) -> std::string {
 
     boost::algorithm::to_lower(u8string);
 
-    static boost::regex sylWithMidNumericTone("([a-z]+)(\\d)([a-z]+)");
-    static boost::regex khinAtFront("(0)([a-z]+\\d?)");
-    u8string = boost::regex_replace(u8string, sylWithMidNumericTone, "$1$3$2");
-    u8string = boost::regex_replace(u8string, khinAtFront, "$2$1");
+    static std::regex sylWithMidNumericTone("([a-z]+)(\\d)([a-z]+)");
+    static std::regex khinAtFront("(0)([a-z]+\\d?)");
+    u8string = std::regex_replace(u8string, sylWithMidNumericTone, "$1$3$2");
+    u8string = std::regex_replace(u8string, khinAtFront, "$2$1");
 
     return u8string;
 }

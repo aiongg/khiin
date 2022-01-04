@@ -8,7 +8,7 @@ project ("TaiKey")
 
 # find_package(ICU)
 # Boost v1.75.0
-find_package (Boost REQUIRED COMPONENTS locale log regex unit_test_framework)
+find_package (Boost REQUIRED COMPONENTS log unit_test_framework)
 include_directories (${Boost_INCLUDE_DIRS})
 
 find_package(SQLiteCpp)

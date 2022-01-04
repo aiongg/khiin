@@ -1,9 +1,9 @@
+#include <regex>
 #include <unordered_set>
 
 #include <boost/algorithm/string.hpp>
 #include <boost/log/trivial.hpp>
 #include <boost/range/adaptor/indexed.hpp>
-#include <boost/regex.hpp>
 
 #include "db.h"
 #include "lomaji.h"
@@ -289,10 +289,10 @@ int TKDB::buildTrieLookupTable_() {
             utf8ToAsciiLower(dictionaryQuery.getColumn("input").getString());
         auto output = dictionaryQuery.getColumn("output").getString();
 
-        static boost::regex rInnerTone("\\d(?!$)");
+        static std::regex rInnerTone("\\d(?!$)");
 
         boost::erase_all(ascii, " ");
-        auto noTone = boost::regex_replace(ascii, rInnerTone, "");
+        auto noTone = std::regex_replace(ascii, rInnerTone, "");
         auto collapsed = boost::replace_all_copy(ascii, "-", "");
         auto collapsedNoTone = boost::erase_all_copy(noTone, "-");
 

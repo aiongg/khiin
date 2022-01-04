@@ -9,17 +9,8 @@
 #include <unordered_map>
 #include <unordered_set>
 
-#include <boost/algorithm/string/erase.hpp>
-#include <boost/algorithm/string/find.hpp>
-#include <boost/algorithm/string/regex.hpp>
-#include <boost/algorithm/string/replace.hpp>
-#include <boost/assign.hpp>
 #include <boost/format.hpp>
-#include <boost/locale.hpp>
 #include <boost/log/trivial.hpp>
-#include <boost/program_options.hpp>
-#include <boost/property_tree/json_parser.hpp>
-#include <boost/property_tree/ptree.hpp>
 
 #include <utf8cpp/utf8.h>
 
