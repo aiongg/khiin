@@ -4,19 +4,19 @@
 #define BOOST_TEST_DYN_LINK
 #include <boost/test/unit_test.hpp>
 
+#include <filesystem>
 #include <vector>
 
 #include "libtaikey.h"
 
 using namespace std;
 using namespace TaiKey;
-
-BOOST_AUTO_TEST_SUITE(LibtaikeyTest);
+namespace fs = std::filesystem;
 
 typedef pair<string, string> test_w;
 
-struct Fx {
-    Fx() {
+struct EngineFx {
+    EngineFx() : e(Engine("./")) {
         words.push_back(test_w(u8"a", u8"a"));
         words.push_back(test_w(u8"as", u8"á"));
         words.push_back(test_w(u8"af", u8"à"));
@@ -28,53 +28,43 @@ struct Fx {
         words.push_back(test_w(u8"aw", u8"ă"));
         words.push_back(test_w(u8"khoannf", u8"khòaⁿ"));
     }
-    ~Fx() { words.clear(); }
-
+    ~EngineFx() { words.clear(); }
+    Engine e;
+    void feedKeys(const char *keys) {
+        e.reset();
+        for (auto c : std::string(keys)) {
+            e.onKeyDown(c);
+        }
+    } 
     vector<test_w> words;
 };
 
-BOOST_GLOBAL_FIXTURE(Fx);
+BOOST_FIXTURE_TEST_SUITE(TestEngine, EngineFx);
 
-void feedKeys(Engine &e, const char *keys) {
-    e.reset();
-    for (auto c : std::string(keys)) {
-        e.onKeyDown(c);
-    }
-}
 BOOST_AUTO_TEST_CASE(Engine_Empty) {
-    Engine e;
     e.reset();
     BOOST_CHECK_EQUAL(u8"", e.getBuffer());
 }
 
 BOOST_AUTO_TEST_CASE(Engine_Buffer) {
-    Engine e;
-    e.reset();
-    feedKeys(e, u8"a");
+    feedKeys(u8"a");
     BOOST_CHECK_EQUAL(u8"a", e.getBuffer());
 }
 
 BOOST_AUTO_TEST_CASE(Engine_Tone) {
-    Engine e;
-    e.reset();
-    feedKeys(e, u8"as");
+    feedKeys(u8"as");
     BOOST_CHECK_EQUAL(u8"á", e.getBuffer());
-    e.reset();
-    feedKeys(e, u8"af");
+    feedKeys(u8"af");
     BOOST_CHECK_EQUAL(u8"à", e.getBuffer());
 }
 
 BOOST_AUTO_TEST_CASE(Engine_TonePlacement) {
-    Engine e;
-    e.reset();
-    feedKeys(e, u8"uis");
+    feedKeys(u8"uis");
     BOOST_CHECK_EQUAL(u8"úi", e.getBuffer());
 }
 
 BOOST_AUTO_TEST_CASE(Engine_Failure, *boost::unit_test::expected_failures(1)) {
-    Engine e;
-    e.reset();
-    feedKeys(e, u8"a");
+    feedKeys(u8"a");
     BOOST_CHECK_EQUAL(u8"b", e.getBuffer());
 }
 
@@ -82,12 +72,9 @@ BOOST_AUTO_TEST_CASE(Engine_Words) {
     vector<string> expected;
     vector<string> actual;
 
-    Engine e;
-    Fx f;
-
-    for (test_w word : f.words) {
+    for (test_w word : words) {
         e.reset();
-        feedKeys(e, word.first.c_str());
+        feedKeys(word.first.c_str());
         expected.push_back(word.second);
         actual.push_back(e.getBuffer());
     }
@@ -97,51 +84,38 @@ BOOST_AUTO_TEST_CASE(Engine_Words) {
 }
 
 BOOST_AUTO_TEST_CASE(Engine_OU) {
-    Engine e;
-    e.reset();
-    feedKeys(e, u8"ou");
+    feedKeys(u8"ou");
     BOOST_CHECK_EQUAL(u8"o͘", e.getBuffer());
 }
 
 BOOST_AUTO_TEST_CASE(Engine_Nasal) {
-    Engine e;
-    e.reset();
-    feedKeys(e, u8"ann");
+    feedKeys(u8"ann");
     BOOST_CHECK_EQUAL(u8"a\u207f", e.getBuffer());
 }
 
 BOOST_AUTO_TEST_CASE(Engine_OU_Tone) {
-    Engine e;
     e.reset();
-    feedKeys(e, u8"ous");
+    feedKeys(u8"ous");
     BOOST_CHECK_EQUAL(u8"ó͘", e.getBuffer());
 }
 
 BOOST_AUTO_TEST_CASE(Engine_Nasal_Tone) {
-    Engine e;
-    e.reset();
-    feedKeys(e, u8"annf");
+    feedKeys(u8"annf");
     BOOST_CHECK_EQUAL(u8"à\u207f", e.getBuffer());
 }
 
 BOOST_AUTO_TEST_CASE(Engine_OU_ToneChange) {
-    Engine e;
-    e.reset();
-    feedKeys(e, u8"ousf");
+    feedKeys(u8"ousf");
     BOOST_CHECK_EQUAL(u8"ò͘", e.getBuffer());
 }
 
 BOOST_AUTO_TEST_CASE(Engine_Backspace) {
-    Engine e;
-    e.reset();
-    feedKeys(e, u8"sa\b");
+    feedKeys(u8"sa\b");
     BOOST_CHECK_EQUAL(u8"s", e.getBuffer());
 }
 
 BOOST_AUTO_TEST_CASE(Engine_T8) {
-    Engine e;
-    e.reset();
-    feedKeys(e, u8"ahy");
+    feedKeys(u8"ahy");
     BOOST_CHECK_EQUAL(u8"a̍h", e.getBuffer());
 }
 

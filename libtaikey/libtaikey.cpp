@@ -106,19 +106,38 @@ std::unordered_map<Special, char> SPEC_KEY_MAP = {{Special::NasalCombo, 'n'},
 
 // constructor
 
-Engine::Engine() {
-    // if (!READY) {
-    //    initialize();
-    //}
-
-    //init_locale();
-
-    inputMode_ = InputMode::Pro;
-    toneKeys_ = ToneKeys::Numeric;
-
-    keyBuffer_.reserve(10);
-    reset();
+std::string appendPath(fs::path folder, std::string file) {
+    auto tmp = folder;
+    tmp /= file;
+    return tmp.string();
 }
+
+Engine::Engine(std::string resourceDir)
+    : tkFolder_(resourceDir), database_(appendPath(tkFolder_, DB_FILE)) {
+    config_.setConfigFile(appendPath(tkFolder_, CONFIG_FILE));
+
+    splitter_ = Splitter(database_.selectSyllableList());
+    trie_ =
+        Trie(database_.selectTrieWordlist(), database_.selectSyllableList());
+    candidateFinder = std::make_unique<CandidateFinder>(
+        CandidateFinder(database_, splitter_, trie_));
+    buffer_ =
+        std::make_unique<BufferManager>(BufferManager(*candidateFinder.get()));
+}
+
+// Engine::Engine() {
+//    // if (!READY) {
+//    //    initialize();
+//    //}
+//
+//    //init_locale();
+//
+//    inputMode_ = InputMode::Pro;
+//    toneKeys_ = ToneKeys::Numeric;
+//
+//    keyBuffer_.reserve(10);
+//    reset();
+//}
 
 // public members
 
@@ -127,7 +146,7 @@ void Engine::reset() {
     engineState_ = EngineState::Ready;
 }
 
-RetVal Engine::onKeyDown(char c) { return onKeyDown_((KeyCode)c); }
+RetVal Engine::onKeyDown(char c) { return RetVal::Consumed; }
 
 RetVal Engine::onKeyDown(KeyCode keyCode) {
     BOOST_LOG_TRIVIAL(debug) << boost::format("onKeyDown(%1%)") % (char)keyCode;
@@ -333,7 +352,7 @@ RetVal Engine::setEngineState_(EngineState nextEngineState, KeyCode keyCode) {
 }
 
 RetVal Engine::handleStateTransition_(EngineState prev, EngineState next,
-                                        KeyCode keyCode) {
+                                      KeyCode keyCode) {
     switch (prev) {
     case EngineState::Ready:
         switch (next) {

@@ -7,13 +7,13 @@ namespace TaiKey::BufferTest {
 
 const std::string DB_FILE = "taikey.db";
 
-struct Fx {
-    Fx()
+struct BufferFx {
+    BufferFx()
         : db(DB_FILE), sp(db.selectSyllableList()),
           tr(db.selectTrieWordlist(), db.selectSyllableList()), cf(db, sp, tr),
           buf(cf) {}
 
-    ~Fx() {}
+    ~BufferFx() {}
     BufferManager buf;
     TKDB db;
     CandidateFinder cf;
@@ -49,7 +49,7 @@ struct Fx {
     std::size_t getCurs() { return buf.getCursor(); }
 };
 
-BOOST_FIXTURE_TEST_SUITE(BufferTest, Fx);
+BOOST_FIXTURE_TEST_SUITE(BufferTest, BufferFx);
 
 BOOST_AUTO_TEST_CASE(trivial) { BOOST_TEST(true); }
 

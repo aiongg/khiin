@@ -16,8 +16,8 @@ add_library (libtaikey
     "cursor.cpp"
     "db.h"
     "db.cpp"
-    "engine.h"
-    "engine.cpp"
+    
+    
     "errors.h"
     "keys.h"
     "libtaikey.h"

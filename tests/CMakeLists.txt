@@ -7,7 +7,7 @@ target_link_libraries(libtaikey_test ${Boost_LIBRARIES} SQLiteCpp libtaikey)
 
 add_test(NAME libtaikey_test COMMAND libtaikey_test)
 
-file(GLOB resources "${TaiKey_SOURCE_DIR}/resource/*")
+file(GLOB resources "${TaiKey_SOURCE_DIR}/../resources/*")
 message("Resource file list: ${resources}")
 foreach(res ${resources})
     add_custom_command(

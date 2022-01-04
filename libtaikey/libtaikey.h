@@ -2,6 +2,8 @@
 
 #include <string>
 
+#include <filesystem>
+
 #ifdef _WIN32
 #include <Windows.h>
 #endif
@@ -9,14 +11,20 @@
 //#include <boost/locale.hpp>
 
 #include "buffer_manager.h"
+#include "candidates.h"
 #include "config.h"
+#include "db.h"
 #include "errors.h"
 #include "keys.h"
+#include "syl_splitter.h"
+#include "trie.h"
 
 namespace TaiKey {
 
-//static bool READY = false;
-//inline void initialize() {
+namespace fs = std::filesystem;
+
+// static bool READY = false;
+// inline void initialize() {
 //#ifdef _WIN32
 //    SetConsoleOutputCP(CP_UTF8);
 //#endif
@@ -27,6 +35,9 @@ namespace TaiKey {
 //    READY = true;
 //}
 
+const std::string CONFIG_FILE = "taikey.json";
+const std::string DB_FILE = "taikey.db";
+
 enum class EngineState {
     Ready,
     Editing,
@@ -36,9 +47,8 @@ enum class EngineState {
 };
 
 class Engine {
-
   public:
-    Engine();
+    Engine(std::string resourceDir);
     void reset();
 
     RetVal onKeyDown(char c);
@@ -50,7 +60,6 @@ class Engine {
   private:
     typedef RetVal (Engine::*KeyHandlerFn)(KeyCode keyCode);
 
-    BufferManager *buffer_;
     std::string keyBuffer_;
     EngineState engineState_;
     InputMode inputMode_;
@@ -64,7 +73,7 @@ class Engine {
 
     RetVal setEngineState_(EngineState nextEngineState, KeyCode keyCode);
     RetVal handleStateTransition_(EngineState prev, EngineState next,
-                              KeyCode keyCode);
+                                  KeyCode keyCode);
 
     RetVal bySegmentToByLetter_(KeyCode keyCode);
 
@@ -75,6 +84,15 @@ class Engine {
     RetVal handleNavBySegment_(KeyCode keyCode);
 
     int getDisplayBufferLength_();
+
+    // from newer engine version
+    fs::path tkFolder_;
+    TKDB database_;
+    Config config_;
+    Splitter splitter_;
+    Trie trie_;
+    std::unique_ptr<BufferManager> buffer_;
+    std::unique_ptr<CandidateFinder> candidateFinder;
 };
 
 } // namespace TaiKey
