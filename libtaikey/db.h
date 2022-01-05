@@ -64,8 +64,8 @@ class TKDB {
   private:
     auto buildTrieLookupTable_() -> int;
 
-    SQLite::Database db_;
-    DictRows tableDictionary_;
+    SQLite::Database handle;
+    DictRows tableDictionary;
 };
 
 } // namespace TaiKey
