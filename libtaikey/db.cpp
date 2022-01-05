@@ -14,22 +14,25 @@ namespace TaiKey {
 using namespace std::literals::string_literals;
 
 // Testing only
-TKDB::TKDB() : db_(SQLite::Database(":memory:", SQLite::OPEN_READWRITE)) {}
+TKDB::TKDB() : handle(SQLite::Database(":memory:", SQLite::OPEN_READWRITE)) {
+    handle.exec(SQL::CREATE_DummyDatabase());
+    init();
+}
 
 TKDB::TKDB(std::string dbFilename)
-    : db_(SQLite::Database(dbFilename, SQLite::OPEN_READWRITE)) {
-    tableDictionary_.reserve(20000);
+    : handle(SQLite::Database(dbFilename, SQLite::OPEN_READWRITE)) {
+    tableDictionary.reserve(20000);
     init();
 }
 
 auto TKDB::init() -> void {
-    if (!db_.tableExists("trie_map")) {
+    if (!handle.tableExists("trie_map")) {
         buildTrieLookupTable_();
     }
 }
 
 auto TKDB::selectTrieWordlist() -> VStr {
-    auto query = SQLite::Statement(db_, SQL::SELECT_TrieWords);
+    auto query = SQLite::Statement(handle, SQL::SELECT_TrieWords);
     VStr res;
 
     while (query.executeStep()) {
@@ -40,7 +43,7 @@ auto TKDB::selectTrieWordlist() -> VStr {
 }
 
 auto TKDB::selectSyllableList() -> VStr {
-    SQLite::Statement query(db_, SQL::SELECT_Syllables);
+    SQLite::Statement query(handle, SQL::SELECT_Syllables);
     VStr res;
 
     while (query.executeStep()) {
@@ -54,7 +57,7 @@ auto TKDB::selectDictionaryRowsByAscii(std::string input, DictRows &results)
     -> void {
     results.clear();
 
-    auto query = SQLite::Statement(db_, SQL::SELECT_Dictionary_1);
+    auto query = SQLite::Statement(handle, SQL::SELECT_Dictionary_1);
     query.bind(1, input);
 
     while (query.executeStep()) {
@@ -73,7 +76,7 @@ auto TKDB::selectDictionaryRowsByAscii(VStr inputs, DictRows &results) -> void {
     results.clear();
 
     auto query =
-        SQLite::Statement(db_, SQL::SELECT_Dictionary_N(inputs.size()));
+        SQLite::Statement(handle, SQL::SELECT_Dictionary_N(inputs.size()));
 
     for (const auto &in : inputs | boost::adaptors::indexed(1)) {
         query.bind(static_cast<int>(in.index()), in.value());
@@ -95,7 +98,7 @@ auto TKDB::selectCandidatesFor(VStr inputs, Candidates &results) -> void {
     results.clear();
 
     auto query = SQLite::Statement(
-        db_, SQL::SELECT_DictionaryWithUnigrams(inputs.size()));
+        handle, SQL::SELECT_DictionaryWithUnigrams(inputs.size()));
 
     for (const auto &in : inputs | boost::adaptors::indexed(1)) {
         query.bind(static_cast<int>(in.index()), in.value());
@@ -118,7 +121,7 @@ auto TKDB::getUnigramCount(std::string gram) -> int {
         return 0;
     }
 
-    auto query = SQLite::Statement(db_, SQL::SELECT_Unigram);
+    auto query = SQLite::Statement(handle, SQL::SELECT_Unigram);
     query.bind(1, gram);
     auto found = query.executeStep();
 
@@ -129,7 +132,7 @@ auto TKDB::selectBigramsFor(std::string lgram, VStr rgrams,
                             BigramWeights &results) -> void {
     results.clear();
 
-    auto query = SQLite::Statement(db_, SQL::SELECT_Bigrams(rgrams.size()));
+    auto query = SQLite::Statement(handle, SQL::SELECT_Bigrams(rgrams.size()));
 
     query.bind(1, lgram);
 
@@ -204,7 +207,7 @@ auto TKDB::updateGramCounts(VStr &grams) -> int {
     }
 
     if (grams.size() == 1) {
-        auto oneGramQuery = SQLite::Statement(db_, SQL::UPSERT_OneGram);
+        auto oneGramQuery = SQLite::Statement(handle, SQL::UPSERT_OneGram);
         oneGramQuery.bind(1, grams[0]);
         oneGramQuery.bind(2, grams[0]);
         return oneGramQuery.exec();
@@ -222,7 +225,7 @@ auto TKDB::updateGramCounts(VStr &grams) -> int {
     // BOOST_LOG_TRIVIAL(debug) << rawUnigrams;
     // BOOST_LOG_TRIVIAL(debug) << rawBigrams;
 
-    auto qUnigrams = SQLite::Statement(db_, rawUnigrams);
+    auto qUnigrams = SQLite::Statement(handle, rawUnigrams);
 
     for (const auto &gram : grams | boost::adaptors::indexed(1)) {
         qUnigrams.bind(static_cast<int>(gram.index()), gram.value());
@@ -230,7 +233,7 @@ auto TKDB::updateGramCounts(VStr &grams) -> int {
                        gram.value());
     }
 
-    auto qBigrams = SQLite::Statement(db_, rawBigrams);
+    auto qBigrams = SQLite::Statement(handle, rawBigrams);
 
     auto i = 0;
     for (auto it = grams.cbegin(); it != grams.cend();) {
@@ -270,7 +273,8 @@ int TKDB::buildTrieLookupTable_() {
     insertQueries.reserve(10);
 
     auto addQueryChunk = [&]() {
-        auto q = SQLite::Statement(db_, SQL::INSERT_TrieMap(insertable.size()));
+        auto q =
+            SQLite::Statement(handle, SQL::INSERT_TrieMap(insertable.size()));
         for (const auto &each : insertable | boost::adaptors::indexed(1)) {
             q.bind(static_cast<int>(2 * each.index() - 1), each.value().first);
             q.bind(static_cast<int>(2 * each.index()), each.value().second);
@@ -279,9 +283,10 @@ int TKDB::buildTrieLookupTable_() {
         insertable.clear();
     };
 
-    auto tx = SQLite::Transaction(db_);
-    db_.exec(SQL::CREATE_TrieMapTable);
-    auto dictionaryQuery = SQLite::Statement(db_, SQL::SELECT_DictionaryInputs);
+    auto tx = SQLite::Transaction(handle);
+    handle.exec(SQL::CREATE_TrieMapTable);
+    auto dictionaryQuery =
+        SQLite::Statement(handle, SQL::SELECT_DictionaryInputs);
 
     while (dictionaryQuery.executeStep()) {
         auto dictId = dictionaryQuery.getColumn("id").getInt();
@@ -319,7 +324,7 @@ int TKDB::buildTrieLookupTable_() {
         q.exec();
     }
 
-    db_.exec(SQL::INDEX_TrieMapTable);
+    handle.exec(SQL::INDEX_TrieMapTable);
 
     try {
         tx.commit();
