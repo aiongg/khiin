@@ -3,7 +3,7 @@
 #include <string>
 
 #include "db.h"
-#include "syl_splitter.h"
+#include "splitter.h"
 #include "trie.h"
 
 namespace TaiKey {
@@ -24,7 +24,7 @@ enum class CColor {
 
 class CandidateFinder {
   public:
-    CandidateFinder(TKDB &db, Splitter &splitter, Trie &trie);
+    CandidateFinder(TKDB *db, Splitter *splitter, Trie *trie);
 
     // AltCandidates is a list of <candidate, length> pairs, with length
     // corresponding to the number of characters consumed in the input string
@@ -46,9 +46,9 @@ class CandidateFinder {
     auto findBestCandidateBySplitter_(std::string input, bool toneless)
         -> Candidate;
 
-    TKDB &db_;
-    Splitter &splitter_;
-    Trie &trie_;
+    TKDB *db;
+    Splitter *splitter;
+    Trie *trie;
 };
 
 } // namespace TaiKey

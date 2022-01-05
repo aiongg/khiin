@@ -4,7 +4,7 @@
 #include <string>
 #include <utility>
 
-#include "syl_splitter.h"
+#include "splitter.h"
 
 using namespace std::string_literals;
 
@@ -70,7 +70,8 @@ auto Splitter::canSplit(std::string input) -> bool {
     return dp[len - 1];
 }
 
-auto Splitter::split(std::string input) -> VStr { auto res = VStr();
+auto Splitter::split(std::string input) -> VStr {
+    auto res = VStr();
     split(input, res);
     return std::move(res);
 }

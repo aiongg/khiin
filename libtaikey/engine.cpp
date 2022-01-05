@@ -6,6 +6,8 @@
 #endif
 #endif
 
+#include <cstdlib>
+#include <filesystem>
 #include <unordered_map>
 #include <unordered_set>
 
@@ -14,34 +16,11 @@
 
 #include <utf8cpp/utf8.h>
 
-#include "libtaikey.h"
+#include "engine.h"
 
 namespace TaiKey {
 
-std::string defaultSettings = R"settings({
-    "T2": "s"
-})settings";
-
-struct taikey_settings {
-    // char key_T2;
-    // void load(const string &filename);
-};
-
-/*
-void taikey_settings::load(const string &filename = "") {
-    pt::ptree tree;
-    if (filename == "") {
-        stringstream ss;
-        ss << defaultSettings;
-        pt::read_json(ss, tree);
-    }
-    else {
-
-    }
-
-    key_T2 = tree.get<char>("T2");
-}
-*/
+namespace fs = std::filesystem;
 
 enum class Special {
     NasalCombo,
@@ -53,98 +32,67 @@ enum class Special {
 std::unordered_map<Special, char> SPEC_KEY_MAP = {{Special::NasalCombo, 'n'},
                                                   {Special::OUCombo, 'u'}};
 
-// string _getToneOfKey(const char c) {
-//    auto t = TONE_KEY_MAP.find(c);
-//    if (t == TONE_KEY_MAP.end()) {
-//        return "";
-//    }
-//
-//    auto s = ToneToUtf8Map.find(t->second);
-//    if (s == ToneToUtf8Map.end()) {
-//        return "";
-//    }
-//
-//    return s->second;
-//}
+static const auto TaiKeyPath = "TAIKEY_PATH";
 
-// input is a string with numeric tones
-// std::string inputTelexKeyToNumericText(std::string input, char key) {
-//    if (input.size() < 1) {
-//        input.push_back(key);
-//        return input;
-//    }
-//
-//    char end = input.back();
-//
-//    if (isdigit(end)) {
-//        input.push_back(key);
-//        return input;
-//    }
-//
-//    Tone tone = Tone::NaT;
-//
-//    for (const auto &it : TELEX_KEYS) {
-//        if (it.second == key) {
-//            tone = it.first;
-//            break;
-//        }
-//    }
-//
-//    if ((PTKH.find(end) != PTKH.end()) && tone == Tone::T8) {
-//        tone = Tone::T7;
-//    } else if ((PTKH.find(end) == PTKH.end() && tone == Tone::T7)) {
-//        tone = Tone::T8;
-//    }
-//
-//    input.push_back(ToneToDigitMap[tone]);
-//    return input;
-//}
-
-/**
- * TKEngine::
- */
-
-// constructor
-
-std::string appendPath(fs::path folder, std::string file) {
-    auto tmp = folder;
-    tmp /= file;
-    return tmp.string();
+auto splitString(std::string_view str, char delimiter) {
+    auto ret = VStr();
+    auto begin = size_t(0);
+    auto end = str.find(delimiter);
+    while (end != std::string::npos) {
+        ret.emplace_back(str.substr(begin, end - begin));
+        begin = end + 1;
+        end = str.find(delimiter, begin);
+    }
+    ret.emplace_back(str.substr(begin, end));
+    return ret;
 }
 
-Engine::Engine(std::string resourceDir)
-    : tkFolder_(resourceDir), database_(appendPath(tkFolder_, DB_FILE)) {
-    config_.setConfigFile(appendPath(tkFolder_, CONFIG_FILE));
+auto findResourceDirectory() {
+#pragma warning(push)
+#pragma warning(disable : 4996)
+    auto tkpath = ::getenv(TaiKeyPath);
+#pragma warning(pop)
 
-    splitter_ = Splitter(database_.selectSyllableList());
-    trie_ =
-        Trie(database_.selectTrieWordlist(), database_.selectSyllableList());
+    auto searchDirectories = splitString(tkpath, ':');
+    fs::path path;
+    for (auto &dir : searchDirectories) {
+        path = fs::path(dir) /= DB_FILE;
+        if (fs::exists(path)) {
+            return path;
+        }
+    }
+
+    return fs::path();
+}
+
+Engine::Engine() {
+    auto resourceDir = findResourceDirectory();
+
+    if (resourceDir.empty()) {
+        // Can't do anything without the database
+        return;
+    }
+
+    auto dbfile = fs::path(resourceDir);
+    dbfile /= DB_FILE;
+
+    auto configfile = fs::path(resourceDir);
+    configfile /= CONFIG_FILE;
+
+    database = std::make_unique<TKDB>(dbfile.string());
+    config = std::make_unique<Config>(configfile.string());
+
+    auto syllableList = database->selectSyllableList();
+    splitter = std::make_unique<Splitter>(syllableList);
+    trie = std::make_unique<Trie>(database->selectTrieWordlist(), syllableList);
     candidateFinder = std::make_unique<CandidateFinder>(
-        CandidateFinder(database_, splitter_, trie_));
-    buffer_ =
-        std::make_unique<BufferManager>(BufferManager(*candidateFinder.get()));
+        database.get(), splitter.get(), trie.get());
+    buffer = std::make_unique<BufferManager>(candidateFinder.get());
 }
-
-// Engine::Engine() {
-//    // if (!READY) {
-//    //    initialize();
-//    //}
-//
-//    //init_locale();
-//
-//    inputMode_ = InputMode::Pro;
-//    toneKeys_ = ToneKeys::Numeric;
-//
-//    keyBuffer_.reserve(10);
-//    reset();
-//}
 
 // public members
 
-void Engine::reset() {
-    keyBuffer_.clear();
-    engineState_ = EngineState::Ready;
-}
+void Engine::reset() { engineState_ = EngineState::Ready; }
 
 RetVal Engine::onKeyDown(char c) { return RetVal::Consumed; }
 
@@ -162,18 +110,6 @@ std::string Engine::getBuffer() const {
 }
 
 // private members
-
-void Engine::popBack_() {
-    if (keyBuffer_.empty()) {
-        return;
-    }
-
-    keyBuffer_.pop_back();
-
-    while (!utf8::is_valid(keyBuffer_.begin(), keyBuffer_.end())) {
-        keyBuffer_.pop_back();
-    }
-}
 
 int Engine::getDisplayBufferLength_() {
     int len = 0;

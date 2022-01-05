@@ -1,14 +1,11 @@
 #pragma once
 
-#include <string>
-
 #include <filesystem>
+#include <string>
 
 #ifdef _WIN32
 #include <Windows.h>
 #endif
-
-//#include <boost/locale.hpp>
 
 #include "buffer_manager.h"
 #include "candidates.h"
@@ -16,24 +13,12 @@
 #include "db.h"
 #include "errors.h"
 #include "keys.h"
-#include "syl_splitter.h"
+#include "splitter.h"
 #include "trie.h"
 
 namespace TaiKey {
 
 namespace fs = std::filesystem;
-
-// static bool READY = false;
-// inline void initialize() {
-//#ifdef _WIN32
-//    SetConsoleOutputCP(CP_UTF8);
-//#endif
-//    boost::locale::generator gen;
-//    std::locale loc = gen("");
-//    std::locale::global(loc);
-//    std::wcout.imbue(loc);
-//    READY = true;
-//}
 
 const std::string CONFIG_FILE = "taikey.json";
 const std::string DB_FILE = "taikey.db";
@@ -48,7 +33,7 @@ enum class EngineState {
 
 class Engine {
   public:
-    Engine(std::string resourceDir);
+    Engine();
     void reset();
 
     RetVal onKeyDown(char c);
@@ -60,7 +45,6 @@ class Engine {
   private:
     typedef RetVal (Engine::*KeyHandlerFn)(KeyCode keyCode);
 
-    std::string keyBuffer_;
     EngineState engineState_;
     InputMode inputMode_;
     ToneKeys toneKeys_;
@@ -85,14 +69,12 @@ class Engine {
 
     int getDisplayBufferLength_();
 
-    // from newer engine version
-    fs::path tkFolder_;
-    TKDB database_;
-    Config config_;
-    Splitter splitter_;
-    Trie trie_;
-    std::unique_ptr<BufferManager> buffer_;
-    std::unique_ptr<CandidateFinder> candidateFinder;
+    std::unique_ptr<TKDB> database = nullptr;
+    std::unique_ptr<Config> config = nullptr;
+    std::unique_ptr<Splitter> splitter = nullptr;
+    std::unique_ptr<Trie> trie = nullptr;
+    std::unique_ptr<BufferManager> buffer = nullptr;
+    std::unique_ptr<CandidateFinder> candidateFinder = nullptr;
 };
 
 } // namespace TaiKey

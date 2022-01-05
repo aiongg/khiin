@@ -9,11 +9,11 @@ using namespace std;
 using namespace TaiKey;
 
 struct TrieFx {
-    TrieFx() : trie(std::make_unique<Trie>()) {}
-    ~TrieFx() {}
-    unique_ptr<Trie> trie;
+    TrieFx() { trie = new Trie(); }
+    ~TrieFx() { delete trie; }
+    Trie *trie = nullptr;
     void ins(std::vector<std::string> words) {
-        for (auto it : words) {
+        for (auto &it : words) {
             trie->insert(it);
         }
     }

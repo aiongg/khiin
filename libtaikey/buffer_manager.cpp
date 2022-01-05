@@ -33,7 +33,7 @@ auto isOnlyHyphens(std::string s) {
 
 // BufferManager
 
-BufferManager::BufferManager(CandidateFinder &candidateFinder)
+BufferManager::BufferManager(CandidateFinder *candidateFinder)
     : candidateFinder(candidateFinder) {}
 
 // Public
@@ -107,7 +107,7 @@ auto BufferManager::replaceCandidates(SegmentIter first, SegmentIter last)
         first != begin ? buffer.candidateAt(first - 1) : Candidate();
 
     auto searchStr = buffer.rawText(first, last);
-    auto pc = candidateFinder.findPrimaryCandidate(
+    auto pc = candidateFinder->findPrimaryCandidate(
         searchStr, toneMode == ToneMode::Fuzzy, lgram);
 
     //auto ac = candidateFinder.findCandidates(

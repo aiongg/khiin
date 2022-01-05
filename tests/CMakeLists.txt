@@ -1,7 +1,7 @@
 include_directories(${TaiKey_SOURCE_DIR}/libtaikey)
 
 add_executable(libtaikey_test "test_main.cpp" "test_engine.cpp" "test_trie.cpp"
-    "test_buffer.cpp" "test_lomaji.cpp"  "test_wordlist.cpp" "test_db.cpp" "test_candidates.cpp")
+    "test_buffer.cpp" "test_lomaji.cpp"  "test_splitter.cpp" "test_db.cpp" "test_candidates.cpp")
 
 target_link_libraries(libtaikey_test ${Boost_LIBRARIES} SQLiteCpp libtaikey)
 

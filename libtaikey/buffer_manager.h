@@ -8,7 +8,7 @@
 #include "common.h"
 #include "config.h"
 #include "errors.h"
-#include "syl_splitter.h"
+#include "splitter.h"
 #include "trie.h"
 
 namespace TaiKey {
@@ -16,7 +16,7 @@ namespace TaiKey {
 class BufferManager {
   public:
     BufferManager();
-    BufferManager(CandidateFinder &candidateFinder);
+    BufferManager(CandidateFinder *candidateFinder);
     auto clear() -> RetVal;
     auto getDisplayBuffer() -> std::string;
     auto getCursor() -> size_t;
@@ -34,7 +34,7 @@ class BufferManager {
     auto replaceCandidates(SegmentIter first, SegmentIter last) -> void;
 
     SynchronizedBuffer buffer;
-    CandidateFinder &candidateFinder;
+    CandidateFinder *candidateFinder;
     char lastKey_ = '\0';
     CommitMode commitMode_ = CommitMode::Lazy;
     InputMode inputMode_ = InputMode::Normal;

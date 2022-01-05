@@ -41,7 +41,7 @@ struct SplitterFx {
     Splitter *ss = nullptr;
 };
 
-BOOST_FIXTURE_TEST_SUITE(WordlistTest, SplitterFx);
+BOOST_FIXTURE_TEST_SUITE(SplitterTest, SplitterFx);
 
 BOOST_AUTO_TEST_CASE(loads) { BOOST_TEST(true); }
 

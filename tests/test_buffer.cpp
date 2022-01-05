@@ -8,45 +8,57 @@ namespace TaiKey::BufferTest {
 const std::string DB_FILE = "taikey.db";
 
 struct BufferFx {
-    BufferFx()
-        : db(DB_FILE), sp(db.selectSyllableList()),
-          tr(db.selectTrieWordlist(), db.selectSyllableList()), cf(db, sp, tr),
-          buf(cf) {}
+    BufferFx() {
+        db = new TKDB(DB_FILE);
+        auto sylList = db->selectSyllableList();
+        sp = new Splitter(sylList),
+        tr = new Trie(db->selectTrieWordlist(), sylList);
+        cf = new CandidateFinder(db, sp, tr);
+        buf = new BufferManager(cf);
+    }
 
-    ~BufferFx() {}
-    BufferManager buf;
-    TKDB db;
-    CandidateFinder cf;
-    Splitter sp;
-    Trie tr;
+    ~BufferFx() {
+        delete db;
+        delete sp;
+        delete tr;
+        delete cf;
+        delete buf;
+    }
+
+    BufferManager *buf = nullptr;
+    TKDB *db = nullptr;
+    CandidateFinder *cf = nullptr;
+    Splitter *sp = nullptr;
+    Trie *tr = nullptr;
+    
     void insert(std::string sequence) {
         for (auto it : sequence) {
-            buf.insert(it);
+            buf->insert(it);
         }
     }
     void left(int n) {
         for (auto i = 0; i < n; i++) {
-            buf.moveCursor(CursorDirection::L);
+            buf->moveCursor(CursorDirection::L);
         }
     }
     void right(int n) {
         for (auto i = 0; i < n; i++) {
-            buf.moveCursor(CursorDirection::R);
+            buf->moveCursor(CursorDirection::R);
         }
     }
     void bksp(int n) {
         for (auto i = 0; i < n; i++) {
-            buf.erase(CursorDirection::L);
+            buf->erase(CursorDirection::L);
         }
     }
     void del(int n) {
         for (auto i = 0; i < n; i++) {
-            buf.erase(CursorDirection::R);
+            buf->erase(CursorDirection::R);
         }
     }
-    void reset() { buf.clear(); }
-    std::string getBuf() { return buf.getDisplayBuffer(); }
-    std::size_t getCurs() { return buf.getCursor(); }
+    void reset() { buf->clear(); }
+    std::string getBuf() { return buf->getDisplayBuffer(); }
+    std::size_t getCurs() { return buf->getCursor(); }
 };
 
 BOOST_FIXTURE_TEST_SUITE(BufferTest, BufferFx);
@@ -59,7 +71,6 @@ BOOST_AUTO_TEST_CASE(create) {
 }
 
 BOOST_AUTO_TEST_CASE(clear) {
-    buf.setToneKeys(ToneKeys::Telex);
     insert("a");
     reset();
     BOOST_TEST(getBuf() == "");
@@ -67,7 +78,7 @@ BOOST_AUTO_TEST_CASE(clear) {
 }
 
 BOOST_AUTO_TEST_CASE(spacebar_not_consumed) {
-    BOOST_TEST((buf.spacebar() == RetVal::NotConsumed));
+    BOOST_TEST((buf->spacebar() == RetVal::NotConsumed));
 }
 
 BOOST_AUTO_TEST_CASE(t01_simple) {
@@ -133,7 +144,7 @@ BOOST_AUTO_TEST_CASE(t07_remove_chars) {
     BOOST_TEST(getBuf() == "sio");
     BOOST_TEST(getCurs() == 3);
 
-    buf.clear();
+    reset();
     insert("siongho");
 
     left(2);
@@ -146,7 +157,7 @@ BOOST_AUTO_TEST_CASE(t07_remove_chars) {
     BOOST_TEST(getBuf() == "siong");
     BOOST_TEST(getCurs() == 5);
 
-    buf.clear();
+    reset();
     insert("siongho");
     left(2);
 
@@ -158,8 +169,7 @@ BOOST_AUTO_TEST_CASE(t07_remove_chars) {
     BOOST_TEST(getBuf() == "siong ho");
     BOOST_TEST(getCurs() == 5);
 
-    buf.clear();
-
+    reset();
     insert("khi3");
     BOOST_TEST(getBuf() == u8"khì");
     BOOST_TEST(getCurs() == 3);
@@ -232,20 +242,20 @@ BOOST_AUTO_TEST_CASE(t11_khin) {
 
 BOOST_AUTO_TEST_CASE(t12_select_primary_candidate) {
     insert("ho2");
-    buf.spacebar();
+    buf->spacebar();
     BOOST_TEST(getBuf() == u8"好");
     BOOST_TEST(getCurs() == 1);
 }
 
 BOOST_AUTO_TEST_CASE(ttelex_simple) {
-    buf.setToneKeys(ToneKeys::Telex);
+    buf->setToneKeys(ToneKeys::Telex);
     insert("as");
     BOOST_TEST(getBuf() == u8"á");
     BOOST_TEST(getCurs() == 1);
 }
 
 BOOST_AUTO_TEST_CASE(telex_suite) {
-    buf.setToneKeys(ToneKeys::Telex);
+    buf->setToneKeys(ToneKeys::Telex);
 
     insert("as");
     BOOST_TEST(getBuf() == u8"á");

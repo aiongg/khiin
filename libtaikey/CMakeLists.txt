@@ -16,17 +16,15 @@ add_library (libtaikey
     "cursor.cpp"
     "db.h"
     "db.cpp"
-    
-    
     "errors.h"
     "keys.h"
-    "libtaikey.h"
-    "libtaikey.cpp"
+    "engine.h"
+    "engine.cpp"
     "lomaji.h"
     "lomaji.cpp"
     "sql.h"
-    "syl_splitter.h"
-    "syl_splitter.cpp"
+    "splitter.h"
+    "splitter.cpp"
     "trie.h"
     "trie.cpp"
 )

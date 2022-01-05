@@ -9,15 +9,15 @@
 
 #include "candidates.h"
 #include "lomaji.h"
-#include "syl_splitter.h"
+#include "splitter.h"
 #include "trie.h"
 
 namespace TaiKey {
 
 using namespace std::literals::string_literals;
 
-CandidateFinder::CandidateFinder(TKDB &db, Splitter &splitter, Trie &trie)
-    : db_(db), splitter_(splitter), trie_(trie) {}
+CandidateFinder::CandidateFinder(TKDB *db, Splitter *splitter, Trie *trie)
+    : db(db), splitter(splitter), trie(trie) {}
 
 static auto toCandidate(Candidate &cr, int inputSize) -> Candidate {
     return Candidate{
@@ -75,7 +75,7 @@ auto CandidateFinder::sortCandidatesByBigram_(std::string lgram, int lgramCount,
     for (const auto &c : rgrams) {
         rgramOutputs.push_back(c.output);
     }
-    db_.selectBigramsFor(lgram, rgramOutputs, bigrams);
+    db->selectBigramsFor(lgram, rgramOutputs, bigrams);
     for (auto &c : rgrams) {
         c.bigramWt = static_cast<float>(bigrams.at(c.output)) /
                      static_cast<float>(lgramCount);
@@ -103,7 +103,7 @@ auto CandidateFinder::findBestCandidateByBigram_(std::string lgram,
     for (const auto &c : rgrams) {
         rgramOutputs.push_back(c.output);
     }
-    db_.selectBigramsFor(lgram, rgramOutputs, bigrams);
+    db->selectBigramsFor(lgram, rgramOutputs, bigrams);
 
     auto bestWeight = 0.0f;
     auto bestMatch = size_t(0);
@@ -125,8 +125,8 @@ auto CandidateFinder::findBestCandidateBySplitter_(std::string input,
     auto trieWords = VStr();
     auto candRows = Candidates();
 
-    splitter_.split(input, syllables);
-    trie_.getAllWords(input, toneless, trieWords);
+    splitter->split(input, syllables);
+    trie->getAllWords(input, toneless, trieWords);
 
     if (trieWords.size() == 0) {
         return Candidate{0, syllables[0], syllables[0], syllables[0]};
@@ -138,7 +138,7 @@ auto CandidateFinder::findBestCandidateBySplitter_(std::string input,
                      return alignedSyllables(syllables, word) > 0;
                  });
 
-    db_.selectCandidatesFor(matched, candRows);
+    db->selectCandidatesFor(matched, candRows);
 
     if (candRows.empty()) {
         return Candidate{0, syllables[0], syllables[0], syllables[0]};
@@ -152,7 +152,7 @@ auto CandidateFinder::findCandidates(std::string input, bool toneless,
     auto candidate = Candidate();
     candidate.output = lgram;
     if (!lgram.empty()) {
-        candidate.unigramN = db_.getUnigramCount(lgram);
+        candidate.unigramN = db->getUnigramCount(lgram);
     }
     return findCandidates(input, toneless, candidate);
 }
@@ -167,13 +167,13 @@ auto CandidateFinder::findCandidates(std::string input, bool toneless,
 
     auto trieWords = VStr();
 
-    trie_.getAllWords(input, toneless, trieWords);
+    trie->getAllWords(input, toneless, trieWords);
 
     if (trieWords.empty()) {
         // TODO
     }
 
-    db_.selectCandidatesFor(trieWords, rCandidates);
+    db->selectCandidatesFor(trieWords, rCandidates);
 
     if (lgram.unigramN > 0) {
         sortCandidatesByBigram_(lgram.output, lgram.unigramN, rCandidates);
@@ -197,7 +197,7 @@ auto CandidateFinder::findPrimaryCandidate(std::string input, bool toneless,
     auto candidate = Candidate();
     candidate.output = lgram;
     if (!lgram.empty()) {
-        candidate.unigramN = db_.getUnigramCount(lgram);
+        candidate.unigramN = db->getUnigramCount(lgram);
     }
     return findPrimaryCandidate(input, toneless, candidate);
 }
@@ -266,7 +266,7 @@ auto CandidateFinder::findPrimaryCandidate(std::string input, bool toneless,
             continue;
         }
 
-        auto trieWords = trie_.getAllWords(remainder(), toneless);
+        auto trieWords = trie->getAllWords(remainder(), toneless);
 
         if (trieWords.empty()) {
             auto next = curr + 1;
@@ -274,7 +274,7 @@ auto CandidateFinder::findPrimaryCandidate(std::string input, bool toneless,
             // Collect next letters as long as they are also not
             // found in the Trie, put everything into this candidate
             while (next != input.end()) {
-                if (trie_.getAllWords(remainderFrom(next), toneless).empty()) {
+                if (trie->getAllWords(remainderFrom(next), toneless).empty()) {
                     ++next;
                 } else {
                     break;
@@ -288,7 +288,7 @@ auto CandidateFinder::findPrimaryCandidate(std::string input, bool toneless,
             // string, and they form a prefix when combined with the existing
             // previous candidate, join them together
             if (next == input.cend() &&
-                trie_.containsSyllablePrefix(prev + candstr) &&
+                trie->containsSyllablePrefix(prev + candstr) &&
                 ret.size() > 0) {
                 candstr.insert(0, ret.back().ascii);
                 ret.pop_back();
@@ -312,7 +312,7 @@ auto CandidateFinder::findPrimaryCandidate(std::string input, bool toneless,
 
         if (lgram == "") {
             // At the beginning, use the syllable splitter to get best result
-            auto splitResult = splitter_.split(remainder());
+            auto splitResult = splitter->split(remainder());
 
             std::copy_if(trieWords.begin(), trieWords.end(),
                          std::back_inserter(matched), [&](std::string word) {
@@ -336,7 +336,7 @@ auto CandidateFinder::findPrimaryCandidate(std::string input, bool toneless,
                     ++word_it;
                 }
 
-                return splitter_.canSplit(
+                return splitter->canSplit(
                     std::string(input_it, input.cend() - stopPos));
             };
 
@@ -350,7 +350,7 @@ auto CandidateFinder::findPrimaryCandidate(std::string input, bool toneless,
             }
         }
 
-        db_.selectCandidatesFor(matched, currCandidates);
+        db->selectCandidatesFor(matched, currCandidates);
 
         if (currCandidates.empty() && !matched.empty()) {
             auto utf8 = asciiSyllableToUtf8(matched[0]);
