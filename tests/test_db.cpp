@@ -13,8 +13,7 @@ static const auto DB_FILE = "taikey.db";
 
 struct DbFx {
     DbFx() { db = new TKDB(DB_FILE); }
-    ~DbFx() { delete db;
-    }
+    ~DbFx() { delete db; }
     TKDB *db = nullptr;
 };
 
@@ -53,6 +52,17 @@ BOOST_AUTO_TEST_CASE(update_gram_counts) {
 
     auto res = db->updateGramCounts(v);
     BOOST_TEST(res == 23);
+}
+
+BOOST_AUTO_TEST_SUITE_END()
+
+BOOST_AUTO_TEST_SUITE(DummyDb)
+
+BOOST_AUTO_TEST_CASE(dummy_db) {
+    auto dummy = new TKDB();
+    auto words = dummy->selectTrieWordlist();
+    BOOST_TEST(words.size() == 1);
+    delete dummy;
 }
 
 BOOST_AUTO_TEST_SUITE_END()

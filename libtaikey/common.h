@@ -7,6 +7,8 @@
 
 namespace TaiKey {
 
+const std::string TaiKeyPath = "TAIKEY_PATH";
+
 using VStr = std::vector<std::string>;
 
 using Utf8Size = size_t; // number of UTF codepoints, 1-4 bytes

@@ -32,8 +32,6 @@ enum class Special {
 std::unordered_map<Special, char> SPEC_KEY_MAP = {{Special::NasalCombo, 'n'},
                                                   {Special::OUCombo, 'u'}};
 
-static const auto TaiKeyPath = "TAIKEY_PATH";
-
 auto splitString(std::string_view str, char delimiter) {
     auto ret = VStr();
     auto begin = size_t(0);
@@ -50,15 +48,23 @@ auto splitString(std::string_view str, char delimiter) {
 auto findResourceDirectory() {
 #pragma warning(push)
 #pragma warning(disable : 4996)
-    auto tkpath = ::getenv(TaiKeyPath);
+    auto tkpath = ::getenv(TaiKeyPath.c_str());
 #pragma warning(pop)
 
+    if (tkpath == nullptr) {
+        return fs::path();
+    }
+
+#ifdef _WIN32
+    auto searchDirectories = splitString(tkpath, ';');
+#else
     auto searchDirectories = splitString(tkpath, ':');
+#endif
     fs::path path;
     for (auto &dir : searchDirectories) {
         path = fs::path(dir) /= DB_FILE;
         if (fs::exists(path)) {
-            return path;
+            return fs::path(dir);
         }
     }
 
@@ -68,19 +74,29 @@ auto findResourceDirectory() {
 Engine::Engine() {
     auto resourceDir = findResourceDirectory();
 
-    if (resourceDir.empty()) {
-        // Can't do anything without the database
-        return;
+    if (!resourceDir.empty()) {
+        auto dbfile = fs::path(resourceDir);
+        dbfile /= DB_FILE;
+
+        if (fs::exists(dbfile)) {
+            database = std::make_unique<TKDB>(dbfile.string());
+        }
+
+        auto configfile = fs::path(resourceDir);
+        configfile /= CONFIG_FILE;
+
+        if (fs::exists(configfile)) {
+            config = std::make_unique<Config>(configfile.string());
+        }
     }
 
-    auto dbfile = fs::path(resourceDir);
-    dbfile /= DB_FILE;
+    if (database == nullptr) {
+        database = std::make_unique<TKDB>();
+    }
 
-    auto configfile = fs::path(resourceDir);
-    configfile /= CONFIG_FILE;
-
-    database = std::make_unique<TKDB>(dbfile.string());
-    config = std::make_unique<Config>(configfile.string());
+    if (config == nullptr) {
+        config = std::make_unique<Config>();
+    }
 
     auto syllableList = database->selectSyllableList();
     splitter = std::make_unique<Splitter>(syllableList);
