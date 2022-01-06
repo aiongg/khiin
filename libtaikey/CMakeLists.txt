@@ -26,8 +26,7 @@ add_library (libtaikey
     "splitter.h"
     "splitter.cpp"
     "trie.h"
-    "trie.cpp"
-)
+    "trie.cpp" "utils.h")
 
 # Debug
 target_link_options(libtaikey PRIVATE "/MAP")

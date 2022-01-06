@@ -1,9 +1,13 @@
 #include <regex>
+#include <thread>
 #include <unordered_set>
+#include <mutex>
 
 #include <boost/algorithm/string.hpp>
 #include <boost/log/trivial.hpp>
 #include <boost/range/adaptor/indexed.hpp>
+
+// #define SQLITE_OPEN_NOMUTEX 0x00008000 /* Ok for sqlite3_open_v2() */
 
 #include "db.h"
 #include "lomaji.h"
@@ -20,7 +24,8 @@ TKDB::TKDB() : handle(SQLite::Database(":memory:", SQLite::OPEN_READWRITE)) {
 }
 
 TKDB::TKDB(std::string dbFilename)
-    : handle(SQLite::Database(dbFilename, SQLite::OPEN_READWRITE)) {
+    : handle(SQLite::Database(dbFilename,
+                              SQLite::OPEN_READWRITE)) {
     tableDictionary.reserve(20000);
     init();
 }

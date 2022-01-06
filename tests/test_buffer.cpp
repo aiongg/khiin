@@ -77,9 +77,9 @@ BOOST_AUTO_TEST_CASE(clear) {
     BOOST_TEST(getCurs() == 0);
 }
 
-BOOST_AUTO_TEST_CASE(spacebar_not_consumed) {
-    BOOST_TEST((buf->spacebar() == RetVal::NotConsumed));
-}
+//BOOST_AUTO_TEST_CASE(spacebar_not_consumed) {
+//    BOOST_TEST((buf->selectPrimaryCandidate() == RetVal::NotConsumed));
+//}
 
 BOOST_AUTO_TEST_CASE(t01_simple) {
     insert("a");
@@ -242,7 +242,7 @@ BOOST_AUTO_TEST_CASE(t11_khin) {
 
 BOOST_AUTO_TEST_CASE(t12_select_primary_candidate) {
     insert("ho2");
-    buf->spacebar();
+    buf->selectPrimaryCandidate();
     BOOST_TEST(getBuf() == u8"好");
     BOOST_TEST(getCurs() == 1);
 }

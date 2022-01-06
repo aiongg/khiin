@@ -310,6 +310,30 @@ auto spaceAsciiByUtf8(std::string ascii, std::string lomaji) -> VStr {
     return segments;
 }
 
+auto tokenSpacer(std::vector<std::string_view> tokens) -> std::vector<bool> {
+    auto ret = std::vector<bool>();
+    ret.reserve(tokens.size());
+
+    if (tokens.size() == 1) {
+        ret.emplace_back(false);
+        return ret;
+    }
+
+    for (auto it = tokens.cbegin(); it != tokens.cend() - 1; ++it) {
+        auto lcp = utf8back(it[0]);
+        auto rcp = utf8first(it[1]);
+
+        // add virtual space if either side has lomaji and
+        // left side doesn't have hyphen
+        if (lcp >= 0x2e80 && rcp >= 0x2e80) {
+            ret.push_back(false);
+        } else if (lcp != '-') {
+            ret.push_back(true);
+        }
+    }
+    return std::move(ret);
+}
+
 auto toNFD(std::string_view s) -> std::string {
     auto u32s = utf8::utf8to32(s);
     ufal::unilib::uninorms::nfd(u32s);
@@ -320,6 +344,15 @@ auto toNFC(std::string_view s) -> std::string {
     auto u32s = utf8::utf8to32(s);
     ufal::unilib::uninorms::nfc(u32s);
     return std::move(utf8::utf32to8(u32s));
+}
+
+auto utf8back(std::string_view str) -> uint32_t {
+    auto end = str.cend();
+    return utf8::prior(end, str.cbegin());
+}
+
+auto utf8first(std::string_view str) -> uint32_t {
+    return utf8::peek_next(str.cbegin(), str.cend());
 }
 
 auto utf8Size(std::string s) -> Utf8Size {

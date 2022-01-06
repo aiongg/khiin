@@ -19,15 +19,6 @@ using namespace std::literals::string_literals;
 CandidateFinder::CandidateFinder(TKDB *db, Splitter *splitter, Trie *trie)
     : db(db), splitter(splitter), trie(trie) {}
 
-static auto toCandidate(Candidate &cr, int inputSize) -> Candidate {
-    return Candidate{
-        inputSize,
-        cr.input,
-        cr.output,
-        cr.hint,
-    };
-}
-
 /**
  * Returns the number of `syllables` matched by `word`, starting
  * from the left; 0 if no syllables match

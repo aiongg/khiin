@@ -25,20 +25,6 @@
       "cmakeToolchain": "C:/dev/vcpkg/scripts/buildsystems/vcpkg.cmake"
     },
     {
-      "name": "WSL-GCC-Debug",
-      "generator": "Unix Makefiles",
-      "configurationType": "Debug",
-      "buildRoot": "${projectDir}\\out\\build\\${name}",
-      "installRoot": "${projectDir}\\out\\install\\${name}",
-      "cmakeExecutable": "cmake",
-      "cmakeCommandArgs": "",
-      "buildCommandArgs": "",
-      "ctestCommandArgs": "",
-      "inheritEnvironments": [ "linux_x64" ],
-      "wslPath": "${defaultWSLPath}",
-      "addressSanitizerRuntimeFlags": "detect_leaks=0"
-    },
-    {
       "name": "x64-Release",
       "generator": "Ninja",
       "configurationType": "Release",
@@ -48,6 +34,18 @@
       "buildCommandArgs": "",
       "ctestCommandArgs": "",
       "inheritEnvironments": [ "msvc_x64_x64" ],
+      "cmakeToolchain": "C:/dev/vcpkg/scripts/buildsystems/vcpkg.cmake"
+    },
+    {
+      "name": "x86-Release",
+      "generator": "Ninja",
+      "configurationType": "Release",
+      "buildRoot": "${projectDir}\\out\\build\\${name}",
+      "installRoot": "${projectDir}\\out\\install\\${name}",
+      "cmakeCommandArgs": "",
+      "buildCommandArgs": "",
+      "ctestCommandArgs": "",
+      "inheritEnvironments": [ "msvc_x86_x64" ],
       "cmakeToolchain": "C:/dev/vcpkg/scripts/buildsystems/vcpkg.cmake"
     }
   ]

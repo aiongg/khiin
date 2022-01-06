@@ -33,6 +33,14 @@ struct Candidate {
     int color = 0;
     int unigramN = 0;
     float bigramWt = 0.0f;
+    bool operator==(const Candidate &rhs) const {
+        if (dict_id == 0 && rhs.dict_id == 0) {
+            return ascii == rhs.ascii;
+        } else {
+            return dict_id == rhs.dict_id;
+        }
+    };
+    bool operator!=(const Candidate &rhs) { return !(*this == rhs); };
 };
 
 struct UnigramRow {

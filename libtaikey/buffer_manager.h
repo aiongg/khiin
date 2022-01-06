@@ -13,17 +13,28 @@
 
 namespace TaiKey {
 
+struct CandidateDisplay {
+    int id;
+    std::string text;
+    int color;
+    std::string hint;
+};
+
 class BufferManager {
   public:
     BufferManager();
     BufferManager(CandidateFinder *candidateFinder);
     auto clear() -> RetVal;
+    auto focusCandidate(size_t index) -> RetVal;
+    auto getCandidates() -> std::vector<CandidateDisplay>;
     auto getDisplayBuffer() -> std::string;
     auto getCursor() -> size_t;
     auto insert(char ch) -> RetVal;
     auto moveCursor(CursorDirection dir) -> RetVal;
+    auto moveFocus(CursorDirection dir) -> RetVal;
     auto erase(CursorDirection dir) -> RetVal;
-    auto spacebar() -> RetVal;
+    auto selectPrimaryCandidate() -> RetVal;
+    auto selectCandidate(size_t index) -> RetVal;
     auto setToneKeys(ToneKeys toneKeys) -> RetVal;
 
   private:
@@ -31,7 +42,9 @@ class BufferManager {
     auto isCursorAtEnd() -> bool;
     auto insertNormal(char ch) -> RetVal;
     auto insertTelex_(char ch) -> RetVal;
-    auto replaceCandidates(SegmentIter first, SegmentIter last) -> void;
+    auto findCandidates(SegmentIter first) -> void;
+    auto findPrimaryCandidate(SegmentIter first, SegmentIter last) -> void;
+    auto lgramOf(SegmentIter segment) -> std::string;
 
     SynchronizedBuffer buffer;
     CandidateFinder *candidateFinder;
@@ -40,6 +53,8 @@ class BufferManager {
     InputMode inputMode_ = InputMode::Normal;
     ToneKeys toneKeys_ = ToneKeys::Numeric;
     ToneMode toneMode = ToneMode::Fuzzy;
+    std::vector<Candidates> candidates;
+    bool hasPrimaryCandidate = false;
 };
 
 } // namespace TaiKey

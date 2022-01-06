@@ -45,8 +45,8 @@ struct Cursor {
 struct Segment {
     std::string raw = std::string();
     std::string display = std::string();
-    Candidates candidates;
-    size_t selectedCandidate = size_t(0);
+    //Candidates candidates;
+    //size_t selectedCandidate = size_t(0);
     bool selected = false;
     bool confirmed = false;
     bool editing = true;
@@ -63,36 +63,36 @@ class SynchronizedBuffer {
         segments.push_back(Segment());
     };
 
-    auto candidateAt(SegmentIter it) -> const Candidate &;
     auto clear() -> void;
     auto displayCursor() -> std::string::iterator;
     auto displayCursorOffset() -> size_t;
     auto displayText() -> std::string;
     auto editingBegin() -> SegmentIter;
+    auto editingEnd() -> SegmentIter;
     auto empty() -> bool;
     auto erase(CursorDirection dir) -> void;
     auto insert(char ch) -> void;
     auto isCursorAtEnd() -> bool;
     auto moveCursor(CursorDirection dir) -> void;
+    auto moveCursorToEnd() -> void;
     auto rawCursor() -> std::string::iterator;
     auto rawText(SegmentIter first, SegmentIter last) -> std::string;
     auto segmentAtCursor() -> SegmentIter;
     auto segmentBegin() -> SegmentIter;
     auto segmentCount() -> size_t;
     auto segmentEnd() -> SegmentIter;
-    auto selectPrimaryCandidate() -> void;
-    auto setPrimaryCandidate(SegmentIter from, Candidates nextPrimaryCandidate)
+    auto segmentByCandidateList(SegmentIter first, SegmentIter last, const Candidates &candidates)
         -> void;
+    auto updateSegmentSpacing() -> void;
 
   private:
     auto erase(size_t len) -> void;
     auto eraseSegment(SegmentIter first) -> void;
     auto removeToneFromRawBuffer() -> void;
-    auto updateSegmentSpacing() -> void;
 
-    Candidates primaryCandidate;
     Segments segments;
     Cursor cursor;
+    // size_t focusedSegment;
 };
 
 } // namespace TaiKey

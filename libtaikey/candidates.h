@@ -14,20 +14,10 @@ enum class CColor {
     Gray,
 };
 
-// buffer
-// auto momomo = candidates.find(rawBuffer);
-
-// struct Candidate {
-//    std::string input;
-//    std::string output;
-//};
-
 class CandidateFinder {
   public:
     CandidateFinder(TKDB *db, Splitter *splitter, Trie *trie);
 
-    // AltCandidates is a list of <candidate, length> pairs, with length
-    // corresponding to the number of characters consumed in the input string
     auto findCandidates(std::string input, bool toneless, Candidate lgram)
         -> Candidates;
     auto findCandidates(std::string input, bool toneless, std::string lgram)

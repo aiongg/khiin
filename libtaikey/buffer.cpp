@@ -1,9 +1,9 @@
 #include <algorithm>
 
+#include <c9/zip.h>
 #include <utf8cpp/utf8.h>
 
 #include "buffer.h"
-
 #include "lomaji.h"
 
 namespace TaiKey {
@@ -38,25 +38,11 @@ auto displayFromRaw(std::string raw, std::string split) {
     return display;
 }
 
-auto utf8back(std::string str) {
-    auto end = str.cend();
-    return utf8::prior(end, str.cbegin());
-}
-
-auto utf8first(std::string str) {
-    return utf8::peek_next(str.cbegin(), str.cend());
-}
-
 // SynchronizedBuffer
-
-auto SynchronizedBuffer::candidateAt(SegmentIter it) -> const Candidate & {
-    auto &s = *it;
-    return s.candidates[s.selectedCandidate];
-}
 
 auto SynchronizedBuffer::clear() -> void {
     cursor.clear();
-    primaryCandidate.clear();
+    // primaryCandidate.clear();
     segments.clear();
     segments.push_back(Segment());
 }
@@ -89,6 +75,16 @@ auto SynchronizedBuffer::editingBegin() -> SegmentIter {
     for (auto it = segments.begin(); it != segments.end(); it++) {
         if ((*it).editing) {
             return it;
+        }
+    }
+
+    return segments.end();
+}
+
+auto SynchronizedBuffer::editingEnd() -> SegmentIter {
+    for (auto it = segments.end() - 1; it != segments.begin(); --it) {
+        if ((*it).editing) {
+            return ++it;
         }
     }
 
@@ -129,6 +125,8 @@ auto SynchronizedBuffer::moveCursor(CursorDirection dir) -> void {
     }
 }
 
+auto SynchronizedBuffer::moveCursorToEnd() -> void { cursor.setToEnd(); }
+
 auto SynchronizedBuffer::rawCursor() -> std::string::iterator {
     auto s = segmentAtCursor();
     auto it = (*s).raw.begin() + cursor.raw;
@@ -161,38 +159,26 @@ auto SynchronizedBuffer::segmentAtCursor() -> SegmentIter {
     return segments.begin() + cursor.segment;
 }
 
-auto SynchronizedBuffer::selectPrimaryCandidate() -> void {
-    for (auto &s : segments) {
-        s.selected = true;
-        s.selectedCandidate = 0;
-        s.display = s.candidates[0].output;
-    }
-
-    cursor.setToEnd();
-    updateSegmentSpacing();
-}
-
-auto SynchronizedBuffer::setPrimaryCandidate(SegmentIter from,
-                                             Candidates primaryCandidate)
+auto SynchronizedBuffer::segmentByCandidateList(SegmentIter first,
+                                                SegmentIter last,
+                                                const Candidates &candidates)
     -> void {
     // Save for afterwards
     auto atEnd = cursor.atEnd();
-    auto rawCursorOffset = cursor.rawOffset(from);
-    auto segmentIdx = std::distance(segments.begin(), from);
+    auto rawCursorOffset = cursor.rawOffset(first);
+    auto segmentIdx = std::distance(segments.begin(), first);
 
     // Build new segments & re-attach
     auto nextSegments = Segments();
-    for (auto &c : primaryCandidate) {
-        nextSegments.push_back(
-            Segment{c.ascii, displayFromRaw(c.ascii, c.input), Candidates(),
-                    size_t(0), false, false, true});
-        nextSegments.back().candidates.emplace_back(std::move(c));
+    for (auto &c : candidates) {
+        nextSegments.push_back(Segment{
+            c.ascii, displayFromRaw(c.ascii, c.input)
+            // , c, size_t(0), false, false, true
+        });
+        // nextSegments.back().candidates.emplace_back(std::move(c));
     }
-    while (from != segments.end()) {
-        from = segments.erase(from);
-    }
-    segments.insert(segments.end(),
-                    std::make_move_iterator(nextSegments.cbegin()),
+    first = segments.erase(first, last);
+    segments.insert(first, std::make_move_iterator(nextSegments.cbegin()),
                     std::make_move_iterator(nextSegments.cend()));
 
     nextSegments.clear();
@@ -206,6 +192,23 @@ auto SynchronizedBuffer::setPrimaryCandidate(SegmentIter from,
     }
 
     updateSegmentSpacing();
+}
+
+auto SynchronizedBuffer::updateSegmentSpacing() -> void {
+    if (segments.size() < 2) {
+        return;
+    }
+
+    auto tokens = std::vector<std::string_view>();
+    std::transform(
+        segments.cbegin(), segments.cend(), std::back_inserter(tokens),
+        [](const Segment &s) { return std::string_view(s.display); });
+
+    auto spaces = tokenSpacer(tokens);
+
+    for (auto &&[spaced, segment] : c9::zip(spaces, segments)) {
+        segment.spaced = spaced;
+    }
 }
 
 // Private
@@ -269,25 +272,6 @@ auto SynchronizedBuffer::removeToneFromRawBuffer() -> void {
         if (isdigit(*r_it)) {
             s.raw.erase(r_it, r_it + 1);
             cursor.raw--;
-        }
-    }
-}
-
-auto SynchronizedBuffer::updateSegmentSpacing() -> void {
-    if (segments.size() < 2) {
-        return;
-    }
-
-    for (auto it = segments.begin(); it != segments.end() - 1; ++it) {
-        auto lcp = utf8back(it[0].display);
-        auto rcp = utf8first(it[1].display);
-
-        // add virtual space if either side has lomaji and
-        // left side doesn't have hyphen
-        if (lcp >= 0x2e80 && rcp >= 0x2e80) {
-            it[0].spaced = false;
-        } else if (lcp != '-') {
-            it[0].spaced = true;
         }
     }
 }
