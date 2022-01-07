@@ -2,6 +2,7 @@
 
 enum class RetVal {
     OK,
+    Cancelled,
     Consumed,
     NotConsumed,
     Error,

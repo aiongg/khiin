@@ -3,6 +3,8 @@
 #include <optional>
 #include <string>
 
+#include <c9/zip.h>
+
 #include "db.h"
 #include "splitter.h"
 #include "trie.h"
@@ -15,7 +17,6 @@ enum class CColor {
     Gray,
 };
 
-#include <c9/zip.h>
 
 struct CandidateChunk {
     std::string raw;

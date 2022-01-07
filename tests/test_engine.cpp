@@ -21,6 +21,8 @@ namespace fs = std::filesystem;
 
 typedef std::pair<std::string, std::string> test_word;
 
+static auto key(char c) { return static_cast<KeyCode>(c); }
+
 #ifdef _WIN32
 auto toPWSTR(std::string str) {
     auto wstr = utf8::utf8to16(str);
@@ -67,7 +69,28 @@ BOOST_AUTO_TEST_CASE(t01_load) { BOOST_CHECK_EQUAL(u8"", display.buffer); }
 
 BOOST_AUTO_TEST_CASE(t02_simple) {
     feedText("ka");
-    BOOST_CHECK_EQUAL(u8"ka", display.buffer);
+    BOOST_TEST(display.buffer == u8"ka");
+    BOOST_TEST(display.candidates.size() > 10);
+}
+
+BOOST_AUTO_TEST_CASE(t03_primary_candidate) {
+    feedText("goasiannmihlongboai");
+    BOOST_TEST(display.candidates.size() > 0);
+    BOOST_TEST(display.candidates[0].text == u8"我省乜朗無愛");
+}
+
+BOOST_AUTO_TEST_CASE(t04_erasing) {
+    feedText("a");
+    auto ret = e->onKeyDown(KeyCode::BACK, display);
+    BOOST_TEST((ret == RetVal::Cancelled));
+    BOOST_TEST(display.buffer == u8"");
+    ret = e->onKeyDown(KeyCode::BACK, display);
+    BOOST_TEST((ret == RetVal::NotConsumed));
+    e->onKeyDown(KeyCode::BACK, display);
+    BOOST_TEST(display.buffer == u8"");
+    ret = e->onKeyDown(key('a'), display);
+    BOOST_TEST((ret == RetVal::Consumed));
+    BOOST_TEST(display.buffer == u8"a");
 }
 
 BOOST_AUTO_TEST_SUITE_END();

@@ -65,6 +65,7 @@ BufferManager::BufferManager(CandidateFinder *candidateFinder)
 
 auto BufferManager::clear() -> RetVal {
     buffer.clear();
+    candidates.clear();
 
     return RetVal::TODO;
 }
@@ -120,7 +121,13 @@ auto BufferManager::moveCursor(CursorDirection dir) -> RetVal {
 
 auto BufferManager::erase(CursorDirection dir) -> RetVal {
     buffer.erase(dir);
-    findPrimaryCandidate(buffer.segmentAtCursor(), buffer.segmentEnd());
+
+    if (buffer.empty()) {
+        clear();
+    } else {
+        findPrimaryCandidate(buffer.segmentAtCursor(), buffer.segmentEnd());
+    }
+
     return RetVal::TODO;
 }
 
@@ -164,7 +171,7 @@ auto BufferManager::selectCandidate(size_t index) -> RetVal {
 }
 
 // Private
-auto BufferManager::empty() -> bool { return false; /* TODO */ }
+auto BufferManager::empty() -> bool { return buffer.empty(); }
 
 auto BufferManager::isCursorAtEnd() -> bool { return buffer.isCursorAtEnd(); }
 
@@ -195,6 +202,7 @@ auto BufferManager::findCandidates(SegmentIter begin) -> void {
 
 auto BufferManager::findPrimaryCandidate(SegmentIter begin, SegmentIter last)
     -> void {
+    auto offset = std::distance(buffer.segmentBegin(), begin);
     auto lgram = lgramOf(begin);
     auto searchStr = buffer.rawText(begin, last);
     auto fuzzy = toneMode == ToneMode::Fuzzy;
@@ -209,7 +217,22 @@ auto BufferManager::findPrimaryCandidate(SegmentIter begin, SegmentIter last)
     buffer.segmentByCandidate(begin, last, primary);
     // buffer.setCandidates(first, std::move(candidates));
 
-    candidates.emplace_back(std::move(primary));
+    if (candidates.size() == 0) {
+        candidates.push_back(std::move(primary));
+        hasPrimaryCandidate = true;
+        return;
+    }
+
+    if (candidates.size() > 0) {
+        candidates.erase(candidates.begin() + 1, candidates.end());
+        auto &lastprimary = candidates[0];
+        lastprimary.erase(lastprimary.begin() + offset, lastprimary.end());
+    }
+
+    candidates[0].insert(candidates[0].end(),
+                         std::make_move_iterator(primary.begin()),
+                         std::make_move_iterator(primary.end()));
+
     hasPrimaryCandidate = true;
 }
 
@@ -227,10 +250,12 @@ auto BufferManager::insertNormal(char ch) -> RetVal {
         begin = curs;
     }
 
+    auto offset = std::distance(buffer.segmentBegin(), begin);
     buffer.insert(ch);
-    candidates.clear();
     findPrimaryCandidate(begin, buffer.editingEnd());
-    findCandidates(buffer.editingBegin());
+    if (offset == 0) {
+        findCandidates(buffer.editingBegin());
+    }
 
     return RetVal::TODO;
 }

@@ -30,7 +30,7 @@ struct BufferFx {
     CandidateFinder *cf = nullptr;
     Splitter *sp = nullptr;
     Trie *tr = nullptr;
-    
+
     void insert(std::string sequence) {
         for (auto it : sequence) {
             buf->insert(it);
@@ -77,7 +77,7 @@ BOOST_AUTO_TEST_CASE(clear) {
     BOOST_TEST(getCurs() == 0);
 }
 
-//BOOST_AUTO_TEST_CASE(spacebar_not_consumed) {
+// BOOST_AUTO_TEST_CASE(spacebar_not_consumed) {
 //    BOOST_TEST((buf->selectPrimaryCandidate() == RetVal::NotConsumed));
 //}
 
@@ -245,6 +245,12 @@ BOOST_AUTO_TEST_CASE(t12_select_primary_candidate) {
     buf->selectPrimaryCandidate();
     BOOST_TEST(getBuf() == u8"好");
     BOOST_TEST(getCurs() == 1);
+}
+
+BOOST_AUTO_TEST_CASE(t13_long_candidate) {
+    insert("kutkutkutkutkutkut");
+    auto cand = buf->getCandidates();
+    BOOST_TEST(cand[0].text == u8"骨骨骨骨骨骨");
 }
 
 BOOST_AUTO_TEST_CASE(ttelex_simple) {

@@ -331,7 +331,8 @@ auto tokenSpacer(std::vector<std::string_view> tokens) -> std::vector<bool> {
             ret.push_back(true);
         }
     }
-    return std::move(ret);
+    ret.push_back(false);
+    return ret;
 }
 
 auto toNFD(std::string_view s) -> std::string {

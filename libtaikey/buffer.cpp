@@ -230,6 +230,10 @@ auto SynchronizedBuffer::erase(size_t len) -> void {
     if (s.raw.empty()) {
         eraseSegment(it);
     }
+
+    if (segments.size() == 0) {
+        segments.push_back(Segment());
+    }
 }
 
 auto SynchronizedBuffer::eraseSegment(SegmentIter first) -> void {

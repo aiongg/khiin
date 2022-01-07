@@ -24,6 +24,7 @@ class BufferManager {
     BufferManager();
     BufferManager(CandidateFinder *candidateFinder);
     auto clear() -> RetVal;
+    auto empty() -> bool;
     auto focusCandidate(size_t index) -> RetVal;
     auto getCandidates() -> std::vector<CandidateDisplay>;
     auto getDisplayBuffer() -> std::string;
@@ -37,7 +38,6 @@ class BufferManager {
     auto setToneKeys(ToneKeys toneKeys) -> RetVal;
 
   private:
-    auto empty() -> bool;
     auto isCursorAtEnd() -> bool;
     auto insertNormal(char ch) -> RetVal;
     auto insertTelex_(char ch) -> RetVal;

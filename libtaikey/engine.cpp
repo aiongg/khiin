@@ -137,7 +137,17 @@ auto Engine::onKeyDown(KeyCode kc, ImeDisplayData &data) -> RetVal {
             buffer->clear();
             break;
         case KeyCode::BACK:
+            if (buffer->empty()) {
+                return RetVal::NotConsumed;
+            }
+
             buffer->erase(CursorDirection::L);
+            if (buffer->empty()) {
+                data.buffer.clear();
+                data.cursor = 0;
+                data.candidates.clear();
+                return RetVal::Cancelled;
+            }
             break;
         case KeyCode::LEFT:
             buffer->moveCursor(CursorDirection::L);
@@ -147,6 +157,7 @@ auto Engine::onKeyDown(KeyCode kc, ImeDisplayData &data) -> RetVal {
             break;
         case KeyCode::DEL:
             buffer->erase(CursorDirection::R);
+            break;
         }
     }
 
