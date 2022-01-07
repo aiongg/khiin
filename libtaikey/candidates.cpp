@@ -16,6 +16,16 @@ namespace TaiKey {
 
 using namespace std::literals::string_literals;
 
+CandidateChunk::CandidateChunk(std::string raw) : raw(raw){};
+CandidateChunk::CandidateChunk(std::string raw, Token token)
+    : raw(raw), token(token){};
+
+auto oneChunkCandidate(std::string &&raw, Token &&token) {
+    return Candidate{CandidateChunk(std::move(raw), std::move(token))};
+}
+
+// CandidateFinder
+
 CandidateFinder::CandidateFinder(TKDB *db, Splitter *splitter, Trie *trie)
     : db(db), splitter(splitter), trie(trie) {}
 
@@ -59,8 +69,8 @@ size_t alignedSyllables(const VStr &syllables, std::string word) {
 }
 
 // modifies rgrams
-auto CandidateFinder::sortCandidatesByBigram_(std::string lgram, int lgramCount,
-                                              Candidates &rgrams) {
+auto CandidateFinder::sortTokensByBigram(std::string lgram, int lgramCount,
+                                         Tokens &rgrams) {
     auto bigrams = BigramWeights();
     auto rgramOutputs = VStr();
     for (const auto &c : rgrams) {
@@ -72,19 +82,15 @@ auto CandidateFinder::sortCandidatesByBigram_(std::string lgram, int lgramCount,
                      static_cast<float>(lgramCount);
     }
     std::sort(rgrams.begin(), rgrams.end(),
-              [](Candidate a, Candidate b) -> bool {
-                  return a.bigramWt > b.bigramWt;
-              });
+              [](Token a, Token b) -> bool { return a.bigramWt > b.bigramWt; });
 }
 
 /**
  * Makes database call to look up lgram/rgram pairs, returns
  * index in `&rgrams` of the best match
  */
-auto CandidateFinder::findBestCandidateByBigram_(std::string lgram,
-                                                 int lgramCount,
-                                                 const Candidates &rgrams)
-    -> size_t {
+auto CandidateFinder::bestTokenByBigram(std::string lgram, int lgramCount,
+                                        const Tokens &rgrams) -> size_t {
     if (lgramCount == 0) {
         return 0;
     }
@@ -111,16 +117,16 @@ auto CandidateFinder::findBestCandidateByBigram_(std::string lgram,
 }
 
 auto CandidateFinder::findBestCandidateBySplitter_(std::string input,
-                                                   bool toneless) -> Candidate {
+                                                   bool toneless) -> Token {
     auto syllables = VStr();
     auto trieWords = VStr();
-    auto candRows = Candidates();
+    auto tokens = Tokens();
 
     splitter->split(input, syllables);
     trie->getAllWords(input, toneless, trieWords);
 
     if (trieWords.size() == 0) {
-        return Candidate{0, syllables[0], syllables[0], syllables[0]};
+        return Token{0, syllables[0], syllables[0], syllables[0]};
     }
 
     auto matched = VStr();
@@ -129,33 +135,25 @@ auto CandidateFinder::findBestCandidateBySplitter_(std::string input,
                      return alignedSyllables(syllables, word) > 0;
                  });
 
-    db->selectCandidatesFor(matched, candRows);
+    db->getTokens(matched, tokens);
 
-    if (candRows.empty()) {
-        return Candidate{0, syllables[0], syllables[0], syllables[0]};
+    if (tokens.empty()) {
+        return Token{0, syllables[0], syllables[0], syllables[0]};
     }
 
-    return candRows[0];
+    return tokens[0];
 }
 
-auto CandidateFinder::findCandidates(std::string input, bool toneless,
-                                     std::string lgram) -> Candidates {
-    auto candidate = Candidate();
-    candidate.output = lgram;
-    if (!lgram.empty()) {
-        candidate.unigramN = db->getUnigramCount(lgram);
-    }
-    return findCandidates(input, toneless, candidate);
-}
-
-auto CandidateFinder::findCandidates(std::string input, bool toneless,
-                                     Candidate lgram) -> Candidates {
-    auto rCandidates = Candidates();
+auto CandidateFinder::findCandidates(std::string input, std::string lgram,
+                                     bool toneless) -> Candidates {
+    auto ret = Candidates();
 
     if (input.empty()) {
-        return rCandidates;
+        return ret;
     }
 
+    auto tokens = Tokens();
+    auto lgram_count = lgram.empty() ? 0 : db->getUnigramCount(lgram);
     auto trieWords = VStr();
 
     trie->getAllWords(input, toneless, trieWords);
@@ -164,144 +162,79 @@ auto CandidateFinder::findCandidates(std::string input, bool toneless,
         // TODO
     }
 
-    db->selectCandidatesFor(trieWords, rCandidates);
+    db->getTokens(trieWords, tokens);
 
-    if (lgram.unigramN > 0) {
-        sortCandidatesByBigram_(lgram.output, lgram.unigramN, rCandidates);
+    if (lgram_count > 0) {
+        sortTokensByBigram(lgram, lgram_count, tokens);
     }
 
-    for (auto &c : rCandidates) {
-        auto i = 0;
-        while (i < input.size() && c.ascii[i] == input[i]) {
-            i++;
+    for (auto &t : tokens) {
+        auto input_it = input.cbegin();
+        auto input_end = input.cend();
+        auto token_it = t.ascii.cbegin();
+        auto token_end = t.ascii.cend();
+
+        while (input_it != input_end && token_it != token_end &&
+               *input_it == *token_it) {
+            ++input_it;
+            ++token_it;
         }
-        if (i < c.ascii.size()) {
-            c.ascii.erase(c.ascii.begin() + i, c.ascii.end());
-        }
+        ret.push_back(oneChunkCandidate(std::string(input.cbegin(), input_it),
+                                        std::move(t)));
     }
 
-    return rCandidates;
-}
-
-auto CandidateFinder::findPrimaryCandidate(std::string input, bool toneless,
-                                           std::string lgram) -> Candidates {
-    auto candidate = Candidate();
-    candidate.output = lgram;
-    if (!lgram.empty()) {
-        candidate.unigramN = db->getUnigramCount(lgram);
-    }
-    return findPrimaryCandidate(input, toneless, candidate);
+    return ret;
 }
 
 /**
- * Candidate::ascii matches input string on output, even if the
+ * Token::ascii matches next string on output, even if the
  * original result from the database included a tone number and
- * the input string didn't (fuzzy tone mode). That is, the ascii
- * member of a candidate matches exactly the user's raw input and
+ * the next string didn't (fuzzy tone mode). That is, the ascii
+ * member of a ret matches exactly the user's raw next and
  * can be directly compared with the raw buffer text.
  */
-auto CandidateFinder::findPrimaryCandidate(std::string input, bool toneless,
-                                           Candidate cLgram) -> Candidates {
-    auto ret = Candidates();
+auto CandidateFinder::findPrimaryCandidate(std::string_view input,
+                                           std::string lgram, bool fuzzy)
+    -> Candidate {
+    auto ret = Candidate();
 
     if (input.empty()) {
         return ret;
     }
 
-    auto lgram = cLgram.output;
-    auto lgramCount = cLgram.unigramN;
-    auto cbc = Candidate(); // currentBestCandidate
-    auto currCandidates = Candidates();
+    auto lgramCount = lgram.empty() ? 0 : db->getUnigramCount(lgram);
 
-    auto curr = input.cbegin();
-    auto remainder = [&]() { return std::string(curr, input.cend()); };
-    auto remainderFrom = [&](std::string::const_iterator &it) {
-        return std::string(it, input.cend());
+    auto bestToken = Token();
+    auto dbTokens = Tokens();
+
+    auto start = input.cbegin();
+    auto end = input.cend();
+
+    auto remainderFrom = [&](std::string_view::const_iterator &it) {
+        return std::string(it, end);
     };
+    auto remainder = [&]() { return remainderFrom(start); };
 
     auto hasKhinHyphens = false;
 
-    while (curr != input.cend()) {
-        // case: hyphens at front, add them as separate candidate
-        if (*curr == '-') {
-            auto next = curr + 1;
-            while (next != input.cend() && *next == '-') {
-                next++;
-            }
-
-            auto nHyphens = std::distance(curr, next);
-
-            if (nHyphens == 1 || nHyphens == 3) {
-                // dangling hyphen on last candidate
-                if (ret.empty()) {
-                    ret.emplace_back(Candidate{0, std::string(1, '-')});
-                } else {
-                    ret.back().ascii += '-';
-                }
-            }
-            
-            if (nHyphens == 2 || nHyphens == 3) {
-                if (next == input.cend()) {
-                    ret.emplace_back(Candidate{0, std::string(2, '-')});
-                } else {
-                    // khin for next candidate
-                    hasKhinHyphens = true;
-                }
-            }
-            
-            if (nHyphens > 3) {
-                ret.emplace_back(Candidate{0, std::string(nHyphens, '-')});
-            }
-
-            curr = next;
+    while (start != end) {
+        if (handleHyphens(start, input.cend(), ret)) {
             continue;
         }
 
-        auto trieWords = trie->getAllWords(remainder(), toneless);
+        auto trieWords = trie->getAllWords(remainder(), fuzzy);
 
         if (trieWords.empty()) {
-            auto next = curr + 1;
-
-            // Collect next letters as long as they are also not
-            // found in the Trie, put everything into this candidate
-            while (next != input.end()) {
-                if (trie->getAllWords(remainderFrom(next), toneless).empty()) {
-                    ++next;
-                } else {
-                    break;
-                }
-            }
-
-            auto candstr = std::string(curr, next);
-            auto &prev = ret.size() == 0 ? "" : ret.back().ascii;
-
-            // If the collected letters are the whole remainder of the
-            // string, and they form a prefix when combined with the existing
-            // previous candidate, join them together
-            if (next == input.cend() &&
-                trie->containsSyllablePrefix(prev + candstr) &&
-                ret.size() > 0) {
-                candstr.insert(0, ret.back().ascii);
-                ret.pop_back();
-            }
-
-            if (hasKhinHyphens) {
-                candstr.insert(0, 2, '-');
-                hasKhinHyphens = false;
-            }
-
-            ret.emplace_back(Candidate{0, candstr});
+            handleNoTrieMatch(start, input.cend(), ret, fuzzy);
             lgram.clear();
             lgramCount = 0;
-
-            curr = next;
             continue;
         }
 
         // default case: found stuff in the trie
         auto matched = VStr();
 
-        if (lgram == "") {
+        if (lgram.empty()) {
             // At the beginning, use the syllable splitter to get best result
             auto splitResult = splitter->split(remainder());
 
@@ -310,7 +243,7 @@ auto CandidateFinder::findPrimaryCandidate(std::string input, bool toneless,
                              return word.rfind(splitResult[0], 0) == 0;
                          });
             if (matched.empty() && !splitResult.empty()) {
-                matched.emplace_back(std::move(splitResult[0]));
+                matched.push_back(std::move(splitResult[0]));
             }
         } else {
             // Otherwise, use the best fit leaving as few dangling characters
@@ -318,7 +251,7 @@ auto CandidateFinder::findPrimaryCandidate(std::string input, bool toneless,
             auto stopPos = 0;
 
             auto canSplit = [&](std::string word) {
-                auto input_it = std::string::const_iterator(curr);
+                auto input_it = std::string_view::const_iterator(start);
                 auto word_it = word.cbegin();
 
                 while (input_it != input.cend() && word_it != word.cend() &&
@@ -341,47 +274,123 @@ auto CandidateFinder::findPrimaryCandidate(std::string input, bool toneless,
             }
         }
 
-        db->selectCandidatesFor(matched, currCandidates);
+        db->getTokens(matched, dbTokens);
 
-        if (currCandidates.empty() && !matched.empty()) {
-            auto utf8 = asciiSyllableToUtf8(matched[0]);
-            auto cand = Candidate{0, matched[0], utf8, utf8};
-            currCandidates.push_back(cand);
+        if (dbTokens.empty() && !matched.empty()) {
+            auto next = start;
+            auto m_it = matched[0].cbegin();
+            while (next != end && m_it != matched[0].cend() && *next == *m_it) {
+                next++;
+                m_it++;
+            }
+            ret.push_back(CandidateChunk(std::string(start, next)));
+            start = next;
+            continue;
         }
 
         auto idx = size_t(0);
 
         if (lgram != "") {
-            idx = findBestCandidateByBigram_(lgram, lgramCount, currCandidates);
+            idx = bestTokenByBigram(lgram, lgramCount, dbTokens);
         }
 
-        cbc = currCandidates[idx];
+        bestToken = dbTokens[idx];
 
-        auto curr_it = std::string::const_iterator(curr);
-        auto cand_it = cbc.ascii.begin();
+        auto next = start;
+        auto t_it = bestToken.ascii.cbegin();
+        auto t_end = bestToken.ascii.cend();
 
-        while (curr_it != input.cend() && cand_it != cbc.ascii.end() &&
-               *curr_it == *cand_it) {
-            curr_it++;
-            cand_it++;
+        while (next != end && t_it != t_end && *next == *t_it) {
+            next++;
+            t_it++;
         }
 
-        if (cand_it != cbc.ascii.end()) {
-            cbc.ascii.erase(cand_it, cbc.ascii.end());
+        lgram = bestToken.output;
+        lgramCount = bestToken.unigramN;
+
+        auto chunk = std::string(start, next);
+
+        // handle khin
+        if (ret.size() > 0 && ret.back().raw == "--" &&
+            ret.back().token.empty()) {
+            ret.back().token = std::move(bestToken);
+            ret.back().raw.append(chunk);
+        } else {
+            ret.push_back(
+                CandidateChunk(std::string(start, next), std::move(bestToken)));
         }
 
-        lgram = cbc.output;
-        lgramCount = cbc.unigramN;
-
-        if (hasKhinHyphens) {
-            cbc.ascii.insert(0, 2, '-');
-            hasKhinHyphens = false;
-        }
-        ret.push_back(cbc);
-        curr = curr_it;
+        start = next;
     }
 
     return ret;
+}
+
+// Private
+
+auto CandidateFinder::handleHyphens(std::string_view::const_iterator &start,
+                                    const std::string_view::const_iterator &end,
+                                    Candidate &ret) -> bool {
+    if (*start != '-') {
+        return false;
+    }
+
+    auto next = start + 1;
+
+    while (next != end && *next == '-') {
+        ++next;
+    }
+
+    auto nHyphens = std::distance(start, next);
+
+    if ((nHyphens == 1 || nHyphens == 3) && !ret.empty()) {
+        // dangling hyphen on last chunk
+        ret.back().raw += '-';
+    }
+
+    if (nHyphens == 2 || nHyphens == 3) {
+        ret.push_back(CandidateChunk(std::string(2, '-')));
+    }
+
+    if (nHyphens > 3) {
+        ret.push_back(CandidateChunk(std::string(nHyphens, '-')));
+    }
+
+    start = next;
+    return true;
+}
+
+auto CandidateFinder::handleNoTrieMatch(
+    std::string_view::const_iterator &start,
+    const std::string_view::const_iterator &end, Candidate &candidate,
+    bool fuzzy) -> void {
+    auto next = start + 1;
+
+    // Collect next letters as long as they are also not
+    // found in the Trie, put everything into this ret
+    while (next != end) {
+        if (trie->getAllWords(std::string(next, end), fuzzy).empty()) {
+            ++next;
+        } else {
+            break;
+        }
+    }
+
+    auto chunk = std::string(start, next);
+    auto &prev = candidate.size() == 0 ? "" : candidate.back().raw;
+
+    // If the collected letters are the whole remainder of the
+    // string, and they form a prefix when combined with the existing
+    // previous ret, join them together
+    if (next == end && trie->containsSyllablePrefix(prev + chunk) &&
+        candidate.size() > 0) {
+        candidate.back().raw.append(chunk);
+        candidate.back().token.clear();
+    } else {
+        candidate.push_back(CandidateChunk(std::move(chunk)));
+    }
+
+    start = next;
 }
 
 } // namespace TaiKey

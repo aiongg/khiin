@@ -32,16 +32,16 @@ auto isOnlyHyphens(std::string s) {
     return true;
 }
 
-auto candidateDisplayOf(Candidates candidate) -> CandidateDisplay {
+auto candidateDisplayOf(Candidate candidate) -> CandidateDisplay {
     auto ret = CandidateDisplay();
 
     auto tokens = std::vector<std::string_view>();
     std::transform(candidate.cbegin(), candidate.cend(),
-                   std::back_inserter(tokens), [](const Candidate &token) {
-                       if (token.output.empty()) {
-                           return std::string_view(token.ascii);
+                   std::back_inserter(tokens), [](const auto &chunk) {
+                       if (chunk.token.empty()) {
+                           return std::string_view(chunk.raw);
                        }
-                       return std::string_view(token.output);
+                       return std::string_view(chunk.token.output);
                    });
 
     auto spaces = tokenSpacer(tokens);
@@ -89,7 +89,7 @@ auto BufferManager::getCandidates() -> std::vector<CandidateDisplay> {
     auto ret = std::vector<CandidateDisplay>();
 
     for (auto &c : candidates) {
-        ret.emplace_back(candidateDisplayOf(c));
+        ret.push_back(candidateDisplayOf(c));
     }
 
     return ret;
@@ -134,21 +134,18 @@ auto BufferManager::selectPrimaryCandidate() -> RetVal {
         return RetVal::TODO;
     }
 
-    auto seg_it = buffer.editingBegin();
-    auto cand_it = candidates[0].begin();
+    auto seg = buffer.editingBegin();
+    auto cand = candidates[0].begin();
 
     for (auto i = 0; i < candidates[0].size(); ++i) {
-        auto &segment = *seg_it;
-        auto &cand = *cand_it;
-
-        if (!cand.output.empty()) {
-            segment.display = cand.output;
+        if (!cand->token.empty()) {
+            seg->display = cand->token.output;
         }
 
-        segment.selected = true;
+        seg->selected = true;
 
-        ++seg_it;
-        ++cand_it;
+        ++seg;
+        ++cand;
     }
 
     buffer.updateSegmentSpacing();
@@ -176,7 +173,7 @@ auto BufferManager::findCandidates(SegmentIter begin) -> void {
     auto searchStr = buffer.rawText(begin, buffer.editingEnd());
     auto fuzzy = toneMode == ToneMode::Fuzzy;
 
-    auto found = candidateFinder->findCandidates(searchStr, fuzzy, lgram);
+    auto found = candidateFinder->findCandidates(searchStr, lgram, fuzzy);
 
     if (found.empty()) {
         return;
@@ -186,13 +183,13 @@ auto BufferManager::findCandidates(SegmentIter begin) -> void {
         auto &pc = candidates[0];
         found.erase(std::remove_if(found.begin(), found.end(),
                                    [&](const Candidate cand) {
-                                       return cand == pc[0];
+                                       return cand[0].token == pc[0].token;
                                    }),
                     found.end());
     }
 
     for (auto &alt : found) {
-        candidates.emplace_back(Candidates{std::move(alt)});
+        candidates.emplace_back(Candidate{std::move(alt)});
     }
 }
 
@@ -203,13 +200,13 @@ auto BufferManager::findPrimaryCandidate(SegmentIter begin, SegmentIter last)
     auto fuzzy = toneMode == ToneMode::Fuzzy;
 
     auto primary =
-        candidateFinder->findPrimaryCandidate(searchStr, fuzzy, lgram);
+        candidateFinder->findPrimaryCandidate(searchStr, lgram, fuzzy);
 
     if (primary.empty()) {
         return;
     }
 
-    buffer.segmentByCandidateList(begin, last, primary);
+    buffer.segmentByCandidate(begin, last, primary);
     // buffer.setCandidates(first, std::move(candidates));
 
     candidates.emplace_back(std::move(primary));
@@ -241,7 +238,8 @@ auto BufferManager::insertNormal(char ch) -> RetVal {
 auto BufferManager::insertTelex_(char ch) -> RetVal { return RetVal::Error; }
 
 auto BufferManager::lgramOf(SegmentIter segment) -> std::string {
-    return segment == buffer.segmentBegin() ? std::string() : segment[-1].display;
+    return segment == buffer.segmentBegin() ? std::string()
+                                            : segment[-1].display;
 }
 
 } // namespace TaiKey

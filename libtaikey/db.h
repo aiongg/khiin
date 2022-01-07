@@ -24,8 +24,8 @@ struct DictionaryRow {
     std::string hint;
 };
 
-struct Candidate {
-    int dict_id;
+struct Token {
+    int dict_id = 0;
     std::string ascii;
     std::string input;
     std::string output;
@@ -33,15 +33,27 @@ struct Candidate {
     int color = 0;
     int unigramN = 0;
     float bigramWt = 0.0f;
-    bool operator==(const Candidate &rhs) const {
+    bool operator==(const Token &rhs) const {
         if (dict_id == 0 && rhs.dict_id == 0) {
             return ascii == rhs.ascii;
         } else {
             return dict_id == rhs.dict_id;
         }
     };
-    bool operator!=(const Candidate &rhs) { return !(*this == rhs); };
+    bool operator!=(const Token &rhs) const { return !(*this == rhs); };
+    void clear() {
+        dict_id = 0;
+        ascii.clear();
+        input.clear();
+        hint.clear();
+        color = 0;
+        unigramN = 0;
+        bigramWt = 0.0f;
+    }
+    bool empty() const { return dict_id == 0; };
 };
+
+using Tokens = std::vector<Token>;
 
 struct UnigramRow {
     std::string gram;
@@ -49,20 +61,19 @@ struct UnigramRow {
 };
 
 using DictRows = std::vector<DictionaryRow>;
-using Candidates = std::vector<Candidate>;
 using BigramWeights = std::unordered_map<std::string, int>;
 
 class TKDB {
   public:
     TKDB();
     TKDB(std::string dbFilename);
+    auto getTokens(VStr queries, Tokens &results) -> void;
     auto init() -> void;
     auto selectTrieWordlist() -> VStr;
     auto selectSyllableList() -> VStr;
     auto selectDictionaryRowsByAscii(std::string input, DictRows &results)
         -> void;
     auto selectDictionaryRowsByAscii(VStr inputs, DictRows &results) -> void;
-    auto selectCandidatesFor(VStr queries, Candidates &results) -> void;
     auto selectBigramsFor(std::string lgram, VStr rgrams,
                           BigramWeights &results) -> void;
     auto getUnigramCount(std::string gram) -> int;

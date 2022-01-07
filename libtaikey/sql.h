@@ -99,7 +99,7 @@ dictionary.chhan_id ASC)");
     return sql.str();
 }
 
-const std::string SELECT_DictionaryWithUnigrams(size_t n) {
+const std::string SELECT_Tokens(size_t n) {
     boost::format sql(R"(
 WITH d AS (
     SELECT

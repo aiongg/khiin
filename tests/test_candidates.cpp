@@ -9,23 +9,23 @@ namespace TaiKey::CandidateTest {
 
 const std::string DB_FILE = "taikey.db";
 
-struct Fx {
-    Fx() {
+struct CandidateFx {
+    CandidateFx() {
         db = new TKDB(DB_FILE);
         auto sylList = db->selectSyllableList();
         splitter = new Splitter(sylList),
         trie = new Trie(db->selectTrieWordlist(), sylList);
         cf = new CandidateFinder(db, splitter, trie);
     }
-    ~Fx() {
+    ~CandidateFx() {
         delete db;
         delete splitter;
         delete trie;
         delete cf;
     }
 
-    Candidates fuzzyPrimary(std::string search) {
-        return cf->findPrimaryCandidate(search, true, "");
+    Candidate fuzzyPrimary(std::string search) {
+        return cf->findPrimaryCandidate(search, "", true);
     }
 
     TKDB *db = nullptr;
@@ -34,7 +34,7 @@ struct Fx {
     CandidateFinder *cf = nullptr;
 };
 
-BOOST_FIXTURE_TEST_SUITE(CandidateTest, Fx)
+BOOST_FIXTURE_TEST_SUITE(CandidateTest, CandidateFx)
 
 BOOST_AUTO_TEST_CASE(load_candidate_finder) {
     auto res = fuzzyPrimary("khiameng");
@@ -57,9 +57,10 @@ BOOST_AUTO_TEST_CASE(find_long_string) {
 
     auto v = std::string();
 
-    for (const auto &c : res) {
-        v += c.output;
+    for (auto &chunk : res) {
+        v += chunk.token.output;
     }
+
     BOOST_LOG_TRIVIAL(debug) << "Input string: " << test;
     BOOST_LOG_TRIVIAL(debug) << "By default: " << v;
 
@@ -74,8 +75,8 @@ BOOST_AUTO_TEST_CASE(find_long_string) {
 
     v.clear();
 
-    for (const auto &c : res) {
-        v += c.output;
+    for (auto &chunk : res) {
+        v += chunk.token.output;
     }
 
     BOOST_LOG_TRIVIAL(debug) << "Re-running candidate selection: " << v;

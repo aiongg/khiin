@@ -14,9 +14,8 @@
 namespace TaiKey {
 
 struct CandidateDisplay {
-    int id;
     std::string text;
-    int color;
+    int color = 0;
     std::string hint;
 };
 
@@ -53,7 +52,7 @@ class BufferManager {
     InputMode inputMode_ = InputMode::Normal;
     ToneKeys toneKeys_ = ToneKeys::Numeric;
     ToneMode toneMode = ToneMode::Fuzzy;
-    std::vector<Candidates> candidates;
+    Candidates candidates;
     bool hasPrimaryCandidate = false;
 };
 

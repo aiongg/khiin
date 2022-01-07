@@ -159,9 +159,8 @@ auto SynchronizedBuffer::segmentAtCursor() -> SegmentIter {
     return segments.begin() + cursor.segment;
 }
 
-auto SynchronizedBuffer::segmentByCandidateList(SegmentIter first,
-                                                SegmentIter last,
-                                                const Candidates &candidates)
+auto SynchronizedBuffer::segmentByCandidate(SegmentIter first, SegmentIter last,
+                                            const Candidate &candidate)
     -> void {
     // Save for afterwards
     auto atEnd = cursor.atEnd();
@@ -170,12 +169,10 @@ auto SynchronizedBuffer::segmentByCandidateList(SegmentIter first,
 
     // Build new segments & re-attach
     auto nextSegments = Segments();
-    for (auto &c : candidates) {
-        nextSegments.push_back(Segment{
-            c.ascii, displayFromRaw(c.ascii, c.input)
-            // , c, size_t(0), false, false, true
-        });
-        // nextSegments.back().candidates.emplace_back(std::move(c));
+    for (auto &chunk : candidate) {
+        nextSegments.push_back(
+            Segment{chunk.raw, displayFromRaw(chunk.raw, chunk.token.input),
+                    &chunk.token});
     }
     first = segments.erase(first, last);
     segments.insert(first, std::make_move_iterator(nextSegments.cbegin()),

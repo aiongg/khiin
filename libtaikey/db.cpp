@@ -1,7 +1,7 @@
+#include <mutex>
 #include <regex>
 #include <thread>
 #include <unordered_set>
-#include <mutex>
 
 #include <boost/algorithm/string.hpp>
 #include <boost/log/trivial.hpp>
@@ -24,8 +24,7 @@ TKDB::TKDB() : handle(SQLite::Database(":memory:", SQLite::OPEN_READWRITE)) {
 }
 
 TKDB::TKDB(std::string dbFilename)
-    : handle(SQLite::Database(dbFilename,
-                              SQLite::OPEN_READWRITE)) {
+    : handle(SQLite::Database(dbFilename, SQLite::OPEN_READWRITE)) {
     tableDictionary.reserve(20000);
     init();
 }
@@ -99,24 +98,24 @@ auto TKDB::selectDictionaryRowsByAscii(VStr inputs, DictRows &results) -> void {
     }
 }
 
-auto TKDB::selectCandidatesFor(VStr inputs, Candidates &results) -> void {
+auto TKDB::getTokens(VStr inputs, std::vector<Token> &results)
+    -> void {
     results.clear();
 
-    auto query = SQLite::Statement(
-        handle, SQL::SELECT_DictionaryWithUnigrams(inputs.size()));
+    auto query = SQLite::Statement(handle, SQL::SELECT_Tokens(inputs.size()));
 
     for (const auto &in : inputs | boost::adaptors::indexed(1)) {
         query.bind(static_cast<int>(in.index()), in.value());
     }
 
     while (query.executeStep()) {
-        Candidate d{query.getColumn("id").getInt(),
-                    query.getColumn("ascii").getString(),
-                    query.getColumn("input").getString(),
-                    query.getColumn("output").getString(),
-                    query.getColumn("hint").getString(),
-                    query.getColumn("color").getInt(),
-                    query.getColumn("unigram_n").getInt()};
+        Token d{query.getColumn("id").getInt(),
+                query.getColumn("ascii").getString(),
+                query.getColumn("input").getString(),
+                query.getColumn("output").getString(),
+                query.getColumn("hint").getString(),
+                query.getColumn("color").getInt(),
+                query.getColumn("unigram_n").getInt()};
         results.push_back(d);
     }
 }

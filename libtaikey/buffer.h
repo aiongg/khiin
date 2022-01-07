@@ -45,7 +45,8 @@ struct Cursor {
 struct Segment {
     std::string raw = std::string();
     std::string display = std::string();
-    //Candidates candidates;
+    const Token *token = nullptr;
+    //Candidate candidates;
     //size_t selectedCandidate = size_t(0);
     bool selected = false;
     bool confirmed = false;
@@ -81,7 +82,7 @@ class SynchronizedBuffer {
     auto segmentBegin() -> SegmentIter;
     auto segmentCount() -> size_t;
     auto segmentEnd() -> SegmentIter;
-    auto segmentByCandidateList(SegmentIter first, SegmentIter last, const Candidates &candidates)
+    auto segmentByCandidate(SegmentIter first, SegmentIter last, const Candidate &candidates)
         -> void;
     auto updateSegmentSpacing() -> void;
 
