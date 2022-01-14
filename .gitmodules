@@ -1,6 +1,3 @@
-[submodule "KhiinWin"]
-	path = KhiinWin
-	url = git@gitlab.com:aiongg/KhiinWin.git
 [submodule "libtaikey"]
 	path = libtaikey
 	url = git@gitlab.com:aiongg/libtaikey.git
