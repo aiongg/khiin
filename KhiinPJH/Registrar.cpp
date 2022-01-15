@@ -31,7 +31,7 @@ using registry_key = winrt::handle_type<registry_traits>;
 
 auto textServiceGuidStr() {
     auto guid = std::wstring(39, L'?');
-    auto guidlen = ::StringFromGUID2(Profile::textServiceGuid(), &guid[0], 64);
+    auto guidlen = ::StringFromGUID2(Profile::textServiceGuid, &guid[0], 64);
     if (!guidlen) {
         throw E_INVALIDARG;
     }
@@ -94,16 +94,16 @@ void Registrar::registerProfiles(std::wstring modulePath) {
     winrt::check_hresult(::CoCreateInstance(CLSID_TF_InputProcessorProfiles, NULL, CLSCTX_INPROC_SERVER,
                                             IID_ITfInputProcessorProfiles, inputProcessorProfiles.put_void()));
 
-    winrt::check_hresult(inputProcessorProfiles->Register(Profile::textServiceGuid()));
+    winrt::check_hresult(inputProcessorProfiles->Register(Profile::textServiceGuid));
 
     winrt::check_hresult(inputProcessorProfiles->AddLanguageProfile(
-        Profile::textServiceGuid(), Profile::langId(), Profile::languageProfileGuid(), clsidDescription.data(),
+        Profile::textServiceGuid, Profile::langId, Profile::languageProfileGuid, clsidDescription.data(),
         wcharSize(clsidDescription), /* TODO: icon file */ NULL, NULL, NULL));
 
     if (auto profilesEx = inputProcessorProfiles.try_as<ITfInputProcessorProfilesEx>(); profilesEx) {
         winrt::check_hresult(profilesEx->SetLanguageProfileDisplayName(
-            Profile::textServiceGuid(), Profile::langId(), Profile::languageProfileGuid(), modulePath.data(),
-            wcharSize(modulePath), Profile::displayNameIndex()));
+            Profile::textServiceGuid, Profile::langId, Profile::languageProfileGuid, modulePath.data(),
+            wcharSize(modulePath), Profile::displayNameIndex));
     }
 }
 
@@ -112,14 +112,14 @@ void Registrar::unregisterProfiles() {
     winrt::check_hresult(::CoCreateInstance(CLSID_TF_InputProcessorProfiles, NULL, CLSCTX_INPROC_SERVER,
                                             IID_ITfInputProcessorProfiles, inputProcessorProfiles.put_void()));
 
-    winrt::check_hresult(inputProcessorProfiles->Unregister(Profile::textServiceGuid()));
+    winrt::check_hresult(inputProcessorProfiles->Unregister(Profile::textServiceGuid));
 }
 
 void Registrar::registerCategories() {
     auto categoryMgr = winrt::com_ptr<ITfCategoryMgr>();
     winrt::check_hresult(::CoCreateInstance(CLSID_TF_CategoryMgr, NULL, CLSCTX_INPROC_SERVER, IID_ITfCategoryMgr,
                                             categoryMgr.put_void()));
-    auto guid = Profile::textServiceGuid();
+    auto guid = Profile::textServiceGuid;
 
     for (auto &category : supportedCategories) {
         categoryMgr->RegisterCategory(guid, category, guid);
@@ -130,7 +130,7 @@ void Registrar::unregisterCategories() {
     auto categoryMgr = winrt::com_ptr<ITfCategoryMgr>();
     winrt::check_hresult(::CoCreateInstance(CLSID_TF_CategoryMgr, NULL, CLSCTX_INPROC_SERVER, IID_ITfCategoryMgr,
                                             categoryMgr.put_void()));
-    auto guid = Profile::textServiceGuid();
+    auto guid = Profile::textServiceGuid;
 
     for (auto &category : supportedCategories) {
         categoryMgr->UnregisterCategory(guid, category, guid);

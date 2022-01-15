@@ -1,8 +1,9 @@
 #include "pch.h"
 
-#include "TextInputProcessor.h"
+#include "TextService.h"
 
 #include "Compartment.h"
+#include "DisplayAttributeInfoEnum.h"
 #include "TextEditSink.h"
 
 namespace Khiin {
@@ -13,7 +14,7 @@ namespace Khiin {
 //
 //----------------------------------------------------------------------------
 
-HRESULT TextInputProcessor::getTopContext(_Out_ ITfContext **ppContext) {
+HRESULT TextService::getTopContext(_Out_ ITfContext **ppContext) {
     D(__FUNCTIONW__);
     auto hr = E_FAIL;
 
@@ -36,12 +37,12 @@ HRESULT TextInputProcessor::getTopContext(_Out_ ITfContext **ppContext) {
 //
 //----------------------------------------------------------------------------
 
-STDMETHODIMP TextInputProcessor::Activate(ITfThreadMgr *ptim, TfClientId tid) {
+STDMETHODIMP TextService::Activate(ITfThreadMgr *ptim, TfClientId tid) {
     D(L"Activate");
     return ActivateEx(ptim, tid, 0);
 }
 
-STDMETHODIMP TextInputProcessor::Deactivate(void) {
+STDMETHODIMP TextService::Deactivate(void) {
     D(__FUNCTIONW__);
     auto hr = E_FAIL;
 
@@ -73,12 +74,14 @@ STDMETHODIMP TextInputProcessor::Deactivate(void) {
     return S_OK;
 }
 
-STDMETHODIMP TextInputProcessor::ActivateEx(ITfThreadMgr *pThreadMgr, TfClientId tid, DWORD dwFlags) {
+STDMETHODIMP TextService::ActivateEx(ITfThreadMgr *pThreadMgr, TfClientId tid, DWORD dwFlags) {
     D(__FUNCTIONW__, L" clientId: ", tid);
     auto hr = E_FAIL;
     threadMgr.copy_from(pThreadMgr);
     clientId = tid;
     dwActivateFlags = dwFlags;
+
+    engine = winrt::make_self<TextEngine>();
 
     compositionMgr = winrt::make_self<CompositionMgr>();
     hr = compositionMgr->init(clientId);
@@ -87,19 +90,22 @@ STDMETHODIMP TextInputProcessor::ActivateEx(ITfThreadMgr *pThreadMgr, TfClientId
     threadMgrEventSink = winrt::make_self<ThreadMgrEventSink>();
     hr = threadMgrEventSink->init(pThreadMgr);
     CHECK_RETURN_HRESULT(hr);
-    
+
     keyEventSink = winrt::make_self<KeyEventSink>();
-    hr = keyEventSink->init(clientId, pThreadMgr, compositionMgr.get());
+    hr = keyEventSink->init(clientId, pThreadMgr, compositionMgr.get(), engine.get());
     CHECK_RETURN_HRESULT(hr);
-    
+
     hr = openCloseCompartment.init(clientId, pThreadMgr, GUID_COMPARTMENT_KEYBOARD_OPENCLOSE);
     CHECK_RETURN_HRESULT(hr);
-    
+
     hr = keyboardDisabledCompartment.init(clientId, pThreadMgr, GUID_COMPARTMENT_KEYBOARD_DISABLED);
     CHECK_RETURN_HRESULT(hr);
 
-    openCloseSinkInstaller.install(openCloseCompartment.getCompartment(), this);
-    openCloseCompartment.set(true);
+    hr = openCloseSinkInstaller.install(openCloseCompartment.getCompartment(), this);
+    CHECK_RETURN_HRESULT(hr);
+
+    hr = openCloseCompartment.set(true);
+    CHECK_RETURN_HRESULT(hr);
 
     return S_OK;
 }
@@ -110,11 +116,14 @@ STDMETHODIMP TextInputProcessor::ActivateEx(ITfThreadMgr *pThreadMgr, TfClientId
 //
 //----------------------------------------------------------------------------
 
-STDMETHODIMP TextInputProcessor::EnumDisplayAttributeInfo(IEnumTfDisplayAttributeInfo **ppEnum) {
+STDMETHODIMP TextService::EnumDisplayAttributeInfo(IEnumTfDisplayAttributeInfo **ppEnum) {
     D(__FUNCTIONW__);
+
+    auto enumDisplayAttributeInfo = winrt::make_self<DisplayAttributeInfoEnum>();
+
     return E_NOTIMPL;
 }
-STDMETHODIMP TextInputProcessor::GetDisplayAttributeInfo(REFGUID guid, ITfDisplayAttributeInfo **ppInfo) {
+STDMETHODIMP TextService::GetDisplayAttributeInfo(REFGUID guid, ITfDisplayAttributeInfo **ppInfo) {
     D(__FUNCTIONW__);
     return E_NOTIMPL;
 }
@@ -125,11 +134,11 @@ STDMETHODIMP TextInputProcessor::GetDisplayAttributeInfo(REFGUID guid, ITfDispla
 //
 //----------------------------------------------------------------------------
 
-STDMETHODIMP TextInputProcessor::OnSetThreadFocus(void) {
+STDMETHODIMP TextService::OnSetThreadFocus(void) {
     D(__FUNCTIONW__);
     return E_NOTIMPL;
 }
-STDMETHODIMP TextInputProcessor::OnKillThreadFocus(void) {
+STDMETHODIMP TextService::OnKillThreadFocus(void) {
     D(__FUNCTIONW__);
     return E_NOTIMPL;
 }
@@ -140,7 +149,7 @@ STDMETHODIMP TextInputProcessor::OnKillThreadFocus(void) {
 //
 //----------------------------------------------------------------------------
 
-STDMETHODIMP TextInputProcessor::OnLayoutChange(ITfContext *pContext, TfLayoutCode lcode, ITfContextView *pView) {
+STDMETHODIMP TextService::OnLayoutChange(ITfContext *pContext, TfLayoutCode lcode, ITfContextView *pView) {
     D(__FUNCTIONW__);
     return E_NOTIMPL;
 }
@@ -151,8 +160,19 @@ STDMETHODIMP TextInputProcessor::OnLayoutChange(ITfContext *pContext, TfLayoutCo
 //
 //----------------------------------------------------------------------------
 
-STDMETHODIMP TextInputProcessor::OnChange(REFGUID rguid) {
+STDMETHODIMP TextService::OnChange(REFGUID rguid) {
     D(__FUNCTIONW__);
+        auto hr = E_FAIL;
+
+    if (rguid == GUID_COMPARTMENT_KEYBOARD_OPENCLOSE) {
+        DWORD val;
+        hr = openCloseCompartment.get(&val);
+        CHECK_RETURN_HRESULT(hr);
+
+        if (val == false) {
+            engine->clear();
+        }
+    }
     return E_NOTIMPL;
 }
 

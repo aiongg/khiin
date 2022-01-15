@@ -18,7 +18,7 @@
     <ClInclude Include="pch.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="TextInputProcessor.h">
+    <ClInclude Include="TextService.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="KhiinClassFactory.h">
@@ -63,12 +63,21 @@
     <ClInclude Include="Compartment.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="DisplayAttributeInfo.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="DisplayAttributeInfoEnum.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="TextEngine.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="TextInputProcessor.cpp">
+    <ClCompile Include="TextService.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="DllModule.cpp">
@@ -78,9 +87,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Registrar.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Profile.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="KeyEventSink.cpp">
@@ -99,6 +105,15 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Compartment.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="DisplayAttributeInfo.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="DisplayAttributeInfoEnum.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="TextEngine.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

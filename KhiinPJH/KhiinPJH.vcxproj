@@ -157,14 +157,17 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="DisplayAttributeInfo.h" />
     <ClInclude Include="EditSession.h" />
     <ClInclude Include="common.h" />
     <ClInclude Include="Compartment.h" />
     <ClInclude Include="CompositionMgr.h" />
     <ClInclude Include="DllModule.h" />
+    <ClInclude Include="DisplayAttributeInfoEnum.h" />
     <ClInclude Include="KeyEventSink.h" />
     <ClInclude Include="KhiinClassFactory.h" />
-    <ClInclude Include="TextInputProcessor.h" />
+    <ClInclude Include="TextEngine.h" />
+    <ClInclude Include="TextService.h" />
     <ClInclude Include="log.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="Profile.h" />
@@ -175,20 +178,22 @@
     <ClInclude Include="ThreadMgrEventSink.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="DisplayAttributeInfo.cpp" />
     <ClCompile Include="EditSession.cpp" />
     <ClCompile Include="Compartment.cpp" />
     <ClCompile Include="CompositionMgr.cpp" />
+    <ClCompile Include="DisplayAttributeInfoEnum.cpp" />
     <ClCompile Include="KeyEventSink.cpp" />
     <ClCompile Include="KhiinClassFactory.cpp" />
     <ClCompile Include="DllModule.cpp" />
-    <ClCompile Include="TextInputProcessor.cpp" />
+    <ClCompile Include="TextEngine.cpp" />
+    <ClCompile Include="TextService.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="Profile.cpp" />
     <ClCompile Include="Registrar.cpp" />
     <ClCompile Include="TextEditSink.cpp" />
     <ClCompile Include="ThreadMgrEventSink.cpp" />
