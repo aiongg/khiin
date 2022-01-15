@@ -6,18 +6,14 @@
 
 namespace Khiin {
 
-HRESULT DisplayAttributeInfoEnum::enumerate(DisplayAttributes &attrs) {
-    attrs.clear();
+void DisplayAttributeInfoEnum::addAttribute(DisplayAttributeBundle attrBundle) {
+    auto attrInfo = winrt::make_self<DisplayAttributeInfo>();
+    attrInfo->init(attrBundle);
+    displayAttributes.push_back(std::move(attrInfo));
+}
 
-    auto attr1 = winrt::make_self<DisplayAttributeInfo>();
-    attr1->init(inputAttrDesc, inputAttrGuid, inputAttr);
-    attrs.push_back(attr1);
-
-    auto attr2 = winrt::make_self<DisplayAttributeInfo>();
-    attr2->init(convertedAttrDesc, convertedAttrGuid, convertedAttr);
-    attrs.push_back(attr2);
-
-    return S_OK;
+void DisplayAttributeInfoEnum::addAttribute(winrt::com_ptr<DisplayAttributeInfo> attr) {
+    displayAttributes.push_back(attr);
 }
 
 //+---------------------------------------------------------------------------
@@ -27,7 +23,14 @@ HRESULT DisplayAttributeInfoEnum::enumerate(DisplayAttributes &attrs) {
 //----------------------------------------------------------------------------
 
 STDMETHODIMP DisplayAttributeInfoEnum::Clone(IEnumTfDisplayAttributeInfo **ppEnum) {
-    return E_NOTIMPL;
+    auto daiEnum = winrt::make_self<DisplayAttributeInfoEnum>();
+    for (auto &attr : displayAttributes) {
+        auto clone = winrt::make_self<DisplayAttributeInfo>();
+        attr->clone(clone.put());
+        daiEnum->addAttribute(clone);
+    }
+    daiEnum.as<IEnumTfDisplayAttributeInfo>().copy_to(ppEnum);
+    return S_OK;
 }
 
 STDMETHODIMP DisplayAttributeInfoEnum::Next(ULONG ulCount, ITfDisplayAttributeInfo **rgInfo, ULONG *pcFetched) {

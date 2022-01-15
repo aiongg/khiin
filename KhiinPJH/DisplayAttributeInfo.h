@@ -2,13 +2,25 @@
 
 namespace Khiin {
 
+struct DisplayAttributeBundle {
+    std::wstring description;
+    winrt::guid guid;
+    TF_DISPLAYATTRIBUTE attribute;
+};
+
+struct CustomAttributes {
+    static const DisplayAttributeBundle input;     // 829893f8-728d-11ec-8c6e-e0d46491b35a
+    static const DisplayAttributeBundle converted; // 829893f9-728d-11ec-8c6e-e0d46491b35a
+};
+
 struct DisplayAttributeInfo : winrt::implements<DisplayAttributeInfo, ITfDisplayAttributeInfo> {
     DisplayAttributeInfo() = default;
     DisplayAttributeInfo(const DisplayAttributeInfo &) = delete;
     DisplayAttributeInfo &operator=(const DisplayAttributeInfo &) = delete;
     ~DisplayAttributeInfo() = default;
 
-    HRESULT init(std::wstring description, winrt::guid guid, TF_DISPLAYATTRIBUTE attribute);
+    HRESULT init(DisplayAttributeBundle &bundle);
+    HRESULT clone(DisplayAttributeInfo **ppDaInfo);
 
     // ITfDisplayAttributeInfo
     virtual STDMETHODIMP GetGUID(GUID *pguid) override;
