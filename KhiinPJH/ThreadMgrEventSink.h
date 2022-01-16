@@ -18,6 +18,8 @@ struct ThreadMgrEventSink : winrt::implements<ThreadMgrEventSink, ITfThreadMgrEv
   private:
     winrt::com_ptr<ITfThreadMgr> threadMgr = nullptr;
     SinkManager<ITfThreadMgrEventSink> threadMgrSinkMgr;
+
+    DELETE_COPY_AND_ASSIGN(ThreadMgrEventSink);
 };
 
 } // namespace Khiin

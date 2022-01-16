@@ -10,7 +10,7 @@ namespace Khiin {
 enum class KeyEventSink::KeyAction { Test, Input };
 
 HRESULT KeyEventSink::init(_In_ TfClientId clientId, _In_ ITfThreadMgr *pThreadMgr,
-                           _In_ CompositionMgr *pCompositionMgr, _In_ TextEngine *pEngine) {
+                           _In_ CompositionMgr *pCompositionMgr, _In_ CandidateListUI *pCandidateListUI, _In_ TextEngine *pEngine) {
     WINRT_ASSERT(pThreadMgr != nullptr);
     WINRT_ASSERT(pCompositionMgr != nullptr);
 
@@ -19,6 +19,7 @@ HRESULT KeyEventSink::init(_In_ TfClientId clientId, _In_ ITfThreadMgr *pThreadM
     this->compositionMgr.copy_from(pCompositionMgr);
     this->keystrokeMgr = threadMgr.as<ITfKeystrokeMgr>();
     this->engine.copy_from(pEngine);
+    this->candidateListUI.copy_from(pCandidateListUI);
 
     auto hr = keystrokeMgr->AdviseKeyEventSink(clientId, this, TRUE);
     CHECK_RETURN_HRESULT(hr);
@@ -77,6 +78,9 @@ HRESULT KeyEventSink::onKey(ITfContext *pContext, WPARAM wParam, LPARAM lParam, 
 
     hr = compositionMgr->doComposition(pContext, output);
     CHECK_RETURN_HRESULT(hr);
+
+    std::vector<std::string> candidates;
+    hr = engine->getCandidates(&candidates);
 
     return S_OK;
 }

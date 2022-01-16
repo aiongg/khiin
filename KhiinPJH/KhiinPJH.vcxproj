@@ -157,6 +157,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="CandidateWindow.h" />
+    <ClInclude Include="CandidateListUI.h" />
     <ClInclude Include="DisplayAttributeInfo.h" />
     <ClInclude Include="EditSession.h" />
     <ClInclude Include="common.h" />
@@ -178,6 +180,8 @@
     <ClInclude Include="ThreadMgrEventSink.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="CandidateWindow.cpp" />
+    <ClCompile Include="CandidateListUI.cpp" />
     <ClCompile Include="DisplayAttributeInfo.cpp" />
     <ClCompile Include="EditSession.cpp" />
     <ClCompile Include="Compartment.cpp" />

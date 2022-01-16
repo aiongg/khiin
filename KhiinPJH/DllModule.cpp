@@ -1,6 +1,8 @@
 #include "pch.h"
 
 #include "DllModule.h"
+
+#include "CandidateWindow.h"
 #include "KhiinClassFactory.h"
 #include "Registrar.h"
 
@@ -15,16 +17,24 @@ class ModuleImpl {
         ::InterlockedIncrement(&refCount);
         return ::InterlockedExchange(&refCount, 0);
     }
+
     static LONG Release() {
         if (::InterlockedDecrement(&refCount) == 0) {
             // Shutdown
         }
         return ::InterlockedExchange(&refCount, 0);
     }
-    static bool IsUnloaded() { return unloaded; }
-    static bool CanUnload() { return refCount <= 0; }
+
+    static bool IsUnloaded() {
+        return unloaded;
+    }
+
+    static bool CanUnload() {
+        return refCount <= 0;
+    }
 
     static BOOL OnDllProcessAttach(HINSTANCE instance, bool static_loading) {
+        Khiin::CandidateWindow::OnDllProcessAttach(instance);
         moduleHandle = instance;
         return TRUE;
     }
@@ -35,7 +45,9 @@ class ModuleImpl {
         return TRUE;
     }
 
-    static HMODULE module_handle() { return moduleHandle; }
+    static HMODULE module_handle() {
+        return moduleHandle;
+    }
 
   private:
     static HMODULE moduleHandle;
@@ -58,15 +70,13 @@ __control_entrypoint(DllExport) STDAPI DllCanUnloadNow(void) {
     return S_OK;
 }
 
-_Check_return_ STDAPI DllGetClassObject(_In_ REFCLSID rclsid, _In_ REFIID riid,
-                                        _Outptr_ LPVOID FAR *ppv) {
+_Check_return_ STDAPI DllGetClassObject(_In_ REFCLSID rclsid, _In_ REFIID riid, _Outptr_ LPVOID FAR *ppv) {
     D("DllGetClassObject");
     try {
         *ppv = nullptr;
 
         if (rclsid == __uuidof(Khiin::KhiinClassFactory)) {
-            return winrt::make<Khiin::KhiinClassFactory>()->QueryInterface(riid,
-                                                                           ppv);
+            return winrt::make<Khiin::KhiinClassFactory>()->QueryInterface(riid, ppv);
         }
 
         return winrt::hresult_class_not_available().to_abi();
@@ -91,8 +101,7 @@ STDMETHODIMP DllRegisterServer() {
     // MessageBox(NULL, (LPCWSTR)L"1", (LPCWSTR)L"OK", MB_DEFBUTTON2);
 
     auto dllPath = std::wstring(MAX_PATH, '?');
-    auto pathsize =
-        ::GetModuleFileName(ModuleImpl::module_handle(), &dllPath[0], MAX_PATH);
+    auto pathsize = ::GetModuleFileName(ModuleImpl::module_handle(), &dllPath[0], MAX_PATH);
     dllPath.resize(static_cast<size_t>(pathsize));
 
     try {
@@ -107,8 +116,7 @@ STDMETHODIMP DllRegisterServer() {
     return S_OK;
 }
 
-BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call,
-                      LPVOID lpReserved) {
+BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserved) {
     // MessageBox(NULL, (LPCWSTR)L"2", (LPCWSTR)L"OK", MB_DEFBUTTON2);
     switch (ul_reason_for_call) {
     case DLL_PROCESS_ATTACH:
@@ -122,10 +130,20 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call,
 namespace Khiin {
 
 // Increases the reference count to this module.
-LONG DllModule::AddRef() { return ModuleImpl::AddRef(); }
-LONG DllModule::Release() { return ModuleImpl::Release(); }
-bool DllModule::IsUnloaded() { return ModuleImpl::IsUnloaded(); }
-bool DllModule::CanUnload() { return ModuleImpl::CanUnload(); }
-HMODULE DllModule::module_handle() { return ModuleImpl::module_handle(); }
+LONG DllModule::AddRef() {
+    return ModuleImpl::AddRef();
+}
+LONG DllModule::Release() {
+    return ModuleImpl::Release();
+}
+bool DllModule::IsUnloaded() {
+    return ModuleImpl::IsUnloaded();
+}
+bool DllModule::CanUnload() {
+    return ModuleImpl::CanUnload();
+}
+HMODULE DllModule::module_handle() {
+    return ModuleImpl::module_handle();
+}
 
 } // namespace Khiin

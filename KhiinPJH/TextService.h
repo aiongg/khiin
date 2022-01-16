@@ -18,11 +18,6 @@ struct TextService : winrt::implements<TextService,
                                        ITfThreadFocusSink,
                                        ITfTextLayoutSink,
                                        ITfCompartmentEventSink> { // clang-format on
-    TextService() = default;
-    TextService(const TextService &) = delete;
-    TextService &operator=(const TextService &) = delete;
-    ~TextService() = default;
-
     HRESULT onStart();
     HRESULT onStop();
 
@@ -51,12 +46,15 @@ struct TextService : winrt::implements<TextService,
     winrt::com_ptr<ThreadMgrEventSink> threadMgrEventSink = nullptr;
     winrt::com_ptr<KeyEventSink> keyEventSink = nullptr;
     winrt::com_ptr<CompositionMgr> compositionMgr = nullptr;
+    winrt::com_ptr<CandidateListUI> candidateListUI = nullptr;
 
     Compartment openCloseCompartment;
     Compartment keyboardDisabledCompartment;
     SinkManager<ITfCompartmentEventSink> openCloseSinkInstaller;
 
     DWORD openCloseSinkCookie = TF_INVALID_COOKIE;
+
+    DELETE_COPY_AND_ASSIGN(TextService);
 };
 
 } // namespace Khiin

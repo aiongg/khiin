@@ -7,11 +7,6 @@ namespace Khiin {
 
 struct CompositionMgr : winrt::implements<CompositionMgr, ITfCompositionSink> {
 
-    CompositionMgr() = default;
-    CompositionMgr(const CompositionMgr &) = delete;
-    CompositionMgr &operator=(const CompositionMgr &) = delete;
-    ~CompositionMgr() = default;
-
     HRESULT init(TfClientId clientId, DisplayAttributeInfoEnum *pDaiEnum);
     HRESULT uninit();
 
@@ -30,7 +25,7 @@ struct CompositionMgr : winrt::implements<CompositionMgr, ITfCompositionSink> {
     HRESULT endComposition(TfEditCookie cookie);
 
     HRESULT setText(TfEditCookie cookie, std::string_view text);
-    HRESULT applyDisplayAttribute(TfEditCookie cookie, ITfContext *pContext, ITfRange *pRange, AttributeIndex index);
+    HRESULT applyDisplayAttribute(TfEditCookie cookie, ITfContext *pContext, ITfRange *pRange, AttrInfoKey index);
     HRESULT collapseCursorToEnd(TfEditCookie cookie, ITfContext *pContext);
 
     TfClientId clientId = TF_CLIENTID_NULL;
@@ -38,6 +33,8 @@ struct CompositionMgr : winrt::implements<CompositionMgr, ITfCompositionSink> {
     winrt::com_ptr<ITfComposition> composition = nullptr;
     winrt::com_ptr<ITfContext> context = nullptr;
     winrt::com_ptr<ITfCategoryMgr> categoryMgr = nullptr;
+
+    DELETE_COPY_AND_ASSIGN(CompositionMgr);
 };
 
 } // namespace Khiin

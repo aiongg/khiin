@@ -5,11 +5,6 @@ namespace Khiin {
 struct EditSession : winrt::implements<EditSession, ITfEditSession> {
     using CallbackFn = std::function<HRESULT(TfEditCookie cookie)>;
 
-    EditSession() = default;
-    EditSession(const EditSession &) = delete;
-    EditSession &operator=(const EditSession &) = delete;
-    ~EditSession() = default;
-
     static HRESULT request(TfClientId clientId, ITfContext *pContext, CallbackFn callback);
 
     // ITfEditSession
@@ -18,8 +13,9 @@ struct EditSession : winrt::implements<EditSession, ITfEditSession> {
   private:
     HRESULT init(CallbackFn callback);
     HRESULT uninit();
-
     CallbackFn callback;
+
+    DELETE_COPY_AND_ASSIGN(EditSession);
 };
 
 } // namespace Khiin

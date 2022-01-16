@@ -18,6 +18,7 @@
 // Windows Header Files
 #include <Unknwn.h>
 
+#include <ctffunc.h>
 #include <msctf.h>
 #include <windows.h>
 #include <winrt/base.h>
@@ -38,3 +39,10 @@ inline bool is_guid_of<ITfTextInputProcessorEx>(guid const &id) noexcept {
 }
 
 } // namespace winrt
+
+#define DELETE_COPY_AND_ASSIGN(TypeName)                                                                               \
+  public:                                                                                                              \
+    TypeName() = default;                                                                                              \
+    TypeName(const TypeName &) = delete;                                                                               \
+    TypeName &operator=(const TypeName &) = delete;                                                                    \
+    ~TypeName() = default;

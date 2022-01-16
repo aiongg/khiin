@@ -2,6 +2,7 @@
 
 #include "TextService.h"
 
+#include "CandidateListUI.h"
 #include "Compartment.h"
 #include "DisplayAttributeInfoEnum.h"
 #include "TextEditSink.h"
@@ -10,7 +11,7 @@ namespace Khiin {
 
 HRESULT TextService::onStart() {
     auto hr = E_FAIL;
-    
+
     DisplayAttributeInfoEnum::load(displayAttributes.put());
 
     compositionMgr = winrt::make_self<CompositionMgr>();
@@ -22,8 +23,11 @@ HRESULT TextService::onStart() {
     CHECK_RETURN_HRESULT(hr);
 
     engine = winrt::make_self<TextEngine>();
+    candidateListUI = winrt::make_self<CandidateListUI>();
+    hr = candidateListUI->init(threadMgr.get());
+
     keyEventSink = winrt::make_self<KeyEventSink>();
-    hr = keyEventSink->init(clientId, threadMgr.get(), compositionMgr.get(), engine.get());
+    hr = keyEventSink->init(clientId, threadMgr.get(), compositionMgr.get(), candidateListUI.get(), engine.get());
     CHECK_RETURN_HRESULT(hr);
 
     hr = openCloseCompartment.init(clientId, threadMgr.get(), GUID_COMPARTMENT_KEYBOARD_OPENCLOSE);
@@ -43,6 +47,9 @@ HRESULT TextService::onStart() {
 
 HRESULT TextService::onStop() {
     auto hr = E_FAIL;
+
+    hr = candidateListUI->uninit();
+    CHECK_RETURN_HRESULT(hr);
 
     hr = openCloseSinkInstaller.uninstall();
     CHECK_RETURN_HRESULT(hr);
@@ -119,11 +126,11 @@ STDMETHODIMP TextService::Deactivate(void) {
 
 STDMETHODIMP TextService::ActivateEx(ITfThreadMgr *pThreadMgr, TfClientId tid, DWORD dwFlags) {
     D(__FUNCTIONW__, L" clientId: ", tid);
-    
+
     threadMgr.copy_from(pThreadMgr);
     clientId = tid;
     dwActivateFlags = dwFlags;
-    
+
     auto hr = onStart();
     CHECK_HRESULT(hr);
     return S_OK;

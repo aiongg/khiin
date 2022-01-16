@@ -72,6 +72,12 @@
     <ClInclude Include="TextEngine.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="CandidateListUI.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CandidateWindow.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -114,6 +120,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="TextEngine.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="CandidateListUI.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="CandidateWindow.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

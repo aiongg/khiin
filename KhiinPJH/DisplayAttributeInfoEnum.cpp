@@ -7,28 +7,33 @@
 namespace Khiin {
 
 void DisplayAttributeInfoEnum::load(_Out_ DisplayAttributeInfoEnum **ppDaiiEnum) {
-    auto daiiEnum = winrt::make_self<DisplayAttributeInfoEnum>();
-    daiiEnum->addAttribute(DisplayAttribute_Input);     // AttributeIndex = 0
-    daiiEnum->addAttribute(DisplayAttribute_Converted); // AttributeIndex = 1
-    daiiEnum.copy_to(ppDaiiEnum);
+    auto infoEnum = winrt::make_self<DisplayAttributeInfoEnum>();
+    infoEnum->addAttribute(AttrInfoKey::Input, DisplayAttribute_Input);
+    infoEnum->addAttribute(AttrInfoKey::Converted, DisplayAttribute_Converted);
+    infoEnum.copy_to(ppDaiiEnum);
 }
 
-void DisplayAttributeInfoEnum::addAttribute(DisplayAttributeBundle attrBundle) {
+void DisplayAttributeInfoEnum::addAttribute(AttrInfoKey key, DisplayAttributeBundle bundle) {
     auto attrInfo = winrt::make_self<DisplayAttributeInfo>();
-    attrInfo->init(attrBundle);
-    attributes.push_back(std::move(attrInfo));
+    attrInfo->init(bundle);
+    attributes[key] = std::move(attrInfo);
 }
 
-void DisplayAttributeInfoEnum::addAttribute(winrt::com_ptr<DisplayAttributeInfo> attr) {
-    attributes.push_back(attr);
+void DisplayAttributeInfoEnum::addAttribute(AttrInfoKey key, winrt::com_ptr<DisplayAttributeInfo> attr) {
+    attributes[key] = attr;
 }
 
-void DisplayAttributeInfoEnum::at(AttributeIndex index, _Out_ ITfDisplayAttributeInfo **pInfo) {
-    attributes.at(static_cast<int>(index)).as<ITfDisplayAttributeInfo>().copy_to(pInfo);
+HRESULT DisplayAttributeInfoEnum::at(AttrInfoKey index, _Out_ ITfDisplayAttributeInfo **pInfo) {
+    try {
+        attributes.at(index).as<ITfDisplayAttributeInfo>().copy_to(pInfo);
+        return S_OK;
+    } catch (...) {
+        return ERROR_NOT_FOUND;
+    }
 }
 
-HRESULT DisplayAttributeInfoEnum::findByGuid(REFGUID guid, ITfDisplayAttributeInfo **ppInfo) {
-    for (const auto &attr : attributes) {
+HRESULT DisplayAttributeInfoEnum::findByGuid(REFGUID guid, _Outptr_opt_ ITfDisplayAttributeInfo **ppInfo) {
+    for (const auto &[index, attr] : attributes) {
         if (attr->getGuid() == guid) {
             attr.as<ITfDisplayAttributeInfo>().copy_to(ppInfo);
             return S_OK;
@@ -44,26 +49,30 @@ HRESULT DisplayAttributeInfoEnum::findByGuid(REFGUID guid, ITfDisplayAttributeIn
 //
 //----------------------------------------------------------------------------
 
-STDMETHODIMP DisplayAttributeInfoEnum::Clone(IEnumTfDisplayAttributeInfo **ppEnum) {
+STDMETHODIMP DisplayAttributeInfoEnum::Clone(_Out_ IEnumTfDisplayAttributeInfo **ppEnumInfo) {
     auto daiEnum = winrt::make_self<DisplayAttributeInfoEnum>();
-    for (auto &attr : attributes) {
+    for (const auto &[index, attr] : attributes) {
         auto clone = winrt::make_self<DisplayAttributeInfo>();
         attr->clone(clone.put());
-        daiEnum->addAttribute(clone);
+        daiEnum->addAttribute(index, clone);
     }
-    daiEnum.as<IEnumTfDisplayAttributeInfo>().copy_to(ppEnum);
+    daiEnum.as<IEnumTfDisplayAttributeInfo>().copy_to(ppEnumInfo);
     return S_OK;
 }
 
-STDMETHODIMP DisplayAttributeInfoEnum::Next(ULONG ulCount, ITfDisplayAttributeInfo **rgInfo, ULONG *pcFetched) {
+STDMETHODIMP DisplayAttributeInfoEnum::Next(ULONG ulCount,
+                                            __RPC__out_ecount_part(ulCount, *pcFetched)
+                                                ITfDisplayAttributeInfo **rgInfo,
+                                            _Out_opt_ ULONG *pcFetched) {
     auto i = ULONG(0);
+    auto end = attributes.cend();
     auto nAttrs = attributes.size();
     for (; i < ulCount; ++i) {
-        if (currentIndex >= nAttrs) {
+        if (attr_iterator == end) {
             break;
         }
-        rgInfo[i] = attributes.at(currentIndex).as<ITfDisplayAttributeInfo>().get();
-        ++currentIndex;
+        rgInfo[i] = attr_iterator->second.as<ITfDisplayAttributeInfo>().get();
+        ++attr_iterator;
     }
     if (pcFetched) {
         *pcFetched = i;
@@ -72,13 +81,17 @@ STDMETHODIMP DisplayAttributeInfoEnum::Next(ULONG ulCount, ITfDisplayAttributeIn
 }
 
 STDMETHODIMP DisplayAttributeInfoEnum::Reset(void) {
-    currentIndex = 0;
+    attr_iterator = attributes.cbegin();
     return S_OK;
 }
 
 STDMETHODIMP DisplayAttributeInfoEnum::Skip(ULONG ulCount) {
-    currentIndex += ulCount;
-    return currentIndex > attributes.size() ? S_FALSE : S_OK;
+    try {
+        std::advance(attr_iterator, ulCount);
+        return S_OK;
+    } catch (...) {
+        return S_FALSE;
+    }
 }
 
 } // namespace Khiin

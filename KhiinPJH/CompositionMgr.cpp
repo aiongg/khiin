@@ -148,7 +148,7 @@ HRESULT CompositionMgr::doComposition(TfEditCookie cookie, ITfContext *pContext,
     hr = range->SetText(cookie, TF_ST_CORRECTION, &wstr[0], wstrlen);
     CHECK_RETURN_HRESULT(hr);
 
-    hr = applyDisplayAttribute(cookie, pContext, range.get(), AttributeIndex::Input);
+    hr = applyDisplayAttribute(cookie, pContext, range.get(), AttrInfoKey::Input);
     CHECK_RETURN_HRESULT(hr);
 
     hr = collapseCursorToEnd(cookie, pContext);
@@ -190,7 +190,7 @@ HRESULT CompositionMgr::setText(TfEditCookie cookie, std::string_view text) {
 }
 
 HRESULT CompositionMgr::applyDisplayAttribute(TfEditCookie cookie, ITfContext *pContext, ITfRange *pRange,
-                                              AttributeIndex index) {
+                                              AttrInfoKey index) {
     D(__FUNCTIONW__);
     WINRT_ASSERT(clientId != TF_CLIENTID_NULL);
 

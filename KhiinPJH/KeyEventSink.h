@@ -1,5 +1,6 @@
 #pragma once
 
+#include "CandidateListUI.h"
 #include "CompositionMgr.h"
 #include "TextEngine.h"
 
@@ -10,13 +11,8 @@ struct KeyEventSink : winrt::implements<KeyEventSink, ITfKeyEventSink> {
     enum class KeyAction;
 
   public:
-    KeyEventSink() = default;
-    KeyEventSink(const KeyEventSink &) = delete;
-    KeyEventSink &operator=(const KeyEventSink &) = delete;
-    ~KeyEventSink() = default;
-
-    HRESULT init(_In_ TfClientId clientId, _In_ ITfThreadMgr *threadMgr, _In_ CompositionMgr *compositionMgr,
-                 _In_ TextEngine *engine);
+    HRESULT init(_In_ TfClientId clientId, _In_ ITfThreadMgr *pThreadMgr, _In_ CompositionMgr *pCompositionMgr,
+                 _In_ CandidateListUI *pCandidateListUI, _In_ TextEngine *pEngine);
     HRESULT uninit();
 
     HRESULT onTestKey(ITfContext *pContext, WPARAM wParam, LPARAM lParam, BOOL *pfEaten);
@@ -32,10 +28,13 @@ struct KeyEventSink : winrt::implements<KeyEventSink, ITfKeyEventSink> {
 
   private:
     TfClientId clientId = TF_CLIENTID_NULL;
+    winrt::com_ptr<CandidateListUI> candidateListUI = nullptr;
     winrt::com_ptr<TextEngine> engine = nullptr;
     winrt::com_ptr<ITfThreadMgr> threadMgr = nullptr;
     winrt::com_ptr<ITfKeystrokeMgr> keystrokeMgr = nullptr;
     winrt::com_ptr<CompositionMgr> compositionMgr = nullptr;
+
+    DELETE_COPY_AND_ASSIGN(KeyEventSink);
 };
 
 } // namespace Khiin
