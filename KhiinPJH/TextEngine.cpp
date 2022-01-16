@@ -15,7 +15,7 @@ namespace Khiin {
 
  HRESULT TextEngine::onKey(WPARAM wParam, std::string *output) {
     if (wParam == 0x41) {
-        buffer += 'x';
+        buffer += 'r';
     }
 
     *output = buffer;

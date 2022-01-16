@@ -83,8 +83,10 @@ STDMETHODIMP TextService::ActivateEx(ITfThreadMgr *pThreadMgr, TfClientId tid, D
 
     engine = winrt::make_self<TextEngine>();
 
+    DisplayAttributeInfoEnum::load(attributes.put());
+
     compositionMgr = winrt::make_self<CompositionMgr>();
-    hr = compositionMgr->init(clientId);
+    hr = compositionMgr->init(clientId, attributes.get());
     CHECK_RETURN_HRESULT(hr);
 
     threadMgrEventSink = winrt::make_self<ThreadMgrEventSink>();
@@ -118,14 +120,14 @@ STDMETHODIMP TextService::ActivateEx(ITfThreadMgr *pThreadMgr, TfClientId tid, D
 
 STDMETHODIMP TextService::EnumDisplayAttributeInfo(IEnumTfDisplayAttributeInfo **ppEnum) {
     D(__FUNCTIONW__);
-
-    auto enumDisplayAttributeInfo = winrt::make_self<DisplayAttributeInfoEnum>();
-
-    return E_NOTIMPL;
+    attributes.as<IEnumTfDisplayAttributeInfo>().copy_to(ppEnum);
+    return S_OK;
 }
 STDMETHODIMP TextService::GetDisplayAttributeInfo(REFGUID guid, ITfDisplayAttributeInfo **ppInfo) {
     D(__FUNCTIONW__);
-    return E_NOTIMPL;
+    auto hr = attributes->findByGuid(guid, ppInfo);
+    CHECK_RETURN_HRESULT(hr);
+    return S_OK;
 }
 
 //+---------------------------------------------------------------------------
@@ -162,7 +164,7 @@ STDMETHODIMP TextService::OnLayoutChange(ITfContext *pContext, TfLayoutCode lcod
 
 STDMETHODIMP TextService::OnChange(REFGUID rguid) {
     D(__FUNCTIONW__);
-        auto hr = E_FAIL;
+    auto hr = E_FAIL;
 
     if (rguid == GUID_COMPARTMENT_KEYBOARD_OPENCLOSE) {
         DWORD val;

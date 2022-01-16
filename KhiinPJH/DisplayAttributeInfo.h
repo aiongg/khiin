@@ -8,10 +8,11 @@ struct DisplayAttributeBundle {
     TF_DISPLAYATTRIBUTE attribute;
 };
 
-struct CustomAttributes {
-    static const DisplayAttributeBundle input;     // 829893f8-728d-11ec-8c6e-e0d46491b35a
-    static const DisplayAttributeBundle converted; // 829893f9-728d-11ec-8c6e-e0d46491b35a
-};
+// 829893f8-728d-11ec-8c6e-e0d46491b35a
+extern const DisplayAttributeBundle DisplayAttribute_Input;
+
+// 829893f9-728d-11ec-8c6e-e0d46491b35a
+extern const DisplayAttributeBundle DisplayAttribute_Converted;
 
 struct DisplayAttributeInfo : winrt::implements<DisplayAttributeInfo, ITfDisplayAttributeInfo> {
     DisplayAttributeInfo() = default;
@@ -20,7 +21,8 @@ struct DisplayAttributeInfo : winrt::implements<DisplayAttributeInfo, ITfDisplay
     ~DisplayAttributeInfo() = default;
 
     HRESULT init(DisplayAttributeBundle &bundle);
-    HRESULT clone(DisplayAttributeInfo **ppDaInfo);
+    HRESULT clone(DisplayAttributeInfo **ppInfo);
+    GUID getGuid();
 
     // ITfDisplayAttributeInfo
     virtual STDMETHODIMP GetGUID(GUID *pguid) override;

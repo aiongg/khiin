@@ -5,7 +5,7 @@
 namespace Khiin {
 
 // 829893f8-728d-11ec-8c6e-e0d46491b35a
-const DisplayAttributeBundle CustomAttributes::input =
+const DisplayAttributeBundle DisplayAttribute_Input =
     DisplayAttributeBundle{L"Input",
                            {0x829893f8, 0x728d, 0x11ec, {0x8c, 0x6e, 0xe0, 0xd4, 0x64, 0x91, 0xb3, 0x5a}},
                            TF_DISPLAYATTRIBUTE{
@@ -18,7 +18,7 @@ const DisplayAttributeBundle CustomAttributes::input =
                            }};
 
 // 829893f9-728d-11ec-8c6e-e0d46491b35a
-const DisplayAttributeBundle CustomAttributes::converted =
+const DisplayAttributeBundle DisplayAttribute_Converted =
     DisplayAttributeBundle{L"Converted",
                            {0x829893f9, 0x728d, 0x11ec, {0x8c, 0x6e, 0xe0, 0xd4, 0x64, 0x91, 0xb3, 0x5a}},
                            TF_DISPLAYATTRIBUTE{
@@ -44,6 +44,10 @@ HRESULT DisplayAttributeInfo::clone(DisplayAttributeInfo **ppDaInfo) {
     clone->init(bundle);
     clone.copy_to(ppDaInfo);
     return S_OK;
+}
+
+GUID DisplayAttributeInfo::getGuid() {
+    return guid;
 }
 
 //+---------------------------------------------------------------------------
