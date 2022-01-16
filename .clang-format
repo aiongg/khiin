@@ -5,4 +5,5 @@ AlignAfterOpenBracket: Align
 AllowShortFunctionsOnASingleLine: Empty
 AlwaysBreakTemplateDeclarations: Yes
 BreakConstructorInitializers: AfterColon
+BreakInheritanceList: AfterColon
 AllowShortLambdasOnASingleLine: Empty
