@@ -35,8 +35,8 @@ struct DisplayAttributeInfoEnum : winrt::implements<DisplayAttributeInfoEnum, IE
 
     void addAttribute(AttrInfoKey key, DisplayAttributeBundle attr);
     void addAttribute(AttrInfoKey key, winrt::com_ptr<DisplayAttributeInfo> attr);
-    HRESULT at(AttrInfoKey index, __RPC__deref_out_opt ITfDisplayAttributeInfo **pDaInfo);
-    HRESULT findByGuid(REFGUID guid, __RPC__deref_out_opt ITfDisplayAttributeInfo **ppInfo);
+    HRESULT at(AttrInfoKey index, ITfDisplayAttributeInfo **pDaInfo);
+    HRESULT findByGuid(REFGUID guid, ITfDisplayAttributeInfo **ppInfo);
 
     // IEnumTfDisplayAttributeInfo
     virtual STDMETHODIMP Clone(__RPC__deref_out_opt IEnumTfDisplayAttributeInfo **ppEnum) override;

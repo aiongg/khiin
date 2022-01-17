@@ -19,7 +19,7 @@ STDMETHODIMP KhiinClassFactory::CreateInstance(IUnknown *pUnkOuter, REFIID riid,
     CHECK_RETURN_HRESULT(hr);
 
     D(L"QueryInterface: ", riidStr.c_str());
-    auto textService = winrt::make<TextService>();
+    auto textService = TextServiceFactory::create();
     hr = textService->QueryInterface(riid, ppvObject);
     CHECK_RETURN_HRESULT(hr);
 

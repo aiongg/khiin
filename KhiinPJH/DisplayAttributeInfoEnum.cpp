@@ -23,7 +23,7 @@ void DisplayAttributeInfoEnum::addAttribute(AttrInfoKey key, winrt::com_ptr<Disp
     attributes[key] = attr;
 }
 
-HRESULT DisplayAttributeInfoEnum::at(AttrInfoKey index, __RPC__deref_out_opt ITfDisplayAttributeInfo **pInfo) {
+HRESULT DisplayAttributeInfoEnum::at(AttrInfoKey index, ITfDisplayAttributeInfo **pInfo) {
     try {
         attributes.at(index).as<ITfDisplayAttributeInfo>().copy_to(pInfo);
         return S_OK;
@@ -32,7 +32,7 @@ HRESULT DisplayAttributeInfoEnum::at(AttrInfoKey index, __RPC__deref_out_opt ITf
     }
 }
 
-HRESULT DisplayAttributeInfoEnum::findByGuid(REFGUID guid, __RPC__deref_out_opt ITfDisplayAttributeInfo **ppInfo) {
+HRESULT DisplayAttributeInfoEnum::findByGuid(REFGUID guid, ITfDisplayAttributeInfo **ppInfo) {
     for (const auto &[index, attr] : attributes) {
         if (attr->getGuid() == guid) {
             attr.as<ITfDisplayAttributeInfo>().copy_to(ppInfo);
