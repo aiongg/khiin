@@ -15,6 +15,7 @@ struct EditSession : winrt::implements<EditSession, ITfEditSession> {
     HRESULT uninit();
     CallbackFn callback;
 
+    DEFAULT_CTOR_DTOR(EditSession);
     DELETE_COPY_AND_ASSIGN(EditSession);
 };
 

@@ -15,13 +15,20 @@ namespace Khiin {
 //
 //----------------------------------------------------------------------------
 
-HRESULT CompositionMgr::init(TfClientId clientId, DisplayAttributeInfoEnum *pDaiEnum) {
-    D(__FUNCTIONW__);
-    this->clientId = clientId;
-    attributes.copy_from(pDaiEnum);
+CompositionMgr::CompositionMgr(TextService *pTextService) {
+    textService.copy_from(pTextService);
+}
 
-    auto hr = ::CoCreateInstance(CLSID_TF_CategoryMgr, NULL, CLSCTX_INPROC_SERVER, IID_ITfCategoryMgr,
-                                 categoryMgr.put_void());
+HRESULT CompositionMgr::init() {
+    D(__FUNCTIONW__);
+
+    auto hr = E_FAIL;
+
+    attributes.copy_from(cast_as<DisplayAttributeInfoEnum>(textService->displayAttrInfoEnum()));
+    WINRT_ASSERT(attributes);
+
+    hr = ::CoCreateInstance(CLSID_TF_CategoryMgr, NULL, CLSCTX_INPROC_SERVER, IID_ITfCategoryMgr,
+                            categoryMgr.put_void());
     CHECK_RETURN_HRESULT(hr);
 
     return S_OK;
@@ -29,7 +36,6 @@ HRESULT CompositionMgr::init(TfClientId clientId, DisplayAttributeInfoEnum *pDai
 
 HRESULT CompositionMgr::uninit() {
     D(__FUNCTIONW__);
-    clientId = TF_CLIENTID_NULL;
     attributes = nullptr;
     categoryMgr = nullptr;
     composition = nullptr;
@@ -44,7 +50,7 @@ bool CompositionMgr::composing() {
 HRESULT CompositionMgr::startComposition(ITfContext *pContext) {
     D(__FUNCTIONW__);
     auto hr = E_FAIL;
-    hr = EditSession::request(clientId, pContext, [&](TfEditCookie cookie) {
+    hr = EditSession::request(textService->clientId(), pContext, [&](TfEditCookie cookie) {
         auto hr = startComposition(cookie, pContext);
         CHECK_RETURN_HRESULT(hr);
         return S_OK;
@@ -55,7 +61,7 @@ HRESULT CompositionMgr::startComposition(ITfContext *pContext) {
 }
 
 HRESULT CompositionMgr::doComposition(ITfContext *pContext, std::string text) {
-    auto hr = EditSession::request(clientId, pContext, [&](TfEditCookie cookie) {
+    auto hr = EditSession::request(textService->clientId(), pContext, [&](TfEditCookie cookie) {
         D(__FUNCTIONW__);
         auto hr = doComposition(cookie, pContext, text);
         CHECK_RETURN_HRESULT(hr);
@@ -67,13 +73,11 @@ HRESULT CompositionMgr::doComposition(ITfContext *pContext, std::string text) {
 }
 
 HRESULT CompositionMgr::endComposition() {
-    WINRT_ASSERT(clientId != TF_CLIENTID_NULL);
-
     if (!context || !composing()) {
         return S_OK;
     }
 
-    auto hr = EditSession::request(clientId, context.get(), [&](TfEditCookie cookie) {
+    auto hr = EditSession::request(textService->clientId(), context.get(), [&](TfEditCookie cookie) {
         D(__FUNCTIONW__);
         auto hr = endComposition(cookie);
         CHECK_RETURN_HRESULT(hr);
@@ -93,7 +97,6 @@ HRESULT CompositionMgr::endComposition() {
 
 HRESULT CompositionMgr::startComposition(TfEditCookie cookie, ITfContext *pContext) {
     D(__FUNCTIONW__);
-    WINRT_ASSERT(clientId != TF_CLIENTID_NULL);
 
     auto hr = E_FAIL;
     auto compositionMgr = winrt::com_ptr<ITfCompositionSink>();
@@ -131,7 +134,6 @@ HRESULT CompositionMgr::startComposition(TfEditCookie cookie, ITfContext *pConte
 
 HRESULT CompositionMgr::doComposition(TfEditCookie cookie, ITfContext *pContext, std::string text) {
     D(__FUNCTIONW__);
-    WINRT_ASSERT(clientId != TF_CLIENTID_NULL);
     HRESULT hr = E_FAIL;
 
     if (!composing()) {
@@ -179,7 +181,6 @@ HRESULT CompositionMgr::endComposition(TfEditCookie cookie) {
 
 HRESULT CompositionMgr::setText(TfEditCookie cookie, std::string_view text) {
     D(__FUNCTIONW__);
-    WINRT_ASSERT(clientId != TF_CLIENTID_NULL);
 
     if (!composing()) {
         return E_ABORT;
@@ -192,7 +193,6 @@ HRESULT CompositionMgr::setText(TfEditCookie cookie, std::string_view text) {
 HRESULT CompositionMgr::applyDisplayAttribute(TfEditCookie cookie, ITfContext *pContext, ITfRange *pRange,
                                               AttrInfoKey index) {
     D(__FUNCTIONW__);
-    WINRT_ASSERT(clientId != TF_CLIENTID_NULL);
 
     if (!composing()) {
         return E_ABORT;
@@ -231,7 +231,6 @@ HRESULT CompositionMgr::applyDisplayAttribute(TfEditCookie cookie, ITfContext *p
 
 HRESULT CompositionMgr::collapseCursorToEnd(TfEditCookie cookie, ITfContext *pContext) {
     D(__FUNCTIONW__);
-    WINRT_ASSERT(clientId != TF_CLIENTID_NULL);
 
     if (!composing()) {
         return E_ABORT;

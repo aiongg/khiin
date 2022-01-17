@@ -2,6 +2,19 @@
 
 #include "DisplayAttributeInfo.h"
 
+// namespace Khiin {
+// struct __declspec(uuid("829893fb-728d-11ec-8c6e-e0d46491b35a")) DisplayAttributeInfoEnum;
+//}
+
+// namespace winrt {
+//
+// template <>
+// inline bool is_guid_of<Khiin::DisplayAttributeInfoEnum>(guid const &id) noexcept {
+//    return is_guid_of<Khiin::DisplayAttributeInfoEnum, IEnumTfDisplayAttributeInfo>(id);
+//}
+//
+//} // namespace winrt
+
 namespace Khiin {
 
 enum class AttrInfoKey {
@@ -9,6 +22,7 @@ enum class AttrInfoKey {
     Converted,
 };
 
+// struct __declspec(uuid("829893fb-728d-11ec-8c6e-e0d46491b35a"))
 struct DisplayAttributeInfoEnum : winrt::implements<DisplayAttributeInfoEnum, IEnumTfDisplayAttributeInfo> {
     DisplayAttributeInfoEnum() = default;
     DisplayAttributeInfoEnum(const DisplayAttributeInfoEnum &) = delete;

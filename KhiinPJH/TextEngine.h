@@ -14,6 +14,7 @@ struct TextEngine : winrt::implements<TextEngine, IUnknown> {
     std::string buffer{};
     std::vector<std::string> candidates;
 
+    DEFAULT_CTOR_DTOR(TextEngine);
     DELETE_COPY_AND_ASSIGN(TextEngine);
 };
 

@@ -33,6 +33,7 @@ struct DisplayAttributeInfo : winrt::implements<DisplayAttributeInfo, ITfDisplay
     TF_DISPLAYATTRIBUTE attribute = TF_DISPLAYATTRIBUTE{};
     TF_DISPLAYATTRIBUTE attributeBackup = TF_DISPLAYATTRIBUTE{};
 
+    DEFAULT_CTOR_DTOR(DisplayAttributeInfo);
     DELETE_COPY_AND_ASSIGN(DisplayAttributeInfo);
 };
 

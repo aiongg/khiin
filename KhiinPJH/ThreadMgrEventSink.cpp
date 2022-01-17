@@ -4,14 +4,14 @@
 
 namespace Khiin {
 
-HRESULT ThreadMgrEventSink::init(ITfThreadMgr *threadMgr) {
+ThreadMgrEventSink::ThreadMgrEventSink(TextService *pTextService) {
+    service.copy_from(pTextService);
+}
+
+HRESULT ThreadMgrEventSink::init() {
     D(__FUNCTIONW__);
-    WINRT_ASSERT(threadMgr != nullptr);
-
-    this->threadMgr.copy_from(threadMgr);
-
     auto hr = E_FAIL;
-    hr = threadMgrSinkMgr.install(threadMgr, this);
+    hr = threadMgrSinkMgr.install(service->threadMgr(), this);
     CHECK_RETURN_HRESULT(hr);
     return hr;
 }
@@ -21,7 +21,6 @@ HRESULT ThreadMgrEventSink::uninit() {
     auto hr = E_FAIL;
     hr = threadMgrSinkMgr.uninstall();
     CHECK_RETURN_HRESULT(hr);
-    threadMgr = nullptr;
     return S_OK;
 }
 

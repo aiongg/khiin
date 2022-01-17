@@ -38,6 +38,7 @@ struct CandidateListUI :
     virtual STDMETHODIMP ShowCandidateNumbers(BOOL *pfShow) override;
     virtual STDMETHODIMP FinalizeExactCompositionString(void) override;
 
+    DEFAULT_CTOR_DTOR(CandidateListUI);
     DELETE_COPY_AND_ASSIGN(CandidateListUI);
 
   private:

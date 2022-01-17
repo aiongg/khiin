@@ -3,11 +3,14 @@
 #include "DisplayAttributeInfo.h"
 #include "DisplayAttributeInfoEnum.h"
 
+#include "TextService.h"
+
 namespace Khiin {
 
 struct CompositionMgr : winrt::implements<CompositionMgr, ITfCompositionSink> {
+    CompositionMgr(TextService *pTextService);
 
-    HRESULT init(TfClientId clientId, DisplayAttributeInfoEnum *pDaiEnum);
+    HRESULT init();
     HRESULT uninit();
 
     bool composing();
@@ -28,13 +31,11 @@ struct CompositionMgr : winrt::implements<CompositionMgr, ITfCompositionSink> {
     HRESULT applyDisplayAttribute(TfEditCookie cookie, ITfContext *pContext, ITfRange *pRange, AttrInfoKey index);
     HRESULT collapseCursorToEnd(TfEditCookie cookie, ITfContext *pContext);
 
-    TfClientId clientId = TF_CLIENTID_NULL;
+    winrt::com_ptr<TextService> textService = nullptr;
     winrt::com_ptr<DisplayAttributeInfoEnum> attributes = nullptr;
     winrt::com_ptr<ITfComposition> composition = nullptr;
     winrt::com_ptr<ITfContext> context = nullptr;
     winrt::com_ptr<ITfCategoryMgr> categoryMgr = nullptr;
-
-    DELETE_COPY_AND_ASSIGN(CompositionMgr);
 };
 
 } // namespace Khiin

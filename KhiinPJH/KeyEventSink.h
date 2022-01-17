@@ -34,6 +34,7 @@ struct KeyEventSink : winrt::implements<KeyEventSink, ITfKeyEventSink> {
     winrt::com_ptr<ITfKeystrokeMgr> keystrokeMgr = nullptr;
     winrt::com_ptr<CompositionMgr> compositionMgr = nullptr;
 
+    DEFAULT_CTOR_DTOR(KeyEventSink);
     DELETE_COPY_AND_ASSIGN(KeyEventSink);
 };
 

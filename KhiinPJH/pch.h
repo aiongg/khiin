@@ -42,7 +42,10 @@ inline bool is_guid_of<ITfTextInputProcessorEx>(guid const &id) noexcept {
 
 #define DELETE_COPY_AND_ASSIGN(TypeName)                                                                               \
   public:                                                                                                              \
-    TypeName() = default;                                                                                              \
     TypeName(const TypeName &) = delete;                                                                               \
-    TypeName &operator=(const TypeName &) = delete;                                                                    \
+    TypeName &operator=(const TypeName &) = delete;
+
+#define DEFAULT_CTOR_DTOR(TypeName)                                                                                    \
+  public:                                                                                                              \
+    TypeName() = default;                                                                                              \
     ~TypeName() = default;
