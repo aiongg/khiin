@@ -166,6 +166,7 @@
     <ClInclude Include="CompositionMgr.h" />
     <ClInclude Include="DllModule.h" />
     <ClInclude Include="DisplayAttributeInfoEnum.h" />
+    <ClInclude Include="KeyEvent.h" />
     <ClInclude Include="KeyEventSink.h" />
     <ClInclude Include="KhiinClassFactory.h" />
     <ClInclude Include="ITextEngine.h" />
@@ -187,6 +188,7 @@
     <ClCompile Include="Compartment.cpp" />
     <ClCompile Include="CompositionMgr.cpp" />
     <ClCompile Include="DisplayAttributeInfoEnum.cpp" />
+    <ClCompile Include="KeyEvent.cpp" />
     <ClCompile Include="KeyEventSink.cpp" />
     <ClCompile Include="KhiinClassFactory.cpp" />
     <ClCompile Include="DllModule.cpp" />

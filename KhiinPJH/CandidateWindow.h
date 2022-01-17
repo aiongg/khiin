@@ -18,8 +18,10 @@ class CandidateWindow {
     HRESULT show();
     HRESULT hide();
     HRESULT destroy();
+    bool showing();
 
   private:
+    bool showing_ = false;
     HWND windowHandle = NULL;
 };
 

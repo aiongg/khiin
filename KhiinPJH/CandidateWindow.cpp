@@ -45,11 +45,13 @@ HRESULT CandidateWindow::create(HWND parentWindowHandle) {
 
 HRESULT CandidateWindow::show() {
     ::ShowWindow(windowHandle, SW_SHOWNORMAL);
+    showing_ = true;
     return S_OK;
 }
 
 HRESULT CandidateWindow::hide() {
     ::ShowWindow(windowHandle, SW_HIDE);
+    showing_ = false;
     return E_NOTIMPL;
 }
 

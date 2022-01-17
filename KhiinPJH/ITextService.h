@@ -2,6 +2,8 @@
 
 #include "pch.h"
 
+#include "KeyEvent.h"
+
 namespace Khiin {
 
 struct ITextEngine;
@@ -15,6 +17,8 @@ struct ITextService : winrt::implements<ITextService, IUnknown> {
     virtual HRESULT topContext(ITfContext **ppContext) = 0;
     virtual ITextEngine *engine() = 0;
     virtual ITfUIElement *candidateUI() = 0;
+    //virtual HRESULT consumeKey(ITfContext *pContext, KeyEvent keyEvent) = 0;
+    //virtual HRESULT updateContext(ITfContext *pContext, TfEditCookie writeEc, KeyEvent keyEvent) = 0;
 
     // virtual HRESULT beginEditSession();
 

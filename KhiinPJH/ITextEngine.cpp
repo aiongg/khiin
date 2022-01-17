@@ -17,8 +17,8 @@ struct TextEngineImpl : winrt::implements<TextEngineImpl, ITextEngine> {
         return S_OK;
     }
 
-    virtual HRESULT onTestKey(WPARAM wParam, BOOL *pConsumable) {
-        if (wParam == 0x41) {
+    virtual HRESULT onTestKey(KeyEvent keyEvent, BOOL *pConsumable) {
+        if (keyEvent.ascii() == 'a') {
             *pConsumable = true;
         } else {
             *pConsumable = false;
@@ -26,45 +26,48 @@ struct TextEngineImpl : winrt::implements<TextEngineImpl, ITextEngine> {
         return S_OK;
     }
 
-    virtual HRESULT onKey(WPARAM wParam, std::string *pOutput) {
-        if (wParam == 0x41) {
-            buffer += 'r';
+    virtual HRESULT onKey(KeyEvent keyEvent) {
+        if (keyEvent.ascii() == 'a') {
+            buffer_ += 'r';
         }
 
-        *pOutput = buffer;
         return S_OK;
     }
 
     virtual HRESULT clear() {
-        buffer.clear();
+        buffer_.clear();
         return S_OK;
     }
 
-    virtual HRESULT getCandidates(std::vector<std::string> *pCandidates) {
-        if (candidates.empty()) {
-            candidates.push_back(u8"枝");
-            candidates.push_back(u8"乩");
-            candidates.push_back(u8"機");
-            candidates.push_back(u8"机");
-            candidates.push_back(u8"箕");
-            candidates.push_back(u8"飢");
-            candidates.push_back(u8"幾");
-            candidates.push_back(u8"支");
-            candidates.push_back(u8"居");
-            candidates.push_back(u8"基");
-            candidates.push_back(u8"奇");
-            candidates.push_back(u8"姬");
-            candidates.push_back(u8"畿");
-            candidates.push_back(u8"裾");
+    virtual std::string buffer() {
+        return buffer_;
+    }
+
+    virtual HRESULT candidates(std::vector<std::string> *pCandidates) {
+        if (candidates_.empty()) {
+            candidates_.push_back(u8"枝");
+            candidates_.push_back(u8"乩");
+            candidates_.push_back(u8"機");
+            candidates_.push_back(u8"机");
+            candidates_.push_back(u8"箕");
+            candidates_.push_back(u8"飢");
+            candidates_.push_back(u8"幾");
+            candidates_.push_back(u8"支");
+            candidates_.push_back(u8"居");
+            candidates_.push_back(u8"基");
+            candidates_.push_back(u8"奇");
+            candidates_.push_back(u8"姬");
+            candidates_.push_back(u8"畿");
+            candidates_.push_back(u8"裾");
         }
 
-        *pCandidates = candidates;
+        *pCandidates = candidates_;
         return S_OK;
     }
 
   private:
-    std::string buffer{};
-    std::vector<std::string> candidates;
+    std::string buffer_{};
+    std::vector<std::string> candidates_;
 };
 
 HRESULT TextEngineFactory::create(ITextEngine **ppEngine) {

@@ -47,47 +47,47 @@ bool CompositionMgr::composing() {
     return bool(composition);
 }
 
-HRESULT CompositionMgr::startComposition(ITfContext *pContext) {
-    D(__FUNCTIONW__);
-    auto hr = E_FAIL;
-    hr = EditSession::request(textService->clientId(), pContext, [&](TfEditCookie cookie) {
-        auto hr = startComposition(cookie, pContext);
-        CHECK_RETURN_HRESULT(hr);
-        return S_OK;
-    });
-    CHECK_RETURN_HRESULT(hr);
-
-    return S_OK;
-}
-
-HRESULT CompositionMgr::doComposition(ITfContext *pContext, std::string text) {
-    auto hr = EditSession::request(textService->clientId(), pContext, [&](TfEditCookie cookie) {
-        D(__FUNCTIONW__);
-        auto hr = doComposition(cookie, pContext, text);
-        CHECK_RETURN_HRESULT(hr);
-        return S_OK;
-    });
-    CHECK_RETURN_HRESULT(hr);
-
-    return S_OK;
-}
-
-HRESULT CompositionMgr::endComposition() {
-    if (!context || !composing()) {
-        return S_OK;
-    }
-
-    auto hr = EditSession::request(textService->clientId(), context.get(), [&](TfEditCookie cookie) {
-        D(__FUNCTIONW__);
-        auto hr = endComposition(cookie);
-        CHECK_RETURN_HRESULT(hr);
-
-        return S_OK;
-    });
-    CHECK_RETURN_HRESULT(hr);
-
-    return S_OK;
-}
+//HRESULT CompositionMgr::startComposition(ITfContext *pContext) {
+//    D(__FUNCTIONW__);
+//    auto hr = E_FAIL;
+//    hr = EditSession::request(textService->clientId(), pContext, [&](TfEditCookie cookie) {
+//        auto hr = startComposition(cookie, pContext);
+//        CHECK_RETURN_HRESULT(hr);
+//        return S_OK;
+//    });
+//    CHECK_RETURN_HRESULT(hr);
+//
+//    return S_OK;
+//}
+//
+//HRESULT CompositionMgr::doComposition(ITfContext *pContext, std::string text) {
+//    auto hr = EditSession::request(textService->clientId(), pContext, [&](TfEditCookie cookie) {
+//        D(__FUNCTIONW__);
+//        auto hr = doComposition(cookie, pContext, text);
+//        CHECK_RETURN_HRESULT(hr);
+//        return S_OK;
+//    });
+//    CHECK_RETURN_HRESULT(hr);
+//
+//    return S_OK;
+//}
+//
+//HRESULT CompositionMgr::endComposition() {
+//    if (!context || !composing()) {
+//        return S_OK;
+//    }
+//
+//    auto hr = EditSession::request(textService->clientId(), context.get(), [&](TfEditCookie cookie) {
+//        D(__FUNCTIONW__);
+//        auto hr = endComposition(cookie);
+//        CHECK_RETURN_HRESULT(hr);
+//
+//        return S_OK;
+//    });
+//    CHECK_RETURN_HRESULT(hr);
+//
+//    return S_OK;
+//}
 
 //+---------------------------------------------------------------------------
 //

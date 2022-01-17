@@ -12,18 +12,22 @@ CandidateListUI::~CandidateListUI() {
 
 HRESULT CandidateListUI::init(ITextService *pTextService) {
     service.copy_from(pTextService);
-
-    auto hr = E_FAIL;
-    auto docMgr = winrt::com_ptr<ITfDocumentMgr>();
-    service->threadMgr()->GetFocus(docMgr.put());
-
-    auto context = winrt::com_ptr<ITfContext>();
-    docMgr->GetTop(context.put());
-
     candidateWindow = std::make_unique<CandidateWindow>();
 
+    return S_OK;
+}
+
+HRESULT CandidateListUI::uninit() {
+    service = nullptr;
+    candidateWindow->destroy();
+    candidateWindow.reset();
+    return S_OK;
+}
+
+HRESULT CandidateListUI::update(ITfContext *pContext, std::vector<std::string> &&candidates) {
+    auto hr = E_FAIL;
     auto contextView = winrt::com_ptr<ITfContextView>();
-    hr = context->GetActiveView(contextView.put());
+    hr = pContext->GetActiveView(contextView.put());
     CHECK_RETURN_HRESULT(hr);
 
     HWND parentWndHandle = nullptr;
@@ -36,16 +40,6 @@ HRESULT CandidateListUI::init(ITextService *pTextService) {
 
     hr = candidateWindow->create(parentWndHandle);
     CHECK_RETURN_HRESULT(hr);
-
-    return S_OK;
-}
-
-HRESULT CandidateListUI::uninit() {
-    service = nullptr;
-    context = nullptr;
-    candidateWindow->destroy();
-    candidateWindow.reset();
-    return S_OK;
 }
 
 //+---------------------------------------------------------------------------
@@ -55,16 +49,34 @@ HRESULT CandidateListUI::uninit() {
 //----------------------------------------------------------------------------
 
 STDMETHODIMP CandidateListUI::GetDescription(BSTR *pbstrDescription) {
-    return E_NOTIMPL;
+    auto desc = candidateWindow->className.data();
+    BSTR bstr = ::SysAllocString(candidateWindow->className.data());
+    pbstrDescription = &bstr;
+    return S_OK;
 }
+
 STDMETHODIMP CandidateListUI::GetGUID(GUID *pguid) {
-    return E_NOTIMPL;
+    *pguid = candidateWindow->guid;
+    return S_OK;
 }
+
 STDMETHODIMP CandidateListUI::Show(BOOL bShow) {
-    return E_NOTIMPL;
+    auto hr = E_FAIL;
+
+    if (bShow) {
+        hr = candidateWindow->show();
+        CHECK_RETURN_HRESULT(hr);
+    } else {
+        hr = candidateWindow->hide();
+        CHECK_RETURN_HRESULT(hr);
+    }
+
+    return S_OK;
 }
+
 STDMETHODIMP CandidateListUI::IsShown(BOOL *pbShow) {
-    return E_NOTIMPL;
+    *pbShow = candidateWindow->showing();
+    return S_OK;
 }
 
 //+---------------------------------------------------------------------------

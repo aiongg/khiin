@@ -4,6 +4,7 @@
 #include "CompositionMgr.h"
 #include "ITextEngine.h"
 #include "ITextService.h"
+#include "KeyEvent.h"
 
 namespace Khiin {
 
@@ -17,8 +18,8 @@ struct KeyEventSink : winrt::implements<KeyEventSink, ITfKeyEventSink> {
     HRESULT init(ITextService *pTextService);
     HRESULT uninit();
 
-    HRESULT onTestKey(ITfContext *pContext, WPARAM wParam, LPARAM lParam, BOOL *pfEaten);
-    HRESULT onKey(ITfContext *pContext, WPARAM wParam, LPARAM lParam, BOOL *pfEaten);
+    HRESULT onTestKey(ITfContext *pContext, KeyEvent keyEvent, BOOL *pfEaten);
+    HRESULT onKey(ITfContext *pContext, KeyEvent keyEvent, BOOL *pfEaten);
 
     // ITfKeyEventSink
     virtual STDMETHODIMP OnSetFocus(BOOL fForeground) override;

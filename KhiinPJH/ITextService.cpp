@@ -10,6 +10,7 @@
 #include "TextEditSink.h"
 #include "ThreadMgrEventSink.h"
 #include "common.h"
+#include "EditSession.h"
 
 namespace Khiin {
 
@@ -27,53 +28,6 @@ struct TextServiceImpl :
         threadMgrEventSink_ = winrt::make_self<ThreadMgrEventSink>();
         candidateListUI_ = winrt::make_self<CandidateListUI>();
         keyEventSink_ = winrt::make_self<KeyEventSink>();
-    }
-
-    virtual TfClientId clientId() override {
-        return clientId_;
-    }
-
-    virtual ITfThreadMgr *threadMgr() override {
-        return threadMgr_.get();
-    }
-
-    virtual DWORD activateFlags() override {
-        return activateFlags_;
-    }
-
-    virtual ITfCompositionSink *compositionMgr() override {
-        return compositionMgr_.as<ITfCompositionSink>().get();
-    }
-
-    virtual IEnumTfDisplayAttributeInfo *displayAttrInfoEnum() override {
-        IEnumTfDisplayAttributeInfo *tmp = nullptr;
-        EnumDisplayAttributeInfo(&tmp);
-        return tmp;
-    }
-
-    virtual ITextEngine *engine() override {
-        return engine_.get();
-    }
-
-    virtual ITfUIElement *candidateUI() override {
-        return candidateListUI_.as<ITfUIElement>().get();
-    }
-
-    virtual HRESULT topContext(_Out_ ITfContext **ppContext) override {
-        D(__FUNCTIONW__);
-        auto hr = E_FAIL;
-
-        auto documentMgr = winrt::com_ptr<ITfDocumentMgr>();
-        hr = threadMgr_->GetFocus(documentMgr.put());
-        CHECK_RETURN_HRESULT(hr);
-
-        auto context = winrt::com_ptr<ITfContext>();
-        hr = documentMgr->GetTop(context.put());
-        CHECK_RETURN_HRESULT(hr);
-
-        context.copy_to(ppContext);
-
-        return S_OK;
     }
 
   private:
@@ -164,6 +118,64 @@ struct TextServiceImpl :
     winrt::com_ptr<ITextEngine> engine_ = nullptr;
 
   public:
+    //+---------------------------------------------------------------------------
+    //
+    // ITextService
+    //
+    //----------------------------------------------------------------------------
+
+    virtual TfClientId clientId() override {
+        return clientId_;
+    }
+
+    virtual ITfThreadMgr *threadMgr() override {
+        return threadMgr_.get();
+    }
+
+    virtual DWORD activateFlags() override {
+        return activateFlags_;
+    }
+
+    virtual ITfCompositionSink *compositionMgr() override {
+        return compositionMgr_.as<ITfCompositionSink>().get();
+    }
+
+    virtual IEnumTfDisplayAttributeInfo *displayAttrInfoEnum() override {
+        IEnumTfDisplayAttributeInfo *tmp = nullptr;
+        EnumDisplayAttributeInfo(&tmp);
+        return tmp;
+    }
+
+    virtual ITextEngine *engine() override {
+        return engine_.get();
+    }
+
+    virtual ITfUIElement *candidateUI() override {
+        return candidateListUI_.as<ITfUIElement>().get();
+    }
+
+    virtual HRESULT topContext(_Out_ ITfContext **ppContext) override {
+        D(__FUNCTIONW__);
+        auto hr = E_FAIL;
+
+        auto documentMgr = winrt::com_ptr<ITfDocumentMgr>();
+        hr = threadMgr_->GetFocus(documentMgr.put());
+        CHECK_RETURN_HRESULT(hr);
+
+        auto context = winrt::com_ptr<ITfContext>();
+        hr = documentMgr->GetTop(context.put());
+        CHECK_RETURN_HRESULT(hr);
+
+        context.copy_to(ppContext);
+
+        return S_OK;
+    }
+
+    virtual HRESULT updateContext(ITfContext *pContext, TfEditCookie writeEc, KeyEvent keyEvent) override {
+
+        return E_NOTIMPL;
+    }
+
     //+---------------------------------------------------------------------------
     //
     // ITfTextInputProcessorEx

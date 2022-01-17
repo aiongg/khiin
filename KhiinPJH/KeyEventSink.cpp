@@ -39,7 +39,7 @@ HRESULT KeyEventSink::uninit() {
     return S_OK;
 }
 
-HRESULT KeyEventSink::onTestKey(ITfContext *pContext, WPARAM wParam, LPARAM lParam, BOOL *pfEaten) {
+HRESULT KeyEventSink::onTestKey(ITfContext *pContext, KeyEvent keyEvent, BOOL *pfEaten) {
     D(__FUNCTIONW__);
     WINRT_ASSERT(pContext);
     WINRT_ASSERT(compositionMgr);
@@ -52,7 +52,7 @@ HRESULT KeyEventSink::onTestKey(ITfContext *pContext, WPARAM wParam, LPARAM lPar
         CHECK_RETURN_HRESULT(hr);
     }
 
-    hr = engine->onTestKey(wParam, pfEaten);
+    hr = engine->onTestKey(keyEvent, pfEaten);
     CHECK_RETURN_HRESULT(hr);
 
     if (!*pfEaten) {
@@ -66,22 +66,26 @@ HRESULT KeyEventSink::onTestKey(ITfContext *pContext, WPARAM wParam, LPARAM lPar
     return S_OK;
 }
 
-HRESULT KeyEventSink::onKey(ITfContext *pContext, WPARAM wParam, LPARAM lParam, BOOL *pfEaten) {
+HRESULT KeyEventSink::onKey(ITfContext *pContext, KeyEvent keyEvent, BOOL *pfEaten) {
     auto hr = E_FAIL;
-    hr = onTestKey(pContext, wParam, lParam, pfEaten);
+    hr = onTestKey(pContext, keyEvent, pfEaten);
     CHECK_RETURN_HRESULT(hr);
 
-    auto engine = service->engine();
+    if (!*pfEaten) {
+        return S_OK;
+    }
 
-    std::string output;
-    hr = engine->onKey(wParam, &output);
+    hr = service->engine()->onKey(keyEvent);
     CHECK_RETURN_HRESULT(hr);
 
-    hr = compositionMgr->doComposition(pContext, output);
+    hr = EditSession2::request(service.get(), pContext, keyEvent);
     CHECK_RETURN_HRESULT(hr);
 
-    std::vector<std::string> candidates;
-    hr = engine->getCandidates(&candidates);
+    //hr = compositionMgr->doComposition(pContext, output);
+    //CHECK_RETURN_HRESULT(hr);
+
+    //std::vector<std::string> candidates;
+    //hr = engine->getCandidates(&candidates);
 
     return S_OK;
 }
@@ -113,25 +117,32 @@ STDMETHODIMP KeyEventSink::OnSetFocus(BOOL fForeground) {
 
 STDMETHODIMP KeyEventSink::OnTestKeyDown(ITfContext *pContext, WPARAM wParam, LPARAM lParam, BOOL *pfEaten) {
     D(__FUNCTIONW__);
-    auto hr = onTestKey(pContext, wParam, lParam, pfEaten);
+
+    auto keyEvent = KeyEvent(WM_KEYDOWN, wParam, lParam);
+    auto hr = onTestKey(pContext, keyEvent, pfEaten);
     CHECK_RETURN_HRESULT(hr);
 
     return S_OK;
 }
 
 STDMETHODIMP KeyEventSink::OnTestKeyUp(ITfContext *pContext, WPARAM wParam, LPARAM lParam, BOOL *pfEaten) {
+    auto keyEvent = KeyEvent(WM_KEYUP, wParam, lParam);
+    
     return E_NOTIMPL;
 }
 STDMETHODIMP KeyEventSink::OnKeyDown(ITfContext *pContext, WPARAM wParam, LPARAM lParam, BOOL *pfEaten) {
     D(__FUNCTIONW__, " (W=", wParam, ")");
 
-    auto hr = onKey(pContext, wParam, lParam, pfEaten);
+    auto keyEvent = KeyEvent(WM_KEYDOWN, wParam, lParam);
+    auto hr = onKey(pContext, keyEvent, pfEaten);
     CHECK_RETURN_HRESULT(hr);
 
     return S_OK;
 }
 
 STDMETHODIMP KeyEventSink::OnKeyUp(ITfContext *pic, WPARAM wParam, LPARAM lParam, BOOL *pfEaten) {
+    auto keyEvent = KeyEvent(WM_KEYUP, wParam, lParam);
+    
     return E_NOTIMPL;
 }
 

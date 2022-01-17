@@ -1,6 +1,14 @@
 #pragma once
 
+#include "KeyEvent.h"
+
 namespace Khiin {
+
+struct ITextService;
+
+struct EditSession2 {
+    static HRESULT request(ITextService *pService, ITfContext *pContext, KeyEvent keyEvent);
+};
 
 struct EditSession : winrt::implements<EditSession, ITfEditSession> {
     using CallbackFn = std::function<HRESULT(TfEditCookie cookie)>;

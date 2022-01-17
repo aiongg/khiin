@@ -13,6 +13,7 @@ struct CandidateListUI :
 
     HRESULT init(ITextService *pTextService);
     HRESULT uninit();
+    HRESULT update(ITfContext *pContext, std::vector<std::string> &&candidates);
 
     // ITfUIElement
     virtual STDMETHODIMP GetDescription(BSTR *pbstrDescription) override;

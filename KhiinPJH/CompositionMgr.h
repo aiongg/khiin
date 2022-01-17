@@ -17,18 +17,17 @@ struct CompositionMgr : winrt::implements<CompositionMgr, ITfCompositionSink> {
 
     bool composing();
 
-    HRESULT startComposition(ITfContext *pContext);
-    HRESULT doComposition(ITfContext *pContext, std::string text);
-    HRESULT endComposition();
+    //HRESULT startComposition(ITfContext *pContext);
+    //HRESULT doComposition(ITfContext *pContext, std::string text);
+    //HRESULT endComposition();
+    HRESULT startComposition(TfEditCookie cookie, ITfContext *pContext);
+    HRESULT doComposition(TfEditCookie cookie, ITfContext *pContext, std::string text);
+    HRESULT endComposition(TfEditCookie cookie);
 
     // ITfCompositionSink
     virtual STDMETHODIMP OnCompositionTerminated(TfEditCookie cookie, ITfComposition *pComposition) override;
 
   private:
-    HRESULT startComposition(TfEditCookie cookie, ITfContext *pContext);
-    HRESULT doComposition(TfEditCookie cookie, ITfContext *pContext, std::string text);
-    HRESULT endComposition(TfEditCookie cookie);
-
     HRESULT setText(TfEditCookie cookie, std::string_view text);
     HRESULT applyDisplayAttribute(TfEditCookie cookie, ITfContext *pContext, ITfRange *pRange, AttrInfoKey index);
     HRESULT collapseCursorToEnd(TfEditCookie cookie, ITfContext *pContext);
