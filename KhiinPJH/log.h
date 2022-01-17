@@ -33,15 +33,15 @@ void LogHresultError(HRESULT hr, int line, const char *filename) {
     ::OutputDebugString(wstr.c_str());
 }
 
-#define CHECK_HRESULT(hr)                                                                                              \
-    if (FAILED(hr)) {                                                                                                  \
-        LogHresultError(hr, __LINE__, __FILE__);                                                                       \
+#define CHECK_HRESULT(hr)                        \
+    if (FAILED(hr)) {                            \
+        LogHresultError(hr, __LINE__, __FILE__); \
     }
 
-#define CHECK_RETURN_HRESULT(hr)                                                                                       \
-    if (FAILED(hr)) {                                                                                                  \
-        LogHresultError(hr, __LINE__, __FILE__);                                                                       \
-        return hr;                                                                                                     \
+#define CHECK_RETURN_HRESULT(hr)                 \
+    if (FAILED(hr)) {                            \
+        LogHresultError(hr, __LINE__, __FILE__); \
+        return hr;                               \
     }
 
 #else

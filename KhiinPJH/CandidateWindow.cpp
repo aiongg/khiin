@@ -24,7 +24,7 @@ bool CandidateWindow::OnDllProcessAttach(HMODULE module) {
     wnd.hIconSm = NULL;
     wnd.hCursor = NULL;
     wnd.lpszMenuName = NULL;
-    wnd.hbrBackground = HBRUSH(COLOR_BACKGROUND);
+    wnd.hbrBackground = (HBRUSH)::GetStockObject(WHITE_BRUSH + 1);
 
     if (!::RegisterClassExW(&wnd)) {
         return false;
@@ -49,6 +49,7 @@ HRESULT CandidateWindow::show() {
 }
 
 HRESULT CandidateWindow::hide() {
+    ::ShowWindow(windowHandle, SW_HIDE);
     return E_NOTIMPL;
 }
 

@@ -13,14 +13,11 @@ KeyEventSink::~KeyEventSink() {
     uninit();
 }
 
-HRESULT KeyEventSink::init(TextService *pTextService, _In_ CandidateListUI *pCandidateListUI,
-                           _In_ TextEngine *pEngine) {
+HRESULT KeyEventSink::init(ITextService *pTextService) {
     service.copy_from(pTextService);
     threadMgr.copy_from(service->threadMgr());
     compositionMgr.copy_from(cast_as<CompositionMgr>(service->compositionMgr()));
     keystrokeMgr = threadMgr.as<ITfKeystrokeMgr>();
-    engine.copy_from(pEngine);
-    candidateListUI.copy_from(pCandidateListUI);
 
     auto hr = keystrokeMgr->AdviseKeyEventSink(service->clientId(), this, TRUE);
     CHECK_RETURN_HRESULT(hr);
@@ -34,8 +31,6 @@ HRESULT KeyEventSink::uninit() {
     auto hr = keystrokeMgr->UnadviseKeyEventSink(service->clientId());
     CHECK_RETURN_HRESULT(hr);
 
-    engine = nullptr;
-    candidateListUI = nullptr;
     threadMgr = nullptr;
     keystrokeMgr = nullptr;
     compositionMgr = nullptr;
@@ -50,6 +45,8 @@ HRESULT KeyEventSink::onTestKey(ITfContext *pContext, WPARAM wParam, LPARAM lPar
     WINRT_ASSERT(compositionMgr);
 
     auto hr = E_FAIL;
+    auto engine = service->engine();
+
     if (!compositionMgr->composing()) {
         hr = engine->clear();
         CHECK_RETURN_HRESULT(hr);
@@ -73,6 +70,8 @@ HRESULT KeyEventSink::onKey(ITfContext *pContext, WPARAM wParam, LPARAM lParam, 
     auto hr = E_FAIL;
     hr = onTestKey(pContext, wParam, lParam, pfEaten);
     CHECK_RETURN_HRESULT(hr);
+
+    auto engine = service->engine();
 
     std::string output;
     hr = engine->onKey(wParam, &output);

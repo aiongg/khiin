@@ -2,7 +2,7 @@
 
 #include "KhiinClassFactory.h"
 
-#include "TextService.h"
+#include "ITextService.h"
 
 namespace Khiin {
 
@@ -19,7 +19,11 @@ STDMETHODIMP KhiinClassFactory::CreateInstance(IUnknown *pUnkOuter, REFIID riid,
     CHECK_RETURN_HRESULT(hr);
 
     D(L"QueryInterface: ", riidStr.c_str());
-    auto textService = TextServiceFactory::create();
+
+    auto textService = winrt::com_ptr<ITextService>();
+    hr = TextServiceFactory::create(textService.put());
+    CHECK_RETURN_HRESULT(hr);
+    
     hr = textService->QueryInterface(riid, ppvObject);
     CHECK_RETURN_HRESULT(hr);
 

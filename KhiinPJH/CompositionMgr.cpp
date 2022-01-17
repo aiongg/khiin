@@ -19,7 +19,7 @@ CompositionMgr::~CompositionMgr() {
     uninit();
 }
 
-HRESULT CompositionMgr::init(TextService *pTextService) {
+HRESULT CompositionMgr::init(ITextService *pTextService) {
     D(__FUNCTIONW__);
     auto hr = E_FAIL;
     textService.copy_from(pTextService);

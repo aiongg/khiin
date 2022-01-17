@@ -7,3 +7,4 @@ AlwaysBreakTemplateDeclarations: Yes
 BreakConstructorInitializers: AfterColon
 BreakInheritanceList: AfterColon
 AllowShortLambdasOnASingleLine: Empty
+AlignEscapedNewlines: Left

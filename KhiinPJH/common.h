@@ -26,7 +26,7 @@ D *get_self(T &&o) {
 
 template <typename D, typename T>
 winrt::com_ptr<D> as_self(T &&o) {
-    auto result = winrt::com_ptr<D>;
+    auto result = winrt::com_ptr<D>();
     result.copy_from(static_cast<D *>(o.get()));
     return result;
 }

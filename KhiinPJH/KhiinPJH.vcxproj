@@ -168,8 +168,8 @@
     <ClInclude Include="DisplayAttributeInfoEnum.h" />
     <ClInclude Include="KeyEventSink.h" />
     <ClInclude Include="KhiinClassFactory.h" />
-    <ClInclude Include="TextEngine.h" />
-    <ClInclude Include="TextService.h" />
+    <ClInclude Include="ITextEngine.h" />
+    <ClInclude Include="ITextService.h" />
     <ClInclude Include="log.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="Profile.h" />
@@ -190,8 +190,8 @@
     <ClCompile Include="KeyEventSink.cpp" />
     <ClCompile Include="KhiinClassFactory.cpp" />
     <ClCompile Include="DllModule.cpp" />
-    <ClCompile Include="TextEngine.cpp" />
-    <ClCompile Include="TextService.cpp" />
+    <ClCompile Include="ITextEngine.cpp" />
+    <ClCompile Include="ITextService.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>

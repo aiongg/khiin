@@ -2,8 +2,8 @@
 
 #include "CandidateListUI.h"
 #include "CompositionMgr.h"
-#include "TextEngine.h"
-#include "TextService.h"
+#include "ITextEngine.h"
+#include "ITextService.h"
 
 namespace Khiin {
 
@@ -14,7 +14,7 @@ struct KeyEventSink : winrt::implements<KeyEventSink, ITfKeyEventSink> {
   public:
     KeyEventSink() = default;
     ~KeyEventSink();
-    HRESULT init(TextService *pTextService, _In_ CandidateListUI *pCandidateListUI, _In_ TextEngine *pEngine);
+    HRESULT init(ITextService *pTextService);
     HRESULT uninit();
 
     HRESULT onTestKey(ITfContext *pContext, WPARAM wParam, LPARAM lParam, BOOL *pfEaten);
@@ -29,9 +29,9 @@ struct KeyEventSink : winrt::implements<KeyEventSink, ITfKeyEventSink> {
     virtual STDMETHODIMP OnPreservedKey(ITfContext *pContext, REFGUID rguid, BOOL *pfEaten) override;
 
   private:
-    winrt::com_ptr<TextService> service = nullptr;
-    winrt::com_ptr<CandidateListUI> candidateListUI = nullptr;
-    winrt::com_ptr<TextEngine> engine = nullptr;
+    winrt::com_ptr<ITextService> service = nullptr;
+    //winrt::com_ptr<CandidateListUI> candidateListUI = nullptr;
+    //winrt::com_ptr<ITextEngine> engine = nullptr;
     winrt::com_ptr<ITfThreadMgr> threadMgr = nullptr;
     winrt::com_ptr<ITfKeystrokeMgr> keystrokeMgr = nullptr;
     winrt::com_ptr<CompositionMgr> compositionMgr = nullptr;

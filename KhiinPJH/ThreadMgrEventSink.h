@@ -1,7 +1,7 @@
 #pragma once
 
 #include "SinkManager.h"
-#include "TextService.h"
+#include "ITextService.h"
 
 namespace Khiin {
 
@@ -10,7 +10,7 @@ struct ThreadMgrEventSink : winrt::implements<ThreadMgrEventSink, ITfThreadMgrEv
     ~ThreadMgrEventSink();
     DELETE_COPY_AND_ASSIGN(ThreadMgrEventSink);
 
-    HRESULT init(TextService *pService);
+    HRESULT init(ITextService *pService);
     HRESULT uninit();
 
     // Inherited via implements
@@ -21,7 +21,7 @@ struct ThreadMgrEventSink : winrt::implements<ThreadMgrEventSink, ITfThreadMgrEv
     virtual STDMETHODIMP OnPopContext(ITfContext *pic) override;
 
   private:
-    winrt::com_ptr<TextService> service = nullptr;
+    winrt::com_ptr<ITextService> service = nullptr;
     SinkManager<ITfThreadMgrEventSink> threadMgrSinkMgr;
 };
 

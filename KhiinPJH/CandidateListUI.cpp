@@ -10,7 +10,7 @@ CandidateListUI::~CandidateListUI() {
     uninit();
 }
 
-HRESULT CandidateListUI::init(TextService *pTextService) {
+HRESULT CandidateListUI::init(ITextService *pTextService) {
     service.copy_from(pTextService);
 
     auto hr = E_FAIL;

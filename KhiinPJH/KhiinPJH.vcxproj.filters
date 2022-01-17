@@ -18,7 +18,7 @@
     <ClInclude Include="pch.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="TextService.h">
+    <ClInclude Include="ITextService.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="KhiinClassFactory.h">
@@ -69,7 +69,7 @@
     <ClInclude Include="DisplayAttributeInfoEnum.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="TextEngine.h">
+    <ClInclude Include="ITextEngine.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="CandidateListUI.h">
@@ -83,7 +83,7 @@
     <ClCompile Include="pch.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="TextService.cpp">
+    <ClCompile Include="ITextService.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="DllModule.cpp">
@@ -119,7 +119,7 @@
     <ClCompile Include="DisplayAttributeInfoEnum.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="TextEngine.cpp">
+    <ClCompile Include="ITextEngine.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="CandidateListUI.cpp">
