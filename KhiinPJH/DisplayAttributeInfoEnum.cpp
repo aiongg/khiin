@@ -23,7 +23,7 @@ void DisplayAttributeInfoEnum::addAttribute(AttrInfoKey key, winrt::com_ptr<Disp
     attributes[key] = attr;
 }
 
-HRESULT DisplayAttributeInfoEnum::at(AttrInfoKey index, _Out_ ITfDisplayAttributeInfo **pInfo) {
+HRESULT DisplayAttributeInfoEnum::at(AttrInfoKey index, __RPC__deref_out_opt ITfDisplayAttributeInfo **pInfo) {
     try {
         attributes.at(index).as<ITfDisplayAttributeInfo>().copy_to(pInfo);
         return S_OK;
@@ -32,7 +32,7 @@ HRESULT DisplayAttributeInfoEnum::at(AttrInfoKey index, _Out_ ITfDisplayAttribut
     }
 }
 
-HRESULT DisplayAttributeInfoEnum::findByGuid(REFGUID guid, _Outptr_opt_ ITfDisplayAttributeInfo **ppInfo) {
+HRESULT DisplayAttributeInfoEnum::findByGuid(REFGUID guid, __RPC__deref_out_opt ITfDisplayAttributeInfo **ppInfo) {
     for (const auto &[index, attr] : attributes) {
         if (attr->getGuid() == guid) {
             attr.as<ITfDisplayAttributeInfo>().copy_to(ppInfo);
@@ -49,7 +49,7 @@ HRESULT DisplayAttributeInfoEnum::findByGuid(REFGUID guid, _Outptr_opt_ ITfDispl
 //
 //----------------------------------------------------------------------------
 
-STDMETHODIMP DisplayAttributeInfoEnum::Clone(_Out_ IEnumTfDisplayAttributeInfo **ppEnumInfo) {
+STDMETHODIMP DisplayAttributeInfoEnum::Clone(__RPC__deref_out_opt IEnumTfDisplayAttributeInfo **ppEnumInfo) {
     auto daiEnum = winrt::make_self<DisplayAttributeInfoEnum>();
     for (const auto &[index, attr] : attributes) {
         auto clone = winrt::make_self<DisplayAttributeInfo>();
@@ -63,7 +63,7 @@ STDMETHODIMP DisplayAttributeInfoEnum::Clone(_Out_ IEnumTfDisplayAttributeInfo *
 STDMETHODIMP DisplayAttributeInfoEnum::Next(ULONG ulCount,
                                             __RPC__out_ecount_part(ulCount, *pcFetched)
                                                 ITfDisplayAttributeInfo **rgInfo,
-                                            _Out_opt_ ULONG *pcFetched) {
+                                            __RPC__out ULONG *pcFetched) {
     auto i = ULONG(0);
     auto end = attributes.cend();
     auto nAttrs = attributes.size();

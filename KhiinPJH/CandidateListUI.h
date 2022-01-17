@@ -1,13 +1,17 @@
 #pragma once
 
 #include "CandidateWindow.h"
+#include "TextService.h"
 
 namespace Khiin {
 
 struct CandidateListUI :
     winrt::implements<CandidateListUI, ITfCandidateListUIElementBehavior, ITfIntegratableCandidateListUIElement> {
+    CandidateListUI() = default;
+    ~CandidateListUI();
+    DELETE_COPY_AND_ASSIGN(CandidateListUI);
 
-    HRESULT init(ITfThreadMgr *pThreadMgr);
+    HRESULT init(TextService *pTextService);
     HRESULT uninit();
 
     // ITfUIElement
@@ -38,11 +42,9 @@ struct CandidateListUI :
     virtual STDMETHODIMP ShowCandidateNumbers(BOOL *pfShow) override;
     virtual STDMETHODIMP FinalizeExactCompositionString(void) override;
 
-    DEFAULT_CTOR_DTOR(CandidateListUI);
-    DELETE_COPY_AND_ASSIGN(CandidateListUI);
-
   private:
     std::unique_ptr<CandidateWindow> candidateWindow;
+    winrt::com_ptr<TextService> service;
     winrt::com_ptr<ITfContext> context;
 };
 

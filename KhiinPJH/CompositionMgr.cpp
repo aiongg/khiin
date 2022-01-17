@@ -15,15 +15,14 @@ namespace Khiin {
 //
 //----------------------------------------------------------------------------
 
-CompositionMgr::CompositionMgr(TextService *pTextService) {
-    textService.copy_from(pTextService);
+CompositionMgr::~CompositionMgr() {
+    uninit();
 }
 
-HRESULT CompositionMgr::init() {
+HRESULT CompositionMgr::init(TextService *pTextService) {
     D(__FUNCTIONW__);
-
     auto hr = E_FAIL;
-
+    textService.copy_from(pTextService);
     attributes.copy_from(cast_as<DisplayAttributeInfoEnum>(textService->displayAttrInfoEnum()));
     WINRT_ASSERT(attributes);
 
@@ -36,6 +35,7 @@ HRESULT CompositionMgr::init() {
 
 HRESULT CompositionMgr::uninit() {
     D(__FUNCTIONW__);
+    textService = nullptr;
     attributes = nullptr;
     categoryMgr = nullptr;
     composition = nullptr;

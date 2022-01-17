@@ -6,11 +6,16 @@
 
 namespace Khiin {
 
-HRESULT CandidateListUI::init(ITfThreadMgr *pThreadMgr) {
-    auto hr = E_FAIL;
+CandidateListUI::~CandidateListUI() {
+    uninit();
+}
 
+HRESULT CandidateListUI::init(TextService *pTextService) {
+    service.copy_from(pTextService);
+
+    auto hr = E_FAIL;
     auto docMgr = winrt::com_ptr<ITfDocumentMgr>();
-    pThreadMgr->GetFocus(docMgr.put());
+    service->threadMgr()->GetFocus(docMgr.put());
 
     auto context = winrt::com_ptr<ITfContext>();
     docMgr->GetTop(context.put());
@@ -36,7 +41,10 @@ HRESULT CandidateListUI::init(ITfThreadMgr *pThreadMgr) {
 }
 
 HRESULT CandidateListUI::uninit() {
+    service = nullptr;
+    context = nullptr;
     candidateWindow->destroy();
+    candidateWindow.reset();
     return S_OK;
 }
 

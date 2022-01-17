@@ -3,6 +3,7 @@
 #include "CandidateListUI.h"
 #include "CompositionMgr.h"
 #include "TextEngine.h"
+#include "TextService.h"
 
 namespace Khiin {
 
@@ -11,8 +12,9 @@ struct KeyEventSink : winrt::implements<KeyEventSink, ITfKeyEventSink> {
     enum class KeyAction;
 
   public:
-    HRESULT init(_In_ TfClientId clientId, _In_ ITfThreadMgr *pThreadMgr, _In_ CompositionMgr *pCompositionMgr,
-                 _In_ CandidateListUI *pCandidateListUI, _In_ TextEngine *pEngine);
+    KeyEventSink() = default;
+    ~KeyEventSink();
+    HRESULT init(TextService *pTextService, _In_ CandidateListUI *pCandidateListUI, _In_ TextEngine *pEngine);
     HRESULT uninit();
 
     HRESULT onTestKey(ITfContext *pContext, WPARAM wParam, LPARAM lParam, BOOL *pfEaten);
@@ -27,14 +29,13 @@ struct KeyEventSink : winrt::implements<KeyEventSink, ITfKeyEventSink> {
     virtual STDMETHODIMP OnPreservedKey(ITfContext *pContext, REFGUID rguid, BOOL *pfEaten) override;
 
   private:
-    TfClientId clientId = TF_CLIENTID_NULL;
+    winrt::com_ptr<TextService> service = nullptr;
     winrt::com_ptr<CandidateListUI> candidateListUI = nullptr;
     winrt::com_ptr<TextEngine> engine = nullptr;
     winrt::com_ptr<ITfThreadMgr> threadMgr = nullptr;
     winrt::com_ptr<ITfKeystrokeMgr> keystrokeMgr = nullptr;
     winrt::com_ptr<CompositionMgr> compositionMgr = nullptr;
 
-    DEFAULT_CTOR_DTOR(KeyEventSink);
     DELETE_COPY_AND_ASSIGN(KeyEventSink);
 };
 

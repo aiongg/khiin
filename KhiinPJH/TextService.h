@@ -4,18 +4,17 @@
 
 namespace Khiin {
 
-// clang-format off
-struct TextService : winrt::implements<TextService,
-                                       ITfTextInputProcessorEx,
-                                       ITfDisplayAttributeProvider,
-                                       ITfThreadFocusSink,
-                                       ITfTextLayoutSink,
-                                       ITfCompartmentEventSink> { // clang-format on
-
+struct TextService : // clang-format off
+    winrt::implements<TextService,
+                      ITfTextInputProcessorEx,
+                      ITfDisplayAttributeProvider,
+                      ITfThreadFocusSink,
+                      ITfTextLayoutSink> { // clang-format on
     TfClientId clientId();
     ITfThreadMgr *threadMgr();
-    DWORD getActivateFlags();
+    ITfCompositionSink *compositionMgr();
     IEnumTfDisplayAttributeInfo *displayAttrInfoEnum();
+    DWORD getActivateFlags();
 
     // ITfTextInputProcessorEx
     virtual STDMETHODIMP Activate(ITfThreadMgr *ptim, TfClientId tid) override;
@@ -32,9 +31,6 @@ struct TextService : winrt::implements<TextService,
 
     // ITfTextLayoutSink
     virtual STDMETHODIMP OnLayoutChange(ITfContext *pContext, TfLayoutCode lcode, ITfContextView *pView) override;
-
-    // ITfCompartmentEventSink
-    virtual STDMETHODIMP OnChange(REFGUID rguid) override;
 
   private:
     winrt::com_ptr<ITfThreadMgr> threadMgr_ = nullptr;

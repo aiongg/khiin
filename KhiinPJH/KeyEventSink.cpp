@@ -9,19 +9,20 @@ namespace Khiin {
 
 enum class KeyEventSink::KeyAction { Test, Input };
 
-HRESULT KeyEventSink::init(_In_ TfClientId clientId, _In_ ITfThreadMgr *pThreadMgr,
-                           _In_ CompositionMgr *pCompositionMgr, _In_ CandidateListUI *pCandidateListUI, _In_ TextEngine *pEngine) {
-    WINRT_ASSERT(pThreadMgr != nullptr);
-    WINRT_ASSERT(pCompositionMgr != nullptr);
+KeyEventSink::~KeyEventSink() {
+    uninit();
+}
 
-    this->clientId = clientId;
-    this->threadMgr.copy_from(pThreadMgr);
-    this->compositionMgr.copy_from(pCompositionMgr);
-    this->keystrokeMgr = threadMgr.as<ITfKeystrokeMgr>();
-    this->engine.copy_from(pEngine);
-    this->candidateListUI.copy_from(pCandidateListUI);
+HRESULT KeyEventSink::init(TextService *pTextService, _In_ CandidateListUI *pCandidateListUI,
+                           _In_ TextEngine *pEngine) {
+    service.copy_from(pTextService);
+    threadMgr.copy_from(service->threadMgr());
+    compositionMgr.copy_from(cast_as<CompositionMgr>(service->compositionMgr()));
+    keystrokeMgr = threadMgr.as<ITfKeystrokeMgr>();
+    engine.copy_from(pEngine);
+    candidateListUI.copy_from(pCandidateListUI);
 
-    auto hr = keystrokeMgr->AdviseKeyEventSink(clientId, this, TRUE);
+    auto hr = keystrokeMgr->AdviseKeyEventSink(service->clientId(), this, TRUE);
     CHECK_RETURN_HRESULT(hr);
 
     return S_OK;
@@ -30,20 +31,21 @@ HRESULT KeyEventSink::init(_In_ TfClientId clientId, _In_ ITfThreadMgr *pThreadM
 HRESULT KeyEventSink::uninit() {
     WINRT_ASSERT(keystrokeMgr != nullptr);
 
-    auto hr = keystrokeMgr->UnadviseKeyEventSink(clientId);
+    auto hr = keystrokeMgr->UnadviseKeyEventSink(service->clientId());
     CHECK_RETURN_HRESULT(hr);
 
-    clientId = TF_CLIENTID_NULL;
+    engine = nullptr;
+    candidateListUI = nullptr;
     threadMgr = nullptr;
     keystrokeMgr = nullptr;
     compositionMgr = nullptr;
+    service = nullptr;
 
     return S_OK;
 }
 
 HRESULT KeyEventSink::onTestKey(ITfContext *pContext, WPARAM wParam, LPARAM lParam, BOOL *pfEaten) {
     D(__FUNCTIONW__);
-    WINRT_ASSERT(clientId != TF_CLIENTID_NULL);
     WINRT_ASSERT(pContext);
     WINRT_ASSERT(compositionMgr);
 
@@ -107,7 +109,7 @@ STDMETHODIMP KeyEventSink::OnSetFocus(BOOL fForeground) {
     hr = docMgr->GetTop(ctx.put());
     CHECK_RETURN_HRESULT(hr);
 
-    return E_NOTIMPL;
+    return S_OK;
 }
 
 STDMETHODIMP KeyEventSink::OnTestKeyDown(ITfContext *pContext, WPARAM wParam, LPARAM lParam, BOOL *pfEaten) {

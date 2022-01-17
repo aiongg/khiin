@@ -13,31 +13,36 @@
 
 namespace Khiin {
 
-class TextServiceImpl {
-  public:
-    HRESULT Activate(TextService *pTextService) {
-        auto hr = E_FAIL;
-
-        textService.copy_from(pTextService);
-        auto clientId = textService->clientId();
-        auto pThreadMgr = textService->threadMgr();
-
-        DisplayAttributeInfoEnum::load(displayAttributes.put());
-
-        compositionMgr = winrt::make_self<CompositionMgr>(pTextService);
-        hr = compositionMgr->init();
-        CHECK_RETURN_HRESULT(hr);
-
-        threadMgrEventSink = winrt::make_self<ThreadMgrEventSink>(pTextService);
-        hr = threadMgrEventSink->init();
-        CHECK_RETURN_HRESULT(hr);
-
+struct TextServiceImpl : winrt::implements<TextServiceImpl, ITfCompartmentEventSink> {
+    TextServiceImpl() {
+        compositionMgr = winrt::make_self<CompositionMgr>();
+        threadMgrEventSink = winrt::make_self<ThreadMgrEventSink>();
         engine = winrt::make_self<TextEngine>();
         candidateListUI = winrt::make_self<CandidateListUI>();
-        hr = candidateListUI->init(pThreadMgr);
-
         keyEventSink = winrt::make_self<KeyEventSink>();
-        hr = keyEventSink->init(clientId, pThreadMgr, compositionMgr.get(), candidateListUI.get(), engine.get());
+    }
+
+    HRESULT onActivate(TextService *pTextService) {
+        auto hr = E_FAIL;
+
+        service.copy_from(pTextService);
+        auto clientId = service->clientId();
+        auto pThreadMgr = service->threadMgr();
+        DisplayAttributeInfoEnum::load(displayAttributes.put());
+
+        hr = compositionMgr->init(pTextService);
+        CHECK_RETURN_HRESULT(hr);
+
+        hr = threadMgrEventSink->init(pTextService);
+        CHECK_RETURN_HRESULT(hr);
+
+        hr = engine->init();
+        CHECK_RETURN_HRESULT(hr);
+
+        hr = candidateListUI->init(pTextService);
+        CHECK_RETURN_HRESULT(hr);
+
+        hr = keyEventSink->init(pTextService, candidateListUI.get(), engine.get());
         CHECK_RETURN_HRESULT(hr);
 
         hr = openCloseCompartment.init(clientId, pThreadMgr, GUID_COMPARTMENT_KEYBOARD_OPENCLOSE);
@@ -46,7 +51,7 @@ class TextServiceImpl {
         hr = keyboardDisabledCompartment.init(clientId, pThreadMgr, GUID_COMPARTMENT_KEYBOARD_DISABLED);
         CHECK_RETURN_HRESULT(hr);
 
-        hr = openCloseSinkInstaller.install(openCloseCompartment.getCompartment(), pTextService);
+        hr = openCloseSinkInstaller.install(openCloseCompartment.getCompartment(), this);
         CHECK_RETURN_HRESULT(hr);
 
         hr = openCloseCompartment.set(true);
@@ -55,8 +60,11 @@ class TextServiceImpl {
         return S_OK;
     }
 
-    HRESULT Deactivate() {
+    HRESULT onDeactivate() {
         auto hr = E_FAIL;
+
+        hr = engine->uninit();
+        CHECK_RETURN_HRESULT(hr);
 
         hr = candidateListUI->uninit();
         CHECK_RETURN_HRESULT(hr);
@@ -83,8 +91,36 @@ class TextServiceImpl {
         CHECK_RETURN_HRESULT(hr);
 
         displayAttributes = nullptr;
+
         return S_OK;
     }
+
+    HRESULT getTopContext(_Out_ ITfContext **ppContext) {
+        D(__FUNCTIONW__);
+        auto hr = E_FAIL;
+
+        auto documentMgr = winrt::com_ptr<ITfDocumentMgr>();
+        hr = service->threadMgr()->GetFocus(documentMgr.put());
+        CHECK_RETURN_HRESULT(hr);
+
+        auto context = winrt::com_ptr<ITfContext>();
+        hr = documentMgr->GetTop(context.put());
+        CHECK_RETURN_HRESULT(hr);
+
+        context.copy_to(ppContext);
+
+        return S_OK;
+    }
+
+    ITfCompositionSink *getCompositionMgr() {
+        return compositionMgr.as<ITfCompositionSink>().get();
+    }
+
+    //+---------------------------------------------------------------------------
+    //
+    // ITfDisplayAttributeProvider (Delegates)
+    //
+    //----------------------------------------------------------------------------
 
     HRESULT EnumDisplayAttributeInfo(IEnumTfDisplayAttributeInfo **ppEnum) {
         displayAttributes.as<IEnumTfDisplayAttributeInfo>().copy_to(ppEnum);
@@ -97,7 +133,14 @@ class TextServiceImpl {
         return S_OK;
     }
 
-    HRESULT OnOpenCloseChange(REFGUID rguid) {
+    //+---------------------------------------------------------------------------
+    //
+    // ITfCompartmentEventSink
+    //
+    //----------------------------------------------------------------------------
+
+    STDMETHODIMP OnChange(REFGUID rguid) {
+        D(__FUNCTIONW__);
         auto hr = E_FAIL;
 
         if (rguid == GUID_COMPARTMENT_KEYBOARD_OPENCLOSE) {
@@ -113,30 +156,13 @@ class TextServiceImpl {
         return S_OK;
     }
 
-    HRESULT getTopContext(_Out_ ITfContext **ppContext) {
-        D(__FUNCTIONW__);
-        auto hr = E_FAIL;
-
-        auto documentMgr = winrt::com_ptr<ITfDocumentMgr>();
-        hr = textService->threadMgr()->GetFocus(documentMgr.put());
-        CHECK_RETURN_HRESULT(hr);
-
-        auto context = winrt::com_ptr<ITfContext>();
-        hr = documentMgr->GetTop(context.put());
-        CHECK_RETURN_HRESULT(hr);
-
-        context.copy_to(ppContext);
-
-        return S_OK;
-    }
-
   private:
     Compartment openCloseCompartment;
     Compartment keyboardDisabledCompartment;
     DWORD openCloseSinkCookie = TF_INVALID_COOKIE;
     SinkManager<ITfCompartmentEventSink> openCloseSinkInstaller;
 
-    winrt::com_ptr<TextService> textService = nullptr;
+    winrt::com_ptr<TextService> service = nullptr;
     winrt::com_ptr<DisplayAttributeInfoEnum> displayAttributes = nullptr;
     winrt::com_ptr<ThreadMgrEventSink> threadMgrEventSink = nullptr;
     winrt::com_ptr<KeyEventSink> keyEventSink = nullptr;
@@ -145,7 +171,7 @@ class TextServiceImpl {
     winrt::com_ptr<TextEngine> engine = nullptr;
 };
 
-auto static textServiceImpl = TextServiceImpl();
+auto static textServiceImpl = winrt::make_self<TextServiceImpl>();
 
 //+---------------------------------------------------------------------------
 //
@@ -171,11 +197,9 @@ IEnumTfDisplayAttributeInfo *TextService::displayAttrInfoEnum() {
     return tmp;
 }
 
-//+---------------------------------------------------------------------------
-//
-// Current context getter
-//
-//----------------------------------------------------------------------------
+ITfCompositionSink *TextService::compositionMgr() {
+    return textServiceImpl->getCompositionMgr();
+}
 
 //+---------------------------------------------------------------------------
 //
@@ -191,11 +215,14 @@ STDMETHODIMP TextService::Activate(ITfThreadMgr *ptim, TfClientId tid) {
 STDMETHODIMP TextService::Deactivate(void) {
     D(__FUNCTIONW__);
 
+    auto hr = textServiceImpl->onDeactivate();
+    CHECK_RETURN_HRESULT(hr);
+
     threadMgr_ = nullptr;
     clientId_ = TF_CLIENTID_NULL;
     dwActivateFlags = 0;
 
-    return textServiceImpl.Deactivate();
+    return S_OK;
 }
 
 STDMETHODIMP TextService::ActivateEx(ITfThreadMgr *pThreadMgr, TfClientId tid, DWORD dwFlags) {
@@ -205,7 +232,7 @@ STDMETHODIMP TextService::ActivateEx(ITfThreadMgr *pThreadMgr, TfClientId tid, D
     clientId_ = tid;
     dwActivateFlags = dwFlags;
 
-    return textServiceImpl.Activate(this);
+    return textServiceImpl->onActivate(this);
 }
 
 //+---------------------------------------------------------------------------
@@ -216,12 +243,12 @@ STDMETHODIMP TextService::ActivateEx(ITfThreadMgr *pThreadMgr, TfClientId tid, D
 
 STDMETHODIMP TextService::EnumDisplayAttributeInfo(IEnumTfDisplayAttributeInfo **ppEnum) {
     D(__FUNCTIONW__);
-    return textServiceImpl.EnumDisplayAttributeInfo(ppEnum);
+    return textServiceImpl->EnumDisplayAttributeInfo(ppEnum);
 }
 
 STDMETHODIMP TextService::GetDisplayAttributeInfo(REFGUID guid, ITfDisplayAttributeInfo **ppInfo) {
     D(__FUNCTIONW__);
-    return textServiceImpl.GetDisplayAttributeInfo(guid, ppInfo);
+    return textServiceImpl->GetDisplayAttributeInfo(guid, ppInfo);
 }
 
 //+---------------------------------------------------------------------------
@@ -248,17 +275,6 @@ STDMETHODIMP TextService::OnKillThreadFocus(void) {
 STDMETHODIMP TextService::OnLayoutChange(ITfContext *pContext, TfLayoutCode lcode, ITfContextView *pView) {
     D(__FUNCTIONW__);
     return E_NOTIMPL;
-}
-
-//+---------------------------------------------------------------------------
-//
-// ITfCompartmentEventSink
-//
-//----------------------------------------------------------------------------
-
-STDMETHODIMP TextService::OnChange(REFGUID rguid) {
-    D(__FUNCTIONW__);
-    return textServiceImpl.OnOpenCloseChange(rguid);
 }
 
 } // namespace Khiin

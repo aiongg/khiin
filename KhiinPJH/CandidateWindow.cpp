@@ -33,10 +33,8 @@ bool CandidateWindow::OnDllProcessAttach(HMODULE module) {
     return true;
 }
 
-CandidateWindow::CandidateWindow() : windowHandle(NULL) {}
-
 CandidateWindow::~CandidateWindow() {
-    ::DestroyWindow(windowHandle);
+    destroy();
 }
 
 HRESULT CandidateWindow::create(HWND parentWindowHandle) {
@@ -55,8 +53,10 @@ HRESULT CandidateWindow::hide() {
 }
 
 HRESULT CandidateWindow::destroy() {
-    ::DestroyWindow(windowHandle);
-    windowHandle = NULL;
+    if (windowHandle) {
+        ::DestroyWindow(windowHandle);
+        windowHandle = NULL;
+    }
     return S_OK;
 }
 

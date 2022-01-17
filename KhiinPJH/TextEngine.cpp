@@ -3,6 +3,13 @@
 #include "TextEngine.h"
 
 namespace Khiin {
+HRESULT TextEngine::init() {
+    return S_OK;
+}
+
+HRESULT TextEngine::uninit() {
+    return S_OK;
+}
 
 HRESULT TextEngine::onTestKey(WPARAM wParam, BOOL *pConsumable) {
     if (wParam == 0x41) {

@@ -11,7 +11,7 @@ class CandidateWindow {
     static bool OnDllProcessAttach(HMODULE module);
     static LRESULT WINAPI windowProcedure(HWND window_handle, UINT message, WPARAM wparam, LPARAM lparam);
 
-    CandidateWindow();
+    CandidateWindow() = default;
     ~CandidateWindow();
 
     HRESULT create(HWND hWndParent);
@@ -20,7 +20,7 @@ class CandidateWindow {
     HRESULT destroy();
 
   private:
-    HWND windowHandle;
+    HWND windowHandle = NULL;
 };
 
 } // namespace Khiin

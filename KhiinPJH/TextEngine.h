@@ -1,8 +1,12 @@
 #pragma once
 
+#include "TextService.h"
+
 namespace Khiin {
 
 struct TextEngine : winrt::implements<TextEngine, IUnknown> {
+    HRESULT init();
+    HRESULT uninit();
 
     HRESULT onTestKey(WPARAM wParam, BOOL *pConsumable);
     HRESULT onKey(WPARAM wParam, std::string *output);

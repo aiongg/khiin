@@ -6,9 +6,11 @@
 namespace Khiin {
 
 struct ThreadMgrEventSink : winrt::implements<ThreadMgrEventSink, ITfThreadMgrEventSink> {
-    ThreadMgrEventSink(TextService *pService);
+    ThreadMgrEventSink() = default;
+    ~ThreadMgrEventSink();
+    DELETE_COPY_AND_ASSIGN(ThreadMgrEventSink);
 
-    HRESULT init();
+    HRESULT init(TextService *pService);
     HRESULT uninit();
 
     // Inherited via implements
@@ -21,8 +23,6 @@ struct ThreadMgrEventSink : winrt::implements<ThreadMgrEventSink, ITfThreadMgrEv
   private:
     winrt::com_ptr<TextService> service = nullptr;
     SinkManager<ITfThreadMgrEventSink> threadMgrSinkMgr;
-
-    DELETE_COPY_AND_ASSIGN(ThreadMgrEventSink);
 };
 
 } // namespace Khiin

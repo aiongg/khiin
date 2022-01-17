@@ -8,9 +8,11 @@
 namespace Khiin {
 
 struct CompositionMgr : winrt::implements<CompositionMgr, ITfCompositionSink> {
-    CompositionMgr(TextService *pTextService);
+    CompositionMgr() = default;
+    ~CompositionMgr();
+    DELETE_COPY_AND_ASSIGN(CompositionMgr);
 
-    HRESULT init();
+    HRESULT init(TextService *pTextService);
     HRESULT uninit();
 
     bool composing();

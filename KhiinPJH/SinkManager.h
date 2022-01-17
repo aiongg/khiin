@@ -43,7 +43,9 @@ class SinkManager {
     }
 
     HRESULT uninstall() {
-        WINRT_ASSERT(installed());
+        if (!installed()) {
+            return S_OK;
+        }
 
         auto hr = source->UnadviseSink(cookie);
         CHECK_RETURN_HRESULT(hr);
