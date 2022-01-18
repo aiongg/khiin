@@ -34,27 +34,27 @@ HRESULT ThreadMgrEventSink::uninit() {
 
 STDMETHODIMP ThreadMgrEventSink::OnInitDocumentMgr(ITfDocumentMgr *pdim) {
     D(__FUNCTIONW__);
-    return E_NOTIMPL;
+    return S_OK;
 }
 
 STDMETHODIMP ThreadMgrEventSink::OnUninitDocumentMgr(ITfDocumentMgr *pdim) {
     D(__FUNCTIONW__);
-    return E_NOTIMPL;
+    return S_OK;
 }
 
 STDMETHODIMP ThreadMgrEventSink::OnSetFocus(ITfDocumentMgr *pdimFocus, ITfDocumentMgr *pdimPrevFocus) {
     D(__FUNCTIONW__);
-    return E_NOTIMPL;
+    return S_OK;
 }
 
 STDMETHODIMP ThreadMgrEventSink::OnPushContext(ITfContext *pic) {
     D(__FUNCTIONW__);
-    return E_NOTIMPL;
+    return S_OK;
 }
 
 STDMETHODIMP ThreadMgrEventSink::OnPopContext(ITfContext *pic) {
     D(__FUNCTIONW__);
-    return E_NOTIMPL;
+    return S_OK;
 }
 
 } // namespace Khiin

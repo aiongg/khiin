@@ -1,5 +1,7 @@
 #pragma once
 
+//#include "common.h"
+
 namespace Khiin {
 
 class CandidateWindow {
@@ -9,20 +11,28 @@ class CandidateWindow {
         {0x829893fa, 0x728d, 0x11ec, {0x8c, 0x6e, 0xe0, 0xd4, 0x64, 0x91, 0xb3, 0x5a}};
 
     static bool OnDllProcessAttach(HMODULE module);
-    static LRESULT WINAPI windowProcedure(HWND window_handle, UINT message, WPARAM wparam, LPARAM lparam);
+    static LRESULT WINAPI staticWndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
-    CandidateWindow() = default;
+    CandidateWindow(HWND parent);
+    CandidateWindow(const CandidateWindow &) = default;
+    CandidateWindow &operator=(const CandidateWindow &) = default;
     ~CandidateWindow();
+    
+    LRESULT WINAPI wndProc(UINT uMsg, WPARAM wParam, LPARAM lParam);
 
-    HRESULT create(HWND hWndParent);
+    void create();
+    void destroy();
+
     HRESULT show();
     HRESULT hide();
-    HRESULT destroy();
     bool showing();
+
+    void onPaint();
 
   private:
     bool showing_ = false;
-    HWND windowHandle = NULL;
+    HWND hwnd_ = NULL;
+    HWND hwndParent_ = NULL;
 };
 
 } // namespace Khiin

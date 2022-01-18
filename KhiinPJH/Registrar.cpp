@@ -1,7 +1,9 @@
 #include "pch.h"
 
-#include "Profile.h"
 #include "Registrar.h"
+
+#include "Profile.h"
+#include "common.h"
 
 namespace Khiin {
 
@@ -14,20 +16,6 @@ const static auto supportedCategories = std::vector<GUID>{
     GUID_TFCAT_TIPCAP_IMMERSIVESUPPORT,     // It supports Metro mode.
     GUID_TFCAT_TIPCAP_SYSTRAYSUPPORT,       // It supports Win8 systray.
 };
-
-struct registry_traits {
-    using type = HKEY;
-
-    static void close(type value) noexcept {
-        WINRT_VERIFY_(ERROR_SUCCESS, ::RegCloseKey(value));
-    }
-
-    static constexpr type invalid() noexcept {
-        return nullptr;
-    }
-};
-
-using registry_key = winrt::handle_type<registry_traits>;
 
 auto textServiceGuidStr() {
     auto guid = std::wstring(39, L'?');
@@ -122,7 +110,7 @@ void Registrar::registerCategories() {
     auto guid = Profile::textServiceGuid;
 
     for (auto &category : supportedCategories) {
-        categoryMgr->RegisterCategory(guid, category, guid);
+        winrt::check_hresult(categoryMgr->RegisterCategory(guid, category, guid));
     }
 }
 
@@ -133,7 +121,7 @@ void Registrar::unregisterCategories() {
     auto guid = Profile::textServiceGuid;
 
     for (auto &category : supportedCategories) {
-        categoryMgr->UnregisterCategory(guid, category, guid);
+        winrt::check_hresult(categoryMgr->UnregisterCategory(guid, category, guid));
     }
 }
 

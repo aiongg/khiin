@@ -5,6 +5,7 @@
 #include "CandidateWindow.h"
 #include "KhiinClassFactory.h"
 #include "Registrar.h"
+#include "BaseWindow.h"
 
 namespace {
 
@@ -34,6 +35,7 @@ class ModuleImpl {
     }
 
     static BOOL OnDllProcessAttach(HINSTANCE instance, bool static_loading) {
+        Khiin::WindowSetup::OnDllProcessAttach(instance);
         Khiin::CandidateWindow::OnDllProcessAttach(instance);
         moduleHandle = instance;
         return TRUE;

@@ -159,6 +159,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="BaseWindow.h" />
     <ClInclude Include="CandidateWindow.h" />
     <ClInclude Include="CandidateListUI.h" />
     <ClInclude Include="Action.h" />
@@ -185,6 +186,7 @@
     <ClInclude Include="ThreadMgrEventSink.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="BaseWindow.cpp" />
     <ClCompile Include="CandidateWindow.cpp" />
     <ClCompile Include="CandidateListUI.cpp" />
     <ClCompile Include="CompositionSink.cpp" />

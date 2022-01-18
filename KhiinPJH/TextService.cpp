@@ -22,7 +22,6 @@ struct TextServiceImpl :
                       ITfThreadFocusSink,
                       ITfTextLayoutSink,
                       ITfCompartmentEventSink,
-                      ITfCompositionSink,
                       TextService> { // clang-format on
     TextServiceImpl() {
         TextEngineFactory::create(engine_.put());
@@ -58,10 +57,10 @@ struct TextServiceImpl :
         hr = keyboardDisabledCompartment_.init(clientId_, threadMgr_.get(), GUID_COMPARTMENT_KEYBOARD_DISABLED);
         CHECK_RETURN_HRESULT(hr);
 
-        hr = openCloseSinkMgr_.install(openCloseCompartment_.getCompartment(), this);
+        hr = openCloseCompartment_.set(true);
         CHECK_RETURN_HRESULT(hr);
 
-        hr = openCloseCompartment_.set(true);
+        hr = openCloseSinkMgr_.install(openCloseCompartment_.getCompartment(), this);
         CHECK_RETURN_HRESULT(hr);
 
         hr = engine_->init();
@@ -82,16 +81,16 @@ struct TextServiceImpl :
         hr = openCloseCompartment_.set(false);
         CHECK_RETURN_HRESULT(hr);
 
-        hr = openCloseCompartment_.uninit();
-        CHECK_RETURN_HRESULT(hr);
-
         hr = keyboardDisabledCompartment_.uninit();
         CHECK_RETURN_HRESULT(hr);
 
-        hr = keyEventSink_->uninit();
+        hr = openCloseCompartment_.uninit();
         CHECK_RETURN_HRESULT(hr);
 
         hr = candidateListUI_->uninit();
+        CHECK_RETURN_HRESULT(hr);
+
+        hr = keyEventSink_->uninit();
         CHECK_RETURN_HRESULT(hr);
 
         hr = threadMgrEventSink_->uninit();
@@ -200,13 +199,10 @@ struct TextServiceImpl :
     virtual HRESULT onCompositionTerminated(TfEditCookie ecWrite, ITfContext *context,
                                             ITfComposition *pComposition) override {
         D(__FUNCTIONW__);
-        return E_NOTIMPL;
+        compositionMgr_->clearComposition();
+        candidateListUI_->onCompositionTerminated();
+        return S_OK;
     }
-
-    // virtual HRESULT updateContext(ITfContext *pContext, TfEditCookie writeEc, KeyEvent keyEvent) override {
-
-    //    return E_NOTIMPL;
-    //}
 
     //+---------------------------------------------------------------------------
     //
@@ -252,6 +248,7 @@ struct TextServiceImpl :
         D(__FUNCTIONW__);
         return E_NOTIMPL;
     }
+
     virtual STDMETHODIMP OnKillThreadFocus(void) override {
         D(__FUNCTIONW__);
         return E_NOTIMPL;
@@ -305,22 +302,13 @@ struct TextServiceImpl :
             if (val == false) {
                 hr = engine_->clear();
                 CHECK_RETURN_HRESULT(hr);
+
+                hr = candidateListUI_->onCompositionTerminated();
+                CHECK_RETURN_HRESULT(hr);
             }
         }
 
         return S_OK;
-    }
-
-    //+---------------------------------------------------------------------------
-    //
-    // ITfCompartmentEventSink
-    //
-    //----------------------------------------------------------------------------
-
-    virtual STDMETHODIMP OnCompositionTerminated(TfEditCookie ecWrite, ITfComposition *pComposition) override {
-        D(__FUNCTIONW__);
-        // handle?
-        return E_NOTIMPL;
     }
 };
 

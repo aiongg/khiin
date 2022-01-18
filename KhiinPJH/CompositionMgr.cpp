@@ -31,6 +31,10 @@ HRESULT CompositionMgr::init(TextService *pTextService) {
     return S_OK;
 }
 
+void CompositionMgr::clearComposition() {
+    composition = nullptr;
+}
+
 HRESULT CompositionMgr::uninit() {
     D(__FUNCTIONW__);
     service = nullptr;
@@ -130,17 +134,6 @@ HRESULT CompositionMgr::endComposition(TfEditCookie cookie) {
 
     composition = nullptr;
 
-    return S_OK;
-}
-
-HRESULT CompositionMgr::setText(TfEditCookie cookie, std::string_view text) {
-    D(__FUNCTIONW__);
-
-    if (!composing()) {
-        return E_ABORT;
-    }
-
-    HRESULT hr = E_FAIL;
     return S_OK;
 }
 

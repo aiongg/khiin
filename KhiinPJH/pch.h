@@ -18,21 +18,22 @@
 // Windows Header Files
 #include <Unknwn.h>
 
-#include <ctffunc.h>
-#include <dwmapi.h>
-#include <msctf.h>
 #include <windows.h>
+#include <d2d1.h>
+#include <ctffunc.h>
+#include <msctf.h>
+//#include <dwmapi.h>
 #include <winrt/base.h>
 
 #pragma comment(lib, "windowsapp")
+#pragma comment(lib, "d2d1")
 
 #include "log.h"
 #include "resource.h"
 
 namespace winrt {
 
-// We need this so that we can implement only ITfTextInputProcessorEx
-// and tell winrt that we also support ITfTextProcessorInput
+// We need this so that winrt accepts our interface for both (/all) base & derived classes
 // https://docs.microsoft.com/en-us/windows/uwp/cpp-and-winrt-apis/author-coclasses#implement-a-com-interface-that-derives-from-another
 template <>
 inline bool is_guid_of<ITfTextInputProcessorEx>(guid const &id) noexcept {

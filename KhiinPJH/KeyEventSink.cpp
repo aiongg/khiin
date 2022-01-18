@@ -26,7 +26,8 @@ HRESULT KeyEventSink::init(TextService *pTextService) {
 }
 
 HRESULT KeyEventSink::uninit() {
-    WINRT_ASSERT(keystrokeMgr != nullptr);
+    D(__FUNCTIONW__);
+    WINRT_ASSERT(keystrokeMgr);
 
     auto hr = keystrokeMgr->UnadviseKeyEventSink(service->clientId());
     CHECK_RETURN_HRESULT(hr);
@@ -62,12 +63,11 @@ HRESULT KeyEventSink::onTestKey(ITfContext *pContext, KeyEvent keyEvent, BOOL *p
     hr = engine->clear();
     CHECK_RETURN_HRESULT(hr);
 
-    if (compositionMgr->composing()) {
-        auto action = Action();
-        action.msg = Message::CommitText;
-        hr = EditSession::handleAction(service.get(), pContext, std::move(action));
-        CHECK_RETURN_HRESULT(hr);
-    }
+    auto action = Action();
+    action.compMsg = Message::CommitText;
+    action.candMsg = Message::HideCandidates;
+    hr = EditSession::handleAction(service.get(), pContext, std::move(action));
+    CHECK_RETURN_HRESULT(hr);
 
     return S_OK;
 }
@@ -88,13 +88,14 @@ HRESULT KeyEventSink::onKey(ITfContext *pContext, KeyEvent keyEvent, BOOL *pfEat
     auto action = Action();
 
     if (compositionMgr->composing()) {
-        action.msg = Message::UpdateComposition;
+        action.compMsg = Message::UpdateComposition;
     } else {
-        action.msg = Message::StartComposition;
+        action.compMsg = Message::StartComposition;
     }
 
     action.text = service->engine()->buffer();
     action.candidates = service->engine()->candidates();
+    action.candMsg = Message::ShowCandidates;
 
     hr = EditSession::handleAction(service.get(), pContext, std::move(action));
     CHECK_RETURN_HRESULT(hr);
@@ -116,13 +117,13 @@ STDMETHODIMP KeyEventSink::OnSetFocus(BOOL fForeground) {
 
     auto hr = E_FAIL;
 
-    //auto docMgr = winrt::com_ptr<ITfDocumentMgr>();
-    //hr = threadMgr->GetFocus(docMgr.put());
-    //CHECK_RETURN_HRESULT(hr);
+    // auto docMgr = winrt::com_ptr<ITfDocumentMgr>();
+    // hr = threadMgr->GetFocus(docMgr.put());
+    // CHECK_RETURN_HRESULT(hr);
     //
-    //auto ctx = winrt::com_ptr<ITfContext>();
-    //hr = docMgr->GetTop(ctx.put());
-    //CHECK_RETURN_HRESULT(hr);
+    // auto ctx = winrt::com_ptr<ITfContext>();
+    // hr = docMgr->GetTop(ctx.put());
+    // CHECK_RETURN_HRESULT(hr);
 
     return S_OK;
 }

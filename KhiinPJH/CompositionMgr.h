@@ -12,6 +12,7 @@ struct CompositionMgr : winrt::implements<CompositionMgr, IUnknown> {
     ~CompositionMgr();
 
     HRESULT init(TextService *pTextService);
+    void clearComposition();
     HRESULT uninit();
 
     bool composing();
@@ -21,7 +22,6 @@ struct CompositionMgr : winrt::implements<CompositionMgr, IUnknown> {
     HRESULT endComposition(TfEditCookie cookie);
 
   private:
-    HRESULT setText(TfEditCookie cookie, std::string_view text);
     HRESULT applyDisplayAttribute(TfEditCookie cookie, ITfContext *pContext, ITfRange *pRange, AttrInfoKey index);
     HRESULT collapseCursorToEnd(TfEditCookie cookie, ITfContext *pContext);
 

@@ -4,11 +4,21 @@
 
 namespace Khiin {
 
-enum class Message { Noop, StartComposition, UpdateComposition, CancelComposition, CommitText };
+enum class Message {
+    Noop,
+    StartComposition,
+    UpdateComposition,
+    CancelComposition,
+    CommitText,
+    ShowCandidates,
+    HideCandidates,
+    FocusCandidate,
+};
 
 struct Action {
-    Message msg = Message::Noop;
+    Message compMsg = Message::Noop;
     std::string text;
+    Message candMsg = Message::Noop;
     std::vector<std::string> candidates;
 };
 

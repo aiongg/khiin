@@ -24,27 +24,45 @@ struct EditSessionImpl : winrt::implements<EditSessionImpl, ITfEditSession> {
     // ITfEditSession
     //
     //----------------------------------------------------------------------------
-    
+
     virtual STDMETHODIMP DoEditSession(TfEditCookie ec) override {
         D(__FUNCTIONW__);
         auto hr = E_FAIL;
         auto compositionMgr = cast_as<CompositionMgr>(service->compositionMgr());
+        auto candidateUI = cast_as<CandidateListUI>(service->candidateUI());
+        bool composing = compositionMgr->composing();
+        BOOL shown;
+        candidateUI->IsShown(&shown);
 
-        if (action.msg == Message::StartComposition) {
+        if (action.compMsg == Message::StartComposition && !composing) {
             hr = compositionMgr->startComposition(ec, context.get());
             CHECK_RETURN_HRESULT(hr);
+        }
 
+        if (action.compMsg == Message::UpdateComposition || action.compMsg == Message::StartComposition) {
             hr = compositionMgr->doComposition(ec, context.get(), action.text);
             CHECK_RETURN_HRESULT(hr);
-        } else if (action.msg == Message::UpdateComposition) {
-            hr = compositionMgr->doComposition(ec, context.get(), action.text);
-            CHECK_RETURN_HRESULT(hr);
-        } else if (action.msg == Message::CommitText) {
+        }
+
+        if (action.compMsg == Message::CommitText) {
             hr = compositionMgr->endComposition(ec);
             CHECK_RETURN_HRESULT(hr);
         }
 
-        auto candidateUI = cast_as<CandidateListUI>(service->candidateUI());
+        if (action.candMsg == Message::ShowCandidates) {
+            hr = candidateUI->update(context.get(), action.candidates);
+            CHECK_RETURN_HRESULT(hr);
+
+            if (!shown) {
+                hr = candidateUI->Show(true);
+                CHECK_RETURN_HRESULT(hr);
+            }
+        } else if (action.candMsg == Message::HideCandidates) {
+            if (shown) {
+                hr = candidateUI->Show(false);
+                CHECK_RETURN_HRESULT(hr);
+            }
+        }
 
         return S_OK;
     }
