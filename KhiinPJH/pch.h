@@ -19,9 +19,9 @@
 #include <Unknwn.h>
 
 #include <ctffunc.h>
+#include <dwmapi.h>
 #include <msctf.h>
 #include <windows.h>
-#include <dwmapi.h>
 #include <winrt/base.h>
 
 #pragma comment(lib, "windowsapp")
@@ -39,14 +39,19 @@ inline bool is_guid_of<ITfTextInputProcessorEx>(guid const &id) noexcept {
     return is_guid_of<ITfTextInputProcessorEx, ITfTextInputProcessor>(id);
 }
 
+template <>
+inline bool is_guid_of<ITfCandidateListUIElementBehavior>(guid const &id) noexcept {
+    return is_guid_of<ITfCandidateListUIElementBehavior, ITfCandidateListUIElement, ITfUIElement>(id);
+}
+
 } // namespace winrt
 
-#define DELETE_COPY_AND_ASSIGN(TypeName)                                                                               \
-  public:                                                                                                              \
-    TypeName(const TypeName &) = delete;                                                                               \
+#define DELETE_COPY_AND_ASSIGN(TypeName) \
+  public:                                \
+    TypeName(const TypeName &) = delete; \
     TypeName &operator=(const TypeName &) = delete;
 
-#define DEFAULT_CTOR_DTOR(TypeName)                                                                                    \
-  public:                                                                                                              \
-    TypeName() = default;                                                                                              \
+#define DEFAULT_CTOR_DTOR(TypeName) \
+  public:                           \
+    TypeName() = default;           \
     ~TypeName() = default;

@@ -4,7 +4,7 @@
 
 namespace Khiin {
 
-struct ITextEngine : winrt::implements<ITextEngine, IUnknown> {
+struct TextEngine : winrt::implements<TextEngine, IUnknown> {
     virtual HRESULT init() = 0;
     virtual HRESULT uninit() = 0;
 
@@ -13,14 +13,14 @@ struct ITextEngine : winrt::implements<ITextEngine, IUnknown> {
     virtual HRESULT clear() = 0;
 
     virtual std::string buffer() = 0;
-    virtual HRESULT candidates(std::vector<std::string> *pCandidates) = 0;
+    virtual std::vector<std::string> &candidates() = 0;
 
-    DEFAULT_CTOR_DTOR(ITextEngine);
-    DELETE_COPY_AND_ASSIGN(ITextEngine);
+    DEFAULT_CTOR_DTOR(TextEngine);
+    DELETE_COPY_AND_ASSIGN(TextEngine);
 };
 
 struct TextEngineFactory {
-    static HRESULT create(ITextEngine **ppEngine);
+    static HRESULT create(TextEngine **ppEngine);
 };
 
 } // namespace Khiin

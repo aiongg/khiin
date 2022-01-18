@@ -1,12 +1,12 @@
 #include "pch.h"
 
-#include "ITextEngine.h"
+#include "TextEngine.h"
 
 #include "common.h"
 
 namespace Khiin {
 
-struct TextEngineImpl : winrt::implements<TextEngineImpl, ITextEngine> {
+struct TextEngineImpl : winrt::implements<TextEngineImpl, TextEngine> {
     DEFAULT_CTOR_DTOR(TextEngineImpl);
 
     virtual HRESULT init() override {
@@ -43,7 +43,7 @@ struct TextEngineImpl : winrt::implements<TextEngineImpl, ITextEngine> {
         return buffer_;
     }
 
-    virtual HRESULT candidates(std::vector<std::string> *pCandidates) {
+    virtual std::vector<std::string> &candidates() {
         if (candidates_.empty()) {
             candidates_.push_back(u8"枝");
             candidates_.push_back(u8"乩");
@@ -61,8 +61,7 @@ struct TextEngineImpl : winrt::implements<TextEngineImpl, ITextEngine> {
             candidates_.push_back(u8"裾");
         }
 
-        *pCandidates = candidates_;
-        return S_OK;
+        return candidates_;
     }
 
   private:
@@ -70,8 +69,8 @@ struct TextEngineImpl : winrt::implements<TextEngineImpl, ITextEngine> {
     std::vector<std::string> candidates_;
 };
 
-HRESULT TextEngineFactory::create(ITextEngine **ppEngine) {
-    as_self<ITextEngine>(winrt::make_self<TextEngineImpl>()).copy_to(ppEngine);
+HRESULT TextEngineFactory::create(TextEngine **ppEngine) {
+    as_self<TextEngine>(winrt::make_self<TextEngineImpl>()).copy_to(ppEngine);
     return S_OK;
 }
 

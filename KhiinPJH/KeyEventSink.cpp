@@ -13,7 +13,7 @@ KeyEventSink::~KeyEventSink() {
     uninit();
 }
 
-HRESULT KeyEventSink::init(ITextService *pTextService) {
+HRESULT KeyEventSink::init(TextService *pTextService) {
     service.copy_from(pTextService);
     threadMgr.copy_from(service->threadMgr());
     compositionMgr.copy_from(cast_as<CompositionMgr>(service->compositionMgr()));
@@ -55,11 +55,17 @@ HRESULT KeyEventSink::onTestKey(ITfContext *pContext, KeyEvent keyEvent, BOOL *p
     hr = engine->onTestKey(keyEvent, pfEaten);
     CHECK_RETURN_HRESULT(hr);
 
-    if (!*pfEaten) {
-        hr = engine->clear();
-        CHECK_RETURN_HRESULT(hr);
+    if (*pfEaten) {
+        return S_OK;
+    }
 
-        hr = compositionMgr->endComposition();
+    hr = engine->clear();
+    CHECK_RETURN_HRESULT(hr);
+
+    if (compositionMgr->composing()) {
+        auto action = Action();
+        action.msg = Message::CommitText;
+        hr = EditSession::handleAction(service.get(), pContext, std::move(action));
         CHECK_RETURN_HRESULT(hr);
     }
 
@@ -67,6 +73,7 @@ HRESULT KeyEventSink::onTestKey(ITfContext *pContext, KeyEvent keyEvent, BOOL *p
 }
 
 HRESULT KeyEventSink::onKey(ITfContext *pContext, KeyEvent keyEvent, BOOL *pfEaten) {
+    D(__FUNCTIONW__);
     auto hr = E_FAIL;
     hr = onTestKey(pContext, keyEvent, pfEaten);
     CHECK_RETURN_HRESULT(hr);
@@ -78,14 +85,19 @@ HRESULT KeyEventSink::onKey(ITfContext *pContext, KeyEvent keyEvent, BOOL *pfEat
     hr = service->engine()->onKey(keyEvent);
     CHECK_RETURN_HRESULT(hr);
 
-    hr = EditSession2::request(service.get(), pContext, keyEvent);
+    auto action = Action();
+
+    if (compositionMgr->composing()) {
+        action.msg = Message::UpdateComposition;
+    } else {
+        action.msg = Message::StartComposition;
+    }
+
+    action.text = service->engine()->buffer();
+    action.candidates = service->engine()->candidates();
+
+    hr = EditSession::handleAction(service.get(), pContext, std::move(action));
     CHECK_RETURN_HRESULT(hr);
-
-    //hr = compositionMgr->doComposition(pContext, output);
-    //CHECK_RETURN_HRESULT(hr);
-
-    //std::vector<std::string> candidates;
-    //hr = engine->getCandidates(&candidates);
 
     return S_OK;
 }
@@ -104,13 +116,13 @@ STDMETHODIMP KeyEventSink::OnSetFocus(BOOL fForeground) {
 
     auto hr = E_FAIL;
 
-    auto docMgr = winrt::com_ptr<ITfDocumentMgr>();
-    hr = threadMgr->GetFocus(docMgr.put());
-    CHECK_RETURN_HRESULT(hr);
-
-    auto ctx = winrt::com_ptr<ITfContext>();
-    hr = docMgr->GetTop(ctx.put());
-    CHECK_RETURN_HRESULT(hr);
+    //auto docMgr = winrt::com_ptr<ITfDocumentMgr>();
+    //hr = threadMgr->GetFocus(docMgr.put());
+    //CHECK_RETURN_HRESULT(hr);
+    //
+    //auto ctx = winrt::com_ptr<ITfContext>();
+    //hr = docMgr->GetTop(ctx.put());
+    //CHECK_RETURN_HRESULT(hr);
 
     return S_OK;
 }
@@ -127,7 +139,7 @@ STDMETHODIMP KeyEventSink::OnTestKeyDown(ITfContext *pContext, WPARAM wParam, LP
 
 STDMETHODIMP KeyEventSink::OnTestKeyUp(ITfContext *pContext, WPARAM wParam, LPARAM lParam, BOOL *pfEaten) {
     auto keyEvent = KeyEvent(WM_KEYUP, wParam, lParam);
-    
+
     return E_NOTIMPL;
 }
 STDMETHODIMP KeyEventSink::OnKeyDown(ITfContext *pContext, WPARAM wParam, LPARAM lParam, BOOL *pfEaten) {
@@ -142,7 +154,7 @@ STDMETHODIMP KeyEventSink::OnKeyDown(ITfContext *pContext, WPARAM wParam, LPARAM
 
 STDMETHODIMP KeyEventSink::OnKeyUp(ITfContext *pic, WPARAM wParam, LPARAM lParam, BOOL *pfEaten) {
     auto keyEvent = KeyEvent(WM_KEYUP, wParam, lParam);
-    
+
     return E_NOTIMPL;
 }
 

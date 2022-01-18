@@ -19,23 +19,21 @@ CompositionMgr::~CompositionMgr() {
     uninit();
 }
 
-HRESULT CompositionMgr::init(ITextService *pTextService) {
+HRESULT CompositionMgr::init(TextService *pTextService) {
     D(__FUNCTIONW__);
     auto hr = E_FAIL;
-    textService.copy_from(pTextService);
-    attributes.copy_from(cast_as<DisplayAttributeInfoEnum>(textService->displayAttrInfoEnum()));
+    service.copy_from(pTextService);
+    attributes.copy_from(cast_as<DisplayAttributeInfoEnum>(service->displayAttrInfoEnum()));
     WINRT_ASSERT(attributes);
 
-    hr = ::CoCreateInstance(CLSID_TF_CategoryMgr, NULL, CLSCTX_INPROC_SERVER, IID_ITfCategoryMgr,
-                            categoryMgr.put_void());
-    CHECK_RETURN_HRESULT(hr);
-
+    hr = service->categoryMgr(categoryMgr.put());
+    CHECK_RETURN_HRESULT(hr)
     return S_OK;
 }
 
 HRESULT CompositionMgr::uninit() {
     D(__FUNCTIONW__);
-    textService = nullptr;
+    service = nullptr;
     attributes = nullptr;
     categoryMgr = nullptr;
     composition = nullptr;
@@ -47,48 +45,6 @@ bool CompositionMgr::composing() {
     return bool(composition);
 }
 
-//HRESULT CompositionMgr::startComposition(ITfContext *pContext) {
-//    D(__FUNCTIONW__);
-//    auto hr = E_FAIL;
-//    hr = EditSession::request(textService->clientId(), pContext, [&](TfEditCookie cookie) {
-//        auto hr = startComposition(cookie, pContext);
-//        CHECK_RETURN_HRESULT(hr);
-//        return S_OK;
-//    });
-//    CHECK_RETURN_HRESULT(hr);
-//
-//    return S_OK;
-//}
-//
-//HRESULT CompositionMgr::doComposition(ITfContext *pContext, std::string text) {
-//    auto hr = EditSession::request(textService->clientId(), pContext, [&](TfEditCookie cookie) {
-//        D(__FUNCTIONW__);
-//        auto hr = doComposition(cookie, pContext, text);
-//        CHECK_RETURN_HRESULT(hr);
-//        return S_OK;
-//    });
-//    CHECK_RETURN_HRESULT(hr);
-//
-//    return S_OK;
-//}
-//
-//HRESULT CompositionMgr::endComposition() {
-//    if (!context || !composing()) {
-//        return S_OK;
-//    }
-//
-//    auto hr = EditSession::request(textService->clientId(), context.get(), [&](TfEditCookie cookie) {
-//        D(__FUNCTIONW__);
-//        auto hr = endComposition(cookie);
-//        CHECK_RETURN_HRESULT(hr);
-//
-//        return S_OK;
-//    });
-//    CHECK_RETURN_HRESULT(hr);
-//
-//    return S_OK;
-//}
-
 //+---------------------------------------------------------------------------
 //
 // Private methods
@@ -99,10 +55,6 @@ HRESULT CompositionMgr::startComposition(TfEditCookie cookie, ITfContext *pConte
     D(__FUNCTIONW__);
 
     auto hr = E_FAIL;
-    auto compositionMgr = winrt::com_ptr<ITfCompositionSink>();
-    hr = this->QueryInterface(__uuidof(ITfCompositionSink), compositionMgr.put_void());
-    CHECK_RETURN_HRESULT(hr);
-
     auto context = winrt::com_ptr<ITfContext>();
     context.copy_from(pContext);
 
@@ -114,7 +66,9 @@ HRESULT CompositionMgr::startComposition(TfEditCookie cookie, ITfContext *pConte
     CHECK_RETURN_HRESULT(hr);
 
     auto composition = winrt::com_ptr<ITfComposition>();
-    hr = contextComposition->StartComposition(cookie, range.get(), compositionMgr.get(), composition.put());
+    auto compositionSink = winrt::com_ptr<ITfCompositionSink>();
+    service->compositionSink(pContext, compositionSink.put());
+    hr = contextComposition->StartComposition(cookie, range.get(), compositionSink.get(), composition.put());
     CHECK_RETURN_HRESULT(hr);
 
     this->composition = nullptr;
@@ -137,7 +91,7 @@ HRESULT CompositionMgr::doComposition(TfEditCookie cookie, ITfContext *pContext,
     HRESULT hr = E_FAIL;
 
     if (!composing()) {
-        hr = startComposition(pContext);
+        hr = startComposition(cookie, pContext);
         CHECK_RETURN_HRESULT(hr);
     }
 
@@ -256,23 +210,6 @@ HRESULT CompositionMgr::collapseCursorToEnd(TfEditCookie cookie, ITfContext *pCo
     hr = pContext->SetSelection(cookie, 1, &sel);
     CHECK_RETURN_HRESULT(hr);
 
-    return S_OK;
-}
-
-//+---------------------------------------------------------------------------
-//
-// ITfCompositionSink
-//
-//----------------------------------------------------------------------------
-
-STDMETHODIMP CompositionMgr::OnCompositionTerminated(TfEditCookie cookie, ITfComposition *pComposition) {
-    D(__FUNCTIONW__);
-
-    auto hr = endComposition(cookie);
-    CHECK_RETURN_HRESULT(hr);
-
-    composition = nullptr;
-    context = nullptr;
     return S_OK;
 }
 

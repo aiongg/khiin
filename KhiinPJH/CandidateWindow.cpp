@@ -63,4 +63,8 @@ HRESULT CandidateWindow::destroy() {
     return S_OK;
 }
 
+bool CandidateWindow::showing() {
+    return showing_;
+}
+
 } // namespace Khiin

@@ -1,7 +1,7 @@
 #pragma once
 
 #include "CandidateWindow.h"
-#include "ITextService.h"
+#include "TextService.h"
 
 namespace Khiin {
 
@@ -11,7 +11,7 @@ struct CandidateListUI :
     ~CandidateListUI();
     DELETE_COPY_AND_ASSIGN(CandidateListUI);
 
-    HRESULT init(ITextService *pTextService);
+    HRESULT init(TextService *pTextService);
     HRESULT uninit();
     HRESULT update(ITfContext *pContext, std::vector<std::string> &&candidates);
 
@@ -45,7 +45,7 @@ struct CandidateListUI :
 
   private:
     std::unique_ptr<CandidateWindow> candidateWindow;
-    winrt::com_ptr<ITextService> service;
+    winrt::com_ptr<TextService> service;
     winrt::com_ptr<ITfContext> context;
 };
 

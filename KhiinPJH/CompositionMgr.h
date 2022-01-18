@@ -3,40 +3,35 @@
 #include "DisplayAttributeInfo.h"
 #include "DisplayAttributeInfoEnum.h"
 
-#include "ITextService.h"
+#include "TextService.h"
 
 namespace Khiin {
 
-struct CompositionMgr : winrt::implements<CompositionMgr, ITfCompositionSink> {
+struct CompositionMgr : winrt::implements<CompositionMgr, IUnknown> {
     CompositionMgr() = default;
     ~CompositionMgr();
-    DELETE_COPY_AND_ASSIGN(CompositionMgr);
 
-    HRESULT init(ITextService *pTextService);
+    HRESULT init(TextService *pTextService);
     HRESULT uninit();
 
     bool composing();
 
-    //HRESULT startComposition(ITfContext *pContext);
-    //HRESULT doComposition(ITfContext *pContext, std::string text);
-    //HRESULT endComposition();
     HRESULT startComposition(TfEditCookie cookie, ITfContext *pContext);
     HRESULT doComposition(TfEditCookie cookie, ITfContext *pContext, std::string text);
     HRESULT endComposition(TfEditCookie cookie);
-
-    // ITfCompositionSink
-    virtual STDMETHODIMP OnCompositionTerminated(TfEditCookie cookie, ITfComposition *pComposition) override;
 
   private:
     HRESULT setText(TfEditCookie cookie, std::string_view text);
     HRESULT applyDisplayAttribute(TfEditCookie cookie, ITfContext *pContext, ITfRange *pRange, AttrInfoKey index);
     HRESULT collapseCursorToEnd(TfEditCookie cookie, ITfContext *pContext);
 
-    winrt::com_ptr<ITextService> textService = nullptr;
+    winrt::com_ptr<TextService> service = nullptr;
     winrt::com_ptr<DisplayAttributeInfoEnum> attributes = nullptr;
     winrt::com_ptr<ITfComposition> composition = nullptr;
     winrt::com_ptr<ITfContext> context = nullptr;
     winrt::com_ptr<ITfCategoryMgr> categoryMgr = nullptr;
+
+    DELETE_COPY_AND_ASSIGN(CompositionMgr);
 };
 
 } // namespace Khiin

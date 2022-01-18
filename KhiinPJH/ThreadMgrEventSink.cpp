@@ -8,7 +8,7 @@ ThreadMgrEventSink::~ThreadMgrEventSink() {
     uninit();
 }
 
-HRESULT ThreadMgrEventSink::init(ITextService *pTextService) {
+HRESULT ThreadMgrEventSink::init(TextService *pTextService) {
     D(__FUNCTIONW__);
     auto hr = E_FAIL;
     service.copy_from(pTextService);

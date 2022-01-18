@@ -1,16 +1,17 @@
 #include "pch.h"
 
-#include "ITextService.h"
+#include "TextService.h"
 
 #include "CandidateListUI.h"
 #include "Compartment.h"
 #include "CompositionMgr.h"
+#include "CompositionSink.h"
 #include "DisplayAttributeInfoEnum.h"
+#include "EditSession.h"
 #include "KeyEventSink.h"
 #include "TextEditSink.h"
 #include "ThreadMgrEventSink.h"
 #include "common.h"
-#include "EditSession.h"
 
 namespace Khiin {
 
@@ -21,7 +22,8 @@ struct TextServiceImpl :
                       ITfThreadFocusSink,
                       ITfTextLayoutSink,
                       ITfCompartmentEventSink,
-                      ITextService> { // clang-format on
+                      ITfCompositionSink,
+                      TextService> { // clang-format on
     TextServiceImpl() {
         TextEngineFactory::create(engine_.put());
         compositionMgr_ = winrt::make_self<CompositionMgr>();
@@ -34,7 +36,7 @@ struct TextServiceImpl :
     HRESULT onActivate() {
         auto hr = E_FAIL;
 
-        auto pTextService = cast_as<ITextService>(this);
+        auto pTextService = cast_as<TextService>(this);
 
         DisplayAttributeInfoEnum::load(displayAttributes_.put());
 
@@ -115,42 +117,49 @@ struct TextServiceImpl :
     winrt::com_ptr<DisplayAttributeInfoEnum> displayAttributes_ = nullptr;
     winrt::com_ptr<ThreadMgrEventSink> threadMgrEventSink_ = nullptr;
     winrt::com_ptr<KeyEventSink> keyEventSink_ = nullptr;
-    winrt::com_ptr<ITextEngine> engine_ = nullptr;
+    winrt::com_ptr<TextEngine> engine_ = nullptr;
 
   public:
     //+---------------------------------------------------------------------------
     //
-    // ITextService
+    // TextService
     //
     //----------------------------------------------------------------------------
 
     virtual TfClientId clientId() override {
+        D(__FUNCTIONW__);
         return clientId_;
     }
 
-    virtual ITfThreadMgr *threadMgr() override {
-        return threadMgr_.get();
-    }
-
     virtual DWORD activateFlags() override {
+        D(__FUNCTIONW__);
         return activateFlags_;
     }
 
-    virtual ITfCompositionSink *compositionMgr() override {
-        return compositionMgr_.as<ITfCompositionSink>().get();
+    virtual ITfThreadMgr *threadMgr() override {
+        D(__FUNCTIONW__);
+        return threadMgr_.get();
+    }
+
+    virtual IUnknown *compositionMgr() override {
+        D(__FUNCTIONW__);
+        return compositionMgr_.as<IUnknown>().get();
     }
 
     virtual IEnumTfDisplayAttributeInfo *displayAttrInfoEnum() override {
+        D(__FUNCTIONW__);
         IEnumTfDisplayAttributeInfo *tmp = nullptr;
         EnumDisplayAttributeInfo(&tmp);
         return tmp;
     }
 
-    virtual ITextEngine *engine() override {
+    virtual TextEngine *engine() override {
+        D(__FUNCTIONW__);
         return engine_.get();
     }
 
     virtual ITfUIElement *candidateUI() override {
+        D(__FUNCTIONW__);
         return candidateListUI_.as<ITfUIElement>().get();
     }
 
@@ -171,10 +180,33 @@ struct TextServiceImpl :
         return S_OK;
     }
 
-    virtual HRESULT updateContext(ITfContext *pContext, TfEditCookie writeEc, KeyEvent keyEvent) override {
+    virtual HRESULT categoryMgr(ITfCategoryMgr **ppCategoryMgr) override {
+        D(__FUNCTIONW__);
+        auto hr = E_FAIL;
+        auto tmp = winrt::com_ptr<ITfCategoryMgr>();
+        hr = ::CoCreateInstance(CLSID_TF_CategoryMgr, NULL, CLSCTX_INPROC_SERVER, IID_ITfCategoryMgr, tmp.put_void());
+        CHECK_RETURN_HRESULT(hr);
+        tmp.copy_to(ppCategoryMgr);
+        return S_OK;
+    }
 
+    virtual HRESULT compositionSink(ITfContext *context, ITfCompositionSink **ppCompositionSink) override {
+        D(__FUNCTIONW__);
+        auto sink = winrt::make<CompositionSink>(this, context);
+        sink.copy_to(ppCompositionSink);
+        return S_OK;
+    }
+
+    virtual HRESULT onCompositionTerminated(TfEditCookie ecWrite, ITfContext *context,
+                                            ITfComposition *pComposition) override {
+        D(__FUNCTIONW__);
         return E_NOTIMPL;
     }
+
+    // virtual HRESULT updateContext(ITfContext *pContext, TfEditCookie writeEc, KeyEvent keyEvent) override {
+
+    //    return E_NOTIMPL;
+    //}
 
     //+---------------------------------------------------------------------------
     //
@@ -183,7 +215,7 @@ struct TextServiceImpl :
     //----------------------------------------------------------------------------
 
     virtual STDMETHODIMP Activate(ITfThreadMgr *ptim, TfClientId tid) override {
-        D(L"Activate");
+        D(__FUNCTIONW__);
         return ActivateEx(ptim, tid, 0);
     }
 
@@ -243,11 +275,13 @@ struct TextServiceImpl :
     //----------------------------------------------------------------------------
 
     virtual STDMETHODIMP EnumDisplayAttributeInfo(IEnumTfDisplayAttributeInfo **ppEnum) override {
+        D(__FUNCTIONW__);
         displayAttributes_.as<IEnumTfDisplayAttributeInfo>().copy_to(ppEnum);
         return S_OK;
     }
 
     virtual STDMETHODIMP GetDisplayAttributeInfo(REFGUID guid, ITfDisplayAttributeInfo **ppInfo) override {
+        D(__FUNCTIONW__);
         auto hr = displayAttributes_->findByGuid(guid, ppInfo);
         CHECK_RETURN_HRESULT(hr);
         return S_OK;
@@ -269,11 +303,24 @@ struct TextServiceImpl :
             CHECK_RETURN_HRESULT(hr);
 
             if (val == false) {
-                engine_->clear();
+                hr = engine_->clear();
+                CHECK_RETURN_HRESULT(hr);
             }
         }
 
         return S_OK;
+    }
+
+    //+---------------------------------------------------------------------------
+    //
+    // ITfCompartmentEventSink
+    //
+    //----------------------------------------------------------------------------
+
+    virtual STDMETHODIMP OnCompositionTerminated(TfEditCookie ecWrite, ITfComposition *pComposition) override {
+        D(__FUNCTIONW__);
+        // handle?
+        return E_NOTIMPL;
     }
 };
 
@@ -283,8 +330,9 @@ struct TextServiceImpl :
 //
 //----------------------------------------------------------------------------
 
-HRESULT TextServiceFactory::create(ITextService **ppService) {
-    as_self<ITextService>(winrt::make_self<TextServiceImpl>()).copy_to(ppService);
+HRESULT TextServiceFactory::create(TextService **ppService) {
+    D(__FUNCTIONW__);
+    as_self<TextService>(winrt::make_self<TextServiceImpl>()).copy_to(ppService);
     return S_OK;
 }
 

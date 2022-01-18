@@ -10,7 +10,7 @@ CandidateListUI::~CandidateListUI() {
     uninit();
 }
 
-HRESULT CandidateListUI::init(ITextService *pTextService) {
+HRESULT CandidateListUI::init(TextService *pTextService) {
     service.copy_from(pTextService);
     candidateWindow = std::make_unique<CandidateWindow>();
 
@@ -40,6 +40,8 @@ HRESULT CandidateListUI::update(ITfContext *pContext, std::vector<std::string> &
 
     hr = candidateWindow->create(parentWndHandle);
     CHECK_RETURN_HRESULT(hr);
+
+    return S_OK;
 }
 
 //+---------------------------------------------------------------------------
@@ -49,14 +51,13 @@ HRESULT CandidateListUI::update(ITfContext *pContext, std::vector<std::string> &
 //----------------------------------------------------------------------------
 
 STDMETHODIMP CandidateListUI::GetDescription(BSTR *pbstrDescription) {
-    auto desc = candidateWindow->className.data();
-    BSTR bstr = ::SysAllocString(candidateWindow->className.data());
+    BSTR bstr = ::SysAllocString(CandidateWindow::className.data());
     pbstrDescription = &bstr;
     return S_OK;
 }
 
 STDMETHODIMP CandidateListUI::GetGUID(GUID *pguid) {
-    *pguid = candidateWindow->guid;
+    *pguid = CandidateWindow::guid;
     return S_OK;
 }
 
