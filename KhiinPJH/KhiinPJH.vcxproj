@@ -138,7 +138,8 @@
       <GenerateMapFile>true</GenerateMapFile>
     </Link>
     <Manifest>
-      <AdditionalManifestFiles>$(ProjectDir)app.manifest %(AdditionalManifestFiles)</AdditionalManifestFiles>
+      <AdditionalManifestFiles>%(AdditionalManifestFiles)</AdditionalManifestFiles>
+      <EnableDpiAwareness>PerMonitorHighDPIAware</EnableDpiAwareness>
     </Manifest>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">

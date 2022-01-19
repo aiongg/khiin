@@ -111,8 +111,10 @@ STDMETHODIMP DllRegisterServer() {
 }
 
 BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserved) {
+
     switch (ul_reason_for_call) {
     case DLL_PROCESS_ATTACH:
+        ::SetProcessDpiAwarenessContext(DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2);
         ::DisableThreadLibraryCalls(hModule);
         return ModuleImpl::OnDllProcessAttach(hModule, lpReserved != nullptr);
     case DLL_PROCESS_DETACH:

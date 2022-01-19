@@ -20,6 +20,7 @@ struct CompositionMgr : winrt::implements<CompositionMgr, IUnknown> {
     HRESULT startComposition(TfEditCookie cookie, ITfContext *pContext);
     HRESULT doComposition(TfEditCookie cookie, ITfContext *pContext, std::string text);
     HRESULT endComposition(TfEditCookie cookie);
+    HRESULT GetTextRange(TfEditCookie cookie, ITfRange **ppRange);
 
   private:
     HRESULT applyDisplayAttribute(TfEditCookie cookie, ITfContext *pContext, ITfRange *pRange, AttrInfoKey index);

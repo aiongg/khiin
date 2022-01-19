@@ -14,7 +14,7 @@ struct CandidateListUI :
     HRESULT init(TextService *pTextService);
     HRESULT uninit();
     HRESULT onCompositionTerminated();
-    HRESULT update(ITfContext *pContext, std::vector<std::string> candidates);
+    HRESULT update(ITfContext *pContext, std::vector<std::string> candidates, RECT text_rect);
 
     // ITfUIElement
     virtual STDMETHODIMP GetDescription(BSTR *pbstrDescription) override;

@@ -28,7 +28,7 @@ HRESULT CandidateListUI::onCompositionTerminated() {
     return S_OK;
 }
 
-HRESULT CandidateListUI::update(ITfContext *pContext, std::vector<std::string> candidates) {
+HRESULT CandidateListUI::update(ITfContext *pContext, std::vector<std::string> candidates, RECT text_rect) {
     D(__FUNCTIONW__);
     auto hr = E_FAIL;
     context.copy_from(pContext);
@@ -45,6 +45,7 @@ HRESULT CandidateListUI::update(ITfContext *pContext, std::vector<std::string> c
         ::MultiByteToWideChar(CP_UTF8, MB_PRECOMPOSED, c.data(), c.size(), &wcand[0], wcand_size);
         candidateList.push_back(std::move(wcand));
     }
+    candidateWindow->SetScreenCoordinates(std::move(text_rect));
     candidateWindow->SetCandidates(&candidateList);
 
     return S_OK;

@@ -50,7 +50,19 @@ struct EditSessionImpl : winrt::implements<EditSessionImpl, ITfEditSession> {
         }
 
         if (action.candMsg == Message::ShowCandidates) {
-            hr = candidateUI->update(context.get(), action.candidates);
+            auto range = winrt::com_ptr<ITfRange>();
+            hr = compositionMgr->GetTextRange(ec, range.put());
+            CHECK_RETURN_HRESULT(hr);
+
+            auto contextView = winrt::com_ptr<ITfContextView>();
+            hr = context->GetActiveView(contextView.put());
+
+            RECT rect;
+            BOOL clipped;
+            hr = contextView->GetTextExt(ec, range.get(), &rect, &clipped);
+            CHECK_RETURN_HRESULT(hr);
+
+            hr = candidateUI->update(context.get(), action.candidates, std::move(rect));
             CHECK_RETURN_HRESULT(hr);
 
             if (!shown) {

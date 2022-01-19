@@ -4,10 +4,6 @@
 
 namespace Khiin {
 
-inline float pt_to_px(const float x) {
-    return x * 4.0f / 3.0f; // 96 px per in / 72 pt per in
-}
-
 std::wstring kCandidateWindowClassName = L"CandidateWindow";
 GUID kCandidateWindowGuid // 829893fa-728d-11ec-8c6e-e0d46491b35a
     = {0x829893fa, 0x728d, 0x11ec, {0x8c, 0x6e, 0xe0, 0xd4, 0x64, 0x91, 0xb3, 0x5a}};
@@ -23,6 +19,14 @@ LRESULT __stdcall CandidateWindow::WndProc(UINT uMsg, WPARAM wParam, LPARAM lPar
         OnPaint();
         return 0;
     }
+    //case WM_DPICHANGED: {
+    //    DiscardGraphicsResources();
+    //    return 0;
+    //}
+    //case WM_SIZE: {
+    //    DiscardGraphicsResources();
+    //    return 0;
+    //}
     }
 
     return ::DefWindowProc(hwnd_, uMsg, wParam, lParam);
@@ -69,13 +73,22 @@ bool CandidateWindow::showing() {
 
 void CandidateWindow::SetCandidates(std::vector<std::wstring> *candidates) {
     this->candidates = candidates;
-    CalculateLayout();
+    LayoutAndRedraw();
+}
+
+void CandidateWindow::SetScreenCoordinates(RECT text_rect_px) {
+    auto left = text_rect_px.left;
+    auto top = text_rect_px.bottom + padding * dpi_scale;
+    Reposition(left, top);
 }
 
 void CandidateWindow::InitializeDpiScale() {
     auto dpi = ::GetDpiForWindow(hwnd_);
-    dpi_scale_x = dpi / 96.0f;
-    dpi_scale_y = dpi / 96.0f;
+    if (current_dpi != dpi) {
+        DiscardGraphicsResources();
+    }
+    current_dpi = dpi;
+    dpi_scale = dpi / 96.0f;
 }
 
 HRESULT CandidateWindow::CreateDeviceIndependentResources() {
@@ -94,15 +107,15 @@ HRESULT CandidateWindow::CreateDeviceIndependentResources() {
 
     if (!dwrite_textformat) {
         hr = dwrite_factory->CreateTextFormat(L"Arial", NULL, DWRITE_FONT_WEIGHT_REGULAR, DWRITE_FONT_STYLE_NORMAL,
-                                              DWRITE_FONT_STRETCH_NORMAL, 24.0f, L"en-us", dwrite_textformat.put());
+                                              DWRITE_FONT_STRETCH_NORMAL, font_size, L"en-us", dwrite_textformat.put());
+        CHECK_RETURN_HRESULT(hr);
+
+        hr = dwrite_textformat->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_LEADING);
+        CHECK_RETURN_HRESULT(hr);
+
+        hr = dwrite_textformat->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_CENTER);
         CHECK_RETURN_HRESULT(hr);
     }
-
-    hr = dwrite_textformat->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_LEADING);
-    CHECK_RETURN_HRESULT(hr);
-
-    hr = dwrite_textformat->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_CENTER);
-    CHECK_RETURN_HRESULT(hr);
 
     return S_OK;
 }
@@ -131,11 +144,14 @@ HRESULT CandidateWindow::CreateGraphicsResources() {
     CHECK_RETURN_HRESULT(hr);
     hr = CreateDeviceResources();
     CHECK_RETURN_HRESULT(hr);
+    hr = CalculateLayout();
+    CHECK_RETURN_HRESULT(hr);
 
     if (!d2d1_brush) {
         hr = render_target->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::Black), d2d1_brush.put());
         CHECK_RETURN_HRESULT(hr);
     }
+
 
     return S_OK;
 }
@@ -144,6 +160,20 @@ void CandidateWindow::DiscardGraphicsResources() {
     render_target = nullptr;
     d2d1_brush = nullptr;
     dwrite_textformat = nullptr;
+    candidate_layouts.clear();
+}
+
+void CandidateWindow::LayoutAndRedraw() {
+    if (!dwrite_factory || !candidates) {
+        return ;
+    }
+
+    DisableRedraw();
+    CalculateLayout();
+    Resize(client_width, client_height);
+    EnableRedraw();
+
+    return ;
 }
 
 HRESULT CandidateWindow::CalculateLayout() {
@@ -151,8 +181,7 @@ HRESULT CandidateWindow::CalculateLayout() {
         return S_FALSE;
     }
 
-    DisableRedraw();
-
+    candidate_layouts.clear();
     int candidates_shown = static_cast<int>(min(candidates->size(), 10));
     float max_width = 0.0f;
 
@@ -172,12 +201,8 @@ HRESULT CandidateWindow::CalculateLayout() {
         ++it;
     }
 
-    client_width = static_cast<int>(max_width) + padding * 2.0f;
-    row_height = pt_to_px(font_size) + padding;
+    client_width = static_cast<int>(max_width + padding * 2.0f);
     client_height = static_cast<int>(candidates_shown * row_height);
-
-    Resize(client_width, client_height);
-    EnableRedraw();
 
     return S_OK;
 }
@@ -218,8 +243,36 @@ void CandidateWindow::OnPaint() {
     ::EndPaint(hwnd_, &ps);
 }
 
+void CandidateWindow::OnDpiChanged(WORD dpi, RECT *pSize) {
+    if (!render_target) {
+        return;
+    }
+    D(__FUNCTIONW__, dpi);
+    // auto size = D2D1::SizeU(pSize->right, pSize->bottom);
+    // render_target->SetDpi(dpi, dpi);
+    // render_target->Resize(size);
+    // client_left = pSize->left;
+    // client_top = pSize->top;
+    // client_width = pSize->right - pSize->left;
+    // client_height = pSize->bottom - pSize->top;
+    // ResetWindowPosition();
+}
+
 void CandidateWindow::Resize(int width, int height) {
-    ::SetWindowPos(hwnd_, HWND_TOP, 0, 0, width, height, SWP_NOZORDER | SWP_NOMOVE | SWP_NOACTIVATE);
+    client_width = width;
+    client_height = height;
+    ResetWindowPosition();
+}
+
+void CandidateWindow::Reposition(int left, int top) {
+    client_left = left;
+    client_top = top;
+    ResetWindowPosition();
+}
+
+void CandidateWindow::ResetWindowPosition() {
+    ::SetWindowPos(hwnd_, HWND_TOP, client_left, client_top, client_width * dpi_scale,
+                   client_height * dpi_scale, SWP_NOZORDER | SWP_NOACTIVATE);
 }
 
 void CandidateWindow::SetBrushColor(D2D1::ColorF color) {

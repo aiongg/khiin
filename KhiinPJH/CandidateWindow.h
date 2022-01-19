@@ -23,6 +23,7 @@ class CandidateWindow : public BaseWindow<CandidateWindow> {
     bool showing();
 
     void SetCandidates(std::vector<std::wstring> *candidates);
+    void SetScreenCoordinates(RECT text_rect);
 
     virtual LRESULT WINAPI WndProc(UINT uMsg, WPARAM wParam, LPARAM lParam) override;
     virtual std::wstring &class_name() const override;
@@ -33,11 +34,15 @@ class CandidateWindow : public BaseWindow<CandidateWindow> {
     HRESULT CreateDeviceResources();
     HRESULT CreateGraphicsResources();
     void DiscardGraphicsResources();
+    void LayoutAndRedraw();
     HRESULT CalculateLayout();
     void DisableRedraw();
     void EnableRedraw();
     void OnPaint();
+    void OnDpiChanged(WORD dpi, RECT *pSize);
     void Resize(int width, int height);
+    void Reposition(int left, int top);
+    void ResetWindowPosition();
     void SetBrushColor(D2D1::ColorF);
 
     bool showing_ = false;
@@ -47,27 +52,24 @@ class CandidateWindow : public BaseWindow<CandidateWindow> {
     winrt::com_ptr<IDWriteFactory> dwrite_factory = nullptr;
     winrt::com_ptr<ID2D1HwndRenderTarget> render_target = nullptr;
     winrt::com_ptr<ID2D1SolidColorBrush> d2d1_brush = nullptr;
-    winrt::com_ptr<IDWriteTextLayout> dwrite_textlayout = nullptr;
     winrt::com_ptr<IDWriteTextFormat> dwrite_textformat = nullptr;
-    D2D1_ELLIPSE ellipse{};
-    float dpi_scale_x = 1.0f;
-    float dpi_scale_y = 1.0f;
-    D2D1_RECT_F text_layout{};
 
     D2D1::ColorF text_color = D2D1::ColorF(D2D1::ColorF::Black);
     D2D1::ColorF bg_color = D2D1::ColorF(D2D1::ColorF::MintCream);
 
+    unsigned int current_dpi = 96;
+    float dpi_scale = 1.0f;
+    int client_top = 0;
+    int client_left = 0;
     int client_height = 0;
     int client_width = 0;
-    float row_height = 0.0f;
-
-    std::vector<winrt::com_ptr<IDWriteTextLayout>> candidate_layouts = {};
-
-    float font_size = 24.0f;
     float padding = 8.0f;
+    float font_size = 24.0f;
+    float row_height = font_size + padding;
 
     std::wstring candidate = L"ŏ\u0358";
     std::vector<std::wstring> *candidates = nullptr;
+    std::vector<winrt::com_ptr<IDWriteTextLayout>> candidate_layouts = {};
 };
 
 } // namespace Khiin

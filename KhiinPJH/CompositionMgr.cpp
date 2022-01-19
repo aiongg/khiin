@@ -137,6 +137,19 @@ HRESULT CompositionMgr::endComposition(TfEditCookie cookie) {
     return S_OK;
 }
 
+HRESULT CompositionMgr::GetTextRange(TfEditCookie cookie, ITfRange **ppRange) {
+    if (!composing()) {
+        return S_OK;
+    }
+
+    auto hr = E_FAIL;
+    auto range = winrt::com_ptr<ITfRange>();
+    hr = composition->GetRange(range.put());
+    CHECK_RETURN_HRESULT(hr);
+    range.copy_to(ppRange);
+    return S_OK;
+}
+
 HRESULT CompositionMgr::applyDisplayAttribute(TfEditCookie cookie, ITfContext *pContext, ITfRange *pRange,
                                               AttrInfoKey index) {
     D(__FUNCTIONW__);
