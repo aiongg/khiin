@@ -137,6 +137,9 @@
       <ModuleDefinitionFile>DllModule.def</ModuleDefinitionFile>
       <GenerateMapFile>true</GenerateMapFile>
     </Link>
+    <Manifest>
+      <AdditionalManifestFiles>$(ProjectDir)app.manifest %(AdditionalManifestFiles)</AdditionalManifestFiles>
+    </Manifest>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>

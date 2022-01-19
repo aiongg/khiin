@@ -2,8 +2,6 @@
 
 #include "pch.h"
 
-#define MAKEINTATOM(i) (LPTSTR)((ULONG_PTR)((WORD)(i)))
-
 namespace Khiin {
 
 extern HMODULE g_moduleHandle;
@@ -11,12 +9,13 @@ extern HMODULE g_moduleHandle;
 class WindowSetup {
   public:
     static void OnDllProcessAttach(HMODULE module);
+    static void OnDllProcessDetach(HMODULE module);
 };
 
 template <typename DerivedWindow>
 class BaseWindow {
   public:
-    static LRESULT CALLBACK staticWndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
+    static LRESULT CALLBACK StaticWndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
         DerivedWindow *self = NULL;
 
         if (uMsg == WM_NCCREATE) {
@@ -29,7 +28,7 @@ class BaseWindow {
         }
 
         if (self) {
-            return self->wndProc(uMsg, wParam, lParam);
+            return self->WndProc(uMsg, wParam, lParam);
         } else {
             return ::DefWindowProc(hwnd, uMsg, wParam, lParam);
         }
@@ -47,11 +46,11 @@ class BaseWindow {
     }
 
   protected:
-    virtual std::wstring &className() const = 0;
-    virtual LRESULT wndProc(UINT uMsg, WPARAM wParam, LPARAM lParam) = 0;
+    virtual std::wstring &class_name() const = 0;
+    virtual LRESULT WndProc(UINT uMsg, WPARAM wParam, LPARAM lParam) = 0;
     HWND hwnd_ = NULL;
 
-    bool create_(PCWSTR lpWindowName, // clang-format off
+    bool Create_(PCWSTR lpWindowName, // clang-format off
                  DWORD dwStyle,
                  DWORD dwExStyle = 0,
                  int x = CW_USEDEFAULT,
@@ -61,14 +60,14 @@ class BaseWindow {
                  HWND hWndParent = 0,
                  HMENU hMenu = 0) { // clang-format on
 
-        auto registered = registerIfNotExists_();
+        auto registered = RegisterIfNotExists();
 
         if (!registered) {
             return false;
         }
 
         hwnd_ = ::CreateWindowEx(dwExStyle, // clang-format off
-                                 className().data(),
+                                 class_name().data(),
                                  lpWindowName,
                                  dwStyle,
                                  x, y, nWidth, nHeight,
@@ -85,27 +84,27 @@ class BaseWindow {
         return true;
     }
 
-    void destroy_() {
+    void Destroy_() {
         if (hwnd_ != NULL) {
             ::DestroyWindow(hwnd_);
         }
     }
 
   private:
-    bool registerIfNotExists_() {
+    bool RegisterIfNotExists() {
         WNDCLASSEX wc = {0};
 
-        if (::GetClassInfoEx(g_moduleHandle, className().data(), &wc)) {
+        if (::GetClassInfoEx(g_moduleHandle, class_name().data(), &wc)) {
             return TRUE;
         }
 
         wc = {0};
         wc.cbSize = sizeof(WNDCLASSEXW);
-        wc.style = CS_DROPSHADOW | CS_HREDRAW | CS_VREDRAW | CS_IME;
-        wc.lpfnWndProc = DerivedWindow::staticWndProc;
+        wc.style = CS_HREDRAW | CS_VREDRAW | CS_IME;
+        wc.lpfnWndProc = DerivedWindow::StaticWndProc;
         wc.cbClsExtra = 0;
         wc.hInstance = g_moduleHandle;
-        wc.lpszClassName = className().data();
+        wc.lpszClassName = class_name().data();
         wc.hIcon = NULL;
         wc.hIconSm = NULL;
         wc.hCursor = NULL;

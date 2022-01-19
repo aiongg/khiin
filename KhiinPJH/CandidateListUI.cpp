@@ -17,14 +17,14 @@ HRESULT CandidateListUI::uninit() {
     D(__FUNCTIONW__);
     service = nullptr;
     context = nullptr;
-    candidateWindow->destroy();
+    candidateWindow->Destroy();
     candidateWindow.reset(nullptr);
     return S_OK;
 }
 
 HRESULT CandidateListUI::onCompositionTerminated() {
     D(__FUNCTIONW__);
-    candidateWindow->destroy();
+    candidateWindow->Destroy();
     return S_OK;
 }
 
@@ -38,6 +38,15 @@ HRESULT CandidateListUI::update(ITfContext *pContext, std::vector<std::string> c
         CHECK_RETURN_HRESULT(hr);
     }
 
+    candidateList.clear();
+    for (auto &c : candidates) {
+        auto wcand_size = ::MultiByteToWideChar(CP_UTF8, MB_PRECOMPOSED, c.data(), c.size(), NULL, 0);
+        auto wcand = std::wstring(wcand_size, '\0');
+        ::MultiByteToWideChar(CP_UTF8, MB_PRECOMPOSED, c.data(), c.size(), &wcand[0], wcand_size);
+        candidateList.push_back(std::move(wcand));
+    }
+    candidateWindow->SetCandidates(&candidateList);
+
     return S_OK;
 }
 
@@ -48,13 +57,13 @@ HRESULT CandidateListUI::update(ITfContext *pContext, std::vector<std::string> c
 //----------------------------------------------------------------------------
 
 STDMETHODIMP CandidateListUI::GetDescription(BSTR *pbstrDescription) {
-    BSTR bstr = ::SysAllocString(CandidateWindow_ClassName.data());
+    BSTR bstr = ::SysAllocString(kCandidateWindowClassName.data());
     pbstrDescription = &bstr;
     return S_OK;
 }
 
 STDMETHODIMP CandidateListUI::GetGUID(GUID *pguid) {
-    *pguid = CandidateWindow_GUID;
+    *pguid = kCandidateWindowGuid;
     return S_OK;
 }
 
@@ -66,10 +75,10 @@ STDMETHODIMP CandidateListUI::Show(BOOL bShow) {
     }
 
     if (bShow) {
-        hr = candidateWindow->show();
+        hr = candidateWindow->Show();
         CHECK_RETURN_HRESULT(hr);
     } else {
-        hr = candidateWindow->hide();
+        hr = candidateWindow->Hide();
         CHECK_RETURN_HRESULT(hr);
     }
 
@@ -175,11 +184,11 @@ HRESULT CandidateListUI::makeCandidateWindow() {
     CHECK_RETURN_HRESULT(hr);
 
     if (!(parentWnd)) {
-        parentWnd =::GetFocus();
+        parentWnd = ::GetFocus();
     }
 
     candidateWindow = std::make_unique<CandidateWindow>(parentWnd);
-    candidateWindow->create();
+    candidateWindow->Create();
 
     return S_OK;
 }

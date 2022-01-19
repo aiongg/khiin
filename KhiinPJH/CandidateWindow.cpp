@@ -4,37 +4,46 @@
 
 namespace Khiin {
 
-std::wstring CandidateWindow_ClassName = L"CandidateWindow";
-GUID CandidateWindow_GUID // 829893fa-728d-11ec-8c6e-e0d46491b35a
+inline float pt_to_px(const float x) {
+    return x * 4.0f / 3.0f; // 96 px per in / 72 pt per in
+}
+
+std::wstring kCandidateWindowClassName = L"CandidateWindow";
+GUID kCandidateWindowGuid // 829893fa-728d-11ec-8c6e-e0d46491b35a
     = {0x829893fa, 0x728d, 0x11ec, {0x8c, 0x6e, 0xe0, 0xd4, 0x64, 0x91, 0xb3, 0x5a}};
 
-CandidateWindow::CandidateWindow(HWND parent) : hwndParent_(parent) {}
-
-LRESULT __stdcall CandidateWindow::wndProc(UINT uMsg, WPARAM wParam, LPARAM lParam) {
+LRESULT __stdcall CandidateWindow::WndProc(UINT uMsg, WPARAM wParam, LPARAM lParam) {
     D(__FUNCTIONW__, " (", uMsg, ")");
-    // TODO
-    // if (uMsg == WM_PAINT) {
-    //    onPaint();
-    //    return 0;
-    //}
+
+    switch (uMsg) {
+    case WM_CREATE: {
+        return SUCCEEDED(CreateDeviceIndependentResources()) ? 0 : -1;
+    }
+    case WM_PAINT: {
+        OnPaint();
+        return 0;
+    }
+    }
 
     return ::DefWindowProc(hwnd_, uMsg, wParam, lParam);
 }
 
-void CandidateWindow::create() {
-    create_(NULL, // clang-format off
+CandidateWindow::CandidateWindow(HWND parent) : hwnd_parent_(parent) {}
+
+void CandidateWindow::Create() {
+    Create_(NULL, // clang-format off
             WS_BORDER | WS_POPUP,
             WS_EX_TOPMOST | WS_EX_TOOLWINDOW | WS_EX_NOACTIVATE,
             0, 0, 100, 100,
-            hwndParent_,
+            hwnd_parent_,
             NULL); // clang-format on
 }
 
-void CandidateWindow::destroy() {
-    destroy_();
+void CandidateWindow::Destroy() {
+    Destroy_();
 }
 
-HRESULT CandidateWindow::show() {
+HRESULT CandidateWindow::Show() {
     if (showing_) {
         return S_OK;
     }
@@ -44,7 +53,7 @@ HRESULT CandidateWindow::show() {
     return S_OK;
 }
 
-HRESULT CandidateWindow::hide() {
+HRESULT CandidateWindow::Hide() {
     if (!showing_) {
         return S_OK;
     }
@@ -58,13 +67,167 @@ bool CandidateWindow::showing() {
     return showing_;
 }
 
-void CandidateWindow::onPaint() {
-    auto hr = E_FAIL;
-    // hr = CreateGraphicsResources();
+void CandidateWindow::SetCandidates(std::vector<std::wstring> *candidates) {
+    this->candidates = candidates;
+    CalculateLayout();
 }
 
-std::wstring &CandidateWindow::className() const {
-    return CandidateWindow_ClassName;
+void CandidateWindow::InitializeDpiScale() {
+    auto dpi = ::GetDpiForWindow(hwnd_);
+    dpi_scale_x = dpi / 96.0f;
+    dpi_scale_y = dpi / 96.0f;
+}
+
+HRESULT CandidateWindow::CreateDeviceIndependentResources() {
+    auto hr = E_FAIL;
+
+    if (!d2d1_factory) {
+        hr = ::D2D1CreateFactory(D2D1_FACTORY_TYPE_SINGLE_THREADED, d2d1_factory.put());
+        CHECK_RETURN_HRESULT(hr);
+    }
+
+    if (!dwrite_factory) {
+        hr = ::DWriteCreateFactory(DWRITE_FACTORY_TYPE_SHARED, __uuidof(IDWriteFactory),
+                                   reinterpret_cast<IUnknown **>(dwrite_factory.put()));
+        CHECK_RETURN_HRESULT(hr);
+    }
+
+    if (!dwrite_textformat) {
+        hr = dwrite_factory->CreateTextFormat(L"Arial", NULL, DWRITE_FONT_WEIGHT_REGULAR, DWRITE_FONT_STYLE_NORMAL,
+                                              DWRITE_FONT_STRETCH_NORMAL, 24.0f, L"en-us", dwrite_textformat.put());
+        CHECK_RETURN_HRESULT(hr);
+    }
+
+    hr = dwrite_textformat->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_LEADING);
+    CHECK_RETURN_HRESULT(hr);
+
+    hr = dwrite_textformat->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_CENTER);
+    CHECK_RETURN_HRESULT(hr);
+
+    return S_OK;
+}
+
+HRESULT CandidateWindow::CreateDeviceResources() {
+    auto hr = E_FAIL;
+
+    RECT rc;
+    ::GetClientRect(hwnd_, &rc);
+    D2D1_SIZE_U size = D2D1::SizeU(rc.right, rc.bottom);
+
+    if (!render_target) {
+        hr = d2d1_factory->CreateHwndRenderTarget(D2D1::RenderTargetProperties(),
+                                                  D2D1::HwndRenderTargetProperties(hwnd_, size), render_target.put());
+        CHECK_RETURN_HRESULT(hr);
+    }
+
+    return S_OK;
+}
+
+HRESULT CandidateWindow::CreateGraphicsResources() {
+    auto hr = E_FAIL;
+
+    InitializeDpiScale();
+    hr = CreateDeviceIndependentResources();
+    CHECK_RETURN_HRESULT(hr);
+    hr = CreateDeviceResources();
+    CHECK_RETURN_HRESULT(hr);
+
+    if (!d2d1_brush) {
+        hr = render_target->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::Black), d2d1_brush.put());
+        CHECK_RETURN_HRESULT(hr);
+    }
+
+    return S_OK;
+}
+
+void CandidateWindow::DiscardGraphicsResources() {
+    render_target = nullptr;
+    d2d1_brush = nullptr;
+    dwrite_textformat = nullptr;
+}
+
+HRESULT CandidateWindow::CalculateLayout() {
+    if (!dwrite_factory || !candidates) {
+        return S_FALSE;
+    }
+
+    DisableRedraw();
+
+    int candidates_shown = static_cast<int>(min(candidates->size(), 10));
+    float max_width = 0.0f;
+
+    auto it = candidates->cbegin();
+    auto end = it + candidates_shown;
+
+    while (it != end) {
+        auto &cand = *it;
+        auto layout = winrt::com_ptr<IDWriteTextLayout>();
+        auto hr = dwrite_factory->CreateTextLayout(cand.data(), static_cast<UINT>(cand.size()), dwrite_textformat.get(),
+                                                   0, 0, layout.put());
+        CHECK_RETURN_HRESULT(hr);
+        float min_width;
+        layout->DetermineMinWidth(&min_width);
+        max_width = max(max_width, min_width);
+        candidate_layouts.push_back(std::move(layout));
+        ++it;
+    }
+
+    client_width = static_cast<int>(max_width) + padding * 2.0f;
+    row_height = pt_to_px(font_size) + padding;
+    client_height = static_cast<int>(candidates_shown * row_height);
+
+    Resize(client_width, client_height);
+    EnableRedraw();
+
+    return S_OK;
+}
+
+void CandidateWindow::DisableRedraw() {
+    ::SendMessage(hwnd_, WM_SETREDRAW, FALSE, FALSE);
+}
+
+void CandidateWindow::EnableRedraw() {
+    ::SendMessage(hwnd_, WM_SETREDRAW, TRUE, FALSE);
+    ::RedrawWindow(hwnd_, NULL, NULL, RDW_ERASE | RDW_FRAME | RDW_INVALIDATE | RDW_ALLCHILDREN);
+}
+
+void CandidateWindow::OnPaint() {
+    auto hr = CreateGraphicsResources();
+    if (FAILED(hr)) {
+        return;
+    }
+
+    PAINTSTRUCT ps;
+    ::BeginPaint(hwnd_, &ps);
+
+    render_target->BeginDraw();
+    render_target->Clear(bg_color);
+
+    SetBrushColor(text_color);
+    D2D1_POINT_2F origin = {padding, padding * 2};
+
+    for (auto &layout : candidate_layouts) {
+        render_target->DrawTextLayout(origin, layout.get(), d2d1_brush.get());
+        origin.y += row_height;
+    }
+
+    hr = render_target->EndDraw();
+    if (FAILED(hr) || hr == D2DERR_RECREATE_TARGET) {
+        DiscardGraphicsResources();
+    }
+    ::EndPaint(hwnd_, &ps);
+}
+
+void CandidateWindow::Resize(int width, int height) {
+    ::SetWindowPos(hwnd_, HWND_TOP, 0, 0, width, height, SWP_NOZORDER | SWP_NOMOVE | SWP_NOACTIVATE);
+}
+
+void CandidateWindow::SetBrushColor(D2D1::ColorF color) {
+    d2d1_brush->SetColor(D2D1::ColorF(color));
+}
+
+std::wstring &CandidateWindow::class_name() const {
+    return kCandidateWindowClassName;
 }
 
 } // namespace Khiin

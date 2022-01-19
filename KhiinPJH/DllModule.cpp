@@ -2,28 +2,23 @@
 
 #include "DllModule.h"
 
+#include "BaseWindow.h"
 #include "CandidateWindow.h"
 #include "KhiinClassFactory.h"
 #include "Registrar.h"
-#include "BaseWindow.h"
 
 namespace {
 
+std::atomic_int count;
+
 class ModuleImpl {
   public:
-    // Increases and decreases the reference count to this module.
-    // This reference count is used for preventing Windows from unloading
-    // this module.
-    static LONG AddRef() {
-        ::InterlockedIncrement(&refCount);
-        return ::InterlockedExchange(&refCount, 0);
+    static void AddRef() {
+        ++count;
     }
 
-    static LONG Release() {
-        if (::InterlockedDecrement(&refCount) == 0) {
-            // Shutdown
-        }
-        return ::InterlockedExchange(&refCount, 0);
+    static void Release() {
+        --count;
     }
 
     static bool IsUnloaded() {
@@ -31,17 +26,17 @@ class ModuleImpl {
     }
 
     static bool CanUnload() {
-        return refCount <= 0;
+        return count <= 0;
     }
 
     static BOOL OnDllProcessAttach(HINSTANCE instance, bool static_loading) {
         Khiin::WindowSetup::OnDllProcessAttach(instance);
-        //Khiin::CandidateWindow::OnDllProcessAttach(instance);
         moduleHandle = instance;
         return TRUE;
     }
 
     static BOOL OnDllProcessDetach(HINSTANCE instance, bool process_shutdown) {
+        Khiin::WindowSetup::OnDllProcessDetach(instance);
         moduleHandle = nullptr;
         unloaded = true;
         return TRUE;
@@ -53,22 +48,19 @@ class ModuleImpl {
 
   private:
     static HMODULE moduleHandle;
-    static volatile LONG refCount;
     static bool unloaded;
 };
 
 HMODULE ModuleImpl::moduleHandle = nullptr;
-volatile LONG ModuleImpl::refCount = 0;
 bool ModuleImpl::unloaded = false;
 
 } // namespace
 
 __control_entrypoint(DllExport) STDAPI DllCanUnloadNow(void) {
-    if (winrt::get_module_lock()) {
+    if (!ModuleImpl::CanUnload()) {
         return S_FALSE;
     }
 
-    winrt::clear_factory_cache();
     return S_OK;
 }
 
@@ -119,9 +111,9 @@ STDMETHODIMP DllRegisterServer() {
 }
 
 BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserved) {
-    // MessageBox(NULL, (LPCWSTR)L"2", (LPCWSTR)L"OK", MB_DEFBUTTON2);
     switch (ul_reason_for_call) {
     case DLL_PROCESS_ATTACH:
+        ::DisableThreadLibraryCalls(hModule);
         return ModuleImpl::OnDllProcessAttach(hModule, lpReserved != nullptr);
     case DLL_PROCESS_DETACH:
         return ModuleImpl::OnDllProcessDetach(hModule, lpReserved != nullptr);
@@ -131,19 +123,22 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserv
 
 namespace Khiin {
 
-// Increases the reference count to this module.
-LONG DllModule::AddRef() {
-    return ModuleImpl::AddRef();
+void DllModule::AddRef() {
+    ModuleImpl::AddRef();
 }
-LONG DllModule::Release() {
-    return ModuleImpl::Release();
+
+void DllModule::Release() {
+    ModuleImpl::Release();
 }
+
 bool DllModule::IsUnloaded() {
     return ModuleImpl::IsUnloaded();
 }
+
 bool DllModule::CanUnload() {
     return ModuleImpl::CanUnload();
 }
+
 HMODULE DllModule::module_handle() {
     return ModuleImpl::module_handle();
 }

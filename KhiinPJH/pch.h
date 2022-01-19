@@ -19,7 +19,8 @@
 #include <Unknwn.h>
 
 #include <windows.h>
-#include <d2d1.h>
+#include <d2d1_1.h>
+#include <dwrite_3.h>
 #include <ctffunc.h>
 #include <msctf.h>
 //#include <dwmapi.h>

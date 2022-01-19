@@ -50,6 +50,7 @@ struct CandidateListUI :
     std::unique_ptr<CandidateWindow> candidateWindow;
     winrt::com_ptr<TextService> service;
     winrt::com_ptr<ITfContext> context;
+    std::vector<std::wstring> candidateList = {};
 };
 
 } // namespace Khiin
