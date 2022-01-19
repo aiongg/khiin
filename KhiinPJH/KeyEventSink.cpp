@@ -27,10 +27,10 @@ HRESULT KeyEventSink::init(TextService *pTextService) {
 
 HRESULT KeyEventSink::uninit() {
     D(__FUNCTIONW__);
-    WINRT_ASSERT(keystrokeMgr);
-
-    auto hr = keystrokeMgr->UnadviseKeyEventSink(service->clientId());
-    CHECK_RETURN_HRESULT(hr);
+    if (keystrokeMgr) {
+        auto hr = keystrokeMgr->UnadviseKeyEventSink(service->clientId());
+        CHECK_RETURN_HRESULT(hr);
+    }
 
     threadMgr = nullptr;
     keystrokeMgr = nullptr;

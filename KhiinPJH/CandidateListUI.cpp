@@ -48,13 +48,13 @@ HRESULT CandidateListUI::update(ITfContext *pContext, std::vector<std::string> c
 //----------------------------------------------------------------------------
 
 STDMETHODIMP CandidateListUI::GetDescription(BSTR *pbstrDescription) {
-    BSTR bstr = ::SysAllocString(CandidateWindow::className.data());
+    BSTR bstr = ::SysAllocString(CandidateWindow_ClassName.data());
     pbstrDescription = &bstr;
     return S_OK;
 }
 
 STDMETHODIMP CandidateListUI::GetGUID(GUID *pguid) {
-    *pguid = CandidateWindow::guid;
+    *pguid = CandidateWindow_GUID;
     return S_OK;
 }
 
@@ -179,7 +179,7 @@ HRESULT CandidateListUI::makeCandidateWindow() {
     }
 
     candidateWindow = std::make_unique<CandidateWindow>(parentWnd);
-    CHECK_RETURN_HRESULT(hr);
+    candidateWindow->create();
 
     return S_OK;
 }
