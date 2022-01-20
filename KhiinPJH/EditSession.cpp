@@ -27,7 +27,7 @@ struct EditSessionImpl : winrt::implements<EditSessionImpl, ITfEditSession> {
 
     virtual STDMETHODIMP DoEditSession(TfEditCookie ec) override {
         D(__FUNCTIONW__);
-        auto hr = E_FAIL;
+        TRY_FOR_HRESULT;
         auto compositionMgr = cast_as<CompositionMgr>(service->compositionMgr());
         auto candidateUI = cast_as<CandidateListUI>(service->candidateUI());
         bool composing = compositionMgr->composing();
@@ -35,48 +35,42 @@ struct EditSessionImpl : winrt::implements<EditSessionImpl, ITfEditSession> {
         candidateUI->IsShown(&shown);
 
         if (action.compMsg == Message::StartComposition && !composing) {
-            hr = compositionMgr->startComposition(ec, context.get());
-            CHECK_RETURN_HRESULT(hr);
+            compositionMgr->StartComposition(ec, context.get());
         }
 
         if (action.compMsg == Message::UpdateComposition || action.compMsg == Message::StartComposition) {
-            hr = compositionMgr->doComposition(ec, context.get(), action.text);
-            CHECK_RETURN_HRESULT(hr);
+            compositionMgr->DoComposition(ec, context.get(), action.text);
         }
 
         if (action.compMsg == Message::CommitText) {
-            hr = compositionMgr->endComposition(ec);
-            CHECK_RETURN_HRESULT(hr);
+            compositionMgr->EndComposition(ec);
         }
 
         if (action.candMsg == Message::ShowCandidates) {
             auto range = winrt::com_ptr<ITfRange>();
-            hr = compositionMgr->GetTextRange(ec, range.put());
-            CHECK_RETURN_HRESULT(hr);
+            compositionMgr->GetTextRange(ec, range.put());
 
             auto contextView = winrt::com_ptr<ITfContextView>();
-            hr = context->GetActiveView(contextView.put());
+            winrt::check_hresult(context->GetActiveView(contextView.put()));
 
             RECT rect;
             BOOL clipped;
-            hr = contextView->GetTextExt(ec, range.get(), &rect, &clipped);
-            CHECK_RETURN_HRESULT(hr);
+            winrt::check_hresult(contextView->GetTextExt(ec, range.get(), &rect, &clipped));
 
-            hr = candidateUI->update(context.get(), action.candidates, std::move(rect));
-            CHECK_RETURN_HRESULT(hr);
+            candidateUI->Update(context.get(), action.candidates, std::move(rect));
 
             if (!shown) {
-                hr = candidateUI->Show(true);
-                CHECK_RETURN_HRESULT(hr);
+                winrt::check_hresult(candidateUI->Show(true));
+                
             }
         } else if (action.candMsg == Message::HideCandidates) {
             if (shown) {
-                hr = candidateUI->Show(false);
-                CHECK_RETURN_HRESULT(hr);
+                winrt::check_hresult(candidateUI->Show(false));
             }
         }
 
         return S_OK;
+        CATCH_FOR_HRESULT;
     }
 
   private:
@@ -85,15 +79,14 @@ struct EditSessionImpl : winrt::implements<EditSessionImpl, ITfEditSession> {
     Action action;
 };
 
-HRESULT EditSession::handleAction(TextService *pService, ITfContext *pContext, Action action) {
+void EditSession::HandleAction(TextService *pService, ITfContext *pContext, Action action) {
     D(__FUNCTIONW__);
     auto session = winrt::make_self<EditSessionImpl>(pService, pContext, action);
-    auto sessionHr = E_FAIL;
-    auto hr = pContext->RequestEditSession(pService->clientId(), session.get(), AsyncDontCareRW, &sessionHr);
-    CHECK_RETURN_HRESULT(hr);
-    CHECK_RETURN_HRESULT(sessionHr);
 
-    return S_OK;
+    auto sessionHr = E_FAIL;
+    winrt::check_hresult(
+        pContext->RequestEditSession(pService->clientId(), session.get(), AsyncDontCareRW, &sessionHr));
+    winrt::check_hresult(sessionHr);
 }
 
 } // namespace Khiin

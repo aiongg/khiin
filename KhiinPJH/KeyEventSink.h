@@ -14,12 +14,14 @@ struct KeyEventSink : winrt::implements<KeyEventSink, ITfKeyEventSink> {
 
   public:
     KeyEventSink() = default;
+    KeyEventSink(const KeyEventSink &) = delete;
+    KeyEventSink &operator=(const KeyEventSink &) = delete;
     ~KeyEventSink();
-    HRESULT init(TextService *pTextService);
-    HRESULT uninit();
+    void Activate(TextService *pTextService);
+    void Deactivate();
 
-    HRESULT onTestKey(ITfContext *pContext, KeyEvent keyEvent, BOOL *pfEaten);
-    HRESULT onKey(ITfContext *pContext, KeyEvent keyEvent, BOOL *pfEaten);
+    void TestKey(ITfContext *pContext, KeyEvent keyEvent, BOOL *pfEaten);
+    void HandleKey(ITfContext *pContext, KeyEvent keyEvent, BOOL *pfEaten);
 
     // ITfKeyEventSink
     virtual STDMETHODIMP OnSetFocus(BOOL fForeground) override;
@@ -36,8 +38,6 @@ struct KeyEventSink : winrt::implements<KeyEventSink, ITfKeyEventSink> {
     winrt::com_ptr<ITfThreadMgr> threadMgr = nullptr;
     winrt::com_ptr<ITfKeystrokeMgr> keystrokeMgr = nullptr;
     winrt::com_ptr<CompositionMgr> compositionMgr = nullptr;
-
-    DELETE_COPY_AND_ASSIGN(KeyEventSink);
 };
 
 } // namespace Khiin

@@ -10,80 +10,59 @@ namespace Khiin {
 enum class KeyEventSink::KeyAction { Test, Input };
 
 KeyEventSink::~KeyEventSink() {
-    uninit();
+    Deactivate();
 }
 
-HRESULT KeyEventSink::init(TextService *pTextService) {
+void KeyEventSink::Activate(TextService *pTextService) {
     service.copy_from(pTextService);
     threadMgr.copy_from(service->threadMgr());
     compositionMgr.copy_from(cast_as<CompositionMgr>(service->compositionMgr()));
     keystrokeMgr = threadMgr.as<ITfKeystrokeMgr>();
 
-    auto hr = keystrokeMgr->AdviseKeyEventSink(service->clientId(), this, TRUE);
-    CHECK_RETURN_HRESULT(hr);
-
-    return S_OK;
+    winrt::check_hresult(keystrokeMgr->AdviseKeyEventSink(service->clientId(), this, TRUE));
 }
 
-HRESULT KeyEventSink::uninit() {
+void KeyEventSink::Deactivate() {
     D(__FUNCTIONW__);
     if (keystrokeMgr) {
-        auto hr = keystrokeMgr->UnadviseKeyEventSink(service->clientId());
-        CHECK_RETURN_HRESULT(hr);
+        winrt::check_hresult(keystrokeMgr->UnadviseKeyEventSink(service->clientId()));
     }
 
     threadMgr = nullptr;
     keystrokeMgr = nullptr;
     compositionMgr = nullptr;
     service = nullptr;
-
-    return S_OK;
 }
 
-HRESULT KeyEventSink::onTestKey(ITfContext *pContext, KeyEvent keyEvent, BOOL *pfEaten) {
+void KeyEventSink::TestKey(ITfContext *pContext, KeyEvent keyEvent, BOOL *pfEaten) {
     D(__FUNCTIONW__);
     WINRT_ASSERT(pContext);
     WINRT_ASSERT(compositionMgr);
 
-    auto hr = E_FAIL;
     auto engine = service->engine();
-
     if (!compositionMgr->composing()) {
-        hr = engine->clear();
-        CHECK_RETURN_HRESULT(hr);
+        engine->Reset();
     }
 
-    hr = engine->onTestKey(keyEvent, pfEaten);
-    CHECK_RETURN_HRESULT(hr);
-
+    engine->TestKey(keyEvent, pfEaten);
     if (*pfEaten) {
-        return S_OK;
+        return;
     }
-
-    hr = engine->clear();
-    CHECK_RETURN_HRESULT(hr);
-
+    engine->Reset();
     auto action = Action();
     action.compMsg = Message::CommitText;
     action.candMsg = Message::HideCandidates;
-    hr = EditSession::handleAction(service.get(), pContext, std::move(action));
-    CHECK_RETURN_HRESULT(hr);
-
-    return S_OK;
+    EditSession::HandleAction(service.get(), pContext, std::move(action));
 }
 
-HRESULT KeyEventSink::onKey(ITfContext *pContext, KeyEvent keyEvent, BOOL *pfEaten) {
-    D(__FUNCTIONW__);
-    auto hr = E_FAIL;
-    hr = onTestKey(pContext, keyEvent, pfEaten);
-    CHECK_RETURN_HRESULT(hr);
+void KeyEventSink::HandleKey(ITfContext *pContext, KeyEvent keyEvent, BOOL *pfEaten) {
+    TestKey(pContext, keyEvent, pfEaten);
 
     if (!*pfEaten) {
-        return S_OK;
+        return;
     }
 
-    hr = service->engine()->onKey(keyEvent);
-    CHECK_RETURN_HRESULT(hr);
+    service->engine()->OnKey(keyEvent);
 
     auto action = Action();
 
@@ -97,10 +76,7 @@ HRESULT KeyEventSink::onKey(ITfContext *pContext, KeyEvent keyEvent, BOOL *pfEat
     action.candidates = service->engine()->candidates();
     action.candMsg = Message::ShowCandidates;
 
-    hr = EditSession::handleAction(service.get(), pContext, std::move(action));
-    CHECK_RETURN_HRESULT(hr);
-
-    return S_OK;
+    EditSession::HandleAction(service.get(), pContext, std::move(action));
 }
 
 //+---------------------------------------------------------------------------
@@ -110,57 +86,58 @@ HRESULT KeyEventSink::onKey(ITfContext *pContext, KeyEvent keyEvent, BOOL *pfEat
 //----------------------------------------------------------------------------
 
 STDMETHODIMP KeyEventSink::OnSetFocus(BOOL fForeground) {
-    D(__FUNCTIONW__);
+    TRY_FOR_HRESULT;
     if (!fForeground) {
         return S_OK;
     }
 
-    auto hr = E_FAIL;
-
-    // auto docMgr = winrt::com_ptr<ITfDocumentMgr>();
-    // hr = threadMgr->GetFocus(docMgr.put());
-    // CHECK_RETURN_HRESULT(hr);
-    //
-    // auto ctx = winrt::com_ptr<ITfContext>();
-    // hr = docMgr->GetTop(ctx.put());
-    // CHECK_RETURN_HRESULT(hr);
-
-    return S_OK;
+    return E_NOTIMPL;
+    CATCH_FOR_HRESULT;
 }
 
 STDMETHODIMP KeyEventSink::OnTestKeyDown(ITfContext *pContext, WPARAM wParam, LPARAM lParam, BOOL *pfEaten) {
+    TRY_FOR_HRESULT;
     D(__FUNCTIONW__);
 
     auto keyEvent = KeyEvent(WM_KEYDOWN, wParam, lParam);
-    auto hr = onTestKey(pContext, keyEvent, pfEaten);
-    CHECK_RETURN_HRESULT(hr);
+    TestKey(pContext, keyEvent, pfEaten);
 
     return S_OK;
+    CATCH_FOR_HRESULT;
 }
 
 STDMETHODIMP KeyEventSink::OnTestKeyUp(ITfContext *pContext, WPARAM wParam, LPARAM lParam, BOOL *pfEaten) {
+    TRY_FOR_HRESULT;
+
     auto keyEvent = KeyEvent(WM_KEYUP, wParam, lParam);
 
     return E_NOTIMPL;
+    CATCH_FOR_HRESULT;
 }
+
 STDMETHODIMP KeyEventSink::OnKeyDown(ITfContext *pContext, WPARAM wParam, LPARAM lParam, BOOL *pfEaten) {
+    TRY_FOR_HRESULT;
     D(__FUNCTIONW__, " (W=", wParam, ")");
 
     auto keyEvent = KeyEvent(WM_KEYDOWN, wParam, lParam);
-    auto hr = onKey(pContext, keyEvent, pfEaten);
-    CHECK_RETURN_HRESULT(hr);
+    HandleKey(pContext, keyEvent, pfEaten);
 
     return S_OK;
+    CATCH_FOR_HRESULT;
 }
 
 STDMETHODIMP KeyEventSink::OnKeyUp(ITfContext *pic, WPARAM wParam, LPARAM lParam, BOOL *pfEaten) {
+    TRY_FOR_HRESULT;
     auto keyEvent = KeyEvent(WM_KEYUP, wParam, lParam);
 
     return E_NOTIMPL;
+    CATCH_FOR_HRESULT;
 }
 
 STDMETHODIMP KeyEventSink::OnPreservedKey(ITfContext *pic, REFGUID rguid, BOOL *pfEaten) {
+    TRY_FOR_HRESULT;
     return E_NOTIMPL;
+    CATCH_FOR_HRESULT;
 }
 
 } // namespace Khiin

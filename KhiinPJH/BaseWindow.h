@@ -19,9 +19,10 @@ class BaseWindow {
         DerivedWindow *self = NULL;
 
         if (uMsg == WM_NCCREATE) {
+            D("WM_NCCREATE");
             LPCREATESTRUCT lpcs = reinterpret_cast<LPCREATESTRUCT>(lParam);
             self = static_cast<DerivedWindow *>(lpcs->lpCreateParams);
-            self->hwnd_ = hwnd;
+            self->m_hwnd = hwnd;
             ::SetWindowLongPtr(hwnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(self));
         } else {
             self = reinterpret_cast<DerivedWindow *>(::GetWindowLongPtr(hwnd, GWLP_USERDATA));
@@ -36,19 +37,19 @@ class BaseWindow {
 
     BaseWindow() = default;
     ~BaseWindow() {
-        if (hwnd_ != NULL) {
-            ::DestroyWindow(hwnd_);
+        if (m_hwnd != NULL) {
+            ::DestroyWindow(m_hwnd);
         }
     }
 
     HWND hwnd() const {
-        return hwnd_;
+        return m_hwnd;
     }
 
   protected:
     virtual std::wstring &class_name() const = 0;
     virtual LRESULT WndProc(UINT uMsg, WPARAM wParam, LPARAM lParam) = 0;
-    HWND hwnd_ = NULL;
+    HWND m_hwnd = NULL;
 
     bool Create_(PCWSTR lpWindowName, // clang-format off
                  DWORD dwStyle,
@@ -66,28 +67,8 @@ class BaseWindow {
             return false;
         }
 
-    //    auto f = ::SetThreadDpiAwarenessContext(DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2);
-    //    auto prevHosting = ::SetThreadDpiHostingBehavior(DPI_HOSTING_BEHAVIOR_MIXED);
-
-    //    auto g = ::GetAwarenessFromDpiAwarenessContext(f);
-    //    D("awareness: ", g);
-    //auto msg = std::wstring(L"UNKNOWN");
-    //            if (::AreDpiAwarenessContextsEqual(f, DPI_AWARENESS_CONTEXT_UNAWARE)) {
-    //        msg = L"unaware";
-    //    } else if (::AreDpiAwarenessContextsEqual(f, DPI_AWARENESS_CONTEXT_SYSTEM_AWARE)) {
-    //        msg = L"system";
-    //    } else if (::AreDpiAwarenessContextsEqual(f, DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE)) {
-    //        msg = L"pm";
-    //    } else if (::AreDpiAwarenessContextsEqual(f, DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE)) {
-    //        msg = L"pm2";
-    //    } else if (::AreDpiAwarenessContextsEqual(f, DPI_AWARENESS_CONTEXT_UNAWARE_GDISCALED)) {
-    //        msg = L"gdi";
-    //    }
-
-    //    D("Prevawareness: ", f, " ", msg);
-    //    D("Prevhosting", prevHosting);
-
-        hwnd_ = ::CreateWindowEx(dwExStyle, // clang-format off
+        auto previous_dpi_awareness = ::SetThreadDpiAwarenessContext(DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2);
+        m_hwnd = ::CreateWindowEx(dwExStyle, // clang-format off
                                  class_name().data(),
                                  lpWindowName,
                                  dwStyle,
@@ -96,21 +77,19 @@ class BaseWindow {
                                  hMenu,
                                  g_moduleHandle,
                                  this); // clang-format on
+        ::SetThreadDpiAwarenessContext(previous_dpi_awareness);
 
-        if (hwnd_ == NULL) {
+        if (!m_hwnd) {
             D("CreateWindowEx(...) Failed: ", ::GetLastError());
             return false;
         }
-
-        //::SetThreadDpiHostingBehavior(prevHosting);
-        //::SetThreadDpiAwarenessContext(f);
 
         return true;
     }
 
     void Destroy_() {
-        if (hwnd_ != NULL) {
-            ::DestroyWindow(hwnd_);
+        if (m_hwnd) {
+            ::DestroyWindow(m_hwnd);
         }
     }
 

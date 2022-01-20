@@ -15,8 +15,12 @@ extern const DisplayAttributeBundle DisplayAttribute_Input;
 extern const DisplayAttributeBundle DisplayAttribute_Converted;
 
 struct DisplayAttributeInfo : winrt::implements<DisplayAttributeInfo, ITfDisplayAttributeInfo> {
+    DisplayAttributeInfo() = default;           
+    DisplayAttributeInfo(const DisplayAttributeInfo &) = delete;
+    DisplayAttributeInfo &operator=(const DisplayAttributeInfo &) = delete;
+    ~DisplayAttributeInfo() = default;
 
-    HRESULT init(DisplayAttributeBundle &bundle);
+    HRESULT Initialize(DisplayAttributeBundle &bundle);
     HRESULT clone(DisplayAttributeInfo **ppInfo);
     GUID getGuid();
 
@@ -32,9 +36,6 @@ struct DisplayAttributeInfo : winrt::implements<DisplayAttributeInfo, ITfDisplay
     winrt::guid guid{};
     TF_DISPLAYATTRIBUTE attribute = TF_DISPLAYATTRIBUTE{};
     TF_DISPLAYATTRIBUTE attributeBackup = TF_DISPLAYATTRIBUTE{};
-
-    DEFAULT_CTOR_DTOR(DisplayAttributeInfo);
-    DELETE_COPY_AND_ASSIGN(DisplayAttributeInfo);
 };
 
 } // namespace Khiin

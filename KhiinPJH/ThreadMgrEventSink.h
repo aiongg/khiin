@@ -7,11 +7,12 @@ namespace Khiin {
 
 struct ThreadMgrEventSink : winrt::implements<ThreadMgrEventSink, ITfThreadMgrEventSink> {
     ThreadMgrEventSink() = default;
+    ThreadMgrEventSink(const ThreadMgrEventSink &) = delete;
+    ThreadMgrEventSink &operator=(const ThreadMgrEventSink &) = delete;
     ~ThreadMgrEventSink();
-    DELETE_COPY_AND_ASSIGN(ThreadMgrEventSink);
 
-    HRESULT init(TextService *pService);
-    HRESULT uninit();
+    void Initialize(TextService *pService);
+    void Uninitialize();
 
     // Inherited via implements
     virtual STDMETHODIMP OnInitDocumentMgr(ITfDocumentMgr *pdim) override;

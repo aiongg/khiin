@@ -4,14 +4,6 @@
 
 namespace Khiin {
 
-// template <typename T, typename U, typename... Args>
-// winrt::com_ptr<U> getComPtr(HRESULT (T::*accessor)(Args... args, U **ppObj), Args &&...args) {
-//    auto ptr = winrt::com_ptr<ITfType>();
-//    auto hr = &accessor(std::forward<Args>(args)..., ptr.put());
-//    CHECK_RETURN_HRESULT(hr);
-//    return ptr;
-//}
-
 template <typename Derived, typename T>
 Derived *cast_as(T &&o) {
     return static_cast<Derived *>(o);

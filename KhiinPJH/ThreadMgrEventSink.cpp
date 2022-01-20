@@ -5,25 +5,21 @@
 namespace Khiin {
 
 ThreadMgrEventSink::~ThreadMgrEventSink() {
-    uninit();
+    Uninitialize();
 }
 
-HRESULT ThreadMgrEventSink::init(TextService *pTextService) {
+void ThreadMgrEventSink::Initialize(TextService *pTextService) {
     D(__FUNCTIONW__);
     auto hr = E_FAIL;
     service.copy_from(pTextService);
-    hr = threadMgrSinkMgr.install(service->threadMgr(), this);
-    CHECK_RETURN_HRESULT(hr);
-    return hr;
+    threadMgrSinkMgr.Advise(service->threadMgr(), this);
 }
 
-HRESULT ThreadMgrEventSink::uninit() {
+void ThreadMgrEventSink::Uninitialize() {
     D(__FUNCTIONW__);
     auto hr = E_FAIL;
-    hr = threadMgrSinkMgr.uninstall();
+    threadMgrSinkMgr.Unadvise();
     service = nullptr;
-    CHECK_RETURN_HRESULT(hr);
-    return S_OK;
 }
 
 //+---------------------------------------------------------------------------

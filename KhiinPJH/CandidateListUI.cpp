@@ -6,36 +6,29 @@
 
 namespace Khiin {
 
-HRESULT CandidateListUI::init(TextService *pTextService) {
+void CandidateListUI::Initialize(TextService *pTextService) {
     service.copy_from(pTextService);
-    // service->topContext(context.put());
-
-    return S_OK;
 }
 
-HRESULT CandidateListUI::uninit() {
+void CandidateListUI::Uninitialize() {
     D(__FUNCTIONW__);
     service = nullptr;
     context = nullptr;
     candidateWindow->Destroy();
     candidateWindow.reset(nullptr);
-    return S_OK;
 }
 
-HRESULT CandidateListUI::onCompositionTerminated() {
+void CandidateListUI::DestroyCandidateWindow() {
     D(__FUNCTIONW__);
     candidateWindow->Destroy();
-    return S_OK;
 }
 
-HRESULT CandidateListUI::update(ITfContext *pContext, std::vector<std::string> candidates, RECT text_rect) {
+void CandidateListUI::Update(ITfContext *pContext, std::vector<std::string> candidates, RECT text_rect) {
     D(__FUNCTIONW__);
-    auto hr = E_FAIL;
     context.copy_from(pContext);
 
     if (!candidateWindow) {
-        hr = makeCandidateWindow();
-        CHECK_RETURN_HRESULT(hr);
+        makeCandidateWindow();
     }
 
     candidateList.clear();
@@ -47,8 +40,9 @@ HRESULT CandidateListUI::update(ITfContext *pContext, std::vector<std::string> c
     }
     candidateWindow->SetScreenCoordinates(std::move(text_rect));
     candidateWindow->SetCandidates(&candidateList);
-
-    return S_OK;
+    candidateWindow->Show();
+    candidateWindow->Hide();
+    candidateWindow->Show();
 }
 
 //+---------------------------------------------------------------------------
@@ -58,43 +52,43 @@ HRESULT CandidateListUI::update(ITfContext *pContext, std::vector<std::string> c
 //----------------------------------------------------------------------------
 
 STDMETHODIMP CandidateListUI::GetDescription(BSTR *pbstrDescription) {
+    TRY_FOR_HRESULT;
     BSTR bstr = ::SysAllocString(kCandidateWindowClassName.data());
     pbstrDescription = &bstr;
-    return S_OK;
+    CATCH_FOR_HRESULT;
 }
 
 STDMETHODIMP CandidateListUI::GetGUID(GUID *pguid) {
+    TRY_FOR_HRESULT;
     *pguid = kCandidateWindowGuid;
-    return S_OK;
+    CATCH_FOR_HRESULT;
 }
 
 STDMETHODIMP CandidateListUI::Show(BOOL bShow) {
-    auto hr = E_FAIL;
-
+    TRY_FOR_HRESULT;
     if (!candidateWindow) {
         return S_OK;
     }
 
     if (bShow) {
-        hr = candidateWindow->Show();
-        CHECK_RETURN_HRESULT(hr);
+        candidateWindow->Show();
     } else {
-        hr = candidateWindow->Hide();
-        CHECK_RETURN_HRESULT(hr);
+        candidateWindow->Hide();
     }
 
-    return S_OK;
+    CATCH_FOR_HRESULT;
 }
 
 STDMETHODIMP CandidateListUI::IsShown(BOOL *pbShow) {
     D(__FUNCTIONW__);
+    TRY_FOR_HRESULT;
     if (!candidateWindow) {
         *pbShow = FALSE;
         return S_OK;
     }
 
     *pbShow = candidateWindow->showing();
-    return S_OK;
+    CATCH_FOR_HRESULT;
 }
 
 //+---------------------------------------------------------------------------
@@ -172,27 +166,19 @@ STDMETHODIMP CandidateListUI::FinalizeExactCompositionString(void) {
     return E_NOTIMPL;
 }
 
-HRESULT CandidateListUI::makeCandidateWindow() {
-    auto hr = E_FAIL;
-
+void CandidateListUI::makeCandidateWindow() {
     auto contextView = winrt::com_ptr<ITfContextView>();
-    hr = context->GetActiveView(contextView.put());
-    CHECK_RETURN_HRESULT(hr);
+    winrt::check_hresult(context->GetActiveView(contextView.put()));
 
     HWND parentWnd;
-    /*auto parentWnd = window_handle();*/
-    hr = contextView->GetWnd(&parentWnd);
-    CHECK_RETURN_HRESULT(hr);
+    winrt::check_hresult(contextView->GetWnd(&parentWnd));
 
     if (!(parentWnd)) {
         parentWnd = ::GetFocus();
     }
 
     candidateWindow = std::make_unique<CandidateWindow>(parentWnd);
-
     candidateWindow->Create();
-
-    return S_OK;
 }
 
 } // namespace Khiin

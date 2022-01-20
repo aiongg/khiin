@@ -30,7 +30,7 @@ const DisplayAttributeBundle DisplayAttribute_Converted =
                                TF_ATTR_TARGET_CONVERTED // attribute info
                            }};
 
-HRESULT DisplayAttributeInfo::init(DisplayAttributeBundle &bundle) {
+HRESULT DisplayAttributeInfo::Initialize(DisplayAttributeBundle &bundle) {
     description = bundle.description;
     guid = bundle.guid;
     attribute = bundle.attribute;
@@ -41,7 +41,7 @@ HRESULT DisplayAttributeInfo::init(DisplayAttributeBundle &bundle) {
 HRESULT DisplayAttributeInfo::clone(DisplayAttributeInfo **ppDaInfo) {
     auto clone = winrt::make_self<DisplayAttributeInfo>();
     auto bundle = DisplayAttributeBundle{description, guid, attributeBackup};
-    clone->init(bundle);
+    clone->Initialize(bundle);
     clone.copy_to(ppDaInfo);
     return S_OK;
 }

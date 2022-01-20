@@ -5,8 +5,8 @@
 namespace Khiin {
 
 struct TextEditSink : winrt::implements<TextEditSink, ITfTextEditSink> {
-    HRESULT init(ITfDocumentMgr *documentMgr);
-    HRESULT uninit();
+    HRESULT Initialize(ITfDocumentMgr *documentMgr);
+    HRESULT Uninitialize();
 
     // Inherited via implements
     virtual STDMETHODIMP OnEndEdit(ITfContext *pic, TfEditCookie ecReadOnly, ITfEditRecord *pEditRecord) override;

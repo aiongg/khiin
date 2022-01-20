@@ -18,8 +18,9 @@ CompositionSink::CompositionSink(TextService *pService, ITfContext *pContext) {
 
 STDMETHODIMP CompositionSink::OnCompositionTerminated(TfEditCookie ecWrite, ITfComposition *pComposition) {
     D(__FUNCTIONW__);
-    service->onCompositionTerminated(ecWrite, context.get(), pComposition);
-    return E_NOTIMPL;
+    TRY_FOR_HRESULT;
+    service->OnCompositionTerminated(ecWrite, context.get(), pComposition);
+    CATCH_FOR_HRESULT;
 }
 
 } // namespace Khiin

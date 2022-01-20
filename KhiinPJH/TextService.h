@@ -9,6 +9,11 @@ namespace Khiin {
 struct TextEngine;
 
 struct TextService : winrt::implements<TextService, IUnknown> {
+    TextService() = default;
+    TextService(const TextService &) = delete;
+    TextService &operator=(const TextService &) = delete;
+    ~TextService() = default;
+
     virtual TfClientId clientId() = 0;
     virtual DWORD activateFlags() = 0;
 
@@ -18,22 +23,14 @@ struct TextService : winrt::implements<TextService, IUnknown> {
     virtual TextEngine *engine() = 0;
     virtual ITfUIElement *candidateUI() = 0;
 
-    virtual HRESULT topContext(ITfContext **ppContext) = 0;
-    virtual HRESULT categoryMgr(ITfCategoryMgr **ppCategoryMgr) = 0;
-    virtual HRESULT compositionSink(ITfContext *context, ITfCompositionSink **ppCompositionSink) = 0;
-    virtual HRESULT onCompositionTerminated(TfEditCookie ecWrite, ITfContext *context, ITfComposition *pComposition) = 0;
-
-    //virtual HRESULT consumeKey(ITfContext *pContext, KeyEvent keyEvent) = 0;
-    //virtual HRESULT updateContext(ITfContext *pContext, TfEditCookie writeEc, KeyEvent keyEvent) = 0;
-
-    // virtual HRESULT beginEditSession();
-
-    DEFAULT_CTOR_DTOR(TextService);
-    DELETE_COPY_AND_ASSIGN(TextService);
+    virtual winrt::com_ptr<ITfCategoryMgr> categoryMgr() = 0;
+    virtual winrt::com_ptr<ITfContext> GetTopContext() = 0;
+    virtual winrt::com_ptr<ITfCompositionSink> CreateCompositionSink(ITfContext *context) = 0;
+    virtual void OnCompositionTerminated(TfEditCookie ecWrite, ITfContext *context, ITfComposition *pComposition) = 0;
 };
 
 struct TextServiceFactory {
-    static HRESULT create(TextService **ppService);
+    static void Create(TextService **ppService);
 };
 
 } // namespace Khiin

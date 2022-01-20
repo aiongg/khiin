@@ -15,7 +15,7 @@ void DisplayAttributeInfoEnum::load(_Out_ DisplayAttributeInfoEnum **ppDaiiEnum)
 
 void DisplayAttributeInfoEnum::addAttribute(AttrInfoKey key, DisplayAttributeBundle bundle) {
     auto attrInfo = winrt::make_self<DisplayAttributeInfo>();
-    attrInfo->init(bundle);
+    attrInfo->Initialize(bundle);
     attributes[key] = std::move(attrInfo);
 }
 
@@ -23,24 +23,21 @@ void DisplayAttributeInfoEnum::addAttribute(AttrInfoKey key, winrt::com_ptr<Disp
     attributes[key] = attr;
 }
 
-HRESULT DisplayAttributeInfoEnum::at(AttrInfoKey index, ITfDisplayAttributeInfo **pInfo) {
+void DisplayAttributeInfoEnum::at(AttrInfoKey index, ITfDisplayAttributeInfo **pInfo) {
     try {
         attributes.at(index).as<ITfDisplayAttributeInfo>().copy_to(pInfo);
-        return S_OK;
     } catch (...) {
-        return ERROR_NOT_FOUND;
+        throw winrt::hresult_error(ERROR_NOT_FOUND);
     }
 }
 
-HRESULT DisplayAttributeInfoEnum::findByGuid(REFGUID guid, ITfDisplayAttributeInfo **ppInfo) {
+void DisplayAttributeInfoEnum::findByGuid(REFGUID guid, ITfDisplayAttributeInfo **ppInfo) {
     for (const auto &[index, attr] : attributes) {
         if (attr->getGuid() == guid) {
             attr.as<ITfDisplayAttributeInfo>().copy_to(ppInfo);
-            return S_OK;
+            return;
         }
     }
-
-    return ERROR_NOT_FOUND;
 }
 
 //+---------------------------------------------------------------------------

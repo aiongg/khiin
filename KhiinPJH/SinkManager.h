@@ -11,49 +11,36 @@ class SinkManager {
     SinkManager(const SinkManager &) = delete;
     SinkManager &operator=(const SinkManager &) = delete;
     virtual ~SinkManager() {
-        if (installed()) {
-            uninstall();
+        if (advised()) {
+            Unadvise();
         }
     }
 
-    bool installed() {
-        return cookie != TF_INVALID_COOKIE;
-    }
-
-    HRESULT install(IUnknown *pHasSource, ISink *sink) {
+    void Advise(IUnknown *pHasSource, ISink *sink) {
         WINRT_ASSERT(pHasSource != nullptr);
         WINRT_ASSERT(sink != nullptr);
 
-        auto hr = E_FAIL;
         auto provider = winrt::com_ptr<IUnknown>();
         provider.copy_from(pHasSource);
 
         auto src = provider.as<ITfSource>();
-        hr = src->AdviseSink(__uuidof(ISink), sink, &cookie);
-
-        if (FAILED(hr)) {
-            cookie = TF_INVALID_COOKIE;
-            CHECK_RETURN_HRESULT(hr);
-        }
+        winrt::check_hresult(src->AdviseSink(__uuidof(ISink), sink, &cookie));
 
         source = nullptr;
         source = src;
-
-        return S_OK;
     }
 
-    HRESULT uninstall() {
-        if (!installed()) {
-            return S_OK;
+    void Unadvise() {
+        if (!advised()) {
+            return;
         }
-
-        auto hr = source->UnadviseSink(cookie);
-        CHECK_RETURN_HRESULT(hr);
-
+        winrt::check_hresult(source->UnadviseSink(cookie));
         cookie = TF_INVALID_COOKIE;
         source = nullptr;
+    }
 
-        return S_OK;
+    bool advised() {
+        return cookie != TF_INVALID_COOKIE;
     }
 
   private:

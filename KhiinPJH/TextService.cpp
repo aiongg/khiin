@@ -24,7 +24,7 @@ struct TextServiceImpl :
                       ITfCompartmentEventSink,
                       TextService> { // clang-format on
     TextServiceImpl() {
-        TextEngineFactory::create(engine_.put());
+        TextEngineFactory::Create(engine_.put());
         compositionMgr_ = winrt::make_self<CompositionMgr>();
         threadMgrEventSink_ = winrt::make_self<ThreadMgrEventSink>();
         candidateListUI_ = winrt::make_self<CandidateListUI>();
@@ -32,75 +32,34 @@ struct TextServiceImpl :
     }
 
   private:
-    HRESULT onActivate() {
+    HRESULT OnActivate() {
         auto hr = E_FAIL;
-
         auto pTextService = cast_as<TextService>(this);
-
         DisplayAttributeInfoEnum::load(displayAttributes_.put());
-
-        hr = compositionMgr_->init(pTextService);
-        CHECK_RETURN_HRESULT(hr);
-
-        hr = threadMgrEventSink_->init(pTextService);
-        CHECK_RETURN_HRESULT(hr);
-
-        hr = candidateListUI_->init(pTextService);
-        CHECK_RETURN_HRESULT(hr);
-
-        hr = keyEventSink_->init(pTextService);
-        CHECK_RETURN_HRESULT(hr);
-
-        hr = openCloseCompartment_.init(clientId_, threadMgr_.get(), GUID_COMPARTMENT_KEYBOARD_OPENCLOSE);
-        CHECK_RETURN_HRESULT(hr);
-
-        hr = keyboardDisabledCompartment_.init(clientId_, threadMgr_.get(), GUID_COMPARTMENT_KEYBOARD_DISABLED);
-        CHECK_RETURN_HRESULT(hr);
-
-        hr = openCloseCompartment_.set(true);
-        CHECK_RETURN_HRESULT(hr);
-
-        hr = openCloseSinkMgr_.install(openCloseCompartment_.getCompartment(), this);
-        CHECK_RETURN_HRESULT(hr);
-
-        hr = engine_->init();
-        CHECK_RETURN_HRESULT(hr);
-
+        compositionMgr_->Initialize(pTextService);
+        threadMgrEventSink_->Initialize(pTextService);
+        candidateListUI_->Initialize(pTextService);
+        keyEventSink_->Activate(pTextService);
+        openCloseCompartment_.Initialize(clientId_, threadMgr_.get(), GUID_COMPARTMENT_KEYBOARD_OPENCLOSE);
+        keyboardDisabledCompartment_.Initialize(clientId_, threadMgr_.get(), GUID_COMPARTMENT_KEYBOARD_DISABLED);
+        openCloseCompartment_.SetValue(true);
+        openCloseSinkMgr_.Advise(openCloseCompartment_.getCompartment(), this);
+        engine_->Initialize();
         return S_OK;
     }
 
-    HRESULT onDeactivate() {
+    HRESULT OnDeactivate() {
         auto hr = E_FAIL;
-
-        hr = engine_->uninit();
-        CHECK_RETURN_HRESULT(hr);
-
-        hr = openCloseSinkMgr_.uninstall();
-        CHECK_RETURN_HRESULT(hr);
-
-        hr = openCloseCompartment_.set(false);
-        CHECK_RETURN_HRESULT(hr);
-
-        hr = keyboardDisabledCompartment_.uninit();
-        CHECK_RETURN_HRESULT(hr);
-
-        hr = openCloseCompartment_.uninit();
-        CHECK_RETURN_HRESULT(hr);
-
-        hr = candidateListUI_->uninit();
-        CHECK_RETURN_HRESULT(hr);
-
-        hr = keyEventSink_->uninit();
-        CHECK_RETURN_HRESULT(hr);
-
-        hr = threadMgrEventSink_->uninit();
-        CHECK_RETURN_HRESULT(hr);
-
-        hr = compositionMgr_->uninit();
-        CHECK_RETURN_HRESULT(hr);
-
+        engine_->Uninitialize();
+        openCloseSinkMgr_.Unadvise();
+        openCloseCompartment_.SetValue(false);
+        keyboardDisabledCompartment_.Uninitialize();
+        openCloseCompartment_.Uninitialize();
+        candidateListUI_->Uninitialize();
+        keyEventSink_->Deactivate();
+        threadMgrEventSink_->Uninitialize();
+        compositionMgr_->Uninitialize();
         displayAttributes_ = nullptr;
-
         return S_OK;
     }
 
@@ -162,46 +121,33 @@ struct TextServiceImpl :
         return candidateListUI_.as<ITfUIElement>().get();
     }
 
-    virtual HRESULT topContext(_Out_ ITfContext **ppContext) override {
+    virtual winrt::com_ptr<ITfContext> GetTopContext() override {
         D(__FUNCTIONW__);
-        auto hr = E_FAIL;
-
         auto documentMgr = winrt::com_ptr<ITfDocumentMgr>();
-        hr = threadMgr_->GetFocus(documentMgr.put());
-        CHECK_RETURN_HRESULT(hr);
-
         auto context = winrt::com_ptr<ITfContext>();
-        hr = documentMgr->GetTop(context.put());
-        CHECK_RETURN_HRESULT(hr);
-
-        context.copy_to(ppContext);
-
-        return S_OK;
+        winrt::check_hresult(threadMgr_->GetFocus(documentMgr.put()));
+        winrt::check_hresult(documentMgr->GetTop(context.put()));
+        return context;
     }
 
-    virtual HRESULT categoryMgr(ITfCategoryMgr **ppCategoryMgr) override {
+    virtual winrt::com_ptr<ITfCategoryMgr> categoryMgr() override {
         D(__FUNCTIONW__);
-        auto hr = E_FAIL;
         auto tmp = winrt::com_ptr<ITfCategoryMgr>();
-        hr = ::CoCreateInstance(CLSID_TF_CategoryMgr, NULL, CLSCTX_INPROC_SERVER, IID_ITfCategoryMgr, tmp.put_void());
-        CHECK_RETURN_HRESULT(hr);
-        tmp.copy_to(ppCategoryMgr);
-        return S_OK;
+        winrt::check_hresult(
+            ::CoCreateInstance(CLSID_TF_CategoryMgr, NULL, CLSCTX_INPROC_SERVER, IID_ITfCategoryMgr, tmp.put_void()));
+        return tmp;
     }
 
-    virtual HRESULT compositionSink(ITfContext *context, ITfCompositionSink **ppCompositionSink) override {
+    virtual winrt::com_ptr<ITfCompositionSink> CreateCompositionSink(ITfContext *context) override {
         D(__FUNCTIONW__);
-        auto sink = winrt::make<CompositionSink>(this, context);
-        sink.copy_to(ppCompositionSink);
-        return S_OK;
+        return winrt::make<CompositionSink>(this, context);
     }
 
-    virtual HRESULT onCompositionTerminated(TfEditCookie ecWrite, ITfContext *context,
+    virtual void OnCompositionTerminated(TfEditCookie ecWrite, ITfContext *context,
                                             ITfComposition *pComposition) override {
         D(__FUNCTIONW__);
-        compositionMgr_->clearComposition();
-        candidateListUI_->onCompositionTerminated();
-        return S_OK;
+        compositionMgr_->ClearComposition();
+        candidateListUI_->DestroyCandidateWindow();
     }
 
     //+---------------------------------------------------------------------------
@@ -217,25 +163,27 @@ struct TextServiceImpl :
 
     virtual STDMETHODIMP Deactivate(void) override {
         D(__FUNCTIONW__);
+        TRY_FOR_HRESULT;
 
-        auto hr = onDeactivate();
-        CHECK_RETURN_HRESULT(hr);
+        OnDeactivate();
 
         threadMgr_ = nullptr;
         clientId_ = TF_CLIENTID_NULL;
         activateFlags_ = 0;
 
-        return S_OK;
+        CATCH_FOR_HRESULT;
     }
 
     virtual STDMETHODIMP ActivateEx(ITfThreadMgr *pThreadMgr, TfClientId tid, DWORD dwFlags) override {
         D(__FUNCTIONW__, L" clientId: ", tid);
+        TRY_FOR_HRESULT;
 
         threadMgr_.copy_from(pThreadMgr);
         clientId_ = tid;
         activateFlags_ = dwFlags;
 
-        return onActivate();
+        return OnActivate();
+        CATCH_FOR_HRESULT;
     }
 
     //+---------------------------------------------------------------------------
@@ -272,16 +220,15 @@ struct TextServiceImpl :
     //----------------------------------------------------------------------------
 
     virtual STDMETHODIMP EnumDisplayAttributeInfo(IEnumTfDisplayAttributeInfo **ppEnum) override {
-        D(__FUNCTIONW__);
+        TRY_FOR_HRESULT;
         displayAttributes_.as<IEnumTfDisplayAttributeInfo>().copy_to(ppEnum);
-        return S_OK;
+        CATCH_FOR_HRESULT;
     }
 
     virtual STDMETHODIMP GetDisplayAttributeInfo(REFGUID guid, ITfDisplayAttributeInfo **ppInfo) override {
-        D(__FUNCTIONW__);
-        auto hr = displayAttributes_->findByGuid(guid, ppInfo);
-        CHECK_RETURN_HRESULT(hr);
-        return S_OK;
+        TRY_FOR_HRESULT;
+        displayAttributes_->findByGuid(guid, ppInfo);
+        CATCH_FOR_HRESULT;
     }
 
     //+---------------------------------------------------------------------------
@@ -292,23 +239,20 @@ struct TextServiceImpl :
 
     virtual STDMETHODIMP OnChange(REFGUID rguid) override {
         D(__FUNCTIONW__);
+        TRY_FOR_HRESULT;
         auto hr = E_FAIL;
 
         if (rguid == GUID_COMPARTMENT_KEYBOARD_OPENCLOSE) {
             DWORD val;
-            hr = openCloseCompartment_.get(&val);
-            CHECK_RETURN_HRESULT(hr);
+            openCloseCompartment_.GetValue(&val);
 
             if (val == false) {
-                hr = engine_->clear();
-                CHECK_RETURN_HRESULT(hr);
-
-                hr = candidateListUI_->onCompositionTerminated();
-                CHECK_RETURN_HRESULT(hr);
+                engine_->Reset();
+                candidateListUI_->DestroyCandidateWindow();
             }
         }
 
-        return S_OK;
+        CATCH_FOR_HRESULT;
     }
 };
 
@@ -318,10 +262,9 @@ struct TextServiceImpl :
 //
 //----------------------------------------------------------------------------
 
-HRESULT TextServiceFactory::create(TextService **ppService) {
+void TextServiceFactory::Create(TextService **ppService) {
     D(__FUNCTIONW__);
     as_self<TextService>(winrt::make_self<TextServiceImpl>()).copy_to(ppService);
-    return S_OK;
 }
 
 } // namespace Khiin

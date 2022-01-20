@@ -6,62 +6,46 @@ namespace Khiin {
 
 using namespace winrt;
 
-HRESULT Compartment::init(TfClientId clientId, IUnknown *pUnknown, const GUID &guid, bool global) {
-    WINRT_ASSERT(pUnknown != nullptr);
-    auto hr = E_FAIL;
-
+void Compartment::Initialize(TfClientId clientId, IUnknown *compartment_provider, const GUID &guid, bool global) {
+    WINRT_ASSERT(compartment_provider != nullptr);
     auto compartmentMgr = com_ptr<ITfCompartmentMgr>();
 
     if (global) {
         auto threadMgr = com_ptr<ITfThreadMgr>();
-        hr = pUnknown->QueryInterface(threadMgr.put());
-        CHECK_RETURN_HRESULT(hr);
-
-        hr = threadMgr->GetGlobalCompartment(compartmentMgr.put());
-        CHECK_RETURN_HRESULT(hr);
+        winrt::check_hresult(compartment_provider->QueryInterface(threadMgr.put()));
+        winrt::check_hresult(threadMgr->GetGlobalCompartment(compartmentMgr.put()));
     } else {
-        hr = pUnknown->QueryInterface(compartmentMgr.put());
-        CHECK_RETURN_HRESULT(hr);
+        winrt::check_hresult(compartment_provider->QueryInterface(compartmentMgr.put()));
     }
 
-    hr = compartmentMgr->GetCompartment(guid, compartment.put());
-    CHECK_RETURN_HRESULT(hr);
-
+    winrt::check_hresult(compartmentMgr->GetCompartment(guid, compartment.put()));
     this->clientId = clientId;
     this->guid = guid;
-
-    return S_OK;
 }
 
-HRESULT Compartment::uninit() {
+void Compartment::Uninitialize() {
     compartment = nullptr;
     clientId = TF_CLIENTID_NULL;
     guid = GUID{};
-    return S_OK;
 }
 
-HRESULT Compartment::get(_Out_ DWORD *val) {
+void Compartment::GetValue(_Out_ DWORD *val) {
     VARIANT var;
-    auto hr = compartment->GetValue(&var);
-    CHECK_RETURN_HRESULT(hr);
+    winrt::check_hresult(compartment->GetValue(&var));
 
     if (var.vt != VT_I4) {
-        return E_FAIL;
+        throw winrt::hresult_invalid_argument();
     }
 
     *val = var.lVal;
-    return S_OK;
 }
 
-HRESULT Compartment::set(_In_ const DWORD &val) {
+void Compartment::SetValue(_In_ const DWORD &val) {
     VARIANT var;
     ::VariantInit(&var);
     var.vt = VT_I4;
     var.lVal = val;
-    auto hr = compartment->SetValue(clientId, &var);
-    CHECK_RETURN_HRESULT(hr);
-
-    return S_OK;
+    winrt::check_hresult(compartment->SetValue(clientId, &var));
 }
 
 ITfCompartment* Compartment::getCompartment() {

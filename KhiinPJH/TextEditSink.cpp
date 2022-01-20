@@ -4,23 +4,17 @@
 
 namespace Khiin {
 
-HRESULT TextEditSink::init(ITfDocumentMgr *pDocumentMgr) {
+HRESULT TextEditSink::Initialize(ITfDocumentMgr *pDocumentMgr) {
     WINRT_ASSERT(pDocumentMgr != nullptr);
 
-    auto hr = E_FAIL;
-
-    hr = pDocumentMgr->GetTop(context.put());
-    CHECK_RETURN_HRESULT(hr);
-
-    hr = textEditSinkMgr.install(context.get(), this);
-    CHECK_RETURN_HRESULT(hr);
+    winrt::check_hresult(pDocumentMgr->GetTop(context.put()));
+    textEditSinkMgr.Advise(context.get(), this);
 
     return S_OK;
 }
 
-HRESULT TextEditSink::uninit() {
-    auto hr = textEditSinkMgr.uninstall();
-    CHECK_RETURN_HRESULT(hr);
+HRESULT TextEditSink::Uninitialize() {
+    textEditSinkMgr.Unadvise();
     context = nullptr;
     return S_OK;
 }

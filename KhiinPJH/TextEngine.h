@@ -5,22 +5,24 @@
 namespace Khiin {
 
 struct TextEngine : winrt::implements<TextEngine, IUnknown> {
-    virtual HRESULT init() = 0;
-    virtual HRESULT uninit() = 0;
+    TextEngine() = default;
+    TextEngine(const TextEngine &) = delete;
+    TextEngine &operator=(const TextEngine &) = delete;
+    ~TextEngine() = default;
 
-    virtual HRESULT onTestKey(KeyEvent keyEvent, BOOL *pConsumable) = 0;
-    virtual HRESULT onKey(KeyEvent keyEvent) = 0;
-    virtual HRESULT clear() = 0;
+    virtual void Initialize() = 0;
+    virtual void Uninitialize() = 0;
+
+    virtual void TestKey(KeyEvent keyEvent, BOOL *pConsumable) = 0;
+    virtual void OnKey(KeyEvent keyEvent) = 0;
+    virtual void Reset() = 0;
 
     virtual std::string buffer() = 0;
     virtual std::vector<std::string> &candidates() = 0;
-
-    DEFAULT_CTOR_DTOR(TextEngine);
-    DELETE_COPY_AND_ASSIGN(TextEngine);
 };
 
 struct TextEngineFactory {
-    static HRESULT create(TextEngine **ppEngine);
+    static HRESULT Create(TextEngine **ppEngine);
 };
 
 } // namespace Khiin

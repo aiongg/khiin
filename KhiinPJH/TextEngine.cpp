@@ -7,36 +7,31 @@
 namespace Khiin {
 
 struct TextEngineImpl : winrt::implements<TextEngineImpl, TextEngine> {
-    DEFAULT_CTOR_DTOR(TextEngineImpl);
+    TextEngineImpl() = default;
+    TextEngineImpl(const TextEngineImpl &) = delete;
+    TextEngineImpl &operator=(const TextEngineImpl &) = delete;
+    ~TextEngineImpl() = default;
 
-    virtual HRESULT init() override {
-        return S_OK;
-    }
+    virtual void Initialize() override {}
 
-    virtual HRESULT uninit() override {
-        return S_OK;
-    }
+    virtual void Uninitialize() override {}
 
-    virtual HRESULT onTestKey(KeyEvent keyEvent, BOOL *pConsumable) {
+    virtual void TestKey(KeyEvent keyEvent, BOOL *pConsumable) {
         if (keyEvent.ascii() == 'a') {
             *pConsumable = true;
         } else {
             *pConsumable = false;
         }
-        return S_OK;
     }
 
-    virtual HRESULT onKey(KeyEvent keyEvent) {
+    virtual void OnKey(KeyEvent keyEvent) {
         if (keyEvent.ascii() == 'a') {
             buffer_ += 'r';
         }
-
-        return S_OK;
     }
 
-    virtual HRESULT clear() {
+    virtual void Reset() {
         buffer_.clear();
-        return S_OK;
     }
 
     virtual std::string buffer() {
@@ -69,7 +64,7 @@ struct TextEngineImpl : winrt::implements<TextEngineImpl, TextEngine> {
     std::vector<std::string> candidates_;
 };
 
-HRESULT TextEngineFactory::create(TextEngine **ppEngine) {
+HRESULT TextEngineFactory::Create(TextEngine **ppEngine) {
     as_self<TextEngine>(winrt::make_self<TextEngineImpl>()).copy_to(ppEngine);
     return S_OK;
 }

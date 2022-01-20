@@ -14,30 +14,29 @@ namespace Khiin {
 //----------------------------------------------------------------------------
 
 STDMETHODIMP KhiinClassFactory::CreateInstance(IUnknown *pUnkOuter, REFIID riid, void **ppvObject) noexcept {
-    auto hr = E_FAIL;
+    TRY_FOR_HRESULT;
 
     if (ppvObject == nullptr) {
-        return E_INVALIDARG;
+        throw winrt::hresult_invalid_argument();
     }
     *ppvObject = nullptr;
     if (pUnkOuter != nullptr) {
-        return CLASS_E_NOAGGREGATION;
+        throw winrt::hresult_error(CLASS_E_NOAGGREGATION);
     }
 
     auto riidStr = std::wstring(39, '?');
-    hr = ::StringFromGUID2(riid, &riidStr[0], 39);
-    CHECK_RETURN_HRESULT(hr);
-
+#pragma warning(push)
+#pragma warning(disable: 6031)
+    ::StringFromGUID2(riid, &riidStr[0], 39);
+#pragma warning(pop)
     D(L"QueryInterface: ", riidStr.c_str());
 
     auto textService = winrt::com_ptr<TextService>();
-    hr = TextServiceFactory::create(textService.put());
-    CHECK_RETURN_HRESULT(hr);
+    TextServiceFactory::Create(textService.put());
 
-    hr = textService->QueryInterface(riid, ppvObject);
-    CHECK_RETURN_HRESULT(hr);
+    winrt::check_hresult(textService->QueryInterface(riid, ppvObject));
 
-    return S_OK;
+    CATCH_FOR_HRESULT;
 }
 
 STDMETHODIMP KhiinClassFactory::LockServer(BOOL fLock) {

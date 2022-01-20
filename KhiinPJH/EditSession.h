@@ -8,7 +8,7 @@ namespace Khiin {
 struct TextService;
 
 struct EditSession {
-    static HRESULT handleAction(TextService *pService, ITfContext *pContext, Action action);
+    static void HandleAction(TextService *pService, ITfContext *pContext, Action action);
 };
 
 } // namespace Khiin

@@ -8,13 +8,14 @@ namespace Khiin {
 struct CandidateListUI :
     winrt::implements<CandidateListUI, ITfCandidateListUIElementBehavior, ITfIntegratableCandidateListUIElement> {
     CandidateListUI() = default;
+    CandidateListUI(const CandidateListUI &) = delete;
+    CandidateListUI &operator=(const CandidateListUI &) = delete;
     ~CandidateListUI() = default;
-    DELETE_COPY_AND_ASSIGN(CandidateListUI);
 
-    HRESULT init(TextService *pTextService);
-    HRESULT uninit();
-    HRESULT onCompositionTerminated();
-    HRESULT update(ITfContext *pContext, std::vector<std::string> candidates, RECT text_rect);
+    void Initialize(TextService *pTextService);
+    void Uninitialize();
+    void DestroyCandidateWindow();
+    void Update(ITfContext *pContext, std::vector<std::string> candidates, RECT text_rect);
 
     // ITfUIElement
     virtual STDMETHODIMP GetDescription(BSTR *pbstrDescription) override;
@@ -45,7 +46,7 @@ struct CandidateListUI :
     virtual STDMETHODIMP FinalizeExactCompositionString(void) override;
 
   private:
-    HRESULT makeCandidateWindow();
+    void makeCandidateWindow();
 
     std::unique_ptr<CandidateWindow> candidateWindow;
     winrt::com_ptr<TextService> service;

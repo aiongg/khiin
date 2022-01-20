@@ -48,20 +48,11 @@ inline bool is_guid_of<ITfCandidateListUIElementBehavior>(guid const &id) noexce
 
 } // namespace winrt
 
-#define DELETE_COPY_AND_ASSIGN(TypeName) \
-  public:                                \
-    TypeName(const TypeName &) = delete; \
-    TypeName &operator=(const TypeName &) = delete;
-
-#define DEFAULT_CTOR_DTOR(TypeName) \
-  public:                           \
-    TypeName() = default;           \
-    ~TypeName() = default;
-
 #define TRY_FOR_HRESULT try {
 
 #define CATCH_FOR_HRESULT                    \
     }                                        \
     catch (winrt::hresult_error const &ex) { \
         CHECK_RETURN_HRESULT(ex.code());     \
-    }
+    }                                        \
+    return S_OK;
