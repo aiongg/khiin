@@ -19,14 +19,14 @@ LRESULT __stdcall CandidateWindow::WndProc(UINT uMsg, WPARAM wParam, LPARAM lPar
         OnPaint();
         return 0;
     }
-    //case WM_DPICHANGED: {
-    //    DiscardGraphicsResources();
-    //    return 0;
-    //}
-    //case WM_SIZE: {
-    //    DiscardGraphicsResources();
-    //    return 0;
-    //}
+        // case WM_DPICHANGED: {
+        //    DiscardGraphicsResources();
+        //    return 0;
+        //}
+        // case WM_SIZE: {
+        //    DiscardGraphicsResources();
+        //    return 0;
+        //}
     }
 
     return ::DefWindowProc(hwnd_, uMsg, wParam, lParam);
@@ -78,17 +78,26 @@ void CandidateWindow::SetCandidates(std::vector<std::wstring> *candidates) {
 
 void CandidateWindow::SetScreenCoordinates(RECT text_rect_px) {
     auto left = text_rect_px.left;
-    auto top = text_rect_px.bottom + padding * dpi_scale;
+    auto top = text_rect_px.bottom + padding * dpi_scale();
     Reposition(left, top);
 }
-
+/*
 void CandidateWindow::InitializeDpiScale() {
     auto dpi = ::GetDpiForWindow(hwnd_);
-    if (current_dpi != dpi) {
-        DiscardGraphicsResources();
-    }
+    // if (current_dpi != dpi) {
+    //    DiscardGraphicsResources();
+    //}
     current_dpi = dpi;
     dpi_scale = dpi / 96.0f;
+}
+*/
+
+float CandidateWindow::dpi_scale() const {
+    return ::GetDpiForWindow(hwnd_) / 96.0f;
+}
+
+float CandidateWindow::row_height_px() const {
+    return (font_size + padding) * dpi_scale();
 }
 
 HRESULT CandidateWindow::CreateDeviceIndependentResources() {
@@ -105,33 +114,45 @@ HRESULT CandidateWindow::CreateDeviceIndependentResources() {
         CHECK_RETURN_HRESULT(hr);
     }
 
-    if (!dwrite_textformat) {
-        hr = dwrite_factory->CreateTextFormat(L"Arial", NULL, DWRITE_FONT_WEIGHT_REGULAR, DWRITE_FONT_STYLE_NORMAL,
-                                              DWRITE_FONT_STRETCH_NORMAL, font_size, L"en-us", dwrite_textformat.put());
-        CHECK_RETURN_HRESULT(hr);
-
-        hr = dwrite_textformat->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_LEADING);
-        CHECK_RETURN_HRESULT(hr);
-
-        hr = dwrite_textformat->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_CENTER);
-        CHECK_RETURN_HRESULT(hr);
-    }
-
     return S_OK;
 }
 
 HRESULT CandidateWindow::CreateDeviceResources() {
     auto hr = E_FAIL;
 
+    // if (!dwrite_textformat) {
+    dwrite_textformat = nullptr;
+    hr = dwrite_factory->CreateTextFormat(L"Arial", NULL, DWRITE_FONT_WEIGHT_REGULAR, DWRITE_FONT_STYLE_NORMAL,
+                                          DWRITE_FONT_STRETCH_NORMAL, font_size * dpi_scale(), L"en-us",
+                                          dwrite_textformat.put());
+    CHECK_RETURN_HRESULT(hr);
+
+    hr = dwrite_textformat->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_LEADING);
+    CHECK_RETURN_HRESULT(hr);
+
+    hr = dwrite_textformat->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_CENTER);
+    CHECK_RETURN_HRESULT(hr);
+    //}
+
     RECT rc;
     ::GetClientRect(hwnd_, &rc);
     D2D1_SIZE_U size = D2D1::SizeU(rc.right, rc.bottom);
 
-    if (!render_target) {
-        hr = d2d1_factory->CreateHwndRenderTarget(D2D1::RenderTargetProperties(),
-                                                  D2D1::HwndRenderTargetProperties(hwnd_, size), render_target.put());
-        CHECK_RETURN_HRESULT(hr);
-    }
+    // if (!render_target) {
+    render_target = nullptr;
+    auto renderTargetProps = D2D1::RenderTargetProperties();
+    renderTargetProps.dpiX = ::GetDpiForWindow(hwnd_);
+    renderTargetProps.dpiY = ::GetDpiForWindow(hwnd_);
+    hr = d2d1_factory->CreateHwndRenderTarget(renderTargetProps,
+                                              D2D1::HwndRenderTargetProperties(hwnd_, size), render_target.put());
+    CHECK_RETURN_HRESULT(hr);
+    //}
+
+    // if (!d2d1_brush) {
+    d2d1_brush = nullptr;
+    hr = render_target->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::Black), d2d1_brush.put());
+    CHECK_RETURN_HRESULT(hr);
+    //}
 
     return S_OK;
 }
@@ -139,19 +160,13 @@ HRESULT CandidateWindow::CreateDeviceResources() {
 HRESULT CandidateWindow::CreateGraphicsResources() {
     auto hr = E_FAIL;
 
-    InitializeDpiScale();
+    // InitializeDpiScale();
     hr = CreateDeviceIndependentResources();
     CHECK_RETURN_HRESULT(hr);
     hr = CreateDeviceResources();
     CHECK_RETURN_HRESULT(hr);
-    hr = CalculateLayout();
-    CHECK_RETURN_HRESULT(hr);
-
-    if (!d2d1_brush) {
-        hr = render_target->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::Black), d2d1_brush.put());
-        CHECK_RETURN_HRESULT(hr);
-    }
-
+    // hr = CalculateLayout();
+    // CHECK_RETURN_HRESULT(hr);
 
     return S_OK;
 }
@@ -165,15 +180,18 @@ void CandidateWindow::DiscardGraphicsResources() {
 
 void CandidateWindow::LayoutAndRedraw() {
     if (!dwrite_factory || !candidates) {
-        return ;
+        return;
     }
 
     DisableRedraw();
+    DiscardGraphicsResources();
+    CreateDeviceIndependentResources();
+    CreateDeviceResources();
     CalculateLayout();
     Resize(client_width, client_height);
     EnableRedraw();
 
-    return ;
+    return;
 }
 
 HRESULT CandidateWindow::CalculateLayout() {
@@ -202,7 +220,7 @@ HRESULT CandidateWindow::CalculateLayout() {
     }
 
     client_width = static_cast<int>(max_width + padding * 2.0f);
-    client_height = static_cast<int>(candidates_shown * row_height);
+    client_height = static_cast<int>(candidates_shown * row_height_px());
 
     return S_OK;
 }
@@ -216,7 +234,35 @@ void CandidateWindow::EnableRedraw() {
     ::RedrawWindow(hwnd_, NULL, NULL, RDW_ERASE | RDW_FRAME | RDW_INVALIDATE | RDW_ALLCHILDREN);
 }
 
+//void checkDpiAwareness(HWND hwnd) {
+//    auto foo =
+//        std::vector<DPI_AWARENESS_CONTEXT>{::GetWindowDpiAwarenessContext(hwnd), ::GetThreadDpiAwarenessContext()};
+//    auto msg = std::wstring(L"UNKNOWN");
+//
+//    for (auto &f : foo) {
+//        auto valid = ::IsValidDpiAwarenessContext(f);   
+//        if (::AreDpiAwarenessContextsEqual(f, DPI_AWARENESS_CONTEXT_UNAWARE)) {
+//            msg = L"unaware";
+//        } else if (::AreDpiAwarenessContextsEqual(f, DPI_AWARENESS_CONTEXT_SYSTEM_AWARE)) {
+//            msg = L"system";
+//        } else if (::AreDpiAwarenessContextsEqual(f, DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE)) {
+//            msg = L"pm";
+//        } else if (::AreDpiAwarenessContextsEqual(f, DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE)) {
+//            msg = L"pm2";
+//        } else if (::AreDpiAwarenessContextsEqual(f, DPI_AWARENESS_CONTEXT_UNAWARE_GDISCALED)) {
+//            msg = L"gdi";
+//        }
+//
+//        D("DPI AWARENESS: ", f, " ", msg, " ", valid ? L"valid" : L"invalid");
+//
+//        auto asint = reinterpret_cast<int>(f);
+//        D(asint);
+//    }
+//
+//}
+
 void CandidateWindow::OnPaint() {
+    //checkDpiAwareness(hwnd_);
     auto hr = CreateGraphicsResources();
     if (FAILED(hr)) {
         return;
@@ -233,7 +279,7 @@ void CandidateWindow::OnPaint() {
 
     for (auto &layout : candidate_layouts) {
         render_target->DrawTextLayout(origin, layout.get(), d2d1_brush.get());
-        origin.y += row_height;
+        origin.y += row_height_px();
     }
 
     hr = render_target->EndDraw();
@@ -271,8 +317,8 @@ void CandidateWindow::Reposition(int left, int top) {
 }
 
 void CandidateWindow::ResetWindowPosition() {
-    ::SetWindowPos(hwnd_, HWND_TOP, client_left, client_top, client_width * dpi_scale,
-                   client_height * dpi_scale, SWP_NOZORDER | SWP_NOACTIVATE);
+    ::SetWindowPos(hwnd_, HWND_TOP, client_left, client_top, client_width, client_height,
+                   SWP_NOZORDER | SWP_NOACTIVATE);
 }
 
 void CandidateWindow::SetBrushColor(D2D1::ColorF color) {

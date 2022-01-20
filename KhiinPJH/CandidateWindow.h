@@ -29,7 +29,7 @@ class CandidateWindow : public BaseWindow<CandidateWindow> {
     virtual std::wstring &class_name() const override;
 
   private:
-    void InitializeDpiScale();
+    //void InitializeDpiScale();
     HRESULT CreateDeviceIndependentResources();
     HRESULT CreateDeviceResources();
     HRESULT CreateGraphicsResources();
@@ -57,8 +57,10 @@ class CandidateWindow : public BaseWindow<CandidateWindow> {
     D2D1::ColorF text_color = D2D1::ColorF(D2D1::ColorF::Black);
     D2D1::ColorF bg_color = D2D1::ColorF(D2D1::ColorF::MintCream);
 
-    unsigned int current_dpi = 96;
-    float dpi_scale = 1.0f;
+    float dpi_scale() const;
+    float row_height_px() const;
+    //unsigned int current_dpi = 96;
+    //float dpi_scale = 1.0f;
     int client_top = 0;
     int client_left = 0;
     int client_height = 0;

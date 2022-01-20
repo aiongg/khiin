@@ -66,6 +66,27 @@ class BaseWindow {
             return false;
         }
 
+    //    auto f = ::SetThreadDpiAwarenessContext(DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2);
+    //    auto prevHosting = ::SetThreadDpiHostingBehavior(DPI_HOSTING_BEHAVIOR_MIXED);
+
+    //    auto g = ::GetAwarenessFromDpiAwarenessContext(f);
+    //    D("awareness: ", g);
+    //auto msg = std::wstring(L"UNKNOWN");
+    //            if (::AreDpiAwarenessContextsEqual(f, DPI_AWARENESS_CONTEXT_UNAWARE)) {
+    //        msg = L"unaware";
+    //    } else if (::AreDpiAwarenessContextsEqual(f, DPI_AWARENESS_CONTEXT_SYSTEM_AWARE)) {
+    //        msg = L"system";
+    //    } else if (::AreDpiAwarenessContextsEqual(f, DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE)) {
+    //        msg = L"pm";
+    //    } else if (::AreDpiAwarenessContextsEqual(f, DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE)) {
+    //        msg = L"pm2";
+    //    } else if (::AreDpiAwarenessContextsEqual(f, DPI_AWARENESS_CONTEXT_UNAWARE_GDISCALED)) {
+    //        msg = L"gdi";
+    //    }
+
+    //    D("Prevawareness: ", f, " ", msg);
+    //    D("Prevhosting", prevHosting);
+
         hwnd_ = ::CreateWindowEx(dwExStyle, // clang-format off
                                  class_name().data(),
                                  lpWindowName,
@@ -80,6 +101,9 @@ class BaseWindow {
             D("CreateWindowEx(...) Failed: ", ::GetLastError());
             return false;
         }
+
+        //::SetThreadDpiHostingBehavior(prevHosting);
+        //::SetThreadDpiAwarenessContext(f);
 
         return true;
     }

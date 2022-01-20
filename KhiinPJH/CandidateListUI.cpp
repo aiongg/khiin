@@ -189,6 +189,7 @@ HRESULT CandidateListUI::makeCandidateWindow() {
     }
 
     candidateWindow = std::make_unique<CandidateWindow>(parentWnd);
+
     candidateWindow->Create();
 
     return S_OK;

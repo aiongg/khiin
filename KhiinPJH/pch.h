@@ -18,11 +18,11 @@
 // Windows Header Files
 #include <Unknwn.h>
 
-#include <windows.h>
+#include <ctffunc.h>
 #include <d2d1_1.h>
 #include <dwrite_3.h>
-#include <ctffunc.h>
 #include <msctf.h>
+#include <windows.h>
 //#include <dwmapi.h>
 #include <winrt/base.h>
 
@@ -57,3 +57,11 @@ inline bool is_guid_of<ITfCandidateListUIElementBehavior>(guid const &id) noexce
   public:                           \
     TypeName() = default;           \
     ~TypeName() = default;
+
+#define TRY_FOR_HRESULT try {
+
+#define CATCH_FOR_HRESULT                    \
+    }                                        \
+    catch (winrt::hresult_error const &ex) { \
+        CHECK_RETURN_HRESULT(ex.code());     \
+    }
