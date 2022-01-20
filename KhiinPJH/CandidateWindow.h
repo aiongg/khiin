@@ -33,18 +33,11 @@ class CandidateWindow : public BaseWindow<CandidateWindow> {
     void EnsureRenderTarget();
     void EnsureTextFormat();
     void EnsureBrush();
-    // void CreateDeviceResources();
     void CreateGraphicsResources();
     void DiscardGraphicsResources();
     void OnDpiChanged(WORD dpi, RECT *pSize);
     void OnResize(unsigned int width, unsigned int height);
-    // void LayoutAndRedraw();
     void CalculateLayout();
-    // void DisableRedraw();
-    // void EnableRedraw();
-    // void Resize(int width, int height);
-    // void Reposition(int left, int top);
-    // void ResetWindowPosition();
     void SetBrushColor(D2D1::ColorF);
     void Draw();
     void Render();

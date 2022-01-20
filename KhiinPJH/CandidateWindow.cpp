@@ -159,7 +159,7 @@ void CandidateWindow::SetCandidates(std::vector<std::wstring> *candidates) {
 void CandidateWindow::SetScreenCoordinates(RECT text_rect_px) {
     D(__FUNCTIONW__);
     auto left = text_rect_px.left;
-    auto top = text_rect_px.bottom + padding;
+    auto top = text_rect_px.bottom + static_cast<int>(padding);
     ::SetWindowPos(m_hwnd, NULL, left, top, 0, 0, SWP_NOSIZE | SWP_NOZORDER | SWP_NOACTIVATE);
 }
 
@@ -168,14 +168,14 @@ void CandidateWindow::Initialize() {
     m_d2factory = CreateD2D1Factory();
     m_dwfactory = CreateDwriteFactory();
     m_dpi = ::GetDpiForWindow(m_hwnd);
-    m_scale = static_cast<float>(m_dpi) / USER_DEFAULT_SCREEN_DPI;
+    m_scale = static_cast<float>(m_dpi / USER_DEFAULT_SCREEN_DPI);
 }
 
 void CandidateWindow::EnsureRenderTarget() {
     D(__FUNCTIONW__);
     if (m_d2factory && m_hwnd && !m_target) {
         m_target = CreateRenderTarget(m_d2factory, m_hwnd);
-        m_target->SetDpi(m_dpi, m_dpi);
+        m_target->SetDpi(static_cast<float>(m_dpi), static_cast<float>(m_dpi));
     }
 }
 
@@ -200,11 +200,11 @@ void CandidateWindow::EnsureBrush() {
 void CandidateWindow::CreateGraphicsResources() {
     D(__FUNCTIONW__);
     if (!m_textformat) {
-        winrt::check_hresult(m_dwfactory->CreateTextFormat(L"Arial", NULL, DWRITE_FONT_WEIGHT_REGULAR,
+        winrt::check_hresult(m_dwfactory->CreateTextFormat(L"Kozuka Gothic Pr6N R", NULL, DWRITE_FONT_WEIGHT_REGULAR,
                                                            DWRITE_FONT_STYLE_NORMAL, DWRITE_FONT_STRETCH_NORMAL,
                                                            font_size, L"en-us", m_textformat.put()));
         winrt::check_hresult(m_textformat->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_LEADING));
-        winrt::check_hresult(m_textformat->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_CENTER));
+        winrt::check_hresult(m_textformat->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_NEAR));
     }
 
     if (!m_brush) {
@@ -234,24 +234,34 @@ void CandidateWindow::CalculateLayout() {
 
     auto it = candidates->cbegin();
     auto end = it + candidates_shown;
+    IDWriteTextLayout *max = nullptr;
 
     while (it != end) {
         auto &cand = *it;
         D(cand);
         auto layout = winrt::com_ptr<IDWriteTextLayout>();
         winrt::check_hresult(m_dwfactory->CreateTextLayout(cand.data(), static_cast<UINT>(cand.size()),
-                                                           m_textformat.get(), 0, 0, layout.put()));
+                                                           m_textformat.get(), 0, row_height, layout.put()));
+
         float min_width;
         layout->DetermineMinWidth(&min_width);
-        max_width = max(max_width, min_width);
+        if (min_width > max_width) {
+            max_width = min_width;
+            max = layout.get();
+        }
         candidate_layouts.push_back(std::move(layout));
         ++it;
     }
 
-    auto width = static_cast<int>((max_width + padding * 2.0f) * m_scale);
-    auto height = static_cast<int>(candidates_shown * row_height * m_scale);
+    DWRITE_TEXT_METRICS metrics;
+    max->GetMetrics(&metrics);
+
+    D("Max width: ", max_width, ", Metric width: ", metrics.width);
+
+    auto width = metrics.width + padding * 2;
+    auto height = candidates_shown * row_height + padding;
     D("W", width, "H", height);
-    ::SetWindowPos(m_hwnd, NULL, 0, 0, width, height, SWP_NOMOVE | SWP_NOACTIVATE | SWP_NOZORDER);
+    ::SetWindowPos(m_hwnd, NULL, 0, 0, static_cast<int>(width * m_scale), static_cast<int>(height * m_scale), SWP_NOMOVE | SWP_NOACTIVATE | SWP_NOZORDER);
 }
 
 void CandidateWindow::OnDpiChanged(WORD dpi, RECT *pNewSize) {
@@ -268,9 +278,8 @@ void CandidateWindow::OnDpiChanged(WORD dpi, RECT *pNewSize) {
 
 void CandidateWindow::OnResize(unsigned int width, unsigned int height) {
     D(__FUNCTIONW__);
-    if (m_target) {
-        m_target->Resize(D2D1_SIZE_U{width, height});
-    }
+    EnsureRenderTarget();
+    m_target->Resize(D2D1_SIZE_U{width, height});
 }
 
 void CandidateWindow::SetBrushColor(D2D1::ColorF color) {
@@ -284,9 +293,16 @@ void CandidateWindow::Draw() {
 
     EnsureBrush();
     SetBrushColor(text_color);
-    D2D1_POINT_2F origin = {padding, padding * 2};
+    auto origin = D2D1::Point2F(padding, padding / 2);
 
     for (auto &layout : candidate_layouts) {
+        //DWRITE_TEXT_METRICS metrics;
+        //layout->GetMetrics(&metrics);
+        //D("box: ", metrics.left, ", ", metrics.top, ", ", metrics.width, ", ", metrics.height, ", layoutWidth: ", metrics.layoutWidth);
+        //auto box = D2D1::RectF((int)origin.x, (int)origin.y, (int)origin.x + (int)metrics.width,
+        //                       (int)origin.y + (int)metrics.height);
+        //m_target->DrawRectangle(&box, m_brush.get(), 1, NULL);
+
         m_target->DrawTextLayout(origin, layout.get(), m_brush.get());
         origin.y += row_height;
     }
