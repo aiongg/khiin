@@ -16,55 +16,53 @@ class CandidateWindow : public BaseWindow<CandidateWindow> {
     CandidateWindow &operator=(const CandidateWindow &) = default;
     ~CandidateWindow() = default;
 
+    virtual LRESULT WINAPI WndProc(UINT uMsg, WPARAM wParam, LPARAM lParam) override;
+    virtual std::wstring &class_name() const override;
+
     void Create();
     void Destroy();
-    HRESULT Show();
-    HRESULT Hide();
+    void Show();
+    void Hide();
     bool showing();
 
     void SetCandidates(std::vector<std::wstring> *candidates);
     void SetScreenCoordinates(RECT text_rect);
 
-    virtual LRESULT WINAPI WndProc(UINT uMsg, WPARAM wParam, LPARAM lParam) override;
-    virtual std::wstring &class_name() const override;
-
   private:
-    //void InitializeDpiScale();
-    HRESULT CreateDeviceIndependentResources();
-    HRESULT CreateDeviceResources();
-    HRESULT CreateGraphicsResources();
+    void Initialize();
+    void EnsureRenderTarget();
+    void EnsureTextFormat();
+    void EnsureBrush();
+    // void CreateDeviceResources();
+    void CreateGraphicsResources();
     void DiscardGraphicsResources();
-    void LayoutAndRedraw();
-    HRESULT CalculateLayout();
-    void DisableRedraw();
-    void EnableRedraw();
-    void OnPaint();
     void OnDpiChanged(WORD dpi, RECT *pSize);
-    void Resize(int width, int height);
-    void Reposition(int left, int top);
-    void ResetWindowPosition();
+    void OnResize(unsigned int width, unsigned int height);
+    // void LayoutAndRedraw();
+    void CalculateLayout();
+    // void DisableRedraw();
+    // void EnableRedraw();
+    // void Resize(int width, int height);
+    // void Reposition(int left, int top);
+    // void ResetWindowPosition();
     void SetBrushColor(D2D1::ColorF);
+    void Draw();
+    void Render();
 
-    bool showing_ = false;
-    HWND hwnd_parent_ = nullptr;
+    bool m_showing = false;
+    HWND m_hwnd_parent = nullptr;
 
-    winrt::com_ptr<ID2D1Factory> d2d1_factory = nullptr;
-    winrt::com_ptr<IDWriteFactory> dwrite_factory = nullptr;
-    winrt::com_ptr<ID2D1HwndRenderTarget> render_target = nullptr;
-    winrt::com_ptr<ID2D1SolidColorBrush> d2d1_brush = nullptr;
-    winrt::com_ptr<IDWriteTextFormat> dwrite_textformat = nullptr;
+    winrt::com_ptr<ID2D1Factory1> m_d2factory = nullptr;
+    winrt::com_ptr<IDWriteFactory3> m_dwfactory = nullptr;
+    winrt::com_ptr<ID2D1HwndRenderTarget> m_target = nullptr;
+    winrt::com_ptr<ID2D1SolidColorBrush> m_brush = nullptr;
+    winrt::com_ptr<IDWriteTextFormat> m_textformat = nullptr;
 
     D2D1::ColorF text_color = D2D1::ColorF(D2D1::ColorF::Black);
     D2D1::ColorF bg_color = D2D1::ColorF(D2D1::ColorF::MintCream);
 
-    float dpi_scale() const;
-    float row_height_px() const;
-    //unsigned int current_dpi = 96;
-    //float dpi_scale = 1.0f;
-    int client_top = 0;
-    int client_left = 0;
-    int client_height = 0;
-    int client_width = 0;
+    unsigned int m_dpi = USER_DEFAULT_SCREEN_DPI;
+    float m_scale = 1.0f;
     float padding = 8.0f;
     float font_size = 24.0f;
     float row_height = font_size + padding;
