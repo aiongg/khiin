@@ -46,7 +46,7 @@ struct Segment {
     std::string raw = std::string();
     std::string display = std::string();
     const Token *token = nullptr;
-    //Candidate candidates;
+    //Candidate candidates_;
     //size_t selectedCandidate = size_t(0);
     bool selected = false;
     bool confirmed = false;

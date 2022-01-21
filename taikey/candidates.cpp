@@ -191,7 +191,7 @@ auto CandidateFinder::findCandidates(std::string input, std::string lgram,
  * original result from the database included a tone number and
  * the next string didn't (fuzzy tone mode). That is, the ascii
  * member of a ret matches exactly the user's raw next and
- * can be directly compared with the raw buffer text.
+ * can be directly compared with the raw buffer_ text.
  */
 auto CandidateFinder::findPrimaryCandidate(std::string_view input,
                                            std::string lgram, bool fuzzy)

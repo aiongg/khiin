@@ -3,7 +3,7 @@
 #
 
 # Add source to this project's executable.
-add_library (libtaikey
+add_library (taikey
     "buffer.h"
     "buffer.cpp"
     "buffer_manager.h"
@@ -29,4 +29,4 @@ add_library (libtaikey
     "trie.cpp" "utils.h")
 
 # Debug
-target_link_options(libtaikey PRIVATE "/MAP")
+target_link_options(taikey PRIVATE "/MAP")

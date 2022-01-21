@@ -1,17 +1,17 @@
-include_directories(${TaiKey_SOURCE_DIR}/libtaikey)
+include_directories(${PROJECT_SOURCE_DIR}/taikey)
 
-add_executable(libtaikey_test "test_main.cpp" "test_engine.cpp" "test_trie.cpp"
+add_executable(taikey_test "test_main.cpp" "test_engine.cpp" "test_trie.cpp"
     "test_buffer.cpp" "test_lomaji.cpp"  "test_splitter.cpp" "test_db.cpp" "test_candidates.cpp")
 
-target_link_libraries(libtaikey_test ${Boost_LIBRARIES} SQLiteCpp libtaikey)
+target_link_libraries(taikey_test ${Boost_LIBRARIES} SQLiteCpp taikey)
 
-add_test(NAME libtaikey_test COMMAND libtaikey_test)
+add_test(NAME taikey_test COMMAND taikey_test)
 
-file(GLOB resources "${TaiKey_SOURCE_DIR}/../resources/*")
+file(GLOB resources "${PROJECT_SOURCE_DIR}/../resources/*")
 message("Resource file list: ${resources}")
 foreach(res ${resources})
     add_custom_command(
-        TARGET libtaikey_test
+        TARGET taikey_test
         POST_BUILD
         COMMAND
             ${CMAKE_COMMAND} -E copy

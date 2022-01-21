@@ -215,7 +215,7 @@ auto BufferManager::findPrimaryCandidate(SegmentIter begin, SegmentIter last)
     }
 
     buffer.segmentByCandidate(begin, last, primary);
-    // buffer.setCandidates(first, std::move(candidates));
+    // buffer_.setCandidates(first, std::move(candidates_));
 
     if (candidates.size() == 0) {
         candidates.push_back(std::move(primary));

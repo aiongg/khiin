@@ -58,7 +58,7 @@ class Engine {
 
         The second parameter should be an empty ImeDisplayData object,
         which on return will contain the data required to display
-        the buffer, underline segments, colors or hint text, and
+        the buffer_, underline segments, colors or hint text, and
         candidate availability.
     */
     auto onKeyDown(KeyCode kc, ImeDisplayData &data) -> RetVal;
@@ -67,10 +67,10 @@ class Engine {
         The application should handle candidate navigation directly,
         as the number, pagination, or other display characteristics
         are best determined by the user-facing application. As the user
-        navigates through candidates, the index in the ImeDisplayData
+        navigates through candidates_, the index in the ImeDisplayData
         canddiate list of the candidate currently under user focus 
         should be passed back to this method. On return, the data
-        object will contain an updated display buffer showing the
+        object will contain an updated display buffer_ showing the
         focused candidate.
     */
     auto focusCandidate(size_t index, ImeDisplayData &data) -> RetVal;
