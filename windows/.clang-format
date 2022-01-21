@@ -1,0 +1,10 @@
+BasedOnStyle: LLVM
+IndentWidth: 4
+ColumnLimit: 120
+AlignAfterOpenBracket: Align
+AllowShortFunctionsOnASingleLine: Empty
+AlwaysBreakTemplateDeclarations: Yes
+BreakConstructorInitializers: AfterColon
+BreakInheritanceList: AfterColon
+AllowShortLambdasOnASingleLine: Empty
+AlignEscapedNewlines: Left

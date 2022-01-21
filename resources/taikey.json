@@ -1,0 +1,11 @@
+{
+  "inputMode": "normal",
+  "toneKeys": "numeric",
+  "toneMode": "fuzzy",
+  "commitMode": "lazy",
+  "englishCandidates": false,
+  "capitalizeEnglish": true,
+  "easyHyphen": false,
+  "easyKhin": false,
+  "easyCh": false
+}
