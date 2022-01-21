@@ -15,7 +15,7 @@ find_package(SQLiteCpp)
 
 add_subdirectory ("khiin_engine")
 
-target_include_directories(khiin_engine PUBLIC "./external")
+target_include_directories(khiin_engine PUBLIC "../third_party")
 
 enable_testing()
 add_subdirectory ("tests")

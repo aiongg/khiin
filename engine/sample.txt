@@ -1,0 +1,145 @@
+raw:                [ c h i a h p n g ]
+candidate offsets:    0         5
+syllable offsets:     0         5
+cursor:                               8
+editing range:        0               8
+
+display:            [ c h i a h _ p n g ]
+candidate offsets:    0           6
+syllable offsets:     0           6
+cursor:                                 9
+editing range:        0                 9
+
+primaryCandidate:   [ (123, 食, chia̍h), (234, 飯, pn̄g) ]
+displayCandidate:   [ null, null ]
+focusedCandidate:   null
+selectedCandidate:  [ false, false ]
+
+$ selectPrimaryCandidate()
+  --> ENTER NAVIGATION BY SEGMENT STATE
+
+raw:                [ c h i a h p n g ]
+candidate offsets:    0         5
+syllable offsets:     0         5
+cursor:                               8
+editing range:                       [8
+
+display:            [ 食 飯 ]
+candidate offsets:    0  1
+syllable offsets:     0  1
+cursor:                     2
+editing range:             [2
+
+primaryCandidate:   [ ]
+displayCandidate:   [ (123, 食, chia̍h) (234, 飯, pn̄g) ]
+focusedCandidate:   0
+selectedCandidate:  [ false, false ]
+
+$ changeCandidate()
+  --> ENTER SELECT CANDIDATE STATE
+
+raw:                [ c h i a h p n g ]
+candidate offsets:    0         5
+syllable offsets:     0         5
+cursor:                               8
+editing range:                       [8
+
+display:            [ c h i a ˈ h _ 飯 ]
+candidate offsets:    0             7
+syllable offsets:     0             7
+cursor:                                8
+editing range:                        [8
+
+primaryCandidate:   [ ]
+displayCandidate:   [ (122, chia̍h, chia̍h) (234, 飯, pn̄g) ]
+focusedCandidate:   0
+selectedCandidate:  [ true, false ]
+
+$ selectCandidate()
+  --> ENTER NAVIGATION BY SEGMENT STATE
+
+raw:                [ c h i a h p n g ]
+candidate offsets:    0         5
+syllable offsets:     0         5
+cursor:                               8
+editing range:                       [8
+
+display:            [ 即 飯 ]
+candidate offsets:    0  1
+syllable offsets:     0  1
+cursor:                     2
+editing range:             [2
+
+primaryCandidate:   [ ]
+displayCandidate:   [ (345, 即, chiah) (234, 飯, pn̄g) ]
+focusedCandidate:   0
+selectedCandidate:  [ true, false ]
+
+$ navigateRight()
+
+focusedCandidate:   1
+
+$ revertToEditing()
+  --> ENTER EDITING MODE
+
+raw:                [ c h i a h p n g ]
+candidate offsets:    0         5
+syllable offsets:     0         5
+cursor:                               8
+editing range:                  5     8
+
+display:            [ 即 _ p n g ]
+candidate offsets:    0    2
+syllable offsets:     0    2
+cursor:                          5
+editing range:           1       5
+
+primaryCandidate:   [ ]
+displayCandidate:   [ (345, 即, chiah) (null) ]
+focusedCandidate:   null
+selectedCandidate:  [ true, false ]
+
+$ cursorLeft()
+$ cursorLeft()
+
+cursor:                        3
+
+$ insert("ha")
+
+raw:                [ c h i a h p h a n g ]
+candidate offsets:    0         5
+syllable offsets:     0         5
+cursor:                               8
+editing range:                  5         10
+
+display:            [ 即 _ p h a n g ]
+candidate offsets:    0    2
+syllable offsets:     0    2
+cursor:                          5
+editing range:           1           7
+
+primaryCandidate:   [ ???  (247, 香, phang) ]
+displayCandidate:   [ (345, 即, chiah) (null) ]
+focusedCandidate:   null
+selectedCandidate:  [ true, false ]
+
+$ selectPrimaryCandidate()
+  --> ENTER NAVIGATION BY SEGMENT STATE
+
+raw:                [ c h i a h p h a n g ]
+candidate offsets:    0         5
+syllable offsets:     0         5
+cursor:                                   10
+editing range:                           [10
+
+display:            [ 即 香 ]
+candidate offsets:    0  1
+syllable offsets:     0  1
+cursor:                     2
+editing range:             [2
+
+primaryCandidate:   [ ]
+displayCandidate:   [ (345, 即, chiah) (247, 香, phang) ]
+focusedCandidate:   1
+selectedCandidate:  [ true, false ]
+
