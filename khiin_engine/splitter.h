@@ -8,7 +8,7 @@
 #include "errors.h"
 #include "common.h"
 
-namespace taikey {
+namespace khiin::engine {
 
 class Splitter {
   public:
@@ -24,4 +24,4 @@ class Splitter {
     int maxWordLength_ = 0;
 };
 
-} // namespace taikey
+} // namespace khiin::engine

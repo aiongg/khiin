@@ -15,7 +15,7 @@
 #include "splitter.h"
 #include "trie.h"
 
-namespace taikey {
+namespace khiin::engine {
 
 const std::string CONFIG_FILE = "taikey.json";
 const std::string DB_FILE = "taikey.db";
@@ -111,4 +111,4 @@ class Engine {
     std::unique_ptr<CandidateFinder> candidateFinder = nullptr;
 };
 
-} // namespace taikey
+} // namespace khiin::engine

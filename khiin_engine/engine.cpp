@@ -19,7 +19,7 @@
 #include "engine.h"
 #include "utils.h"
 
-namespace taikey {
+namespace khiin::engine {
 
 namespace fs = std::filesystem;
 
@@ -296,4 +296,4 @@ RetVal Engine::bySegmentToByLetter_(KeyCode keyCode) {
     return handleNavByLetter_(keyCode);
 }
 
-} // namespace taikey
+} // namespace khiin::engine

@@ -15,7 +15,7 @@
 
 #include "engine.h"
 
-namespace taikey {
+namespace khiin::engine {
 
 namespace fs = std::filesystem;
 
@@ -95,4 +95,4 @@ BOOST_AUTO_TEST_CASE(t04_erasing) {
 
 BOOST_AUTO_TEST_SUITE_END();
 
-} // namespace taikey
+} // namespace khiin::engine

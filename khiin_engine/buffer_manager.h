@@ -11,7 +11,7 @@
 #include "splitter.h"
 #include "trie.h"
 
-namespace taikey {
+namespace khiin::engine {
 
 struct CandidateDisplay {
     std::string text;
@@ -56,4 +56,4 @@ class BufferManager {
     bool hasPrimaryCandidate = false;
 };
 
-} // namespace taikey
+} // namespace khiin::engine

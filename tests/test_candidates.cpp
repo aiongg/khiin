@@ -5,7 +5,7 @@
 
 #include "candidates.h"
 
-namespace taikey::CandidateTest {
+namespace khiin::engine::CandidateTest {
 
 const std::string DB_FILE = "taikey.db";
 
@@ -84,4 +84,4 @@ BOOST_AUTO_TEST_CASE(find_long_string) {
 
 BOOST_AUTO_TEST_SUITE_END()
 
-} // namespace taikey::CandidateTest
+} // namespace khiin::engine::CandidateTest

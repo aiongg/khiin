@@ -9,7 +9,7 @@
 
 #include "common.h"
 
-namespace taikey {
+namespace khiin::engine {
 
 using BigramWeightMap =
     std::unordered_map<std::pair<std::string, std::string>, int>;
@@ -87,4 +87,4 @@ class TKDB {
     DictRows tableDictionary;
 };
 
-} // namespace taikey
+} // namespace khiin::engine

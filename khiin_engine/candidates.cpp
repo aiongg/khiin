@@ -12,7 +12,7 @@
 #include "splitter.h"
 #include "trie.h"
 
-namespace taikey {
+namespace khiin::engine {
 
 using namespace std::literals::string_literals;
 
@@ -393,4 +393,4 @@ auto CandidateFinder::handleNoTrieMatch(
     start = next;
 }
 
-} // namespace taikey
+} // namespace khiin::engine

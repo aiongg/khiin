@@ -7,7 +7,7 @@
 
 #include "db.h"
 
-using namespace taikey;
+using namespace khiin::engine;
 
 static const auto DB_FILE = "taikey.db";
 

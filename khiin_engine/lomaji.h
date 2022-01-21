@@ -3,7 +3,7 @@
 #include "common.h"
 #include "errors.h"
 
-namespace taikey {
+namespace khiin::engine {
 
 auto asciiSyllableToUtf8(std::string ascii) -> std::string;
 
@@ -46,4 +46,4 @@ auto utf8Size(std::string s) -> Utf8Size;
 
 auto utf8ToAsciiLower(std::string u8string) -> std::string;
 
-} // namespace taikey
+} // namespace khiin::engine

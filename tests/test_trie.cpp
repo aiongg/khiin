@@ -6,7 +6,7 @@
 #include "trie.h"
 
 using namespace std;
-using namespace taikey;
+using namespace khiin::engine;
 
 struct TrieFx {
     TrieFx() { trie = new Trie(); }

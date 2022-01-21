@@ -16,7 +16,7 @@
 #include "lomaji.h"
 #include "trie.h"
 
-namespace taikey {
+namespace khiin::engine {
 
 // Local utility methods
 
@@ -267,4 +267,4 @@ auto BufferManager::lgramOf(SegmentIter segment) -> std::string {
                                             : segment[-1].display;
 }
 
-} // namespace taikey
+} // namespace khiin::engine

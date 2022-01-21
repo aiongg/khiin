@@ -14,7 +14,7 @@
 
 namespace utf8u = utf8::unchecked;
 
-namespace taikey {
+namespace khiin::engine {
 
 // Utility methods (not exposed)
 
@@ -396,4 +396,4 @@ auto utf8ToAsciiLower(std::string u8string) -> std::string {
     return u8string;
 }
 
-} // namespace taikey
+} // namespace khiin::engine

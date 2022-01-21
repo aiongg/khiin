@@ -1,6 +1,6 @@
 #pragma once
 
-namespace taikey::Utils {
+namespace khiin::engine::Utils {
 
 namespace fs = std::filesystem;
 
@@ -43,4 +43,4 @@ auto findResourceDirectory() {
     return fs::path();
 }
 
-} // namespace taikey::Utils
+} // namespace khiin::engine::Utils

@@ -4,7 +4,7 @@
 #include "common.h"
 #include "trie.h"
 
-namespace taikey {
+namespace khiin::engine {
 
 using namespace std::literals::string_literals;
 
@@ -300,4 +300,4 @@ auto Trie::dfs_(Node *node, std::string prefix, std::string suffix,
     }
 }
 
-} // namespace taikey
+} // namespace khiin::engine

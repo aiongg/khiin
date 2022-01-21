@@ -4,7 +4,7 @@
 cmake_minimum_required (VERSION 3.8)
 set(CMAKE_CXX_STANDARD 17)
 
-project ("taikey")
+project ("KhiinEngine" CXX)
 
 # find_package(ICU)
 # Boost v1.75.0
@@ -13,9 +13,9 @@ include_directories (${Boost_INCLUDE_DIRS})
 
 find_package(SQLiteCpp)
 
-add_subdirectory ("taikey")
+add_subdirectory ("khiin_engine")
 
-target_include_directories(taikey PUBLIC "./external")
+target_include_directories(khiin_engine PUBLIC "./external")
 
 enable_testing()
 add_subdirectory ("tests")

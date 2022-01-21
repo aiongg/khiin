@@ -3,7 +3,7 @@
 
 #include "buffer_manager.h"
 
-namespace taikey::BufferTest {
+namespace khiin::engine::BufferTest {
 
 const std::string DB_FILE = "taikey.db";
 
@@ -419,4 +419,4 @@ BOOST_AUTO_TEST_CASE(move_cursor_and_insert) {
 
 BOOST_AUTO_TEST_SUITE_END();
 
-} // namespace taikey::BufferTest
+} // namespace khiin::engine::BufferTest

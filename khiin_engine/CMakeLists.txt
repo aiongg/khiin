@@ -3,7 +3,7 @@
 #
 
 # Add source to this project's executable.
-add_library (taikey
+add_library (khiin_engine
     "buffer.h"
     "buffer.cpp"
     "buffer_manager.h"
@@ -29,4 +29,4 @@ add_library (taikey
     "trie.cpp" "utils.h")
 
 # Debug
-target_link_options(taikey PRIVATE "/MAP")
+target_link_options(khiin_engine PRIVATE "/MAP")

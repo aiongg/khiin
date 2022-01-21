@@ -6,7 +6,7 @@
 #include "buffer.h"
 #include "lomaji.h"
 
-namespace taikey {
+namespace khiin::engine {
 
 // Utility
 
@@ -277,4 +277,4 @@ auto SynchronizedBuffer::removeToneFromRawBuffer() -> void {
     }
 }
 
-} // namespace taikey
+} // namespace khiin::engine

@@ -4,7 +4,7 @@
 
 #include <boost/property_tree/ptree.hpp>
 
-namespace taikey {
+namespace khiin::engine {
 
 enum class InputMode {
     Normal,
@@ -53,4 +53,4 @@ class Config {
     Settings settings_;
 };
 
-} // namespace taikey
+} // namespace khiin::engine

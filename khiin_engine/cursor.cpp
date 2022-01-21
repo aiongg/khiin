@@ -3,7 +3,7 @@
 #include "buffer.h"
 #include "lomaji.h"
 
-namespace taikey {
+namespace khiin::engine {
 
 void Cursor::operator++() {
     if (atEnd()) {
@@ -143,4 +143,4 @@ auto Cursor::syncToRaw(size_t segmentStart, size_t rawOffset) -> void {
     display = utf8::distance(seg.display.begin(), d_it);
 }
 
-} // namespace taikey
+} // namespace khiin::engine

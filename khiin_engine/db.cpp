@@ -13,7 +13,7 @@
 #include "lomaji.h"
 #include "sql.h"
 
-namespace taikey {
+namespace khiin::engine {
 
 using namespace std::literals::string_literals;
 
@@ -339,4 +339,4 @@ int TKDB::buildTrieLookupTable_() {
     }
 }
 
-} // namespace taikey
+} // namespace khiin::engine

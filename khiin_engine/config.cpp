@@ -2,7 +2,7 @@
 
 #include "config.h"
 
-namespace taikey {
+namespace khiin::engine {
 
 Config::Config() {}
 
@@ -24,4 +24,4 @@ auto Config::getSettings() -> const Settings & {
     return const_cast<Settings &>(settings_);
 }
 
-} // namespace taikey
+} // namespace khiin::engine

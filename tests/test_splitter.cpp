@@ -14,7 +14,7 @@
 #include "splitter.h"
 #include "trie.h"
 
-using namespace taikey;
+using namespace khiin::engine;
 
 namespace fs = std::filesystem;
 

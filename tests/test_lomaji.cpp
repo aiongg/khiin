@@ -4,7 +4,7 @@
 #include "common.h"
 #include "lomaji.h"
 
-using namespace taikey;
+using namespace khiin::engine;
 
 BOOST_AUTO_TEST_SUITE(LomajiTest);
 

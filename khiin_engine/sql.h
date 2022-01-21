@@ -9,7 +9,7 @@
 
 #include "common.h"
 
-namespace taikey {
+namespace khiin::engine {
 namespace SQL {
 
 using namespace std::literals::string_literals;
@@ -245,4 +245,4 @@ const std::string CREATE_DummyDatabase() {
 }
 
 } // namespace SQL
-} // namespace taikey
+} // namespace khiin::engine

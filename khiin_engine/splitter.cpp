@@ -8,7 +8,7 @@
 
 using namespace std::string_literals;
 
-namespace taikey {
+namespace khiin::engine {
 
 inline auto isDigit(std::string str) {
     std::stringstream s;
@@ -140,4 +140,4 @@ auto Splitter::split(std::string input, VStr &result)
     return RetVal::OK;
 }
 
-} // namespace taikey
+} // namespace khiin::engine

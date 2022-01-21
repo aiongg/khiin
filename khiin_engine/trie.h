@@ -6,7 +6,7 @@
 
 #include "common.h"
 
-namespace taikey {
+namespace khiin::engine {
 
 struct RecursiveMap {
     std::unordered_map<std::string, RecursiveMap> map;
@@ -49,4 +49,4 @@ class Trie {
               std::vector<std::string> &results, size_t maxDepth = 0) -> void;
 };
 
-} // namespace taikey
+} // namespace khiin::engine

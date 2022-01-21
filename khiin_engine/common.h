@@ -5,7 +5,7 @@
 #include <unordered_set>
 #include <vector>
 
-namespace taikey {
+namespace khiin::engine {
 
 const std::string TaiKeyPath = "TAIKEY_PATH";
 
@@ -85,4 +85,4 @@ const auto U32_TONES =
 
 const std::unordered_set<char> PTKH = {'P', 'T', 'K', 'H', 'p', 't', 'k', 'h'};
 
-} // namespace taikey
+} // namespace khiin::engine

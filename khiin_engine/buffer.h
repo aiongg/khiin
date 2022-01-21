@@ -7,7 +7,7 @@
 #include "candidates.h"
 #include "errors.h"
 
-namespace taikey {
+namespace khiin::engine {
 
 // Foreward declarations
 struct Segment;
@@ -96,4 +96,4 @@ class SynchronizedBuffer {
     // size_t focusedSegment;
 };
 
-} // namespace taikey
+} // namespace khiin::engine

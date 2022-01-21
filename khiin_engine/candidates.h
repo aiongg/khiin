@@ -9,7 +9,7 @@
 #include "splitter.h"
 #include "trie.h"
 
-namespace taikey {
+namespace khiin::engine {
 
 enum class CColor {
     Normal,
@@ -91,4 +91,4 @@ class CandidateFinder {
     Trie *trie;
 };
 
-} // namespace taikey
+} // namespace khiin::engine

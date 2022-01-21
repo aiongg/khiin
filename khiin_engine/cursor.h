@@ -3,7 +3,7 @@
 #include <string>
 #include <vector>
 
-namespace TaiKey {
+namespace khiin::engine {
 
 //class SynchronizedBuffer;
 //struct Segment;
@@ -79,4 +79,4 @@ namespace TaiKey {
 //    u32_iter de;
 //};
 
-} // namespace TaiKey
+} // namespace khiin::engine
