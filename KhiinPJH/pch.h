@@ -56,3 +56,14 @@ inline bool is_guid_of<ITfCandidateListUIElementBehavior>(guid const &id) noexce
         CHECK_RETURN_HRESULT(ex.code());     \
     }                                        \
     return S_OK;
+
+// Windows 11 polyfill
+
+#define DWMWA_WINDOW_CORNER_PREFERENCE (33)
+
+typedef enum {
+    DWMWCP_DEFAULT = 0,
+    DWMWCP_DONOTROUND = 1,
+    DWMWCP_ROUND = 2,
+    DWMWCP_ROUNDSMALL = 3,
+} DWM_WINDOW_CORNER_PREFERENCE;

@@ -53,8 +53,12 @@ class CandidateWindow : public BaseWindow<CandidateWindow> {
     winrt::com_ptr<IDWriteTextFormat> m_textformat = nullptr;
 
     D2D1::ColorF text_color = D2D1::ColorF(D2D1::ColorF::Black);
-    D2D1::ColorF bg_color = D2D1::ColorF(0.95f, 0.95f, 0.95f);
+    D2D1::ColorF bg_color = D2D1::ColorF(D2D1::ColorF::AliceBlue); // D2D1::ColorF(0.95f, 0.95f, 0.95f);
 
+#pragma warning(push)
+#pragma warning(disable : 26812)
+    DWM_WINDOW_CORNER_PREFERENCE m_border_radius = DWMWCP_ROUND;
+#pragma warning(pop)
     RECT m_border_thickness{};
     unsigned int m_max_width = 0;
     unsigned int m_max_height = 0;

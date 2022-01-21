@@ -44,12 +44,12 @@ winrt::com_ptr<ID2D1HwndRenderTarget> CreateRenderTarget(winrt::com_ptr<ID2D1Fac
 CandidateWindow::CandidateWindow(HWND parent) : m_hwnd_parent(parent) {}
 
 LRESULT __stdcall CandidateWindow::WndProc(UINT uMsg, WPARAM wParam, LPARAM lParam) {
-    static RECT border_thickness;
-
     switch (uMsg) {
-     case WM_NCCREATE: {
+    case WM_NCCREATE: {
         D("WM_NCCREATE");
-         break;
+        ::DwmSetWindowAttribute(m_hwnd, DWMWA_WINDOW_CORNER_PREFERENCE, &m_border_radius,
+                              sizeof(DWM_WINDOW_CORNER_PREFERENCE));
+        break;
     }
     case WM_CREATE: {
         D("WM_CREATE");
@@ -72,13 +72,6 @@ LRESULT __stdcall CandidateWindow::WndProc(UINT uMsg, WPARAM wParam, LPARAM lPar
     }
     case WM_NCCALCSIZE: {
         D("WM_NCCALCSIZE");
-        if (lParam) {
-            NCCALCSIZE_PARAMS *sz = (NCCALCSIZE_PARAMS *)lParam;
-            sz->rgrc[0].left += m_border_thickness.left;
-            sz->rgrc[0].right -= m_border_thickness.right;
-            sz->rgrc[0].bottom -= m_border_thickness.bottom;
-            return 0;
-        }
         break;
     }
     case WM_NCPAINT: {
@@ -144,11 +137,14 @@ std::wstring &CandidateWindow::class_name() const {
     return kCandidateWindowClassName;
 }
 
+static const DWORD kDwStyle = WS_BORDER | WS_POPUP;
+static const DWORD kDwExStyle = WS_EX_TOPMOST | WS_EX_TOOLWINDOW | WS_EX_NOACTIVATE;
+
 void CandidateWindow::Create() {
     D(__FUNCTIONW__);
     Create_(NULL, // clang-format off
-            WS_THICKFRAME | WS_POPUP,
-            WS_EX_TOPMOST | WS_EX_TOOLWINDOW | WS_EX_NOACTIVATE,
+            kDwStyle,
+            kDwExStyle,
             0, 0, 100, 100,
             m_hwnd_parent,
             NULL); // clang-format on
@@ -188,6 +184,9 @@ void CandidateWindow::SetCandidates(std::vector<std::wstring> *candidates) {
 
 void CandidateWindow::SetScreenCoordinates(RECT text_rect_px) {
     D(__FUNCTIONW__);
+    if (showing()) {
+        return;
+    }
     auto left = text_rect_px.left;
     auto top = text_rect_px.bottom + static_cast<int>(padding);
     ::SetWindowPos(m_hwnd, NULL, left, top, 0, 0, SWP_NOSIZE | SWP_NOZORDER | SWP_NOACTIVATE);
@@ -200,17 +199,6 @@ void CandidateWindow::OnCreate() {
     m_dpi = ::GetDpiForWindow(m_hwnd);
     m_scale = static_cast<float>(m_dpi / USER_DEFAULT_SCREEN_DPI);
     OnDisplayChange();
-
-    // Extend frame into client area
-    ::SetRectEmpty(&m_border_thickness);
-    if (GetWindowLongPtr(m_hwnd, GWL_STYLE) & WS_THICKFRAME) {
-        ::AdjustWindowRectEx(&m_border_thickness, GetWindowLongPtr(m_hwnd, GWL_STYLE) & ~WS_CAPTION, FALSE, NULL);
-        m_border_thickness.left *= -1;
-        m_border_thickness.top *= -1;
-    }
-    MARGINS margins = {0};
-    ::DwmExtendFrameIntoClientArea(m_hwnd, &margins);
-    SetWindowPos(m_hwnd, NULL, 0, 0, 0, 0, SWP_FRAMECHANGED | SWP_NOZORDER | SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE);
 }
 
 void CandidateWindow::EnsureRenderTarget() {
@@ -305,12 +293,8 @@ void CandidateWindow::CalculateLayout() {
     max->GetMetrics(&metrics);
 
     D("Max width: ", max_width, ", Metric width: ", metrics.width);
-    D("CXFRAME: ", ::GetSystemMetrics(SM_CXSIZEFRAME), ", CXBORDER: ", ::GetSystemMetrics(SM_CXBORDER));
-
-    auto frameWidth = ::GetSystemMetrics(SM_CXSIZEFRAME) + ::GetSystemMetrics(SM_CXBORDER);
-    auto frameHeight = ::GetSystemMetrics(SM_CYSIZEFRAME) + ::GetSystemMetrics(SM_CYBORDER);
-    auto width = metrics.width + padding * 2 + frameWidth * 2 + kCornerRadius;
-    auto height = candidates_shown * row_height + padding + frameHeight * 2;
+    auto width = metrics.width + padding * 2;
+    auto height = candidates_shown * row_height + padding;
     D("Render width: ", width, ", Render height: ", height);
     ::SetWindowPos(m_hwnd, NULL, 0, 0, static_cast<int>(width * m_scale), static_cast<int>(height * m_scale),
                    SWP_NOMOVE | SWP_NOACTIVATE | SWP_NOZORDER);
