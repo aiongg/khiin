@@ -1,7 +1,5 @@
 #include "pch.h"
 
-#include <dwmapi.h>
-
 #include "CandidateWindow.h"
 
 namespace Khiin {

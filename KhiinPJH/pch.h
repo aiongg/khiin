@@ -23,7 +23,7 @@
 #include <dwrite_3.h>
 #include <msctf.h>
 #include <windows.h>
-//#include <dwmapi.h>
+#include <dwmapi.h>
 #include <winrt/base.h>
 
 #pragma comment(lib, "windowsapp")
