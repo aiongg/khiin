@@ -6,7 +6,7 @@
 #include "trie.h"
 
 using namespace std;
-using namespace TaiKey;
+using namespace taikey;
 
 struct TrieFx {
     TrieFx() { trie = new Trie(); }

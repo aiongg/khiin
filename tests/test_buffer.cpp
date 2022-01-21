@@ -3,7 +3,7 @@
 
 #include "buffer_manager.h"
 
-namespace TaiKey::BufferTest {
+namespace taikey::BufferTest {
 
 const std::string DB_FILE = "taikey.db";
 

@@ -4,7 +4,7 @@
 
 #include <boost/property_tree/ptree.hpp>
 
-namespace TaiKey {
+namespace taikey {
 
 enum class InputMode {
     Normal,

@@ -13,7 +13,7 @@
 #include "lomaji.h"
 #include "sql.h"
 
-namespace TaiKey {
+namespace taikey {
 
 using namespace std::literals::string_literals;
 

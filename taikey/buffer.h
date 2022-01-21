@@ -7,7 +7,7 @@
 #include "candidates.h"
 #include "errors.h"
 
-namespace TaiKey {
+namespace taikey {
 
 // Foreward declarations
 struct Segment;

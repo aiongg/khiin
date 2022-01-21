@@ -5,7 +5,7 @@
 
 #include "candidates.h"
 
-namespace TaiKey::CandidateTest {
+namespace taikey::CandidateTest {
 
 const std::string DB_FILE = "taikey.db";
 

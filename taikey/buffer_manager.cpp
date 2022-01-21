@@ -16,7 +16,7 @@
 #include "lomaji.h"
 #include "trie.h"
 
-namespace TaiKey {
+namespace taikey {
 
 // Local utility methods
 

@@ -6,7 +6,7 @@
 
 #include "common.h"
 
-namespace TaiKey {
+namespace taikey {
 
 struct RecursiveMap {
     std::unordered_map<std::string, RecursiveMap> map;

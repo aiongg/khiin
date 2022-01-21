@@ -9,7 +9,7 @@
 
 #include "common.h"
 
-namespace TaiKey {
+namespace taikey {
 namespace SQL {
 
 using namespace std::literals::string_literals;

@@ -12,7 +12,7 @@
 #include "splitter.h"
 #include "trie.h"
 
-namespace TaiKey {
+namespace taikey {
 
 using namespace std::literals::string_literals;
 

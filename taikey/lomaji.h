@@ -3,7 +3,7 @@
 #include "common.h"
 #include "errors.h"
 
-namespace TaiKey {
+namespace taikey {
 
 auto asciiSyllableToUtf8(std::string ascii) -> std::string;
 

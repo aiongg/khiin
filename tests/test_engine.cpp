@@ -15,7 +15,7 @@
 
 #include "engine.h"
 
-namespace TaiKey {
+namespace taikey {
 
 namespace fs = std::filesystem;
 

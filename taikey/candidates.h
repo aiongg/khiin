@@ -9,7 +9,7 @@
 #include "splitter.h"
 #include "trie.h"
 
-namespace TaiKey {
+namespace taikey {
 
 enum class CColor {
     Normal,

@@ -11,7 +11,7 @@
 #include "splitter.h"
 #include "trie.h"
 
-namespace TaiKey {
+namespace taikey {
 
 struct CandidateDisplay {
     std::string text;

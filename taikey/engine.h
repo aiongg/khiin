@@ -15,7 +15,7 @@
 #include "splitter.h"
 #include "trie.h"
 
-namespace TaiKey {
+namespace taikey {
 
 const std::string CONFIG_FILE = "taikey.json";
 const std::string DB_FILE = "taikey.db";

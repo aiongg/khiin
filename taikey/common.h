@@ -5,7 +5,7 @@
 #include <unordered_set>
 #include <vector>
 
-namespace TaiKey {
+namespace taikey {
 
 const std::string TaiKeyPath = "TAIKEY_PATH";
 

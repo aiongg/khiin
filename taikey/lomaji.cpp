@@ -14,7 +14,7 @@
 
 namespace utf8u = utf8::unchecked;
 
-namespace TaiKey {
+namespace taikey {
 
 // Utility methods (not exposed)
 

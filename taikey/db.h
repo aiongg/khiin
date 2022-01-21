@@ -9,7 +9,7 @@
 
 #include "common.h"
 
-namespace TaiKey {
+namespace taikey {
 
 using BigramWeightMap =
     std::unordered_map<std::pair<std::string, std::string>, int>;

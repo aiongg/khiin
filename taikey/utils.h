@@ -1,6 +1,6 @@
 #pragma once
 
-namespace TaiKey::Utils {
+namespace taikey::Utils {
 
 namespace fs = std::filesystem;
 

@@ -8,7 +8,7 @@
 #include "errors.h"
 #include "common.h"
 
-namespace TaiKey {
+namespace taikey {
 
 class Splitter {
   public:

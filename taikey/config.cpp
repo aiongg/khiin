@@ -2,7 +2,7 @@
 
 #include "config.h"
 
-namespace TaiKey {
+namespace taikey {
 
 Config::Config() {}
 

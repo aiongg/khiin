@@ -8,7 +8,7 @@
 
 using namespace std::string_literals;
 
-namespace TaiKey {
+namespace taikey {
 
 inline auto isDigit(std::string str) {
     std::stringstream s;

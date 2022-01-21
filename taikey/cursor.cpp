@@ -3,7 +3,7 @@
 #include "buffer.h"
 #include "lomaji.h"
 
-namespace TaiKey {
+namespace taikey {
 
 void Cursor::operator++() {
     if (atEnd()) {
