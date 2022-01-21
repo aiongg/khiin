@@ -1,8 +1,12 @@
 #include "pch.h"
 
+#include <dwmapi.h>
+
 #include "CandidateWindow.h"
 
 namespace Khiin {
+
+inline constexpr int kCornerRadius = 4;
 
 std::wstring kCandidateWindowClassName = L"CandidateWindow";
 GUID kCandidateWindowGuid // 829893fa-728d-11ec-8c6e-e0d46491b35a
@@ -40,33 +44,59 @@ winrt::com_ptr<ID2D1HwndRenderTarget> CreateRenderTarget(winrt::com_ptr<ID2D1Fac
 CandidateWindow::CandidateWindow(HWND parent) : m_hwnd_parent(parent) {}
 
 LRESULT __stdcall CandidateWindow::WndProc(UINT uMsg, WPARAM wParam, LPARAM lParam) {
+    static RECT border_thickness;
+
     switch (uMsg) {
+     case WM_NCCREATE: {
+        D("WM_NCCREATE");
+         break;
+    }
     case WM_CREATE: {
         D("WM_CREATE");
         try {
-            Initialize();
+            OnCreate();
             return 0;
         } catch (...) {
             return -1;
         }
+    }
+    case WM_DISPLAYCHANGE: {
+        D("WM_DISPLAYCHANGE");
+        OnDisplayChange();
+        break;
     }
     case WM_DPICHANGED: {
         D("WM_DPICHANGED");
         OnDpiChanged(HIWORD(wParam), (RECT *)lParam);
         return 0;
     }
+    case WM_NCCALCSIZE: {
+        D("WM_NCCALCSIZE");
+        if (lParam) {
+            NCCALCSIZE_PARAMS *sz = (NCCALCSIZE_PARAMS *)lParam;
+            sz->rgrc[0].left += m_border_thickness.left;
+            sz->rgrc[0].right -= m_border_thickness.right;
+            sz->rgrc[0].bottom -= m_border_thickness.bottom;
+            return 0;
+        }
+        break;
+    }
     case WM_NCPAINT: {
         D("WM_NCPAINT");
+        break;
+    }
+    case WM_NCACTIVATE: {
+        D("WM_NCACTIVATE");
+        break;
+    }
+    case WM_ACTIVATE: {
+        D("WM_ACTIVATE");
         break;
     }
     case WM_PAINT: {
         D("WM_PAINT");
         Render();
         return 0;
-    }
-    case WM_NCCALCSIZE: {
-        D("WM_NCCALCSIZE");
-        break;
     }
     case WM_DESTROY: {
         D("WM_DESTROY");
@@ -117,7 +147,7 @@ std::wstring &CandidateWindow::class_name() const {
 void CandidateWindow::Create() {
     D(__FUNCTIONW__);
     Create_(NULL, // clang-format off
-            WS_BORDER | WS_POPUP,
+            WS_THICKFRAME | WS_POPUP,
             WS_EX_TOPMOST | WS_EX_TOOLWINDOW | WS_EX_NOACTIVATE,
             0, 0, 100, 100,
             m_hwnd_parent,
@@ -163,12 +193,24 @@ void CandidateWindow::SetScreenCoordinates(RECT text_rect_px) {
     ::SetWindowPos(m_hwnd, NULL, left, top, 0, 0, SWP_NOSIZE | SWP_NOZORDER | SWP_NOACTIVATE);
 }
 
-void CandidateWindow::Initialize() {
+void CandidateWindow::OnCreate() {
     D(__FUNCTIONW__);
     m_d2factory = CreateD2D1Factory();
     m_dwfactory = CreateDwriteFactory();
     m_dpi = ::GetDpiForWindow(m_hwnd);
     m_scale = static_cast<float>(m_dpi / USER_DEFAULT_SCREEN_DPI);
+    OnDisplayChange();
+
+    // Extend frame into client area
+    ::SetRectEmpty(&m_border_thickness);
+    if (GetWindowLongPtr(m_hwnd, GWL_STYLE) & WS_THICKFRAME) {
+        ::AdjustWindowRectEx(&m_border_thickness, GetWindowLongPtr(m_hwnd, GWL_STYLE) & ~WS_CAPTION, FALSE, NULL);
+        m_border_thickness.left *= -1;
+        m_border_thickness.top *= -1;
+    }
+    MARGINS margins = {0};
+    ::DwmExtendFrameIntoClientArea(m_hwnd, &margins);
+    SetWindowPos(m_hwnd, NULL, 0, 0, 0, 0, SWP_FRAMECHANGED | SWP_NOZORDER | SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE);
 }
 
 void CandidateWindow::EnsureRenderTarget() {
@@ -186,7 +228,7 @@ void CandidateWindow::EnsureTextFormat() {
                                                            DWRITE_FONT_STYLE_NORMAL, DWRITE_FONT_STRETCH_NORMAL,
                                                            font_size, L"en-us", m_textformat.put()));
         winrt::check_hresult(m_textformat->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_LEADING));
-        winrt::check_hresult(m_textformat->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_CENTER));
+        winrt::check_hresult(m_textformat->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_NEAR));
     }
 }
 
@@ -220,6 +262,11 @@ void CandidateWindow::DiscardGraphicsResources() {
     candidate_layouts.clear();
 }
 
+void CandidateWindow::OnDisplayChange() {
+    m_max_width = ::GetSystemMetrics(SM_CXFULLSCREEN);
+    m_max_height = ::GetSystemMetrics(SM_CYFULLSCREEN);
+}
+
 void CandidateWindow::CalculateLayout() {
     D(__FUNCTIONW__);
     if (!m_dwfactory || !candidates) {
@@ -241,7 +288,8 @@ void CandidateWindow::CalculateLayout() {
         D(cand);
         auto layout = winrt::com_ptr<IDWriteTextLayout>();
         winrt::check_hresult(m_dwfactory->CreateTextLayout(cand.data(), static_cast<UINT>(cand.size()),
-                                                           m_textformat.get(), 0, row_height, layout.put()));
+                                                           m_textformat.get(), static_cast<float>(m_max_width),
+                                                           row_height, layout.put()));
 
         float min_width;
         layout->DetermineMinWidth(&min_width);
@@ -257,11 +305,15 @@ void CandidateWindow::CalculateLayout() {
     max->GetMetrics(&metrics);
 
     D("Max width: ", max_width, ", Metric width: ", metrics.width);
+    D("CXFRAME: ", ::GetSystemMetrics(SM_CXSIZEFRAME), ", CXBORDER: ", ::GetSystemMetrics(SM_CXBORDER));
 
-    auto width = metrics.width + padding * 2;
-    auto height = candidates_shown * row_height + padding;
-    D("W", width, "H", height);
-    ::SetWindowPos(m_hwnd, NULL, 0, 0, static_cast<int>(width * m_scale), static_cast<int>(height * m_scale), SWP_NOMOVE | SWP_NOACTIVATE | SWP_NOZORDER);
+    auto frameWidth = ::GetSystemMetrics(SM_CXSIZEFRAME) + ::GetSystemMetrics(SM_CXBORDER);
+    auto frameHeight = ::GetSystemMetrics(SM_CYSIZEFRAME) + ::GetSystemMetrics(SM_CYBORDER);
+    auto width = metrics.width + padding * 2 + frameWidth * 2 + kCornerRadius;
+    auto height = candidates_shown * row_height + padding + frameHeight * 2;
+    D("Render width: ", width, ", Render height: ", height);
+    ::SetWindowPos(m_hwnd, NULL, 0, 0, static_cast<int>(width * m_scale), static_cast<int>(height * m_scale),
+                   SWP_NOMOVE | SWP_NOACTIVATE | SWP_NOZORDER);
 }
 
 void CandidateWindow::OnDpiChanged(WORD dpi, RECT *pNewSize) {
@@ -296,12 +348,14 @@ void CandidateWindow::Draw() {
     auto origin = D2D1::Point2F(padding, padding / 2);
 
     for (auto &layout : candidate_layouts) {
-        //DWRITE_TEXT_METRICS metrics;
-        //layout->GetMetrics(&metrics);
-        //D("box: ", metrics.left, ", ", metrics.top, ", ", metrics.width, ", ", metrics.height, ", layoutWidth: ", metrics.layoutWidth);
-        //auto box = D2D1::RectF((int)origin.x, (int)origin.y, (int)origin.x + (int)metrics.width,
+        // uncomment to draw boxes around each candidate
+        // DWRITE_TEXT_METRICS metrics;
+        // layout->GetMetrics(&metrics);
+        // D("box: ", metrics.left, ", ", metrics.top, ", ", metrics.width, ", ", metrics.height,
+        //  ", layoutWidth: ", metrics.layoutWidth);
+        // auto box = D2D1::RectF((int)origin.x, (int)origin.y, (int)origin.x + (int)metrics.width,
         //                       (int)origin.y + (int)metrics.height);
-        //m_target->DrawRectangle(&box, m_brush.get(), 1, NULL);
+        // m_target->DrawRectangle(&box, m_brush.get(), 1, NULL);
 
         m_target->DrawTextLayout(origin, layout.get(), m_brush.get());
         origin.y += row_height;

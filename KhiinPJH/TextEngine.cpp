@@ -40,10 +40,10 @@ struct TextEngineImpl : winrt::implements<TextEngineImpl, TextEngine> {
 
     virtual std::vector<std::string> &candidates() {
         if (candidates_.empty()) {
-            candidates_.push_back(u8"枝");
-            candidates_.push_back(u8"乩");
-            candidates_.push_back(u8"機");
-            candidates_.push_back(u8"机");
+            candidates_.push_back(u8"pêng-an");
+            candidates_.push_back(u8"平安");
+            candidates_.push_back(u8"丙");
+            candidates_.push_back(u8"屏");
             candidates_.push_back(u8"箕");
             candidates_.push_back(u8"飢");
             candidates_.push_back(u8"幾");

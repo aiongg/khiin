@@ -29,14 +29,15 @@ class CandidateWindow : public BaseWindow<CandidateWindow> {
     void SetScreenCoordinates(RECT text_rect);
 
   private:
-    void Initialize();
+    void OnCreate();
+    void OnDisplayChange();
+    void OnDpiChanged(WORD dpi, RECT *pSize);
+    void OnResize(unsigned int width, unsigned int height);
     void EnsureRenderTarget();
     void EnsureTextFormat();
     void EnsureBrush();
     void CreateGraphicsResources();
     void DiscardGraphicsResources();
-    void OnDpiChanged(WORD dpi, RECT *pSize);
-    void OnResize(unsigned int width, unsigned int height);
     void CalculateLayout();
     void SetBrushColor(D2D1::ColorF);
     void Draw();
@@ -52,12 +53,15 @@ class CandidateWindow : public BaseWindow<CandidateWindow> {
     winrt::com_ptr<IDWriteTextFormat> m_textformat = nullptr;
 
     D2D1::ColorF text_color = D2D1::ColorF(D2D1::ColorF::Black);
-    D2D1::ColorF bg_color = D2D1::ColorF(D2D1::ColorF::MintCream);
+    D2D1::ColorF bg_color = D2D1::ColorF(0.95f, 0.95f, 0.95f);
 
+    RECT m_border_thickness{};
+    unsigned int m_max_width = 0;
+    unsigned int m_max_height = 0;
     unsigned int m_dpi = USER_DEFAULT_SCREEN_DPI;
     float m_scale = 1.0f;
     float padding = 8.0f;
-    float font_size = 24.0f;
+    float font_size = 16.0f;
     float row_height = font_size + padding;
 
     std::wstring candidate = L"ŏ\u0358";

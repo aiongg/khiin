@@ -112,7 +112,7 @@ class BaseWindow {
         wc.hIconSm = NULL;
         wc.hCursor = NULL;
         wc.lpszMenuName = NULL;
-        wc.hbrBackground = (HBRUSH)::GetStockObject(WHITE_BRUSH);
+        wc.hbrBackground = (HBRUSH)::GetStockObject(NULL_BRUSH);
 
         if (!::RegisterClassEx(&wc)) {
             D("RegisterClassEx(&wc) Failed: ", ::GetLastError());
