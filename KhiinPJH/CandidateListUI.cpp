@@ -14,13 +14,15 @@ void CandidateListUI::Uninitialize() {
     D(__FUNCTIONW__);
     service = nullptr;
     context = nullptr;
-    candidateWindow->Destroy();
+    DestroyCandidateWindow();
     candidateWindow.reset(nullptr);
 }
 
 void CandidateListUI::DestroyCandidateWindow() {
     D(__FUNCTIONW__);
-    candidateWindow->Destroy();
+    if (candidateWindow && candidateWindow->hwnd()) {
+        ::DestroyWindow(candidateWindow->hwnd());
+    }
 }
 
 void CandidateListUI::Update(ITfContext *pContext, std::vector<std::string> candidates, RECT text_rect) {

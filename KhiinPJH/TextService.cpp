@@ -147,7 +147,7 @@ struct TextServiceImpl :
                                             ITfComposition *pComposition) override {
         D(__FUNCTIONW__);
         compositionMgr_->ClearComposition();
-        candidateListUI_->DestroyCandidateWindow();
+        candidateListUI_->Show(false);
     }
 
     //+---------------------------------------------------------------------------

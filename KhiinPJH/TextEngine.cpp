@@ -40,20 +40,28 @@ struct TextEngineImpl : winrt::implements<TextEngineImpl, TextEngine> {
 
     virtual std::vector<std::string> &candidates() {
         if (candidates_.empty()) {
-            candidates_.push_back(u8"pêng-an");
-            candidates_.push_back(u8"平安");
-            candidates_.push_back(u8"丙");
-            candidates_.push_back(u8"屏");
-            candidates_.push_back(u8"箕");
-            candidates_.push_back(u8"飢");
-            candidates_.push_back(u8"幾");
-            candidates_.push_back(u8"支");
-            candidates_.push_back(u8"居");
-            candidates_.push_back(u8"基");
-            candidates_.push_back(u8"奇");
-            candidates_.push_back(u8"姬");
-            candidates_.push_back(u8"畿");
-            candidates_.push_back(u8"裾");
+            candidates_.push_back(u8"bîn-ná-chài");
+            candidates_.push_back(u8"明旦再");
+            candidates_.push_back(u8"明那再");
+            candidates_.push_back(u8"明仔再");
+            candidates_.push_back(u8"bîn-ná");
+            candidates_.push_back(u8"明旦");
+            candidates_.push_back(u8"明那");
+            candidates_.push_back(u8"明仔");
+            candidates_.push_back(u8"bīn");
+            candidates_.push_back(u8"面");
+            candidates_.push_back(u8"bín");
+            candidates_.push_back(u8"敏");
+            candidates_.push_back(u8"抿");
+            candidates_.push_back(u8"bîn");
+            candidates_.push_back(u8"緡");
+            candidates_.push_back(u8"珉");
+            candidates_.push_back(u8"黽");
+            candidates_.push_back(u8"敏");
+            candidates_.push_back(u8"愍");
+            candidates_.push_back(u8"憫");
+            candidates_.push_back(u8"閔");
+            candidates_.push_back(u8"眠");
         }
 
         return candidates_;

@@ -35,12 +35,12 @@ class BaseWindow {
         }
     }
 
-    BaseWindow() = default;
-    ~BaseWindow() {
-        if (m_hwnd != NULL) {
-            ::DestroyWindow(m_hwnd);
-        }
-    }
+    //BaseWindow() = default;
+    //~BaseWindow() {
+    //    if (m_hwnd != NULL) {
+    //        ::DestroyWindow(m_hwnd);
+    //    }
+    //}
 
     HWND hwnd() const {
         return m_hwnd;
@@ -87,11 +87,11 @@ class BaseWindow {
         return true;
     }
 
-    void Destroy_() {
-        if (m_hwnd) {
-            ::DestroyWindow(m_hwnd);
-        }
-    }
+    //void Destroy_() {
+    //    if (m_hwnd) {
+    //        ::DestroyWindow(m_hwnd);
+    //    }
+    //}
 
   private:
     bool RegisterIfNotExists() {

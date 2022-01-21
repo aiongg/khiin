@@ -20,10 +20,10 @@
 
 #include <ctffunc.h>
 #include <d2d1_1.h>
+#include <dwmapi.h>
 #include <dwrite_3.h>
 #include <msctf.h>
 #include <windows.h>
-#include <dwmapi.h>
 #include <winrt/base.h>
 
 #pragma comment(lib, "windowsapp")

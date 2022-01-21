@@ -26,6 +26,7 @@ class ModuleImpl {
     }
 
     static bool CanUnload() {
+        D("__FUNCTIONW__", " Count: ", count);
         return count <= 0;
     }
 

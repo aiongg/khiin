@@ -4,7 +4,11 @@
 
 namespace Khiin {
 
-inline constexpr int kCornerRadius = 4;
+static inline constexpr int kCornerRadius = 4;
+
+static inline int divide_ceil(int x, int y) {
+    return x / y + (x % y != 0);
+}
 
 std::wstring kCandidateWindowClassName = L"CandidateWindow";
 GUID kCandidateWindowGuid // 829893fa-728d-11ec-8c6e-e0d46491b35a
@@ -46,7 +50,7 @@ LRESULT __stdcall CandidateWindow::WndProc(UINT uMsg, WPARAM wParam, LPARAM lPar
     case WM_NCCREATE: {
         D("WM_NCCREATE");
         ::DwmSetWindowAttribute(m_hwnd, DWMWA_WINDOW_CORNER_PREFERENCE, &m_border_radius,
-                              sizeof(DWM_WINDOW_CORNER_PREFERENCE));
+                                sizeof(DWM_WINDOW_CORNER_PREFERENCE));
         break;
     }
     case WM_CREATE: {
@@ -148,9 +152,9 @@ void CandidateWindow::Create() {
             NULL); // clang-format on
 }
 
-void CandidateWindow::Destroy() {
-    Destroy_();
-}
+// void CandidateWindow::Destroy() {
+//    Destroy_();
+//}
 
 void CandidateWindow::Show() {
     if (m_showing) {
@@ -185,8 +189,8 @@ void CandidateWindow::SetScreenCoordinates(RECT text_rect_px) {
     if (showing()) {
         return;
     }
-    auto left = text_rect_px.left;
-    auto top = text_rect_px.bottom + static_cast<int>(padding);
+    auto left = text_rect_px.left - qs_col_width;
+    auto top = text_rect_px.bottom + static_cast<int>(padding_sm);
     ::SetWindowPos(m_hwnd, NULL, left, top, 0, 0, SWP_NOSIZE | SWP_NOZORDER | SWP_NOACTIVATE);
 }
 
@@ -195,6 +199,7 @@ void CandidateWindow::OnCreate() {
     m_d2factory = CreateD2D1Factory();
     m_dwfactory = CreateDwriteFactory();
     m_dpi = ::GetDpiForWindow(m_hwnd);
+    m_dpi_parent = ::GetDpiForWindow(m_hwnd_parent);
     m_scale = static_cast<float>(m_dpi / USER_DEFAULT_SCREEN_DPI);
     OnDisplayChange();
 }
@@ -232,7 +237,7 @@ void CandidateWindow::CreateGraphicsResources() {
                                                            DWRITE_FONT_STYLE_NORMAL, DWRITE_FONT_STRETCH_NORMAL,
                                                            font_size, L"en-us", m_textformat.put()));
         winrt::check_hresult(m_textformat->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_LEADING));
-        winrt::check_hresult(m_textformat->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_NEAR));
+        winrt::check_hresult(m_textformat->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_FAR));
     }
 
     if (!m_brush) {
@@ -245,7 +250,7 @@ void CandidateWindow::DiscardGraphicsResources() {
     m_target = nullptr;
     m_brush = nullptr;
     m_textformat = nullptr;
-    candidate_layouts.clear();
+    candidate_layout_matrix.clear();
 }
 
 void CandidateWindow::OnDisplayChange() {
@@ -261,40 +266,50 @@ void CandidateWindow::CalculateLayout() {
 
     EnsureTextFormat();
 
-    candidate_layouts.clear();
-    int candidates_shown = static_cast<int>(min(candidates->size(), 10));
-    float max_width = 0.0f;
-
-    auto it = candidates->cbegin();
-    auto end = it + candidates_shown;
-    IDWriteTextLayout *max = nullptr;
-
-    while (it != end) {
-        auto &cand = *it;
-        D(cand);
-        auto layout = winrt::com_ptr<IDWriteTextLayout>();
-        winrt::check_hresult(m_dwfactory->CreateTextLayout(cand.data(), static_cast<UINT>(cand.size()),
-                                                           m_textformat.get(), static_cast<float>(m_max_width),
-                                                           row_height, layout.put()));
-
-        float min_width;
-        layout->DetermineMinWidth(&min_width);
-        if (min_width > max_width) {
-            max_width = min_width;
-            max = layout.get();
-        }
-        candidate_layouts.push_back(std::move(layout));
-        ++it;
+    candidate_layout_matrix.clear();
+    auto n_cols = (display_mode == DisplayMode::Expanded) ? n_cols_expanded : 1;
+    auto min_col_width = (display_mode == DisplayMode::Expanded) ? min_col_width_expanded : min_col_width_single;
+    auto max_col_size = display_mode == DisplayMode::Short ? short_col_size : long_col_size;
+    auto max_page_size = (display_mode == DisplayMode::Expanded ? expanded_n_cols : 1) * max_col_size;
+    auto total_candidates_shown = 0;
+    auto total_candidates_avail = candidates->size();
+    auto total_cols_avail = divide_ceil(total_candidates_avail, max_col_size);
+    auto total_pages = divide_ceil(total_candidates_avail, max_page_size);
+    page_idx = min(total_pages - 1, page_idx);
+    auto candidate_start_idx = page_idx * max_page_size;
+    if (page_idx == total_pages - 1) {
+        n_cols = min(max_page_size, total_cols_avail);
     }
 
-    DWRITE_TEXT_METRICS metrics;
-    max->GetMetrics(&metrics);
+    m_col_widths.clear();
+    auto page_width = 0.0f;
+    for (auto col_idx = 0; col_idx < n_cols; ++col_idx) {
+        candidate_layout_matrix.push_back(std::vector<winrt::com_ptr<IDWriteTextLayout>>());
+        auto &col_layouts = candidate_layout_matrix.back();
 
-    D("Max width: ", max_width, ", Metric width: ", metrics.width);
-    auto width = metrics.width + padding * 2;
-    auto height = candidates_shown * row_height + padding;
-    D("Render width: ", width, ", Render height: ", height);
-    ::SetWindowPos(m_hwnd, NULL, 0, 0, static_cast<int>(width * m_scale), static_cast<int>(height * m_scale),
+        float col_max_width = 0.0f;
+        auto col_break = candidate_start_idx + min(total_candidates_avail - candidate_start_idx, max_col_size);
+        for (auto row_idx = candidate_start_idx; row_idx < col_break; ++row_idx) {
+            auto &cand = candidates->at(row_idx);
+            auto layout = winrt::com_ptr<IDWriteTextLayout>();
+            winrt::check_hresult(m_dwfactory->CreateTextLayout(cand.data(), static_cast<UINT>(cand.size()),
+                                                               m_textformat.get(), static_cast<float>(m_max_width),
+                                                               row_height, layout.put()));
+            DWRITE_TEXT_METRICS metrics;
+            winrt::check_hresult(layout->GetMetrics(&metrics));
+            col_max_width = max(col_max_width, metrics.width);
+            col_layouts.push_back(std::move(layout));
+        }
+        candidate_start_idx += max_col_size + 1;
+        col_max_width = max(col_max_width, min_col_width) + qs_col_width;
+        D("Col width: ", col_max_width);
+        m_col_widths.push_back(col_max_width);
+        page_width += col_max_width;
+    }
+
+    auto page_height = max_col_size * row_height + padding;
+    auto scale = m_dpi_parent / USER_DEFAULT_SCREEN_DPI;
+    ::SetWindowPos(m_hwnd, NULL, 0, 0, static_cast<int>(page_width * scale), static_cast<int>(page_height * scale),
                    SWP_NOMOVE | SWP_NOACTIVATE | SWP_NOZORDER);
 }
 
@@ -303,6 +318,8 @@ void CandidateWindow::OnDpiChanged(WORD dpi, RECT *pNewSize) {
     if (m_target) {
         m_target->SetDpi(dpi, dpi);
     }
+    m_dpi = dpi;
+    m_dpi_parent = ::GetDpiForWindow(m_hwnd_parent);
     m_scale = static_cast<float>(dpi) / USER_DEFAULT_SCREEN_DPI;
     auto width = pNewSize->right - pNewSize->left;
     auto height = pNewSize->bottom - pNewSize->top;
@@ -327,20 +344,25 @@ void CandidateWindow::Draw() {
 
     EnsureBrush();
     SetBrushColor(text_color);
-    auto origin = D2D1::Point2F(padding, padding / 2);
+    auto origin = D2D1::Point2F(qs_col_width, padding);
 
-    for (auto &layout : candidate_layouts) {
-        // uncomment to draw boxes around each candidate
-        // DWRITE_TEXT_METRICS metrics;
-        // layout->GetMetrics(&metrics);
-        // D("box: ", metrics.left, ", ", metrics.top, ", ", metrics.width, ", ", metrics.height,
-        //  ", layoutWidth: ", metrics.layoutWidth);
-        // auto box = D2D1::RectF((int)origin.x, (int)origin.y, (int)origin.x + (int)metrics.width,
-        //                       (int)origin.y + (int)metrics.height);
-        // m_target->DrawRectangle(&box, m_brush.get(), 1, NULL);
+    auto col_idx = 0;
+    for (auto &column : candidate_layout_matrix) {
+        for (auto &row_layout : column) {
+            // uncomment to draw boxes around each candidate
+            // DWRITE_TEXT_METRICS metrics;
+            // row_layout->GetMetrics(&metrics);
+            // D("box: ", metrics.left, ", ", metrics.top, ", ", metrics.width, ", ", metrics.height,
+            //  ", layoutWidth: ", metrics.layoutWidth);
+            // auto box = D2D1::RectF((int)origin.x, (int)origin.y, (int)origin.x + (int)metrics.width,
+            //                       (int)origin.y + (int)metrics.height);
+            // m_target->DrawRectangle(&box, m_brush.get(), 1, NULL);
 
-        m_target->DrawTextLayout(origin, layout.get(), m_brush.get());
-        origin.y += row_height;
+            m_target->DrawTextLayout(origin, row_layout.get(), m_brush.get(), D2D1_DRAW_TEXT_OPTIONS_ENABLE_COLOR_FONT);
+            origin.y += row_height;
+        }
+        origin.x += m_col_widths.at(col_idx);
+        origin.y = padding;
     }
 }
 
