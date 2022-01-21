@@ -96,4 +96,4 @@ class SynchronizedBuffer {
     // size_t focusedSegment;
 };
 
-} // namespace TaiKey
+} // namespace taikey

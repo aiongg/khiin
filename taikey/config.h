@@ -53,4 +53,4 @@ class Config {
     Settings settings_;
 };
 
-} // namespace TaiKey
+} // namespace taikey

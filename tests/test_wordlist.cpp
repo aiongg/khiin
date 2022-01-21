@@ -14,7 +14,7 @@
 #include "splitter.h"
 #include "trie.h"
 
-using namespace TaiKey;
+using namespace taikey;
 
 namespace fs = std::filesystem;
 

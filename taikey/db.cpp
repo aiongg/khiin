@@ -339,4 +339,4 @@ int TKDB::buildTrieLookupTable_() {
     }
 }
 
-} // namespace TaiKey
+} // namespace taikey

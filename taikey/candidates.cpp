@@ -393,4 +393,4 @@ auto CandidateFinder::handleNoTrieMatch(
     start = next;
 }
 
-} // namespace TaiKey
+} // namespace taikey

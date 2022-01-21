@@ -49,4 +49,4 @@ class Trie {
               std::vector<std::string> &results, size_t maxDepth = 0) -> void;
 };
 
-} // namespace TaiKey
+} // namespace taikey

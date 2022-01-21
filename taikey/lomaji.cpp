@@ -396,4 +396,4 @@ auto utf8ToAsciiLower(std::string u8string) -> std::string {
     return u8string;
 }
 
-} // namespace TaiKey
+} // namespace taikey

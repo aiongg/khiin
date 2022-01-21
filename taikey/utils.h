@@ -43,4 +43,4 @@ auto findResourceDirectory() {
     return fs::path();
 }
 
-} // namespace TaiKey::Utils
+} // namespace taikey::Utils

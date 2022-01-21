@@ -245,4 +245,4 @@ const std::string CREATE_DummyDatabase() {
 }
 
 } // namespace SQL
-} // namespace TaiKey
+} // namespace taikey

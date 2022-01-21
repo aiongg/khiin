@@ -419,4 +419,4 @@ BOOST_AUTO_TEST_CASE(move_cursor_and_insert) {
 
 BOOST_AUTO_TEST_SUITE_END();
 
-} // namespace TaiKey::BufferTest
+} // namespace taikey::BufferTest

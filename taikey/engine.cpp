@@ -33,7 +33,7 @@ enum class Special {
 std::unordered_map<Special, char> SPEC_KEY_MAP = {{Special::NasalCombo, 'n'},
                                                   {Special::OUCombo, 'u'}};
 
-// TaiKey::Engine Public Members
+// taikey::Engine Public Members
 
 /**
  * Engine() default constructor.
@@ -296,4 +296,4 @@ RetVal Engine::bySegmentToByLetter_(KeyCode keyCode) {
     return handleNavByLetter_(keyCode);
 }
 
-} // namespace TaiKey
+} // namespace taikey

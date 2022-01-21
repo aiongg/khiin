@@ -24,4 +24,4 @@ auto Config::getSettings() -> const Settings & {
     return const_cast<Settings &>(settings_);
 }
 
-} // namespace TaiKey
+} // namespace taikey

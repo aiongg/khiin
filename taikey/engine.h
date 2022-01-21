@@ -51,7 +51,7 @@ class Engine {
 
     /*
         This is the main method applications should use to provide
-        input to the TaiKey processing engine. KeyCodes are listed
+        input to the taikey processing engine. KeyCodes are listed
         in keys.h, and the application must convert them to appropriate
         values before sending. Any keys not listed in keys.h are
         unable to be handled by the engine and should not be sent.
@@ -111,4 +111,4 @@ class Engine {
     std::unique_ptr<CandidateFinder> candidateFinder = nullptr;
 };
 
-} // namespace TaiKey
+} // namespace taikey

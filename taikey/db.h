@@ -87,4 +87,4 @@ class TKDB {
     DictRows tableDictionary;
 };
 
-} // namespace TaiKey
+} // namespace taikey

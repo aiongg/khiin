@@ -300,4 +300,4 @@ auto Trie::dfs_(Node *node, std::string prefix, std::string suffix,
     }
 }
 
-} // namespace TaiKey
+} // namespace taikey

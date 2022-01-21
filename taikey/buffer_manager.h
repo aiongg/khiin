@@ -56,4 +56,4 @@ class BufferManager {
     bool hasPrimaryCandidate = false;
 };
 
-} // namespace TaiKey
+} // namespace taikey

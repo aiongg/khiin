@@ -140,4 +140,4 @@ auto Splitter::split(std::string input, VStr &result)
     return RetVal::OK;
 }
 
-} // namespace TaiKey
+} // namespace taikey

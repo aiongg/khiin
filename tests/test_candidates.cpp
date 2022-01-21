@@ -84,4 +84,4 @@ BOOST_AUTO_TEST_CASE(find_long_string) {
 
 BOOST_AUTO_TEST_SUITE_END()
 
-} // namespace TaiKey::CandidateTest
+} // namespace taikey::CandidateTest

@@ -85,4 +85,4 @@ const auto U32_TONES =
 
 const std::unordered_set<char> PTKH = {'P', 'T', 'K', 'H', 'p', 't', 'k', 'h'};
 
-} // namespace TaiKey
+} // namespace taikey

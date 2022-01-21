@@ -24,4 +24,4 @@ class Splitter {
     int maxWordLength_ = 0;
 };
 
-} // namespace TaiKey
+} // namespace taikey

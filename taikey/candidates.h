@@ -91,4 +91,4 @@ class CandidateFinder {
     Trie *trie;
 };
 
-} // namespace TaiKey
+} // namespace taikey

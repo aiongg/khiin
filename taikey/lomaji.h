@@ -46,4 +46,4 @@ auto utf8Size(std::string s) -> Utf8Size;
 
 auto utf8ToAsciiLower(std::string u8string) -> std::string;
 
-} // namespace TaiKey
+} // namespace taikey

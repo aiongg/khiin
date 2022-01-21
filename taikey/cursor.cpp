@@ -143,4 +143,4 @@ auto Cursor::syncToRaw(size_t segmentStart, size_t rawOffset) -> void {
     display = utf8::distance(seg.display.begin(), d_it);
 }
 
-} // namespace TaiKey
+} // namespace taikey

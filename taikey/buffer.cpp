@@ -277,4 +277,4 @@ auto SynchronizedBuffer::removeToneFromRawBuffer() -> void {
     }
 }
 
-} // namespace TaiKey
+} // namespace taikey

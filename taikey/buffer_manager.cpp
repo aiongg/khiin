@@ -267,4 +267,4 @@ auto BufferManager::lgramOf(SegmentIter segment) -> std::string {
                                             : segment[-1].display;
 }
 
-} // namespace TaiKey
+} // namespace taikey
