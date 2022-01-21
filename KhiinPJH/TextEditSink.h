@@ -2,7 +2,7 @@
 
 #include "SinkManager.h"
 
-namespace Khiin {
+namespace khiin::win32 {
 
 struct TextEditSink : winrt::implements<TextEditSink, ITfTextEditSink> {
     HRESULT Initialize(ITfDocumentMgr *documentMgr);
@@ -16,4 +16,4 @@ struct TextEditSink : winrt::implements<TextEditSink, ITfTextEditSink> {
     winrt::com_ptr<ITfContext> context;
 };
 
-} // namespace Khiin
+} // namespace khiin::win32

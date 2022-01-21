@@ -4,7 +4,7 @@
 
 #include "BaseWindow.h"
 
-namespace Khiin {
+namespace khiin::win32 {
 
 extern std::wstring kCandidateWindowClassName;
 extern GUID kCandidateWindowGuid;
@@ -93,4 +93,4 @@ class CandidateWindow : public BaseWindow<CandidateWindow> {
     std::vector<std::vector<winrt::com_ptr<IDWriteTextLayout>>> candidate_layout_matrix = {};
 };
 
-} // namespace Khiin
+} // namespace khiin::win32

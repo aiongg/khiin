@@ -1,6 +1,6 @@
 #pragma once
 
-namespace Khiin {
+namespace khiin::win32 {
 
 class Compartment {
   public:
@@ -17,4 +17,4 @@ class Compartment {
     GUID guid{};
 };
 
-} // namespace Khiin
+} // namespace khiin::win32

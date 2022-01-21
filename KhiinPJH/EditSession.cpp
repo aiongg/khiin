@@ -7,7 +7,7 @@
 #include "TextService.h"
 #include "common.h"
 
-namespace Khiin {
+namespace khiin::win32 {
 
 constexpr auto AsyncDontCareRW = TF_ES_ASYNCDONTCARE | TF_ES_READWRITE;
 
@@ -89,4 +89,4 @@ void EditSession::HandleAction(TextService *pService, ITfContext *pContext, Acti
     winrt::check_hresult(sessionHr);
 }
 
-} // namespace Khiin
+} // namespace khiin::win32

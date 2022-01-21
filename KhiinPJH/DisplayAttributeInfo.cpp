@@ -2,7 +2,7 @@
 
 #include "DisplayAttributeInfo.h"
 
-namespace Khiin {
+namespace khiin::win32 {
 
 // 829893f8-728d-11ec-8c6e-e0d46491b35a
 const DisplayAttributeBundle DisplayAttribute_Input =
@@ -81,4 +81,4 @@ STDMETHODIMP DisplayAttributeInfo::Reset(void) {
     return S_OK;
 }
 
-} // namespace Khiin
+} // namespace khiin::win32

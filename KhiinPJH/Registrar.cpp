@@ -5,7 +5,7 @@
 #include "Profile.h"
 #include "common.h"
 
-namespace Khiin {
+namespace khiin::win32 {
 
 const static auto supportedCategories = std::vector<GUID>{
     GUID_TFCAT_DISPLAYATTRIBUTEPROVIDER,    // It supports inline input.
@@ -135,4 +135,4 @@ HRESULT Registrar::setProfileEnabled(BOOL enable) {
     return E_NOTIMPL;
 }
 
-} // namespace Khiin
+} // namespace khiin::win32

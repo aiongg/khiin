@@ -2,7 +2,7 @@
 
 #include "Compartment.h"
 
-namespace Khiin {
+namespace khiin::win32 {
 
 using namespace winrt;
 
@@ -53,4 +53,4 @@ ITfCompartment* Compartment::getCompartment() {
     return compartment.get();
 }
 
-} // namespace Khiin
+} // namespace khiin::win32

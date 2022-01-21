@@ -2,7 +2,7 @@
 
 #include "pch.h"
 
-namespace Khiin {
+namespace khiin::win32 {
 
 template <typename Derived, typename T>
 Derived *cast_as(T &&o) {
@@ -75,4 +75,4 @@ struct registry_traits {
 
 using registry_key = winrt::handle_type<registry_traits>;
 
-} // namespace Khiin
+} // namespace khiin::win32

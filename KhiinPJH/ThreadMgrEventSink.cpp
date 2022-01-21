@@ -2,7 +2,7 @@
 
 #include "ThreadMgrEventSink.h"
 
-namespace Khiin {
+namespace khiin::win32 {
 
 ThreadMgrEventSink::~ThreadMgrEventSink() {
     Uninitialize();
@@ -53,4 +53,4 @@ STDMETHODIMP ThreadMgrEventSink::OnPopContext(ITfContext *pic) {
     return S_OK;
 }
 
-} // namespace Khiin
+} // namespace khiin::win32

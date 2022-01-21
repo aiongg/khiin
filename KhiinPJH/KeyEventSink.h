@@ -6,7 +6,7 @@
 #include "TextService.h"
 #include "KeyEvent.h"
 
-namespace Khiin {
+namespace khiin::win32 {
 
 struct KeyEventSink : winrt::implements<KeyEventSink, ITfKeyEventSink> {
   private:
@@ -40,4 +40,4 @@ struct KeyEventSink : winrt::implements<KeyEventSink, ITfKeyEventSink> {
     winrt::com_ptr<CompositionMgr> compositionMgr = nullptr;
 };
 
-} // namespace Khiin
+} // namespace khiin::win32

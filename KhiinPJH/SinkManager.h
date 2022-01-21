@@ -2,7 +2,7 @@
 
 #include "pch.h"
 
-namespace Khiin {
+namespace khiin::win32 {
 
 template <typename ISink>
 class SinkManager {
@@ -48,4 +48,4 @@ class SinkManager {
     winrt::com_ptr<ITfSource> source;
 };
 
-} // namespace Khiin
+} // namespace khiin::win32

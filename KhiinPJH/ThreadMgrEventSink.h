@@ -3,7 +3,7 @@
 #include "SinkManager.h"
 #include "TextService.h"
 
-namespace Khiin {
+namespace khiin::win32 {
 
 struct ThreadMgrEventSink : winrt::implements<ThreadMgrEventSink, ITfThreadMgrEventSink> {
     ThreadMgrEventSink() = default;
@@ -26,4 +26,4 @@ struct ThreadMgrEventSink : winrt::implements<ThreadMgrEventSink, ITfThreadMgrEv
     SinkManager<ITfThreadMgrEventSink> threadMgrSinkMgr;
 };
 
-} // namespace Khiin
+} // namespace khiin::win32

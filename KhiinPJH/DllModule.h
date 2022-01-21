@@ -1,6 +1,6 @@
 #pragma once
 
-namespace Khiin {
+namespace khiin::win32 {
 
 class DllModule {
   public:
@@ -13,4 +13,4 @@ class DllModule {
     static HMODULE module_handle();
 };
 
-} // namespace Khiin
+} // namespace khiin::win32

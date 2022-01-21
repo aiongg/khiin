@@ -2,20 +2,20 @@
 
 #include "DisplayAttributeInfo.h"
 
-// namespace Khiin {
+// namespace khiin::win32 {
 // struct __declspec(uuid("829893fb-728d-11ec-8c6e-e0d46491b35a")) DisplayAttributeInfoEnum;
 //}
 
 // namespace winrt {
 //
 // template <>
-// inline bool is_guid_of<Khiin::DisplayAttributeInfoEnum>(guid const &id) noexcept {
-//    return is_guid_of<Khiin::DisplayAttributeInfoEnum, IEnumTfDisplayAttributeInfo>(id);
+// inline bool is_guid_of<khiin::DisplayAttributeInfoEnum>(guid const &id) noexcept {
+//    return is_guid_of<khiin::DisplayAttributeInfoEnum, IEnumTfDisplayAttributeInfo>(id);
 //}
 //
 //} // namespace winrt
 
-namespace Khiin {
+namespace khiin::win32 {
 
 enum class AttrInfoKey {
     Input = 0,
@@ -51,4 +51,4 @@ struct DisplayAttributeInfoEnum : winrt::implements<DisplayAttributeInfoEnum, IE
     DisplayAttributeInfos::const_iterator attr_iterator = attributes.cbegin();
 };
 
-} // namespace Khiin
+} // namespace khiin::win32

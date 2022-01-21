@@ -5,7 +5,7 @@
 #include "TextService.h"
 #include "DllModule.h"
 
-namespace Khiin {
+namespace khiin::win32 {
 
 //+---------------------------------------------------------------------------
 //
@@ -49,4 +49,4 @@ STDMETHODIMP KhiinClassFactory::LockServer(BOOL fLock) {
     return S_OK;
 }
 
-} // namespace Khiin
+} // namespace khiin::win32

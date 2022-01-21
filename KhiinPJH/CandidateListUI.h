@@ -3,7 +3,7 @@
 #include "CandidateWindow.h"
 #include "TextService.h"
 
-namespace Khiin {
+namespace khiin::win32 {
 
 struct CandidateListUI :
     winrt::implements<CandidateListUI, ITfCandidateListUIElementBehavior, ITfIntegratableCandidateListUIElement> {
@@ -54,4 +54,4 @@ struct CandidateListUI :
     std::vector<std::wstring> candidateList = {};
 };
 
-} // namespace Khiin
+} // namespace khiin::win32

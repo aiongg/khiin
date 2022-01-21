@@ -2,7 +2,7 @@
 
 #include "KeyEvent.h"
 
-namespace Khiin {
+namespace khiin::win32 {
 
 struct TextEngine : winrt::implements<TextEngine, IUnknown> {
     TextEngine() = default;
@@ -25,4 +25,4 @@ struct TextEngineFactory {
     static HRESULT Create(TextEngine **ppEngine);
 };
 
-} // namespace Khiin
+} // namespace khiin::win32

@@ -1,6 +1,6 @@
 #pragma once
 
-namespace Khiin {
+namespace khiin::win32 {
 
 struct Profile {
     static inline const GUID textServiceGuid // 829893f6-728d-11ec-8c6e-e0d46491b35a
@@ -14,4 +14,4 @@ struct Profile {
     static inline const int displayNameIndex = IDS_TEXT_SERVICE_DISPLAY_NAME;
 };
 
-} // namespace Khiin
+} // namespace khiin::win32

@@ -1,10 +1,12 @@
 #include "pch.h"
 
+//#include <taikey/engine.h>
+
 #include "TextEngine.h"
 
 #include "common.h"
 
-namespace Khiin {
+namespace khiin::win32 {
 
 struct TextEngineImpl : winrt::implements<TextEngineImpl, TextEngine> {
     TextEngineImpl() = default;
@@ -12,7 +14,9 @@ struct TextEngineImpl : winrt::implements<TextEngineImpl, TextEngine> {
     TextEngineImpl &operator=(const TextEngineImpl &) = delete;
     ~TextEngineImpl() = default;
 
-    virtual void Initialize() override {}
+    virtual void Initialize() override {
+        //engine_ = std::make_unique<taikey::Engine>();
+    }
 
     virtual void Uninitialize() override {}
 
@@ -70,6 +74,7 @@ struct TextEngineImpl : winrt::implements<TextEngineImpl, TextEngine> {
   private:
     std::string buffer_{};
     std::vector<std::string> candidates_;
+    //std::unique_ptr<taikey::Engine> engine_ = nullptr;
 };
 
 HRESULT TextEngineFactory::Create(TextEngine **ppEngine) {
@@ -77,4 +82,4 @@ HRESULT TextEngineFactory::Create(TextEngine **ppEngine) {
     return S_OK;
 }
 
-} // namespace Khiin
+} // namespace khiin::win32

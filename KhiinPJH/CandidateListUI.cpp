@@ -4,7 +4,7 @@
 #include "EditSession.h"
 #include "common.h"
 
-namespace Khiin {
+namespace khiin::win32 {
 
 void CandidateListUI::Initialize(TextService *pTextService) {
     service.copy_from(pTextService);
@@ -181,4 +181,4 @@ void CandidateListUI::makeCandidateWindow() {
     candidateWindow->Create();
 }
 
-} // namespace Khiin
+} // namespace khiin::win32

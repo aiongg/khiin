@@ -1,6 +1,6 @@
 #pragma once
 
-namespace Khiin {
+namespace khiin::win32 {
 
 struct Registrar {
     static void registerComServer(std::wstring modulePath);
@@ -36,4 +36,4 @@ struct Registrar {
     static HRESULT setProfileEnabled(BOOL enable);
 };
 
-} // namespace Khiin
+} // namespace khiin::win32

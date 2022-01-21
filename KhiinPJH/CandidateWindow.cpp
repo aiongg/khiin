@@ -2,11 +2,11 @@
 
 #include "CandidateWindow.h"
 
-namespace Khiin {
+namespace khiin::win32 {
 
 static inline constexpr int kCornerRadius = 4;
 
-static inline int divide_ceil(int x, int y) {
+static inline auto divide_ceil(unsigned int x, unsigned int y) {
     return x / y + (x % y != 0);
 }
 
@@ -382,4 +382,4 @@ void CandidateWindow::Render() {
     ::EndPaint(m_hwnd, &ps);
 }
 
-} // namespace Khiin
+} // namespace khiin::win32

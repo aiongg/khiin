@@ -2,7 +2,7 @@
 
 #include "KeyEvent.h"
 
-namespace Khiin {
+namespace khiin::win32 {
 
 KeyEvent::KeyEvent(UINT message, WPARAM wParam, LPARAM lParam) noexcept :
     message(message), wParam(wParam), lParam(lParam) {
@@ -23,4 +23,4 @@ char KeyEvent::ascii() {
     return ascii_;
 }
 
-} // namespace Khiin
+} // namespace khiin::win32

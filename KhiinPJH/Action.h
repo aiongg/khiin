@@ -2,7 +2,7 @@
 
 #include "pch.h"
 
-namespace Khiin {
+namespace khiin::win32 {
 
 enum class Message {
     Noop,
@@ -22,4 +22,4 @@ struct Action {
     std::vector<std::string> candidates;
 };
 
-} // namespace Khiin
+} // namespace khiin::win32

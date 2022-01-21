@@ -2,7 +2,7 @@
 
 #include "CompositionSink.h"
 
-namespace Khiin {
+namespace khiin::win32 {
 
 CompositionSink::CompositionSink(TextService *pService, ITfContext *pContext) {
     D(__FUNCTIONW__);
@@ -23,4 +23,4 @@ STDMETHODIMP CompositionSink::OnCompositionTerminated(TfEditCookie ecWrite, ITfC
     CATCH_FOR_HRESULT;
 }
 
-} // namespace Khiin
+} // namespace khiin::win32

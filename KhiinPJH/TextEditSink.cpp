@@ -2,7 +2,7 @@
 
 #include "TextEditSink.h"
 
-namespace Khiin {
+namespace khiin::win32 {
 
 HRESULT TextEditSink::Initialize(ITfDocumentMgr *pDocumentMgr) {
     WINRT_ASSERT(pDocumentMgr != nullptr);
@@ -29,4 +29,4 @@ STDMETHODIMP TextEditSink::OnEndEdit(ITfContext *pic, TfEditCookie ecReadOnly, I
     return E_NOTIMPL;
 }
 
-} // namespace Khiin
+} // namespace khiin::win32

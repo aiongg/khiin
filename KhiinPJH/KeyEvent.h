@@ -1,6 +1,6 @@
 #pragma once
 
-namespace Khiin {
+namespace khiin::win32 {
 
 constexpr int KEYBOARD_SIZE = 256;
 
@@ -25,4 +25,4 @@ class KeyEvent {
     char ascii_ = 0;
 };
 
-} // namespace Khiin
+} // namespace khiin::win32

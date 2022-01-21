@@ -2,7 +2,7 @@
 
 #include "pch.h"
 
-namespace Khiin {
+namespace khiin::win32 {
 
 extern HMODULE g_moduleHandle;
 
@@ -123,4 +123,4 @@ class BaseWindow {
     }
 };
 
-} // namespace Khiin
+} // namespace khiin::win32

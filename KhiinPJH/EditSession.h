@@ -3,7 +3,7 @@
 #include "KeyEvent.h"
 #include "Action.h"
 
-namespace Khiin {
+namespace khiin::win32 {
 
 struct TextService;
 
@@ -11,4 +11,4 @@ struct EditSession {
     static void HandleAction(TextService *pService, ITfContext *pContext, Action action);
 };
 
-} // namespace Khiin
+} // namespace khiin::win32

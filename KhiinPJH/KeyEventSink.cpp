@@ -5,7 +5,7 @@
 #include "EditSession.h"
 #include "common.h"
 
-namespace Khiin {
+namespace khiin::win32 {
 
 enum class KeyEventSink::KeyAction { Test, Input };
 
@@ -140,4 +140,4 @@ STDMETHODIMP KeyEventSink::OnPreservedKey(ITfContext *pic, REFGUID rguid, BOOL *
     CATCH_FOR_HRESULT;
 }
 
-} // namespace Khiin
+} // namespace khiin::win32

@@ -3,7 +3,7 @@
 #include "BaseWindow.h"
 #include "DllModule.h"
 
-namespace Khiin {
+namespace khiin::win32 {
 
 HMODULE g_moduleHandle = nullptr;
 
@@ -17,4 +17,4 @@ void WindowSetup::OnDllProcessDetach(HMODULE module) {
     DllModule::Release();
 }
 
-} // namespace Khiin
+} // namespace khiin::win32

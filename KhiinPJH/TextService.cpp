@@ -13,7 +13,7 @@
 #include "ThreadMgrEventSink.h"
 #include "common.h"
 
-namespace Khiin {
+namespace khiin::win32 {
 
 struct TextServiceImpl :
     winrt::implements<TextServiceImpl, // clang-format off
@@ -267,4 +267,4 @@ void TextServiceFactory::Create(TextService **ppService) {
     as_self<TextService>(winrt::make_self<TextServiceImpl>()).copy_to(ppService);
 }
 
-} // namespace Khiin
+} // namespace khiin::win32

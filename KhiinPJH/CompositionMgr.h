@@ -5,7 +5,7 @@
 
 #include "TextService.h"
 
-namespace Khiin {
+namespace khiin::win32 {
 
 struct CompositionMgr : winrt::implements<CompositionMgr, IUnknown> {
     CompositionMgr() = default;
@@ -36,4 +36,4 @@ struct CompositionMgr : winrt::implements<CompositionMgr, IUnknown> {
     winrt::com_ptr<ITfCategoryMgr> categoryMgr = nullptr;
 };
 
-} // namespace Khiin
+} // namespace khiin::win32

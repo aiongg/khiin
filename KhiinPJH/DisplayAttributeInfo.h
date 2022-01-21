@@ -1,6 +1,6 @@
 #pragma once
 
-namespace Khiin {
+namespace khiin::win32 {
 
 struct DisplayAttributeBundle {
     std::wstring description;
@@ -38,4 +38,4 @@ struct DisplayAttributeInfo : winrt::implements<DisplayAttributeInfo, ITfDisplay
     TF_DISPLAYATTRIBUTE attributeBackup = TF_DISPLAYATTRIBUTE{};
 };
 
-} // namespace Khiin
+} // namespace khiin::win32

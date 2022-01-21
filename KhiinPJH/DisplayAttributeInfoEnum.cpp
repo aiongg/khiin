@@ -4,7 +4,7 @@
 
 #include "DisplayAttributeInfo.h"
 
-namespace Khiin {
+namespace khiin::win32 {
 
 void DisplayAttributeInfoEnum::load(_Out_ DisplayAttributeInfoEnum **ppDaiiEnum) {
     auto infoEnum = winrt::make_self<DisplayAttributeInfoEnum>();
@@ -91,4 +91,4 @@ STDMETHODIMP DisplayAttributeInfoEnum::Skip(ULONG ulCount) {
     }
 }
 
-} // namespace Khiin
+} // namespace khiin::win32

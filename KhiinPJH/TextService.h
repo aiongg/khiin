@@ -4,7 +4,7 @@
 
 #include "KeyEvent.h"
 
-namespace Khiin {
+namespace khiin::win32 {
 
 struct TextEngine;
 
@@ -33,4 +33,4 @@ struct TextServiceFactory {
     static void Create(TextService **ppService);
 };
 
-} // namespace Khiin
+} // namespace khiin::win32

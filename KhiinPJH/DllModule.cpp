@@ -31,13 +31,13 @@ class ModuleImpl {
     }
 
     static BOOL OnDllProcessAttach(HINSTANCE instance, bool static_loading) {
-        Khiin::WindowSetup::OnDllProcessAttach(instance);
+        khiin::win32::WindowSetup::OnDllProcessAttach(instance);
         moduleHandle = instance;
         return TRUE;
     }
 
     static BOOL OnDllProcessDetach(HINSTANCE instance, bool process_shutdown) {
-        Khiin::WindowSetup::OnDllProcessDetach(instance);
+        khiin::win32::WindowSetup::OnDllProcessDetach(instance);
         moduleHandle = nullptr;
         unloaded = true;
         return TRUE;
@@ -70,8 +70,8 @@ _Check_return_ STDAPI DllGetClassObject(_In_ REFCLSID rclsid, _In_ REFIID riid, 
     try {
         *ppv = nullptr;
 
-        if (rclsid == __uuidof(Khiin::KhiinClassFactory)) {
-            return winrt::make<Khiin::KhiinClassFactory>()->QueryInterface(riid, ppv);
+        if (rclsid == __uuidof(khiin::win32::KhiinClassFactory)) {
+            return winrt::make<khiin::win32::KhiinClassFactory>()->QueryInterface(riid, ppv);
         }
 
         return winrt::hresult_class_not_available().to_abi();
@@ -81,9 +81,9 @@ _Check_return_ STDAPI DllGetClassObject(_In_ REFCLSID rclsid, _In_ REFIID riid, 
 }
 
 STDMETHODIMP DllUnregisterServer() {
-    Khiin::Registrar::unregisterCategories();
-    Khiin::Registrar::unregisterProfiles();
-    Khiin::Registrar::unregisterComServer();
+    khiin::win32::Registrar::unregisterCategories();
+    khiin::win32::Registrar::unregisterProfiles();
+    khiin::win32::Registrar::unregisterComServer();
 
     return S_OK;
 }
@@ -100,9 +100,9 @@ STDMETHODIMP DllRegisterServer() {
     dllPath.resize(static_cast<size_t>(pathsize));
 
     try {
-        Khiin::Registrar::registerComServer(dllPath);
-        Khiin::Registrar::registerProfiles(dllPath);
-        Khiin::Registrar::registerCategories();
+        khiin::win32::Registrar::registerComServer(dllPath);
+        khiin::win32::Registrar::registerProfiles(dllPath);
+        khiin::win32::Registrar::registerCategories();
     } catch (...) {
         DllUnregisterServer();
         return winrt::to_hresult();
@@ -122,7 +122,7 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserv
     return TRUE;
 }
 
-namespace Khiin {
+namespace khiin::win32 {
 
 void DllModule::AddRef() {
     ModuleImpl::AddRef();
@@ -144,4 +144,4 @@ HMODULE DllModule::module_handle() {
     return ModuleImpl::module_handle();
 }
 
-} // namespace Khiin
+} // namespace khiin::win32

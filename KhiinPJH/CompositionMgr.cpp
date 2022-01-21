@@ -7,7 +7,7 @@
 
 #include "common.h"
 
-namespace Khiin {
+namespace khiin::win32 {
 
 //+---------------------------------------------------------------------------
 //
@@ -172,4 +172,4 @@ void CompositionMgr::CollapseCursorToEnd(TfEditCookie cookie, ITfContext *pConte
     winrt::check_hresult(pContext->SetSelection(cookie, 1, &sel));
 }
 
-} // namespace Khiin
+} // namespace khiin::win32
