@@ -13,7 +13,7 @@ include_directories (${Boost_INCLUDE_DIRS})
 
 find_package(SQLiteCpp)
 
-add_subdirectory ("khiin_engine")
+add_subdirectory ("engine")
 
 target_include_directories(khiin_engine PUBLIC "../third_party")
 

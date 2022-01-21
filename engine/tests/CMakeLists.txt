@@ -1,4 +1,4 @@
-include_directories(${PROJECT_SOURCE_DIR}/khiin_engine)
+include_directories(${PROJECT_SOURCE_DIR}/engine)
 
 add_executable(test_khiin_engine "test_main.cpp" "test_engine.cpp" "test_trie.cpp"
     "test_buffer.cpp" "test_lomaji.cpp"  "test_splitter.cpp" "test_db.cpp" "test_candidates.cpp")
