@@ -2,19 +2,13 @@
 
 #include "CandidateWindow.h"
 
-namespace khiin::win32 {
+namespace {
 
 static inline constexpr int kCornerRadius = 4;
 
 static inline auto divide_ceil(unsigned int x, unsigned int y) {
     return x / y + (x % y != 0);
 }
-
-std::wstring kCandidateWindowClassName = L"CandidateWindow";
-GUID kCandidateWindowGuid // 829893fa-728d-11ec-8c6e-e0d46491b35a
-    = {0x829893fa, 0x728d, 0x11ec, {0x8c, 0x6e, 0xe0, 0xd4, 0x64, 0x91, 0xb3, 0x5a}};
-
-namespace {
 
 winrt::com_ptr<ID2D1Factory1> CreateD2D1Factory() {
     auto factory = winrt::com_ptr<ID2D1Factory1>();
@@ -42,6 +36,13 @@ winrt::com_ptr<ID2D1HwndRenderTarget> CreateRenderTarget(winrt::com_ptr<ID2D1Fac
 }
 
 } // namespace
+
+namespace khiin::win32 {
+
+std::wstring kCandidateWindowClassName = L"CandidateWindow";
+
+GUID kCandidateWindowGuid // 829893fa-728d-11ec-8c6e-e0d46491b35a
+    = {0x829893fa, 0x728d, 0x11ec, {0x8c, 0x6e, 0xe0, 0xd4, 0x64, 0x91, 0xb3, 0x5a}};
 
 CandidateWindow::CandidateWindow(HWND parent) : m_hwnd_parent(parent) {}
 
@@ -267,47 +268,45 @@ void CandidateWindow::CalculateLayout() {
     EnsureTextFormat();
 
     candidate_layout_matrix.clear();
-    auto n_cols = (display_mode == DisplayMode::Expanded) ? n_cols_expanded : 1;
-    auto min_col_width = (display_mode == DisplayMode::Expanded) ? min_col_width_expanded : min_col_width_single;
-    auto max_col_size = display_mode == DisplayMode::Short ? short_col_size : long_col_size;
-    auto max_page_size = (display_mode == DisplayMode::Expanded ? expanded_n_cols : 1) * max_col_size;
-    auto total_candidates_shown = 0;
-    auto total_candidates_avail = candidates->size();
-    auto total_cols_avail = divide_ceil(total_candidates_avail, max_col_size);
-    auto total_pages = divide_ceil(total_candidates_avail, max_page_size);
-    page_idx = min(total_pages - 1, page_idx);
-    auto candidate_start_idx = page_idx * max_page_size;
-    if (page_idx == total_pages - 1) {
-        n_cols = min(max_page_size, total_cols_avail);
-    }
-
     m_col_widths.clear();
+    auto total_items_avail = candidates->size();
+
+    auto min_col_width = (display_mode == DisplayMode::Expanded) ? min_col_width_expanded : min_col_width_single;
+    auto max_cols_per_page = (display_mode == DisplayMode::Expanded) ? n_cols_expanded : 1;
+    auto max_items_per_col = display_mode == DisplayMode::Short ? short_col_size : long_col_size;
+    auto max_items_per_page = (display_mode == DisplayMode::Expanded ? expanded_n_cols : 1) * max_items_per_col;
+
+    auto item_start_idx = max_items_per_page * page_idx;
+    auto item_end_idx = min(total_items_avail, max_items_per_page * (page_idx + 1));
+    auto n_cols = divide_ceil(item_end_idx - item_start_idx, max_items_per_col);
+
+    auto page_idx = 0;
     auto page_width = 0.0f;
+
     for (auto col_idx = 0; col_idx < n_cols; ++col_idx) {
         candidate_layout_matrix.push_back(std::vector<winrt::com_ptr<IDWriteTextLayout>>());
-        auto &col_layouts = candidate_layout_matrix.back();
-
-        float col_max_width = 0.0f;
-        auto col_break = candidate_start_idx + min(total_candidates_avail - candidate_start_idx, max_col_size);
-        for (auto row_idx = candidate_start_idx; row_idx < col_break; ++row_idx) {
-            auto &cand = candidates->at(row_idx);
-            auto layout = winrt::com_ptr<IDWriteTextLayout>();
-            winrt::check_hresult(m_dwfactory->CreateTextLayout(cand.data(), static_cast<UINT>(cand.size()),
+        auto &column = candidate_layout_matrix.back();
+        auto column_width = 0.0f;
+        auto n_items = min(item_end_idx - item_start_idx, max_items_per_col);
+        for (auto row_idx = 0; row_idx < n_items; ++row_idx) {
+            auto &item = candidates->at(item_start_idx + row_idx);
+            auto item_layout = winrt::com_ptr<IDWriteTextLayout>();
+            winrt::check_hresult(m_dwfactory->CreateTextLayout(item.data(), static_cast<UINT>(item.size()),
                                                                m_textformat.get(), static_cast<float>(m_max_width),
-                                                               row_height, layout.put()));
+                                                               row_height, item_layout.put()));
             DWRITE_TEXT_METRICS metrics;
-            winrt::check_hresult(layout->GetMetrics(&metrics));
-            col_max_width = max(col_max_width, metrics.width);
-            col_layouts.push_back(std::move(layout));
+            winrt::check_hresult(item_layout->GetMetrics(&metrics));
+            column_width = max(column_width, metrics.width);
+            column.push_back(std::move(item_layout));
         }
-        candidate_start_idx += max_col_size + 1;
-        col_max_width = max(col_max_width, min_col_width) + qs_col_width;
-        D("Col width: ", col_max_width);
-        m_col_widths.push_back(col_max_width);
-        page_width += col_max_width;
+        item_start_idx += n_items;
+        column_width = max(column_width, min_col_width) + qs_col_width;
+        D("Col width: ", column_width);
+        m_col_widths.push_back(column_width);
+        page_width += column_width;
     }
 
-    auto page_height = max_col_size * row_height + padding;
+    auto page_height = max_items_per_col * row_height + padding;
     auto scale = m_dpi_parent / USER_DEFAULT_SCREEN_DPI;
     ::SetWindowPos(m_hwnd, NULL, 0, 0, static_cast<int>(page_width * scale), static_cast<int>(page_height * scale),
                    SWP_NOMOVE | SWP_NOACTIVATE | SWP_NOZORDER);

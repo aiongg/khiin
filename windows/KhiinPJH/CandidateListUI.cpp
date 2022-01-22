@@ -38,6 +38,7 @@ void CandidateListUI::Update(ITfContext *pContext, std::vector<std::string> cand
         auto wcand_size = ::MultiByteToWideChar(CP_UTF8, MB_PRECOMPOSED, c.data(), static_cast<int>(c.size()), NULL, 0);
         auto wcand = std::wstring(wcand_size, '\0');
         ::MultiByteToWideChar(CP_UTF8, MB_PRECOMPOSED, c.data(), static_cast<int>(c.size()), &wcand[0], wcand_size);
+        D(wcand);
         candidateList.push_back(std::move(wcand));
     }
     candidateWindow->SetScreenCoordinates(std::move(text_rect));

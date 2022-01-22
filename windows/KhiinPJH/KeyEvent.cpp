@@ -23,4 +23,8 @@ char KeyEvent::ascii() {
     return ascii_;
 }
 
+int KeyEvent::keyCode() {
+    return wParam;
+}
+
 } // namespace khiin::win32

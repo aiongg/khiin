@@ -4,12 +4,11 @@
 
 namespace khiin::win32 {
 
-extern HMODULE g_moduleHandle;
-
 class WindowSetup {
   public:
     static void OnDllProcessAttach(HMODULE module);
     static void OnDllProcessDetach(HMODULE module);
+    static HMODULE hmodule();
 };
 
 template <typename DerivedWindow>
@@ -60,7 +59,7 @@ class BaseWindow {
                  int nHeight = CW_USEDEFAULT,
                  HWND hWndParent = 0,
                  HMENU hMenu = 0) { // clang-format on
-
+        WINRT_ASSERT(WindowSetup::hmodule());
         auto registered = RegisterIfNotExists();
 
         if (!registered) {
@@ -75,7 +74,7 @@ class BaseWindow {
                                  x, y, nWidth, nHeight,
                                  hWndParent,
                                  hMenu,
-                                 g_moduleHandle,
+                                 WindowSetup::hmodule(),
                                  this); // clang-format on
         ::SetThreadDpiAwarenessContext(previous_dpi_awareness);
 
@@ -97,7 +96,7 @@ class BaseWindow {
     bool RegisterIfNotExists() {
         WNDCLASSEX wc = {0};
 
-        if (::GetClassInfoEx(g_moduleHandle, class_name().data(), &wc)) {
+        if (::GetClassInfoEx(WindowSetup::hmodule(), class_name().data(), &wc)) {
             return TRUE;
         }
 
@@ -106,7 +105,7 @@ class BaseWindow {
         wc.style = CS_HREDRAW | CS_VREDRAW | CS_IME;
         wc.lpfnWndProc = DerivedWindow::StaticWndProc;
         wc.cbClsExtra = 0;
-        wc.hInstance = g_moduleHandle;
+        wc.hInstance = WindowSetup::hmodule();
         wc.lpszClassName = class_name().data();
         wc.hIcon = NULL;
         wc.hIconSm = NULL;

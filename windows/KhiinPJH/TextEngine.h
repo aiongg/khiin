@@ -22,7 +22,10 @@ struct TextEngine : winrt::implements<TextEngine, IUnknown> {
 };
 
 struct TextEngineFactory {
+    static void OnDllProcessAttach(HMODULE module);
+    static void OnDllProcessDetach(HMODULE module);
     static HRESULT Create(TextEngine **ppEngine);
+
 };
 
 } // namespace khiin::win32

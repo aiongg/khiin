@@ -3,18 +3,24 @@
 #include "BaseWindow.h"
 #include "DllModule.h"
 
-namespace khiin::win32 {
+namespace {
+volatile HMODULE g_module_handle = nullptr;
+}
 
-HMODULE g_moduleHandle = nullptr;
+namespace khiin::win32 {
 
 void WindowSetup::OnDllProcessAttach(HMODULE module) {
     DllModule::AddRef();
-    g_moduleHandle = module;
+    g_module_handle = module;
 }
 
 void WindowSetup::OnDllProcessDetach(HMODULE module) {
-    g_moduleHandle = nullptr;
+    g_module_handle = nullptr;
     DllModule::Release();
+}
+
+HMODULE WindowSetup::hmodule() {
+    return g_module_handle;
 }
 
 } // namespace khiin::win32

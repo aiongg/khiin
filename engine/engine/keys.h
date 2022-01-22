@@ -1,5 +1,7 @@
 #pragma once
 
+namespace khiin::engine {
+
 enum class KeyCode {
     BACK = 0x08,
     TAB = 0x09,
@@ -81,3 +83,10 @@ enum class KeyCode {
     Y_LC = 0x79,
     Z_LC = 0x7A,
 };
+
+inline bool IsAlphaNumeric(KeyCode code) {
+    return KeyCode::D0 <= code && code <= KeyCode::D9 || KeyCode::A <= code && code <= KeyCode::Z ||
+           KeyCode::A_LC <= code && code <= KeyCode::Z_LC;
+}
+
+} // namespace khiin::engine

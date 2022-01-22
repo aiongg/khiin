@@ -15,6 +15,7 @@ class KeyEvent {
     ~KeyEvent() = default;
 
     char ascii();
+    int keyCode();
 
   private:
     BYTE keyboardState[KEYBOARD_SIZE];

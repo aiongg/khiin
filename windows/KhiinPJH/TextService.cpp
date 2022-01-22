@@ -144,7 +144,7 @@ struct TextServiceImpl :
     }
 
     virtual void OnCompositionTerminated(TfEditCookie ecWrite, ITfContext *context,
-                                            ITfComposition *pComposition) override {
+                                         ITfComposition *pComposition) override {
         D(__FUNCTIONW__);
         compositionMgr_->ClearComposition();
         candidateListUI_->Show(false);
@@ -258,7 +258,7 @@ struct TextServiceImpl :
 
 //+---------------------------------------------------------------------------
 //
-// TextServiceFactory::Create
+// TextServiceFactory
 //
 //----------------------------------------------------------------------------
 

@@ -117,7 +117,12 @@ Engine::Engine(std::string resourceDir) {
     buffer = std::make_unique<BufferManager>(candidateFinder.get());
 }
 
-auto Engine::consumable(KeyCode c) -> bool { return true; }
+auto Engine::consumable(KeyCode c) -> bool {
+    if (IsAlphaNumeric(c)) {
+        return true;
+    }
+    return false;
+}
 
 auto Engine::focusCandidate(size_t index, ImeDisplayData &data) -> RetVal {
     auto success = buffer->focusCandidate(index);
@@ -126,9 +131,7 @@ auto Engine::focusCandidate(size_t index, ImeDisplayData &data) -> RetVal {
 }
 
 auto Engine::onKeyDown(KeyCode kc, ImeDisplayData &data) -> RetVal {
-    if (KeyCode::D0 <= kc && kc <= KeyCode::D9 ||
-        KeyCode::A <= kc && kc <= KeyCode::Z ||
-        KeyCode::A_LC <= kc && kc <= KeyCode::Z_LC) {
+    if (IsAlphaNumeric(kc)) {
         auto ch = static_cast<char>(kc);
         buffer->insert(ch);
     } else {
@@ -173,6 +176,11 @@ EngineState Engine::getState() const { return engineState_; }
 std::string Engine::getBuffer() const {
     return buffer->getDisplayBuffer();
     // return normalize(keyBuffer_, norm_nfc);
+}
+
+RetVal Engine::Reset() {
+    buffer->clear();
+    return RetVal::OK;
 }
 
 // key handlers

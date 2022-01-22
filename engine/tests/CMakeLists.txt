@@ -5,7 +5,7 @@ add_executable(test_khiin_engine "test_main.cpp" "test_engine.cpp" "test_trie.cp
 
 target_link_libraries(test_khiin_engine ${Boost_LIBRARIES} SQLiteCpp khiin_engine)
 
-add_test(NAME test_khiin_engine COMMAND taikey_test)
+add_test(NAME test_khiin_engine COMMAND test_khiin_engine)
 
 file(GLOB resources "${PROJECT_SOURCE_DIR}/../resources/*")
 message("Resource file list: ${resources}")

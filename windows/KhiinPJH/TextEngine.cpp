@@ -1,12 +1,50 @@
 #include "pch.h"
 
-//#include <taikey/engine.h>
-
 #include "TextEngine.h"
 
+#include <filesystem>
+
+#include <engine/engine.h>
+#include <utf8cpp/utf8/cpp17.h>
+
 #include "common.h"
+#include "DllModule.h"
+
+namespace {
+volatile HMODULE g_module = nullptr;
+}
 
 namespace khiin::win32 {
+
+namespace fs = std::filesystem;
+
+engine::KeyCode TranslateCode(win32::KeyEvent ke) {
+    if (ke.ascii()) {
+        return (static_cast<engine::KeyCode>(ke.ascii()));
+    }
+
+    switch (ke.keyCode()) {
+    case VK_RETURN:
+        return engine::KeyCode::ENTER;
+    case VK_RIGHT:
+        return engine::KeyCode::RIGHT;
+    }
+
+    return engine::KeyCode::ENTER;
+}
+
+fs::path DefaultResourceDirectory() {
+    WINRT_ASSERT(g_module);
+    auto dll_path = std::wstring(MAX_PATH, '?');
+    auto len = ::GetModuleFileName(g_module, &dll_path[0], MAX_PATH);
+    if (len == 0) {
+        throw winrt::hresult_error(::GetLastError());
+    }
+    auto tmp = std::u16string(dll_path.cbegin(), dll_path.cbegin() + len);
+    auto path = fs::path(utf8::utf16to8(tmp));
+    path.replace_filename("resources");
+    return path;
+}
 
 struct TextEngineImpl : winrt::implements<TextEngineImpl, TextEngine> {
     TextEngineImpl() = default;
@@ -15,67 +53,61 @@ struct TextEngineImpl : winrt::implements<TextEngineImpl, TextEngine> {
     ~TextEngineImpl() = default;
 
     virtual void Initialize() override {
-        //engine_ = std::make_unique<taikey::Engine>();
+        engine_ = std::make_unique<engine::Engine>(DefaultResourceDirectory().string());
     }
 
     virtual void Uninitialize() override {}
 
     virtual void TestKey(KeyEvent keyEvent, BOOL *pConsumable) {
-        if (keyEvent.ascii() == 'a') {
-            *pConsumable = true;
-        } else {
-            *pConsumable = false;
-        }
+        *pConsumable = engine_->consumable(TranslateCode(keyEvent));
     }
 
     virtual void OnKey(KeyEvent keyEvent) {
-        if (keyEvent.ascii() == 'a') {
-            buffer_ += 'r';
+        //buffer_ += 'r';
+        auto rv = engine_->onKeyDown(TranslateCode(keyEvent), display_data);
+        if (rv == RetVal::NotConsumed || rv == RetVal::Cancelled) {
+            // do something
         }
     }
 
     virtual void Reset() {
-        buffer_.clear();
+        engine_->Reset();
     }
 
     virtual std::string buffer() {
-        return buffer_;
+        return display_data.buffer;
     }
 
     virtual std::vector<std::string> &candidates() {
-        if (candidates_.empty()) {
-            candidates_.push_back(u8"bîn-ná-chài");
-            candidates_.push_back(u8"明旦再");
-            candidates_.push_back(u8"明那再");
-            candidates_.push_back(u8"明仔再");
-            candidates_.push_back(u8"bîn-ná");
-            candidates_.push_back(u8"明旦");
-            candidates_.push_back(u8"明那");
-            candidates_.push_back(u8"明仔");
-            candidates_.push_back(u8"bīn");
-            candidates_.push_back(u8"面");
-            candidates_.push_back(u8"bín");
-            candidates_.push_back(u8"敏");
-            candidates_.push_back(u8"抿");
-            candidates_.push_back(u8"bîn");
-            candidates_.push_back(u8"緡");
-            candidates_.push_back(u8"珉");
-            candidates_.push_back(u8"黽");
-            candidates_.push_back(u8"敏");
-            candidates_.push_back(u8"愍");
-            candidates_.push_back(u8"憫");
-            candidates_.push_back(u8"閔");
-            candidates_.push_back(u8"眠");
+        candidates_.clear();
+        for (auto &c : display_data.candidates) {
+            candidates_.push_back(c.text);
         }
-
         return candidates_;
     }
 
   private:
     std::string buffer_{};
     std::vector<std::string> candidates_;
-    //std::unique_ptr<taikey::Engine> engine_ = nullptr;
+    std::unique_ptr<engine::Engine> engine_ = nullptr;
+    engine::ImeDisplayData display_data{};
 };
+
+//+---------------------------------------------------------------------------
+//
+// TextEngineFactory
+//
+//----------------------------------------------------------------------------
+
+void TextEngineFactory::OnDllProcessAttach(HMODULE module) {
+    DllModule::AddRef();
+    g_module = module;
+}
+
+void TextEngineFactory::OnDllProcessDetach(HMODULE module) {
+    g_module = nullptr;
+    DllModule::Release();
+}
 
 HRESULT TextEngineFactory::Create(TextEngine **ppEngine) {
     as_self<TextEngine>(winrt::make_self<TextEngineImpl>()).copy_to(ppEngine);

@@ -30,6 +30,8 @@ struct TextService : winrt::implements<TextService, IUnknown> {
 };
 
 struct TextServiceFactory {
+    static void OnDllProcessAttach(HMODULE module);
+    static void OnDllProcessDetach(HMODULE module);
     static void Create(TextService **ppService);
 };
 

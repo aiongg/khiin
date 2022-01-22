@@ -75,6 +75,8 @@ class Engine {
     */
     auto focusCandidate(size_t index, ImeDisplayData &data) -> RetVal;
 
+    RetVal Reset();
+
     EngineState getState() const;
     std::string getBuffer() const;
 
