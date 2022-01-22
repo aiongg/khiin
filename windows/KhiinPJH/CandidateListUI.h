@@ -15,7 +15,7 @@ struct CandidateListUI :
     void Initialize(TextService *pTextService);
     void Uninitialize();
     void DestroyCandidateWindow();
-    void Update(ITfContext *pContext, std::vector<std::string> candidates, RECT text_rect);
+    void Update(ITfContext *pContext, std::vector<std::string> *candidates, RECT text_rect);
 
     // ITfUIElement
     virtual STDMETHODIMP GetDescription(BSTR *pbstrDescription) override;
@@ -48,10 +48,10 @@ struct CandidateListUI :
   private:
     void makeCandidateWindow();
 
-    std::unique_ptr<CandidateWindow> candidateWindow;
-    winrt::com_ptr<TextService> service;
-    winrt::com_ptr<ITfContext> context;
-    std::vector<std::wstring> candidateList = {};
+    std::unique_ptr<CandidateWindow> candidateWindow = nullptr;
+    winrt::com_ptr<TextService> service = nullptr;
+    winrt::com_ptr<ITfContext> context = nullptr;
+    std::vector<std::wstring> candidate_list_ = {};
 };
 
 } // namespace khiin::win32

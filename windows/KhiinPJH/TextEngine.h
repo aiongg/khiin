@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Action.h"
 #include "KeyEvent.h"
 
 namespace khiin::win32 {
@@ -13,12 +14,9 @@ struct TextEngine : winrt::implements<TextEngine, IUnknown> {
     virtual void Initialize() = 0;
     virtual void Uninitialize() = 0;
 
-    virtual void TestKey(KeyEvent keyEvent, BOOL *pConsumable) = 0;
-    virtual void OnKey(KeyEvent keyEvent) = 0;
+    virtual Action TestKey(KeyEvent keyEvent) = 0;
+    virtual Action OnKey(KeyEvent keyEvent) = 0;
     virtual void Reset() = 0;
-
-    virtual std::string buffer() = 0;
-    virtual std::vector<std::string> &candidates() = 0;
 };
 
 struct TextEngineFactory {

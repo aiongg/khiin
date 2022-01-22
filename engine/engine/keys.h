@@ -3,6 +3,7 @@
 namespace khiin::engine {
 
 enum class KeyCode {
+    UNKNOWN = 0,
     BACK = 0x08,
     TAB = 0x09,
     ENTER = 0x0D,
@@ -19,6 +20,7 @@ enum class KeyCode {
     UP = 0x26,
     RIGHT = 0x27,
     DOWN = 0x28,
+    HYPHEN = 0x2D,
     DEL = 0x2E,
     D0 = 0x30,
     D1 = 0x31,

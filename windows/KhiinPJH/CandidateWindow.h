@@ -20,7 +20,6 @@ class CandidateWindow : public BaseWindow<CandidateWindow> {
     virtual std::wstring &class_name() const override;
 
     void Create();
-    void Destroy();
     void Show();
     void Hide();
     bool showing();

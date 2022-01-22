@@ -39,19 +39,13 @@ void KeyEventSink::TestKey(ITfContext *pContext, KeyEvent keyEvent, BOOL *pfEate
     WINRT_ASSERT(pContext);
     WINRT_ASSERT(compositionMgr);
 
-    auto engine = service->engine();
     if (!compositionMgr->composing()) {
-        engine->Reset();
+        service->engine()->Reset();
     }
 
-    engine->TestKey(keyEvent, pfEaten);
-    if (*pfEaten) {
-        return;
-    }
-    engine->Reset();
-    auto action = Action();
-    action.compMsg = Message::CommitText;
-    action.candMsg = Message::HideCandidates;
+    auto action = service->engine()->TestKey(keyEvent);
+
+    *pfEaten = action.consumed;
     EditSession::HandleAction(service.get(), pContext, std::move(action));
 }
 
@@ -62,20 +56,7 @@ void KeyEventSink::HandleKey(ITfContext *pContext, KeyEvent keyEvent, BOOL *pfEa
         return;
     }
 
-    service->engine()->OnKey(keyEvent);
-
-    auto action = Action();
-
-    if (compositionMgr->composing()) {
-        action.compMsg = Message::UpdateComposition;
-    } else {
-        action.compMsg = Message::StartComposition;
-    }
-
-    action.text = service->engine()->buffer();
-    action.candidates = service->engine()->candidates();
-    action.candMsg = Message::ShowCandidates;
-
+    auto action = service->engine()->OnKey(keyEvent);
     EditSession::HandleAction(service.get(), pContext, std::move(action));
 }
 

@@ -34,19 +34,15 @@ struct EditSessionImpl : winrt::implements<EditSessionImpl, ITfEditSession> {
         BOOL shown;
         candidateUI->IsShown(&shown);
 
-        if (action.compMsg == Message::StartComposition && !composing) {
-            compositionMgr->StartComposition(ec, context.get());
+        if (action.compose_message == Message::Compose) {
+            compositionMgr->DoComposition(ec, context.get(), action.buffer_text);
         }
 
-        if (action.compMsg == Message::UpdateComposition || action.compMsg == Message::StartComposition) {
-            compositionMgr->DoComposition(ec, context.get(), action.text);
+        if (action.compose_message == Message::Commit) {
+            compositionMgr->CommitComposition(ec, context.get(), action.buffer_text);
         }
 
-        if (action.compMsg == Message::CommitText) {
-            compositionMgr->EndComposition(ec);
-        }
-
-        if (action.candMsg == Message::ShowCandidates) {
+        if (action.candidate_message == Message::ShowCandidates) {
             auto range = winrt::com_ptr<ITfRange>();
             compositionMgr->GetTextRange(ec, range.put());
 
@@ -56,14 +52,12 @@ struct EditSessionImpl : winrt::implements<EditSessionImpl, ITfEditSession> {
             RECT rect;
             BOOL clipped;
             winrt::check_hresult(contextView->GetTextExt(ec, range.get(), &rect, &clipped));
-
-            candidateUI->Update(context.get(), action.candidates, std::move(rect));
+            candidateUI->Update(context.get(), action.candidate_list, std::move(rect));
 
             if (!shown) {
                 winrt::check_hresult(candidateUI->Show(true));
-                
             }
-        } else if (action.candMsg == Message::HideCandidates) {
+        } else if (action.candidate_message == Message::HideCandidates) {
             if (shown) {
                 winrt::check_hresult(candidateUI->Show(false));
             }

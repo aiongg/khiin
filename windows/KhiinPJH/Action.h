@@ -6,20 +6,20 @@ namespace khiin::win32 {
 
 enum class Message {
     Noop,
-    StartComposition,
-    UpdateComposition,
+    Compose,
     CancelComposition,
-    CommitText,
+    Commit,
     ShowCandidates,
     HideCandidates,
     FocusCandidate,
 };
 
 struct Action {
-    Message compMsg = Message::Noop;
-    std::string text;
-    Message candMsg = Message::Noop;
-    std::vector<std::string> candidates;
+    bool consumed = false;
+    Message compose_message = Message::Noop;
+    std::string buffer_text;
+    Message candidate_message = Message::Noop;
+    std::vector<std::string> *candidate_list;
 };
 
 } // namespace khiin::win32

@@ -117,8 +117,8 @@ Engine::Engine(std::string resourceDir) {
     buffer = std::make_unique<BufferManager>(candidateFinder.get());
 }
 
-auto Engine::consumable(KeyCode c) -> bool {
-    if (IsAlphaNumeric(c)) {
+auto Engine::TestConsumable(KeyCode c) -> bool {
+    if (IsAlphaNumeric(c) || c == KeyCode::HYPHEN) {
         return true;
     }
     return false;

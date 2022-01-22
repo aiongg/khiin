@@ -45,6 +45,8 @@ struct TextServiceImpl :
         openCloseCompartment_.SetValue(true);
         openCloseSinkMgr_.Advise(openCloseCompartment_.getCompartment(), this);
         engine_->Initialize();
+        InitCategoryMgr();
+        InitDisplayAttributes();
         return S_OK;
     }
 
@@ -60,7 +62,18 @@ struct TextServiceImpl :
         threadMgrEventSink_->Uninitialize();
         compositionMgr_->Uninitialize();
         displayAttributes_ = nullptr;
+        category_mgr_ = nullptr;
         return S_OK;
+    }
+
+    void InitCategoryMgr() {
+        winrt::check_hresult(::CoCreateInstance(CLSID_TF_CategoryMgr, NULL, CLSCTX_INPROC_SERVER, IID_ITfCategoryMgr,
+                                                category_mgr_.put_void()));
+    }
+
+    void InitDisplayAttributes() {
+        winrt::check_hresult(category_mgr_->RegisterGUID(DisplayAttribute_Input.guid, &input_attribute_));
+        winrt::check_hresult(category_mgr_->RegisterGUID(DisplayAttribute_Converted.guid, &converted_attribute_));
     }
 
     winrt::com_ptr<ITfThreadMgr> threadMgr_ = nullptr;
@@ -70,12 +83,16 @@ struct TextServiceImpl :
     Compartment keyboardDisabledCompartment_;
     SinkManager<ITfCompartmentEventSink> openCloseSinkMgr_;
 
+    winrt::com_ptr<ITfCategoryMgr> category_mgr_ = nullptr;
     winrt::com_ptr<CandidateListUI> candidateListUI_ = nullptr;
     winrt::com_ptr<CompositionMgr> compositionMgr_ = nullptr;
     winrt::com_ptr<DisplayAttributeInfoEnum> displayAttributes_ = nullptr;
     winrt::com_ptr<ThreadMgrEventSink> threadMgrEventSink_ = nullptr;
     winrt::com_ptr<KeyEventSink> keyEventSink_ = nullptr;
     winrt::com_ptr<TextEngine> engine_ = nullptr;
+
+    TfGuidAtom input_attribute_ = TF_INVALID_GUIDATOM;
+    TfGuidAtom converted_attribute_ = TF_INVALID_GUIDATOM;
 
   public:
     //+---------------------------------------------------------------------------
@@ -132,10 +149,7 @@ struct TextServiceImpl :
 
     virtual winrt::com_ptr<ITfCategoryMgr> categoryMgr() override {
         D(__FUNCTIONW__);
-        auto tmp = winrt::com_ptr<ITfCategoryMgr>();
-        winrt::check_hresult(
-            ::CoCreateInstance(CLSID_TF_CategoryMgr, NULL, CLSCTX_INPROC_SERVER, IID_ITfCategoryMgr, tmp.put_void()));
-        return tmp;
+        return category_mgr_;
     }
 
     virtual winrt::com_ptr<ITfCompositionSink> CreateCompositionSink(ITfContext *context) override {
@@ -148,6 +162,14 @@ struct TextServiceImpl :
         D(__FUNCTIONW__);
         compositionMgr_->ClearComposition();
         candidateListUI_->Show(false);
+    }
+
+    virtual TfGuidAtom input_attribute() {
+        return input_attribute_;
+    }
+
+    virtual TfGuidAtom converted_attribute() {
+        return converted_attribute_;
     }
 
     //+---------------------------------------------------------------------------

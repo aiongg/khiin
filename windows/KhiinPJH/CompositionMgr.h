@@ -20,20 +20,19 @@ struct CompositionMgr : winrt::implements<CompositionMgr, IUnknown> {
 
     bool composing();
 
-    void StartComposition(TfEditCookie cookie, ITfContext *pContext);
-    void DoComposition(TfEditCookie cookie, ITfContext *pContext, std::string text);
-    void EndComposition(TfEditCookie cookie);
+    void DoComposition(TfEditCookie cookie, ITfContext *pContext, std::string display_text);
+    void CommitComposition(TfEditCookie cookie, ITfContext *pContext, std::string commit_text);
+    void CancelComposition(TfEditCookie cookie);
     void GetTextRange(TfEditCookie cookie, ITfRange **ppRange);
 
   private:
+    void StartComposition(TfEditCookie cookie, ITfContext *pContext);
     void ApplyDisplayAttribute(TfEditCookie cookie, ITfContext *pContext, ITfRange *pRange, AttrInfoKey index);
     void CollapseCursorToEnd(TfEditCookie cookie, ITfContext *pContext);
+    void SetSelection(TfEditCookie cookie, ITfContext *pContext, ITfRange *pRange, TfActiveSelEnd active_sel_end);
 
     winrt::com_ptr<TextService> service = nullptr;
-    winrt::com_ptr<DisplayAttributeInfoEnum> attributes = nullptr;
     winrt::com_ptr<ITfComposition> composition = nullptr;
-    winrt::com_ptr<ITfContext> context = nullptr;
-    winrt::com_ptr<ITfCategoryMgr> categoryMgr = nullptr;
 };
 
 } // namespace khiin::win32

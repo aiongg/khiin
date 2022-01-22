@@ -291,7 +291,8 @@ void CandidateWindow::CalculateLayout() {
         for (auto row_idx = 0; row_idx < n_items; ++row_idx) {
             auto &item = candidates->at(item_start_idx + row_idx);
             auto item_layout = winrt::com_ptr<IDWriteTextLayout>();
-            winrt::check_hresult(m_dwfactory->CreateTextLayout(item.data(), static_cast<UINT>(item.size()),
+            D(item, " (", item.size(), ")");
+            winrt::check_hresult(m_dwfactory->CreateTextLayout(item.c_str(), static_cast<UINT32>(item.size()),
                                                                m_textformat.get(), static_cast<float>(m_max_width),
                                                                row_height, item_layout.put()));
             DWRITE_TEXT_METRICS metrics;

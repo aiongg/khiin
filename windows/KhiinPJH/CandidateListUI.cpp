@@ -3,6 +3,7 @@
 #include "CandidateListUI.h"
 #include "EditSession.h"
 #include "common.h"
+#include "Utils.h"
 
 namespace khiin::win32 {
 
@@ -25,24 +26,20 @@ void CandidateListUI::DestroyCandidateWindow() {
     }
 }
 
-void CandidateListUI::Update(ITfContext *pContext, std::vector<std::string> candidates, RECT text_rect) {
+void CandidateListUI::Update(ITfContext *pContext, std::vector<std::string> *candidates, RECT text_rect) {
     D(__FUNCTIONW__);
     context.copy_from(pContext);
 
     if (!candidateWindow) {
         makeCandidateWindow();
     }
-
-    candidateList.clear();
-    for (auto &c : candidates) {
-        auto wcand_size = ::MultiByteToWideChar(CP_UTF8, MB_PRECOMPOSED, c.data(), static_cast<int>(c.size()), NULL, 0);
-        auto wcand = std::wstring(wcand_size, '\0');
-        ::MultiByteToWideChar(CP_UTF8, MB_PRECOMPOSED, c.data(), static_cast<int>(c.size()), &wcand[0], wcand_size);
-        D(wcand);
-        candidateList.push_back(std::move(wcand));
+    
+    candidate_list_.clear();
+    for (auto &c : *candidates) {
+        candidate_list_.push_back(Utils::Widen(c));
     }
-    candidateWindow->SetScreenCoordinates(std::move(text_rect));
-    candidateWindow->SetCandidates(&candidateList);
+    candidateWindow->SetScreenCoordinates(text_rect);
+    candidateWindow->SetCandidates(&candidate_list_);
     candidateWindow->Show();
 }
 

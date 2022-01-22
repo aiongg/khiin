@@ -47,7 +47,7 @@ class Engine {
         key or not. If the return value is true, the application
         should send the key to onKeyDown for processing.
     */
-    auto consumable(KeyCode keyCode) -> bool;
+    auto TestConsumable(KeyCode keyCode) -> bool;
 
     /*
         This is the main method applications should use to provide

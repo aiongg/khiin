@@ -3,16 +3,38 @@
 #include "TextEngine.h"
 
 #include <filesystem>
+#include <unordered_map>
 
 #include <engine/engine.h>
 
-#include "common.h"
 #include "DllModule.h"
 #include "Utils.h"
+#include "common.h"
 
 namespace {
+
+using namespace khiin::engine;
+
 volatile HMODULE g_module = nullptr;
-}
+
+static std::unordered_map<int, KeyCode> kWindowsToKhiinKeyCode = {
+    // clang-format off
+    {VK_BACK, KeyCode::BACK},
+    {VK_TAB, KeyCode::TAB},
+    {VK_RETURN, KeyCode::ENTER},
+    {VK_ESCAPE, KeyCode::ESC},
+    {VK_SPACE, KeyCode::SPACE},
+    {VK_END, KeyCode::END},
+    {VK_HOME, KeyCode::HOME},
+    {VK_LEFT, KeyCode::LEFT},
+    {VK_UP, KeyCode::UP},
+    {VK_RIGHT, KeyCode::RIGHT},
+    {VK_DOWN, KeyCode::DOWN},
+    {VK_DELETE, KeyCode::DEL}
+    // clang-format on
+};
+
+} // namespace
 
 namespace khiin::win32 {
 
@@ -23,14 +45,11 @@ engine::KeyCode TranslateCode(win32::KeyEvent ke) {
         return (static_cast<engine::KeyCode>(ke.ascii()));
     }
 
-    switch (ke.keyCode()) {
-    case VK_RETURN:
-        return engine::KeyCode::ENTER;
-    case VK_RIGHT:
-        return engine::KeyCode::RIGHT;
+    if (auto idx = kWindowsToKhiinKeyCode.find(ke.keyCode()); idx != kWindowsToKhiinKeyCode.end()) {
+        return idx->second;
     }
 
-    return engine::KeyCode::ENTER;
+    return engine::KeyCode::UNKNOWN;
 }
 
 fs::path DefaultResourceDirectory() {
@@ -57,32 +76,62 @@ struct TextEngineImpl : winrt::implements<TextEngineImpl, TextEngine> {
 
     virtual void Uninitialize() override {}
 
-    virtual void TestKey(KeyEvent keyEvent, BOOL *pConsumable) {
-        *pConsumable = engine_->consumable(TranslateCode(keyEvent));
+    virtual Action TestKey(KeyEvent keyEvent) {
+        Action a{};
+        auto consumable = engine_->TestConsumable(TranslateCode(keyEvent));
+        if (!consumable) {
+            a.consumed = false;
+            a.compose_message = Message::Commit;
+            a.candidate_message = Message::HideCandidates;
+            Reset();
+        } else {
+            a.consumed = true;
+            a.compose_message = Message::Noop;
+            a.candidate_message = Message::Noop;
+        }
+        return a;
     }
 
-    virtual void OnKey(KeyEvent keyEvent) {
-        //buffer_ += 'r';
+    virtual Action OnKey(KeyEvent keyEvent) {
         auto rv = engine_->onKeyDown(TranslateCode(keyEvent), display_data);
-        if (rv == RetVal::NotConsumed || rv == RetVal::Cancelled) {
-            // do something
+        buffer_ = display_data.buffer;
+        candidates_.clear();
+        if (display_data.candidates.size()) {
+            for (auto &c : display_data.candidates) {
+                candidates_.push_back(c.text);
+            }
         }
+
+        Action a{};
+
+        switch (rv) {
+        case RetVal::Cancelled:
+            a.compose_message = Message::CancelComposition;
+            a.candidate_message = Message::HideCandidates;
+            break;
+        case RetVal::Consumed:
+            a.compose_message = Message::Compose;
+            a.buffer_text = buffer_;
+
+            if (candidates_.size()) {
+                a.candidate_message = Message::ShowCandidates;
+            } else {
+                a.candidate_message = Message::HideCandidates;
+            }
+
+            a.candidate_list = &candidates_;
+            break;
+        default:
+            a.compose_message = Message::Commit;
+            a.buffer_text = buffer_;
+            a.candidate_message = Message::HideCandidates;
+        }
+
+        return a;
     }
 
     virtual void Reset() {
         engine_->Reset();
-    }
-
-    virtual std::string buffer() {
-        return display_data.buffer;
-    }
-
-    virtual std::vector<std::string> &candidates() {
-        candidates_.clear();
-        for (auto &c : display_data.candidates) {
-            candidates_.push_back(c.text);
-        }
-        return candidates_;
     }
 
   private:
