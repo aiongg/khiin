@@ -4,7 +4,7 @@
 
 #include "DisplayAttributeInfoEnum.h"
 #include "EditSession.h"
-
+#include "Utils.h"
 #include "common.h"
 
 namespace khiin::win32 {
@@ -64,7 +64,8 @@ void CompositionMgr::StartComposition(TfEditCookie cookie, ITfContext *pContext)
 
     auto composition = winrt::com_ptr<ITfComposition>();
     auto compositionSink = service->CreateCompositionSink(pContext);
-    winrt::check_hresult(contextComposition->StartComposition(cookie, range.get(), compositionSink.get(), composition.put()));
+    winrt::check_hresult(
+        contextComposition->StartComposition(cookie, range.get(), compositionSink.get(), composition.put()));
 
     this->composition = nullptr;
     this->composition = composition;
@@ -89,9 +90,9 @@ void CompositionMgr::DoComposition(TfEditCookie cookie, ITfContext *pContext, st
     auto range = winrt::com_ptr<ITfRange>();
     winrt::check_hresult(composition->GetRange(range.put()));
 
-    auto wstr = std::wstring(text.cbegin(), text.cend());
+    auto wstr = Utils::Widen(text);
     auto wstrlen = static_cast<LONG>(wstr.size());
-    winrt::check_hresult( range->SetText(cookie, TF_ST_CORRECTION, &wstr[0], wstrlen));
+    winrt::check_hresult(range->SetText(cookie, TF_ST_CORRECTION, &wstr[0], wstrlen));
 
     ApplyDisplayAttribute(cookie, pContext, range.get(), AttrInfoKey::Input);
     CollapseCursorToEnd(cookie, pContext);
@@ -120,7 +121,7 @@ void CompositionMgr::GetTextRange(TfEditCookie cookie, ITfRange **ppRange) {
 }
 
 void CompositionMgr::ApplyDisplayAttribute(TfEditCookie cookie, ITfContext *pContext, ITfRange *pRange,
-                                              AttrInfoKey index) {
+                                           AttrInfoKey index) {
     D(__FUNCTIONW__);
 
     if (!composing()) {
@@ -132,23 +133,32 @@ void CompositionMgr::ApplyDisplayAttribute(TfEditCookie cookie, ITfContext *pCon
 
     GUID guid{};
     winrt::check_hresult(attr->GetGUID(&guid));
+    D(__FUNCTIONW__, "1");
 
     TfGuidAtom atom = TF_INVALID_GUIDATOM;
     winrt::check_hresult(categoryMgr->RegisterGUID(guid, &atom));
 
+    D(__FUNCTIONW__, "2");
+
     if (atom == TF_INVALID_GUIDATOM) {
-        throw winrt::hresult_invalid_argument();
+        D(__FUNCTIONW__, "3");
+
+        throw winrt::hresult_error(E_APPLICATION_NOT_REGISTERED);
     }
+    D(__FUNCTIONW__, "4");
 
     auto prop = winrt::com_ptr<ITfProperty>();
     winrt::check_hresult(pContext->GetProperty(GUID_PROP_ATTRIBUTE, prop.put()));
+    D(__FUNCTIONW__, "5");
 
     VARIANT var;
     ::VariantInit(&var);
     var.vt = VT_I4;
     var.lVal = atom;
 
+    // this line is throwing, maybe due to pRange?
     winrt::check_hresult(prop->SetValue(cookie, pRange, &var));
+    D(__FUNCTIONW__, "6");
 }
 
 void CompositionMgr::CollapseCursorToEnd(TfEditCookie cookie, ITfContext *pContext) {

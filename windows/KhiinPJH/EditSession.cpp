@@ -9,7 +9,7 @@
 
 namespace khiin::win32 {
 
-constexpr auto AsyncDontCareRW = TF_ES_ASYNCDONTCARE | TF_ES_READWRITE;
+constexpr auto kAsyncRWFlag = TF_ES_ASYNCDONTCARE | TF_ES_READWRITE;
 
 struct EditSessionImpl : winrt::implements<EditSessionImpl, ITfEditSession> {
     EditSessionImpl(TextService *pService, ITfContext *pContext, Action action) : action(action) {
@@ -85,7 +85,7 @@ void EditSession::HandleAction(TextService *pService, ITfContext *pContext, Acti
 
     auto sessionHr = E_FAIL;
     winrt::check_hresult(
-        pContext->RequestEditSession(pService->clientId(), session.get(), AsyncDontCareRW, &sessionHr));
+        pContext->RequestEditSession(pService->clientId(), session.get(), kAsyncRWFlag, &sessionHr));
     winrt::check_hresult(sessionHr);
 }
 

@@ -5,10 +5,10 @@
 #include <filesystem>
 
 #include <engine/engine.h>
-#include <utf8cpp/utf8/cpp17.h>
 
 #include "common.h"
 #include "DllModule.h"
+#include "Utils.h"
 
 namespace {
 volatile HMODULE g_module = nullptr;
@@ -40,8 +40,7 @@ fs::path DefaultResourceDirectory() {
     if (len == 0) {
         throw winrt::hresult_error(::GetLastError());
     }
-    auto tmp = std::u16string(dll_path.cbegin(), dll_path.cbegin() + len);
-    auto path = fs::path(utf8::utf16to8(tmp));
+    auto path = fs::path(Utils::Narrow(dll_path));
     path.replace_filename("resources");
     return path;
 }

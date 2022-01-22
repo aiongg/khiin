@@ -198,6 +198,7 @@
     <ClInclude Include="SinkManager.h" />
     <ClInclude Include="TextEditSink.h" />
     <ClInclude Include="ThreadMgrEventSink.h" />
+    <ClInclude Include="Utils.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="BaseWindow.cpp" />
@@ -224,6 +225,7 @@
     <ClCompile Include="Registrar.cpp" />
     <ClCompile Include="TextEditSink.cpp" />
     <ClCompile Include="ThreadMgrEventSink.cpp" />
+    <ClCompile Include="Utils.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="DllModule.def" />
