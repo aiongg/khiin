@@ -13,15 +13,6 @@ using namespace messages;
 
 inline static int kMaxBufSize = 512;
 
-std::string CompDataToString(Composition comp_data) {
-    auto ret = std::string();
-    auto &segments = comp_data.segments();
-    for (auto &pSeg : segments) {
-        ret += pSeg.value();
-    }
-    return ret;
-}
-
 //+---------------------------------------------------------------------------
 //
 // Public methods
@@ -51,10 +42,10 @@ bool CompositionMgr::composing() {
     return bool(composition);
 }
 
-void CompositionMgr::DoComposition(TfEditCookie cookie, ITfContext *pContext, Composition comp_data) {
+void CompositionMgr::DoComposition(TfEditCookie cookie, ITfContext *pContext, Preedit preedit) {
     D(__FUNCTIONW__);
 
-    auto display_text = CompDataToString(comp_data);
+    auto w_preedit = Utils::WidenPreedit(preedit);
 
     if (composition) {
         // clear existing composition
@@ -74,17 +65,27 @@ void CompositionMgr::DoComposition(TfEditCookie cookie, ITfContext *pContext, Co
 
     // set text
     auto comp_range = winrt::com_ptr<ITfRange>();
-    auto wdisplay_text = Utils::Widen(display_text);
     winrt::check_hresult(composition->GetRange(comp_range.put()));
-    winrt::check_hresult(comp_range->SetText(cookie, 0, wdisplay_text.c_str(), wdisplay_text.size()));
+    winrt::check_hresult(comp_range->SetText(cookie, 0, w_preedit.preedit_display.c_str(), w_preedit.display_size));
 
     // here we do each segment's attributes, but for now just one
     auto display_attribute = winrt::com_ptr<ITfProperty>();
     winrt::check_hresult(pContext->GetProperty(GUID_PROP_ATTRIBUTE, display_attribute.put()));
-    {
-        auto attribute_atom = service->input_attribute();
-        auto segment_start = 0;
-        auto segment_end = wdisplay_text.size();
+    auto n_segments = w_preedit.segment_start_and_size.size();
+    for (auto i = 0; i < n_segments; ++i) {
+        auto &status = w_preedit.segment_status[i];
+        TfGuidAtom attribute_atom = TF_INVALID_GUIDATOM;
+
+        if (status == SegmentStatus::COMPOSING) {
+            attribute_atom = service->input_attribute();
+        } else if (status == SegmentStatus::CONVERTED) {
+            attribute_atom = service->converted_attribute();
+        } else {
+            continue;
+        }
+
+        auto &[segment_start, size] = w_preedit.segment_start_and_size[i];
+        auto segment_end = segment_start + size;
         auto segment_range = winrt::com_ptr<ITfRange>();
         winrt::check_hresult(comp_range->Clone(segment_range.put()));
         winrt::check_hresult(segment_range->Collapse(cookie, TF_ANCHOR_START));
@@ -101,7 +102,7 @@ void CompositionMgr::DoComposition(TfEditCookie cookie, ITfContext *pContext, Co
     // update cursor
     auto cursor_range = winrt::com_ptr<ITfRange>();
     winrt::check_hresult(comp_range->Clone(cursor_range.put()));
-    auto cursor_pos = wdisplay_text.size();
+    auto cursor_pos = w_preedit.cursor;
     winrt::check_hresult(cursor_range->Collapse(cookie, TF_ANCHOR_START));
     LONG shifted = 0;
     winrt::check_hresult(cursor_range->ShiftEnd(cookie, cursor_pos, &shifted, nullptr));
@@ -110,13 +111,13 @@ void CompositionMgr::DoComposition(TfEditCookie cookie, ITfContext *pContext, Co
     SetSelection(cookie, pContext, cursor_range.get(), TF_AE_END);
 }
 
-void CompositionMgr::CommitComposition(TfEditCookie cookie, ITfContext* pContext) {
+void CompositionMgr::CommitComposition(TfEditCookie cookie, ITfContext *pContext) {
     if (!composition) {
         return;
     }
     auto comp_range = winrt::com_ptr<ITfRange>();
     winrt::check_hresult(composition->GetRange(comp_range.put()));
-    
+
     auto end_range = winrt::com_ptr<ITfRange>();
     winrt::check_hresult(comp_range->Clone(end_range.put()));
     winrt::check_hresult(end_range->Collapse(cookie, TF_ANCHOR_END));
@@ -125,7 +126,7 @@ void CompositionMgr::CommitComposition(TfEditCookie cookie, ITfContext* pContext
     composition = nullptr;
 }
 
-void CompositionMgr::CommitComposition(TfEditCookie cookie, ITfContext *pContext, Composition comp_data) try {
+void CompositionMgr::CommitComposition(TfEditCookie cookie, ITfContext *pContext, Preedit preedit) try {
     D(__FUNCTIONW__);
 
     if (!composition) {
@@ -135,8 +136,7 @@ void CompositionMgr::CommitComposition(TfEditCookie cookie, ITfContext *pContext
         return;
     }
 
-    auto commit_text = CompDataToString(comp_data);
-    auto wcommit_text = Utils::Widen(commit_text);
+    auto w_preedit = Utils::WidenPreedit(preedit);
     auto comp_range = winrt::com_ptr<ITfRange>();
     winrt::check_hresult(composition->GetRange(comp_range.put()));
     // Clone the range and move to the end
@@ -144,7 +144,7 @@ void CompositionMgr::CommitComposition(TfEditCookie cookie, ITfContext *pContext
     winrt::check_hresult(comp_range->Clone(end_range.put()));
     LONG shifted = 0;
     // Move START anchor to the end (outside of range)
-    winrt::check_hresult(end_range->ShiftStart(cookie, wcommit_text.size(), &shifted, nullptr));
+    winrt::check_hresult(end_range->ShiftStart(cookie, w_preedit.display_size, &shifted, nullptr));
     // Collapse to START anchor
     winrt::check_hresult(end_range->Collapse(cookie, TF_ANCHOR_START));
     // Update composition by moving START anchor to the same position as the clone

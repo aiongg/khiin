@@ -20,21 +20,21 @@ struct CompositionMgr : winrt::implements<CompositionMgr, IUnknown> {
 
     bool composing();
 
-    void DoComposition(TfEditCookie cookie, ITfContext *pContext, messages::Composition comp_data);
+    void DoComposition(TfEditCookie cookie, ITfContext *pContext, messages::Preedit comp_data);
     void CommitComposition(TfEditCookie cookie, ITfContext *pContext);
-    void CommitComposition(TfEditCookie cookie, ITfContext *pContext, messages::Composition comp_data);
+    void CommitComposition(TfEditCookie cookie, ITfContext *pContext, messages::Preedit comp_data);
     void CancelComposition(TfEditCookie cookie);
     void GetTextRange(TfEditCookie cookie, ITfRange **ppRange);
 
   private:
     void StartComposition(TfEditCookie cookie, ITfContext *pContext);
     void ApplyDisplayAttribute(TfEditCookie cookie, ITfContext *pContext, ITfRange *pRange, AttrInfoKey index);
-    void CollapseCursorToEnd(TfEditCookie cookie, ITfContext *pContext);
+    //void CollapseCursorToEnd(TfEditCookie cookie, ITfContext *pContext);
     void SetSelection(TfEditCookie cookie, ITfContext *pContext, ITfRange *pRange, TfActiveSelEnd active_sel_end);
 
     winrt::com_ptr<TextService> service = nullptr;
     winrt::com_ptr<ITfComposition> composition = nullptr;
-    messages::Composition composition_data;
+    messages::Preedit composition_data;
 };
 
 } // namespace khiin::win32

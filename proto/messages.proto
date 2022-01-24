@@ -61,7 +61,7 @@ enum SegmentStatus {
 }
 
 // The display buffer text and cursor position
-message Composition {
+message Preedit {
     message Segment {
         // For visual feedback to the user
         SegmentStatus status = 1;
@@ -116,11 +116,14 @@ enum ErrorCode {
 // The response portion of the message, from engine back to app
 message Output {
     ErrorCode error = 1;
-    Composition composition = 2;
+    Preedit preedit = 2;
     CandidateList candidate_list = 3;
 
     // Used with Windows TSF OnTestKeyDown method
     bool consumable = 4;
+
+    // When this is set, |preedit| should be committed directly to the app
+    bool committed = 5;
 }
 
 enum CommandType {

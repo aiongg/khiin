@@ -177,6 +177,8 @@ auto parallelNext(std::string::iterator &a_it, std::string::iterator &a_end,
         if (a_it != a_end && a_it + 1 != a_end && *(a_it + 1) == '-') {
             a_it++;
         }
+
+        return;
     }
 
     while (a_it != a_end && a_it + 1 != a_end && isdigit(*(a_it + 1))) {

@@ -91,6 +91,12 @@ class EngineImpl : public Engine {
     }
 
   private:
+    //+---------------------------------------------------------------------------
+    //
+    // Command-type handlers
+    //
+    //----------------------------------------------------------------------------
+
     void HandleNone(Input *input, Output *output) {}
 
     void HandleSendKey(Input *input, Output *output) {
@@ -99,7 +105,7 @@ class EngineImpl : public Engine {
         switch (key.special_key()) {
         case SpecialKey::SK_NONE: {
             auto key_code = input->key_event().key_code();
-            if (isalnum(key_code)) {
+            if (isalnum(key_code) || key_code == '-') {
                 buffer->insert(static_cast<char>(key_code));
             }
             break;
@@ -113,8 +119,8 @@ class EngineImpl : public Engine {
             break;
         }
         case SpecialKey::SK_ENTER: {
-            buffer->clear();
-            break;
+            HandleCommit(input, output);
+            return;
         }
         case SpecialKey::SK_BACKSPACE: {
             if (buffer->empty()) {
@@ -137,9 +143,12 @@ class EngineImpl : public Engine {
         }
         }
 
-        auto segment = output->mutable_composition()->add_segments();
+        auto preedit = output->mutable_preedit();
+        preedit->set_cursor_position(buffer->getCursor());
+        auto segment = preedit->add_segments();
         segment->set_status(SegmentStatus::COMPOSING);
         segment->set_value(buffer->getDisplayBuffer());
+
 
         auto curr_candidates = buffer->getCandidates();
         auto cand_list = output->mutable_candidate_list();
@@ -151,17 +160,20 @@ class EngineImpl : public Engine {
     }
 
     void HandleCommit(Input *input, Output *output) {
-        auto segment = output->mutable_composition()->add_segments();
-        segment->set_status(SegmentStatus::COMPOSING);
+        auto preedit = output->mutable_preedit();
+        preedit->set_cursor_position(buffer->getCursor());
+        auto segment = preedit->add_segments();
+        segment->set_status(SegmentStatus::UNMARKED);
         segment->set_value(buffer->getDisplayBuffer());
+        output->set_committed(true);
         buffer->clear();
     }
 
     void HandleTestSendKey(Input *input, Output *output) {
-        if (!buffer->empty() || isalnum(input->key_event().key_code())) {
-            output->set_consumable(true);
-        } else {
+        if (buffer->empty() && !isalnum(input->key_event().key_code())) {
             output->set_consumable(false);
+        } else {
+            output->set_consumable(true);
         }
     }
 
@@ -177,8 +189,8 @@ class EngineImpl : public Engine {
     std::unique_ptr<Trie> trie = nullptr;
     std::unique_ptr<BufferManager> buffer = nullptr;
     std::unique_ptr<CandidateFinder> candidateFinder = nullptr;
-    std::unordered_map<CommandType, decltype(&HandleNone)> command_handlers = {};
     std::shared_ptr<Output> prev_output = nullptr;
+    std::unordered_map<CommandType, decltype(&HandleNone)> command_handlers = {};
 };
 
 Engine *EngineFactory::Create() {

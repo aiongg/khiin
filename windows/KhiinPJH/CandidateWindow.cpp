@@ -303,7 +303,7 @@ void CandidateWindow::CalculateLayout() {
             auto item_layout = winrt::com_ptr<IDWriteTextLayout>();
             D(item_value, " (", item_value.size(), ")");
             winrt::check_hresult(m_dwfactory->CreateTextLayout(
-                item_value.c_str(), static_cast<UINT32>(item_value.size()), m_textformat.get(),
+                item_value.c_str(), static_cast<UINT32>(item_value.size() + 1), m_textformat.get(),
                 static_cast<float>(m_max_width), row_height, item_layout.put()));
             DWRITE_TEXT_METRICS metrics;
             winrt::check_hresult(item_layout->GetMetrics(&metrics));
@@ -312,6 +312,9 @@ void CandidateWindow::CalculateLayout() {
         }
         item_start_idx += n_items;
         column_width = std::max(column_width, static_cast<float>(min_col_width)) + qs_col_width;
+        if (column_width > (min_col_width + qs_col_width - padding)) {
+            column_width += padding;
+        }
         D("Col width: ", column_width);
         m_col_widths.push_back(column_width);
         page_width += column_width;
@@ -321,6 +324,7 @@ void CandidateWindow::CalculateLayout() {
     auto scale = m_dpi_parent / USER_DEFAULT_SCREEN_DPI;
     ::SetWindowPos(m_hwnd, NULL, 0, 0, static_cast<int>(page_width * scale), static_cast<int>(page_height * scale),
                    SWP_NOMOVE | SWP_NOACTIVATE | SWP_NOZORDER);
+    ::RedrawWindow(m_hwnd, NULL, NULL, RDW_INVALIDATE | RDW_UPDATENOW);
 }
 
 void CandidateWindow::OnDpiChanged(WORD dpi, RECT *pNewSize) {
@@ -360,13 +364,13 @@ void CandidateWindow::Draw() {
     for (auto &column : candidate_layout_matrix) {
         for (auto &row_layout : column) {
             // uncomment to draw boxes around each candidate
-            // DWRITE_TEXT_METRICS metrics;
-            // row_layout->GetMetrics(&metrics);
-            // D("box: ", metrics.left, ", ", metrics.top, ", ", metrics.width, ", ", metrics.height,
+            //DWRITE_TEXT_METRICS metrics;
+            //row_layout->GetMetrics(&metrics);
+            //D("box: ", metrics.left, ", ", metrics.top, ", ", metrics.width, ", ", metrics.height,
             //  ", layoutWidth: ", metrics.layoutWidth);
-            // auto box = D2D1::RectF((int)origin.x, (int)origin.y, (int)origin.x + (int)metrics.width,
+            //auto box = D2D1::RectF((int)origin.x, (int)origin.y, (int)origin.x + (int)metrics.width,
             //                       (int)origin.y + (int)metrics.height);
-            // m_target->DrawRectangle(&box, m_brush.get(), 1, NULL);
+            //m_target->DrawRectangle(&box, m_brush.get(), 1, NULL);
 
             m_target->DrawTextLayout(origin, row_layout.get(), m_brush.get(), D2D1_DRAW_TEXT_OPTIONS_ENABLE_COLOR_FONT);
             origin.y += row_height;

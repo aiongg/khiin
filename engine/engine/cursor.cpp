@@ -13,8 +13,7 @@ void Cursor::operator++() {
     auto seg_it = buf->segmentAtCursor();
     auto &s = *seg_it;
 
-    if (auto rawSize = s.spaced ? s.raw.size() + 1 : s.raw.size();
-        raw == rawSize) {
+    if (s.spaced && s.raw.size() == raw) {
         segment++;
         raw = 0;
         display = 0;

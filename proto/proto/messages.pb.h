@@ -62,12 +62,6 @@ extern CandidateListDefaultTypeInternal _CandidateList_default_instance_;
 class Command;
 struct CommandDefaultTypeInternal;
 extern CommandDefaultTypeInternal _Command_default_instance_;
-class Composition;
-struct CompositionDefaultTypeInternal;
-extern CompositionDefaultTypeInternal _Composition_default_instance_;
-class Composition_Segment;
-struct Composition_SegmentDefaultTypeInternal;
-extern Composition_SegmentDefaultTypeInternal _Composition_Segment_default_instance_;
 class Input;
 struct InputDefaultTypeInternal;
 extern InputDefaultTypeInternal _Input_default_instance_;
@@ -77,17 +71,23 @@ extern KeyEventDefaultTypeInternal _KeyEvent_default_instance_;
 class Output;
 struct OutputDefaultTypeInternal;
 extern OutputDefaultTypeInternal _Output_default_instance_;
+class Preedit;
+struct PreeditDefaultTypeInternal;
+extern PreeditDefaultTypeInternal _Preedit_default_instance_;
+class Preedit_Segment;
+struct Preedit_SegmentDefaultTypeInternal;
+extern Preedit_SegmentDefaultTypeInternal _Preedit_Segment_default_instance_;
 }  // namespace messages
 }  // namespace khiin
 PROTOBUF_NAMESPACE_OPEN
 template<> ::khiin::messages::Candidate* Arena::CreateMaybeMessage<::khiin::messages::Candidate>(Arena*);
 template<> ::khiin::messages::CandidateList* Arena::CreateMaybeMessage<::khiin::messages::CandidateList>(Arena*);
 template<> ::khiin::messages::Command* Arena::CreateMaybeMessage<::khiin::messages::Command>(Arena*);
-template<> ::khiin::messages::Composition* Arena::CreateMaybeMessage<::khiin::messages::Composition>(Arena*);
-template<> ::khiin::messages::Composition_Segment* Arena::CreateMaybeMessage<::khiin::messages::Composition_Segment>(Arena*);
 template<> ::khiin::messages::Input* Arena::CreateMaybeMessage<::khiin::messages::Input>(Arena*);
 template<> ::khiin::messages::KeyEvent* Arena::CreateMaybeMessage<::khiin::messages::KeyEvent>(Arena*);
 template<> ::khiin::messages::Output* Arena::CreateMaybeMessage<::khiin::messages::Output>(Arena*);
+template<> ::khiin::messages::Preedit* Arena::CreateMaybeMessage<::khiin::messages::Preedit>(Arena*);
+template<> ::khiin::messages::Preedit_Segment* Arena::CreateMaybeMessage<::khiin::messages::Preedit_Segment>(Arena*);
 PROTOBUF_NAMESPACE_CLOSE
 namespace khiin {
 namespace messages {
@@ -565,24 +565,24 @@ class Input final :
 };
 // -------------------------------------------------------------------
 
-class Composition_Segment final :
-    public ::PROTOBUF_NAMESPACE_ID::MessageLite /* @@protoc_insertion_point(class_definition:khiin.messages.Composition.Segment) */ {
+class Preedit_Segment final :
+    public ::PROTOBUF_NAMESPACE_ID::MessageLite /* @@protoc_insertion_point(class_definition:khiin.messages.Preedit.Segment) */ {
  public:
-  inline Composition_Segment() : Composition_Segment(nullptr) {}
-  ~Composition_Segment() override;
-  explicit constexpr Composition_Segment(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
+  inline Preedit_Segment() : Preedit_Segment(nullptr) {}
+  ~Preedit_Segment() override;
+  explicit constexpr Preedit_Segment(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
 
-  Composition_Segment(const Composition_Segment& from);
-  Composition_Segment(Composition_Segment&& from) noexcept
-    : Composition_Segment() {
+  Preedit_Segment(const Preedit_Segment& from);
+  Preedit_Segment(Preedit_Segment&& from) noexcept
+    : Preedit_Segment() {
     *this = ::std::move(from);
   }
 
-  inline Composition_Segment& operator=(const Composition_Segment& from) {
+  inline Preedit_Segment& operator=(const Preedit_Segment& from) {
     CopyFrom(from);
     return *this;
   }
-  inline Composition_Segment& operator=(Composition_Segment&& from) noexcept {
+  inline Preedit_Segment& operator=(Preedit_Segment&& from) noexcept {
     if (this == &from) return *this;
     if (GetOwningArena() == from.GetOwningArena()
   #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
@@ -596,20 +596,20 @@ class Composition_Segment final :
     return *this;
   }
 
-  static const Composition_Segment& default_instance() {
+  static const Preedit_Segment& default_instance() {
     return *internal_default_instance();
   }
-  static inline const Composition_Segment* internal_default_instance() {
-    return reinterpret_cast<const Composition_Segment*>(
-               &_Composition_Segment_default_instance_);
+  static inline const Preedit_Segment* internal_default_instance() {
+    return reinterpret_cast<const Preedit_Segment*>(
+               &_Preedit_Segment_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
     2;
 
-  friend void swap(Composition_Segment& a, Composition_Segment& b) {
+  friend void swap(Preedit_Segment& a, Preedit_Segment& b) {
     a.Swap(&b);
   }
-  inline void Swap(Composition_Segment* other) {
+  inline void Swap(Preedit_Segment* other) {
     if (other == this) return;
     if (GetOwningArena() == other->GetOwningArena()) {
       InternalSwap(other);
@@ -617,7 +617,7 @@ class Composition_Segment final :
       ::PROTOBUF_NAMESPACE_ID::internal::GenericSwap(this, other);
     }
   }
-  void UnsafeArenaSwap(Composition_Segment* other) {
+  void UnsafeArenaSwap(Preedit_Segment* other) {
     if (other == this) return;
     GOOGLE_DCHECK(GetOwningArena() == other->GetOwningArena());
     InternalSwap(other);
@@ -625,16 +625,16 @@ class Composition_Segment final :
 
   // implements Message ----------------------------------------------
 
-  inline Composition_Segment* New() const final {
-    return new Composition_Segment();
+  inline Preedit_Segment* New() const final {
+    return new Preedit_Segment();
   }
 
-  Composition_Segment* New(::PROTOBUF_NAMESPACE_ID::Arena* arena) const final {
-    return CreateMaybeMessage<Composition_Segment>(arena);
+  Preedit_Segment* New(::PROTOBUF_NAMESPACE_ID::Arena* arena) const final {
+    return CreateMaybeMessage<Preedit_Segment>(arena);
   }
   void CheckTypeAndMergeFrom(const ::PROTOBUF_NAMESPACE_ID::MessageLite& from)  final;
-  void CopyFrom(const Composition_Segment& from);
-  void MergeFrom(const Composition_Segment& from);
+  void CopyFrom(const Preedit_Segment& from);
+  void MergeFrom(const Preedit_Segment& from);
   PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
   bool IsInitialized() const final;
 
@@ -649,13 +649,13 @@ class Composition_Segment final :
   void SharedCtor();
   void SharedDtor();
   void SetCachedSize(int size) const;
-  void InternalSwap(Composition_Segment* other);
+  void InternalSwap(Preedit_Segment* other);
   friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
   static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
-    return "khiin.messages.Composition.Segment";
+    return "khiin.messages.Preedit.Segment";
   }
   protected:
-  explicit Composition_Segment(::PROTOBUF_NAMESPACE_ID::Arena* arena,
+  explicit Preedit_Segment(::PROTOBUF_NAMESPACE_ID::Arena* arena,
                        bool is_message_owned = false);
   private:
   static void ArenaDtor(void* object);
@@ -695,7 +695,7 @@ class Composition_Segment final :
   void _internal_set_status(::khiin::messages::SegmentStatus value);
   public:
 
-  // @@protoc_insertion_point(class_scope:khiin.messages.Composition.Segment)
+  // @@protoc_insertion_point(class_scope:khiin.messages.Preedit.Segment)
  private:
   class _Internal;
 
@@ -709,24 +709,24 @@ class Composition_Segment final :
 };
 // -------------------------------------------------------------------
 
-class Composition final :
-    public ::PROTOBUF_NAMESPACE_ID::MessageLite /* @@protoc_insertion_point(class_definition:khiin.messages.Composition) */ {
+class Preedit final :
+    public ::PROTOBUF_NAMESPACE_ID::MessageLite /* @@protoc_insertion_point(class_definition:khiin.messages.Preedit) */ {
  public:
-  inline Composition() : Composition(nullptr) {}
-  ~Composition() override;
-  explicit constexpr Composition(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
+  inline Preedit() : Preedit(nullptr) {}
+  ~Preedit() override;
+  explicit constexpr Preedit(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
 
-  Composition(const Composition& from);
-  Composition(Composition&& from) noexcept
-    : Composition() {
+  Preedit(const Preedit& from);
+  Preedit(Preedit&& from) noexcept
+    : Preedit() {
     *this = ::std::move(from);
   }
 
-  inline Composition& operator=(const Composition& from) {
+  inline Preedit& operator=(const Preedit& from) {
     CopyFrom(from);
     return *this;
   }
-  inline Composition& operator=(Composition&& from) noexcept {
+  inline Preedit& operator=(Preedit&& from) noexcept {
     if (this == &from) return *this;
     if (GetOwningArena() == from.GetOwningArena()
   #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
@@ -740,20 +740,20 @@ class Composition final :
     return *this;
   }
 
-  static const Composition& default_instance() {
+  static const Preedit& default_instance() {
     return *internal_default_instance();
   }
-  static inline const Composition* internal_default_instance() {
-    return reinterpret_cast<const Composition*>(
-               &_Composition_default_instance_);
+  static inline const Preedit* internal_default_instance() {
+    return reinterpret_cast<const Preedit*>(
+               &_Preedit_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
     3;
 
-  friend void swap(Composition& a, Composition& b) {
+  friend void swap(Preedit& a, Preedit& b) {
     a.Swap(&b);
   }
-  inline void Swap(Composition* other) {
+  inline void Swap(Preedit* other) {
     if (other == this) return;
     if (GetOwningArena() == other->GetOwningArena()) {
       InternalSwap(other);
@@ -761,7 +761,7 @@ class Composition final :
       ::PROTOBUF_NAMESPACE_ID::internal::GenericSwap(this, other);
     }
   }
-  void UnsafeArenaSwap(Composition* other) {
+  void UnsafeArenaSwap(Preedit* other) {
     if (other == this) return;
     GOOGLE_DCHECK(GetOwningArena() == other->GetOwningArena());
     InternalSwap(other);
@@ -769,16 +769,16 @@ class Composition final :
 
   // implements Message ----------------------------------------------
 
-  inline Composition* New() const final {
-    return new Composition();
+  inline Preedit* New() const final {
+    return new Preedit();
   }
 
-  Composition* New(::PROTOBUF_NAMESPACE_ID::Arena* arena) const final {
-    return CreateMaybeMessage<Composition>(arena);
+  Preedit* New(::PROTOBUF_NAMESPACE_ID::Arena* arena) const final {
+    return CreateMaybeMessage<Preedit>(arena);
   }
   void CheckTypeAndMergeFrom(const ::PROTOBUF_NAMESPACE_ID::MessageLite& from)  final;
-  void CopyFrom(const Composition& from);
-  void MergeFrom(const Composition& from);
+  void CopyFrom(const Preedit& from);
+  void MergeFrom(const Preedit& from);
   PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
   bool IsInitialized() const final;
 
@@ -793,13 +793,13 @@ class Composition final :
   void SharedCtor();
   void SharedDtor();
   void SetCachedSize(int size) const;
-  void InternalSwap(Composition* other);
+  void InternalSwap(Preedit* other);
   friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
   static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
-    return "khiin.messages.Composition";
+    return "khiin.messages.Preedit";
   }
   protected:
-  explicit Composition(::PROTOBUF_NAMESPACE_ID::Arena* arena,
+  explicit Preedit(::PROTOBUF_NAMESPACE_ID::Arena* arena,
                        bool is_message_owned = false);
   private:
   static void ArenaDtor(void* object);
@@ -810,7 +810,7 @@ class Composition final :
 
   // nested types ----------------------------------------------------
 
-  typedef Composition_Segment Segment;
+  typedef Preedit_Segment Segment;
 
   // accessors -------------------------------------------------------
 
@@ -818,22 +818,22 @@ class Composition final :
     kSegmentsFieldNumber = 1,
     kCursorPositionFieldNumber = 2,
   };
-  // repeated .khiin.messages.Composition.Segment segments = 1;
+  // repeated .khiin.messages.Preedit.Segment segments = 1;
   int segments_size() const;
   private:
   int _internal_segments_size() const;
   public:
   void clear_segments();
-  ::khiin::messages::Composition_Segment* mutable_segments(int index);
-  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::khiin::messages::Composition_Segment >*
+  ::khiin::messages::Preedit_Segment* mutable_segments(int index);
+  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::khiin::messages::Preedit_Segment >*
       mutable_segments();
   private:
-  const ::khiin::messages::Composition_Segment& _internal_segments(int index) const;
-  ::khiin::messages::Composition_Segment* _internal_add_segments();
+  const ::khiin::messages::Preedit_Segment& _internal_segments(int index) const;
+  ::khiin::messages::Preedit_Segment* _internal_add_segments();
   public:
-  const ::khiin::messages::Composition_Segment& segments(int index) const;
-  ::khiin::messages::Composition_Segment* add_segments();
-  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::khiin::messages::Composition_Segment >&
+  const ::khiin::messages::Preedit_Segment& segments(int index) const;
+  ::khiin::messages::Preedit_Segment* add_segments();
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::khiin::messages::Preedit_Segment >&
       segments() const;
 
   // int32 cursor_position = 2;
@@ -845,14 +845,14 @@ class Composition final :
   void _internal_set_cursor_position(::PROTOBUF_NAMESPACE_ID::int32 value);
   public:
 
-  // @@protoc_insertion_point(class_scope:khiin.messages.Composition)
+  // @@protoc_insertion_point(class_scope:khiin.messages.Preedit)
  private:
   class _Internal;
 
   template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
   typedef void InternalArenaConstructable_;
   typedef void DestructorSkippable_;
-  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::khiin::messages::Composition_Segment > segments_;
+  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::khiin::messages::Preedit_Segment > segments_;
   ::PROTOBUF_NAMESPACE_ID::int32 cursor_position_;
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   friend struct ::TableStruct_messages_2eproto;
@@ -1326,28 +1326,29 @@ class Output final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kCompositionFieldNumber = 2,
+    kPreeditFieldNumber = 2,
     kCandidateListFieldNumber = 3,
     kErrorFieldNumber = 1,
     kConsumableFieldNumber = 4,
+    kCommittedFieldNumber = 5,
   };
-  // .khiin.messages.Composition composition = 2;
-  bool has_composition() const;
+  // .khiin.messages.Preedit preedit = 2;
+  bool has_preedit() const;
   private:
-  bool _internal_has_composition() const;
+  bool _internal_has_preedit() const;
   public:
-  void clear_composition();
-  const ::khiin::messages::Composition& composition() const;
-  PROTOBUF_MUST_USE_RESULT ::khiin::messages::Composition* release_composition();
-  ::khiin::messages::Composition* mutable_composition();
-  void set_allocated_composition(::khiin::messages::Composition* composition);
+  void clear_preedit();
+  const ::khiin::messages::Preedit& preedit() const;
+  PROTOBUF_MUST_USE_RESULT ::khiin::messages::Preedit* release_preedit();
+  ::khiin::messages::Preedit* mutable_preedit();
+  void set_allocated_preedit(::khiin::messages::Preedit* preedit);
   private:
-  const ::khiin::messages::Composition& _internal_composition() const;
-  ::khiin::messages::Composition* _internal_mutable_composition();
+  const ::khiin::messages::Preedit& _internal_preedit() const;
+  ::khiin::messages::Preedit* _internal_mutable_preedit();
   public:
-  void unsafe_arena_set_allocated_composition(
-      ::khiin::messages::Composition* composition);
-  ::khiin::messages::Composition* unsafe_arena_release_composition();
+  void unsafe_arena_set_allocated_preedit(
+      ::khiin::messages::Preedit* preedit);
+  ::khiin::messages::Preedit* unsafe_arena_release_preedit();
 
   // .khiin.messages.CandidateList candidate_list = 3;
   bool has_candidate_list() const;
@@ -1385,6 +1386,15 @@ class Output final :
   void _internal_set_consumable(bool value);
   public:
 
+  // bool committed = 5;
+  void clear_committed();
+  bool committed() const;
+  void set_committed(bool value);
+  private:
+  bool _internal_committed() const;
+  void _internal_set_committed(bool value);
+  public:
+
   // @@protoc_insertion_point(class_scope:khiin.messages.Output)
  private:
   class _Internal;
@@ -1392,10 +1402,11 @@ class Output final :
   template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
   typedef void InternalArenaConstructable_;
   typedef void DestructorSkippable_;
-  ::khiin::messages::Composition* composition_;
+  ::khiin::messages::Preedit* preedit_;
   ::khiin::messages::CandidateList* candidate_list_;
   int error_;
   bool consumable_;
+  bool committed_;
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   friend struct ::TableStruct_messages_2eproto;
 };
@@ -1797,64 +1808,64 @@ inline void Input::set_cursor_position(::PROTOBUF_NAMESPACE_ID::int32 value) {
 
 // -------------------------------------------------------------------
 
-// Composition_Segment
+// Preedit_Segment
 
 // .khiin.messages.SegmentStatus status = 1;
-inline void Composition_Segment::clear_status() {
+inline void Preedit_Segment::clear_status() {
   status_ = 0;
 }
-inline ::khiin::messages::SegmentStatus Composition_Segment::_internal_status() const {
+inline ::khiin::messages::SegmentStatus Preedit_Segment::_internal_status() const {
   return static_cast< ::khiin::messages::SegmentStatus >(status_);
 }
-inline ::khiin::messages::SegmentStatus Composition_Segment::status() const {
-  // @@protoc_insertion_point(field_get:khiin.messages.Composition.Segment.status)
+inline ::khiin::messages::SegmentStatus Preedit_Segment::status() const {
+  // @@protoc_insertion_point(field_get:khiin.messages.Preedit.Segment.status)
   return _internal_status();
 }
-inline void Composition_Segment::_internal_set_status(::khiin::messages::SegmentStatus value) {
+inline void Preedit_Segment::_internal_set_status(::khiin::messages::SegmentStatus value) {
   
   status_ = value;
 }
-inline void Composition_Segment::set_status(::khiin::messages::SegmentStatus value) {
+inline void Preedit_Segment::set_status(::khiin::messages::SegmentStatus value) {
   _internal_set_status(value);
-  // @@protoc_insertion_point(field_set:khiin.messages.Composition.Segment.status)
+  // @@protoc_insertion_point(field_set:khiin.messages.Preedit.Segment.status)
 }
 
 // string value = 2;
-inline void Composition_Segment::clear_value() {
+inline void Preedit_Segment::clear_value() {
   value_.ClearToEmpty();
 }
-inline const std::string& Composition_Segment::value() const {
-  // @@protoc_insertion_point(field_get:khiin.messages.Composition.Segment.value)
+inline const std::string& Preedit_Segment::value() const {
+  // @@protoc_insertion_point(field_get:khiin.messages.Preedit.Segment.value)
   return _internal_value();
 }
 template <typename ArgT0, typename... ArgT>
 inline PROTOBUF_ALWAYS_INLINE
-void Composition_Segment::set_value(ArgT0&& arg0, ArgT... args) {
+void Preedit_Segment::set_value(ArgT0&& arg0, ArgT... args) {
  
  value_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, static_cast<ArgT0 &&>(arg0), args..., GetArenaForAllocation());
-  // @@protoc_insertion_point(field_set:khiin.messages.Composition.Segment.value)
+  // @@protoc_insertion_point(field_set:khiin.messages.Preedit.Segment.value)
 }
-inline std::string* Composition_Segment::mutable_value() {
+inline std::string* Preedit_Segment::mutable_value() {
   std::string* _s = _internal_mutable_value();
-  // @@protoc_insertion_point(field_mutable:khiin.messages.Composition.Segment.value)
+  // @@protoc_insertion_point(field_mutable:khiin.messages.Preedit.Segment.value)
   return _s;
 }
-inline const std::string& Composition_Segment::_internal_value() const {
+inline const std::string& Preedit_Segment::_internal_value() const {
   return value_.Get();
 }
-inline void Composition_Segment::_internal_set_value(const std::string& value) {
+inline void Preedit_Segment::_internal_set_value(const std::string& value) {
   
   value_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, value, GetArenaForAllocation());
 }
-inline std::string* Composition_Segment::_internal_mutable_value() {
+inline std::string* Preedit_Segment::_internal_mutable_value() {
   
   return value_.Mutable(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArenaForAllocation());
 }
-inline std::string* Composition_Segment::release_value() {
-  // @@protoc_insertion_point(field_release:khiin.messages.Composition.Segment.value)
+inline std::string* Preedit_Segment::release_value() {
+  // @@protoc_insertion_point(field_release:khiin.messages.Preedit.Segment.value)
   return value_.Release(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArenaForAllocation());
 }
-inline void Composition_Segment::set_allocated_value(std::string* value) {
+inline void Preedit_Segment::set_allocated_value(std::string* value) {
   if (value != nullptr) {
     
   } else {
@@ -1862,71 +1873,71 @@ inline void Composition_Segment::set_allocated_value(std::string* value) {
   }
   value_.SetAllocated(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), value,
       GetArenaForAllocation());
-  // @@protoc_insertion_point(field_set_allocated:khiin.messages.Composition.Segment.value)
+  // @@protoc_insertion_point(field_set_allocated:khiin.messages.Preedit.Segment.value)
 }
 
 // -------------------------------------------------------------------
 
-// Composition
+// Preedit
 
-// repeated .khiin.messages.Composition.Segment segments = 1;
-inline int Composition::_internal_segments_size() const {
+// repeated .khiin.messages.Preedit.Segment segments = 1;
+inline int Preedit::_internal_segments_size() const {
   return segments_.size();
 }
-inline int Composition::segments_size() const {
+inline int Preedit::segments_size() const {
   return _internal_segments_size();
 }
-inline void Composition::clear_segments() {
+inline void Preedit::clear_segments() {
   segments_.Clear();
 }
-inline ::khiin::messages::Composition_Segment* Composition::mutable_segments(int index) {
-  // @@protoc_insertion_point(field_mutable:khiin.messages.Composition.segments)
+inline ::khiin::messages::Preedit_Segment* Preedit::mutable_segments(int index) {
+  // @@protoc_insertion_point(field_mutable:khiin.messages.Preedit.segments)
   return segments_.Mutable(index);
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::khiin::messages::Composition_Segment >*
-Composition::mutable_segments() {
-  // @@protoc_insertion_point(field_mutable_list:khiin.messages.Composition.segments)
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::khiin::messages::Preedit_Segment >*
+Preedit::mutable_segments() {
+  // @@protoc_insertion_point(field_mutable_list:khiin.messages.Preedit.segments)
   return &segments_;
 }
-inline const ::khiin::messages::Composition_Segment& Composition::_internal_segments(int index) const {
+inline const ::khiin::messages::Preedit_Segment& Preedit::_internal_segments(int index) const {
   return segments_.Get(index);
 }
-inline const ::khiin::messages::Composition_Segment& Composition::segments(int index) const {
-  // @@protoc_insertion_point(field_get:khiin.messages.Composition.segments)
+inline const ::khiin::messages::Preedit_Segment& Preedit::segments(int index) const {
+  // @@protoc_insertion_point(field_get:khiin.messages.Preedit.segments)
   return _internal_segments(index);
 }
-inline ::khiin::messages::Composition_Segment* Composition::_internal_add_segments() {
+inline ::khiin::messages::Preedit_Segment* Preedit::_internal_add_segments() {
   return segments_.Add();
 }
-inline ::khiin::messages::Composition_Segment* Composition::add_segments() {
-  ::khiin::messages::Composition_Segment* _add = _internal_add_segments();
-  // @@protoc_insertion_point(field_add:khiin.messages.Composition.segments)
+inline ::khiin::messages::Preedit_Segment* Preedit::add_segments() {
+  ::khiin::messages::Preedit_Segment* _add = _internal_add_segments();
+  // @@protoc_insertion_point(field_add:khiin.messages.Preedit.segments)
   return _add;
 }
-inline const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::khiin::messages::Composition_Segment >&
-Composition::segments() const {
-  // @@protoc_insertion_point(field_list:khiin.messages.Composition.segments)
+inline const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::khiin::messages::Preedit_Segment >&
+Preedit::segments() const {
+  // @@protoc_insertion_point(field_list:khiin.messages.Preedit.segments)
   return segments_;
 }
 
 // int32 cursor_position = 2;
-inline void Composition::clear_cursor_position() {
+inline void Preedit::clear_cursor_position() {
   cursor_position_ = 0;
 }
-inline ::PROTOBUF_NAMESPACE_ID::int32 Composition::_internal_cursor_position() const {
+inline ::PROTOBUF_NAMESPACE_ID::int32 Preedit::_internal_cursor_position() const {
   return cursor_position_;
 }
-inline ::PROTOBUF_NAMESPACE_ID::int32 Composition::cursor_position() const {
-  // @@protoc_insertion_point(field_get:khiin.messages.Composition.cursor_position)
+inline ::PROTOBUF_NAMESPACE_ID::int32 Preedit::cursor_position() const {
+  // @@protoc_insertion_point(field_get:khiin.messages.Preedit.cursor_position)
   return _internal_cursor_position();
 }
-inline void Composition::_internal_set_cursor_position(::PROTOBUF_NAMESPACE_ID::int32 value) {
+inline void Preedit::_internal_set_cursor_position(::PROTOBUF_NAMESPACE_ID::int32 value) {
   
   cursor_position_ = value;
 }
-inline void Composition::set_cursor_position(::PROTOBUF_NAMESPACE_ID::int32 value) {
+inline void Preedit::set_cursor_position(::PROTOBUF_NAMESPACE_ID::int32 value) {
   _internal_set_cursor_position(value);
-  // @@protoc_insertion_point(field_set:khiin.messages.Composition.cursor_position)
+  // @@protoc_insertion_point(field_set:khiin.messages.Preedit.cursor_position)
 }
 
 // -------------------------------------------------------------------
@@ -2199,45 +2210,45 @@ inline void Output::set_error(::khiin::messages::ErrorCode value) {
   // @@protoc_insertion_point(field_set:khiin.messages.Output.error)
 }
 
-// .khiin.messages.Composition composition = 2;
-inline bool Output::_internal_has_composition() const {
-  return this != internal_default_instance() && composition_ != nullptr;
+// .khiin.messages.Preedit preedit = 2;
+inline bool Output::_internal_has_preedit() const {
+  return this != internal_default_instance() && preedit_ != nullptr;
 }
-inline bool Output::has_composition() const {
-  return _internal_has_composition();
+inline bool Output::has_preedit() const {
+  return _internal_has_preedit();
 }
-inline void Output::clear_composition() {
-  if (GetArenaForAllocation() == nullptr && composition_ != nullptr) {
-    delete composition_;
+inline void Output::clear_preedit() {
+  if (GetArenaForAllocation() == nullptr && preedit_ != nullptr) {
+    delete preedit_;
   }
-  composition_ = nullptr;
+  preedit_ = nullptr;
 }
-inline const ::khiin::messages::Composition& Output::_internal_composition() const {
-  const ::khiin::messages::Composition* p = composition_;
-  return p != nullptr ? *p : reinterpret_cast<const ::khiin::messages::Composition&>(
-      ::khiin::messages::_Composition_default_instance_);
+inline const ::khiin::messages::Preedit& Output::_internal_preedit() const {
+  const ::khiin::messages::Preedit* p = preedit_;
+  return p != nullptr ? *p : reinterpret_cast<const ::khiin::messages::Preedit&>(
+      ::khiin::messages::_Preedit_default_instance_);
 }
-inline const ::khiin::messages::Composition& Output::composition() const {
-  // @@protoc_insertion_point(field_get:khiin.messages.Output.composition)
-  return _internal_composition();
+inline const ::khiin::messages::Preedit& Output::preedit() const {
+  // @@protoc_insertion_point(field_get:khiin.messages.Output.preedit)
+  return _internal_preedit();
 }
-inline void Output::unsafe_arena_set_allocated_composition(
-    ::khiin::messages::Composition* composition) {
+inline void Output::unsafe_arena_set_allocated_preedit(
+    ::khiin::messages::Preedit* preedit) {
   if (GetArenaForAllocation() == nullptr) {
-    delete reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(composition_);
+    delete reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(preedit_);
   }
-  composition_ = composition;
-  if (composition) {
+  preedit_ = preedit;
+  if (preedit) {
     
   } else {
     
   }
-  // @@protoc_insertion_point(field_unsafe_arena_set_allocated:khiin.messages.Output.composition)
+  // @@protoc_insertion_point(field_unsafe_arena_set_allocated:khiin.messages.Output.preedit)
 }
-inline ::khiin::messages::Composition* Output::release_composition() {
+inline ::khiin::messages::Preedit* Output::release_preedit() {
   
-  ::khiin::messages::Composition* temp = composition_;
-  composition_ = nullptr;
+  ::khiin::messages::Preedit* temp = preedit_;
+  preedit_ = nullptr;
 #ifdef PROTOBUF_FORCE_COPY_IN_RELEASE
   auto* old =  reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(temp);
   temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
@@ -2249,44 +2260,44 @@ inline ::khiin::messages::Composition* Output::release_composition() {
 #endif  // !PROTOBUF_FORCE_COPY_IN_RELEASE
   return temp;
 }
-inline ::khiin::messages::Composition* Output::unsafe_arena_release_composition() {
-  // @@protoc_insertion_point(field_release:khiin.messages.Output.composition)
+inline ::khiin::messages::Preedit* Output::unsafe_arena_release_preedit() {
+  // @@protoc_insertion_point(field_release:khiin.messages.Output.preedit)
   
-  ::khiin::messages::Composition* temp = composition_;
-  composition_ = nullptr;
+  ::khiin::messages::Preedit* temp = preedit_;
+  preedit_ = nullptr;
   return temp;
 }
-inline ::khiin::messages::Composition* Output::_internal_mutable_composition() {
+inline ::khiin::messages::Preedit* Output::_internal_mutable_preedit() {
   
-  if (composition_ == nullptr) {
-    auto* p = CreateMaybeMessage<::khiin::messages::Composition>(GetArenaForAllocation());
-    composition_ = p;
+  if (preedit_ == nullptr) {
+    auto* p = CreateMaybeMessage<::khiin::messages::Preedit>(GetArenaForAllocation());
+    preedit_ = p;
   }
-  return composition_;
+  return preedit_;
 }
-inline ::khiin::messages::Composition* Output::mutable_composition() {
-  ::khiin::messages::Composition* _msg = _internal_mutable_composition();
-  // @@protoc_insertion_point(field_mutable:khiin.messages.Output.composition)
+inline ::khiin::messages::Preedit* Output::mutable_preedit() {
+  ::khiin::messages::Preedit* _msg = _internal_mutable_preedit();
+  // @@protoc_insertion_point(field_mutable:khiin.messages.Output.preedit)
   return _msg;
 }
-inline void Output::set_allocated_composition(::khiin::messages::Composition* composition) {
+inline void Output::set_allocated_preedit(::khiin::messages::Preedit* preedit) {
   ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaForAllocation();
   if (message_arena == nullptr) {
-    delete composition_;
+    delete preedit_;
   }
-  if (composition) {
+  if (preedit) {
     ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
-        ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper<::khiin::messages::Composition>::GetOwningArena(composition);
+        ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper<::khiin::messages::Preedit>::GetOwningArena(preedit);
     if (message_arena != submessage_arena) {
-      composition = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
-          message_arena, composition, submessage_arena);
+      preedit = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
+          message_arena, preedit, submessage_arena);
     }
     
   } else {
     
   }
-  composition_ = composition;
-  // @@protoc_insertion_point(field_set_allocated:khiin.messages.Output.composition)
+  preedit_ = preedit;
+  // @@protoc_insertion_point(field_set_allocated:khiin.messages.Output.preedit)
 }
 
 // .khiin.messages.CandidateList candidate_list = 3;
@@ -2397,6 +2408,26 @@ inline void Output::_internal_set_consumable(bool value) {
 inline void Output::set_consumable(bool value) {
   _internal_set_consumable(value);
   // @@protoc_insertion_point(field_set:khiin.messages.Output.consumable)
+}
+
+// bool committed = 5;
+inline void Output::clear_committed() {
+  committed_ = false;
+}
+inline bool Output::_internal_committed() const {
+  return committed_;
+}
+inline bool Output::committed() const {
+  // @@protoc_insertion_point(field_get:khiin.messages.Output.committed)
+  return _internal_committed();
+}
+inline void Output::_internal_set_committed(bool value) {
+  
+  committed_ = value;
+}
+inline void Output::set_committed(bool value) {
+  _internal_set_committed(value);
+  // @@protoc_insertion_point(field_set:khiin.messages.Output.committed)
 }
 
 // -------------------------------------------------------------------

@@ -80,13 +80,12 @@ class CandidateWindow : public BaseWindow<CandidateWindow> {
     unsigned int qs_col = 0;
     unsigned int page_idx = 0;
     int selected_idx = -1;
-    DisplayMode display_mode = DisplayMode::Expanded;
+    DisplayMode display_mode = DisplayMode::Long;
     unsigned int short_col_size = 5;
     unsigned int long_col_size = 9;
     unsigned int expanded_n_cols = 4;
     std::vector<unsigned int> m_col_widths{};
 
-    std::wstring candidate = L"ŏ\u0358";
     messages::CandidateList *m_candidate_list = nullptr;
     std::vector<std::vector<winrt::com_ptr<IDWriteTextLayout>>> candidate_layout_matrix = {};
 };
