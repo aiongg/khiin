@@ -20,7 +20,7 @@ auto splitString(std::string_view str, char delimiter) {
 auto findResourceDirectory() {
 #pragma warning(push)
 #pragma warning(disable : 4996)
-    auto tkpath = ::getenv(TaiKeyPath.c_str());
+    auto tkpath = ::getenv(kKhiinHome.c_str());
 #pragma warning(pop)
 
     if (tkpath == nullptr) {

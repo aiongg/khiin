@@ -12,6 +12,7 @@
 #include "db.h"
 #include "errors.h"
 #include "keys.h"
+#include "messages.h"
 #include "splitter.h"
 #include "trie.h"
 
@@ -38,8 +39,11 @@ struct ImeDisplayData {
 
 class Engine {
   public:
-    Engine();
-    Engine(std::string resourceDir);
+    using ResponseCallback = std::function<void(messages::Command *)>;
+    // Engine();
+    // Engine(std::string resourceDir);
+
+    virtual void SendCommand(messages::Command *command) = 0;
 
     /*
         Allow the application to check before sending a key
@@ -47,7 +51,7 @@ class Engine {
         key or not. If the return value is true, the application
         should send the key to onKeyDown for processing.
     */
-    auto TestConsumable(KeyCode keyCode) -> bool;
+    // auto TestConsumable(KeyCode keyCode) -> bool;
 
     /*
         This is the main method applications should use to provide
@@ -61,18 +65,19 @@ class Engine {
         the buffer_, underline segments, colors or hint text, and
         candidate availability.
     */
-    auto onKeyDown(KeyCode kc, ImeDisplayData &data) -> RetVal;
+    // auto onKeyDown(KeyCode kc, ImeDisplayData &data) -> RetVal;
 
     /*
         The application should handle candidate navigation directly,
         as the number, pagination, or other display characteristics
         are best determined by the user-facing application. As the user
         navigates through candidates_, the index in the ImeDisplayData
-        canddiate list of the candidate currently under user focus 
+        canddiate list of the candidate currently under user focus
         should be passed back to this method. On return, the data
         object will contain an updated display buffer_ showing the
         focused candidate.
     */
+    /*
     auto focusCandidate(size_t index, ImeDisplayData &data) -> RetVal;
 
     RetVal Reset();
@@ -111,6 +116,13 @@ class Engine {
     std::unique_ptr<Trie> trie = nullptr;
     std::unique_ptr<BufferManager> buffer = nullptr;
     std::unique_ptr<CandidateFinder> candidateFinder = nullptr;
+    */
+};
+
+class EngineFactory {
+  public:
+    static Engine *Create();
+    static Engine *Create(std::string home_dir);
 };
 
 } // namespace khiin::engine

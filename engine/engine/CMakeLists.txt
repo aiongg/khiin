@@ -26,7 +26,10 @@ add_library (khiin_engine
     "splitter.h"
     "splitter.cpp"
     "trie.h"
-    "trie.cpp" "utils.h")
+    "trie.cpp" "utils.h"
+    "${PROTOBUF_DIR}/messages.pb.h"
+    "${PROTOBUF_DIR}/messages.pb.cc"
+ "messages.h")
 
 # Debug
 target_link_options(khiin_engine PRIVATE "/MAP")

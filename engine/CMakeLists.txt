@@ -6,16 +6,20 @@ set(CMAKE_CXX_STANDARD 17)
 
 project ("KhiinEngine" CXX)
 
+set(PROTOBUF_DIR "${PROJECT_SOURCE_DIR}/../proto/proto")
+
 # find_package(ICU)
 # Boost v1.75.0
+find_package(GTest CONFIG REQUIRED)
 find_package (Boost REQUIRED COMPONENTS log unit_test_framework)
 include_directories (${Boost_INCLUDE_DIRS})
 
-find_package(SQLiteCpp)
+find_package(SQLiteCpp REQUIRED)
+find_package(Protobuf REQUIRED)
 
 add_subdirectory ("engine")
 
-target_include_directories(khiin_engine PUBLIC "../third_party")
+target_include_directories(khiin_engine PUBLIC "../third_party" "../proto")
 
 enable_testing()
 add_subdirectory ("tests")

@@ -1,0 +1,107 @@
+syntax = "proto3";
+
+package khiin.messages;
+option optimize_for = LITE_RUNTIME;
+
+message KeyEvent {
+    enum SpecialKey {
+        NONE = 0;
+        SPACE = 1;
+        ENTER = 2;
+        ESC = 3;
+        BACKSPACE = 4;
+        TAB = 5;
+        LEFT = 6;
+        UP = 7;
+        RIGHT = 8;
+        DOWN = 9;
+        PGUP = 10;
+        PGDN = 11;
+        HOME = 12;
+        END = 13;
+        DEL = 14;
+    }
+
+    enum ModifierKey {
+        CTRL = 0;
+        ALT = 1;
+        SHIFT = 2;
+    }
+
+    int32 key_code = 1;
+    SpecialKey special_key = 2;
+    repeated ModifierKey modifier_keys = 3;
+}
+
+message Input {
+    KeyEvent key_event = 1;
+    int32 candidate_id = 2;
+    int32 cursor_position = 3;
+}
+
+message Composition {
+    message Segment {
+        enum Status {
+            COMMITTED = 0;
+            COMPOSING = 1;
+            CONVERTED = 2;
+            FOCUSED = 3;
+        }
+        Status status = 1;
+        string value = 2;
+    }
+
+    repeated Segment segments = 1;
+    int32 cursor_position = 2;
+}
+
+message Candidate {
+    enum Category {
+        NORMAL = 0;
+        KANA = 1;
+        RARE = 2;
+    }
+
+    int32 id = 1;
+    string value = 2;
+    string key = 3;
+    string annotation = 4;
+    Category category = 5;
+}
+
+message CandidateList {
+    repeated Candidate candidates = 1;
+    int32 selected = 2;
+}
+
+message Output {
+    enum ErrorCode {
+        OK = 0;
+        FAIL = 1;
+    }
+    ErrorCode error = 1;
+    Composition composition = 2;
+    CandidateList candidate_list = 3;
+    bool consumable = 4;
+}
+
+enum CommandType {
+    SEND_KEY = 0;
+    REVERT = 1;
+    RESET = 2;
+    COMMIT = 3;
+    SELECT_CANDIDATE = 4;
+    FOCUS_CANDIDATE = 5;
+    SWITCH_INPUT_MODE = 6;
+    PLACE_CURSOR = 7;
+    DISABLE = 8;
+    ENABLE = 9;
+    SET_CONFIG = 10;
+    TEST_SEND_KEY = 11;
+}
+
+message Command {
+    CommandType type = 1;
+    Input input = 2;
+    Output output = 3;
+}

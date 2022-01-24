@@ -1,16 +1,23 @@
-#define BOOST_TEST_DYN_LINK
-#include <boost/test/unit_test.hpp>
+#include <gtest/gtest.h>
 
 #include <memory>
 
 #include "trie.h"
 
+namespace khiin::engine {
+namespace {
+
 using namespace std;
 using namespace khiin::engine;
 
-struct TrieFx {
-    TrieFx() { trie = new Trie(); }
-    ~TrieFx() { delete trie; }
+class TrieFx : public ::testing::Test {
+  protected:
+    void SetUp() override {
+        trie = new Trie();
+    }
+    ~TrieFx() {
+        delete trie;
+    }
     Trie *trie = nullptr;
     void ins(std::vector<std::string> words) {
         for (auto &it : words) {
@@ -19,60 +26,57 @@ struct TrieFx {
     }
 };
 
-BOOST_FIXTURE_TEST_SUITE(TrieTest, TrieFx);
-
-BOOST_AUTO_TEST_CASE(search) {
+TEST_F(TrieFx, search) {
     trie->insert(u8"niau");
     bool res = trie->containsWord(u8"niau");
-
-    BOOST_TEST(res == true);
+    EXPECT_TRUE(res);
 }
 
-BOOST_AUTO_TEST_CASE(remove) {
+TEST_F(TrieFx, remove) {
     trie->insert(u8"niau");
     trie->insert(u8"ni");
     trie->remove(u8"niau");
 
-    BOOST_TEST(!trie->containsWord(u8"niau"));
-    BOOST_TEST(!trie->containsWord(u8"nia"));
-    BOOST_TEST(trie->containsWord(u8"ni"));
-    BOOST_TEST(!trie->containsWord(u8"n"));
+    EXPECT_TRUE(!trie->containsWord(u8"niau"));
+    EXPECT_TRUE(!trie->containsWord(u8"nia"));
+    EXPECT_TRUE(trie->containsWord(u8"ni"));
+    EXPECT_TRUE(!trie->containsWord(u8"n"));
 }
 
-BOOST_AUTO_TEST_CASE(is_prefix) {
+TEST_F(TrieFx, is_prefix) {
     trie->insert(u8"niau");
-    BOOST_TEST(trie->containsPrefix(u8"nia") == true);
+    EXPECT_TRUE(trie->containsPrefix(u8"nia"));
 }
 
-BOOST_AUTO_TEST_CASE(autocomplete) {
+TEST_F(TrieFx, autocomplete) {
     ins({u8"niau", u8"nia", u8"na"});
 
     std::vector<std::string> res = trie->autocomplete(u8"n");
-    BOOST_TEST(res.size() == 3);
-    BOOST_TEST((std::find(res.begin(), res.end(), "niau") != res.end()));
-    BOOST_TEST((std::find(res.begin(), res.end(), "nia") != res.end()));
-    BOOST_TEST((std::find(res.begin(), res.end(), "na") != res.end()));
+    EXPECT_EQ(res.size(), 3);
+    EXPECT_NE(std::find(res.begin(), res.end(), "niau"), res.end());
+    EXPECT_NE(std::find(res.begin(), res.end(), "nia"), res.end());
+    EXPECT_NE(std::find(res.begin(), res.end(), "na"), res.end());
 
     res = trie->autocomplete(u8"na");
-    BOOST_TEST(res.size() == 1);
-    BOOST_TEST((std::find(res.begin(), res.end(), "na") != res.end()));
+    EXPECT_EQ(res.size(), 1);
+    EXPECT_NE(std::find(res.begin(), res.end(), "na"), res.end());
 }
 
-BOOST_AUTO_TEST_CASE(autocomplete_tone) {
+TEST_F(TrieFx, autocomplete_tone) {
     ins({u8"na2", u8"na7", u8"nai"});
 
     std::vector<std::string> res = trie->autocompleteTone(u8"na");
-    BOOST_TEST(res.size() == 2);
-    BOOST_TEST((std::find(res.begin(), res.end(), "na2") != res.end()));
-    BOOST_TEST((std::find(res.begin(), res.end(), "na7") != res.end()));
+    EXPECT_EQ(res.size(), 2);
+    EXPECT_NE(std::find(res.begin(), res.end(), "na2"), res.end());
+    EXPECT_NE(std::find(res.begin(), res.end(), "na7"), res.end());
 }
 
-BOOST_AUTO_TEST_CASE(get_all_words) {
+TEST_F(TrieFx, get_all_words) {
     ins({"cho", "cho2", "chong", "chong5", "chongthong2", "ba"});
     auto res = VStr();
     trie->getAllWords("chongthong", true, res);
-    BOOST_TEST(res.size() == 5);
-    BOOST_TEST((std::find(res.begin(), res.end(), "cho2") != res.end()));
+    EXPECT_EQ(res.size(), 5);
+    EXPECT_NE(std::find(res.begin(), res.end(), "cho2"), res.end());
 }
 
 /**
@@ -84,14 +88,13 @@ BOOST_AUTO_TEST_CASE(get_all_words) {
 5. Lim ài an--ne.
 6. Lim ài án-ne.
 */
-BOOST_AUTO_TEST_CASE(sentence_split) {
-    ins({"li", "mai", "an", "ne", "ma", "ian", "iann", "lim", "ai", "e",
-         "anne"});
+TEST_F(TrieFx, sentence_split) {
+    ins({"li", "mai", "an", "ne", "ma", "ian", "iann", "lim", "ai", "e", "anne"});
     auto res = trie->splitSentence2("limaianne");
     int i = 0;
 }
 
-BOOST_AUTO_TEST_CASE(big_word_list) {
+TEST_F(TrieFx, big_word_list) {
     std::vector<std::string> w;
     w.push_back("a");
     w.push_back("ah");
@@ -1241,8 +1244,9 @@ BOOST_AUTO_TEST_CASE(big_word_list) {
 
     ins(w);
     std::vector<std::string> res = trie->autocomplete(u8"a");
-    BOOST_TEST((std::find(res.begin(), res.end(), u8"ang") != res.end()));
-    BOOST_TEST((std::find(res.begin(), res.end(), u8"any") == res.end()));
+    EXPECT_NE(std::find(res.begin(), res.end(), u8"ang"), res.end());
+    EXPECT_EQ(std::find(res.begin(), res.end(), u8"any"), res.end());
 }
 
-BOOST_AUTO_TEST_SUITE_END();
+} // namespace
+} // namespace khiin::engine

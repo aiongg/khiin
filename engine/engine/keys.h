@@ -22,6 +22,11 @@ enum class KeyCode {
     DOWN = 0x28,
     HYPHEN = 0x2D,
     DEL = 0x2E,
+    // Alphanumeric & hyphen use ASCII
+    // -  : 0x002D
+    // 0-9: 0x0030-0x0039
+    // A-Z: 0x0041-0x005A
+    // a-z: 0x0061-0x007A
     D0 = 0x30,
     D1 = 0x31,
     D2 = 0x32,

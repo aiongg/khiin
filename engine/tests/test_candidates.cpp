@@ -1,20 +1,20 @@
-#define BOOST_TEST_DYN_LINK
-#include <boost/test/unit_test.hpp>
+#include <gtest/gtest.h>
 
 #include <boost/log/trivial.hpp>
 
 #include "candidates.h"
 
-namespace khiin::engine::CandidateTest {
+namespace khiin::engine {
+namespace {
 
 const std::string DB_FILE = "taikey.db";
 
-struct CandidateFx {
-    CandidateFx() {
+class CandidateFx : public ::testing::Test {
+  protected:
+    void SetUp() override {
         db = new TKDB(DB_FILE);
         auto sylList = db->selectSyllableList();
-        splitter = new Splitter(sylList),
-        trie = new Trie(db->selectTrieWordlist(), sylList);
+        splitter = new Splitter(sylList), trie = new Trie(db->selectTrieWordlist(), sylList);
         cf = new CandidateFinder(db, splitter, trie);
     }
     ~CandidateFx() {
@@ -34,24 +34,22 @@ struct CandidateFx {
     CandidateFinder *cf = nullptr;
 };
 
-BOOST_FIXTURE_TEST_SUITE(CandidateTest, CandidateFx)
-
-BOOST_AUTO_TEST_CASE(load_candidate_finder) {
+TEST_F(CandidateFx, load_candidate_finder) {
     auto res = fuzzyPrimary("khiameng");
-    BOOST_TEST(res.size() > 0);
+    EXPECT_GT(res.size(), 0);
 }
 
-BOOST_AUTO_TEST_CASE(find_candidates) {
+TEST_F(CandidateFx, find_candidates) {
     auto res = fuzzyPrimary("khiameng");
-    BOOST_TEST(res.size() > 0);
+    EXPECT_GT(res.size(), 0);
 }
 
-BOOST_AUTO_TEST_CASE(check_empty_search) {
+TEST_F(CandidateFx, check_empty_search) {
     auto res = fuzzyPrimary("");
-    BOOST_TEST(res.size() == 0);
+    EXPECT_EQ(res.size(), 0);
 }
 
-BOOST_AUTO_TEST_CASE(find_long_string) {
+TEST_F(CandidateFx, find_long_string) {
     auto test = "chetioittengsisekaisiongchanephahjihoat";
     auto res = fuzzyPrimary(test);
 
@@ -64,7 +62,7 @@ BOOST_AUTO_TEST_CASE(find_long_string) {
     BOOST_LOG_TRIVIAL(debug) << "Input string: " << test;
     BOOST_LOG_TRIVIAL(debug) << "By default: " << v;
 
-    BOOST_TEST(res.size() > 0);
+    EXPECT_GT(res.size(), 0);
 
     BOOST_LOG_TRIVIAL(debug) << "Inserting training data...";
 
@@ -82,6 +80,5 @@ BOOST_AUTO_TEST_CASE(find_long_string) {
     BOOST_LOG_TRIVIAL(debug) << "Re-running candidate selection: " << v;
 }
 
-BOOST_AUTO_TEST_SUITE_END()
-
-} // namespace khiin::engine::CandidateTest
+} // namespace
+} // namespace khiin::engine
