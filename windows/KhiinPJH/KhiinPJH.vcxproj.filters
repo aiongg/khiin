@@ -69,7 +69,7 @@
     <ClInclude Include="DisplayAttributeInfoEnum.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="TextEngine.h">
+    <ClInclude Include="EngineController.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="CandidateListUI.h">
@@ -134,7 +134,7 @@
     <ClCompile Include="DisplayAttributeInfoEnum.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="TextEngine.cpp">
+    <ClCompile Include="EngineController.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="CandidateListUI.cpp">

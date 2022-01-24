@@ -1,6 +1,10 @@
 #include "pch.h"
 
+#include <algorithm>
+
 #include "CandidateWindow.h"
+
+#include "Utils.h"
 
 namespace {
 
@@ -179,9 +183,9 @@ bool CandidateWindow::showing() {
     return m_showing;
 }
 
-void CandidateWindow::SetCandidates(std::vector<std::wstring> *candidates) {
+void CandidateWindow::SetCandidates(messages::CandidateList *candidate_list) {
     D(__FUNCTIONW__);
-    this->candidates = candidates;
+    m_candidate_list = candidate_list;
     CalculateLayout();
 }
 
@@ -261,7 +265,7 @@ void CandidateWindow::OnDisplayChange() {
 
 void CandidateWindow::CalculateLayout() {
     D(__FUNCTIONW__);
-    if (!m_dwfactory || !candidates) {
+    if (!m_dwfactory || !m_candidate_list) {
         return;
     }
 
@@ -269,7 +273,12 @@ void CandidateWindow::CalculateLayout() {
 
     candidate_layout_matrix.clear();
     m_col_widths.clear();
-    auto total_items_avail = candidates->size();
+    auto &candidates = m_candidate_list->candidates();
+    auto total_items_avail = candidates.size();
+
+    if (total_items_avail == 0) {
+        return;
+    }
 
     auto min_col_width = (display_mode == DisplayMode::Expanded) ? min_col_width_expanded : min_col_width_single;
     auto max_cols_per_page = (display_mode == DisplayMode::Expanded) ? n_cols_expanded : 1;
@@ -289,19 +298,20 @@ void CandidateWindow::CalculateLayout() {
         auto column_width = 0.0f;
         auto n_items = min(item_end_idx - item_start_idx, max_items_per_col);
         for (auto row_idx = 0; row_idx < n_items; ++row_idx) {
-            auto &item = candidates->at(item_start_idx + row_idx);
+            auto &item = candidates.at(item_start_idx + row_idx);
+            auto &item_value = Utils::Widen(item.value());
             auto item_layout = winrt::com_ptr<IDWriteTextLayout>();
-            D(item, " (", item.size(), ")");
-            winrt::check_hresult(m_dwfactory->CreateTextLayout(item.c_str(), static_cast<UINT32>(item.size()),
-                                                               m_textformat.get(), static_cast<float>(m_max_width),
-                                                               row_height, item_layout.put()));
+            D(item_value, " (", item_value.size(), ")");
+            winrt::check_hresult(m_dwfactory->CreateTextLayout(
+                item_value.c_str(), static_cast<UINT32>(item_value.size()), m_textformat.get(),
+                static_cast<float>(m_max_width), row_height, item_layout.put()));
             DWRITE_TEXT_METRICS metrics;
             winrt::check_hresult(item_layout->GetMetrics(&metrics));
-            column_width = max(column_width, metrics.width);
+            column_width = std::max(column_width, metrics.width);
             column.push_back(std::move(item_layout));
         }
         item_start_idx += n_items;
-        column_width = max(column_width, min_col_width) + qs_col_width;
+        column_width = std::max(column_width, static_cast<float>(min_col_width)) + qs_col_width;
         D("Col width: ", column_width);
         m_col_widths.push_back(column_width);
         page_width += column_width;

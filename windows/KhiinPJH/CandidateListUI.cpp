@@ -26,20 +26,17 @@ void CandidateListUI::DestroyCandidateWindow() {
     }
 }
 
-void CandidateListUI::Update(ITfContext *pContext, std::vector<std::string> *candidates, RECT text_rect) {
+void CandidateListUI::Update(ITfContext *pContext, const messages::CandidateList &candidate_list, RECT text_rect) {
     D(__FUNCTIONW__);
     context.copy_from(pContext);
+    m_candidate_list.CopyFrom(candidate_list);
 
     if (!candidateWindow) {
         makeCandidateWindow();
     }
-    
-    candidate_list_.clear();
-    for (auto &c : *candidates) {
-        candidate_list_.push_back(Utils::Widen(c));
-    }
+
     candidateWindow->SetScreenCoordinates(text_rect);
-    candidateWindow->SetCandidates(&candidate_list_);
+    candidateWindow->SetCandidates(&m_candidate_list);
     candidateWindow->Show();
 }
 

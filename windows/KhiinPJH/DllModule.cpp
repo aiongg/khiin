@@ -5,7 +5,7 @@
 #include "BaseWindow.h"
 #include "KhiinClassFactory.h"
 #include "Registrar.h"
-#include "TextEngine.h"
+#include "EngineController.h"
 
 namespace {
 
@@ -32,14 +32,14 @@ class ModuleImpl {
 
     static BOOL OnDllProcessAttach(HINSTANCE instance, bool static_loading) {
         khiin::win32::WindowSetup::OnDllProcessAttach(instance);
-        khiin::win32::TextEngineFactory::OnDllProcessAttach(instance);
+        khiin::win32::EngineControllerFactory::OnDllProcessAttach(instance);
         moduleHandle = instance;
         return TRUE;
     }
 
     static BOOL OnDllProcessDetach(HINSTANCE instance, bool process_shutdown) {
         khiin::win32::WindowSetup::OnDllProcessDetach(instance);
-        khiin::win32::TextEngineFactory::OnDllProcessDetach(instance);
+        khiin::win32::EngineControllerFactory::OnDllProcessDetach(instance);
         moduleHandle = nullptr;
         unloaded = true;
         return TRUE;

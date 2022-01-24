@@ -2,10 +2,12 @@
 
 #include "KeyEventSink.h"
 
+#include "EngineController.h"
 #include "EditSession.h"
 #include "common.h"
 
 namespace khiin::win32 {
+    using namespace messages;
 
 enum class KeyEventSink::KeyAction { Test, Input };
 
@@ -15,9 +17,9 @@ KeyEventSink::~KeyEventSink() {
 
 void KeyEventSink::Activate(TextService *pTextService) {
     service.copy_from(pTextService);
-    threadMgr.copy_from(service->threadMgr());
-    compositionMgr.copy_from(cast_as<CompositionMgr>(service->compositionMgr()));
-    keystrokeMgr = threadMgr.as<ITfKeystrokeMgr>();
+    thread_mgr.copy_from(service->thread_mgr());
+    composition_mgr.copy_from(cast_as<CompositionMgr>(service->composition_mgr()));
+    keystrokeMgr = thread_mgr.as<ITfKeystrokeMgr>();
 
     winrt::check_hresult(keystrokeMgr->AdviseKeyEventSink(service->clientId(), this, TRUE));
 }
@@ -28,25 +30,29 @@ void KeyEventSink::Deactivate() {
         winrt::check_hresult(keystrokeMgr->UnadviseKeyEventSink(service->clientId()));
     }
 
-    threadMgr = nullptr;
+    thread_mgr = nullptr;
     keystrokeMgr = nullptr;
-    compositionMgr = nullptr;
+    composition_mgr = nullptr;
     service = nullptr;
 }
 
 void KeyEventSink::TestKey(ITfContext *pContext, KeyEvent keyEvent, BOOL *pfEaten) {
     D(__FUNCTIONW__);
     WINRT_ASSERT(pContext);
-    WINRT_ASSERT(compositionMgr);
+    WINRT_ASSERT(composition_mgr);
 
-    if (!compositionMgr->composing()) {
+    if (!composition_mgr->composing()) {
         service->engine()->Reset();
     }
 
-    auto action = service->engine()->TestKey(keyEvent);
+    auto command = service->engine()->TestKey(keyEvent);
 
-    *pfEaten = action.consumed;
-    EditSession::HandleAction(service.get(), pContext, std::move(action));
+    if (command.output().consumable()) {
+        *pfEaten = true;
+        return;
+    }
+
+    EditSession::HandleAction(service.get(), pContext, std::move(command));
 }
 
 void KeyEventSink::HandleKey(ITfContext *pContext, KeyEvent keyEvent, BOOL *pfEaten) {
@@ -56,8 +62,13 @@ void KeyEventSink::HandleKey(ITfContext *pContext, KeyEvent keyEvent, BOOL *pfEa
         return;
     }
 
-    auto action = service->engine()->OnKey(keyEvent);
-    EditSession::HandleAction(service.get(), pContext, std::move(action));
+    auto command = service->engine()->OnKey(keyEvent);
+
+    if (command.output().consumable()) {
+        *pfEaten = true;
+    }
+
+    EditSession::HandleAction(service.get(), pContext, std::move(command));
 }
 
 //+---------------------------------------------------------------------------
@@ -80,6 +91,7 @@ STDMETHODIMP KeyEventSink::OnTestKeyDown(ITfContext *pContext, WPARAM wParam, LP
     TRY_FOR_HRESULT;
     D(__FUNCTIONW__);
 
+    *pfEaten = false;
     auto keyEvent = KeyEvent(WM_KEYDOWN, wParam, lParam);
     TestKey(pContext, keyEvent, pfEaten);
 
@@ -100,6 +112,7 @@ STDMETHODIMP KeyEventSink::OnKeyDown(ITfContext *pContext, WPARAM wParam, LPARAM
     TRY_FOR_HRESULT;
     D(__FUNCTIONW__, " (W=", wParam, ")");
 
+    *pfEaten = false;
     auto keyEvent = KeyEvent(WM_KEYDOWN, wParam, lParam);
     HandleKey(pContext, keyEvent, pfEaten);
 

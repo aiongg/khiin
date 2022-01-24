@@ -6,7 +6,7 @@
 
 namespace khiin::win32 {
 
-struct TextEngine;
+struct EngineController;
 
 struct TextService : winrt::implements<TextService, IUnknown> {
     TextService() = default;
@@ -17,11 +17,11 @@ struct TextService : winrt::implements<TextService, IUnknown> {
     virtual TfClientId clientId() = 0;
     virtual DWORD activateFlags() = 0;
 
-    virtual ITfThreadMgr *threadMgr() = 0;
-    virtual IUnknown *compositionMgr() = 0;
+    virtual ITfThreadMgr *thread_mgr() = 0;
+    virtual IUnknown *composition_mgr() = 0;
     virtual IEnumTfDisplayAttributeInfo *displayAttrInfoEnum() = 0;
-    virtual TextEngine *engine() = 0;
-    virtual ITfUIElement *candidateUI() = 0;
+    virtual EngineController *engine() = 0;
+    virtual ITfUIElement *candidate_ui() = 0;
 
     virtual winrt::com_ptr<ITfCategoryMgr> categoryMgr() = 0;
     virtual winrt::com_ptr<ITfContext> GetTopContext() = 0;

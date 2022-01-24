@@ -1,8 +1,7 @@
 #pragma once
 
-//#include "common.h"
-
 #include "BaseWindow.h"
+#include "common.h"
 
 namespace khiin::win32 {
 
@@ -24,7 +23,7 @@ class CandidateWindow : public BaseWindow<CandidateWindow> {
     void Hide();
     bool showing();
 
-    void SetCandidates(std::vector<std::wstring> *candidates);
+    void SetCandidates(messages::CandidateList *candidate_list);
     void SetScreenCoordinates(RECT text_rect);
 
   private:
@@ -88,7 +87,7 @@ class CandidateWindow : public BaseWindow<CandidateWindow> {
     std::vector<unsigned int> m_col_widths{};
 
     std::wstring candidate = L"ŏ\u0358";
-    std::vector<std::wstring> *candidates = nullptr;
+    messages::CandidateList *m_candidate_list = nullptr;
     std::vector<std::vector<winrt::com_ptr<IDWriteTextLayout>>> candidate_layout_matrix = {};
 };
 

@@ -2,6 +2,7 @@
 
 #include "CandidateWindow.h"
 #include "TextService.h"
+#include "common.h"
 
 namespace khiin::win32 {
 
@@ -15,7 +16,7 @@ struct CandidateListUI :
     void Initialize(TextService *pTextService);
     void Uninitialize();
     void DestroyCandidateWindow();
-    void Update(ITfContext *pContext, std::vector<std::string> *candidates, RECT text_rect);
+    void Update(ITfContext *pContext, const messages::CandidateList &candidate_list, RECT text_rect);
 
     // ITfUIElement
     virtual STDMETHODIMP GetDescription(BSTR *pbstrDescription) override;
@@ -51,7 +52,7 @@ struct CandidateListUI :
     std::unique_ptr<CandidateWindow> candidateWindow = nullptr;
     winrt::com_ptr<TextService> service = nullptr;
     winrt::com_ptr<ITfContext> context = nullptr;
-    std::vector<std::wstring> candidate_list_ = {};
+    messages::CandidateList m_candidate_list = {};
 };
 
 } // namespace khiin::win32

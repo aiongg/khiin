@@ -8,6 +8,7 @@
 #include "CompositionSink.h"
 #include "DisplayAttributeInfoEnum.h"
 #include "EditSession.h"
+#include "EngineController.h"
 #include "KeyEventSink.h"
 #include "TextEditSink.h"
 #include "ThreadMgrEventSink.h"
@@ -24,7 +25,7 @@ struct TextServiceImpl :
                       ITfCompartmentEventSink,
                       TextService> { // clang-format on
     TextServiceImpl() {
-        TextEngineFactory::Create(engine_.put());
+        EngineControllerFactory::Create(engine_.put());
         compositionMgr_ = winrt::make_self<CompositionMgr>();
         threadMgrEventSink_ = winrt::make_self<ThreadMgrEventSink>();
         candidateListUI_ = winrt::make_self<CandidateListUI>();
@@ -89,7 +90,7 @@ struct TextServiceImpl :
     winrt::com_ptr<DisplayAttributeInfoEnum> displayAttributes_ = nullptr;
     winrt::com_ptr<ThreadMgrEventSink> threadMgrEventSink_ = nullptr;
     winrt::com_ptr<KeyEventSink> keyEventSink_ = nullptr;
-    winrt::com_ptr<TextEngine> engine_ = nullptr;
+    winrt::com_ptr<EngineController> engine_ = nullptr;
 
     TfGuidAtom input_attribute_ = TF_INVALID_GUIDATOM;
     TfGuidAtom converted_attribute_ = TF_INVALID_GUIDATOM;
@@ -111,12 +112,12 @@ struct TextServiceImpl :
         return activateFlags_;
     }
 
-    virtual ITfThreadMgr *threadMgr() override {
+    virtual ITfThreadMgr *thread_mgr() override {
         D(__FUNCTIONW__);
         return threadMgr_.get();
     }
 
-    virtual IUnknown *compositionMgr() override {
+    virtual IUnknown *composition_mgr() override {
         D(__FUNCTIONW__);
         return compositionMgr_.as<IUnknown>().get();
     }
@@ -128,12 +129,12 @@ struct TextServiceImpl :
         return tmp;
     }
 
-    virtual TextEngine *engine() override {
+    virtual EngineController *engine() override {
         D(__FUNCTIONW__);
         return engine_.get();
     }
 
-    virtual ITfUIElement *candidateUI() override {
+    virtual ITfUIElement *candidate_ui() override {
         D(__FUNCTIONW__);
         return candidateListUI_.as<ITfUIElement>().get();
     }

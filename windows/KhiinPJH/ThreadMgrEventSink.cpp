@@ -12,7 +12,7 @@ void ThreadMgrEventSink::Initialize(TextService *pTextService) {
     D(__FUNCTIONW__);
     auto hr = E_FAIL;
     service.copy_from(pTextService);
-    threadMgrSinkMgr.Advise(service->threadMgr(), this);
+    threadMgrSinkMgr.Advise(service->thread_mgr(), this);
 }
 
 void ThreadMgrEventSink::Uninitialize() {

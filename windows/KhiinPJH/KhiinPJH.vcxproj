@@ -134,7 +134,7 @@
       <LanguageStandard>stdcpp17</LanguageStandard>
       <UseFullPaths>true</UseFullPaths>
       <AssemblerOutput>All</AssemblerOutput>
-      <AdditionalIncludeDirectories>$(SolutionDir)..\engine;$(SolutionDir)\..\third_party;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)..\proto;$(SolutionDir)..\engine;$(SolutionDir)\..\third_party;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -188,7 +188,7 @@
     <ClInclude Include="KeyEvent.h" />
     <ClInclude Include="KeyEventSink.h" />
     <ClInclude Include="KhiinClassFactory.h" />
-    <ClInclude Include="TextEngine.h" />
+    <ClInclude Include="EngineController.h" />
     <ClInclude Include="TextService.h" />
     <ClInclude Include="log.h" />
     <ClInclude Include="pch.h" />
@@ -214,7 +214,7 @@
     <ClCompile Include="KeyEventSink.cpp" />
     <ClCompile Include="KhiinClassFactory.cpp" />
     <ClCompile Include="DllModule.cpp" />
-    <ClCompile Include="TextEngine.cpp" />
+    <ClCompile Include="EngineController.cpp" />
     <ClCompile Include="TextService.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>

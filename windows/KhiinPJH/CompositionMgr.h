@@ -2,8 +2,8 @@
 
 #include "DisplayAttributeInfo.h"
 #include "DisplayAttributeInfoEnum.h"
-
 #include "TextService.h"
+#include "common.h"
 
 namespace khiin::win32 {
 
@@ -20,8 +20,9 @@ struct CompositionMgr : winrt::implements<CompositionMgr, IUnknown> {
 
     bool composing();
 
-    void DoComposition(TfEditCookie cookie, ITfContext *pContext, std::string display_text);
-    void CommitComposition(TfEditCookie cookie, ITfContext *pContext, std::string commit_text);
+    void DoComposition(TfEditCookie cookie, ITfContext *pContext, messages::Composition comp_data);
+    void CommitComposition(TfEditCookie cookie, ITfContext *pContext);
+    void CommitComposition(TfEditCookie cookie, ITfContext *pContext, messages::Composition comp_data);
     void CancelComposition(TfEditCookie cookie);
     void GetTextRange(TfEditCookie cookie, ITfRange **ppRange);
 
@@ -33,6 +34,7 @@ struct CompositionMgr : winrt::implements<CompositionMgr, IUnknown> {
 
     winrt::com_ptr<TextService> service = nullptr;
     winrt::com_ptr<ITfComposition> composition = nullptr;
+    messages::Composition composition_data;
 };
 
 } // namespace khiin::win32

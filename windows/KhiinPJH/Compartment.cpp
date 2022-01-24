@@ -11,9 +11,9 @@ void Compartment::Initialize(TfClientId clientId, IUnknown *compartment_provider
     auto compartmentMgr = com_ptr<ITfCompartmentMgr>();
 
     if (global) {
-        auto threadMgr = com_ptr<ITfThreadMgr>();
-        winrt::check_hresult(compartment_provider->QueryInterface(threadMgr.put()));
-        winrt::check_hresult(threadMgr->GetGlobalCompartment(compartmentMgr.put()));
+        auto thread_mgr = com_ptr<ITfThreadMgr>();
+        winrt::check_hresult(compartment_provider->QueryInterface(thread_mgr.put()));
+        winrt::check_hresult(thread_mgr->GetGlobalCompartment(compartmentMgr.put()));
     } else {
         winrt::check_hresult(compartment_provider->QueryInterface(compartmentMgr.put()));
     }

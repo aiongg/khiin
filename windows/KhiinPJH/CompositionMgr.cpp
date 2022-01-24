@@ -9,6 +9,19 @@
 
 namespace khiin::win32 {
 
+using namespace messages;
+
+inline static int kMaxBufSize = 512;
+
+std::string CompDataToString(Composition comp_data) {
+    auto ret = std::string();
+    auto &segments = comp_data.segments();
+    for (auto &pSeg : segments) {
+        ret += pSeg.value();
+    }
+    return ret;
+}
+
 //+---------------------------------------------------------------------------
 //
 // Public methods
@@ -38,8 +51,10 @@ bool CompositionMgr::composing() {
     return bool(composition);
 }
 
-void CompositionMgr::DoComposition(TfEditCookie cookie, ITfContext *pContext, std::string display_text) {
+void CompositionMgr::DoComposition(TfEditCookie cookie, ITfContext *pContext, Composition comp_data) {
     D(__FUNCTIONW__);
+
+    auto display_text = CompDataToString(comp_data);
 
     if (composition) {
         // clear existing composition
@@ -95,7 +110,22 @@ void CompositionMgr::DoComposition(TfEditCookie cookie, ITfContext *pContext, st
     SetSelection(cookie, pContext, cursor_range.get(), TF_AE_END);
 }
 
-void CompositionMgr::CommitComposition(TfEditCookie cookie, ITfContext *pContext, std::string commit_text) try {
+void CompositionMgr::CommitComposition(TfEditCookie cookie, ITfContext* pContext) {
+    if (!composition) {
+        return;
+    }
+    auto comp_range = winrt::com_ptr<ITfRange>();
+    winrt::check_hresult(composition->GetRange(comp_range.put()));
+    
+    auto end_range = winrt::com_ptr<ITfRange>();
+    winrt::check_hresult(comp_range->Clone(end_range.put()));
+    winrt::check_hresult(end_range->Collapse(cookie, TF_ANCHOR_END));
+    winrt::check_hresult(composition->ShiftStart(cookie, end_range.get()));
+    SetSelection(cookie, pContext, end_range.get(), TF_AE_END);
+    composition = nullptr;
+}
+
+void CompositionMgr::CommitComposition(TfEditCookie cookie, ITfContext *pContext, Composition comp_data) try {
     D(__FUNCTIONW__);
 
     if (!composition) {
@@ -105,6 +135,7 @@ void CompositionMgr::CommitComposition(TfEditCookie cookie, ITfContext *pContext
         return;
     }
 
+    auto commit_text = CompDataToString(comp_data);
     auto wcommit_text = Utils::Widen(commit_text);
     auto comp_range = winrt::com_ptr<ITfRange>();
     winrt::check_hresult(composition->GetRange(comp_range.put()));
@@ -112,10 +143,11 @@ void CompositionMgr::CommitComposition(TfEditCookie cookie, ITfContext *pContext
     auto end_range = winrt::com_ptr<ITfRange>();
     winrt::check_hresult(comp_range->Clone(end_range.put()));
     LONG shifted = 0;
+    // Move START anchor to the end (outside of range)
     winrt::check_hresult(end_range->ShiftStart(cookie, wcommit_text.size(), &shifted, nullptr));
-    // Collapse to the "START" anchor which is actually at the end
+    // Collapse to START anchor
     winrt::check_hresult(end_range->Collapse(cookie, TF_ANCHOR_START));
-    // End the composition by moving its starting position out of the range
+    // Update composition by moving START anchor to the same position as the clone
     winrt::check_hresult(composition->ShiftStart(cookie, end_range.get()));
 
     SetSelection(cookie, pContext, end_range.get(), TF_AE_END);
@@ -158,27 +190,6 @@ void CompositionMgr::StartComposition(TfEditCookie cookie, ITfContext *pContext)
 
 void CompositionMgr::ApplyDisplayAttribute(TfEditCookie cookie, ITfContext *pContext, ITfRange *pRange,
                                            AttrInfoKey index) {}
-
-void CompositionMgr::CollapseCursorToEnd(TfEditCookie cookie, ITfContext *pContext) {
-    //D(__FUNCTIONW__);
-
-    //if (!composing()) {
-    //    return;
-    //}
-
-    //auto range = winrt::com_ptr<ITfRange>();
-    //auto clone = winrt::com_ptr<ITfRange>();
-
-    //winrt::check_hresult(composition->GetRange(range.put()));
-    //winrt::check_hresult(range->Clone(clone.put()));
-    //winrt::check_hresult(clone->Collapse(cookie, TF_ANCHOR_END));
-
-    //TF_SELECTION sel{};
-    //sel.range = clone.get();
-    //sel.style.ase = TF_AE_NONE;
-    //sel.style.fInterimChar = FALSE;
-    //winrt::check_hresult(pContext->SetSelection(cookie, 1, &sel));
-}
 
 void CompositionMgr::SetSelection(TfEditCookie cookie, ITfContext *pContext, ITfRange *pRange, TfActiveSelEnd ase) {
     TF_SELECTION sel{};

@@ -2,7 +2,6 @@
 
 #include "CandidateListUI.h"
 #include "CompositionMgr.h"
-#include "TextEngine.h"
 #include "TextService.h"
 #include "KeyEvent.h"
 
@@ -33,11 +32,9 @@ struct KeyEventSink : winrt::implements<KeyEventSink, ITfKeyEventSink> {
 
   private:
     winrt::com_ptr<TextService> service = nullptr;
-    //winrt::com_ptr<CandidateListUI> candidateListUI = nullptr;
-    //winrt::com_ptr<TextEngine> engine = nullptr;
-    winrt::com_ptr<ITfThreadMgr> threadMgr = nullptr;
+    winrt::com_ptr<ITfThreadMgr> thread_mgr = nullptr;
     winrt::com_ptr<ITfKeystrokeMgr> keystrokeMgr = nullptr;
-    winrt::com_ptr<CompositionMgr> compositionMgr = nullptr;
+    winrt::com_ptr<CompositionMgr> composition_mgr = nullptr;
 };
 
 } // namespace khiin::win32

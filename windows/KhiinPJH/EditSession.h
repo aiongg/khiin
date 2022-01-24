@@ -1,14 +1,14 @@
 #pragma once
 
 #include "KeyEvent.h"
-#include "Action.h"
+#include "common.h"
 
 namespace khiin::win32 {
 
 struct TextService;
 
 struct EditSession {
-    static void HandleAction(TextService *pService, ITfContext *pContext, Action action);
+    static void HandleAction(TextService *pService, ITfContext *pContext, messages::Command &&command);
 };
 
 } // namespace khiin::win32
