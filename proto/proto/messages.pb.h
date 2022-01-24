@@ -149,7 +149,7 @@ inline const std::string& KeyEvent_ModifierKey_Name(T enum_t_value) {
 bool KeyEvent_ModifierKey_Parse(
     ::PROTOBUF_NAMESPACE_ID::ConstStringParam name, KeyEvent_ModifierKey* value);
 enum Composition_Segment_Status : int {
-  Composition_Segment_Status_COMMITTED = 0,
+  Composition_Segment_Status_NONE = 0,
   Composition_Segment_Status_COMPOSING = 1,
   Composition_Segment_Status_CONVERTED = 2,
   Composition_Segment_Status_FOCUSED = 3,
@@ -157,7 +157,7 @@ enum Composition_Segment_Status : int {
   Composition_Segment_Status_Composition_Segment_Status_INT_MAX_SENTINEL_DO_NOT_USE_ = std::numeric_limits<::PROTOBUF_NAMESPACE_ID::int32>::max()
 };
 bool Composition_Segment_Status_IsValid(int value);
-constexpr Composition_Segment_Status Composition_Segment_Status_Status_MIN = Composition_Segment_Status_COMMITTED;
+constexpr Composition_Segment_Status Composition_Segment_Status_Status_MIN = Composition_Segment_Status_NONE;
 constexpr Composition_Segment_Status Composition_Segment_Status_Status_MAX = Composition_Segment_Status_FOCUSED;
 constexpr int Composition_Segment_Status_Status_ARRAYSIZE = Composition_Segment_Status_Status_MAX + 1;
 
@@ -747,8 +747,8 @@ class Composition_Segment final :
   // nested types ----------------------------------------------------
 
   typedef Composition_Segment_Status Status;
-  static constexpr Status COMMITTED =
-    Composition_Segment_Status_COMMITTED;
+  static constexpr Status NONE =
+    Composition_Segment_Status_NONE;
   static constexpr Status COMPOSING =
     Composition_Segment_Status_COMPOSING;
   static constexpr Status CONVERTED =
@@ -1289,7 +1289,7 @@ class CandidateList final :
 
   enum : int {
     kCandidatesFieldNumber = 1,
-    kSelectedFieldNumber = 2,
+    kFocusedFieldNumber = 2,
   };
   // repeated .khiin.messages.Candidate candidates = 1;
   int candidates_size() const;
@@ -1309,13 +1309,13 @@ class CandidateList final :
   const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::khiin::messages::Candidate >&
       candidates() const;
 
-  // int32 selected = 2;
-  void clear_selected();
-  ::PROTOBUF_NAMESPACE_ID::int32 selected() const;
-  void set_selected(::PROTOBUF_NAMESPACE_ID::int32 value);
+  // int32 focused = 2;
+  void clear_focused();
+  ::PROTOBUF_NAMESPACE_ID::int32 focused() const;
+  void set_focused(::PROTOBUF_NAMESPACE_ID::int32 value);
   private:
-  ::PROTOBUF_NAMESPACE_ID::int32 _internal_selected() const;
-  void _internal_set_selected(::PROTOBUF_NAMESPACE_ID::int32 value);
+  ::PROTOBUF_NAMESPACE_ID::int32 _internal_focused() const;
+  void _internal_set_focused(::PROTOBUF_NAMESPACE_ID::int32 value);
   public:
 
   // @@protoc_insertion_point(class_scope:khiin.messages.CandidateList)
@@ -1326,7 +1326,7 @@ class CandidateList final :
   typedef void InternalArenaConstructable_;
   typedef void DestructorSkippable_;
   ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::khiin::messages::Candidate > candidates_;
-  ::PROTOBUF_NAMESPACE_ID::int32 selected_;
+  ::PROTOBUF_NAMESPACE_ID::int32 focused_;
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   friend struct ::TableStruct_messages_2eproto;
 };
@@ -2291,24 +2291,24 @@ CandidateList::candidates() const {
   return candidates_;
 }
 
-// int32 selected = 2;
-inline void CandidateList::clear_selected() {
-  selected_ = 0;
+// int32 focused = 2;
+inline void CandidateList::clear_focused() {
+  focused_ = 0;
 }
-inline ::PROTOBUF_NAMESPACE_ID::int32 CandidateList::_internal_selected() const {
-  return selected_;
+inline ::PROTOBUF_NAMESPACE_ID::int32 CandidateList::_internal_focused() const {
+  return focused_;
 }
-inline ::PROTOBUF_NAMESPACE_ID::int32 CandidateList::selected() const {
-  // @@protoc_insertion_point(field_get:khiin.messages.CandidateList.selected)
-  return _internal_selected();
+inline ::PROTOBUF_NAMESPACE_ID::int32 CandidateList::focused() const {
+  // @@protoc_insertion_point(field_get:khiin.messages.CandidateList.focused)
+  return _internal_focused();
 }
-inline void CandidateList::_internal_set_selected(::PROTOBUF_NAMESPACE_ID::int32 value) {
+inline void CandidateList::_internal_set_focused(::PROTOBUF_NAMESPACE_ID::int32 value) {
   
-  selected_ = value;
+  focused_ = value;
 }
-inline void CandidateList::set_selected(::PROTOBUF_NAMESPACE_ID::int32 value) {
-  _internal_set_selected(value);
-  // @@protoc_insertion_point(field_set:khiin.messages.CandidateList.selected)
+inline void CandidateList::set_focused(::PROTOBUF_NAMESPACE_ID::int32 value) {
+  _internal_set_focused(value);
+  // @@protoc_insertion_point(field_set:khiin.messages.CandidateList.focused)
 }
 
 // -------------------------------------------------------------------

@@ -1,4 +1,4 @@
-# libtaikey
+# Khíín Tâigí Phah Jī Hoat
 
 ## Development
 
@@ -27,4 +27,10 @@ You can install Boost and SQLiteCpp (including sqlite3) with vcpkg:
 ./vcpkg install sqlitecpp:x64-windows
 ./vcpkg install boost:x86-windows
 ./vcpkg install sqlitecpp:x86-windows
+```
+
+### Protobuf
+
+```
+protoc.exe -I=proto --cpp_out=proto/proto proto/messages.proto
 ```

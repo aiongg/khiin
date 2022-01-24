@@ -92,7 +92,7 @@ PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT CandidateDefaultTypeInternal _C
 constexpr CandidateList::CandidateList(
   ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
   : candidates_()
-  , selected_(0){}
+  , focused_(0){}
 struct CandidateListDefaultTypeInternal {
   constexpr CandidateListDefaultTypeInternal()
     : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
@@ -338,23 +338,23 @@ bool Composition_Segment_Status_IsValid(int value) {
 static ::PROTOBUF_NAMESPACE_ID::internal::ExplicitlyConstructed<std::string> Composition_Segment_Status_strings[4] = {};
 
 static const char Composition_Segment_Status_names[] =
-  "COMMITTED"
   "COMPOSING"
   "CONVERTED"
-  "FOCUSED";
+  "FOCUSED"
+  "NONE";
 
 static const ::PROTOBUF_NAMESPACE_ID::internal::EnumEntry Composition_Segment_Status_entries[] = {
-  { {Composition_Segment_Status_names + 0, 9}, 0 },
-  { {Composition_Segment_Status_names + 9, 9}, 1 },
-  { {Composition_Segment_Status_names + 18, 9}, 2 },
-  { {Composition_Segment_Status_names + 27, 7}, 3 },
+  { {Composition_Segment_Status_names + 0, 9}, 1 },
+  { {Composition_Segment_Status_names + 9, 9}, 2 },
+  { {Composition_Segment_Status_names + 18, 7}, 3 },
+  { {Composition_Segment_Status_names + 25, 4}, 0 },
 };
 
 static const int Composition_Segment_Status_entries_by_number[] = {
-  0, // 0 -> COMMITTED
-  1, // 1 -> COMPOSING
-  2, // 2 -> CONVERTED
-  3, // 3 -> FOCUSED
+  3, // 0 -> NONE
+  0, // 1 -> COMPOSING
+  1, // 2 -> CONVERTED
+  2, // 3 -> FOCUSED
 };
 
 const std::string& Composition_Segment_Status_Name(
@@ -383,7 +383,7 @@ bool Composition_Segment_Status_Parse(
   return success;
 }
 #if (__cplusplus < 201703) && (!defined(_MSC_VER) || _MSC_VER >= 1900)
-constexpr Composition_Segment_Status Composition_Segment::COMMITTED;
+constexpr Composition_Segment_Status Composition_Segment::NONE;
 constexpr Composition_Segment_Status Composition_Segment::COMPOSING;
 constexpr Composition_Segment_Status Composition_Segment::CONVERTED;
 constexpr Composition_Segment_Status Composition_Segment::FOCUSED;
@@ -1904,12 +1904,12 @@ CandidateList::CandidateList(const CandidateList& from)
   : ::PROTOBUF_NAMESPACE_ID::MessageLite(),
       candidates_(from.candidates_) {
   _internal_metadata_.MergeFrom<std::string>(from._internal_metadata_);
-  selected_ = from.selected_;
+  focused_ = from.focused_;
   // @@protoc_insertion_point(copy_constructor:khiin.messages.CandidateList)
 }
 
 void CandidateList::SharedCtor() {
-selected_ = 0;
+focused_ = 0;
 }
 
 CandidateList::~CandidateList() {
@@ -1940,7 +1940,7 @@ void CandidateList::Clear() {
   (void) cached_has_bits;
 
   candidates_.Clear();
-  selected_ = 0;
+  focused_ = 0;
   _internal_metadata_.Clear<std::string>();
 }
 
@@ -1963,10 +1963,10 @@ const char* CandidateList::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_
         } else
           goto handle_unusual;
         continue;
-      // int32 selected = 2;
+      // int32 focused = 2;
       case 2:
         if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 16)) {
-          selected_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
+          focused_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
           CHK_(ptr);
         } else
           goto handle_unusual;
@@ -2008,10 +2008,10 @@ failure:
       InternalWriteMessage(1, this->_internal_candidates(i), target, stream);
   }
 
-  // int32 selected = 2;
-  if (this->_internal_selected() != 0) {
+  // int32 focused = 2;
+  if (this->_internal_focused() != 0) {
     target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteInt32ToArray(2, this->_internal_selected(), target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteInt32ToArray(2, this->_internal_focused(), target);
   }
 
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
@@ -2037,9 +2037,9 @@ size_t CandidateList::ByteSizeLong() const {
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(msg);
   }
 
-  // int32 selected = 2;
-  if (this->_internal_selected() != 0) {
-    total_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32SizePlusOne(this->_internal_selected());
+  // int32 focused = 2;
+  if (this->_internal_focused() != 0) {
+    total_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32SizePlusOne(this->_internal_focused());
   }
 
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
@@ -2063,8 +2063,8 @@ void CandidateList::MergeFrom(const CandidateList& from) {
   (void) cached_has_bits;
 
   candidates_.MergeFrom(from.candidates_);
-  if (from._internal_selected() != 0) {
-    _internal_set_selected(from._internal_selected());
+  if (from._internal_focused() != 0) {
+    _internal_set_focused(from._internal_focused());
   }
   _internal_metadata_.MergeFrom<std::string>(from._internal_metadata_);
 }
@@ -2084,7 +2084,7 @@ void CandidateList::InternalSwap(CandidateList* other) {
   using std::swap;
   _internal_metadata_.InternalSwap(&other->_internal_metadata_);
   candidates_.InternalSwap(&other->candidates_);
-  swap(selected_, other->selected_);
+  swap(focused_, other->focused_);
 }
 
 std::string CandidateList::GetTypeName() const {
