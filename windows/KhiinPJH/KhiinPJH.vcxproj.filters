@@ -81,9 +81,6 @@
     <ClInclude Include="KeyEvent.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Action.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="CompositionSink.h">
       <Filter>Header Files</Filter>
     </ClInclude>

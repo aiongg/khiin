@@ -137,260 +137,6 @@ PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT CommandDefaultTypeInternal _Com
 }  // namespace khiin
 namespace khiin {
 namespace messages {
-bool KeyEvent_SpecialKey_IsValid(int value) {
-  switch (value) {
-    case 0:
-    case 1:
-    case 2:
-    case 3:
-    case 4:
-    case 5:
-    case 6:
-    case 7:
-    case 8:
-    case 9:
-    case 10:
-    case 11:
-    case 12:
-    case 13:
-    case 14:
-      return true;
-    default:
-      return false;
-  }
-}
-
-static ::PROTOBUF_NAMESPACE_ID::internal::ExplicitlyConstructed<std::string> KeyEvent_SpecialKey_strings[15] = {};
-
-static const char KeyEvent_SpecialKey_names[] =
-  "BACKSPACE"
-  "DEL"
-  "DOWN"
-  "END"
-  "ENTER"
-  "ESC"
-  "HOME"
-  "LEFT"
-  "NONE"
-  "PGDN"
-  "PGUP"
-  "RIGHT"
-  "SPACE"
-  "TAB"
-  "UP";
-
-static const ::PROTOBUF_NAMESPACE_ID::internal::EnumEntry KeyEvent_SpecialKey_entries[] = {
-  { {KeyEvent_SpecialKey_names + 0, 9}, 4 },
-  { {KeyEvent_SpecialKey_names + 9, 3}, 14 },
-  { {KeyEvent_SpecialKey_names + 12, 4}, 9 },
-  { {KeyEvent_SpecialKey_names + 16, 3}, 13 },
-  { {KeyEvent_SpecialKey_names + 19, 5}, 2 },
-  { {KeyEvent_SpecialKey_names + 24, 3}, 3 },
-  { {KeyEvent_SpecialKey_names + 27, 4}, 12 },
-  { {KeyEvent_SpecialKey_names + 31, 4}, 6 },
-  { {KeyEvent_SpecialKey_names + 35, 4}, 0 },
-  { {KeyEvent_SpecialKey_names + 39, 4}, 11 },
-  { {KeyEvent_SpecialKey_names + 43, 4}, 10 },
-  { {KeyEvent_SpecialKey_names + 47, 5}, 8 },
-  { {KeyEvent_SpecialKey_names + 52, 5}, 1 },
-  { {KeyEvent_SpecialKey_names + 57, 3}, 5 },
-  { {KeyEvent_SpecialKey_names + 60, 2}, 7 },
-};
-
-static const int KeyEvent_SpecialKey_entries_by_number[] = {
-  8, // 0 -> NONE
-  12, // 1 -> SPACE
-  4, // 2 -> ENTER
-  5, // 3 -> ESC
-  0, // 4 -> BACKSPACE
-  13, // 5 -> TAB
-  7, // 6 -> LEFT
-  14, // 7 -> UP
-  11, // 8 -> RIGHT
-  2, // 9 -> DOWN
-  10, // 10 -> PGUP
-  9, // 11 -> PGDN
-  6, // 12 -> HOME
-  3, // 13 -> END
-  1, // 14 -> DEL
-};
-
-const std::string& KeyEvent_SpecialKey_Name(
-    KeyEvent_SpecialKey value) {
-  static const bool dummy =
-      ::PROTOBUF_NAMESPACE_ID::internal::InitializeEnumStrings(
-          KeyEvent_SpecialKey_entries,
-          KeyEvent_SpecialKey_entries_by_number,
-          15, KeyEvent_SpecialKey_strings);
-  (void) dummy;
-  int idx = ::PROTOBUF_NAMESPACE_ID::internal::LookUpEnumName(
-      KeyEvent_SpecialKey_entries,
-      KeyEvent_SpecialKey_entries_by_number,
-      15, value);
-  return idx == -1 ? ::PROTOBUF_NAMESPACE_ID::internal::GetEmptyString() :
-                     KeyEvent_SpecialKey_strings[idx].get();
-}
-bool KeyEvent_SpecialKey_Parse(
-    ::PROTOBUF_NAMESPACE_ID::ConstStringParam name, KeyEvent_SpecialKey* value) {
-  int int_value;
-  bool success = ::PROTOBUF_NAMESPACE_ID::internal::LookUpEnumValue(
-      KeyEvent_SpecialKey_entries, 15, name, &int_value);
-  if (success) {
-    *value = static_cast<KeyEvent_SpecialKey>(int_value);
-  }
-  return success;
-}
-#if (__cplusplus < 201703) && (!defined(_MSC_VER) || _MSC_VER >= 1900)
-constexpr KeyEvent_SpecialKey KeyEvent::NONE;
-constexpr KeyEvent_SpecialKey KeyEvent::SPACE;
-constexpr KeyEvent_SpecialKey KeyEvent::ENTER;
-constexpr KeyEvent_SpecialKey KeyEvent::ESC;
-constexpr KeyEvent_SpecialKey KeyEvent::BACKSPACE;
-constexpr KeyEvent_SpecialKey KeyEvent::TAB;
-constexpr KeyEvent_SpecialKey KeyEvent::LEFT;
-constexpr KeyEvent_SpecialKey KeyEvent::UP;
-constexpr KeyEvent_SpecialKey KeyEvent::RIGHT;
-constexpr KeyEvent_SpecialKey KeyEvent::DOWN;
-constexpr KeyEvent_SpecialKey KeyEvent::PGUP;
-constexpr KeyEvent_SpecialKey KeyEvent::PGDN;
-constexpr KeyEvent_SpecialKey KeyEvent::HOME;
-constexpr KeyEvent_SpecialKey KeyEvent::END;
-constexpr KeyEvent_SpecialKey KeyEvent::DEL;
-constexpr KeyEvent_SpecialKey KeyEvent::SpecialKey_MIN;
-constexpr KeyEvent_SpecialKey KeyEvent::SpecialKey_MAX;
-constexpr int KeyEvent::SpecialKey_ARRAYSIZE;
-#endif  // (__cplusplus < 201703) && (!defined(_MSC_VER) || _MSC_VER >= 1900)
-bool KeyEvent_ModifierKey_IsValid(int value) {
-  switch (value) {
-    case 0:
-    case 1:
-    case 2:
-      return true;
-    default:
-      return false;
-  }
-}
-
-static ::PROTOBUF_NAMESPACE_ID::internal::ExplicitlyConstructed<std::string> KeyEvent_ModifierKey_strings[3] = {};
-
-static const char KeyEvent_ModifierKey_names[] =
-  "ALT"
-  "CTRL"
-  "SHIFT";
-
-static const ::PROTOBUF_NAMESPACE_ID::internal::EnumEntry KeyEvent_ModifierKey_entries[] = {
-  { {KeyEvent_ModifierKey_names + 0, 3}, 1 },
-  { {KeyEvent_ModifierKey_names + 3, 4}, 0 },
-  { {KeyEvent_ModifierKey_names + 7, 5}, 2 },
-};
-
-static const int KeyEvent_ModifierKey_entries_by_number[] = {
-  1, // 0 -> CTRL
-  0, // 1 -> ALT
-  2, // 2 -> SHIFT
-};
-
-const std::string& KeyEvent_ModifierKey_Name(
-    KeyEvent_ModifierKey value) {
-  static const bool dummy =
-      ::PROTOBUF_NAMESPACE_ID::internal::InitializeEnumStrings(
-          KeyEvent_ModifierKey_entries,
-          KeyEvent_ModifierKey_entries_by_number,
-          3, KeyEvent_ModifierKey_strings);
-  (void) dummy;
-  int idx = ::PROTOBUF_NAMESPACE_ID::internal::LookUpEnumName(
-      KeyEvent_ModifierKey_entries,
-      KeyEvent_ModifierKey_entries_by_number,
-      3, value);
-  return idx == -1 ? ::PROTOBUF_NAMESPACE_ID::internal::GetEmptyString() :
-                     KeyEvent_ModifierKey_strings[idx].get();
-}
-bool KeyEvent_ModifierKey_Parse(
-    ::PROTOBUF_NAMESPACE_ID::ConstStringParam name, KeyEvent_ModifierKey* value) {
-  int int_value;
-  bool success = ::PROTOBUF_NAMESPACE_ID::internal::LookUpEnumValue(
-      KeyEvent_ModifierKey_entries, 3, name, &int_value);
-  if (success) {
-    *value = static_cast<KeyEvent_ModifierKey>(int_value);
-  }
-  return success;
-}
-#if (__cplusplus < 201703) && (!defined(_MSC_VER) || _MSC_VER >= 1900)
-constexpr KeyEvent_ModifierKey KeyEvent::CTRL;
-constexpr KeyEvent_ModifierKey KeyEvent::ALT;
-constexpr KeyEvent_ModifierKey KeyEvent::SHIFT;
-constexpr KeyEvent_ModifierKey KeyEvent::ModifierKey_MIN;
-constexpr KeyEvent_ModifierKey KeyEvent::ModifierKey_MAX;
-constexpr int KeyEvent::ModifierKey_ARRAYSIZE;
-#endif  // (__cplusplus < 201703) && (!defined(_MSC_VER) || _MSC_VER >= 1900)
-bool Composition_Segment_Status_IsValid(int value) {
-  switch (value) {
-    case 0:
-    case 1:
-    case 2:
-    case 3:
-      return true;
-    default:
-      return false;
-  }
-}
-
-static ::PROTOBUF_NAMESPACE_ID::internal::ExplicitlyConstructed<std::string> Composition_Segment_Status_strings[4] = {};
-
-static const char Composition_Segment_Status_names[] =
-  "COMPOSING"
-  "CONVERTED"
-  "FOCUSED"
-  "NONE";
-
-static const ::PROTOBUF_NAMESPACE_ID::internal::EnumEntry Composition_Segment_Status_entries[] = {
-  { {Composition_Segment_Status_names + 0, 9}, 1 },
-  { {Composition_Segment_Status_names + 9, 9}, 2 },
-  { {Composition_Segment_Status_names + 18, 7}, 3 },
-  { {Composition_Segment_Status_names + 25, 4}, 0 },
-};
-
-static const int Composition_Segment_Status_entries_by_number[] = {
-  3, // 0 -> NONE
-  0, // 1 -> COMPOSING
-  1, // 2 -> CONVERTED
-  2, // 3 -> FOCUSED
-};
-
-const std::string& Composition_Segment_Status_Name(
-    Composition_Segment_Status value) {
-  static const bool dummy =
-      ::PROTOBUF_NAMESPACE_ID::internal::InitializeEnumStrings(
-          Composition_Segment_Status_entries,
-          Composition_Segment_Status_entries_by_number,
-          4, Composition_Segment_Status_strings);
-  (void) dummy;
-  int idx = ::PROTOBUF_NAMESPACE_ID::internal::LookUpEnumName(
-      Composition_Segment_Status_entries,
-      Composition_Segment_Status_entries_by_number,
-      4, value);
-  return idx == -1 ? ::PROTOBUF_NAMESPACE_ID::internal::GetEmptyString() :
-                     Composition_Segment_Status_strings[idx].get();
-}
-bool Composition_Segment_Status_Parse(
-    ::PROTOBUF_NAMESPACE_ID::ConstStringParam name, Composition_Segment_Status* value) {
-  int int_value;
-  bool success = ::PROTOBUF_NAMESPACE_ID::internal::LookUpEnumValue(
-      Composition_Segment_Status_entries, 4, name, &int_value);
-  if (success) {
-    *value = static_cast<Composition_Segment_Status>(int_value);
-  }
-  return success;
-}
-#if (__cplusplus < 201703) && (!defined(_MSC_VER) || _MSC_VER >= 1900)
-constexpr Composition_Segment_Status Composition_Segment::NONE;
-constexpr Composition_Segment_Status Composition_Segment::COMPOSING;
-constexpr Composition_Segment_Status Composition_Segment::CONVERTED;
-constexpr Composition_Segment_Status Composition_Segment::FOCUSED;
-constexpr Composition_Segment_Status Composition_Segment::Status_MIN;
-constexpr Composition_Segment_Status Composition_Segment::Status_MAX;
-constexpr int Composition_Segment::Status_ARRAYSIZE;
-#endif  // (__cplusplus < 201703) && (!defined(_MSC_VER) || _MSC_VER >= 1900)
 bool Candidate_Category_IsValid(int value) {
   switch (value) {
     case 0:
@@ -454,7 +200,224 @@ constexpr Candidate_Category Candidate::Category_MIN;
 constexpr Candidate_Category Candidate::Category_MAX;
 constexpr int Candidate::Category_ARRAYSIZE;
 #endif  // (__cplusplus < 201703) && (!defined(_MSC_VER) || _MSC_VER >= 1900)
-bool Output_ErrorCode_IsValid(int value) {
+bool SpecialKey_IsValid(int value) {
+  switch (value) {
+    case 0:
+    case 1:
+    case 2:
+    case 3:
+    case 4:
+    case 5:
+    case 6:
+    case 7:
+    case 8:
+    case 9:
+    case 10:
+    case 11:
+    case 12:
+    case 13:
+    case 14:
+      return true;
+    default:
+      return false;
+  }
+}
+
+static ::PROTOBUF_NAMESPACE_ID::internal::ExplicitlyConstructed<std::string> SpecialKey_strings[15] = {};
+
+static const char SpecialKey_names[] =
+  "SK_BACKSPACE"
+  "SK_DEL"
+  "SK_DOWN"
+  "SK_END"
+  "SK_ENTER"
+  "SK_ESC"
+  "SK_HOME"
+  "SK_LEFT"
+  "SK_NONE"
+  "SK_PGDN"
+  "SK_PGUP"
+  "SK_RIGHT"
+  "SK_SPACE"
+  "SK_TAB"
+  "SK_UP";
+
+static const ::PROTOBUF_NAMESPACE_ID::internal::EnumEntry SpecialKey_entries[] = {
+  { {SpecialKey_names + 0, 12}, 4 },
+  { {SpecialKey_names + 12, 6}, 14 },
+  { {SpecialKey_names + 18, 7}, 9 },
+  { {SpecialKey_names + 25, 6}, 13 },
+  { {SpecialKey_names + 31, 8}, 2 },
+  { {SpecialKey_names + 39, 6}, 3 },
+  { {SpecialKey_names + 45, 7}, 12 },
+  { {SpecialKey_names + 52, 7}, 6 },
+  { {SpecialKey_names + 59, 7}, 0 },
+  { {SpecialKey_names + 66, 7}, 11 },
+  { {SpecialKey_names + 73, 7}, 10 },
+  { {SpecialKey_names + 80, 8}, 8 },
+  { {SpecialKey_names + 88, 8}, 1 },
+  { {SpecialKey_names + 96, 6}, 5 },
+  { {SpecialKey_names + 102, 5}, 7 },
+};
+
+static const int SpecialKey_entries_by_number[] = {
+  8, // 0 -> SK_NONE
+  12, // 1 -> SK_SPACE
+  4, // 2 -> SK_ENTER
+  5, // 3 -> SK_ESC
+  0, // 4 -> SK_BACKSPACE
+  13, // 5 -> SK_TAB
+  7, // 6 -> SK_LEFT
+  14, // 7 -> SK_UP
+  11, // 8 -> SK_RIGHT
+  2, // 9 -> SK_DOWN
+  10, // 10 -> SK_PGUP
+  9, // 11 -> SK_PGDN
+  6, // 12 -> SK_HOME
+  3, // 13 -> SK_END
+  1, // 14 -> SK_DEL
+};
+
+const std::string& SpecialKey_Name(
+    SpecialKey value) {
+  static const bool dummy =
+      ::PROTOBUF_NAMESPACE_ID::internal::InitializeEnumStrings(
+          SpecialKey_entries,
+          SpecialKey_entries_by_number,
+          15, SpecialKey_strings);
+  (void) dummy;
+  int idx = ::PROTOBUF_NAMESPACE_ID::internal::LookUpEnumName(
+      SpecialKey_entries,
+      SpecialKey_entries_by_number,
+      15, value);
+  return idx == -1 ? ::PROTOBUF_NAMESPACE_ID::internal::GetEmptyString() :
+                     SpecialKey_strings[idx].get();
+}
+bool SpecialKey_Parse(
+    ::PROTOBUF_NAMESPACE_ID::ConstStringParam name, SpecialKey* value) {
+  int int_value;
+  bool success = ::PROTOBUF_NAMESPACE_ID::internal::LookUpEnumValue(
+      SpecialKey_entries, 15, name, &int_value);
+  if (success) {
+    *value = static_cast<SpecialKey>(int_value);
+  }
+  return success;
+}
+bool ModifierKey_IsValid(int value) {
+  switch (value) {
+    case 0:
+    case 1:
+    case 2:
+      return true;
+    default:
+      return false;
+  }
+}
+
+static ::PROTOBUF_NAMESPACE_ID::internal::ExplicitlyConstructed<std::string> ModifierKey_strings[3] = {};
+
+static const char ModifierKey_names[] =
+  "ALT"
+  "CTRL"
+  "SHIFT";
+
+static const ::PROTOBUF_NAMESPACE_ID::internal::EnumEntry ModifierKey_entries[] = {
+  { {ModifierKey_names + 0, 3}, 1 },
+  { {ModifierKey_names + 3, 4}, 0 },
+  { {ModifierKey_names + 7, 5}, 2 },
+};
+
+static const int ModifierKey_entries_by_number[] = {
+  1, // 0 -> CTRL
+  0, // 1 -> ALT
+  2, // 2 -> SHIFT
+};
+
+const std::string& ModifierKey_Name(
+    ModifierKey value) {
+  static const bool dummy =
+      ::PROTOBUF_NAMESPACE_ID::internal::InitializeEnumStrings(
+          ModifierKey_entries,
+          ModifierKey_entries_by_number,
+          3, ModifierKey_strings);
+  (void) dummy;
+  int idx = ::PROTOBUF_NAMESPACE_ID::internal::LookUpEnumName(
+      ModifierKey_entries,
+      ModifierKey_entries_by_number,
+      3, value);
+  return idx == -1 ? ::PROTOBUF_NAMESPACE_ID::internal::GetEmptyString() :
+                     ModifierKey_strings[idx].get();
+}
+bool ModifierKey_Parse(
+    ::PROTOBUF_NAMESPACE_ID::ConstStringParam name, ModifierKey* value) {
+  int int_value;
+  bool success = ::PROTOBUF_NAMESPACE_ID::internal::LookUpEnumValue(
+      ModifierKey_entries, 3, name, &int_value);
+  if (success) {
+    *value = static_cast<ModifierKey>(int_value);
+  }
+  return success;
+}
+bool SegmentStatus_IsValid(int value) {
+  switch (value) {
+    case 0:
+    case 1:
+    case 2:
+    case 3:
+      return true;
+    default:
+      return false;
+  }
+}
+
+static ::PROTOBUF_NAMESPACE_ID::internal::ExplicitlyConstructed<std::string> SegmentStatus_strings[4] = {};
+
+static const char SegmentStatus_names[] =
+  "COMPOSING"
+  "CONVERTED"
+  "FOCUSED"
+  "UNMARKED";
+
+static const ::PROTOBUF_NAMESPACE_ID::internal::EnumEntry SegmentStatus_entries[] = {
+  { {SegmentStatus_names + 0, 9}, 1 },
+  { {SegmentStatus_names + 9, 9}, 2 },
+  { {SegmentStatus_names + 18, 7}, 3 },
+  { {SegmentStatus_names + 25, 8}, 0 },
+};
+
+static const int SegmentStatus_entries_by_number[] = {
+  3, // 0 -> UNMARKED
+  0, // 1 -> COMPOSING
+  1, // 2 -> CONVERTED
+  2, // 3 -> FOCUSED
+};
+
+const std::string& SegmentStatus_Name(
+    SegmentStatus value) {
+  static const bool dummy =
+      ::PROTOBUF_NAMESPACE_ID::internal::InitializeEnumStrings(
+          SegmentStatus_entries,
+          SegmentStatus_entries_by_number,
+          4, SegmentStatus_strings);
+  (void) dummy;
+  int idx = ::PROTOBUF_NAMESPACE_ID::internal::LookUpEnumName(
+      SegmentStatus_entries,
+      SegmentStatus_entries_by_number,
+      4, value);
+  return idx == -1 ? ::PROTOBUF_NAMESPACE_ID::internal::GetEmptyString() :
+                     SegmentStatus_strings[idx].get();
+}
+bool SegmentStatus_Parse(
+    ::PROTOBUF_NAMESPACE_ID::ConstStringParam name, SegmentStatus* value) {
+  int int_value;
+  bool success = ::PROTOBUF_NAMESPACE_ID::internal::LookUpEnumValue(
+      SegmentStatus_entries, 4, name, &int_value);
+  if (success) {
+    *value = static_cast<SegmentStatus>(int_value);
+  }
+  return success;
+}
+bool ErrorCode_IsValid(int value) {
   switch (value) {
     case 0:
     case 1:
@@ -464,54 +427,47 @@ bool Output_ErrorCode_IsValid(int value) {
   }
 }
 
-static ::PROTOBUF_NAMESPACE_ID::internal::ExplicitlyConstructed<std::string> Output_ErrorCode_strings[2] = {};
+static ::PROTOBUF_NAMESPACE_ID::internal::ExplicitlyConstructed<std::string> ErrorCode_strings[2] = {};
 
-static const char Output_ErrorCode_names[] =
+static const char ErrorCode_names[] =
   "FAIL"
   "OK";
 
-static const ::PROTOBUF_NAMESPACE_ID::internal::EnumEntry Output_ErrorCode_entries[] = {
-  { {Output_ErrorCode_names + 0, 4}, 1 },
-  { {Output_ErrorCode_names + 4, 2}, 0 },
+static const ::PROTOBUF_NAMESPACE_ID::internal::EnumEntry ErrorCode_entries[] = {
+  { {ErrorCode_names + 0, 4}, 1 },
+  { {ErrorCode_names + 4, 2}, 0 },
 };
 
-static const int Output_ErrorCode_entries_by_number[] = {
+static const int ErrorCode_entries_by_number[] = {
   1, // 0 -> OK
   0, // 1 -> FAIL
 };
 
-const std::string& Output_ErrorCode_Name(
-    Output_ErrorCode value) {
+const std::string& ErrorCode_Name(
+    ErrorCode value) {
   static const bool dummy =
       ::PROTOBUF_NAMESPACE_ID::internal::InitializeEnumStrings(
-          Output_ErrorCode_entries,
-          Output_ErrorCode_entries_by_number,
-          2, Output_ErrorCode_strings);
+          ErrorCode_entries,
+          ErrorCode_entries_by_number,
+          2, ErrorCode_strings);
   (void) dummy;
   int idx = ::PROTOBUF_NAMESPACE_ID::internal::LookUpEnumName(
-      Output_ErrorCode_entries,
-      Output_ErrorCode_entries_by_number,
+      ErrorCode_entries,
+      ErrorCode_entries_by_number,
       2, value);
   return idx == -1 ? ::PROTOBUF_NAMESPACE_ID::internal::GetEmptyString() :
-                     Output_ErrorCode_strings[idx].get();
+                     ErrorCode_strings[idx].get();
 }
-bool Output_ErrorCode_Parse(
-    ::PROTOBUF_NAMESPACE_ID::ConstStringParam name, Output_ErrorCode* value) {
+bool ErrorCode_Parse(
+    ::PROTOBUF_NAMESPACE_ID::ConstStringParam name, ErrorCode* value) {
   int int_value;
   bool success = ::PROTOBUF_NAMESPACE_ID::internal::LookUpEnumValue(
-      Output_ErrorCode_entries, 2, name, &int_value);
+      ErrorCode_entries, 2, name, &int_value);
   if (success) {
-    *value = static_cast<Output_ErrorCode>(int_value);
+    *value = static_cast<ErrorCode>(int_value);
   }
   return success;
 }
-#if (__cplusplus < 201703) && (!defined(_MSC_VER) || _MSC_VER >= 1900)
-constexpr Output_ErrorCode Output::OK;
-constexpr Output_ErrorCode Output::FAIL;
-constexpr Output_ErrorCode Output::ErrorCode_MIN;
-constexpr Output_ErrorCode Output::ErrorCode_MAX;
-constexpr int Output::ErrorCode_ARRAYSIZE;
-#endif  // (__cplusplus < 201703) && (!defined(_MSC_VER) || _MSC_VER >= 1900)
 bool CommandType_IsValid(int value) {
   switch (value) {
     case 0:
@@ -685,16 +641,16 @@ const char* KeyEvent::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::i
         } else
           goto handle_unusual;
         continue;
-      // .khiin.messages.KeyEvent.SpecialKey special_key = 2;
+      // .khiin.messages.SpecialKey special_key = 2;
       case 2:
         if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 16)) {
           ::PROTOBUF_NAMESPACE_ID::uint64 val = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
           CHK_(ptr);
-          _internal_set_special_key(static_cast<::khiin::messages::KeyEvent_SpecialKey>(val));
+          _internal_set_special_key(static_cast<::khiin::messages::SpecialKey>(val));
         } else
           goto handle_unusual;
         continue;
-      // repeated .khiin.messages.KeyEvent.ModifierKey modifier_keys = 3;
+      // repeated .khiin.messages.ModifierKey modifier_keys = 3;
       case 3:
         if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 26)) {
           ptr = ::PROTOBUF_NAMESPACE_ID::internal::PackedEnumParser(_internal_mutable_modifier_keys(), ptr, ctx);
@@ -702,7 +658,7 @@ const char* KeyEvent::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::i
         } else if (static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 24) {
           ::PROTOBUF_NAMESPACE_ID::uint64 val = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
           CHK_(ptr);
-          _internal_add_modifier_keys(static_cast<::khiin::messages::KeyEvent_ModifierKey>(val));
+          _internal_add_modifier_keys(static_cast<::khiin::messages::ModifierKey>(val));
         } else
           goto handle_unusual;
         continue;
@@ -741,14 +697,14 @@ failure:
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteInt32ToArray(1, this->_internal_key_code(), target);
   }
 
-  // .khiin.messages.KeyEvent.SpecialKey special_key = 2;
+  // .khiin.messages.SpecialKey special_key = 2;
   if (this->_internal_special_key() != 0) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteEnumToArray(
       2, this->_internal_special_key(), target);
   }
 
-  // repeated .khiin.messages.KeyEvent.ModifierKey modifier_keys = 3;
+  // repeated .khiin.messages.ModifierKey modifier_keys = 3;
   {
     int byte_size = _modifier_keys_cached_byte_size_.load(std::memory_order_relaxed);
     if (byte_size > 0) {
@@ -773,7 +729,7 @@ size_t KeyEvent::ByteSizeLong() const {
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
-  // repeated .khiin.messages.KeyEvent.ModifierKey modifier_keys = 3;
+  // repeated .khiin.messages.ModifierKey modifier_keys = 3;
   {
     size_t data_size = 0;
     unsigned int count = static_cast<unsigned int>(this->_internal_modifier_keys_size());for (unsigned int i = 0; i < count; i++) {
@@ -796,7 +752,7 @@ size_t KeyEvent::ByteSizeLong() const {
     total_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32SizePlusOne(this->_internal_key_code());
   }
 
-  // .khiin.messages.KeyEvent.SpecialKey special_key = 2;
+  // .khiin.messages.SpecialKey special_key = 2;
   if (this->_internal_special_key() != 0) {
     total_size += 1 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::EnumSize(this->_internal_special_key());
@@ -1181,12 +1137,12 @@ const char* Composition_Segment::_InternalParse(const char* ptr, ::PROTOBUF_NAME
     ::PROTOBUF_NAMESPACE_ID::uint32 tag;
     ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
     switch (tag >> 3) {
-      // .khiin.messages.Composition.Segment.Status status = 1;
+      // .khiin.messages.SegmentStatus status = 1;
       case 1:
         if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 8)) {
           ::PROTOBUF_NAMESPACE_ID::uint64 val = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
           CHK_(ptr);
-          _internal_set_status(static_cast<::khiin::messages::Composition_Segment_Status>(val));
+          _internal_set_status(static_cast<::khiin::messages::SegmentStatus>(val));
         } else
           goto handle_unusual;
         continue;
@@ -1229,7 +1185,7 @@ failure:
   ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   (void) cached_has_bits;
 
-  // .khiin.messages.Composition.Segment.Status status = 1;
+  // .khiin.messages.SegmentStatus status = 1;
   if (this->_internal_status() != 0) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteEnumToArray(
@@ -1269,7 +1225,7 @@ size_t Composition_Segment::ByteSizeLong() const {
         this->_internal_value());
   }
 
-  // .khiin.messages.Composition.Segment.Status status = 1;
+  // .khiin.messages.SegmentStatus status = 1;
   if (this->_internal_status() != 0) {
     total_size += 1 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::EnumSize(this->_internal_status());
@@ -2192,12 +2148,12 @@ const char* Output::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::int
     ::PROTOBUF_NAMESPACE_ID::uint32 tag;
     ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
     switch (tag >> 3) {
-      // .khiin.messages.Output.ErrorCode error = 1;
+      // .khiin.messages.ErrorCode error = 1;
       case 1:
         if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 8)) {
           ::PROTOBUF_NAMESPACE_ID::uint64 val = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
           CHK_(ptr);
-          _internal_set_error(static_cast<::khiin::messages::Output_ErrorCode>(val));
+          _internal_set_error(static_cast<::khiin::messages::ErrorCode>(val));
         } else
           goto handle_unusual;
         continue;
@@ -2254,7 +2210,7 @@ failure:
   ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   (void) cached_has_bits;
 
-  // .khiin.messages.Output.ErrorCode error = 1;
+  // .khiin.messages.ErrorCode error = 1;
   if (this->_internal_error() != 0) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteEnumToArray(
@@ -2313,7 +2269,7 @@ size_t Output::ByteSizeLong() const {
         *candidate_list_);
   }
 
-  // .khiin.messages.Output.ErrorCode error = 1;
+  // .khiin.messages.ErrorCode error = 1;
   if (this->_internal_error() != 0) {
     total_size += 1 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::EnumSize(this->_internal_error());

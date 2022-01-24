@@ -176,7 +176,6 @@
     <ClInclude Include="BaseWindow.h" />
     <ClInclude Include="CandidateWindow.h" />
     <ClInclude Include="CandidateListUI.h" />
-    <ClInclude Include="Action.h" />
     <ClInclude Include="CompositionSink.h" />
     <ClInclude Include="DisplayAttributeInfo.h" />
     <ClInclude Include="EditSession.h" />

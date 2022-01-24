@@ -92,85 +92,6 @@ PROTOBUF_NAMESPACE_CLOSE
 namespace khiin {
 namespace messages {
 
-enum KeyEvent_SpecialKey : int {
-  KeyEvent_SpecialKey_NONE = 0,
-  KeyEvent_SpecialKey_SPACE = 1,
-  KeyEvent_SpecialKey_ENTER = 2,
-  KeyEvent_SpecialKey_ESC = 3,
-  KeyEvent_SpecialKey_BACKSPACE = 4,
-  KeyEvent_SpecialKey_TAB = 5,
-  KeyEvent_SpecialKey_LEFT = 6,
-  KeyEvent_SpecialKey_UP = 7,
-  KeyEvent_SpecialKey_RIGHT = 8,
-  KeyEvent_SpecialKey_DOWN = 9,
-  KeyEvent_SpecialKey_PGUP = 10,
-  KeyEvent_SpecialKey_PGDN = 11,
-  KeyEvent_SpecialKey_HOME = 12,
-  KeyEvent_SpecialKey_END = 13,
-  KeyEvent_SpecialKey_DEL = 14,
-  KeyEvent_SpecialKey_KeyEvent_SpecialKey_INT_MIN_SENTINEL_DO_NOT_USE_ = std::numeric_limits<::PROTOBUF_NAMESPACE_ID::int32>::min(),
-  KeyEvent_SpecialKey_KeyEvent_SpecialKey_INT_MAX_SENTINEL_DO_NOT_USE_ = std::numeric_limits<::PROTOBUF_NAMESPACE_ID::int32>::max()
-};
-bool KeyEvent_SpecialKey_IsValid(int value);
-constexpr KeyEvent_SpecialKey KeyEvent_SpecialKey_SpecialKey_MIN = KeyEvent_SpecialKey_NONE;
-constexpr KeyEvent_SpecialKey KeyEvent_SpecialKey_SpecialKey_MAX = KeyEvent_SpecialKey_DEL;
-constexpr int KeyEvent_SpecialKey_SpecialKey_ARRAYSIZE = KeyEvent_SpecialKey_SpecialKey_MAX + 1;
-
-const std::string& KeyEvent_SpecialKey_Name(KeyEvent_SpecialKey value);
-template<typename T>
-inline const std::string& KeyEvent_SpecialKey_Name(T enum_t_value) {
-  static_assert(::std::is_same<T, KeyEvent_SpecialKey>::value ||
-    ::std::is_integral<T>::value,
-    "Incorrect type passed to function KeyEvent_SpecialKey_Name.");
-  return KeyEvent_SpecialKey_Name(static_cast<KeyEvent_SpecialKey>(enum_t_value));
-}
-bool KeyEvent_SpecialKey_Parse(
-    ::PROTOBUF_NAMESPACE_ID::ConstStringParam name, KeyEvent_SpecialKey* value);
-enum KeyEvent_ModifierKey : int {
-  KeyEvent_ModifierKey_CTRL = 0,
-  KeyEvent_ModifierKey_ALT = 1,
-  KeyEvent_ModifierKey_SHIFT = 2,
-  KeyEvent_ModifierKey_KeyEvent_ModifierKey_INT_MIN_SENTINEL_DO_NOT_USE_ = std::numeric_limits<::PROTOBUF_NAMESPACE_ID::int32>::min(),
-  KeyEvent_ModifierKey_KeyEvent_ModifierKey_INT_MAX_SENTINEL_DO_NOT_USE_ = std::numeric_limits<::PROTOBUF_NAMESPACE_ID::int32>::max()
-};
-bool KeyEvent_ModifierKey_IsValid(int value);
-constexpr KeyEvent_ModifierKey KeyEvent_ModifierKey_ModifierKey_MIN = KeyEvent_ModifierKey_CTRL;
-constexpr KeyEvent_ModifierKey KeyEvent_ModifierKey_ModifierKey_MAX = KeyEvent_ModifierKey_SHIFT;
-constexpr int KeyEvent_ModifierKey_ModifierKey_ARRAYSIZE = KeyEvent_ModifierKey_ModifierKey_MAX + 1;
-
-const std::string& KeyEvent_ModifierKey_Name(KeyEvent_ModifierKey value);
-template<typename T>
-inline const std::string& KeyEvent_ModifierKey_Name(T enum_t_value) {
-  static_assert(::std::is_same<T, KeyEvent_ModifierKey>::value ||
-    ::std::is_integral<T>::value,
-    "Incorrect type passed to function KeyEvent_ModifierKey_Name.");
-  return KeyEvent_ModifierKey_Name(static_cast<KeyEvent_ModifierKey>(enum_t_value));
-}
-bool KeyEvent_ModifierKey_Parse(
-    ::PROTOBUF_NAMESPACE_ID::ConstStringParam name, KeyEvent_ModifierKey* value);
-enum Composition_Segment_Status : int {
-  Composition_Segment_Status_NONE = 0,
-  Composition_Segment_Status_COMPOSING = 1,
-  Composition_Segment_Status_CONVERTED = 2,
-  Composition_Segment_Status_FOCUSED = 3,
-  Composition_Segment_Status_Composition_Segment_Status_INT_MIN_SENTINEL_DO_NOT_USE_ = std::numeric_limits<::PROTOBUF_NAMESPACE_ID::int32>::min(),
-  Composition_Segment_Status_Composition_Segment_Status_INT_MAX_SENTINEL_DO_NOT_USE_ = std::numeric_limits<::PROTOBUF_NAMESPACE_ID::int32>::max()
-};
-bool Composition_Segment_Status_IsValid(int value);
-constexpr Composition_Segment_Status Composition_Segment_Status_Status_MIN = Composition_Segment_Status_NONE;
-constexpr Composition_Segment_Status Composition_Segment_Status_Status_MAX = Composition_Segment_Status_FOCUSED;
-constexpr int Composition_Segment_Status_Status_ARRAYSIZE = Composition_Segment_Status_Status_MAX + 1;
-
-const std::string& Composition_Segment_Status_Name(Composition_Segment_Status value);
-template<typename T>
-inline const std::string& Composition_Segment_Status_Name(T enum_t_value) {
-  static_assert(::std::is_same<T, Composition_Segment_Status>::value ||
-    ::std::is_integral<T>::value,
-    "Incorrect type passed to function Composition_Segment_Status_Name.");
-  return Composition_Segment_Status_Name(static_cast<Composition_Segment_Status>(enum_t_value));
-}
-bool Composition_Segment_Status_Parse(
-    ::PROTOBUF_NAMESPACE_ID::ConstStringParam name, Composition_Segment_Status* value);
 enum Candidate_Category : int {
   Candidate_Category_NORMAL = 0,
   Candidate_Category_KANA = 1,
@@ -193,27 +114,106 @@ inline const std::string& Candidate_Category_Name(T enum_t_value) {
 }
 bool Candidate_Category_Parse(
     ::PROTOBUF_NAMESPACE_ID::ConstStringParam name, Candidate_Category* value);
-enum Output_ErrorCode : int {
-  Output_ErrorCode_OK = 0,
-  Output_ErrorCode_FAIL = 1,
-  Output_ErrorCode_Output_ErrorCode_INT_MIN_SENTINEL_DO_NOT_USE_ = std::numeric_limits<::PROTOBUF_NAMESPACE_ID::int32>::min(),
-  Output_ErrorCode_Output_ErrorCode_INT_MAX_SENTINEL_DO_NOT_USE_ = std::numeric_limits<::PROTOBUF_NAMESPACE_ID::int32>::max()
+enum SpecialKey : int {
+  SK_NONE = 0,
+  SK_SPACE = 1,
+  SK_ENTER = 2,
+  SK_ESC = 3,
+  SK_BACKSPACE = 4,
+  SK_TAB = 5,
+  SK_LEFT = 6,
+  SK_UP = 7,
+  SK_RIGHT = 8,
+  SK_DOWN = 9,
+  SK_PGUP = 10,
+  SK_PGDN = 11,
+  SK_HOME = 12,
+  SK_END = 13,
+  SK_DEL = 14,
+  SpecialKey_INT_MIN_SENTINEL_DO_NOT_USE_ = std::numeric_limits<::PROTOBUF_NAMESPACE_ID::int32>::min(),
+  SpecialKey_INT_MAX_SENTINEL_DO_NOT_USE_ = std::numeric_limits<::PROTOBUF_NAMESPACE_ID::int32>::max()
 };
-bool Output_ErrorCode_IsValid(int value);
-constexpr Output_ErrorCode Output_ErrorCode_ErrorCode_MIN = Output_ErrorCode_OK;
-constexpr Output_ErrorCode Output_ErrorCode_ErrorCode_MAX = Output_ErrorCode_FAIL;
-constexpr int Output_ErrorCode_ErrorCode_ARRAYSIZE = Output_ErrorCode_ErrorCode_MAX + 1;
+bool SpecialKey_IsValid(int value);
+constexpr SpecialKey SpecialKey_MIN = SK_NONE;
+constexpr SpecialKey SpecialKey_MAX = SK_DEL;
+constexpr int SpecialKey_ARRAYSIZE = SpecialKey_MAX + 1;
 
-const std::string& Output_ErrorCode_Name(Output_ErrorCode value);
+const std::string& SpecialKey_Name(SpecialKey value);
 template<typename T>
-inline const std::string& Output_ErrorCode_Name(T enum_t_value) {
-  static_assert(::std::is_same<T, Output_ErrorCode>::value ||
+inline const std::string& SpecialKey_Name(T enum_t_value) {
+  static_assert(::std::is_same<T, SpecialKey>::value ||
     ::std::is_integral<T>::value,
-    "Incorrect type passed to function Output_ErrorCode_Name.");
-  return Output_ErrorCode_Name(static_cast<Output_ErrorCode>(enum_t_value));
+    "Incorrect type passed to function SpecialKey_Name.");
+  return SpecialKey_Name(static_cast<SpecialKey>(enum_t_value));
 }
-bool Output_ErrorCode_Parse(
-    ::PROTOBUF_NAMESPACE_ID::ConstStringParam name, Output_ErrorCode* value);
+bool SpecialKey_Parse(
+    ::PROTOBUF_NAMESPACE_ID::ConstStringParam name, SpecialKey* value);
+enum ModifierKey : int {
+  CTRL = 0,
+  ALT = 1,
+  SHIFT = 2,
+  ModifierKey_INT_MIN_SENTINEL_DO_NOT_USE_ = std::numeric_limits<::PROTOBUF_NAMESPACE_ID::int32>::min(),
+  ModifierKey_INT_MAX_SENTINEL_DO_NOT_USE_ = std::numeric_limits<::PROTOBUF_NAMESPACE_ID::int32>::max()
+};
+bool ModifierKey_IsValid(int value);
+constexpr ModifierKey ModifierKey_MIN = CTRL;
+constexpr ModifierKey ModifierKey_MAX = SHIFT;
+constexpr int ModifierKey_ARRAYSIZE = ModifierKey_MAX + 1;
+
+const std::string& ModifierKey_Name(ModifierKey value);
+template<typename T>
+inline const std::string& ModifierKey_Name(T enum_t_value) {
+  static_assert(::std::is_same<T, ModifierKey>::value ||
+    ::std::is_integral<T>::value,
+    "Incorrect type passed to function ModifierKey_Name.");
+  return ModifierKey_Name(static_cast<ModifierKey>(enum_t_value));
+}
+bool ModifierKey_Parse(
+    ::PROTOBUF_NAMESPACE_ID::ConstStringParam name, ModifierKey* value);
+enum SegmentStatus : int {
+  UNMARKED = 0,
+  COMPOSING = 1,
+  CONVERTED = 2,
+  FOCUSED = 3,
+  SegmentStatus_INT_MIN_SENTINEL_DO_NOT_USE_ = std::numeric_limits<::PROTOBUF_NAMESPACE_ID::int32>::min(),
+  SegmentStatus_INT_MAX_SENTINEL_DO_NOT_USE_ = std::numeric_limits<::PROTOBUF_NAMESPACE_ID::int32>::max()
+};
+bool SegmentStatus_IsValid(int value);
+constexpr SegmentStatus SegmentStatus_MIN = UNMARKED;
+constexpr SegmentStatus SegmentStatus_MAX = FOCUSED;
+constexpr int SegmentStatus_ARRAYSIZE = SegmentStatus_MAX + 1;
+
+const std::string& SegmentStatus_Name(SegmentStatus value);
+template<typename T>
+inline const std::string& SegmentStatus_Name(T enum_t_value) {
+  static_assert(::std::is_same<T, SegmentStatus>::value ||
+    ::std::is_integral<T>::value,
+    "Incorrect type passed to function SegmentStatus_Name.");
+  return SegmentStatus_Name(static_cast<SegmentStatus>(enum_t_value));
+}
+bool SegmentStatus_Parse(
+    ::PROTOBUF_NAMESPACE_ID::ConstStringParam name, SegmentStatus* value);
+enum ErrorCode : int {
+  OK = 0,
+  FAIL = 1,
+  ErrorCode_INT_MIN_SENTINEL_DO_NOT_USE_ = std::numeric_limits<::PROTOBUF_NAMESPACE_ID::int32>::min(),
+  ErrorCode_INT_MAX_SENTINEL_DO_NOT_USE_ = std::numeric_limits<::PROTOBUF_NAMESPACE_ID::int32>::max()
+};
+bool ErrorCode_IsValid(int value);
+constexpr ErrorCode ErrorCode_MIN = OK;
+constexpr ErrorCode ErrorCode_MAX = FAIL;
+constexpr int ErrorCode_ARRAYSIZE = ErrorCode_MAX + 1;
+
+const std::string& ErrorCode_Name(ErrorCode value);
+template<typename T>
+inline const std::string& ErrorCode_Name(T enum_t_value) {
+  static_assert(::std::is_same<T, ErrorCode>::value ||
+    ::std::is_integral<T>::value,
+    "Incorrect type passed to function ErrorCode_Name.");
+  return ErrorCode_Name(static_cast<ErrorCode>(enum_t_value));
+}
+bool ErrorCode_Parse(
+    ::PROTOBUF_NAMESPACE_ID::ConstStringParam name, ErrorCode* value);
 enum CommandType : int {
   SEND_KEY = 0,
   REVERT = 1,
@@ -348,86 +348,6 @@ class KeyEvent final :
 
   // nested types ----------------------------------------------------
 
-  typedef KeyEvent_SpecialKey SpecialKey;
-  static constexpr SpecialKey NONE =
-    KeyEvent_SpecialKey_NONE;
-  static constexpr SpecialKey SPACE =
-    KeyEvent_SpecialKey_SPACE;
-  static constexpr SpecialKey ENTER =
-    KeyEvent_SpecialKey_ENTER;
-  static constexpr SpecialKey ESC =
-    KeyEvent_SpecialKey_ESC;
-  static constexpr SpecialKey BACKSPACE =
-    KeyEvent_SpecialKey_BACKSPACE;
-  static constexpr SpecialKey TAB =
-    KeyEvent_SpecialKey_TAB;
-  static constexpr SpecialKey LEFT =
-    KeyEvent_SpecialKey_LEFT;
-  static constexpr SpecialKey UP =
-    KeyEvent_SpecialKey_UP;
-  static constexpr SpecialKey RIGHT =
-    KeyEvent_SpecialKey_RIGHT;
-  static constexpr SpecialKey DOWN =
-    KeyEvent_SpecialKey_DOWN;
-  static constexpr SpecialKey PGUP =
-    KeyEvent_SpecialKey_PGUP;
-  static constexpr SpecialKey PGDN =
-    KeyEvent_SpecialKey_PGDN;
-  static constexpr SpecialKey HOME =
-    KeyEvent_SpecialKey_HOME;
-  static constexpr SpecialKey END =
-    KeyEvent_SpecialKey_END;
-  static constexpr SpecialKey DEL =
-    KeyEvent_SpecialKey_DEL;
-  static inline bool SpecialKey_IsValid(int value) {
-    return KeyEvent_SpecialKey_IsValid(value);
-  }
-  static constexpr SpecialKey SpecialKey_MIN =
-    KeyEvent_SpecialKey_SpecialKey_MIN;
-  static constexpr SpecialKey SpecialKey_MAX =
-    KeyEvent_SpecialKey_SpecialKey_MAX;
-  static constexpr int SpecialKey_ARRAYSIZE =
-    KeyEvent_SpecialKey_SpecialKey_ARRAYSIZE;
-  template<typename T>
-  static inline const std::string& SpecialKey_Name(T enum_t_value) {
-    static_assert(::std::is_same<T, SpecialKey>::value ||
-      ::std::is_integral<T>::value,
-      "Incorrect type passed to function SpecialKey_Name.");
-    return KeyEvent_SpecialKey_Name(enum_t_value);
-  }
-  static inline bool SpecialKey_Parse(::PROTOBUF_NAMESPACE_ID::ConstStringParam name,
-      SpecialKey* value) {
-    return KeyEvent_SpecialKey_Parse(name, value);
-  }
-
-  typedef KeyEvent_ModifierKey ModifierKey;
-  static constexpr ModifierKey CTRL =
-    KeyEvent_ModifierKey_CTRL;
-  static constexpr ModifierKey ALT =
-    KeyEvent_ModifierKey_ALT;
-  static constexpr ModifierKey SHIFT =
-    KeyEvent_ModifierKey_SHIFT;
-  static inline bool ModifierKey_IsValid(int value) {
-    return KeyEvent_ModifierKey_IsValid(value);
-  }
-  static constexpr ModifierKey ModifierKey_MIN =
-    KeyEvent_ModifierKey_ModifierKey_MIN;
-  static constexpr ModifierKey ModifierKey_MAX =
-    KeyEvent_ModifierKey_ModifierKey_MAX;
-  static constexpr int ModifierKey_ARRAYSIZE =
-    KeyEvent_ModifierKey_ModifierKey_ARRAYSIZE;
-  template<typename T>
-  static inline const std::string& ModifierKey_Name(T enum_t_value) {
-    static_assert(::std::is_same<T, ModifierKey>::value ||
-      ::std::is_integral<T>::value,
-      "Incorrect type passed to function ModifierKey_Name.");
-    return KeyEvent_ModifierKey_Name(enum_t_value);
-  }
-  static inline bool ModifierKey_Parse(::PROTOBUF_NAMESPACE_ID::ConstStringParam name,
-      ModifierKey* value) {
-    return KeyEvent_ModifierKey_Parse(name, value);
-  }
-
   // accessors -------------------------------------------------------
 
   enum : int {
@@ -435,20 +355,20 @@ class KeyEvent final :
     kKeyCodeFieldNumber = 1,
     kSpecialKeyFieldNumber = 2,
   };
-  // repeated .khiin.messages.KeyEvent.ModifierKey modifier_keys = 3;
+  // repeated .khiin.messages.ModifierKey modifier_keys = 3;
   int modifier_keys_size() const;
   private:
   int _internal_modifier_keys_size() const;
   public:
   void clear_modifier_keys();
   private:
-  ::khiin::messages::KeyEvent_ModifierKey _internal_modifier_keys(int index) const;
-  void _internal_add_modifier_keys(::khiin::messages::KeyEvent_ModifierKey value);
+  ::khiin::messages::ModifierKey _internal_modifier_keys(int index) const;
+  void _internal_add_modifier_keys(::khiin::messages::ModifierKey value);
   ::PROTOBUF_NAMESPACE_ID::RepeatedField<int>* _internal_mutable_modifier_keys();
   public:
-  ::khiin::messages::KeyEvent_ModifierKey modifier_keys(int index) const;
-  void set_modifier_keys(int index, ::khiin::messages::KeyEvent_ModifierKey value);
-  void add_modifier_keys(::khiin::messages::KeyEvent_ModifierKey value);
+  ::khiin::messages::ModifierKey modifier_keys(int index) const;
+  void set_modifier_keys(int index, ::khiin::messages::ModifierKey value);
+  void add_modifier_keys(::khiin::messages::ModifierKey value);
   const ::PROTOBUF_NAMESPACE_ID::RepeatedField<int>& modifier_keys() const;
   ::PROTOBUF_NAMESPACE_ID::RepeatedField<int>* mutable_modifier_keys();
 
@@ -461,13 +381,13 @@ class KeyEvent final :
   void _internal_set_key_code(::PROTOBUF_NAMESPACE_ID::int32 value);
   public:
 
-  // .khiin.messages.KeyEvent.SpecialKey special_key = 2;
+  // .khiin.messages.SpecialKey special_key = 2;
   void clear_special_key();
-  ::khiin::messages::KeyEvent_SpecialKey special_key() const;
-  void set_special_key(::khiin::messages::KeyEvent_SpecialKey value);
+  ::khiin::messages::SpecialKey special_key() const;
+  void set_special_key(::khiin::messages::SpecialKey value);
   private:
-  ::khiin::messages::KeyEvent_SpecialKey _internal_special_key() const;
-  void _internal_set_special_key(::khiin::messages::KeyEvent_SpecialKey value);
+  ::khiin::messages::SpecialKey _internal_special_key() const;
+  void _internal_set_special_key(::khiin::messages::SpecialKey value);
   public:
 
   // @@protoc_insertion_point(class_scope:khiin.messages.KeyEvent)
@@ -746,36 +666,6 @@ class Composition_Segment final :
 
   // nested types ----------------------------------------------------
 
-  typedef Composition_Segment_Status Status;
-  static constexpr Status NONE =
-    Composition_Segment_Status_NONE;
-  static constexpr Status COMPOSING =
-    Composition_Segment_Status_COMPOSING;
-  static constexpr Status CONVERTED =
-    Composition_Segment_Status_CONVERTED;
-  static constexpr Status FOCUSED =
-    Composition_Segment_Status_FOCUSED;
-  static inline bool Status_IsValid(int value) {
-    return Composition_Segment_Status_IsValid(value);
-  }
-  static constexpr Status Status_MIN =
-    Composition_Segment_Status_Status_MIN;
-  static constexpr Status Status_MAX =
-    Composition_Segment_Status_Status_MAX;
-  static constexpr int Status_ARRAYSIZE =
-    Composition_Segment_Status_Status_ARRAYSIZE;
-  template<typename T>
-  static inline const std::string& Status_Name(T enum_t_value) {
-    static_assert(::std::is_same<T, Status>::value ||
-      ::std::is_integral<T>::value,
-      "Incorrect type passed to function Status_Name.");
-    return Composition_Segment_Status_Name(enum_t_value);
-  }
-  static inline bool Status_Parse(::PROTOBUF_NAMESPACE_ID::ConstStringParam name,
-      Status* value) {
-    return Composition_Segment_Status_Parse(name, value);
-  }
-
   // accessors -------------------------------------------------------
 
   enum : int {
@@ -796,13 +686,13 @@ class Composition_Segment final :
   std::string* _internal_mutable_value();
   public:
 
-  // .khiin.messages.Composition.Segment.Status status = 1;
+  // .khiin.messages.SegmentStatus status = 1;
   void clear_status();
-  ::khiin::messages::Composition_Segment_Status status() const;
-  void set_status(::khiin::messages::Composition_Segment_Status value);
+  ::khiin::messages::SegmentStatus status() const;
+  void set_status(::khiin::messages::SegmentStatus value);
   private:
-  ::khiin::messages::Composition_Segment_Status _internal_status() const;
-  void _internal_set_status(::khiin::messages::Composition_Segment_Status value);
+  ::khiin::messages::SegmentStatus _internal_status() const;
+  void _internal_set_status(::khiin::messages::SegmentStatus value);
   public:
 
   // @@protoc_insertion_point(class_scope:khiin.messages.Composition.Segment)
@@ -1433,32 +1323,6 @@ class Output final :
 
   // nested types ----------------------------------------------------
 
-  typedef Output_ErrorCode ErrorCode;
-  static constexpr ErrorCode OK =
-    Output_ErrorCode_OK;
-  static constexpr ErrorCode FAIL =
-    Output_ErrorCode_FAIL;
-  static inline bool ErrorCode_IsValid(int value) {
-    return Output_ErrorCode_IsValid(value);
-  }
-  static constexpr ErrorCode ErrorCode_MIN =
-    Output_ErrorCode_ErrorCode_MIN;
-  static constexpr ErrorCode ErrorCode_MAX =
-    Output_ErrorCode_ErrorCode_MAX;
-  static constexpr int ErrorCode_ARRAYSIZE =
-    Output_ErrorCode_ErrorCode_ARRAYSIZE;
-  template<typename T>
-  static inline const std::string& ErrorCode_Name(T enum_t_value) {
-    static_assert(::std::is_same<T, ErrorCode>::value ||
-      ::std::is_integral<T>::value,
-      "Incorrect type passed to function ErrorCode_Name.");
-    return Output_ErrorCode_Name(enum_t_value);
-  }
-  static inline bool ErrorCode_Parse(::PROTOBUF_NAMESPACE_ID::ConstStringParam name,
-      ErrorCode* value) {
-    return Output_ErrorCode_Parse(name, value);
-  }
-
   // accessors -------------------------------------------------------
 
   enum : int {
@@ -1503,13 +1367,13 @@ class Output final :
       ::khiin::messages::CandidateList* candidate_list);
   ::khiin::messages::CandidateList* unsafe_arena_release_candidate_list();
 
-  // .khiin.messages.Output.ErrorCode error = 1;
+  // .khiin.messages.ErrorCode error = 1;
   void clear_error();
-  ::khiin::messages::Output_ErrorCode error() const;
-  void set_error(::khiin::messages::Output_ErrorCode value);
+  ::khiin::messages::ErrorCode error() const;
+  void set_error(::khiin::messages::ErrorCode value);
   private:
-  ::khiin::messages::Output_ErrorCode _internal_error() const;
-  void _internal_set_error(::khiin::messages::Output_ErrorCode value);
+  ::khiin::messages::ErrorCode _internal_error() const;
+  void _internal_set_error(::khiin::messages::ErrorCode value);
   public:
 
   // bool consumable = 4;
@@ -1734,27 +1598,27 @@ inline void KeyEvent::set_key_code(::PROTOBUF_NAMESPACE_ID::int32 value) {
   // @@protoc_insertion_point(field_set:khiin.messages.KeyEvent.key_code)
 }
 
-// .khiin.messages.KeyEvent.SpecialKey special_key = 2;
+// .khiin.messages.SpecialKey special_key = 2;
 inline void KeyEvent::clear_special_key() {
   special_key_ = 0;
 }
-inline ::khiin::messages::KeyEvent_SpecialKey KeyEvent::_internal_special_key() const {
-  return static_cast< ::khiin::messages::KeyEvent_SpecialKey >(special_key_);
+inline ::khiin::messages::SpecialKey KeyEvent::_internal_special_key() const {
+  return static_cast< ::khiin::messages::SpecialKey >(special_key_);
 }
-inline ::khiin::messages::KeyEvent_SpecialKey KeyEvent::special_key() const {
+inline ::khiin::messages::SpecialKey KeyEvent::special_key() const {
   // @@protoc_insertion_point(field_get:khiin.messages.KeyEvent.special_key)
   return _internal_special_key();
 }
-inline void KeyEvent::_internal_set_special_key(::khiin::messages::KeyEvent_SpecialKey value) {
+inline void KeyEvent::_internal_set_special_key(::khiin::messages::SpecialKey value) {
   
   special_key_ = value;
 }
-inline void KeyEvent::set_special_key(::khiin::messages::KeyEvent_SpecialKey value) {
+inline void KeyEvent::set_special_key(::khiin::messages::SpecialKey value) {
   _internal_set_special_key(value);
   // @@protoc_insertion_point(field_set:khiin.messages.KeyEvent.special_key)
 }
 
-// repeated .khiin.messages.KeyEvent.ModifierKey modifier_keys = 3;
+// repeated .khiin.messages.ModifierKey modifier_keys = 3;
 inline int KeyEvent::_internal_modifier_keys_size() const {
   return modifier_keys_.size();
 }
@@ -1764,21 +1628,21 @@ inline int KeyEvent::modifier_keys_size() const {
 inline void KeyEvent::clear_modifier_keys() {
   modifier_keys_.Clear();
 }
-inline ::khiin::messages::KeyEvent_ModifierKey KeyEvent::_internal_modifier_keys(int index) const {
-  return static_cast< ::khiin::messages::KeyEvent_ModifierKey >(modifier_keys_.Get(index));
+inline ::khiin::messages::ModifierKey KeyEvent::_internal_modifier_keys(int index) const {
+  return static_cast< ::khiin::messages::ModifierKey >(modifier_keys_.Get(index));
 }
-inline ::khiin::messages::KeyEvent_ModifierKey KeyEvent::modifier_keys(int index) const {
+inline ::khiin::messages::ModifierKey KeyEvent::modifier_keys(int index) const {
   // @@protoc_insertion_point(field_get:khiin.messages.KeyEvent.modifier_keys)
   return _internal_modifier_keys(index);
 }
-inline void KeyEvent::set_modifier_keys(int index, ::khiin::messages::KeyEvent_ModifierKey value) {
+inline void KeyEvent::set_modifier_keys(int index, ::khiin::messages::ModifierKey value) {
   modifier_keys_.Set(index, value);
   // @@protoc_insertion_point(field_set:khiin.messages.KeyEvent.modifier_keys)
 }
-inline void KeyEvent::_internal_add_modifier_keys(::khiin::messages::KeyEvent_ModifierKey value) {
+inline void KeyEvent::_internal_add_modifier_keys(::khiin::messages::ModifierKey value) {
   modifier_keys_.Add(value);
 }
-inline void KeyEvent::add_modifier_keys(::khiin::messages::KeyEvent_ModifierKey value) {
+inline void KeyEvent::add_modifier_keys(::khiin::messages::ModifierKey value) {
   _internal_add_modifier_keys(value);
   // @@protoc_insertion_point(field_add:khiin.messages.KeyEvent.modifier_keys)
 }
@@ -1935,22 +1799,22 @@ inline void Input::set_cursor_position(::PROTOBUF_NAMESPACE_ID::int32 value) {
 
 // Composition_Segment
 
-// .khiin.messages.Composition.Segment.Status status = 1;
+// .khiin.messages.SegmentStatus status = 1;
 inline void Composition_Segment::clear_status() {
   status_ = 0;
 }
-inline ::khiin::messages::Composition_Segment_Status Composition_Segment::_internal_status() const {
-  return static_cast< ::khiin::messages::Composition_Segment_Status >(status_);
+inline ::khiin::messages::SegmentStatus Composition_Segment::_internal_status() const {
+  return static_cast< ::khiin::messages::SegmentStatus >(status_);
 }
-inline ::khiin::messages::Composition_Segment_Status Composition_Segment::status() const {
+inline ::khiin::messages::SegmentStatus Composition_Segment::status() const {
   // @@protoc_insertion_point(field_get:khiin.messages.Composition.Segment.status)
   return _internal_status();
 }
-inline void Composition_Segment::_internal_set_status(::khiin::messages::Composition_Segment_Status value) {
+inline void Composition_Segment::_internal_set_status(::khiin::messages::SegmentStatus value) {
   
   status_ = value;
 }
-inline void Composition_Segment::set_status(::khiin::messages::Composition_Segment_Status value) {
+inline void Composition_Segment::set_status(::khiin::messages::SegmentStatus value) {
   _internal_set_status(value);
   // @@protoc_insertion_point(field_set:khiin.messages.Composition.Segment.status)
 }
@@ -2315,22 +2179,22 @@ inline void CandidateList::set_focused(::PROTOBUF_NAMESPACE_ID::int32 value) {
 
 // Output
 
-// .khiin.messages.Output.ErrorCode error = 1;
+// .khiin.messages.ErrorCode error = 1;
 inline void Output::clear_error() {
   error_ = 0;
 }
-inline ::khiin::messages::Output_ErrorCode Output::_internal_error() const {
-  return static_cast< ::khiin::messages::Output_ErrorCode >(error_);
+inline ::khiin::messages::ErrorCode Output::_internal_error() const {
+  return static_cast< ::khiin::messages::ErrorCode >(error_);
 }
-inline ::khiin::messages::Output_ErrorCode Output::error() const {
+inline ::khiin::messages::ErrorCode Output::error() const {
   // @@protoc_insertion_point(field_get:khiin.messages.Output.error)
   return _internal_error();
 }
-inline void Output::_internal_set_error(::khiin::messages::Output_ErrorCode value) {
+inline void Output::_internal_set_error(::khiin::messages::ErrorCode value) {
   
   error_ = value;
 }
-inline void Output::set_error(::khiin::messages::Output_ErrorCode value) {
+inline void Output::set_error(::khiin::messages::ErrorCode value) {
   _internal_set_error(value);
   // @@protoc_insertion_point(field_set:khiin.messages.Output.error)
 }
@@ -2764,11 +2628,11 @@ inline void Command::set_allocated_output(::khiin::messages::Output* output) {
 
 PROTOBUF_NAMESPACE_OPEN
 
-template <> struct is_proto_enum< ::khiin::messages::KeyEvent_SpecialKey> : ::std::true_type {};
-template <> struct is_proto_enum< ::khiin::messages::KeyEvent_ModifierKey> : ::std::true_type {};
-template <> struct is_proto_enum< ::khiin::messages::Composition_Segment_Status> : ::std::true_type {};
 template <> struct is_proto_enum< ::khiin::messages::Candidate_Category> : ::std::true_type {};
-template <> struct is_proto_enum< ::khiin::messages::Output_ErrorCode> : ::std::true_type {};
+template <> struct is_proto_enum< ::khiin::messages::SpecialKey> : ::std::true_type {};
+template <> struct is_proto_enum< ::khiin::messages::ModifierKey> : ::std::true_type {};
+template <> struct is_proto_enum< ::khiin::messages::SegmentStatus> : ::std::true_type {};
+template <> struct is_proto_enum< ::khiin::messages::ErrorCode> : ::std::true_type {};
 template <> struct is_proto_enum< ::khiin::messages::CommandType> : ::std::true_type {};
 
 PROTOBUF_NAMESPACE_CLOSE

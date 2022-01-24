@@ -19,10 +19,6 @@ namespace {
 using namespace khiin::messages;
 namespace fs = std::filesystem;
 
-static auto key(char c) {
-    return static_cast<KeyCode>(c);
-}
-
 #ifdef _WIN32
 auto toPWSTR(std::string str) {
     auto wstr = utf8::utf8to16(str);

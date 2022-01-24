@@ -17,7 +17,7 @@ add_library (khiin_engine
     "db.h"
     "db.cpp"
     "errors.h"
-    "keys.h"
+    
     "engine.h"
     "engine.cpp"
     "lomaji.h"

@@ -18,20 +18,20 @@ using namespace khiin::messages;
 
 volatile HMODULE g_module = nullptr;
 
-static std::unordered_map<int, KeyEvent_SpecialKey> kWindowsToKhiinKeyCode = {
+static std::unordered_map<int, SpecialKey> kWindowsToKhiinKeyCode = {
     // clang-format off
-    {VK_BACK, KeyEvent_SpecialKey_BACKSPACE},
-    {VK_TAB, KeyEvent_SpecialKey_TAB},
-    {VK_RETURN, KeyEvent_SpecialKey_ENTER},
-    {VK_ESCAPE, KeyEvent_SpecialKey_ESC},
-    {VK_SPACE, KeyEvent_SpecialKey_SPACE},
-    {VK_END, KeyEvent_SpecialKey_END},
-    {VK_HOME, KeyEvent_SpecialKey_HOME},
-    {VK_LEFT, KeyEvent_SpecialKey_LEFT},
-    {VK_UP, KeyEvent_SpecialKey_UP},
-    {VK_RIGHT, KeyEvent_SpecialKey_RIGHT},
-    {VK_DOWN, KeyEvent_SpecialKey_DOWN},
-    {VK_DELETE, KeyEvent_SpecialKey_DEL}
+    {VK_BACK, SpecialKey::SK_BACKSPACE},
+    {VK_TAB, SpecialKey::SK_TAB},
+    {VK_RETURN, SpecialKey::SK_ENTER},
+    {VK_ESCAPE, SpecialKey::SK_ESC},
+    {VK_SPACE, SpecialKey::SK_SPACE},
+    {VK_END, SpecialKey::SK_END},
+    {VK_HOME, SpecialKey::SK_HOME},
+    {VK_LEFT, SpecialKey::SK_LEFT},
+    {VK_UP, SpecialKey::SK_UP},
+    {VK_RIGHT, SpecialKey::SK_RIGHT},
+    {VK_DOWN, SpecialKey::SK_DOWN},
+    {VK_DELETE, SpecialKey::SK_DEL}
     // clang-format on
 };
 
@@ -46,7 +46,7 @@ namespace fs = std::filesystem;
 void TranslateKeyEvent(win32::KeyEvent *e1, messages::KeyEvent *e2) {
     if (e1->ascii()) {
         e2->set_key_code(e1->ascii());
-        e2->set_special_key(KeyEvent_SpecialKey_NONE);
+        e2->set_special_key(SpecialKey::SK_NONE);
     }
 
     if (auto idx = kWindowsToKhiinKeyCode.find(e1->keyCode()); idx != kWindowsToKhiinKeyCode.end()) {

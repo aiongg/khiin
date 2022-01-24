@@ -36,7 +36,7 @@ struct EditSessionImpl : winrt::implements<EditSessionImpl, ITfEditSession> {
         BOOL shown;
         candidate_ui->IsShown(&shown);
 
-        if (command.output().error() == Output_ErrorCode_FAIL) {
+        if (command.output().error() == ErrorCode::FAIL) {
             composition_mgr->CommitComposition(ec, context.get());
         }
 

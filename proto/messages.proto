@@ -3,38 +3,41 @@ syntax = "proto3";
 package khiin.messages;
 option optimize_for = LITE_RUNTIME;
 
+enum SpecialKey {
+    SK_NONE = 0;
+    SK_SPACE = 1;
+    SK_ENTER = 2;
+    SK_ESC = 3;
+    SK_BACKSPACE = 4;
+    SK_TAB = 5;
+    SK_LEFT = 6;
+    SK_UP = 7;
+    SK_RIGHT = 8;
+    SK_DOWN = 9;
+    SK_PGUP = 10;
+    SK_PGDN = 11;
+    SK_HOME = 12;
+    SK_END = 13;
+    SK_DEL = 14;
+}
+
+enum ModifierKey {
+    CTRL = 0;
+    ALT = 1;
+    SHIFT = 2;
+}
+
 // Each platform app should map from its own key set to this set.
 // On hardware keyboards, |modifier_keys| may be used in combination
 // with either a |special_key| or a normal ascii |key_code|
 message KeyEvent {
-    enum SpecialKey {
-        NONE = 0;
-        SPACE = 1;
-        ENTER = 2;
-        ESC = 3;
-        BACKSPACE = 4;
-        TAB = 5;
-        LEFT = 6;
-        UP = 7;
-        RIGHT = 8;
-        DOWN = 9;
-        PGUP = 10;
-        PGDN = 11;
-        HOME = 12;
-        END = 13;
-        DEL = 14;
-    }
-
-    enum ModifierKey {
-        CTRL = 0;
-        ALT = 1;
-        SHIFT = 2;
-    }
-
+    // For ASCII & printable letters
     int32 key_code = 1;
+
+    // Other keys e.g., arrow keys
     SpecialKey special_key = 2;
 
-    // More than 1 modifier can be pressed at a time
+    // Ctrl, Alt, Shift: More than 1 modifier can be pressed at a time
     repeated ModifierKey modifier_keys = 3;
 }
 
@@ -50,16 +53,18 @@ message Input {
     int32 cursor_position = 3;
 }
 
+enum SegmentStatus {
+    UNMARKED = 0;       // No underline
+    COMPOSING = 1;  // Dots or squiggle underline
+    CONVERTED = 2;  // Solid underline
+    FOCUSED = 3;    // Thick, solid underline
+}
+
 // The display buffer text and cursor position
 message Composition {
     message Segment {
-        enum Status {
-            NONE = 0;       // No underline
-            COMPOSING = 1;  // Dots or squiggle underline
-            CONVERTED = 2;  // Solid underline
-            FOCUSED = 3;    // Thick, solid underline
-        }
-        Status status = 1;
+        // For visual feedback to the user
+        SegmentStatus status = 1;
 
         // The text to be displayed
         string value = 2;
@@ -103,12 +108,13 @@ message CandidateList {
     int32 focused = 2;
 }
 
+enum ErrorCode {
+    OK = 0;
+    FAIL = 1;
+}
+
 // The response portion of the message, from engine back to app
 message Output {
-    enum ErrorCode {
-        OK = 0;
-        FAIL = 1;
-    }
     ErrorCode error = 1;
     Composition composition = 2;
     CandidateList candidate_list = 3;
