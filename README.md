@@ -19,6 +19,7 @@ Khiin consists of separate projects in the following folders:
     - Modified to be header only, included in `externals`
     - From [ufal/unilib](https://github.com/ufal/unilib)
 - protobuf [v3.18.0](https://github.com/protocolbuffers/protobuf/releases/tag/v3.18.0)
+- GTest v1.11.0
 
 ### Installing for development
 
@@ -28,6 +29,7 @@ Following packages can be installed with vcpkg:
 ./vcpkg install boost:x64-windows
 ./vcpkg install sqlitecpp:x64-windows
 ./vcpkg install protobuf:x64-windows
+./vcpkg install gtest:x64-windows
 ```
 
 Notes:
