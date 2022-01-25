@@ -7,21 +7,20 @@ Khiin consists of separate projects in the following folders:
 - `engine`: The cross-platform IME engine that plugs in to each app. (c++17)
 - `windows`: A win32 Text Services Framework [TSF] application. (c++17)
 
-## Dependencies
+### Dependencies
 
 - Boost 1.77.0 (BSL-1.0)
     - Header only libraries
 - SQLiteCpp 3.1.1 (MIT)
+- sqlite3
 - utf8cpp v3.2.1 (BSL-1.0)
-    - Header only, included in `externals`
+    - Header only, included in `third_party`
     - From [nemtrif/utfcpp](https://github.com/nemtrif/utfcpp)
 - unilib v3.2.0 (MPL-2.0)
-    - Modified to be header only, included in `externals`
+    - Modified to be header only, included in `third_party`
     - From [ufal/unilib](https://github.com/ufal/unilib)
 - protobuf [v3.18.0](https://github.com/protocolbuffers/protobuf/releases/tag/v3.18.0)
 - GTest v1.11.0
-
-### Installing for development
 
 Following packages can be installed with vcpkg:
 
@@ -55,3 +54,22 @@ protoc.exe -I=proto --cpp_out=proto/proto proto/messages.proto
 The `engine` folder contains a standard `cmake` project. For building in
 Visual Studio, don't forget to update the file `CmakeSettings.json::cmakeToolchain`
 to point to your `vcpkg.cmake` file.
+
+#### Windows
+
+See the `windows/KhiinWindows.sln` Visual Studio solution. Currently built using
+Visual Studio Community 2022.
+
+For now you still need to manually register the DLL for use. Using an elevated
+prompt or powershell, go to the `windows/x64/Debug` folder and run:
+
+```
+regsvr32.exe KhiinPJH.dll
+```
+
+You should unregister when you are not actively using it, since things may change
+and break at this early stage:
+
+```
+regsvr32.exe /u KhiinPJH.dll
+```
