@@ -9,9 +9,9 @@ namespace khiin::engine {
 
 inline const std::string kKhiinHome = "KHIIN_HOME";
 
-using VStr = std::vector<std::string>;
+using string_vector = std::vector<std::string>;
 
-using Utf8Size = size_t; // number of UTF codepoints, 1-4 bytes
+using utf8_size_t = size_t; // number of UTF codepoints, 1-4 bytes
 
 enum class Tone {
     NaT,

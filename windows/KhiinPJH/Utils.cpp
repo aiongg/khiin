@@ -30,7 +30,7 @@ WidePreedit const Utils::WidenPreedit(const Preedit &preedit) {
         start_idx += w.size();
     }
 
-    // Not sure if this will work with 4-byte UTF-16 strings (e.g. Hanji)
+    // Need to add code for surrogate pairs to these widening functions...
     ret.cursor = preedit.cursor_position();
     ret.display_size = ret.preedit_display.size();
     return ret;

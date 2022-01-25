@@ -12,7 +12,7 @@ using namespace std::literals::string_literals;
 
 Trie::Trie() {}
 
-Trie::Trie(VStr words, VStr syllables) {
+Trie::Trie(string_vector words, string_vector syllables) {
     for (auto &word : words) {
         this->insert_(wRoot, word);
     }
@@ -89,8 +89,8 @@ auto Trie::containsSyllablePrefix(std::string query) -> bool {
            (found->isEndOfWord || found->children.size() > 0);
 }
 
-auto Trie::autocomplete(std::string query, size_t maxDepth) -> VStr {
-    auto ret = VStr();
+auto Trie::autocomplete(std::string query, size_t maxDepth) -> string_vector {
+    auto ret = string_vector();
     auto found = find_(wRoot, query);
 
     if (found == nullptr) {
@@ -107,8 +107,8 @@ auto Trie::autocomplete(std::string query, size_t maxDepth) -> VStr {
     return ret;
 }
 
-auto Trie::autocompleteTone(std::string query) -> VStr {
-    auto ret = VStr();
+auto Trie::autocompleteTone(std::string query) -> string_vector {
+    auto ret = string_vector();
 
     if (isdigit(query.back())) {
         return ret;
@@ -132,13 +132,13 @@ auto Trie::autocompleteTone(std::string query) -> VStr {
 }
 
 auto Trie::getAllWords(std::string query, bool isToneless)
-    -> VStr {
-    auto res = VStr();
+    -> string_vector {
+    auto res = string_vector();
     getAllWords(query, isToneless, res);
     return std::move(res);
 }
 
-auto Trie::getAllWords(std::string query, bool fuzzy, VStr &results)
+auto Trie::getAllWords(std::string query, bool fuzzy, string_vector &results)
     -> void {
     results.clear();
 

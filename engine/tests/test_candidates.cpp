@@ -2,7 +2,7 @@
 
 #include <boost/log/trivial.hpp>
 
-#include "candidates.h"
+#include "CandidateFinder.h"
 
 namespace khiin::engine {
 namespace {
@@ -12,9 +12,9 @@ const std::string DB_FILE = "taikey.db";
 class CandidateFx : public ::testing::Test {
   protected:
     void SetUp() override {
-        db = new TKDB(DB_FILE);
-        auto sylList = db->selectSyllableList();
-        splitter = new Splitter(sylList), trie = new Trie(db->selectTrieWordlist(), sylList);
+        db = new Database(DB_FILE);
+        auto sylList = db->GetSyllableList();
+        splitter = new Splitter(sylList), trie = new Trie(db->GetTrieWordlist(), sylList);
         cf = new CandidateFinder(db, splitter, trie);
     }
     ~CandidateFx() {
@@ -28,7 +28,7 @@ class CandidateFx : public ::testing::Test {
         return cf->findPrimaryCandidate(search, "", true);
     }
 
-    TKDB *db = nullptr;
+    Database *db = nullptr;
     Splitter *splitter = nullptr;
     Trie *trie = nullptr;
     CandidateFinder *cf = nullptr;
@@ -66,8 +66,8 @@ TEST_F(CandidateFx, find_long_string) {
 
     BOOST_LOG_TRIVIAL(debug) << "Inserting training data...";
 
-    auto grams = VStr{u8"賛", u8"个", u8"打", u8"字", u8"法"};
-    db->updateGramCounts(grams);
+    auto grams = string_vector{u8"賛", u8"个", u8"打", u8"字", u8"法"};
+    db->IncrementNGramCounts(grams);
 
     res = fuzzyPrimary(test);
 

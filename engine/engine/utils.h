@@ -5,7 +5,7 @@ namespace khiin::engine::Utils {
 namespace fs = std::filesystem;
 
 auto splitString(std::string_view str, char delimiter) {
-    auto ret = VStr();
+    auto ret = string_vector();
     auto begin = size_t(0);
     auto end = str.find(delimiter);
     while (end != std::string::npos) {

@@ -20,7 +20,7 @@ inline auto isDigit(std::string str) {
 
 Splitter::Splitter() {}
 
-Splitter::Splitter(const VStr &syllableList) {
+Splitter::Splitter(const string_vector &syllableList) {
     std::copy(syllableList.cbegin(), syllableList.cend(),
               std::inserter(syllableSet_, syllableSet_.begin()));
 
@@ -70,13 +70,13 @@ auto Splitter::canSplit(std::string input) -> bool {
     return dp[len - 1];
 }
 
-auto Splitter::split(std::string input) -> VStr {
-    auto res = VStr();
+auto Splitter::split(std::string input) -> string_vector {
+    auto res = string_vector();
     split(input, res);
     return std::move(res);
 }
 
-auto Splitter::split(std::string input, VStr &result)
+auto Splitter::split(std::string input, string_vector &result)
     -> RetVal {
     result.clear();
     if (input.empty()) {

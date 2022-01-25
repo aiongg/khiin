@@ -15,20 +15,20 @@ struct RecursiveMap {
 class Trie {
   public:
     Trie();
-    Trie(VStr words, VStr syllables);
+    Trie(string_vector words, string_vector syllables);
     auto insert(std::string key) -> void;
     auto remove(std::string key) -> bool;
     auto containsWord(std::string query) -> bool;
     auto containsPrefix(std::string query) -> bool;
     auto containsSyllablePrefix(std::string query) -> bool;
-    auto autocomplete(std::string query, size_t maxDepth = 0) -> VStr;
-    auto autocompleteTone(std::string query) -> VStr;
-    auto getAllWords(std::string query, bool isToneless) -> VStr;
-    auto getAllWords(std::string query, bool isToneless, VStr &results) -> void;
+    auto autocomplete(std::string query, size_t maxDepth = 0) -> string_vector;
+    auto autocompleteTone(std::string query) -> string_vector;
+    auto getAllWords(std::string query, bool isToneless) -> string_vector;
+    auto getAllWords(std::string query, bool isToneless, string_vector &results) -> void;
 
     // TODO Can delete
     void splitSentence(std::string query, RecursiveMap &results);
-    VStr splitSentence2(std::string query);
+    string_vector splitSentence2(std::string query);
 
   private:
     struct Node;

@@ -7,10 +7,10 @@
 #include <boost/range/adaptor/filtered.hpp>
 #include <boost/range/adaptor/indexed.hpp>
 
-#include "candidates.h"
-#include "lomaji.h"
-#include "splitter.h"
-#include "trie.h"
+#include "CandidateFinder.h"
+#include "Lomaji.h"
+#include "Splitter.h"
+#include "Trie.h"
 
 namespace khiin::engine {
 
@@ -26,14 +26,14 @@ auto oneChunkCandidate(std::string &&raw, Token &&token) {
 
 // CandidateFinder
 
-CandidateFinder::CandidateFinder(TKDB *db, Splitter *splitter, Trie *trie)
+CandidateFinder::CandidateFinder(Database *db, Splitter *splitter, Trie *trie)
     : db(db), splitter(splitter), trie(trie) {}
 
 /**
  * Returns the number of `syllables` matched by `word`, starting
  * from the left; 0 if no syllables match
  */
-size_t alignedSyllables(const VStr &syllables, std::string word) {
+size_t alignedSyllables(const string_vector &syllables, std::string word) {
     if (std::find(syllables.begin(), syllables.end(), word) !=
         syllables.end()) {
         return 1;
@@ -72,11 +72,11 @@ size_t alignedSyllables(const VStr &syllables, std::string word) {
 auto CandidateFinder::sortTokensByBigram(std::string lgram, int lgramCount,
                                          Tokens &rgrams) {
     auto bigrams = BigramWeights();
-    auto rgramOutputs = VStr();
+    auto rgramOutputs = string_vector();
     for (const auto &c : rgrams) {
         rgramOutputs.push_back(c.output);
     }
-    db->selectBigramsFor(lgram, rgramOutputs, bigrams);
+    db->BigramsFor(lgram, rgramOutputs, bigrams);
     for (auto &c : rgrams) {
         c.bigramWt = static_cast<float>(bigrams.at(c.output)) /
                      static_cast<float>(lgramCount);
@@ -96,11 +96,11 @@ auto CandidateFinder::bestTokenByBigram(std::string lgram, int lgramCount,
     }
 
     auto bigrams = BigramWeights();
-    auto rgramOutputs = VStr();
+    auto rgramOutputs = string_vector();
     for (const auto &c : rgrams) {
         rgramOutputs.push_back(c.output);
     }
-    db->selectBigramsFor(lgram, rgramOutputs, bigrams);
+    db->BigramsFor(lgram, rgramOutputs, bigrams);
 
     auto bestWeight = 0.0f;
     auto bestMatch = size_t(0);
@@ -118,8 +118,8 @@ auto CandidateFinder::bestTokenByBigram(std::string lgram, int lgramCount,
 
 auto CandidateFinder::findBestCandidateBySplitter_(std::string input,
                                                    bool toneless) -> Token {
-    auto syllables = VStr();
-    auto trieWords = VStr();
+    auto syllables = string_vector();
+    auto trieWords = string_vector();
     auto tokens = Tokens();
 
     splitter->split(input, syllables);
@@ -129,13 +129,13 @@ auto CandidateFinder::findBestCandidateBySplitter_(std::string input,
         return Token{0, syllables[0], syllables[0], syllables[0]};
     }
 
-    auto matched = VStr();
+    auto matched = string_vector();
     std::copy_if(trieWords.begin(), trieWords.end(),
                  std::back_inserter(matched), [&](std::string word) {
                      return alignedSyllables(syllables, word) > 0;
                  });
 
-    db->getTokens(matched, tokens);
+    db->GetTokens(matched, tokens);
 
     if (tokens.empty()) {
         return Token{0, syllables[0], syllables[0], syllables[0]};
@@ -153,8 +153,8 @@ auto CandidateFinder::findCandidates(std::string input, std::string lgram,
     }
 
     auto tokens = Tokens();
-    auto lgram_count = lgram.empty() ? 0 : db->getUnigramCount(lgram);
-    auto trieWords = VStr();
+    auto lgram_count = lgram.empty() ? 0 : db->UnigramCount(lgram);
+    auto trieWords = string_vector();
 
     trie->getAllWords(input, toneless, trieWords);
 
@@ -162,7 +162,7 @@ auto CandidateFinder::findCandidates(std::string input, std::string lgram,
         // TODO
     }
 
-    db->getTokens(trieWords, tokens);
+    db->GetTokens(trieWords, tokens);
 
     if (lgram_count > 0) {
         sortTokensByBigram(lgram, lgram_count, tokens);
@@ -202,7 +202,7 @@ auto CandidateFinder::findPrimaryCandidate(std::string_view input,
         return ret;
     }
 
-    auto lgramCount = lgram.empty() ? 0 : db->getUnigramCount(lgram);
+    auto lgramCount = lgram.empty() ? 0 : db->UnigramCount(lgram);
 
     auto bestToken = Token();
     auto dbTokens = Tokens();
@@ -232,7 +232,7 @@ auto CandidateFinder::findPrimaryCandidate(std::string_view input,
         }
 
         // default case: found stuff in the trie
-        auto matched = VStr();
+        auto matched = string_vector();
 
         if (lgram.empty()) {
             // At the beginning, use the syllable splitter to get best result
@@ -274,7 +274,7 @@ auto CandidateFinder::findPrimaryCandidate(std::string_view input,
             }
         }
 
-        db->getTokens(matched, dbTokens);
+        db->GetTokens(matched, dbTokens);
 
         if (dbTokens.empty() && !matched.empty()) {
             auto next = start;

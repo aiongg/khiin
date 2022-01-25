@@ -108,8 +108,7 @@ constexpr Output::Output(
   , candidate_list_(nullptr)
   , error_(0)
 
-  , consumable_(false)
-  , committed_(false){}
+  , consumable_(false){}
 struct OutputDefaultTypeInternal {
   constexpr OutputDefaultTypeInternal()
     : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
@@ -152,20 +151,20 @@ bool Candidate_Category_IsValid(int value) {
 static ::PROTOBUF_NAMESPACE_ID::internal::ExplicitlyConstructed<std::string> Candidate_Category_strings[3] = {};
 
 static const char Candidate_Category_names[] =
-  "KANA"
-  "NORMAL"
-  "RARE";
+  "BASIC"
+  "EXTENDED"
+  "FALLBACK";
 
 static const ::PROTOBUF_NAMESPACE_ID::internal::EnumEntry Candidate_Category_entries[] = {
-  { {Candidate_Category_names + 0, 4}, 1 },
-  { {Candidate_Category_names + 4, 6}, 0 },
-  { {Candidate_Category_names + 10, 4}, 2 },
+  { {Candidate_Category_names + 0, 5}, 0 },
+  { {Candidate_Category_names + 5, 8}, 1 },
+  { {Candidate_Category_names + 13, 8}, 2 },
 };
 
 static const int Candidate_Category_entries_by_number[] = {
-  1, // 0 -> NORMAL
-  0, // 1 -> KANA
-  2, // 2 -> RARE
+  0, // 0 -> BASIC
+  1, // 1 -> EXTENDED
+  2, // 2 -> FALLBACK
 };
 
 const std::string& Candidate_Category_Name(
@@ -194,9 +193,9 @@ bool Candidate_Category_Parse(
   return success;
 }
 #if (__cplusplus < 201703) && (!defined(_MSC_VER) || _MSC_VER >= 1900)
-constexpr Candidate_Category Candidate::NORMAL;
-constexpr Candidate_Category Candidate::KANA;
-constexpr Candidate_Category Candidate::RARE;
+constexpr Candidate_Category Candidate::BASIC;
+constexpr Candidate_Category Candidate::EXTENDED;
+constexpr Candidate_Category Candidate::FALLBACK;
 constexpr Candidate_Category Candidate::Category_MIN;
 constexpr Candidate_Category Candidate::Category_MAX;
 constexpr int Candidate::Category_ARRAYSIZE;
@@ -2088,16 +2087,16 @@ Output::Output(const Output& from)
     candidate_list_ = nullptr;
   }
   ::memcpy(&error_, &from.error_,
-    static_cast<size_t>(reinterpret_cast<char*>(&committed_) -
-    reinterpret_cast<char*>(&error_)) + sizeof(committed_));
+    static_cast<size_t>(reinterpret_cast<char*>(&consumable_) -
+    reinterpret_cast<char*>(&error_)) + sizeof(consumable_));
   // @@protoc_insertion_point(copy_constructor:khiin.messages.Output)
 }
 
 void Output::SharedCtor() {
 ::memset(reinterpret_cast<char*>(this) + static_cast<size_t>(
     reinterpret_cast<char*>(&preedit_) - reinterpret_cast<char*>(this)),
-    0, static_cast<size_t>(reinterpret_cast<char*>(&committed_) -
-    reinterpret_cast<char*>(&preedit_)) + sizeof(committed_));
+    0, static_cast<size_t>(reinterpret_cast<char*>(&consumable_) -
+    reinterpret_cast<char*>(&preedit_)) + sizeof(consumable_));
 }
 
 Output::~Output() {
@@ -2138,8 +2137,8 @@ void Output::Clear() {
   }
   candidate_list_ = nullptr;
   ::memset(&error_, 0, static_cast<size_t>(
-      reinterpret_cast<char*>(&committed_) -
-      reinterpret_cast<char*>(&error_)) + sizeof(committed_));
+      reinterpret_cast<char*>(&consumable_) -
+      reinterpret_cast<char*>(&error_)) + sizeof(consumable_));
   _internal_metadata_.Clear<std::string>();
 }
 
@@ -2178,14 +2177,6 @@ const char* Output::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::int
       case 4:
         if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 32)) {
           consumable_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
-          CHK_(ptr);
-        } else
-          goto handle_unusual;
-        continue;
-      // bool committed = 5;
-      case 5:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 40)) {
-          committed_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
           CHK_(ptr);
         } else
           goto handle_unusual;
@@ -2248,12 +2239,6 @@ failure:
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteBoolToArray(4, this->_internal_consumable(), target);
   }
 
-  // bool committed = 5;
-  if (this->_internal_committed() != 0) {
-    target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteBoolToArray(5, this->_internal_committed(), target);
-  }
-
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
     target = stream->WriteRaw(_internal_metadata_.unknown_fields<std::string>(::PROTOBUF_NAMESPACE_ID::internal::GetEmptyString).data(),
         static_cast<int>(_internal_metadata_.unknown_fields<std::string>(::PROTOBUF_NAMESPACE_ID::internal::GetEmptyString).size()), target);
@@ -2295,11 +2280,6 @@ size_t Output::ByteSizeLong() const {
     total_size += 1 + 1;
   }
 
-  // bool committed = 5;
-  if (this->_internal_committed() != 0) {
-    total_size += 1 + 1;
-  }
-
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
     total_size += _internal_metadata_.unknown_fields<std::string>(::PROTOBUF_NAMESPACE_ID::internal::GetEmptyString).size();
   }
@@ -2332,9 +2312,6 @@ void Output::MergeFrom(const Output& from) {
   if (from._internal_consumable() != 0) {
     _internal_set_consumable(from._internal_consumable());
   }
-  if (from._internal_committed() != 0) {
-    _internal_set_committed(from._internal_committed());
-  }
   _internal_metadata_.MergeFrom<std::string>(from._internal_metadata_);
 }
 
@@ -2353,8 +2330,8 @@ void Output::InternalSwap(Output* other) {
   using std::swap;
   _internal_metadata_.InternalSwap(&other->_internal_metadata_);
   ::PROTOBUF_NAMESPACE_ID::internal::memswap<
-      PROTOBUF_FIELD_OFFSET(Output, committed_)
-      + sizeof(Output::committed_)
+      PROTOBUF_FIELD_OFFSET(Output, consumable_)
+      + sizeof(Output::consumable_)
       - PROTOBUF_FIELD_OFFSET(Output, preedit_)>(
           reinterpret_cast<char*>(&preedit_),
           reinterpret_cast<char*>(&other->preedit_));

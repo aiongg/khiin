@@ -4,7 +4,7 @@
 
 #include <SQLiteCpp/SQLiteCpp.h>
 
-#include "db.h"
+#include "Database.h"
 
 namespace khiin::engine {
 namespace {
@@ -14,27 +14,27 @@ static const auto DB_FILE = "taikey.db";
 class DbFx : public ::testing::Test {
   protected:
     void SetUp() override {
-        db = new TKDB(DB_FILE);
+        db = new Database(DB_FILE);
     }
     ~DbFx() {
         delete db;
     }
-    TKDB *db = nullptr;
+    Database *db = nullptr;
 };
 
 TEST_F(DbFx, select_syllable_list) {
-    auto res = db->selectSyllableList();
+    auto res = db->GetSyllableList();
     EXPECT_GT(res.size(), 0);
 }
 
 TEST_F(DbFx, select_word_list) {
-    auto res = db->selectTrieWordlist();
+    auto res = db->GetTrieWordlist();
     EXPECT_GT(res.size(), 0);
 }
 
 TEST_F(DbFx, select_dictionary_by_ascii) {
     auto res = DictRows();
-    db->selectDictionaryRowsByAscii("a", res);
+    db->SearchDictionaryByAscii("a", res);
     EXPECT_GT(res.size(), 0);
 }
 
@@ -43,7 +43,7 @@ TEST_F(DbFx, select_by_ascii_list) {
     v.push_back("ong");
     v.push_back("ong5");
     auto res = DictRows();
-    db->selectDictionaryRowsByAscii(v, res);
+    db->SearchDictionaryByAscii(v, res);
     EXPECT_GT(res.size(), 0);
 }
 
@@ -53,13 +53,13 @@ TEST_F(DbFx, update_gram_counts) {
 
     boost::split(v, text, boost::is_any_of(" "));
 
-    auto res = db->updateGramCounts(v);
+    auto res = db->IncrementNGramCounts(v);
     EXPECT_EQ(res, 23);
 }
 
 TEST(Database, DummyDb) {
-    auto dummy = new TKDB();
-    auto words = dummy->selectTrieWordlist();
+    auto dummy = new Database();
+    auto words = dummy->GetTrieWordlist();
     EXPECT_EQ(words.size(), 1);
     delete dummy;
 }

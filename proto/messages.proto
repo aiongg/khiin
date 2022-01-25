@@ -82,9 +82,9 @@ message Candidate {
 
     // Used to style the text for providing a visual cue to the user
     enum Category {
-        NORMAL = 0;  // Regular text color
-        KANA = 1;    // Highlighted text color
-        RARE = 2;    // De-emphasized text color
+        BASIC = 0;  // Regular text color
+        EXTENDED = 1;    // Highlighted text color
+        FALLBACK = 2;    // De-emphasized text color
     }
 
     int32 id = 1;
@@ -121,9 +121,6 @@ message Output {
 
     // Used with Windows TSF OnTestKeyDown method
     bool consumable = 4;
-
-    // When this is set, |preedit| should be committed directly to the app
-    bool committed = 5;
 }
 
 enum CommandType {

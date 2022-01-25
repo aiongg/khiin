@@ -30,7 +30,7 @@ auto stripDiacritics(std::string s);
 
 auto placeToneOnSyllable(std::string u8syllable, Tone tone) -> std::string;
 
-auto spaceAsciiByUtf8(std::string ascii, std::string lomaji) -> VStr;
+auto spaceAsciiByUtf8(std::string ascii, std::string lomaji) -> string_vector;
 
 auto tokenSpacer(std::vector<std::string_view> tokens) -> std::vector<bool>;
 
@@ -42,7 +42,7 @@ auto utf8back(std::string_view s) -> uint32_t;
 
 auto utf8first(std::string_view s) -> uint32_t;
 
-auto utf8Size(std::string s) -> Utf8Size;
+auto utf8Size(std::string s) -> utf8_size_t;
 
 auto utf8ToAsciiLower(std::string u8string) -> std::string;
 

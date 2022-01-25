@@ -11,8 +11,7 @@
 
 namespace khiin::engine {
 
-using BigramWeightMap =
-    std::unordered_map<std::pair<std::string, std::string>, int>;
+using BigramWeightMap = std::unordered_map<std::pair<std::string, std::string>, int>;
 
 struct DictionaryRow {
     int id;
@@ -40,7 +39,9 @@ struct Token {
             return dict_id == rhs.dict_id;
         }
     };
-    bool operator!=(const Token &rhs) const { return !(*this == rhs); };
+    bool operator!=(const Token &rhs) const {
+        return !(*this == rhs);
+    };
     void clear() {
         dict_id = 0;
         ascii.clear();
@@ -50,7 +51,9 @@ struct Token {
         unigramN = 0;
         bigramWt = 0.0f;
     }
-    bool empty() const { return dict_id == 0; };
+    bool empty() const {
+        return dict_id == 0;
+    };
 };
 
 using Tokens = std::vector<Token>;
@@ -63,25 +66,23 @@ struct UnigramRow {
 using DictRows = std::vector<DictionaryRow>;
 using BigramWeights = std::unordered_map<std::string, int>;
 
-class TKDB {
+class Database {
   public:
-    TKDB();
-    TKDB(std::string dbFilename);
-    auto getTokens(VStr queries, Tokens &results) -> void;
-    auto init() -> void;
-    auto selectTrieWordlist() -> VStr;
-    auto selectSyllableList() -> VStr;
-    auto selectDictionaryRowsByAscii(std::string input, DictRows &results)
-        -> void;
-    auto selectDictionaryRowsByAscii(VStr inputs, DictRows &results) -> void;
-    auto selectBigramsFor(std::string lgram, VStr rgrams,
-                          BigramWeights &results) -> void;
-    auto getUnigramCount(std::string gram) -> int;
-    auto updateGramCounts(VStr &grams) -> int;
-    // auto selectBigrams(std::string lgram, VStr rgrams) -> BigramWeightMap;
+    Database();
+    Database(std::string dbFilename);
+    void GetTokens(string_vector queries, Tokens &results);
+    void Initialize();
+    string_vector GetTrieWordlist();
+    string_vector GetSyllableList();
+    void SearchDictionaryByAscii(const std::string &input, DictRows &results);
+    void SearchDictionaryByAscii(const string_vector &inputs, DictRows &results);
+    void BigramsFor(const std::string &lgram, const string_vector &rgrams, BigramWeights &results);
+    int UnigramCount(const std::string &gram);
+    int IncrementNGramCounts(string_vector &grams);
+    // auto selectBigrams(std::string lgram, string_vector rgrams) -> BigramWeightMap;
 
   private:
-    auto buildTrieLookupTable_() -> int;
+    int buildTrieLookupTable_();
 
     SQLite::Database handle;
     DictRows tableDictionary;

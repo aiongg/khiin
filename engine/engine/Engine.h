@@ -6,14 +6,14 @@
 #include <Windows.h>
 #endif
 
-#include "buffer_manager.h"
-#include "candidates.h"
-#include "config.h"
-#include "db.h"
+#include "BufferManager.h"
+#include "CandidateFinder.h"
+#include "Config.h"
+#include "Database.h"
+#include "Splitter.h"
+#include "Trie.h"
 #include "errors.h"
 #include "messages.h"
-#include "splitter.h"
-#include "trie.h"
 
 namespace khiin::engine {
 

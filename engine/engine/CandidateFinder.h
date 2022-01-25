@@ -5,9 +5,9 @@
 
 #include <c9/zip.h>
 
-#include "db.h"
-#include "splitter.h"
-#include "trie.h"
+#include "Database.h"
+#include "Splitter.h"
+#include "Trie.h"
 
 namespace khiin::engine {
 
@@ -61,7 +61,7 @@ auto oneChunkCandidate(std::string &&raw, Token &&token);
 
 class CandidateFinder {
   public:
-    CandidateFinder(TKDB *db, Splitter *splitter, Trie *trie);
+    CandidateFinder(Database *db, Splitter *splitter, Trie *trie);
 
     auto findCandidates(std::string input, std::string lgram, bool toneless)
         -> Candidates;
@@ -86,7 +86,7 @@ class CandidateFinder {
                        const std::string_view::const_iterator &end,
                        Candidate &candidate) -> bool;
 
-    TKDB *db;
+    Database *db;
     Splitter *splitter;
     Trie *trie;
 };

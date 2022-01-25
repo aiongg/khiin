@@ -3,13 +3,13 @@
 #include <string>
 #include <vector>
 
-#include "buffer.h"
-#include "candidates.h"
+#include "SynchronizedBuffer.h"
+#include "CandidateFinder.h"
 #include "common.h"
-#include "config.h"
+#include "Config.h"
 #include "errors.h"
-#include "splitter.h"
-#include "trie.h"
+#include "Splitter.h"
+#include "Trie.h"
 
 namespace khiin::engine {
 

@@ -11,10 +11,10 @@
 #include <c9/zip.h>
 #include <utf8cpp/utf8.h>
 
-#include "buffer_manager.h"
+#include "BufferManager.h"
 #include "common.h"
-#include "lomaji.h"
-#include "trie.h"
+#include "Lomaji.h"
+#include "Trie.h"
 
 namespace khiin::engine {
 

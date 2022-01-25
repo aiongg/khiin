@@ -38,8 +38,12 @@ struct EditSessionImpl : winrt::implements<EditSessionImpl, ITfEditSession> {
 
         if (command.output().error() == ErrorCode::FAIL) {
             composition_mgr->CommitComposition(ec, context.get());
-        } else if (command.type() == CommandType::COMMIT || command.output().committed()) {
-            composition_mgr->CommitComposition(ec, context.get(), command.output().preedit());
+        } else if (command.type() == CommandType::COMMIT) {
+            if (command.output().preedit().segments().size() == 0) {
+                composition_mgr->CommitComposition(ec, context.get());
+            } else {
+                composition_mgr->CommitComposition(ec, context.get(), command.output().preedit());
+            }
         } else if (command.type() == CommandType::SEND_KEY) {
             composition_mgr->DoComposition(ec, context.get(), command.output().preedit());
 

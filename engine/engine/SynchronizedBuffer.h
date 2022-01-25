@@ -4,7 +4,7 @@
 #include <string>
 #include <vector>
 
-#include "candidates.h"
+#include "CandidateFinder.h"
 #include "errors.h"
 
 namespace khiin::engine {

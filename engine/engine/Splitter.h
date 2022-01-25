@@ -13,10 +13,10 @@ namespace khiin::engine {
 class Splitter {
   public:
     Splitter();
-    Splitter(const VStr &syllableList);
+    Splitter(const string_vector &syllableList);
     auto canSplit(std::string input) -> bool;
-    auto split(std::string input) -> VStr;
-    auto split(std::string input, VStr &result) -> RetVal;
+    auto split(std::string input) -> string_vector;
+    auto split(std::string input, string_vector &result) -> RetVal;
 
   private:
     std::set<std::string> syllableSet_;

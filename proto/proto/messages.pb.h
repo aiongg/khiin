@@ -93,15 +93,15 @@ namespace khiin {
 namespace messages {
 
 enum Candidate_Category : int {
-  Candidate_Category_NORMAL = 0,
-  Candidate_Category_KANA = 1,
-  Candidate_Category_RARE = 2,
+  Candidate_Category_BASIC = 0,
+  Candidate_Category_EXTENDED = 1,
+  Candidate_Category_FALLBACK = 2,
   Candidate_Category_Candidate_Category_INT_MIN_SENTINEL_DO_NOT_USE_ = std::numeric_limits<::PROTOBUF_NAMESPACE_ID::int32>::min(),
   Candidate_Category_Candidate_Category_INT_MAX_SENTINEL_DO_NOT_USE_ = std::numeric_limits<::PROTOBUF_NAMESPACE_ID::int32>::max()
 };
 bool Candidate_Category_IsValid(int value);
-constexpr Candidate_Category Candidate_Category_Category_MIN = Candidate_Category_NORMAL;
-constexpr Candidate_Category Candidate_Category_Category_MAX = Candidate_Category_RARE;
+constexpr Candidate_Category Candidate_Category_Category_MIN = Candidate_Category_BASIC;
+constexpr Candidate_Category Candidate_Category_Category_MAX = Candidate_Category_FALLBACK;
 constexpr int Candidate_Category_Category_ARRAYSIZE = Candidate_Category_Category_MAX + 1;
 
 const std::string& Candidate_Category_Name(Candidate_Category value);
@@ -961,12 +961,12 @@ class Candidate final :
   // nested types ----------------------------------------------------
 
   typedef Candidate_Category Category;
-  static constexpr Category NORMAL =
-    Candidate_Category_NORMAL;
-  static constexpr Category KANA =
-    Candidate_Category_KANA;
-  static constexpr Category RARE =
-    Candidate_Category_RARE;
+  static constexpr Category BASIC =
+    Candidate_Category_BASIC;
+  static constexpr Category EXTENDED =
+    Candidate_Category_EXTENDED;
+  static constexpr Category FALLBACK =
+    Candidate_Category_FALLBACK;
   static inline bool Category_IsValid(int value) {
     return Candidate_Category_IsValid(value);
   }
@@ -1330,7 +1330,6 @@ class Output final :
     kCandidateListFieldNumber = 3,
     kErrorFieldNumber = 1,
     kConsumableFieldNumber = 4,
-    kCommittedFieldNumber = 5,
   };
   // .khiin.messages.Preedit preedit = 2;
   bool has_preedit() const;
@@ -1386,15 +1385,6 @@ class Output final :
   void _internal_set_consumable(bool value);
   public:
 
-  // bool committed = 5;
-  void clear_committed();
-  bool committed() const;
-  void set_committed(bool value);
-  private:
-  bool _internal_committed() const;
-  void _internal_set_committed(bool value);
-  public:
-
   // @@protoc_insertion_point(class_scope:khiin.messages.Output)
  private:
   class _Internal;
@@ -1406,7 +1396,6 @@ class Output final :
   ::khiin::messages::CandidateList* candidate_list_;
   int error_;
   bool consumable_;
-  bool committed_;
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   friend struct ::TableStruct_messages_2eproto;
 };
@@ -2408,26 +2397,6 @@ inline void Output::_internal_set_consumable(bool value) {
 inline void Output::set_consumable(bool value) {
   _internal_set_consumable(value);
   // @@protoc_insertion_point(field_set:khiin.messages.Output.consumable)
-}
-
-// bool committed = 5;
-inline void Output::clear_committed() {
-  committed_ = false;
-}
-inline bool Output::_internal_committed() const {
-  return committed_;
-}
-inline bool Output::committed() const {
-  // @@protoc_insertion_point(field_get:khiin.messages.Output.committed)
-  return _internal_committed();
-}
-inline void Output::_internal_set_committed(bool value) {
-  
-  committed_ = value;
-}
-inline void Output::set_committed(bool value) {
-  _internal_set_committed(value);
-  // @@protoc_insertion_point(field_set:khiin.messages.Output.committed)
 }
 
 // -------------------------------------------------------------------

@@ -9,35 +9,34 @@
 
 // #define SQLITE_OPEN_NOMUTEX 0x00008000 /* Ok for sqlite3_open_v2() */
 
-#include "db.h"
-#include "lomaji.h"
-#include "sql.h"
+#include "Database.h"
+#include "Lomaji.h"
+#include "SQL.h"
 
 namespace khiin::engine {
 
 using namespace std::literals::string_literals;
 
 // Testing only
-TKDB::TKDB() : handle(SQLite::Database(":memory:", SQLite::OPEN_READWRITE)) {
+Database::Database() : handle(SQLite::Database(":memory:", SQLite::OPEN_READWRITE)) {
     handle.exec(SQL::CREATE_DummyDatabase());
-    init();
+    Initialize();
 }
 
-TKDB::TKDB(std::string dbFilename)
-    : handle(SQLite::Database(dbFilename, SQLite::OPEN_READWRITE)) {
+Database::Database(std::string dbFilename) : handle(SQLite::Database(dbFilename, SQLite::OPEN_READWRITE)) {
     tableDictionary.reserve(20000);
-    init();
+    Initialize();
 }
 
-auto TKDB::init() -> void {
+void Database::Initialize() {
     if (!handle.tableExists("trie_map")) {
         buildTrieLookupTable_();
     }
 }
 
-auto TKDB::selectTrieWordlist() -> VStr {
+string_vector Database::GetTrieWordlist() {
     auto query = SQLite::Statement(handle, SQL::SELECT_TrieWords);
-    VStr res;
+    string_vector res;
 
     while (query.executeStep()) {
         res.push_back(query.getColumn("ascii").getString());
@@ -46,9 +45,9 @@ auto TKDB::selectTrieWordlist() -> VStr {
     return res;
 }
 
-auto TKDB::selectSyllableList() -> VStr {
+string_vector Database::GetSyllableList() {
     SQLite::Statement query(handle, SQL::SELECT_Syllables);
-    VStr res;
+    string_vector res;
 
     while (query.executeStep()) {
         res.push_back(query.getColumn("syl").getString());
@@ -57,49 +56,40 @@ auto TKDB::selectSyllableList() -> VStr {
     return res;
 }
 
-auto TKDB::selectDictionaryRowsByAscii(std::string input, DictRows &results)
-    -> void {
+void Database::SearchDictionaryByAscii(const std::string &input, DictRows &results) {
     results.clear();
 
     auto query = SQLite::Statement(handle, SQL::SELECT_Dictionary_1);
     query.bind(1, input);
 
     while (query.executeStep()) {
-        DictionaryRow d{query.getColumn("id").getInt(),
-                        query.getColumn("chhan_id").getInt(),
-                        query.getColumn("input").getString(),
-                        query.getColumn("output").getString(),
-                        query.getColumn("weight").getInt(),
-                        query.getColumn("color").getInt(),
+        DictionaryRow d{query.getColumn("id").getInt(),       query.getColumn("chhan_id").getInt(),
+                        query.getColumn("input").getString(), query.getColumn("output").getString(),
+                        query.getColumn("weight").getInt(),   query.getColumn("color").getInt(),
                         query.getColumn("hint").getString()};
         results.push_back(d);
     }
 }
 
-auto TKDB::selectDictionaryRowsByAscii(VStr inputs, DictRows &results) -> void {
+void Database::SearchDictionaryByAscii(const string_vector &inputs, DictRows &results) {
     results.clear();
 
-    auto query =
-        SQLite::Statement(handle, SQL::SELECT_Dictionary_N(inputs.size()));
+    auto query = SQLite::Statement(handle, SQL::SELECT_Dictionary_N(inputs.size()));
 
     for (const auto &in : inputs | boost::adaptors::indexed(1)) {
         query.bind(static_cast<int>(in.index()), in.value());
     }
 
     while (query.executeStep()) {
-        DictionaryRow d{query.getColumn("id").getInt(),
-                        query.getColumn("chhan_id").getInt(),
-                        query.getColumn("input").getString(),
-                        query.getColumn("output").getString(),
-                        query.getColumn("weight").getInt(),
-                        query.getColumn("color").getInt(),
+        DictionaryRow d{query.getColumn("id").getInt(),       query.getColumn("chhan_id").getInt(),
+                        query.getColumn("input").getString(), query.getColumn("output").getString(),
+                        query.getColumn("weight").getInt(),   query.getColumn("color").getInt(),
                         query.getColumn("hint").getString()};
         results.push_back(d);
     }
 }
 
-auto TKDB::getTokens(VStr inputs, std::vector<Token> &results)
-    -> void {
+void Database::GetTokens(string_vector inputs, std::vector<Token> &results) {
     results.clear();
 
     auto query = SQLite::Statement(handle, SQL::SELECT_Tokens(inputs.size()));
@@ -109,18 +99,15 @@ auto TKDB::getTokens(VStr inputs, std::vector<Token> &results)
     }
 
     while (query.executeStep()) {
-        Token d{query.getColumn("id").getInt(),
-                query.getColumn("ascii").getString(),
-                query.getColumn("input").getString(),
-                query.getColumn("output").getString(),
-                query.getColumn("hint").getString(),
-                query.getColumn("color").getInt(),
+        Token d{query.getColumn("id").getInt(),       query.getColumn("ascii").getString(),
+                query.getColumn("input").getString(), query.getColumn("output").getString(),
+                query.getColumn("hint").getString(),  query.getColumn("color").getInt(),
                 query.getColumn("unigram_n").getInt()};
         results.push_back(d);
     }
 }
 
-auto TKDB::getUnigramCount(std::string gram) -> int {
+int Database::UnigramCount(const std::string &gram) {
     if (gram.empty()) {
         return 0;
     }
@@ -132,8 +119,7 @@ auto TKDB::getUnigramCount(std::string gram) -> int {
     return found ? query.getColumn("n").getInt() : 0;
 }
 
-auto TKDB::selectBigramsFor(std::string lgram, VStr rgrams,
-                            BigramWeights &results) -> void {
+void Database::BigramsFor(const std::string &lgram, const string_vector &rgrams, BigramWeights &results) {
     results.clear();
 
     auto query = SQLite::Statement(handle, SQL::SELECT_Bigrams(rgrams.size()));
@@ -145,12 +131,11 @@ auto TKDB::selectBigramsFor(std::string lgram, VStr rgrams,
     }
 
     while (query.executeStep()) {
-        results[query.getColumn("rgram").getString()] =
-            query.getColumn("n").getInt();
+        results[query.getColumn("rgram").getString()] = query.getColumn("n").getInt();
     }
 }
 
-auto TKDB::updateGramCounts(VStr &grams) -> int {
+int Database::IncrementNGramCounts(string_vector &grams) {
     // This version builds the strings manually, for testing
     // speed against the ones using .bind below...
     // on average it seems the .bind ones run slightly faster
@@ -233,8 +218,7 @@ auto TKDB::updateGramCounts(VStr &grams) -> int {
 
     for (const auto &gram : grams | boost::adaptors::indexed(1)) {
         qUnigrams.bind(static_cast<int>(gram.index()), gram.value());
-        qUnigrams.bind(static_cast<int>(gram.index() + grams.size()),
-                       gram.value());
+        qUnigrams.bind(static_cast<int>(gram.index() + grams.size()), gram.value());
     }
 
     auto qBigrams = SQLite::Statement(handle, rawBigrams);
@@ -268,7 +252,7 @@ auto TKDB::updateGramCounts(VStr &grams) -> int {
     return res + res2;
 }
 
-int TKDB::buildTrieLookupTable_() {
+int Database::buildTrieLookupTable_() {
     auto insertable = std::vector<std::pair<std::string, int>>();
     auto insertQueries = std::vector<SQLite::Statement>();
     auto chunkSize = 3000;
@@ -277,8 +261,7 @@ int TKDB::buildTrieLookupTable_() {
     insertQueries.reserve(10);
 
     auto addQueryChunk = [&]() {
-        auto q =
-            SQLite::Statement(handle, SQL::INSERT_TrieMap(insertable.size()));
+        auto q = SQLite::Statement(handle, SQL::INSERT_TrieMap(insertable.size()));
         for (const auto &each : insertable | boost::adaptors::indexed(1)) {
             q.bind(static_cast<int>(2 * each.index() - 1), each.value().first);
             q.bind(static_cast<int>(2 * each.index()), each.value().second);
@@ -289,13 +272,11 @@ int TKDB::buildTrieLookupTable_() {
 
     auto tx = SQLite::Transaction(handle);
     handle.exec(SQL::CREATE_TrieMapTable);
-    auto dictionaryQuery =
-        SQLite::Statement(handle, SQL::SELECT_DictionaryInputs);
+    auto dictionaryQuery = SQLite::Statement(handle, SQL::SELECT_DictionaryInputs);
 
     while (dictionaryQuery.executeStep()) {
         auto dictId = dictionaryQuery.getColumn("id").getInt();
-        auto ascii =
-            utf8ToAsciiLower(dictionaryQuery.getColumn("input").getString());
+        auto ascii = utf8ToAsciiLower(dictionaryQuery.getColumn("input").getString());
         auto output = dictionaryQuery.getColumn("output").getString();
 
         static std::regex rInnerTone("\\d(?!$)");

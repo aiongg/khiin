@@ -279,8 +279,8 @@ auto placeToneOnSyllable(std::string u8syllable, Tone tone) -> std::string {
     return ret;
 }
 
-auto spaceAsciiByUtf8(std::string ascii, std::string lomaji) -> VStr {
-    auto segments = VStr();
+auto spaceAsciiByUtf8(std::string ascii, std::string lomaji) -> string_vector {
+    auto segments = string_vector();
     auto base = stripToAlpha(utf8ToAsciiLower(lomaji));
 
     auto a_start = ascii.begin();
@@ -358,8 +358,8 @@ auto utf8first(std::string_view str) -> uint32_t {
     return utf8::peek_next(str.cbegin(), str.cend());
 }
 
-auto utf8Size(std::string s) -> Utf8Size {
-    return static_cast<Utf8Size>(utf8::distance(s.begin(), s.end()));
+auto utf8Size(std::string s) -> utf8_size_t {
+    return static_cast<utf8_size_t>(utf8::distance(s.begin(), s.end()));
 }
 
 auto utf8ToAsciiLower(std::string u8string) -> std::string {

@@ -73,7 +73,7 @@ TEST_F(TrieFx, autocomplete_tone) {
 
 TEST_F(TrieFx, get_all_words) {
     ins({"cho", "cho2", "chong", "chong5", "chongthong2", "ba"});
-    auto res = VStr();
+    auto res = string_vector();
     trie->getAllWords("chongthong", true, res);
     EXPECT_EQ(res.size(), 5);
     EXPECT_NE(std::find(res.begin(), res.end(), "cho2"), res.end());

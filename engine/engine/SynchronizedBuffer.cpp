@@ -3,8 +3,8 @@
 #include <c9/zip.h>
 #include <utf8cpp/utf8.h>
 
-#include "buffer.h"
-#include "lomaji.h"
+#include "SynchronizedBuffer.h"
+#include "Lomaji.h"
 
 namespace khiin::engine {
 

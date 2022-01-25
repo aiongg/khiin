@@ -16,7 +16,7 @@
 
 #include "utf8cpp/utf8.h"
 
-#include "engine.h"
+#include "Engine.h"
 #include "utils.h"
 
 namespace khiin::engine {
@@ -46,7 +46,7 @@ class EngineImpl : public Engine {
             db_path /= DB_FILE;
 
             if (fs::exists(db_path)) {
-                database = std::make_unique<TKDB>(db_path.string());
+                database = std::make_unique<Database>(db_path.string());
             }
 
             auto cfg_path = fs::path(resource_dir);
@@ -58,16 +58,16 @@ class EngineImpl : public Engine {
         }
 
         if (database == nullptr) {
-            database = std::make_unique<TKDB>();
+            database = std::make_unique<Database>();
         }
 
         if (config == nullptr) {
             config = std::make_unique<Config>();
         }
 
-        auto syllableList = database->selectSyllableList();
+        auto syllableList = database->GetSyllableList();
         splitter = std::make_unique<Splitter>(syllableList);
-        trie = std::make_unique<Trie>(database->selectTrieWordlist(), syllableList);
+        trie = std::make_unique<Trie>(database->GetTrieWordlist(), syllableList);
         candidateFinder = std::make_unique<CandidateFinder>(database.get(), splitter.get(), trie.get());
         buffer = std::make_unique<BufferManager>(candidateFinder.get());
 
@@ -87,7 +87,7 @@ class EngineImpl : public Engine {
             handler = &EngineImpl::HandleNone;
         }
 
-        (this->*handler)(input, output);
+        (this->*handler)(pCommand);
     }
 
   private:
@@ -97,9 +97,11 @@ class EngineImpl : public Engine {
     //
     //----------------------------------------------------------------------------
 
-    void HandleNone(Input *input, Output *output) {}
+    void HandleNone(Command *command) {}
 
-    void HandleSendKey(Input *input, Output *output) {
+    void HandleSendKey(Command *command) {
+        auto input = command->mutable_input();
+        auto output = command->mutable_output();
         auto &key = input->key_event();
 
         switch (key.special_key()) {
@@ -119,7 +121,7 @@ class EngineImpl : public Engine {
             break;
         }
         case SpecialKey::SK_ENTER: {
-            HandleCommit(input, output);
+            HandleCommit(command);
             return;
         }
         case SpecialKey::SK_BACKSPACE: {
@@ -143,37 +145,46 @@ class EngineImpl : public Engine {
         }
         }
 
+        AttachPreeditWithCandidates(command);
+    }
+
+    void HandleCommit(Command *command) {
+        command->set_type(CommandType::COMMIT);
+        auto input = command->mutable_input();
+        auto output = command->mutable_output();
+        auto preedit = output->mutable_preedit();
+        preedit->set_cursor_position(buffer->getCursor());
+        auto segment = preedit->add_segments();
+        segment->set_status(SegmentStatus::UNMARKED);
+        segment->set_value(buffer->getDisplayBuffer());
+        buffer->clear();
+    }
+
+    void HandleTestSendKey(Command *command) {
+        auto input = command->mutable_input();
+        auto output = command->mutable_output();
+
+        if (buffer->empty() && !isalnum(input->key_event().key_code())) {
+            output->set_consumable(false);
+        } else {
+            output->set_consumable(true);
+        }
+    }
+
+    void AttachPreeditWithCandidates(Command* command) {
+        auto output = command->mutable_output();
         auto preedit = output->mutable_preedit();
         preedit->set_cursor_position(buffer->getCursor());
         auto segment = preedit->add_segments();
         segment->set_status(SegmentStatus::COMPOSING);
         segment->set_value(buffer->getDisplayBuffer());
 
-
         auto curr_candidates = buffer->getCandidates();
         auto cand_list = output->mutable_candidate_list();
         for (auto &c : curr_candidates) {
             auto candidate = cand_list->add_candidates();
             candidate->set_value(c.text);
-            candidate->set_category(Candidate_Category_NORMAL);
-        }
-    }
-
-    void HandleCommit(Input *input, Output *output) {
-        auto preedit = output->mutable_preedit();
-        preedit->set_cursor_position(buffer->getCursor());
-        auto segment = preedit->add_segments();
-        segment->set_status(SegmentStatus::UNMARKED);
-        segment->set_value(buffer->getDisplayBuffer());
-        output->set_committed(true);
-        buffer->clear();
-    }
-
-    void HandleTestSendKey(Input *input, Output *output) {
-        if (buffer->empty() && !isalnum(input->key_event().key_code())) {
-            output->set_consumable(false);
-        } else {
-            output->set_consumable(true);
+            candidate->set_category(Candidate_Category_BASIC);
         }
     }
 
@@ -183,7 +194,7 @@ class EngineImpl : public Engine {
     // void HandlePlaceCursor(Command *command, Output *output) {}
 
     fs::path resource_dir = {};
-    std::unique_ptr<TKDB> database = nullptr;
+    std::unique_ptr<Database> database = nullptr;
     std::unique_ptr<Config> config = nullptr;
     std::unique_ptr<Splitter> splitter = nullptr;
     std::unique_ptr<Trie> trie = nullptr;

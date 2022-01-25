@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 
-#include "buffer_manager.h"
+#include "BufferManager.h"
 
 namespace khiin::engine {
 namespace {
@@ -10,9 +10,9 @@ const std::string DB_FILE = "taikey.db";
 class BufferFx : public ::testing::Test {
   protected:
     void SetUp() override {
-        db = new TKDB(DB_FILE);
-        auto sylList = db->selectSyllableList();
-        sp = new Splitter(sylList), tr = new Trie(db->selectTrieWordlist(), sylList);
+        db = new Database(DB_FILE);
+        auto sylList = db->GetSyllableList();
+        sp = new Splitter(sylList), tr = new Trie(db->GetTrieWordlist(), sylList);
         cf = new CandidateFinder(db, sp, tr);
         buf = new BufferManager(cf);
     }
@@ -26,7 +26,7 @@ class BufferFx : public ::testing::Test {
     }
 
     BufferManager *buf = nullptr;
-    TKDB *db = nullptr;
+    Database *db = nullptr;
     CandidateFinder *cf = nullptr;
     Splitter *sp = nullptr;
     Trie *tr = nullptr;

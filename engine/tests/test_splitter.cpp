@@ -9,9 +9,9 @@
 #include <boost/algorithm/string.hpp>
 #include <boost/log/trivial.hpp>
 
-#include "buffer_manager.h"
-#include "splitter.h"
-#include "trie.h"
+#include "BufferManager.h"
+#include "Splitter.h"
+#include "Trie.h"
 
 namespace khiin::engine {
 namespace {
