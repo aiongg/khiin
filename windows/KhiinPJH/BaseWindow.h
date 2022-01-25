@@ -47,7 +47,7 @@ class BaseWindow {
 
   protected:
     virtual std::wstring &class_name() const = 0;
-    virtual LRESULT WndProc(UINT uMsg, WPARAM wParam, LPARAM lParam) = 0;
+    virtual LRESULT CALLBACK WndProc(UINT uMsg, WPARAM wParam, LPARAM lParam) = 0;
     HWND m_hwnd = NULL;
 
     bool Create_(PCWSTR lpWindowName, // clang-format off

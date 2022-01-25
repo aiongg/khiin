@@ -50,7 +50,7 @@ GUID kCandidateWindowGuid // 829893fa-728d-11ec-8c6e-e0d46491b35a
 
 CandidateWindow::CandidateWindow(HWND parent) : m_hwnd_parent(parent) {}
 
-LRESULT __stdcall CandidateWindow::WndProc(UINT uMsg, WPARAM wParam, LPARAM lParam) {
+LRESULT CALLBACK CandidateWindow::WndProc(UINT uMsg, WPARAM wParam, LPARAM lParam) {
     switch (uMsg) {
     case WM_NCCREATE: {
         D("WM_NCCREATE");

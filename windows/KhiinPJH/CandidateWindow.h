@@ -15,7 +15,7 @@ class CandidateWindow : public BaseWindow<CandidateWindow> {
     CandidateWindow &operator=(const CandidateWindow &) = default;
     ~CandidateWindow() = default;
 
-    virtual LRESULT WINAPI WndProc(UINT uMsg, WPARAM wParam, LPARAM lParam) override;
+    virtual LRESULT CALLBACK WndProc(UINT uMsg, WPARAM wParam, LPARAM lParam) override;
     virtual std::wstring &class_name() const override;
 
     void Create();
