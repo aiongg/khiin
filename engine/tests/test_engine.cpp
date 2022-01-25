@@ -46,7 +46,7 @@ class EngineFx : public ::testing::Test {
   protected:
     void SetUp() override {
         setTaikeyPath();
-        engine = std::unique_ptr<Engine>(EngineFactory::Create());
+        engine = std::unique_ptr<Engine>(Engine::Create());
     }
     std::unique_ptr<Engine> engine = nullptr;
     Command *command = nullptr;

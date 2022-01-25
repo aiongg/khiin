@@ -38,13 +38,9 @@ struct ImeDisplayData {
 
 class Engine {
   public:
-    virtual void SendCommand(messages::Command *command) = 0;
-};
-
-class EngineFactory {
-  public:
     static Engine *Create();
     static Engine *Create(std::string home_dir);
+    virtual void SendCommand(messages::Command *command) = 0;
 };
 
 } // namespace khiin::engine

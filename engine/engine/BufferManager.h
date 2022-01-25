@@ -3,13 +3,14 @@
 #include <string>
 #include <vector>
 
-#include "SynchronizedBuffer.h"
 #include "CandidateFinder.h"
-#include "common.h"
 #include "Config.h"
-#include "errors.h"
-#include "Splitter.h"
-#include "Trie.h"
+//#include "Splitter.h"
+//#include "SynchronizedBuffer.h"
+//#include "Trie.h"
+#include "common.h"
+//#include "errors.h"
+#include "messages.h"
 
 namespace khiin::engine {
 
@@ -21,39 +22,22 @@ struct CandidateDisplay {
 
 class BufferManager {
   public:
-    BufferManager();
-    BufferManager(CandidateFinder *candidateFinder);
-    auto clear() -> RetVal;
-    auto empty() -> bool;
-    auto focusCandidate(size_t index) -> RetVal;
-    auto getCandidates() -> std::vector<CandidateDisplay>;
-    auto getDisplayBuffer() -> std::string;
-    auto getCursor() -> size_t;
-    auto insert(char ch) -> RetVal;
-    auto moveCursor(CursorDirection dir) -> RetVal;
-    auto moveFocus(CursorDirection dir) -> RetVal;
-    auto erase(CursorDirection dir) -> RetVal;
-    auto selectPrimaryCandidate() -> RetVal;
-    auto selectCandidate(size_t index) -> RetVal;
-    auto setToneKeys(ToneKeys toneKeys) -> RetVal;
+    static BufferManager *Create(CandidateFinder *candidate_finder);
+    virtual void Clear() = 0;
+    virtual bool IsEmpty() = 0;
+    virtual void Insert(char ch) = 0;
+    virtual void MoveCaret(CursorDirection dir) = 0;
+    virtual void MoveFocus(CursorDirection dir) = 0;
+    virtual void BuildPreedit(messages::Preedit* preedit) = 0;
+    virtual void FocusCandidate(size_t index) = 0;
+    virtual void Erase(CursorDirection dir) = 0;
 
-  private:
-    auto isCursorAtEnd() -> bool;
-    auto insertNormal(char ch) -> RetVal;
-    auto insertTelex_(char ch) -> RetVal;
-    auto findCandidates(SegmentIter first) -> void;
-    auto findPrimaryCandidate(SegmentIter first, SegmentIter last) -> void;
-    auto lgramOf(SegmentIter segment) -> std::string;
-
-    SynchronizedBuffer buffer;
-    CandidateFinder *candidateFinder;
-    char lastKey_ = '\0';
-    CommitMode commitMode_ = CommitMode::Lazy;
-    InputMode inputMode_ = InputMode::Normal;
-    ToneKeys toneKeys_ = ToneKeys::Numeric;
-    ToneMode toneMode = ToneMode::Fuzzy;
-    Candidates candidates;
-    bool hasPrimaryCandidate = false;
+    virtual std::vector<CandidateDisplay> getCandidates() = 0;
+    virtual std::string getDisplayBuffer() = 0;
+    virtual size_t getCursor() = 0;
+    virtual void selectPrimaryCandidate() = 0;
+    virtual void selectCandidate(size_t index) = 0;
+    virtual void setToneKeys(ToneKeys toneKeys) = 0;
 };
 
 } // namespace khiin::engine

@@ -13,87 +13,90 @@ namespace khiin::engine {
 struct Segment;
 class SynchronizedBuffer;
 using Segments = std::vector<Segment>;
-using SegmentIter = Segments::iterator;
-using SegmentCIter = Segments::const_iterator;
 
-enum class CursorDirection {
-    L,
-    R,
-};
-
-struct Cursor {
+struct Caret {
     SynchronizedBuffer *buf = nullptr;
-    size_t segment = size_t(0);
-    size_t raw = size_t(0);
-    size_t display = size_t(0);
+    size_t segment_pos = size_t(0);
+    size_t input_pos = size_t(0);
+    size_t display_pos = size_t(0);
 
     void operator++();
     void operator++(int);
     void operator--();
     void operator--(int);
 
-    auto atEnd() -> bool;
-    auto clear() -> void;
+    bool IsAtEnd();
+    void ShiftToStart();
+    void ShiftToEnd();
+
     auto displayOffset() -> size_t;
-    auto displayOffset(SegmentIter from) -> size_t;
-    auto rawOffset(SegmentIter from) -> size_t;
-    auto setBuffer(SynchronizedBuffer *bufp) { buf = bufp; };
-    auto setToEnd() -> void;
+    auto displayOffset(Segments::iterator from) -> size_t;
+    auto rawOffset(Segments::iterator from) -> size_t;
+    auto setBuffer(SynchronizedBuffer *pBuf) {
+        buf = pBuf;
+    };
     auto syncToRaw(size_t segmentStart, size_t rawOffset) -> void;
 };
 
 struct Segment {
-    std::string raw = std::string();
-    std::string display = std::string();
+    std::string input_value = std::string();
+    std::string display_value = std::string();
     const Token *token = nullptr;
-    //Candidate candidates_;
-    //size_t selectedCandidate = size_t(0);
-    bool selected = false;
-    bool confirmed = false;
     bool editing = true;
+    bool converted = false;
+    bool focused = false;
     bool spaced = false;
 };
 
 class SynchronizedBuffer {
-    friend struct Cursor;
+    friend struct Caret;
 
   public:
     SynchronizedBuffer() {
-        cursor.setBuffer(this);
-        segments.reserve(100);
-        segments.push_back(Segment());
+        m_caret.setBuffer(this);
+        m_segments.reserve(100);
+        m_segments.push_back(Segment());
     };
 
-    auto clear() -> void;
-    auto displayCursor() -> std::string::iterator;
+    auto Reset() -> void;
     auto displayCursorOffset() -> size_t;
     auto displayText() -> std::string;
-    auto editingBegin() -> SegmentIter;
-    auto editingEnd() -> SegmentIter;
+
+    Segments::iterator begin();
+    Segments::iterator end();
+    Segments::iterator edit_begin();
+    Segments::iterator edit_end();
+    Segments::iterator caret();
+    std::string::iterator input_caret();
+    std::string::iterator display_caret();
+
+    Segments::const_iterator cbegin();
+    Segments::const_iterator cend();
+    Segments::const_iterator edit_cbegin();
+    Segments::const_iterator edit_cend();
+    Segments::const_iterator ccaret();
+    std::string::const_iterator input_ccaret();
+    std::string::const_iterator display_ccaret();
+
     auto empty() -> bool;
     auto erase(CursorDirection dir) -> void;
     auto insert(char ch) -> void;
     auto isCursorAtEnd() -> bool;
-    auto moveCursor(CursorDirection dir) -> void;
+    auto MoveCaret(CursorDirection dir) -> void;
     auto moveCursorToEnd() -> void;
-    auto rawCursor() -> std::string::iterator;
-    auto rawText(SegmentIter first, SegmentIter last) -> std::string;
-    auto segmentAtCursor() -> SegmentIter;
-    auto segmentBegin() -> SegmentIter;
+    auto rawText(Segments::iterator first, Segments::iterator last) -> std::string;
     auto segmentCount() -> size_t;
-    auto segmentEnd() -> SegmentIter;
-    auto segmentByCandidate(SegmentIter first, SegmentIter last, const Candidate &candidates)
-        -> void;
+    auto segmentByCandidate(Segments::iterator first, Segments::iterator last, const Candidate &candidates) -> void;
     auto updateSegmentSpacing() -> void;
 
   private:
     auto erase(size_t len) -> void;
-    auto eraseSegment(SegmentIter first) -> void;
+    auto eraseSegment(Segments::iterator first) -> void;
     auto removeToneFromRawBuffer() -> void;
 
-    Segments segments;
-    Cursor cursor;
-    // size_t focusedSegment;
+    Segments m_segments;
+    Caret m_caret;
+    int m_focused_segment = -1;
 };
 
 } // namespace khiin::engine

@@ -29,7 +29,7 @@ add_library (khiin_engine
     "messages.h"
     "${PROTOBUF_DIR}/messages.pb.h"
     "${PROTOBUF_DIR}/messages.pb.cc"
-)
+   "ParallelIterators.h")
 
 # Debug
 target_link_options(khiin_engine PRIVATE "/MAP")

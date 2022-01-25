@@ -7,8 +7,7 @@ namespace khiin::engine {
 
 auto asciiSyllableToUtf8(std::string ascii) -> std::string;
 
-auto asciiSyllableToUtf8(std::string ascii, Tone tone, bool khin)
-    -> std::string;
+auto asciiSyllableToUtf8(std::string ascii, Tone tone, bool khin) -> std::string;
 
 auto checkTone78Swap(std::string u8syllable, Tone tone) -> Tone;
 
@@ -17,14 +16,6 @@ auto getToneFromDigit(char ch) -> Tone;
 auto getToneFromTelex(char ch) -> Tone;
 
 auto hasToneDiacritic(std::string sv) -> bool;
-
-auto parallelNext(std::string::iterator &a_it, std::string::iterator &a_end,
-                  std::string::iterator &u_it, std::string::iterator &u_end)
-    -> void;
-
-auto parallelPrior(std::string::iterator &a_it, std::string::iterator &a_end,
-                   std::string::iterator &u_it, std::string::iterator &u_end)
-    -> void;
 
 auto stripDiacritics(std::string s);
 

@@ -3,8 +3,9 @@
 #include <c9/zip.h>
 #include <utf8cpp/utf8.h>
 
-#include "SynchronizedBuffer.h"
 #include "Lomaji.h"
+#include "SynchronizedBuffer.h"
+#include "ParallelIterators.h"
 
 namespace khiin::engine {
 
@@ -38,31 +39,27 @@ auto displayFromRaw(std::string raw, std::string split) {
     return display;
 }
 
+//+---------------------------------------------------------------------------
+//
 // SynchronizedBuffer
+//
+//----------------------------------------------------------------------------
 
-auto SynchronizedBuffer::clear() -> void {
-    cursor.clear();
-    // primaryCandidate.clear();
-    segments.clear();
-    segments.push_back(Segment());
+auto SynchronizedBuffer::Reset() -> void {
+    m_caret.ShiftToStart();
+    m_segments.clear();
+    m_segments.push_back(Segment());
 }
 
 auto SynchronizedBuffer::displayCursorOffset() -> size_t {
-    return cursor.displayOffset();
-}
-
-auto SynchronizedBuffer::displayCursor() -> std::string::iterator {
-    auto s = segmentAtCursor();
-    auto it = (*s).display.begin();
-    utf8::advance(it, cursor.display, (*s).display.end());
-    return it;
+    return m_caret.displayOffset();
 }
 
 auto SynchronizedBuffer::displayText() -> std::string {
     auto ret = std::string();
 
-    for (auto &s : segments) {
-        ret += s.display;
+    for (auto &s : m_segments) {
+        ret += s.display_value;
         if (s.spaced) {
             ret += ' ';
         }
@@ -71,139 +68,201 @@ auto SynchronizedBuffer::displayText() -> std::string {
     return ret;
 }
 
-auto SynchronizedBuffer::editingBegin() -> SegmentIter {
-    for (auto it = segments.begin(); it != segments.end(); it++) {
-        if ((*it).editing) {
+//+---------------------------------------------------------------------------
+//
+// SynchronizedBuffer iterators
+//
+//----------------------------------------------------------------------------
+
+Segments::iterator SynchronizedBuffer::begin() {
+    return m_segments.begin();
+}
+
+Segments::const_iterator SynchronizedBuffer::cbegin() {
+    return m_segments.cbegin();
+}
+
+Segments::iterator SynchronizedBuffer::end() {
+    return m_segments.end();
+}
+
+Segments::const_iterator SynchronizedBuffer::cend() {
+    return m_segments.cend();
+}
+
+Segments::iterator SynchronizedBuffer::edit_begin() {
+    for (auto it = m_segments.begin(); it != m_segments.end(); it++) {
+        if (it[0].editing) {
             return it;
         }
     }
 
-    return segments.end();
+    return m_segments.end();
 }
 
-auto SynchronizedBuffer::editingEnd() -> SegmentIter {
-    for (auto it = segments.end() - 1; it != segments.begin(); --it) {
-        if ((*it).editing) {
+Segments::const_iterator SynchronizedBuffer::edit_cbegin() {
+    for (auto it = m_segments.cbegin(); it != m_segments.cend(); it++) {
+        if (it[0].editing) {
+            return it;
+        }
+    }
+
+    return m_segments.cend();
+}
+
+Segments::iterator SynchronizedBuffer::edit_end() {
+    for (auto it = m_segments.end() - 1; it != m_segments.begin(); --it) {
+        if (it[0].editing) {
             return ++it;
         }
     }
 
-    return segments.end();
+    return m_segments.end();
+}
+
+Segments::const_iterator SynchronizedBuffer::edit_cend() {
+    for (auto it = m_segments.cend() - 1; it != m_segments.cbegin(); --it) {
+        if (it[0].editing) {
+            return ++it;
+        }
+    }
+
+    return m_segments.cend();
+}
+
+Segments::iterator SynchronizedBuffer::caret() {
+    return m_segments.begin() + m_caret.segment_pos;
+}
+
+Segments::const_iterator SynchronizedBuffer::ccaret() {
+    return m_segments.cbegin() + m_caret.segment_pos;
+}
+
+std::string::iterator SynchronizedBuffer::input_caret() {
+    auto s = caret();
+    auto it = s[0].input_value.begin() + m_caret.input_pos;
+    return it;
+}
+
+std::string::const_iterator SynchronizedBuffer::input_ccaret() {
+    auto s = ccaret();
+    auto it = s[0].input_value.cbegin() + m_caret.input_pos;
+    return it;
+}
+
+std::string::iterator SynchronizedBuffer::display_caret() {
+    auto s = caret();
+    auto it = s[0].display_value.begin();
+    utf8::advance(it, m_caret.display_pos, s[0].display_value.end());
+    return it;
+}
+
+std::string::const_iterator SynchronizedBuffer::display_ccaret() {
+    auto s = ccaret();
+    auto it = s[0].display_value.cbegin();
+    utf8::advance(it, m_caret.display_pos, s[0].display_value.cend());
+    return it;
 }
 
 auto SynchronizedBuffer::empty() -> bool {
-    return segments.size() == 1 && segments[0].raw.size() == 0;
+    return m_segments.size() == 1 && m_segments[0].input_value.size() == 0;
 }
 
 auto SynchronizedBuffer::erase(CursorDirection dir) -> void {
     if (dir == CursorDirection::L) {
-        if (cursor.raw == 0) {
-            cursor--;
+        if (m_caret.input_pos == 0) {
+            m_caret--;
             return;
         }
 
-        cursor--;
+        m_caret--;
     }
 
     erase(1);
 }
 
 auto SynchronizedBuffer::insert(char ch) -> void {
-    auto it = segmentAtCursor();
+    auto it = caret();
     auto &s = *it;
-    s.raw.insert(cursor.raw, 1, ch);
-    ++(cursor.raw);
+    s.input_value.insert(m_caret.input_pos, 1, ch);
+    ++(m_caret.input_pos);
 }
 
-auto SynchronizedBuffer::isCursorAtEnd() -> bool { return cursor.atEnd(); };
+auto SynchronizedBuffer::isCursorAtEnd() -> bool {
+    return m_caret.IsAtEnd();
+};
 
-auto SynchronizedBuffer::moveCursor(CursorDirection dir) -> void {
+auto SynchronizedBuffer::MoveCaret(CursorDirection dir) -> void {
     if (dir == CursorDirection::R) {
-        cursor++;
+        m_caret++;
     } else if (dir == CursorDirection::L) {
-        cursor--;
+        m_caret--;
     }
 }
 
-auto SynchronizedBuffer::moveCursorToEnd() -> void { cursor.setToEnd(); }
-
-auto SynchronizedBuffer::rawCursor() -> std::string::iterator {
-    auto s = segmentAtCursor();
-    auto it = (*s).raw.begin() + cursor.raw;
-    return it;
+auto SynchronizedBuffer::moveCursorToEnd() -> void {
+    m_caret.ShiftToEnd();
 }
 
-auto SynchronizedBuffer::rawText(SegmentIter first, SegmentIter last)
-    -> std::string {
+auto SynchronizedBuffer::rawText(Segments::iterator first, Segments::iterator last) -> std::string {
     std::string ret;
     ret.reserve(100);
 
     while (first != last) {
         auto &s = *(first);
-        ret.append(s.raw);
+        ret.append(s.input_value);
         ++first;
     }
 
     return std::move(ret);
 }
 
-auto SynchronizedBuffer::segmentCount() -> size_t { return segments.size(); }
-
-auto SynchronizedBuffer::segmentBegin() -> SegmentIter {
-    return segments.begin();
+auto SynchronizedBuffer::segmentCount() -> size_t {
+    return m_segments.size();
 }
 
-auto SynchronizedBuffer::segmentEnd() -> SegmentIter { return segments.end(); }
-
-auto SynchronizedBuffer::segmentAtCursor() -> SegmentIter {
-    return segments.begin() + cursor.segment;
-}
-
-auto SynchronizedBuffer::segmentByCandidate(SegmentIter first, SegmentIter last,
-                                            const Candidate &candidate)
-    -> void {
+auto SynchronizedBuffer::segmentByCandidate(Segments::iterator first, Segments::iterator last,
+                                            const Candidate &candidate) -> void {
     // Save for afterwards
-    auto atEnd = cursor.atEnd();
-    auto rawCursorOffset = cursor.rawOffset(first);
-    auto segmentIdx = std::distance(segments.begin(), first);
+    auto atEnd = m_caret.IsAtEnd();
+    auto rawCursorOffset = m_caret.rawOffset(first);
+    auto segmentIdx = std::distance(m_segments.begin(), first);
 
     // Build new segments & re-attach
     auto nextSegments = Segments();
     for (auto &chunk : candidate) {
-        nextSegments.push_back(
-            Segment{chunk.raw, displayFromRaw(chunk.raw, chunk.token.input),
-                    &chunk.token});
+        nextSegments.push_back(Segment{chunk.raw, displayFromRaw(chunk.raw, chunk.token.input), &chunk.token});
     }
-    first = segments.erase(first, last);
-    segments.insert(first, std::make_move_iterator(nextSegments.cbegin()),
-                    std::make_move_iterator(nextSegments.cend()));
+    first = m_segments.erase(first, last);
+    m_segments.insert(first, std::make_move_iterator(nextSegments.cbegin()),
+                      std::make_move_iterator(nextSegments.cend()));
 
     nextSegments.clear();
 
     // Update cursor
     // Case: at the end - stay at the end
     if (atEnd) {
-        cursor.setToEnd();
+        m_caret.ShiftToEnd();
     } else {
-        cursor.syncToRaw(segmentIdx, rawCursorOffset);
+        m_caret.syncToRaw(segmentIdx, rawCursorOffset);
     }
 
     updateSegmentSpacing();
 }
 
 auto SynchronizedBuffer::updateSegmentSpacing() -> void {
-    if (segments.size() < 2) {
+    if (m_segments.size() < 2) {
         return;
     }
 
     auto tokens = std::vector<std::string_view>();
-    std::transform(
-        segments.cbegin(), segments.cend(), std::back_inserter(tokens),
-        [](const Segment &s) { return std::string_view(s.display); });
+    std::transform(m_segments.cbegin(), m_segments.cend(), std::back_inserter(tokens), [](const Segment &s) {
+        return std::string_view(s.display_value);
+    });
 
     auto spaces = tokenSpacer(tokens);
 
-    for (auto &&[spaced, segment] : c9::zip(spaces, segments)) {
+    for (auto &&[spaced, segment] : c9::zip(spaces, m_segments)) {
         segment.spaced = spaced;
     }
 }
@@ -211,56 +270,56 @@ auto SynchronizedBuffer::updateSegmentSpacing() -> void {
 // Private
 
 auto SynchronizedBuffer::erase(size_t len) -> void {
-    auto it = segmentAtCursor();
+    auto it = caret();
     auto &s = *it;
 
-    auto r_start = rawCursor();
-    auto d_start = displayCursor();
+    auto r_start = input_caret();
+    auto d_start = display_caret();
 
     auto r_it = std::string::iterator(r_start);
     auto d_it = std::string::iterator(d_start);
 
-    parallelNext(r_it, s.raw.end(), d_it, s.display.end());
+    ParallelAdvance(r_it, s.input_value.end(), d_it, s.display_value.end());
 
     if (hasToneDiacritic(std::string(d_start, d_it))) {
         removeToneFromRawBuffer();
     }
 
-    s.raw.erase(r_start, r_it);
-    if (s.raw.empty()) {
+    s.input_value.erase(r_start, r_it);
+    if (s.input_value.empty()) {
         eraseSegment(it);
     }
 
-    if (segments.size() == 0) {
-        segments.push_back(Segment());
+    if (m_segments.size() == 0) {
+        m_segments.push_back(Segment());
     }
 }
 
-auto SynchronizedBuffer::eraseSegment(SegmentIter first) -> void {
+auto SynchronizedBuffer::eraseSegment(Segments::iterator first) -> void {
     auto &s = *first;
 
-    if (segmentAtCursor() == first) {
-        cursor--;
+    if (caret() == first) {
+        m_caret--;
     }
 
-    segments.erase(first);
+    m_segments.erase(first);
     updateSegmentSpacing();
 }
 
 auto SynchronizedBuffer::removeToneFromRawBuffer() -> void {
-    auto s_it = segmentAtCursor();
+    auto s_it = caret();
     auto &s = *s_it;
 
-    auto r_it = s.raw.begin() + cursor.raw;
+    auto r_it = s.input_value.begin() + m_caret.input_pos;
 
     static auto isSyllableBreak = [](char ch) {
         return ch == ' ' || ch == '-' || ch == '0';
     };
 
     // First search to the right
-    while (r_it != s.raw.end() && !isSyllableBreak(*r_it)) {
+    while (r_it != s.input_value.end() && !isSyllableBreak(*r_it)) {
         if (isdigit(*r_it)) {
-            s.raw.erase(r_it, r_it + 1);
+            s.input_value.erase(r_it, r_it + 1);
             return;
         }
         ++r_it;
@@ -269,10 +328,10 @@ auto SynchronizedBuffer::removeToneFromRawBuffer() -> void {
     --r_it;
 
     // Then search to the left (and update cursor position)
-    while (r_it != s.raw.begin() && !isSyllableBreak(*r_it)) {
+    while (r_it != s.input_value.begin() && !isSyllableBreak(*r_it)) {
         if (isdigit(*r_it)) {
-            s.raw.erase(r_it, r_it + 1);
-            cursor.raw--;
+            s.input_value.erase(r_it, r_it + 1);
+            m_caret.input_pos--;
         }
     }
 }

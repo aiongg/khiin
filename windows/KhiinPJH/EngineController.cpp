@@ -73,7 +73,7 @@ struct EngineControllerImpl : winrt::implements<EngineControllerImpl, EngineCont
     ~EngineControllerImpl() = default;
 
     virtual void Initialize() override {
-        m_engine = std::unique_ptr<Engine>(EngineFactory::Create(DefaultResourceDirectory().string()));
+        m_engine = std::unique_ptr<Engine>(Engine::Create(DefaultResourceDirectory().string()));
     }
 
     virtual void Uninitialize() override {

@@ -14,7 +14,7 @@ class BufferFx : public ::testing::Test {
         auto sylList = db->GetSyllableList();
         sp = new Splitter(sylList), tr = new Trie(db->GetTrieWordlist(), sylList);
         cf = new CandidateFinder(db, sp, tr);
-        buf = new BufferManager(cf);
+        buf = BufferManager::Create(cf);
     }
 
     ~BufferFx() {
@@ -33,31 +33,31 @@ class BufferFx : public ::testing::Test {
 
     void insert(std::string sequence) {
         for (auto it : sequence) {
-            buf->insert(it);
+            buf->Insert(it);
         }
     }
     void left(int n) {
         for (auto i = 0; i < n; i++) {
-            buf->moveCursor(CursorDirection::L);
+            buf->MoveCaret(CursorDirection::L);
         }
     }
     void right(int n) {
         for (auto i = 0; i < n; i++) {
-            buf->moveCursor(CursorDirection::R);
+            buf->MoveCaret(CursorDirection::R);
         }
     }
     void bksp(int n) {
         for (auto i = 0; i < n; i++) {
-            buf->erase(CursorDirection::L);
+            buf->Erase(CursorDirection::L);
         }
     }
     void del(int n) {
         for (auto i = 0; i < n; i++) {
-            buf->erase(CursorDirection::R);
+            buf->Erase(CursorDirection::R);
         }
     }
     void reset() {
-        buf->clear();
+        buf->Clear();
     }
     std::string getBuf() {
         return buf->getDisplayBuffer();

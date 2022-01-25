@@ -13,6 +13,11 @@ using string_vector = std::vector<std::string>;
 
 using utf8_size_t = size_t; // number of UTF codepoints, 1-4 bytes
 
+enum class CursorDirection {
+    L,
+    R,
+};
+
 enum class Tone {
     NaT,
     T1,

@@ -20,6 +20,7 @@
 #include "utils.h"
 
 namespace khiin::engine {
+namespace {
 
 using namespace khiin::messages;
 namespace fs = std::filesystem;
@@ -69,7 +70,7 @@ class EngineImpl : public Engine {
         splitter = std::make_unique<Splitter>(syllableList);
         trie = std::make_unique<Trie>(database->GetTrieWordlist(), syllableList);
         candidateFinder = std::make_unique<CandidateFinder>(database.get(), splitter.get(), trie.get());
-        buffer = std::make_unique<BufferManager>(candidateFinder.get());
+        buffer_mgr = std::unique_ptr<BufferManager>(BufferManager::Create(candidateFinder.get()));
 
         command_handlers[CommandType::COMMIT] = &EngineImpl::HandleCommit;
         command_handlers[CommandType::TEST_SEND_KEY] = &EngineImpl::HandleTestSendKey;
@@ -108,16 +109,16 @@ class EngineImpl : public Engine {
         case SpecialKey::SK_NONE: {
             auto key_code = input->key_event().key_code();
             if (isalnum(key_code) || key_code == '-') {
-                buffer->insert(static_cast<char>(key_code));
+                buffer_mgr->Insert(static_cast<char>(key_code));
             }
             break;
         }
         case SpecialKey::SK_RIGHT: {
-            buffer->moveCursor(CursorDirection::R);
+            buffer_mgr->MoveCaret(CursorDirection::R);
             break;
         }
         case SpecialKey::SK_LEFT: {
-            buffer->moveCursor(CursorDirection::L);
+            buffer_mgr->MoveCaret(CursorDirection::L);
             break;
         }
         case SpecialKey::SK_ENTER: {
@@ -125,18 +126,18 @@ class EngineImpl : public Engine {
             return;
         }
         case SpecialKey::SK_BACKSPACE: {
-            if (buffer->empty()) {
+            if (buffer_mgr->IsEmpty()) {
                 output->set_consumable(false);
             } else {
-                buffer->erase(CursorDirection::L);
+                buffer_mgr->Erase(CursorDirection::L);
             }
             break;
         }
         case SpecialKey::SK_DEL: {
-            if (buffer->empty()) {
+            if (buffer_mgr->IsEmpty()) {
                 output->set_consumable(false);
             } else {
-                buffer->erase(CursorDirection::R);
+                buffer_mgr->Erase(CursorDirection::R);
             }
             break;
         }
@@ -153,33 +154,34 @@ class EngineImpl : public Engine {
         auto input = command->mutable_input();
         auto output = command->mutable_output();
         auto preedit = output->mutable_preedit();
-        preedit->set_cursor_position(buffer->getCursor());
+        preedit->set_cursor_position(buffer_mgr->getCursor());
         auto segment = preedit->add_segments();
         segment->set_status(SegmentStatus::UNMARKED);
-        segment->set_value(buffer->getDisplayBuffer());
-        buffer->clear();
+        segment->set_value(buffer_mgr->getDisplayBuffer());
+        buffer_mgr->Clear();
     }
 
     void HandleTestSendKey(Command *command) {
         auto input = command->mutable_input();
         auto output = command->mutable_output();
 
-        if (buffer->empty() && !isalnum(input->key_event().key_code())) {
+        if (buffer_mgr->IsEmpty() && !isalnum(input->key_event().key_code())) {
             output->set_consumable(false);
         } else {
             output->set_consumable(true);
         }
     }
 
-    void AttachPreeditWithCandidates(Command* command) {
+    void AttachPreeditWithCandidates(Command *command) {
         auto output = command->mutable_output();
         auto preedit = output->mutable_preedit();
-        preedit->set_cursor_position(buffer->getCursor());
-        auto segment = preedit->add_segments();
-        segment->set_status(SegmentStatus::COMPOSING);
-        segment->set_value(buffer->getDisplayBuffer());
+        buffer_mgr->BuildPreedit(preedit);
+        // preedit->set_cursor_position(buffer->getCursor());
+        // auto segment = preedit->add_segments();
+        // segment->set_status(SegmentStatus::COMPOSING);
+        // segment->set_value(buffer->getDisplayBuffer());
 
-        auto curr_candidates = buffer->getCandidates();
+        auto curr_candidates = buffer_mgr->getCandidates();
         auto cand_list = output->mutable_candidate_list();
         for (auto &c : curr_candidates) {
             auto candidate = cand_list->add_candidates();
@@ -198,19 +200,21 @@ class EngineImpl : public Engine {
     std::unique_ptr<Config> config = nullptr;
     std::unique_ptr<Splitter> splitter = nullptr;
     std::unique_ptr<Trie> trie = nullptr;
-    std::unique_ptr<BufferManager> buffer = nullptr;
+    std::unique_ptr<BufferManager> buffer_mgr = nullptr;
     std::unique_ptr<CandidateFinder> candidateFinder = nullptr;
     std::shared_ptr<Output> prev_output = nullptr;
     std::unordered_map<CommandType, decltype(&HandleNone)> command_handlers = {};
 };
 
-Engine *EngineFactory::Create() {
+} // namespace
+
+Engine *Engine::Create() {
     auto engine = new EngineImpl;
     engine->Initialize();
     return engine;
 }
 
-Engine *EngineFactory::Create(std::string home_dir) {
+Engine *Engine::Create(std::string home_dir) {
     auto engine = new EngineImpl(home_dir);
     engine->Initialize();
     return engine;

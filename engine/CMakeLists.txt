@@ -11,7 +11,7 @@ set(PROTOBUF_DIR "${PROJECT_SOURCE_DIR}/../proto/proto")
 # find_package(ICU)
 # Boost v1.75.0
 find_package(GTest CONFIG REQUIRED)
-find_package (Boost REQUIRED COMPONENTS log unit_test_framework)
+find_package (Boost REQUIRED COMPONENTS log)
 include_directories (${Boost_INCLUDE_DIRS})
 
 find_package(SQLiteCpp REQUIRED)

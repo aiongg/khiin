@@ -16,24 +16,7 @@ namespace utf8u = utf8::unchecked;
 
 namespace khiin::engine {
 
-// Utility methods (not exposed)
-
-auto static codepointAsciiSize = std::unordered_map<uint32_t, int>{
-    {' ', 0},    {U32_T2, 0},    {U32_T3, 0}, {U32_T5, 0},
-    {U32_T7, 0}, {U32_T8, 0},    {U32_T9, 0}, {U32_TK, 2},
-    {U32_NN, 2}, {U32_NN_UC, 2}, {U32_UR, 2}, {U32_UR_UC, 2}};
-
-auto static asciiLettersPerCodepoint(uint32_t cp) {
-    if (codepointAsciiSize.find(cp) != codepointAsciiSize.end()) {
-        return codepointAsciiSize.at(cp);
-    }
-
-    return 1;
-}
-
-auto static cursorSkipsCodepoint(uint32_t cp) {
-    return 0x0300 <= cp && cp <= 0x0358;
-}
+namespace {
 
 auto getToneFromKeyMap(std::unordered_map<Tone, char> map, char ch) {
     for (const auto &it : map) {
@@ -50,7 +33,7 @@ auto stripToAlpha(std::string str) {
     return boost::replace_all_copy(std::regex_replace(str, re, ""), "-", " ");
 }
 
-// Exposed methods
+} // namespace
 
 /**
  * Parameter @ascii may have:
@@ -104,8 +87,7 @@ auto asciiSyllableToUtf8(std::string ascii) -> std::string {
 }
 
 // ascii must not have a tone number (digit)
-auto asciiSyllableToUtf8(std::string ascii, Tone tone, bool khin)
-    -> std::string {
+auto asciiSyllableToUtf8(std::string ascii, Tone tone, bool khin) -> std::string {
     std::string ret = ascii;
 
     boost::algorithm::replace_first(ret, "nn", U8_NN);
@@ -167,69 +149,6 @@ auto hasToneDiacritic(std::string str) -> bool {
     return false;
 }
 
-auto parallelNext(std::string::iterator &a_it, std::string::iterator &a_end,
-                  std::string::iterator &u_it, std::string::iterator &u_end)
-    -> void {
-    while (u_it != u_end && (utf8::peek_next(u_it, u_end) == '-' ||
-                             utf8::peek_next(u_it, u_end) == ' ')) {
-        utf8::advance(u_it, 1, u_end);
-
-        if (a_it != a_end && a_it + 1 != a_end && *(a_it + 1) == '-') {
-            a_it++;
-        }
-
-        return;
-    }
-
-    while (a_it != a_end && a_it + 1 != a_end && isdigit(*(a_it + 1))) {
-        a_it++;
-    }
-
-    if (u_it == u_end || a_it == a_end) {
-        return;
-    }
-
-    auto cp = utf8::next(u_it, u_end);
-
-    a_it += asciiLettersPerCodepoint(cp);
-
-    while (u_it != u_end &&
-           cursorSkipsCodepoint(utf8::peek_next(u_it, u_end))) {
-        cp = utf8::next(u_it, u_end);
-        a_it += asciiLettersPerCodepoint(cp);
-    }
-
-    while (a_it != a_end && isdigit(*a_it)) {
-        a_it++;
-    }
-}
-
-auto parallelPrior(std::string::iterator &a_it, std::string::iterator &a_begin,
-                   std::string::iterator &u_it, std::string::iterator &u_begin)
-    -> void {
-    if (a_it == a_begin || u_it == u_begin) {
-        return;
-    }
-
-    while (a_it != a_begin && isdigit(*(a_it - 1))) {
-        a_it--;
-    }
-
-    auto cp = utf8u::prior(u_it);
-
-    while (u_it != u_begin && cursorSkipsCodepoint(cp)) {
-        a_it -= asciiLettersPerCodepoint(cp);
-        cp = utf8u::prior(u_it);
-    }
-
-    if (cp == U32_TK && std::distance(a_begin, a_it) > 1 &&
-        *(a_it - 1) == '-' && *(a_it - 2) == '-') {
-        a_it -= 2;
-    } else {
-        a_it -= asciiLettersPerCodepoint(cp);
-    }
-}
-
 auto stripDiacritics(std::string str) {
 
     auto u32s = utf8::utf8to32(str);
@@ -248,8 +167,7 @@ auto placeToneOnSyllable(std::string u8syllable, Tone tone) -> std::string {
     }
 
     static std::regex tone_mid_ae(u8"o[ae][mnptkh]");
-    static std::string ordered_vowel_matches[] = {u8"o", u8"a",  u8"e", u8"u",
-                                                  u8"i", u8"ng", u8"m"};
+    static std::string ordered_vowel_matches[] = {u8"o", u8"a", u8"e", u8"u", u8"i", u8"ng", u8"m"};
 
     auto ret = stripDiacritics(u8syllable);
 
@@ -363,8 +281,9 @@ auto utf8Size(std::string s) -> utf8_size_t {
 }
 
 auto utf8ToAsciiLower(std::string u8string) -> std::string {
-    boost::algorithm::trim_if(
-        u8string, [](char &c) -> bool { return c == ' ' || c == '-'; });
+    boost::algorithm::trim_if(u8string, [](char &c) -> bool {
+        return c == ' ' || c == '-';
+    });
 
     if (u8string.empty()) {
         return u8string;
