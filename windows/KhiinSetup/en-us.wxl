@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<WixLocalization Culture="en-us" Codepage="65001" xmlns="http://schemas.microsoft.com/wix/2006/localization">
+	<String Id="ApplicationName">Khíín IME - pre-alpha</String>
+    <String Id="ManufacturerName">Khíín</String>
+</WixLocalization>

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<WixLocalization Culture="zh-tw" Codepage="65001" xmlns="http://schemas.microsoft.com/wix/2006/localization">
+    <String Id="WixUIBack" Overridable="yes">{\Font_Normal}返去</String>
+    <String Id="WixUINext" Overridable="yes">{\Font_Normal}閣來</String>
+    <String Id="WixUICancel" Overridable="yes">{\Font_Normal}血捔</String>
+    <String Id="WixUIFinish" Overridable="yes">{\Font_Normal}完成</String>
+    <String Id="WixUIRetry" Overridable="yes">{\Font_Normal}閣試一擺</String>
+    <String Id="WixUIIgnore" Overridable="yes">{\Font_Normal}無要緊</String>
+    <String Id="WixUIYes" Overridable="yes">{\Font_Normal}好</String>
+    <String Id="WixUINo" Overridable="yes">{\Font_Normal}無愛</String>
+    <String Id="WixUIOK" Overridable="yes">{\Font_Normal}OK</String>
+    <String Id="WixUIPrint" Overridable="yes">{\Font_Normal}印出</String>
+    
+    <String Id="WelcomeEulaDlgTitle" Overridable="yes">{\Font_Title}請看[ProductName]个授權條件</String>
+    <String Id="WelcomeEulaDlgInstall" Overridable="yes">{\Font_Normal}按落去</String>
+
+    <String Id="ApplicationName">起引打字法 - pre-alpha</String>
+    <String Id="ManufacturerName">起引</String>
+</WixLocalization>

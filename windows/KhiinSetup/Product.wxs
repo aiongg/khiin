@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
-    
+
     <?include Defines.wxi ?>
-    
-    <Product Id="$(var.GUID_ProductId)" Name="Khiin PJH pre-alpha $(var.Bitness)" Language="1033" Version="0.0.0" Manufacturer="Khiin" UpgradeCode="$(var.GUID_UpgradeCode)">
+
+    <Product Id="$(var.GUID_ProductId)" Name="!(loc.ApplicationName)" Language="1033" Version="0.0.0" Manufacturer="!(loc.ManufacturerName)" UpgradeCode="$(var.GUID_UpgradeCode)">
         <Package Id="*" InstallerVersion="200" Compressed="yes" InstallScope="perMachine" />
 
         <MajorUpgrade AllowDowngrades="yes" />
@@ -16,8 +16,13 @@
             <ComponentGroupRef Id="DllRegistration"/>
         </Feature>
 
-        <UIRef Id="WixUI_Minimal"/>
-        <UIRef Id="WixUI_ErrorProgressText" />
+        <UI>
+            <TextStyle Id="Font_Normal" FaceName="Microsoft JhengHei UI" Size="9" Bold="yes"/>
+            <TextStyle Id="Font_Bigger" FaceName="Microsoft JhengHei UI" Size="13" Bold="yes"/>
+            <TextStyle Id="Font_Title" FaceName="Microsoft JhengHei UI" Size="10" Bold="yes"/>
+            <UIRef Id="WixUI_Minimal"/>
+            <UIRef Id="WixUI_ErrorProgressText" />
+        </UI>
     </Product>
 
     <Fragment>
@@ -46,5 +51,5 @@
             </Component>
         </ComponentGroup>
     </Fragment>
-    
+
 </Wix>

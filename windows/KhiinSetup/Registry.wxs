@@ -53,6 +53,8 @@
                 <RegistryKey ForceCreateOnInstall="yes" Key="Software\Microsoft\CTF\TIP\{829893F6-728D-11EC-8C6E-E0D46491B35A}\LanguageProfile" Root="HKLM" />
                 <RegistryKey ForceCreateOnInstall="yes" Key="Software\Microsoft\CTF\TIP\{829893F6-728D-11EC-8C6E-E0D46491B35A}\LanguageProfile\0x00000409" Root="HKLM" />
                 <RegistryKey Key="Software\Microsoft\CTF\TIP\{829893F6-728D-11EC-8C6E-E0D46491B35A}\LanguageProfile\0x00000409\{829893F7-728D-11EC-8C6E-E0D46491B35A}" Root="HKLM">
+                    <RegistryValue Name="IconFile" Value="$(var.KhiinDll64InstalledPath)" Type="string" />
+                    <RegistryValue Name="IconIndex" Value="0" Type="integer" />
                     <RegistryValue Name="Display Description" Value="@$(var.KhiinDll64InstalledPath),-101" Type="string" />
                     <RegistryValue Name="Description" Value="Khiin Taiwanese IME" Type="string" />
                 </RegistryKey>
