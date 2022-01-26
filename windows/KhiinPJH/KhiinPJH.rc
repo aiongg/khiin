@@ -2,7 +2,7 @@
 //
 #pragma code_page(65001)
 
-#include "resource.h"
+#include "resource1.h"
 
 #define APSTUDIO_READONLY_SYMBOLS
 /////////////////////////////////////////////////////////////////////////////
@@ -44,6 +44,16 @@ BEGIN
 END
 
 #endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Icon
+//
+
+// Icon with lowest ID value placed first to ensure application icon
+// remains consistent on all systems.
+IDI_ICON1               ICON                    "mainicon_48x48.ico"
 
 
 /////////////////////////////////////////////////////////////////////////////

@@ -5,7 +5,7 @@ VisualStudioVersion = 17.0.31919.166
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "KhiinPJH", "KhiinPJH\KhiinPJH.vcxproj", "{BDBB7FC7-9D1D-485F-A5E1-5605F41BD015}"
 EndProject
-Project("{930C7802-8A8C-48F9-8165-68863BCCD9DD}") = "KhiinInstaller", "KhiinInstaller\KhiinInstaller.wixproj", "{B56815E1-1FC1-48B2-A8CD-CC08886DD26D}"
+Project("{930C7802-8A8C-48F9-8165-68863BCCD9DD}") = "KhiinSetup", "KhiinSetup\KhiinSetup.wixproj", "{B56815E1-1FC1-48B2-A8CD-CC08886DD26D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

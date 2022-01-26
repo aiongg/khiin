@@ -71,12 +71,38 @@ For now you still need to manually register the DLL for use. Using an elevated
 prompt or powershell, go to the `windows/x64/Debug` folder and run:
 
 ```
-regsvr32.exe KhiinPJH.dll
+regsvr32.exe /s KhiinPJH.dll    # /s for silent install
 ```
 
-You should unregister when you are not actively using it, since things may change
+To register the x86 (32-bit) DLL, use an elevated 32-bit cmd.exe
+prompt (`C:\Windows\SysWOW64\cmd.exe`), go to the `windows/x86/Debug`
+folder and run:
+
+```
+C:\Windows\SysWOW64\regsvr32.exe /s KhiinPJH.dll
+```
+
+You should unregister when you are not actively developing, since things may change
 and break at this early stage:
 
 ```
-regsvr32.exe /u KhiinPJH.dll
+regsvr32.exe /s /u KhiinPJH.dll     # /u to unregister
+
+// In a 32-bit cmd.exe
+C:\Windows\SysWOW64\regsvr32.exe /u /s KhiinPJH.dll
 ```
+
+In the KhiinInstaller package, `Registry.wxs` enables proper Windows installation
+and uninstallation support. To build or re-build the registry information:
+
+1. Prepare builds of both 64-bit and 32-bit DLLs.
+2. Download the [`RegistryChangesView`](https://www.nirsoft.net/utils/registry_changes_view.html) tool.
+3. Open the tool and take a registry snapshot.
+4. Use both 64- and 32-bit `regsvr32.exe` to install both DLLs.
+5. Press OK to begin comparison.
+6. Select all keys and values that were added as a result of `KhiinPJH::Registrar.cpp` (namely,
+   all the related CLSID and CTF/TIP elements).
+7. Export the selection as a `.reg` file (e.g. `khiin-windows.reg`)
+8. Use the WiX `heat.exe` tool to build a `.wxs` file: `heat.exe reg .\khiin-windows.reg -dr INSTALLDIR64 -srd -gg -sfrag -suid -out tmp.wxs`
+9. Modify the contents of `tmp.wxs` according to the existing `Registry.wxs` formatting,
+   and change any path names (to the DLL file) using the existing variables.

@@ -216,6 +216,7 @@
     <ClInclude Include="KeyEventSink.h" />
     <ClInclude Include="KhiinClassFactory.h" />
     <ClInclude Include="EngineController.h" />
+    <ClInclude Include="resource1.h" />
     <ClInclude Include="TextService.h" />
     <ClInclude Include="log.h" />
     <ClInclude Include="pch.h" />
@@ -259,6 +260,9 @@
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="KhiinPJH.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="..\..\design\icon-48.ico" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

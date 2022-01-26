@@ -86,7 +86,7 @@ void Registrar::registerProfiles(std::wstring modulePath) {
 
     winrt::check_hresult(inputProcessorProfiles->AddLanguageProfile(
         Profile::textServiceGuid, Profile::langId, Profile::languageProfileGuid, clsidDescription.data(),
-        wcharSize(clsidDescription), /* TODO: icon file */ NULL, NULL, NULL));
+        wcharSize(clsidDescription), modulePath.data(), NULL, 0));
 
     if (auto profilesEx = inputProcessorProfiles.try_as<ITfInputProcessorProfilesEx>(); profilesEx) {
         winrt::check_hresult(profilesEx->SetLanguageProfileDisplayName(

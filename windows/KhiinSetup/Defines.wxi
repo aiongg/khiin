@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Include>
+    <?define GUID_ProductId = "82989400-728d-11ec-8c6e-e0d46491b35a" ?>
+    <?define GUID_UpgradeCode = "82989401-728d-11ec-8c6e-e0d46491b35a" ?>
+    <?define GUID_Dll64Component = "82989402-728d-11ec-8c6e-e0d46491b35a" ?>
+    <?define GUID_Dll32Component = "82989403-728d-11ec-8c6e-e0d46491b35a" ?>
+    
+    <?if $(var.Platform) = x64 ?>
+    <?define Bitness = "(64 bit)" ?>
+    <?define Win64 = "yes" ?>
+    <?define PlatformProgramFilesFolder = "ProgramFiles64Folder" ?>
+    <?else ?>
+    <?define Bitness = "(32 bit)" ?>
+    <?define Win64 = "no" ?>
+    <?define PlatformProgramFilesFolder = "ProgramFilesFolder" ?>
+    <?endif ?>
+
+    <?if $(var.Configuration) = Debug ?>
+    <?define DLL_64_DEST_FILE = "Khiin PJH (64 bit - Debug).dll" ?>
+    <?define DLL_32_DEST_FILE = "Khiin PJH (32 bit - Debug).dll" ?>
+    <?define DLL_64_SOURCE_PATH = "../x64/Debug/KhiinPJH.dll" ?>
+    <?define DLL_32_SOURCE_PATH = "../x86/Debug/KhiinPJH.dll" ?>
+    <?else ?>
+    <?define DLL_64_DEST_FILE = "Khiin PJH (64 bit).dll" ?>
+    <?define DLL_32_DEST_FILE = "Khiin PJH (32 bit).dll" ?>
+    <?define DLL_64_SOURCE_PATH = "../x64/Release/KhiinPJH.dll" ?>
+    <?define DLL_32_SOURCE_PATH = "../x86/Release/KhiinPJH.dll" ?>
+    <?endif ?>
+    
+    <?define KhiinDll64InstalledPath = "[ProgramFiles64Folder]Khiin PJH\$(var.DLL_64_DEST_FILE)" ?>
+    <?define KhiinDll32InstalledPath = "[ProgramFilesFolder]Khiin PJH\$(var.DLL_32_DEST_FILE)" ?>
+</Include>

@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+    
+    <?include Defines.wxi ?>
+    
+    <Product Id="$(var.GUID_ProductId)" Name="Khiin PJH pre-alpha $(var.Bitness)" Language="1033" Version="0.0.0" Manufacturer="Khiin" UpgradeCode="$(var.GUID_UpgradeCode)">
+        <Package Id="*" InstallerVersion="200" Compressed="yes" InstallScope="perMachine" />
+
+        <MajorUpgrade AllowDowngrades="yes" />
+        <!-- <MajorUpgrade DowngradeErrorMessage="A newer version of [ProductName] is already installed." />-->
+        <MediaTemplate EmbedCab="yes" />
+
+        <Feature Id="ProductFeature" Title="KhiinInstaller" Level="1">
+            <ComponentGroupRef Id="Files_64" />
+            <ComponentGroupRef Id="Files_32" />
+            <ComponentGroupRef Id="DllRegistration"/>
+        </Feature>
+
+        <UIRef Id="WixUI_Minimal"/>
+        <UIRef Id="WixUI_ErrorProgressText" />
+    </Product>
+
+    <Fragment>
+        <Directory Id="TARGETDIR" Name="SourceDir">
+            <Directory Id="ProgramFiles64Folder">
+                <Directory Id="INSTALLDIR64" Name="Khiin PJH" />
+            </Directory>
+            <Directory Id="ProgramFilesFolder">
+                <Directory Id="INSTALLDIR32" Name="Khiin PJH" />
+            </Directory>
+        </Directory>
+    </Fragment>
+
+    <Fragment>
+        <ComponentGroup Id="Files_64" Directory="INSTALLDIR64">
+            <Component Id="KhiinPJH_64" Guid="$(var.GUID_Dll64Component)" Win64="yes">
+                <File Id="KhiinDLL_64" Name="$(var.DLL_64_DEST_FILE)" DiskId="1" Source="$(var.DLL_64_SOURCE_PATH)" KeyPath="yes"/>
+            </Component>
+        </ComponentGroup>
+    </Fragment>
+
+    <Fragment>
+        <ComponentGroup Id="Files_32" Directory="INSTALLDIR32">
+            <Component Id="KhiinPJH_32" Guid="$(var.GUID_Dll32Component)" Win64="no">
+                <File Id="KhiinDLL_32" Name="$(var.DLL_32_DEST_FILE)" DiskId="1" Source="$(var.DLL_32_SOURCE_PATH)" KeyPath="yes"/>
+            </Component>
+        </ComponentGroup>
+    </Fragment>
+    
+</Wix>
