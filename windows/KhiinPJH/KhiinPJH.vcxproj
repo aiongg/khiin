@@ -120,7 +120,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
       <ModuleDefinitionFile>DllModule.def</ModuleDefinitionFile>
-      <AdditionalDependencies>khiin_engine.lib;dwmapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>khiin.lib;dwmapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(SolutionDir)..\engine\out\build\$(PlatformShortName)-$(Configuration)\engine;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
@@ -168,7 +168,7 @@
       <EnableUAC>false</EnableUAC>
       <ModuleDefinitionFile>DllModule.def</ModuleDefinitionFile>
       <GenerateMapFile>true</GenerateMapFile>
-      <AdditionalDependencies>khiin_engine.lib;dwmapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>khiin.lib;dwmapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(SolutionDir)..\engine\out\build\$(PlatformShortName)-$(Configuration)\engine;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <Manifest>

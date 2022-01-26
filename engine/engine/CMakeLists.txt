@@ -3,7 +3,7 @@
 #
 
 # Add source to this project's executable.
-add_library (khiin_engine
+add_library (khiin
     "SynchronizedBuffer.h"
     "SynchronizedBuffer.cpp"
     "BufferManager.h"
@@ -32,4 +32,4 @@ add_library (khiin_engine
    "ParallelIterators.h")
 
 # Debug
-target_link_options(khiin_engine PRIVATE "/MAP")
+target_link_options(khiin PRIVATE "/MAP")
