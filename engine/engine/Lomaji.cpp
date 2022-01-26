@@ -1,8 +1,8 @@
 #include <regex>
 
 #include <boost/algorithm/string.hpp>
-#include <boost/format.hpp>
-#include <boost/log/trivial.hpp>
+//#include <boost/format.hpp>
+//#include <boost/log/trivial.hpp>
 
 #include <unilib/uninorms.h>
 #include <unilib/unistrip.h>
@@ -10,7 +10,7 @@
 #include <utf8cpp/utf8.h>
 #include <utf8cpp/utf8/cpp17.h>
 
-#include "lomaji.h"
+#include "Lomaji.h"
 
 namespace utf8u = utf8::unchecked;
 

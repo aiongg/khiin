@@ -11,8 +11,8 @@
 #include <unordered_map>
 #include <unordered_set>
 
-#include <boost/format.hpp>
-#include <boost/log/trivial.hpp>
+//#include <boost/format.hpp>
+//#include <boost/log/trivial.hpp>
 
 #include "utf8cpp/utf8.h"
 

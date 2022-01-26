@@ -4,7 +4,7 @@
 #include <unordered_set>
 
 #include <boost/algorithm/string.hpp>
-#include <boost/log/trivial.hpp>
+//#include <boost/log/trivial.hpp>
 #include <boost/range/adaptor/indexed.hpp>
 
 // #define SQLITE_OPEN_NOMUTEX 0x00008000 /* Ok for sqlite3_open_v2() */
@@ -315,7 +315,7 @@ int Database::buildTrieLookupTable_() {
         tx.commit();
         return 0;
     } catch (std::exception &e) {
-        BOOST_LOG_TRIVIAL(debug) << e.what();
+        //BOOST_LOG_TRIVIAL(debug) << e.what();
         return -1;
     }
 }

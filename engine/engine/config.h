@@ -2,7 +2,7 @@
 
 #include <string>
 
-#include <boost/property_tree/ptree.hpp>
+//#include <boost/property_tree/ptree.hpp>
 
 namespace khiin::engine {
 
@@ -49,7 +49,7 @@ class Config {
 
   private:
     std::string configFile_;
-    boost::property_tree::ptree json_;
+    //boost::property_tree::ptree json_;
     Settings settings_;
 };
 

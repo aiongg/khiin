@@ -4,6 +4,8 @@
 cmake_minimum_required (VERSION 3.8)
 set(CMAKE_CXX_STANDARD 17)
 
+message(STATUS "Begin ${CMAKE_BUILD_TYPE} Build")
+
 project ("KhiinEngine" CXX)
 
 set(PROTOBUF_DIR "${PROJECT_SOURCE_DIR}/../proto/proto")

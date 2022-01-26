@@ -72,16 +72,37 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
+    <OutDir>$(SolutionDir)$(PlatformShortName)\$(Configuration)\</OutDir>
+    <IntDir>$(PlatformShortName)\$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
+    <OutDir>$(SolutionDir)$(PlatformShortName)\$(Configuration)\</OutDir>
+    <IntDir>$(PlatformShortName)\$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
     <EmbedManifest>true</EmbedManifest>
+    <OutDir>$(SolutionDir)$(PlatformShortName)\$(Configuration)\</OutDir>
+    <IntDir>$(PlatformShortName)\$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
+    <OutDir>$(SolutionDir)$(PlatformShortName)\$(Configuration)\</OutDir>
+    <IntDir>$(PlatformShortName)\$(Configuration)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Label="Vcpkg" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <VcpkgUseStatic>false</VcpkgUseStatic>
+    <VcpkgTriplet>x64-windows-static-md</VcpkgTriplet>
+  </PropertyGroup>
+  <PropertyGroup Label="Vcpkg" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <VcpkgTriplet>x86-windows-static-md</VcpkgTriplet>
+  </PropertyGroup>
+  <PropertyGroup Label="Vcpkg" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <VcpkgTriplet>x86-windows-static-md</VcpkgTriplet>
+  </PropertyGroup>
+  <PropertyGroup Label="Vcpkg" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <VcpkgTriplet>x64-windows-static-md</VcpkgTriplet>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -91,14 +112,16 @@
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>$(SolutionDir)..\engine;$(SolutionDir)\..\third_party;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)..\proto;$(SolutionDir)..\engine;$(SolutionDir)\..\third_party;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
-      <ModuleDefinitionFile>KhiinDllModule.def</ModuleDefinitionFile>
-      <AdditionalDependencies>dwmapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <ModuleDefinitionFile>DllModule.def</ModuleDefinitionFile>
+      <AdditionalDependencies>khiin_engine.lib;dwmapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)..\engine\out\build\$(PlatformShortName)-$(Configuration)\engine;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -111,7 +134,8 @@
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>$(SolutionDir)..\engine;$(SolutionDir)\..\third_party;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)..\proto;$(SolutionDir)..\engine;$(SolutionDir)\..\third_party;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -119,8 +143,9 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
-      <ModuleDefinitionFile>KhiinDllModule.def</ModuleDefinitionFile>
-      <AdditionalDependencies>dwmapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <ModuleDefinitionFile>DllModule.def</ModuleDefinitionFile>
+      <AdditionalDependencies>sqlite3.lib;khiin_engine.lib;dwmapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)..\engine\out\build\$(PlatformShortName)-$(Configuration)\engine;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -135,6 +160,7 @@
       <UseFullPaths>true</UseFullPaths>
       <AssemblerOutput>All</AssemblerOutput>
       <AdditionalIncludeDirectories>$(SolutionDir)..\proto;$(SolutionDir)..\engine;$(SolutionDir)\..\third_party;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -143,7 +169,7 @@
       <ModuleDefinitionFile>DllModule.def</ModuleDefinitionFile>
       <GenerateMapFile>true</GenerateMapFile>
       <AdditionalDependencies>khiin_engine.lib;dwmapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(SolutionDir)..\engine\out\build\x64-Debug\engine;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)..\engine\out\build\$(PlatformShortName)-$(Configuration)\engine;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <Manifest>
       <AdditionalManifestFiles>%(AdditionalManifestFiles)</AdditionalManifestFiles>
@@ -160,7 +186,8 @@
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>$(SolutionDir)..\engine;$(SolutionDir)\..\third_party;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)..\proto;$(SolutionDir)..\engine;$(SolutionDir)\..\third_party;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -168,8 +195,9 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
-      <ModuleDefinitionFile>KhiinDllModule.def</ModuleDefinitionFile>
-      <AdditionalDependencies>dwmapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <ModuleDefinitionFile>DllModule.def</ModuleDefinitionFile>
+      <AdditionalDependencies>khiin_engine.lib;dwmapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)..\engine\out\build\$(PlatformShortName)-$(Configuration)\engine;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>

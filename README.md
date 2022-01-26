@@ -22,18 +22,20 @@ Khiin consists of separate projects in the following folders:
 - protobuf [v3.18.0](https://github.com/protocolbuffers/protobuf/releases/tag/v3.18.0)
 - GTest v1.11.0
 
-Following packages can be installed with vcpkg:
+Following packages can be installed with vcpkg (for dev only):
 
 ```
-./vcpkg install boost:x64-windows
-./vcpkg install sqlitecpp:x64-windows
-./vcpkg install protobuf:x64-windows
-./vcpkg install gtest:x64-windows
+./vcpkg install boost-log boost-range boost-algorithm sqlitecpp protobuf gtest --triplet=x64-windows-static-md
+```
+
+For release you will need the x86 packages:
+
+```
+./vcpkg install boost-log boost-range boost-algorithm sqlitecpp protobuf gtest --triplet=x86-windows-static-md
 ```
 
 Notes:
 
-- You will also need the `x86-windows` triplets for a production build.
 - Don't forget to integrate if using Visual Studio: `./vcpkg integrate install`
 
 ### Building

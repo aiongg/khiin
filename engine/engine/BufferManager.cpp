@@ -4,12 +4,6 @@
 #include <unordered_map>
 #include <unordered_set>
 
-#include <boost/algorithm/string.hpp>
-#include <boost/format.hpp>
-#include <boost/locale.hpp>
-#include <boost/log/trivial.hpp>
-#include <boost/range/adaptor/indexed.hpp>
-
 #include <c9/zip.h>
 #include <utf8cpp/utf8.h>
 

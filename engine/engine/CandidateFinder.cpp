@@ -3,8 +3,6 @@
 #include <regex>
 #include <string>
 
-#include <boost/algorithm/string.hpp>
-#include <boost/range/adaptor/filtered.hpp>
 #include <boost/range/adaptor/indexed.hpp>
 
 #include "CandidateFinder.h"
