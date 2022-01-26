@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+    <?if $(var.Platform) = x64 ?>
+    <?define bitness = "(64 bit)" ?>
+    <?define Win64 = "yes" ?>
+    <?define PlatformProgramFilesFolder = "ProgramFiles64Folder" ?>
+    <?else ?>
+    <?define bitness = "(32 bit)" ?>
+    <?define Win64 = "no" ?>
+    <?define PlatformProgramFilesFolder = "ProgramFilesFolder" ?>
+    <?endif ?>
+    
+	<Product Id="82989400-728d-11ec-8c6e-e0d46491b35a" Name="Khiin PJH pre-alpha $(var.bitness)" Language="1033" Version="0.0.0" Manufacturer="Khiin" UpgradeCode="82989401-728d-11ec-8c6e-e0d46491b35a">
+		<Package InstallerVersion="200" Compressed="yes" InstallScope="perMachine" />
+
+		<MajorUpgrade DowngradeErrorMessage="A newer version of [ProductName] is already installed." />
+		<MediaTemplate EmbedCab="yes" />
+
+		<Feature Id="ProductFeature" Title="KhiinInstaller" Level="1">
+			<ComponentGroupRef Id="ProductComponents" />
+		</Feature>
+
+        <UIRef Id="WixUI_Minimal"/>
+        <UIRef Id="WixUI_ErrorProgressText" />
+	</Product>
+
+	<Fragment>
+		<Directory Id="TARGETDIR" Name="SourceDir">
+			<Directory Id="$(var.PlatformProgramFilesFolder)">
+				<Directory Id="INSTALLFOLDER" Name="Khiin PJH" />
+			</Directory>
+		</Directory>
+	</Fragment>
+
+	<Fragment>
+		<ComponentGroup Id="ProductComponents" Directory="INSTALLFOLDER">
+            <Component Id="KhiinPJH" Guid="82989402-728d-11ec-8c6e-e0d46491b35a">
+                <File Id="KhiinDLL" Name="KhiinPJH-$(var.Platform)-$(var.Configuration).dll" DiskId="1" Source="../$(var.Platform)/$(var.Configuration)/KhiinPJH.dll" KeyPath="yes"/>
+            </Component>
+		</ComponentGroup>
+	</Fragment>
+</Wix>
