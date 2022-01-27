@@ -69,7 +69,8 @@ class EngineImpl : public Engine {
         auto syllableList = database->GetSyllableList();
         splitter = std::make_unique<Splitter>(syllableList);
         trie = std::make_unique<Trie>(database->GetTrieWordlist(), syllableList);
-        candidateFinder = std::make_unique<CandidateFinder>(database.get(), splitter.get(), trie.get());
+        candidateFinder =
+            std::unique_ptr<CandidateFinder>(CandidateFinder::Create(database.get(), splitter.get(), trie.get()));
         buffer_mgr = std::unique_ptr<BufferManager>(BufferManager::Create(candidateFinder.get()));
 
         command_handlers[CommandType::COMMIT] = &EngineImpl::HandleCommit;
@@ -154,7 +155,7 @@ class EngineImpl : public Engine {
         auto input = command->mutable_input();
         auto output = command->mutable_output();
         auto preedit = output->mutable_preedit();
-        preedit->set_cursor_position(buffer_mgr->getCursor());
+        preedit->set_cursor_position(buffer_mgr->caret_position());
         auto segment = preedit->add_segments();
         segment->set_status(SegmentStatus::UNMARKED);
         segment->set_value(buffer_mgr->getDisplayBuffer());

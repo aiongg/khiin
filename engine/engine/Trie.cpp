@@ -131,12 +131,12 @@ auto Trie::autocompleteTone(std::string query) -> string_vector {
     return ret;
 }
 
-auto Trie::getAllWords(std::string query, bool isToneless)
-    -> string_vector {
-    auto res = string_vector();
-    getAllWords(query, isToneless, res);
-    return std::move(res);
-}
+//auto Trie::getAllWords(std::string query, bool isToneless)
+//    -> string_vector {
+//    auto res = string_vector();
+//    getAllWords(query, isToneless, res);
+//    return res;
+//}
 
 auto Trie::getAllWords(std::string query, bool fuzzy, string_vector &results)
     -> void {

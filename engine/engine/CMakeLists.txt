@@ -29,7 +29,7 @@ add_library (khiin
     "messages.h"
     "${PROTOBUF_DIR}/messages.pb.h"
     "${PROTOBUF_DIR}/messages.pb.cc"
-   "ParallelIterators.h")
+   "ParallelIterators.h" "BufferImpl2.cpp")
 
 # Debug
 target_link_options(khiin PRIVATE "/MAP")

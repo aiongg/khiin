@@ -165,7 +165,7 @@ class BufferMgrImpl : public BufferManager {
         return buffer.displayText();
     }
 
-    virtual size_t getCursor() override {
+    virtual size_t caret_position() override {
         return buffer.displayCursorOffset();
     }
 
@@ -315,13 +315,14 @@ class BufferMgrImpl : public BufferManager {
     }
 
     SynchronizedBuffer buffer;
+    Candidates candidates;
     CandidateFinder *candidate_finder = nullptr;
+
     char lastKey_ = '\0';
     CommitMode commitMode_ = CommitMode::Lazy;
     InputMode inputMode_ = InputMode::Normal;
     ToneKeys toneKeys_ = ToneKeys::Numeric;
     ToneMode toneMode = ToneMode::Fuzzy;
-    Candidates candidates;
     bool hasPrimaryCandidate = false;
 };
 

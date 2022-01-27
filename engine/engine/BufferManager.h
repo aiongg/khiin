@@ -5,11 +5,7 @@
 
 #include "CandidateFinder.h"
 #include "Config.h"
-//#include "Splitter.h"
-//#include "SynchronizedBuffer.h"
-//#include "Trie.h"
 #include "common.h"
-//#include "errors.h"
 #include "messages.h"
 
 namespace khiin::engine {
@@ -31,10 +27,10 @@ class BufferManager {
     virtual void BuildPreedit(messages::Preedit* preedit) = 0;
     virtual void FocusCandidate(size_t index) = 0;
     virtual void Erase(CursorDirection dir) = 0;
+    virtual size_t caret_position() = 0;
 
     virtual std::vector<CandidateDisplay> getCandidates() = 0;
     virtual std::string getDisplayBuffer() = 0;
-    virtual size_t getCursor() = 0;
     virtual void selectPrimaryCandidate() = 0;
     virtual void selectCandidate(size_t index) = 0;
     virtual void setToneKeys(ToneKeys toneKeys) = 0;

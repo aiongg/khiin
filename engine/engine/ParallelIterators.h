@@ -62,10 +62,15 @@ void ParallelPrior(iter_t &a_it, iter_t &a_begin, iter_t &u_it, iter_t &u_begin)
         return;
     }
 
-    while (a_it != a_begin && isdigit(*(a_it - 1))) {
-        a_it--;
-    }
+    if (a_it != a_begin && isdigit(a_it[-1])) {
+        do {
+            a_it--;
+        } while (a_it != a_begin && isdigit(a_it[-1]));
 
+        if (a_it == a_begin || u_it == u_begin) {
+            return;
+        }
+    }
     auto cp = utf8::unchecked::prior(u_it);
 
     while (u_it != u_begin && cursorSkipsCodepoint(cp)) {
@@ -73,7 +78,7 @@ void ParallelPrior(iter_t &a_it, iter_t &a_begin, iter_t &u_it, iter_t &u_begin)
         cp = utf8::unchecked::prior(u_it);
     }
 
-    if (cp == U32_TK && std::distance(a_begin, a_it) > 1 && *(a_it - 1) == '-' && *(a_it - 2) == '-') {
+    if (cp == U32_TK && std::distance(a_begin, a_it) > 1 && a_it[-1] == '-' && a_it[-2] == '-') {
         a_it -= 2;
     } else {
         a_it -= asciiLettersPerCodepoint(cp);

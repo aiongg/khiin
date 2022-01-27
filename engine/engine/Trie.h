@@ -23,7 +23,7 @@ class Trie {
     auto containsSyllablePrefix(std::string query) -> bool;
     auto autocomplete(std::string query, size_t maxDepth = 0) -> string_vector;
     auto autocompleteTone(std::string query) -> string_vector;
-    auto getAllWords(std::string query, bool isToneless) -> string_vector;
+    //auto getAllWords(std::string query, bool isToneless) -> string_vector;
     auto getAllWords(std::string query, bool isToneless, string_vector &results) -> void;
 
     // TODO Can delete

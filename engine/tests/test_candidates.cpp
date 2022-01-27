@@ -15,7 +15,7 @@ class CandidateFx : public ::testing::Test {
         db = new Database(DB_FILE);
         auto sylList = db->GetSyllableList();
         splitter = new Splitter(sylList), trie = new Trie(db->GetTrieWordlist(), sylList);
-        cf = new CandidateFinder(db, splitter, trie);
+        cf = CandidateFinder::Create(db, splitter, trie);
     }
     ~CandidateFx() {
         delete db;

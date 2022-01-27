@@ -13,7 +13,7 @@ class BufferFx : public ::testing::Test {
         db = new Database(DB_FILE);
         auto sylList = db->GetSyllableList();
         sp = new Splitter(sylList), tr = new Trie(db->GetTrieWordlist(), sylList);
-        cf = new CandidateFinder(db, sp, tr);
+        cf = CandidateFinder::Create(db, sp, tr);
         buf = BufferManager::Create(cf);
     }
 
@@ -63,7 +63,7 @@ class BufferFx : public ::testing::Test {
         return buf->getDisplayBuffer();
     }
     std::size_t getCurs() {
-        return buf->getCursor();
+        return buf->caret_position();
     }
 };
 
@@ -254,66 +254,16 @@ TEST_F(BufferFx, t13_long_candidate) {
     EXPECT_EQ(cand[0].text, u8"骨骨骨骨骨骨");
 }
 
-// BOOST_AUTO_TEST_CASE(ttelex_simple) {
-//    buf->setToneKeys(ToneKeys::Telex);
-//    insert("as");
-//    EXPECT_EQ(getBuf() ,  u8"á");
-//    EXPECT_EQ(getCurs() ,  1);
-//}
+TEST_F(BufferFx, DeleteDigit) {
+    insert("sann2hoe1");
+    bksp(1);
+}
 
-// BOOST_AUTO_TEST_CASE(telex_suite) {
-//    buf->setToneKeys(ToneKeys::Telex);
-//
-//    insert("as");
-//    EXPECT_EQ(getBuf() ,  u8"á");
-//    EXPECT_EQ(getCurs() ,  1);
-//    reset();
-//
-//    insert("af");
-//    EXPECT_EQ(getBuf() ,  u8"à");
-//    EXPECT_EQ(getCurs() ,  1);
-//    reset();
-//
-//    insert("al");
-//    EXPECT_EQ(getBuf() ,  u8"â");
-//    EXPECT_EQ(getCurs() ,  1);
-//    reset();
-//
-//    insert("aj");
-//    EXPECT_EQ(getBuf() ,  u8"ā");
-//    EXPECT_EQ(getCurs() ,  1);
-//    reset();
-//
-//    insert("ahj");
-//    EXPECT_EQ(getBuf() ,  u8"a̍h");
-//    EXPECT_EQ(getCurs() ,  3);
-//    reset();
-//
-//    insert("ou");
-//    EXPECT_EQ(getBuf() ,  u8"o͘");
-//    EXPECT_EQ(getCurs() ,  2);
-//    reset();
-//
-//    insert("ouu");
-//    EXPECT_EQ(getBuf() ,  u8"o u");
-//    EXPECT_EQ(getCurs() ,  3);
-//    reset();
-//
-//    insert("asa");
-//    EXPECT_EQ(getBuf() ,  u8"á a");
-//    EXPECT_EQ(getCurs() ,  3);
-//    reset();
-//
-//    insert("asb");
-//    EXPECT_EQ(getBuf() ,  u8"á b");
-//    EXPECT_EQ(getCurs() ,  3);
-//    reset();
-//
-//    insert("ass");
-//    EXPECT_EQ(getBuf() ,  u8"a s");
-//    EXPECT_EQ(getCurs() ,  3);
-//    reset();
-//}
+TEST_F(BufferFx, Tone1) {
+    insert("a1");
+    auto cand = buf->getCandidates();
+    EXPECT_EQ(cand[0].text, "a");
+}
 
 TEST_F(BufferFx, move_cursor) {
     insert("a");
@@ -416,6 +366,67 @@ TEST_F(BufferFx, move_cursor_and_insert) {
 //        reset();
 //        insert(s);
 //    }
+//}
+
+// BOOST_AUTO_TEST_CASE(ttelex_simple) {
+//    buf->setToneKeys(ToneKeys::Telex);
+//    insert("as");
+//    EXPECT_EQ(getBuf() ,  u8"á");
+//    EXPECT_EQ(getCurs() ,  1);
+//}
+
+// BOOST_AUTO_TEST_CASE(telex_suite) {
+//    buf->setToneKeys(ToneKeys::Telex);
+//
+//    insert("as");
+//    EXPECT_EQ(getBuf() ,  u8"á");
+//    EXPECT_EQ(getCurs() ,  1);
+//    reset();
+//
+//    insert("af");
+//    EXPECT_EQ(getBuf() ,  u8"à");
+//    EXPECT_EQ(getCurs() ,  1);
+//    reset();
+//
+//    insert("al");
+//    EXPECT_EQ(getBuf() ,  u8"â");
+//    EXPECT_EQ(getCurs() ,  1);
+//    reset();
+//
+//    insert("aj");
+//    EXPECT_EQ(getBuf() ,  u8"ā");
+//    EXPECT_EQ(getCurs() ,  1);
+//    reset();
+//
+//    insert("ahj");
+//    EXPECT_EQ(getBuf() ,  u8"a̍h");
+//    EXPECT_EQ(getCurs() ,  3);
+//    reset();
+//
+//    insert("ou");
+//    EXPECT_EQ(getBuf() ,  u8"o͘");
+//    EXPECT_EQ(getCurs() ,  2);
+//    reset();
+//
+//    insert("ouu");
+//    EXPECT_EQ(getBuf() ,  u8"o u");
+//    EXPECT_EQ(getCurs() ,  3);
+//    reset();
+//
+//    insert("asa");
+//    EXPECT_EQ(getBuf() ,  u8"á a");
+//    EXPECT_EQ(getCurs() ,  3);
+//    reset();
+//
+//    insert("asb");
+//    EXPECT_EQ(getBuf() ,  u8"á b");
+//    EXPECT_EQ(getCurs() ,  3);
+//    reset();
+//
+//    insert("ass");
+//    EXPECT_EQ(getBuf() ,  u8"a s");
+//    EXPECT_EQ(getCurs() ,  3);
+//    reset();
 //}
 
 } // namespace
