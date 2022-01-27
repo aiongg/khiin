@@ -291,12 +291,16 @@ void CandidateWindow::CalculateLayout() {
 
     auto page_idx = 0;
     auto page_width = 0.0f;
+    auto longest_col = 0;
 
     for (auto col_idx = 0; col_idx < n_cols; ++col_idx) {
-        candidate_layout_matrix.push_back(std::vector<winrt::com_ptr<IDWriteTextLayout>>());
-        auto &column = candidate_layout_matrix.back();
+        auto column = std::vector<winrt::com_ptr<IDWriteTextLayout>>();
         auto column_width = 0.0f;
         auto n_items = min(item_end_idx - item_start_idx, max_items_per_col);
+        if (longest_col == 0) {
+            longest_col = n_items;
+        }
+
         for (auto row_idx = 0; row_idx < n_items; ++row_idx) {
             auto &item = candidates.at(item_start_idx + row_idx);
             auto &item_value = Utils::Widen(item.value());
@@ -318,9 +322,10 @@ void CandidateWindow::CalculateLayout() {
         D("Col width: ", column_width);
         m_col_widths.push_back(column_width);
         page_width += column_width;
+        candidate_layout_matrix.push_back(std::move(column));
     }
 
-    auto page_height = max_items_per_col * row_height + padding;
+    auto page_height = longest_col * row_height + padding;
     auto scale = m_dpi_parent / USER_DEFAULT_SCREEN_DPI;
     ::SetWindowPos(m_hwnd, NULL, 0, 0, static_cast<int>(page_width * scale), static_cast<int>(page_height * scale),
                    SWP_NOMOVE | SWP_NOACTIVATE | SWP_NOZORDER);
