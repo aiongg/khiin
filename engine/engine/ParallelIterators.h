@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Lomaji.h"
+
 namespace khiin::engine {
 
 namespace {

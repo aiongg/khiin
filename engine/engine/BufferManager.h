@@ -19,6 +19,7 @@ struct CandidateDisplay {
 class BufferManager {
   public:
     static BufferManager *Create(CandidateFinder *candidate_finder);
+    static BufferManager *Create2(CandidateFinder *candidate_finder);
     virtual void Clear() = 0;
     virtual bool IsEmpty() = 0;
     virtual void Insert(char ch) = 0;
