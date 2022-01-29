@@ -10,7 +10,7 @@ using namespace std::string_literals;
 
 namespace khiin::engine {
 
-inline auto isDigit(std::string str) {
+inline auto isDigit(std::string const &str) {
     std::stringstream s;
     s << str;
     double d = 0;
@@ -20,21 +20,20 @@ inline auto isDigit(std::string str) {
 
 Splitter::Splitter() {}
 
-Splitter::Splitter(const string_vector &syllableList) {
-    std::copy(syllableList.cbegin(), syllableList.cend(),
-              std::inserter(syllableSet_, syllableSet_.begin()));
+Splitter::Splitter(const string_vector &word_list) {
+    std::copy(word_list.cbegin(), word_list.cend(), std::inserter(m_word_set, m_word_set.begin()));
 
-    auto logListSize = static_cast<float>(log(syllableList.size()));
+    auto logListSize = static_cast<float>(log(word_list.size()));
 
     size_t idx = 0;
-    for (auto &it : syllableList) {
-        costMap_[it] = static_cast<float>(log((idx + 1) * logListSize));
-        maxWordLength_ = std::max(maxWordLength_, (int)it.size());
+    for (auto &it : word_list) {
+        m_cost_map[it] = static_cast<float>(log((idx + 1) * logListSize));
+        m_max_word_length = std::max(m_max_word_length, (int)it.size());
         ++idx;
     }
 }
 
-auto Splitter::canSplit(std::string input) -> bool {
+bool Splitter::CanSplit(std::string const &input) {
     auto len = input.size();
     if (len == 0) {
         return true;
@@ -49,18 +48,17 @@ auto Splitter::canSplit(std::string input) -> bool {
         auto found = false;
 
         for (int j = mSize - 1; j >= 0; j--) {
-            std::string substr =
-                input.substr(matchedIndex[j] + 1, i - matchedIndex[j]);
+            std::string substr = input.substr(matchedIndex[j] + 1, i - matchedIndex[j]);
 
             while (!substr.empty() && isdigit(substr.back())) {
                 substr.pop_back();
             }
 
-            if (syllableSet_.find(substr) != syllableSet_.end()) {
+            if (m_word_set.find(substr) != m_word_set.end()) {
                 found = true;
             }
         }
-         
+
         if (found) {
             dp[i] = true;
             matchedIndex.push_back(i);
@@ -70,36 +68,27 @@ auto Splitter::canSplit(std::string input) -> bool {
     return dp[len - 1];
 }
 
-auto Splitter::split(std::string input) -> string_vector {
-    auto res = string_vector();
-    split(input, res);
-    return std::move(res);
-}
-
-auto Splitter::split(std::string input, string_vector &result)
-    -> RetVal {
+void Splitter::Split(std::string const &input, string_vector &result) {
     result.clear();
     if (input.empty()) {
-        return RetVal::Error;
+        return;
     }
 
     auto lcInput(input);
-    std::transform(lcInput.begin(), lcInput.end(), lcInput.begin(),
-                   (int (*)(int))tolower);
+    std::transform(lcInput.begin(), lcInput.end(), lcInput.begin(), (int (*)(int))tolower);
     const auto len = lcInput.size();
 
     std::vector<std::pair<float, int>> cost;
     cost.reserve(len + 1);
     cost.push_back(std::make_pair(0.0f, -1));
-    auto chunk(""s);
+    auto chunk = std::string();
     auto curCost = 0.0f;
 
     for (auto i = 1; i < len + 1; i++) {
         auto minCost = cost[i - 1].first + 9e9f;
         auto minCostIdx = i - 1;
 
-        for (auto j = i - maxWordLength_ > 0 ? i - maxWordLength_ : 0; j < i;
-             j++) {
+        for (auto j = i - m_max_word_length > 0 ? i - m_max_word_length : 0; j < i; j++) {
 
             chunk = lcInput.substr(j, i - j);
 
@@ -108,11 +97,11 @@ auto Splitter::split(std::string input, string_vector &result)
                 chunk.pop_back();
             }
 
-            if (costMap_.find(chunk) == costMap_.end()) {
+            if (m_cost_map.find(chunk) == m_cost_map.end()) {
                 continue;
             }
 
-            curCost = cost[j].first + costMap_.at(chunk);
+            curCost = cost[j].first + m_cost_map.at(chunk);
             if (curCost <= minCost) {
                 minCost = curCost;
                 minCostIdx = j;
@@ -136,8 +125,6 @@ auto Splitter::split(std::string input, string_vector &result)
         }
         n = preIndex;
     }
-
-    return RetVal::OK;
 }
 
 } // namespace khiin::engine

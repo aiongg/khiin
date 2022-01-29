@@ -21,60 +21,60 @@ class TrieFx : public ::testing::Test {
     Trie *trie = nullptr;
     void ins(std::vector<std::string> words) {
         for (auto &it : words) {
-            trie->insert(it);
+            trie->Insert(it);
         }
     }
 };
 
 TEST_F(TrieFx, search) {
-    trie->insert(u8"niau");
-    bool res = trie->containsWord(u8"niau");
+    trie->Insert(u8"niau");
+    bool res = trie->ContainsWord(u8"niau");
     EXPECT_TRUE(res);
 }
 
 TEST_F(TrieFx, remove) {
-    trie->insert(u8"niau");
-    trie->insert(u8"ni");
-    trie->remove(u8"niau");
+    trie->Insert(u8"niau");
+    trie->Insert(u8"ni");
+    trie->Remove(u8"niau");
 
-    EXPECT_TRUE(!trie->containsWord(u8"niau"));
-    EXPECT_TRUE(!trie->containsWord(u8"nia"));
-    EXPECT_TRUE(trie->containsWord(u8"ni"));
-    EXPECT_TRUE(!trie->containsWord(u8"n"));
+    EXPECT_TRUE(!trie->ContainsWord(u8"niau"));
+    EXPECT_TRUE(!trie->ContainsWord(u8"nia"));
+    EXPECT_TRUE(trie->ContainsWord(u8"ni"));
+    EXPECT_TRUE(!trie->ContainsWord(u8"n"));
 }
 
 TEST_F(TrieFx, is_prefix) {
-    trie->insert(u8"niau");
-    EXPECT_TRUE(trie->containsPrefix(u8"nia"));
+    trie->Insert(u8"niau");
+    EXPECT_TRUE(trie->ContainsPrefix(u8"nia"));
 }
 
 TEST_F(TrieFx, autocomplete) {
     ins({u8"niau", u8"nia", u8"na"});
 
-    std::vector<std::string> res = trie->autocomplete(u8"n");
+    std::vector<std::string> res = trie->Autocomplete(u8"n");
     EXPECT_EQ(res.size(), 3);
     EXPECT_NE(std::find(res.begin(), res.end(), "niau"), res.end());
     EXPECT_NE(std::find(res.begin(), res.end(), "nia"), res.end());
     EXPECT_NE(std::find(res.begin(), res.end(), "na"), res.end());
 
-    res = trie->autocomplete(u8"na");
+    res = trie->Autocomplete(u8"na");
     EXPECT_EQ(res.size(), 1);
     EXPECT_NE(std::find(res.begin(), res.end(), "na"), res.end());
 }
 
 TEST_F(TrieFx, autocomplete_tone) {
-    ins({u8"na2", u8"na7", u8"nai"});
+    //ins({u8"na2", u8"na7", u8"nai"});
 
-    std::vector<std::string> res = trie->autocompleteTone(u8"na");
-    EXPECT_EQ(res.size(), 2);
-    EXPECT_NE(std::find(res.begin(), res.end(), "na2"), res.end());
-    EXPECT_NE(std::find(res.begin(), res.end(), "na7"), res.end());
+    //std::vector<std::string> res = trie->AutocompleteTone(u8"na");
+    //EXPECT_EQ(res.size(), 2);
+    //EXPECT_NE(std::find(res.begin(), res.end(), "na2"), res.end());
+    //EXPECT_NE(std::find(res.begin(), res.end(), "na7"), res.end());
 }
 
 TEST_F(TrieFx, get_all_words) {
     ins({"cho", "cho2", "chong", "chong5", "chongthong2", "ba"});
     auto res = string_vector();
-    trie->getAllWords("chongthong", true, res);
+    trie->FindKeys("chongthong", true, res);
     EXPECT_EQ(res.size(), 5);
     EXPECT_NE(std::find(res.begin(), res.end(), "cho2"), res.end());
 }
@@ -88,11 +88,11 @@ TEST_F(TrieFx, get_all_words) {
 5. Lim ài an--ne.
 6. Lim ài án-ne.
 */
-TEST_F(TrieFx, sentence_split) {
-    ins({"li", "mai", "an", "ne", "ma", "ian", "iann", "lim", "ai", "e", "anne"});
-    auto res = trie->splitSentence2("limaianne");
-    int i = 0;
-}
+//TEST_F(TrieFx, sentence_split) {
+//    ins({"li", "mai", "an", "ne", "ma", "ian", "iann", "lim", "ai", "e", "anne"});
+//    auto res = trie->splitSentence2("limaianne");
+//    int i = 0;
+//}
 
 TEST_F(TrieFx, big_word_list) {
     std::vector<std::string> w;
@@ -1243,7 +1243,7 @@ TEST_F(TrieFx, big_word_list) {
     w.push_back("vurn");
 
     ins(w);
-    std::vector<std::string> res = trie->autocomplete(u8"a");
+    std::vector<std::string> res = trie->Autocomplete(u8"a");
     EXPECT_NE(std::find(res.begin(), res.end(), u8"ang"), res.end());
     EXPECT_EQ(std::find(res.begin(), res.end(), u8"any"), res.end());
 }

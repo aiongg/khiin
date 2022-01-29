@@ -1,3 +1,5 @@
+#include "CandidateFinder.h"
+
 #include <algorithm>
 #include <numeric>
 #include <regex>
@@ -5,7 +7,7 @@
 
 #include <boost/range/adaptor/indexed.hpp>
 
-#include "CandidateFinder.h"
+#include "Engine.h"
 #include "Lomaji.h"
 #include "Splitter.h"
 #include "Trie.h"
@@ -65,7 +67,10 @@ size_t alignedSyllables(const string_vector &syllables, std::string word) {
 
 class CandidateFinderImpl : public CandidateFinder {
   public:
-    CandidateFinderImpl(Database *db, Splitter *splitter, Trie *trie) : db(db), splitter(splitter), trie(trie){};
+    CandidateFinderImpl(Engine *engine) : engine(engine) {
+        database = engine->database();
+        
+    };
 
     virtual Candidates findCandidates(std::string input, std::string lgram, bool toneless) override {
         auto ret = Candidates();
@@ -75,16 +80,16 @@ class CandidateFinderImpl : public CandidateFinder {
         }
 
         auto tokens = Tokens();
-        auto lgram_count = lgram.empty() ? 0 : db->UnigramCount(lgram);
+        auto lgram_count = lgram.empty() ? 0 : database->UnigramCount(lgram);
         auto trieWords = string_vector();
 
-        trie->getAllWords(input, toneless, trieWords);
+        word_trie->FindKeys(input, toneless, trieWords);
 
         if (trieWords.empty()) {
             // TODO
         }
 
-        db->GetTokens(trieWords, tokens);
+        database->GetTokens(trieWords, tokens);
 
         if (lgram_count > 0) {
             sortTokensByBigram(lgram, lgram_count, tokens);
@@ -120,7 +125,7 @@ class CandidateFinderImpl : public CandidateFinder {
             return ret;
         }
 
-        auto lgramCount = lgram.empty() ? 0 : db->UnigramCount(lgram);
+        auto lgramCount = lgram.empty() ? 0 : database->UnigramCount(lgram);
 
         auto bestToken = Token();
         auto dbTokens = Tokens();
@@ -144,7 +149,7 @@ class CandidateFinderImpl : public CandidateFinder {
                 continue;
             }
 
-            trie->getAllWords(remainder(), fuzzy, trie_results);
+            word_trie->FindKeys(remainder(), fuzzy, trie_results);
 
             if (trie_results.empty()) {
                 handleNoTrieMatch(start, input.cend(), ret, fuzzy);
@@ -157,8 +162,9 @@ class CandidateFinderImpl : public CandidateFinder {
             auto matched = string_vector();
 
             if (lgram.empty()) {
+                auto splitResult = string_vector();
                 // At the beginning, use the syllable splitter to get best result
-                auto splitResult = splitter->split(remainder());
+                splitter->Split(remainder(), splitResult);
 
                 std::copy_if(trie_results.begin(), trie_results.end(), std::back_inserter(matched),
                              [&](std::string word) {
@@ -181,7 +187,7 @@ class CandidateFinderImpl : public CandidateFinder {
                         ++word_it;
                     }
 
-                    return splitter->canSplit(std::string(input_it, input.cend() - stopPos));
+                    return splitter->CanSplit(std::string(input_it, input.cend() - stopPos));
                 };
 
                 while (matched.empty()) {
@@ -193,7 +199,7 @@ class CandidateFinderImpl : public CandidateFinder {
                 }
             }
 
-            db->GetTokens(matched, dbTokens);
+            database->GetTokens(matched, dbTokens);
 
             if (dbTokens.empty() && !matched.empty()) {
                 auto next = start;
@@ -251,7 +257,7 @@ class CandidateFinderImpl : public CandidateFinder {
         for (const auto &c : rgrams) {
             rgramOutputs.push_back(c.output);
         }
-        db->BigramsFor(lgram, rgramOutputs, bigrams);
+        database->BigramsFor(lgram, rgramOutputs, bigrams);
         for (auto &c : rgrams) {
             c.bigramWt = static_cast<float>(bigrams.at(c.output)) / static_cast<float>(lgramCount);
         }
@@ -274,7 +280,7 @@ class CandidateFinderImpl : public CandidateFinder {
         for (const auto &c : rgrams) {
             rgramOutputs.push_back(c.output);
         }
-        db->BigramsFor(lgram, rgramOutputs, bigrams);
+        database->BigramsFor(lgram, rgramOutputs, bigrams);
 
         auto bestWeight = 0.0f;
         auto bestMatch = size_t(0);
@@ -294,8 +300,8 @@ class CandidateFinderImpl : public CandidateFinder {
         auto trieWords = string_vector();
         auto tokens = Tokens();
 
-        splitter->split(input, syllables);
-        trie->getAllWords(input, toneless, trieWords);
+        splitter->Split(input, syllables);
+        word_trie->FindKeys(input, toneless, trieWords);
 
         if (trieWords.size() == 0) {
             return Token{0, syllables[0], syllables[0], syllables[0]};
@@ -306,7 +312,7 @@ class CandidateFinderImpl : public CandidateFinder {
             return alignedSyllables(syllables, word) > 0;
         });
 
-        db->GetTokens(matched, tokens);
+        database->GetTokens(matched, tokens);
 
         if (tokens.empty()) {
             return Token{0, syllables[0], syllables[0], syllables[0]};
@@ -354,7 +360,7 @@ class CandidateFinderImpl : public CandidateFinder {
         // Collect next letters as long as they are also not
         // found in the Trie, put everything into this ret
         while (next != end) {
-            trie->getAllWords(std::string(next, end), fuzzy, trie_results);
+            word_trie->FindKeys(std::string(next, end), fuzzy, trie_results);
             if (trie_results.empty()) {
                 ++next;
             } else {
@@ -368,7 +374,7 @@ class CandidateFinderImpl : public CandidateFinder {
         // If the collected letters are the whole remainder of the
         // string, and they form a prefix when combined with the existing
         // previous ret, join them together
-        if (next == end && trie->containsSyllablePrefix(prev + chunk) && candidate.size() > 0) {
+        if (next == end && syl_trie->ContainsPrefix(prev + chunk) && candidate.size() > 0) {
             candidate.back().raw.append(chunk);
             candidate.back().token.clear();
         } else {
@@ -378,15 +384,17 @@ class CandidateFinderImpl : public CandidateFinder {
         start = next;
     }
 
-    Database *db;
-    Splitter *splitter;
-    Trie *trie;
+    Database *database = nullptr;
+    Splitter *splitter = nullptr;
+    Trie *word_trie = nullptr;
+    Trie *syl_trie = nullptr;
+    Engine *engine = nullptr;
 };
 
 } // namespace
 
-CandidateFinder* CandidateFinder::Create(Database* database, Splitter* splitter, Trie* trie) {
-    return new CandidateFinderImpl(database, splitter, trie);
+CandidateFinder *CandidateFinder::Create(Engine *engine) {
+    return new CandidateFinderImpl(engine);
 }
 
 } // namespace khiin::engine

@@ -11,12 +11,17 @@ inline const std::string kKhiinHome = "KHIIN_HOME";
 
 using string_vector = std::vector<std::string>;
 
-using utf8_size_t = size_t; // number of UTF codepoints, 1-4 bytes
-
 enum class CursorDirection {
     L,
     R,
 };
 
+// std::visit helper
+template <typename... Ts>
+struct overloaded : Ts... {
+    using Ts::operator()...;
+};
+template <typename... Ts>
+overloaded(Ts...) -> overloaded<Ts...>;
 
 } // namespace khiin::engine

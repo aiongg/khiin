@@ -50,11 +50,11 @@ TEST_F(SplitterFx, loads) {
 
 TEST_F(SplitterFx, split_sentence) {
     std::vector<std::string> res;
-    ss->split("goamchaiujoachelanghamgoaukangkhoanesengtiong", res);
+    ss->Split("goamchaiujoachelanghamgoaukangkhoanesengtiong", res);
     std::string joined = boost::algorithm::join(res, " ");
     EXPECT_EQ(joined, "goa m chai u joa che lang ham goa u kang khoan e seng tiong");
 
-    ss->split("goutuitiunnkinkukasiokthekiongechuliauchitesiauliankesisimchongb"
+    ss->Split("goutuitiunnkinkukasiokthekiongechuliauchitesiauliankesisimchongb"
               "apihlaikoesineiesithekuibinlongsibaksaikapphinnkouchebengbengsit"
               "ikoesinchinchengsiutiohchintoaethongkhou",
               res);
@@ -68,27 +68,27 @@ TEST_F(SplitterFx, split_sentence) {
 
 TEST_F(SplitterFx, split_sentence_fail) {
     std::vector<std::string> res;
-    ss->split("goamchaiblarg", res);
+    ss->Split("goamchaiblarg", res);
     std::string joined = boost::algorithm::join(res, " ");
     EXPECT_EQ(joined, "goa m chai b la r g");
 }
 
 TEST_F(SplitterFx, split_sentence_digits) {
     std::vector<std::string> res;
-    ss->split("goam7chai", res);
+    ss->Split("goam7chai", res);
     std::string joined = boost::algorithm::join(res, " ");
     EXPECT_EQ(joined, "goa m7 chai");
 
-    ss->split("goa2mchaiu7joa7chelang5ham5goa2ukangkhoan2esengtiong", res);
+    ss->Split("goa2mchaiu7joa7chelang5ham5goa2ukangkhoan2esengtiong", res);
     joined = boost::algorithm::join(res, " ");
     EXPECT_EQ(joined, "goa2 m chai u7 joa7 che lang5 ham5 goa2 u kang khoan2 e seng tiong");
 }
 
 TEST_F(SplitterFx, test_can_split) {
-    EXPECT_TRUE(ss->canSplit("liho"));
-    EXPECT_TRUE(ss->canSplit("goamchaiujoachelanghamgoaukangkhoanesengtiong"));
-    EXPECT_TRUE(ss->canSplit("li2ho2"));
-    EXPECT_TRUE(!ss->canSplit("ppp"));
+    EXPECT_TRUE(ss->CanSplit("liho"));
+    EXPECT_TRUE(ss->CanSplit("goamchaiujoachelanghamgoaukangkhoanesengtiong"));
+    EXPECT_TRUE(ss->CanSplit("li2ho2"));
+    EXPECT_TRUE(!ss->CanSplit("ppp"));
 }
 
 } // namespace

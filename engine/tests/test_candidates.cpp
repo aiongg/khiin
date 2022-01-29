@@ -1,8 +1,11 @@
+#include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
 #include <boost/log/trivial.hpp>
 
 #include "CandidateFinder.h"
+#include "Engine.h"
+#include "messages.h"
 
 namespace khiin::engine {
 namespace {
@@ -12,12 +15,16 @@ const std::string DB_FILE = "taikey.db";
 class CandidateFx : public ::testing::Test {
   protected:
     void SetUp() override {
-        db = new Database(DB_FILE);
+        engine = Engine::Create();
+        cf = engine->candidate_finder();
+        /*db = new Database(DB_FILE);
         auto sylList = db->GetSyllableList();
         splitter = new Splitter(sylList), trie = new Trie(db->GetTrieWordlist(), sylList);
-        cf = CandidateFinder::Create(db, splitter, trie);
+        cf = CandidateFinder::Create(new MockEngine());*/
     }
+
     ~CandidateFx() {
+        delete engine;
         delete db;
         delete splitter;
         delete trie;
@@ -28,6 +35,7 @@ class CandidateFx : public ::testing::Test {
         return cf->findPrimaryCandidate(search, "", true);
     }
 
+    Engine *engine = nullptr;
     Database *db = nullptr;
     Splitter *splitter = nullptr;
     Trie *trie = nullptr;

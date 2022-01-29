@@ -1,11 +1,13 @@
 #pragma once
 
-#include <string>
 #include "Database.h"
 #include "Splitter.h"
 #include "Trie.h"
+#include <string>
 
 namespace khiin::engine {
+
+class Engine;
 
 struct CandidateChunk {
     CandidateChunk(std::string raw);
@@ -20,7 +22,7 @@ using Candidates = std::vector<Candidate>;
 
 class CandidateFinder {
   public:
-    static CandidateFinder *Create(Database *database, Splitter *splitter, Trie *trie);
+    static CandidateFinder *Create(Engine *engine);
     virtual Candidates findCandidates(std::string input, std::string lgram, bool toneless) = 0;
     virtual Candidate findPrimaryCandidate(std::string_view input, std::string lgram, bool fuzzy) = 0;
 };

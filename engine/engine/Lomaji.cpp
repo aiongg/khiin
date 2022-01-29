@@ -297,18 +297,6 @@ auto tokenSpacer(std::vector<std::string_view> tokens) -> std::vector<bool> {
     return ret;
 }
 
-auto toNFD(std::string_view s) -> std::string {
-    auto u32s = utf8::utf8to32(s);
-    ufal::unilib::uninorms::nfd(u32s);
-    return std::move(utf8::utf32to8(u32s));
-}
-
-auto toNFC(std::string_view s) -> std::string {
-    auto u32s = utf8::utf8to32(s);
-    ufal::unilib::uninorms::nfc(u32s);
-    return std::move(utf8::utf32to8(u32s));
-}
-
 auto utf8back(std::string_view str) -> uint32_t {
     auto end = str.cend();
     return utf8::prior(end, str.cbegin());

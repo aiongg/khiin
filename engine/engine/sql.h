@@ -199,8 +199,8 @@ const std::string CREATE_DummyDatabase() {
 	    "output"	TEXT NOT NULL,
 	    "weight"	INTEGER,
 	    "input_length"	INTEGER,
-	    "color"	INTEGER,
-	    "hint"	TEXT,
+	    "category"	INTEGER,
+	    "annotation"	TEXT,
 	    PRIMARY KEY("id"),
 	    UNIQUE("input","output")
     );

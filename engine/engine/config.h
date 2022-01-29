@@ -6,11 +6,6 @@
 
 namespace khiin::engine {
 
-enum class InputMode {
-    Normal,
-    Pro,
-};
-
 enum class ToneKeys {
     Numeric,
     Telex,
@@ -27,7 +22,7 @@ enum class CommitMode {
 };
 
 struct Settings {
-    InputMode inputMode;
+    //InputMode inputMode;
     ToneKeys toneKeys;
     ToneMode toneMode;
     CommitMode commitMode;

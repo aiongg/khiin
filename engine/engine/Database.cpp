@@ -29,9 +29,9 @@ Database::Database(std::string dbFilename) : handle(SQLite::Database(dbFilename,
 }
 
 void Database::Initialize() {
-    if (!handle.tableExists("trie_map")) {
-        buildTrieLookupTable_();
-    }
+    //if (!handle.tableExists("trie_map")) {
+    //    buildTrieLookupTable_();
+    //}
 }
 
 string_vector Database::GetTrieWordlist() {

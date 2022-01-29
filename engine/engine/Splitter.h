@@ -5,23 +5,25 @@
 #include <set>
 #include <unordered_map>
 
-#include "errors.h"
 #include "common.h"
+#include "errors.h"
 
 namespace khiin::engine {
 
+// Can determine whether a string may be split by the words contained in it,
+// and can attempt to perform the best split (when the imported word list is
+// sorted by frequency)
 class Splitter {
   public:
     Splitter();
-    Splitter(const string_vector &syllableList);
-    auto canSplit(std::string input) -> bool;
-    auto split(std::string input) -> string_vector;
-    auto split(std::string input, string_vector &result) -> RetVal;
+    Splitter(const string_vector &word_list);
+    bool CanSplit(std::string const &input);
+    void Split(std::string const &input, string_vector &result);
 
   private:
-    std::set<std::string> syllableSet_;
-    std::unordered_map<std::string, float> costMap_;
-    int maxWordLength_ = 0;
+    std::set<std::string> m_word_set;
+    std::unordered_map<std::string, float> m_cost_map;
+    int m_max_word_length = 0;
 };
 
 } // namespace khiin::engine

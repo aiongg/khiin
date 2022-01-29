@@ -12,22 +12,19 @@ using namespace std::literals::string_literals;
 
 Trie::Trie() {}
 
-Trie::Trie(string_vector words, string_vector syllables) {
-    for (auto &word : words) {
-        this->insert_(wRoot, word);
-    }
-    for (auto &syllable : syllables) {
-        this->insert_(sRoot, syllable);
+Trie::Trie(const string_vector &keys) {
+    for (auto &key : keys) {
+        this->insert_(root, key);
     }
 }
 
-auto Trie::insert(std::string key) -> void {
-    return insert_(wRoot, key);
+void Trie::Insert(std::string_view key) {
+    return insert_(root, key);
 }
 
-bool Trie::remove(std::string key) {
+bool Trie::Remove(std::string_view key) {
     auto onlyChildNodes = std::vector<std::tuple<char, Node *, bool>>();
-    auto curr = &wRoot;
+    auto curr = &root;
 
     for (auto it = key.begin(); it != key.end(); it++) {
         auto found = curr->children.find(*it);
@@ -72,26 +69,20 @@ bool Trie::remove(std::string key) {
     return false;
 }
 
-auto Trie::containsWord(std::string query) -> bool {
-    auto found = find_(wRoot, query);
+auto Trie::ContainsWord(std::string_view query) -> bool {
+    auto found = find_(root, query);
     return found != nullptr && found->isEndOfWord;
 }
 
-auto Trie::containsPrefix(std::string query) -> bool {
-    auto found = find_(wRoot, query);
+auto Trie::ContainsPrefix(std::string_view query) -> bool {
+    auto found = find_(root, query);
     return found != nullptr &&
            (found->isEndOfWord || found->children.size() > 0);
 }
 
-auto Trie::containsSyllablePrefix(std::string query) -> bool {
-    auto found = find_(sRoot, query);
-    return found != nullptr &&
-           (found->isEndOfWord || found->children.size() > 0);
-}
-
-auto Trie::autocomplete(std::string query, size_t maxDepth) -> string_vector {
+auto Trie::Autocomplete(std::string const &query, size_t maxDepth) -> string_vector {
     auto ret = string_vector();
-    auto found = find_(wRoot, query);
+    auto found = find_(root, query);
 
     if (found == nullptr) {
         return ret;
@@ -107,38 +98,31 @@ auto Trie::autocomplete(std::string query, size_t maxDepth) -> string_vector {
     return ret;
 }
 
-auto Trie::autocompleteTone(std::string query) -> string_vector {
-    auto ret = string_vector();
-
-    if (isdigit(query.back())) {
-        return ret;
-    }
-
-    Node *found = find_(wRoot, query);
-
-    if (!found) {
-        return ret;
-    }
-
-    static auto tones = "1234567890"s;
-
-    for (auto t : tones) {
-        if (found->hasChild(t) && found->children[t]->isEndOfWord) {
-            ret.push_back(query + t);
-        }
-    }
-
-    return ret;
-}
-
-//auto Trie::getAllWords(std::string query, bool isToneless)
-//    -> string_vector {
-//    auto res = string_vector();
-//    getAllWords(query, isToneless, res);
-//    return res;
+//auto Trie::autocompleteTone(std::string query) -> string_vector {
+//    auto ret = string_vector();
+//
+//    if (isdigit(query.back())) {
+//        return ret;
+//    }
+//
+//    Node *found = find_(root, query);
+//
+//    if (!found) {
+//        return ret;
+//    }
+//
+//    static auto tones = "1234567890"s;
+//
+//    for (auto t : tones) {
+//        if (found->hasChild(t) && found->children[t]->isEndOfWord) {
+//            ret.push_back(query + t);
+//        }
+//    }
+//
+//    return ret;
 //}
 
-auto Trie::getAllWords(std::string query, bool fuzzy, string_vector &results)
+auto Trie::FindKeys(std::string_view query, bool fuzzy, string_vector &results)
     -> void {
     results.clear();
 
@@ -146,11 +130,11 @@ auto Trie::getAllWords(std::string query, bool fuzzy, string_vector &results)
         return;
     }
 
-    if (!wRoot.hasChild(query[0])) {
+    if (!root.hasChild(query[0])) {
         return;
     }
 
-    auto curr = &wRoot;
+    auto curr = &root;
     static auto tones = "1234567890"s;
 
     for (auto it = query.begin(); it != query.end(); it++) {
@@ -194,59 +178,6 @@ auto Trie::getAllWords(std::string query, bool fuzzy, string_vector &results)
     }
 }
 
-// Can delete
-void Trie::splitSentence(std::string query, RecursiveMap &results) {
-    std::string syl;
-
-    std::string::iterator it;
-    for (it = query.begin(); it < query.end(); it++) {
-        syl += *it;
-        auto prefixes = autocomplete(syl, syl.size());
-
-        if (prefixes.size() > 0) {
-            for (auto &it2 : prefixes) {
-                if (syl == it2) {
-                    results.map[syl] = RecursiveMap();
-                    splitSentence(std::string(it + 1, query.end()),
-                                  results.map[syl]);
-                }
-            }
-        }
-    }
-}
-
-// Can delete
-std::vector<std::string> Trie::splitSentence2(std::string query) {
-    std::vector<std::string> results;
-    std::string syl;
-    std::string::iterator it;
-
-    if (query.empty()) {
-        return results;
-    }
-
-    for (it = query.begin(); it != query.end(); it++) {
-        syl += *it;
-        if (containsWord(syl)) {
-            if (syl == query) {
-                results.push_back(syl);
-            } else {
-                auto remainderResult =
-                    splitSentence2(std::string(it + 1, query.end()));
-                for (auto &res : remainderResult) {
-                    results.push_back(syl + " " + res);
-                }
-            }
-        }
-    }
-
-    if (results.empty()) {
-        results.push_back(query);
-    }
-
-    return results;
-}
-
 // Private
 
 // Node
@@ -257,7 +188,7 @@ auto Trie::Node::hasChild(char ch) -> bool {
 
 // Trie
 
-auto Trie::insert_(Node &root, std::string key) -> void {
+auto Trie::insert_(Node &root, std::string_view key) -> void {
     auto curr = &root;
 
     for (auto &ch : key) {
@@ -271,7 +202,7 @@ auto Trie::insert_(Node &root, std::string key) -> void {
     curr->isEndOfWord = true;
 }
 
-auto Trie::find_(Node &root, std::string query) -> Node * {
+auto Trie::find_(Node &root, std::string_view query) -> Node * {
     auto curr = &root;
 
     for (auto it = query.begin(); it < query.end(); it++) {
@@ -285,7 +216,7 @@ auto Trie::find_(Node &root, std::string query) -> Node * {
     return curr;
 }
 
-auto Trie::dfs_(Node *node, std::string prefix, std::string suffix,
+auto Trie::dfs_(Node *node, std::string const &prefix, std::string const &suffix,
                 std::vector<std::string> &results, size_t maxDepth) -> void {
     if (node->isEndOfWord) {
         results.push_back(prefix + suffix);

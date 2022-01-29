@@ -95,10 +95,10 @@ class BufferMgrImpl : public BufferManager {
          *   3. Fuzzy / Exact tones
          *   4. Lazy / Quick commit
          */
-        switch (inputMode_) {
-        case InputMode::Normal:
+        //switch (inputMode_) {
+        //case InputMode::Normal:
             insertNormal(ch);
-        }
+        //}
     }
 
     virtual void Erase(CursorDirection dir) override {
@@ -320,7 +320,7 @@ class BufferMgrImpl : public BufferManager {
 
     char lastKey_ = '\0';
     CommitMode commitMode_ = CommitMode::Lazy;
-    InputMode inputMode_ = InputMode::Normal;
+    //InputMode inputMode_ = InputMode::Normal;
     ToneKeys toneKeys_ = ToneKeys::Numeric;
     ToneMode toneMode = ToneMode::Fuzzy;
     bool hasPrimaryCandidate = false;
