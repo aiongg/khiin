@@ -40,13 +40,61 @@ TEST(SyllableParserTest, ParseRawTest2) {
     EXPECT_EQ(syl.composed, u8"hō\u0358");
 }
 
-TEST(SyllableParserTest, ToRaw) {
+TEST(SyllableParserTest, SerializeRaw) {
+    auto syl = Syllable();
+    syl.raw_body = "ho";
+    syl.tone = Tone::T2;
+    syl.tone_key = '2';
+    auto keyconfig = KeyConfig::Create();
+    auto parser = SyllableParser::Create(keyconfig);
+    auto output = parser->SerializeRaw(syl);
+
+    EXPECT_EQ(output, u8"ho2");
+}
+
+TEST(SyllableParserTest, SerializeRawIndexed) {
+    auto syl = Syllable();
+    syl.raw_body = "ho";
+    syl.tone = Tone::T2;
+    syl.tone_key = '2';
+    syl.composed = u8"hó";
+    auto keyconfig = KeyConfig::Create();
+    auto parser = SyllableParser::Create(keyconfig);
+    auto output = std::string();
+    auto raw_caret = size_t(0);
+    parser->SerializeRaw(syl, 2, output, raw_caret);
+
+    EXPECT_EQ(output, u8"ho2");
+    EXPECT_EQ(raw_caret, 3);
+}
+
+TEST(SyllableParserTest, SerializeRawIndexed2) {
+    auto syl = Syllable();
+    syl.raw_body = "hounn";
+    syl.tone = Tone::T3;
+    syl.tone_key = '3';
+    syl.composed = u8"hò\u0358ⁿ";
+    auto keyconfig = KeyConfig::Create();
+    auto parser = SyllableParser::Create(keyconfig);
+    auto output = std::string();
+    auto raw_caret = size_t(0);
+    parser->SerializeRaw(syl, 4, output, raw_caret);
+
+    EXPECT_EQ(output, u8"hounn3");
+    EXPECT_EQ(raw_caret, 6);
+
+    output.clear();
+    parser->SerializeRaw(syl, 3, output, raw_caret);
+    EXPECT_EQ(raw_caret, 3);
+}
+
+TEST(SyllableParserTest, ToFuzzy) {
     auto input = u8"hō\u0358";
     auto keyconfig = KeyConfig::Create();
     auto parser = SyllableParser::Create(keyconfig);
     auto result = std::vector<std::string>();
     auto has_tone = false;
-    parser->ToRaw(input, result, has_tone);
+    parser->ToFuzzy(input, result, has_tone);
 
     EXPECT_THAT(result, Contains("hou7"));
     EXPECT_TRUE(has_tone);

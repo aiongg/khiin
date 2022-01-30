@@ -108,7 +108,16 @@ bool RemoveToneChar(KeyConfig *keyconfig, std::string &input, Tone &tone, char &
     return true;
 }
 
-bool RemoveToneDiacritic(KeyConfig *keyconfig, std::string &input, Tone &tone, char &key, char &telex_key) {
+void RemoveToneDiacritic(std::string &input) {
+    for (auto &[t, t_str] : kToneToUnicodeMap) {
+        if (auto i = input.find(t_str); i != std::string::npos) {
+            input.erase(i, t_str.size());
+            return;
+        }
+    }
+}
+
+bool RemoveToneDiacriticSaveTone(KeyConfig *keyconfig, std::string &input, Tone &tone, char &key, char &telex_key) {
     for (auto &[t, t_str] : kToneToUnicodeMap) {
         if (auto i = input.find(t_str); i != std::string::npos) {
             tone = t;
@@ -168,6 +177,7 @@ class SyllableParserImpl : public SyllableParser {
     }
 
     virtual void ParseRaw(std::string const &input, Syllable &output) override {
+        output.parser = this;
         output.raw_body = input;
         RemoveToneChar(keyconfig, output.raw_body, output.tone, output.tone_key);
         ApplyConversionRules(keyconfig, output.raw_body, output.composed);
@@ -185,12 +195,51 @@ class SyllableParserImpl : public SyllableParser {
     virtual void ComposeIndexed(Syllable const &input, utf8_size_t input_idx, std::string &output,
                                 size_t &output_idx) override {}
 
-    virtual void ToRaw(const std::string &input, string_vector &output, bool &has_tone) {
+    virtual std::string SerializeRaw(Syllable const &input) override {
+        // TODO handle khin
+        std::string ret = input.raw_body;
+        if (input.tone != Tone::NaT) {
+            ret += input.tone_key;
+        }
+        return ret;
+    };
+
+    virtual void SerializeRaw(Syllable const &input, utf8_size_t caret, std::string &output,
+                              size_t &raw_caret) override {
+        auto &syl = input.composed;
+        auto it = syl.cbegin();
+        utf8::unchecked::advance(it, caret);
+
+        if (it == syl.cend()) {
+            output = SerializeRaw(input);
+            raw_caret = output.size();
+            return;
+        }
+
+        auto lhs = toNFD(std::string(syl.cbegin(), it));
+        auto rhs = toNFD(std::string(it, syl.cend()));
+
+        RemoveToneDiacritic(lhs);
+        RemoveToneDiacritic(rhs);
+        ApplyDeconversionRules(keyconfig, lhs);
+        ApplyDeconversionRules(keyconfig, rhs);
+
+        // TODO: Handle khin (on the left before calling lhs.size())
+
+        raw_caret = lhs.size();
+        output.append(lhs);
+        output.append(rhs);
+        if (input.tone != Tone::NaT) {
+            output.push_back(input.tone_key);
+        }
+    }
+
+    virtual void ToFuzzy(const std::string &input, string_vector &output, bool &has_tone) {
         auto syl = toNFD(input);
         auto tone = Tone::NaT;
         char digit_key = 0;
         char telex_key = 0;
-        auto found_tone = RemoveToneDiacritic(keyconfig, syl, tone, digit_key, telex_key);
+        auto found_tone = RemoveToneDiacriticSaveTone(keyconfig, syl, tone, digit_key, telex_key);
         ApplyDeconversionRules(keyconfig, syl);
 
         if (!found_tone) {
@@ -223,7 +272,7 @@ class SyllableParserImpl : public SyllableParser {
         auto push_chunk = [&](auto from, auto to, bool allow_toneless) {
             auto syl = std::string(from, to);
             auto tmp = std::vector<std::string>();
-            ToRaw(syl, tmp, has_tone);
+            ToFuzzy(syl, tmp, has_tone);
             if (has_tone && allow_toneless) {
                 tmp.push_back(std::string(tmp[0].cbegin(), tmp[0].cend() - 1));
             }

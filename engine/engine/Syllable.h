@@ -13,12 +13,7 @@ enum class KhinKeyPosition {
     End,
 };
 
-struct ToneInfo {
-    Tone tone = Tone::NaT;
-    char tone_key = 0;
-    KhinKeyPosition khin_pos = KhinKeyPosition::None;
-    char khin_key = 0;
-};
+class SyllableParser;
 
 struct Syllable {
     std::string raw_body;
@@ -27,6 +22,7 @@ struct Syllable {
     char tone_key = 0;
     char khin_key = 0;
     std::string composed;
+    SyllableParser *parser = nullptr;
 };
 
 } // namespace khiin::engine

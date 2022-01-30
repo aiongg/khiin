@@ -1,9 +1,9 @@
 #include "BufferMgr.h"
 
-#include "Engine.h"
 #include "BufferElement.h"
-#include "unicode_utils.h"
+#include "Engine.h"
 #include "Segmenter.h"
+#include "unicode_utils.h"
 
 namespace khiin::engine {
 
@@ -65,19 +65,42 @@ class BufferMgrImpl : public BufferMgr {
         m_engine->segmenter()->SegmentWholeBuffer(raw_buffer, raw_caret_position, elements, new_caret_position);
     }
 
-    //                 _OUT_                     _OUT_
-    void LocateCaret(BufferElement *element, int &index_in_element) {
+    void GetRawBuffer(std::string &raw_buffer, size_t &caret_position) {
+        raw_buffer.clear();
+
+        size_t caret_element_index = 0;
+        size_t caret_position_in_element = 0;
+        LocateCaret(caret_element_index, caret_position_in_element);
+
+        for (auto i = 0; i < m_elements.size(); ++i) {
+            auto &elem = m_elements[i];
+
+            if (i != caret_element_index) {
+                auto raw = elem.Raw();
+                raw_buffer.append(raw);
+                caret_position += raw.size();
+                continue;
+            }
+
+            auto raw = std::string();
+            size_t raw_caret = 0;
+            elem.RawIndexed(caret_position_in_element, raw, raw_caret);
+        }
+    }
+
+    void LocateCaret(size_t &element_index, size_t &char_index) {
         auto remainder = m_caret_position;
 
-        for (auto &elem : m_elements) {
+        for (auto i = 0; i < m_elements.size(); ++i) {
+            auto &elem = m_elements[i];
             auto size = elem.Size();
 
             if (remainder > size) {
                 remainder -= size;
                 continue;
             } else {
-                element = &elem;
-                index_in_element = remainder;
+                element_index = i;
+                char_index = remainder;
                 return;
             }
         }
