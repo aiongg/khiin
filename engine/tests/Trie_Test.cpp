@@ -10,12 +10,12 @@ namespace {
 using namespace std;
 using namespace khiin::engine;
 
-class TrieFx : public ::testing::Test {
+class TrieTest : public ::testing::Test {
   protected:
     void SetUp() override {
-        trie = new Trie();
+        trie = Trie::Create();
     }
-    ~TrieFx() {
+    ~TrieTest() {
         delete trie;
     }
     Trie *trie = nullptr;
@@ -26,13 +26,13 @@ class TrieFx : public ::testing::Test {
     }
 };
 
-TEST_F(TrieFx, search) {
+TEST_F(TrieTest, search) {
     trie->Insert(u8"niau");
     bool res = trie->ContainsWord(u8"niau");
     EXPECT_TRUE(res);
 }
 
-TEST_F(TrieFx, remove) {
+TEST_F(TrieTest, remove) {
     trie->Insert(u8"niau");
     trie->Insert(u8"ni");
     trie->Remove(u8"niau");
@@ -43,12 +43,12 @@ TEST_F(TrieFx, remove) {
     EXPECT_TRUE(!trie->ContainsWord(u8"n"));
 }
 
-TEST_F(TrieFx, is_prefix) {
+TEST_F(TrieTest, is_prefix) {
     trie->Insert(u8"niau");
     EXPECT_TRUE(trie->ContainsPrefix(u8"nia"));
 }
 
-TEST_F(TrieFx, autocomplete) {
+TEST_F(TrieTest, autocomplete) {
     ins({u8"niau", u8"nia", u8"na"});
 
     std::vector<std::string> res = trie->Autocomplete(u8"n");
@@ -62,7 +62,7 @@ TEST_F(TrieFx, autocomplete) {
     EXPECT_NE(std::find(res.begin(), res.end(), "na"), res.end());
 }
 
-TEST_F(TrieFx, autocomplete_tone) {
+TEST_F(TrieTest, autocomplete_tone) {
     //ins({u8"na2", u8"na7", u8"nai"});
 
     //std::vector<std::string> res = trie->AutocompleteTone(u8"na");
@@ -71,7 +71,7 @@ TEST_F(TrieFx, autocomplete_tone) {
     //EXPECT_NE(std::find(res.begin(), res.end(), "na7"), res.end());
 }
 
-TEST_F(TrieFx, get_all_words) {
+TEST_F(TrieTest, get_all_words) {
     ins({"cho", "cho2", "chong", "chong5", "chongthong2", "ba"});
     auto res = string_vector();
     trie->FindKeys("chongthong", true, res);
@@ -94,7 +94,7 @@ TEST_F(TrieFx, get_all_words) {
 //    int i = 0;
 //}
 
-TEST_F(TrieFx, big_word_list) {
+TEST_F(TrieTest, big_word_list) {
     std::vector<std::string> w;
     w.push_back("a");
     w.push_back("ah");

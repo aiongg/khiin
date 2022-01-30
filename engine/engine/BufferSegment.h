@@ -22,13 +22,6 @@ class BufferSegment {
     std::string Raw();
     void RawIndexed(utf8_size_t caret, std::string &raw, size_t &raw_caret);
 
-    // RAW:  peng5an
-    // COMP: pêng an
-    // DICT: pêng-an
-
-    //void Create(std::string raw, std::string dictionary);
-    // --> Syllable(peng), Spacer(Hyphen), Syllable(an)
-
   private:
     std::vector<SegmentElement> m_elements;
 };

@@ -7,6 +7,7 @@
 
 #include <boost/range/adaptor/indexed.hpp>
 
+#include "Dictionary.h"
 #include "Engine.h"
 #include "Lomaji.h"
 #include "Splitter.h"
@@ -69,7 +70,6 @@ class CandidateFinderImpl : public CandidateFinder {
   public:
     CandidateFinderImpl(Engine *engine) : engine(engine) {
         database = engine->database();
-        
     };
 
     virtual Candidates findCandidates(std::string input, std::string lgram, bool toneless) override {
@@ -388,6 +388,14 @@ class CandidateFinderImpl : public CandidateFinder {
     Splitter *splitter = nullptr;
     Trie *word_trie = nullptr;
     Trie *syl_trie = nullptr;
+
+  public:
+    virtual void FindBestCandidate(std::string_view input, std::string_view lgram, int &candidate_id,
+                                   size_t &consumed) override {
+        auto words = engine->dictionary()->WordSearch(input);
+    }
+
+  private:
     Engine *engine = nullptr;
 };
 

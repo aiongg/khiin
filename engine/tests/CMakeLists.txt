@@ -1,7 +1,7 @@
 include_directories(${PROJECT_SOURCE_DIR}/engine)
 
-add_executable(test_khiin_engine "test_main.cpp" "Engine_Test.cpp" "test_trie.cpp"
-    "test_buffer.cpp" "test_lomaji.cpp"  "test_splitter.cpp" "test_db.cpp" "test_candidates.cpp"   "Syllable_test.cpp" "KeyConfig_Test.cpp" "SyllableParser_Test.cpp" "Dictionary_Test.cpp")
+add_executable(test_khiin_engine "test_main.cpp" "Engine_Test.cpp" "Trie_Test.cpp"
+    "test_buffer.cpp" "test_lomaji.cpp"  "test_splitter.cpp" "test_db.cpp" "test_candidates.cpp"   "Syllable_test.cpp" "KeyConfig_Test.cpp" "SyllableParser_Test.cpp" "Dictionary_Test.cpp" "BufferMgr_Test.cpp")
 
 target_link_libraries(test_khiin_engine khiin SQLiteCpp ${Boost_LIBRARIES} ${Protobuf_LITE_LIBRARY} GTest::gmock GTest::gtest GTest::gmock_main GTest::gtest_main)
 

@@ -83,6 +83,7 @@ class Database {
     int IncrementNGramCounts(string_vector &grams);
 
     void DictionaryWords(std::vector<std::string> &inputs);
+    void LoadSyllables(std::vector<std::string> &syllables);
     // auto selectBigrams(std::string lgram, string_vector rgrams) -> BigramWeightMap;
 
   private:

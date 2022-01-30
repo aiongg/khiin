@@ -56,39 +56,41 @@ class BufferMgrImpl : public BufferMgr {
     void InsertContinuous(char ch) {
         // Get raw buffer and cursor position
         std::string raw_buffer;
-        size_t raw_caret_position = 0;
-
-        raw_buffer.insert(raw_caret_position, 1, ch);
+        size_t raw_caret = 0;
+        GetRawBuffer(raw_buffer, raw_caret);
+        raw_buffer.insert(raw_caret, 1, ch);
+        ++raw_caret;
 
         std::vector<BufferElement> elements;
         utf8_size_t new_caret_position = 0;
-        m_engine->segmenter()->SegmentWholeBuffer(raw_buffer, raw_caret_position, elements, new_caret_position);
+        m_engine->segmenter()->SegmentWholeBuffer(raw_buffer, raw_caret, elements, new_caret_position);
     }
 
-    void GetRawBuffer(std::string &raw_buffer, size_t &caret_position) {
+    void GetRawBuffer(std::string &raw_buffer, size_t &raw_caret) {
         raw_buffer.clear();
 
-        size_t caret_element_index = 0;
-        size_t caret_position_in_element = 0;
-        LocateCaret(caret_element_index, caret_position_in_element);
+        size_t caret_elem_idx = 0;
+        size_t caret_idx = 0;
+        LocateCaret(caret_elem_idx, caret_idx);
 
         for (auto i = 0; i < m_elements.size(); ++i) {
             auto &elem = m_elements[i];
 
-            if (i != caret_element_index) {
+            if (i != caret_elem_idx) {
                 auto raw = elem.Raw();
                 raw_buffer.append(raw);
-                caret_position += raw.size();
+                raw_caret += raw.size();
                 continue;
             }
 
             auto raw = std::string();
             size_t raw_caret = 0;
-            elem.RawIndexed(caret_position_in_element, raw, raw_caret);
+            elem.RawIndexed(caret_idx, raw, raw_caret);
+            raw_caret += raw_caret;
         }
     }
 
-    void LocateCaret(size_t &element_index, size_t &char_index) {
+    void LocateCaret(size_t &element_index, size_t &caret_index) {
         auto remainder = m_caret_position;
 
         for (auto i = 0; i < m_elements.size(); ++i) {
@@ -100,7 +102,7 @@ class BufferMgrImpl : public BufferMgr {
                 continue;
             } else {
                 element_index = i;
-                char_index = remainder;
+                caret_index = remainder;
                 return;
             }
         }

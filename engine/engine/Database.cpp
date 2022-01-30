@@ -333,4 +333,14 @@ void Database::DictionaryWords(std::vector<std::string> &inputs) {
     }
 }
 
+void Database::LoadSyllables(std::vector<std::string>& syllables) {
+    syllables.clear();
+    syllables.reserve(1500);
+    auto query = SQLite::Statement(handle, SQL::SELECT_Syllables);
+
+    while (query.executeStep()) {
+        syllables.push_back(query.getColumn("syl").getString());
+    }
+}
+
 } // namespace khiin::engine

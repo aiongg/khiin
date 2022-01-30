@@ -24,6 +24,7 @@ std::vector<T> odometer_merge(std::vector<std::vector<T>> const &vector_set) {
         }
         ret.push_back(std::move(el));
 
+        // reset any iterators that have reached the end
         ++its[size - 1];
         for (size_t i = size - 1; (i > 0) && (its[i] == vector_set[i].cend()); --i) {
             its[i] = vector_set[i].cbegin();
