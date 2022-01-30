@@ -1,5 +1,7 @@
 #include "KeyConfig.h"
 
+#include <iterator>
+
 namespace khiin::engine {
 namespace {
 
@@ -61,8 +63,53 @@ class KeyCfgImpl : public KeyConfig {
         return ret;
     }
 
+    virtual void GetToneKeys(Tone tone, char &digit_key, char &telex_key) override {
+        // TODO: Handle telex keys
+        switch (tone) {
+        case Tone::T2:
+            digit_key = '2';
+            break;
+        case Tone::T3:
+            digit_key = '3';
+            break;
+        case Tone::T5:
+            digit_key = '5';
+            break;
+        case Tone::T7:
+            digit_key = '7';
+            break;
+        case Tone::T8:
+            digit_key = '8';
+            break;
+        case Tone::T9:
+            digit_key = '9';
+            break;
+        }
+    }
+
     virtual Tone CheckToneKey(char ch) override {
-        return Tone();
+        // TODO: Handle telex keys and fallback to digits
+
+        switch (ch) {
+        case '2':
+            return Tone::T2;
+        case '3':
+            return Tone::T3;
+        case '5':
+            return Tone::T5;
+        case '7':
+            return Tone::T7;
+        case '8':
+            return Tone::T8;
+        case '9':
+            return Tone::T9;
+        default:
+            return Tone::NaT;
+        }
+    }
+
+    virtual void EnableToneDigitFallback(bool enabled) {
+        return;
     }
 
   private:
@@ -164,6 +211,7 @@ class KeyCfgImpl : public KeyConfig {
     bool standalone_nasal = false;
     bool standalone_dotaboveright = false;
     bool standalone_dotsbelow = false;
+    bool use_fallback_tone_digits = true;
 };
 
 } // namespace

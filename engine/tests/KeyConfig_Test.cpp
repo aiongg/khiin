@@ -67,5 +67,11 @@ TEST(KeyConfigTest, SetStandaloneDotAboveKey) {
     EXPECT_EQ(rules[1].second, u8"O\u0358");
 }
 
+TEST(KeyConfigTest, HasFallbackToneDigits) {
+    auto kc = KeyConfig::CreateEmpty();
+    auto tone = kc->CheckToneKey('2');
+    EXPECT_EQ(tone, Tone::T2);
+}
+
 } // namespace
 } // namespace khiin::engine

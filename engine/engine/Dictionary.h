@@ -3,12 +3,11 @@
 namespace khiin::engine {
 
 class Engine;
-class KeyConfig;
 
 class Dictionary {
   public:
     static Dictionary *Create(Engine *engine);
-    virtual void SetKeyConfiguration(KeyConfig *key_configuration) = 0;
+    virtual void BuildWordTrie() = 0;
 };
 
 } // namespace khiin::engine

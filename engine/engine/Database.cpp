@@ -29,7 +29,7 @@ Database::Database(std::string dbFilename) : handle(SQLite::Database(dbFilename,
 }
 
 void Database::Initialize() {
-    //if (!handle.tableExists("trie_map")) {
+    // if (!handle.tableExists("trie_map")) {
     //    buildTrieLookupTable_();
     //}
 }
@@ -315,8 +315,21 @@ int Database::buildTrieLookupTable_() {
         tx.commit();
         return 0;
     } catch (std::exception &e) {
-        //BOOST_LOG_TRIVIAL(debug) << e.what();
+        // BOOST_LOG_TRIVIAL(debug) << e.what();
         return -1;
+    }
+}
+
+void Database::DictionaryWords(std::vector<std::string> &inputs) {
+    inputs.clear();
+    inputs.reserve(20000);
+    auto dictionaryQuery = SQLite::Statement(handle, SQL::SELECT_DictionaryInputs);
+    
+    while (dictionaryQuery.executeStep()) {
+        auto dictId = dictionaryQuery.getColumn("id").getInt();
+        auto ascii = utf8ToAsciiLower(dictionaryQuery.getColumn("input").getString());
+        auto output = dictionaryQuery.getColumn("output").getString();
+        inputs.push_back(ascii);
     }
 }
 

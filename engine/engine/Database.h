@@ -4,6 +4,7 @@
 #include <string>
 #include <unordered_map>
 #include <vector>
+#include <functional>
 
 #include <SQLiteCpp/SQLiteCpp.h>
 
@@ -72,6 +73,7 @@ class Database {
     Database(std::string dbFilename);
     void GetTokens(string_vector queries, Tokens &results);
     void Initialize();
+    
     string_vector GetTrieWordlist();
     string_vector GetSyllableList();
     void SearchDictionaryByAscii(const std::string &input, DictRows &results);
@@ -79,6 +81,8 @@ class Database {
     void BigramsFor(const std::string &lgram, const string_vector &rgrams, BigramWeights &results);
     int UnigramCount(const std::string &gram);
     int IncrementNGramCounts(string_vector &grams);
+
+    void DictionaryWords(std::vector<std::string> &inputs);
     // auto selectBigrams(std::string lgram, string_vector rgrams) -> BigramWeightMap;
 
   private:

@@ -14,8 +14,8 @@ add_library (khiin
     "Lomaji.h"                  # delete
     "Lomaji.cpp"                # delete
     "ParallelIterators.h"       # delete
-    "Transliterator.h"          # delete
-    "Transliterator.cpp"        # delete
+              # delete
+            # delete
     "${PROTOBUF_DIR}/messages.pb.h"
     "${PROTOBUF_DIR}/messages.pb.cc"
     "CandidateFinder.h"

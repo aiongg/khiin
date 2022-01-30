@@ -1,17 +1,26 @@
 #pragma once
 
-#include "KeyConfig.h"
+#include "common.h"
 #include "unicode_utils.h"
-#include "Syllable.h"
 
 namespace khiin::engine {
 
+class KeyConfig;
+struct Syllable;
+
 class SyllableParser {
-    void SetKeyConfiguration(KeyConfig *key_config);
-    void ParseRaw(std::string const &input, Syllable &output);
-    void ParseRawIndexed(std::string const &input, size_t input_idx, Syllable &output, utf8_size_t &output_idx);
-    void Compose(Syllable const &input, std::string &output);
-    void ComposeIndexed(Syllable const &input, utf8_size_t input_idx, std::string &output, size_t &output_idx);
+  public:
+    static SyllableParser *Create(KeyConfig *key_config);
+    virtual void SetKeyConfiguration(KeyConfig *key_config) = 0;
+    virtual void ParseRaw(std::string const &input, Syllable &output) = 0;
+    virtual void ParseRawIndexed(std::string const &input, size_t input_idx, Syllable &output,
+                                 utf8_size_t &output_idx) = 0;
+    virtual void Compose(Syllable const &input, std::string &output) = 0;
+    virtual void ComposeIndexed(Syllable const &input, utf8_size_t input_idx, std::string &output,
+                                size_t &output_idx) = 0;
+
+    virtual void ToRaw(std::string const &input, string_vector &output, bool &has_tone) = 0;
+    virtual string_vector GetMultisylInputSequences(std::string const &input) = 0;
 };
 
 } // namespace khiin::engine

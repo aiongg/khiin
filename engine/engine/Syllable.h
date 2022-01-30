@@ -2,7 +2,7 @@
 
 #include <string>
 
-#include "Transliterator.h"
+#include "Lomaji.h"
 #include "unicode_utils.h"
 
 namespace khiin::engine {
@@ -20,12 +20,13 @@ struct ToneInfo {
     char khin_key = 0;
 };
 
-class Syllable {
-  public:
-
-  private:
+struct Syllable {
     std::string raw_body;
-    ToneInfo tone_info;
+    Tone tone = Tone::NaT;
+    KhinKeyPosition khin_pos = KhinKeyPosition::None;
+    char tone_key = 0;
+    char khin_key = 0;
+    std::string composed;
 };
 
 } // namespace khiin::engine

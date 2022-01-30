@@ -75,6 +75,7 @@ class EngineImpl : public Engine {
         // m_trie = std::make_unique<Trie>(m_database->GetTrieWordlist(), m_valid_syllables);
 
         m_keyconfig = std::unique_ptr<KeyConfig>(KeyConfig::Create());
+        m_syllable_parser = std::unique_ptr<SyllableParser>(SyllableParser::Create(m_keyconfig.get()));
         m_dictionary = std::unique_ptr<Dictionary>(Dictionary::Create(this));
         // m_splitter = std::make_unique<Splitter>(m_valid_syllables);
         m_segmenter = std::unique_ptr<Segmenter>(Segmenter::Create(this));

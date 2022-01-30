@@ -3,6 +3,7 @@
 #include "Database.h"
 #include "Engine.h"
 #include "KeyConfig.h"
+#include "SyllableParser.h"
 #include "Trie.h"
 
 namespace khiin::engine {
@@ -11,16 +12,25 @@ namespace {
 
 class DictionaryImpl : public Dictionary {
   public:
-    DictionaryImpl(Engine *engine) : engine(engine) {
-        database = engine->database();
-    }
+    DictionaryImpl(Engine *engine) : engine(engine) {}
 
-    // Inherited via Dictionary
-    virtual void SetKeyConfiguration(KeyConfig *key_configuration) override {}
+    virtual void BuildWordTrie() override {
+        word_trie = std::make_unique<Trie>();
+        auto parser = engine->syllable_parser();
+        auto words = string_vector();
+
+        engine->database()->DictionaryWords(words);
+
+        for (auto &word : words) {
+            auto keys = parser->GetMultisylInputSequences(word);
+            for (auto &key : keys) {
+                word_trie->Insert(key);
+            }
+        };
+    }
 
   private:
     Engine *engine = nullptr;
-    Database *database = nullptr;
     std::unordered_map<std::string, std::vector<int>> word_list;
     std::unique_ptr<Trie> word_trie = nullptr;
     std::unique_ptr<Trie> syllable_trie = nullptr;
@@ -29,7 +39,9 @@ class DictionaryImpl : public Dictionary {
 } // namespace
 
 Dictionary *Dictionary::Create(Engine *engine) {
-    return new DictionaryImpl(engine);
+    auto dict = new DictionaryImpl(engine);
+    dict->BuildWordTrie();
+    return dict;
 }
 
 } // namespace khiin::engine
