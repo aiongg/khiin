@@ -8,6 +8,11 @@ namespace khiin::engine {
 class KeyConfig;
 struct Syllable;
 
+struct InputSequence {
+    std::string input;
+    bool is_fuzzy_monosyllable;
+};
+
 class SyllableParser {
   public:
     static SyllableParser *Create(KeyConfig *key_config);
@@ -23,7 +28,7 @@ class SyllableParser {
     virtual void SerializeRaw(Syllable const &input, utf8_size_t caret, std::string &output, size_t &raw_caret) = 0;
 
     virtual void ToFuzzy(std::string const &input, string_vector &output, bool &has_tone) = 0;
-    virtual string_vector GetMultisylInputSequences(std::string const &input) = 0;
+    virtual std::vector<InputSequence> AsInputSequences(std::string const &input) = 0;
 };
 
 } // namespace khiin::engine

@@ -11,34 +11,34 @@ namespace {
 
 static const auto DB_FILE = "taikey.db";
 
-class DbFx : public ::testing::Test {
+class DatabaseTest : public ::testing::Test {
   protected:
     void SetUp() override {
         db = new Database(DB_FILE);
     }
-    ~DbFx() {
+    void TearDown() override {
         delete db;
     }
     Database *db = nullptr;
 };
 
-TEST_F(DbFx, select_syllable_list) {
+TEST_F(DatabaseTest, select_syllable_list) {
     auto res = db->GetSyllableList();
     EXPECT_GT(res.size(), 0);
 }
 
-TEST_F(DbFx, select_word_list) {
+TEST_F(DatabaseTest, select_word_list) {
     auto res = db->GetTrieWordlist();
     EXPECT_GT(res.size(), 0);
 }
 
-TEST_F(DbFx, select_dictionary_by_ascii) {
+TEST_F(DatabaseTest, select_dictionary_by_ascii) {
     auto res = DictRows();
     db->SearchDictionaryByAscii("a", res);
     EXPECT_GT(res.size(), 0);
 }
 
-TEST_F(DbFx, select_by_ascii_list) {
+TEST_F(DatabaseTest, select_by_ascii_list) {
     auto v = std::vector<std::string>();
     v.push_back("ong");
     v.push_back("ong5");
@@ -47,7 +47,7 @@ TEST_F(DbFx, select_by_ascii_list) {
     EXPECT_GT(res.size(), 0);
 }
 
-TEST_F(DbFx, update_gram_counts) {
+TEST_F(DatabaseTest, update_gram_counts) {
     auto v = std::vector<std::string>();
     auto text = u8"囝仔 王 子 是 無 國 界 个 文 學 經 典";
 
@@ -57,7 +57,7 @@ TEST_F(DbFx, update_gram_counts) {
     EXPECT_EQ(res, 23);
 }
 
-TEST(Database, DummyDb) {
+TEST(DummyDatabase, Exists) {
     auto dummy = new Database();
     auto words = dummy->GetTrieWordlist();
     EXPECT_EQ(words.size(), 1);

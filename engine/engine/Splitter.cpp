@@ -20,13 +20,13 @@ inline auto isDigit(std::string const &str) {
 
 Splitter::Splitter() {}
 
-Splitter::Splitter(const string_vector &word_list) {
-    std::copy(word_list.cbegin(), word_list.cend(), std::inserter(m_word_set, m_word_set.begin()));
+Splitter::Splitter(const string_vector &input_id_map) {
+    std::copy(input_id_map.cbegin(), input_id_map.cend(), std::inserter(m_word_set, m_word_set.begin()));
 
-    auto logListSize = static_cast<float>(log(word_list.size()));
+    auto logListSize = static_cast<float>(log(input_id_map.size()));
 
     size_t idx = 0;
-    for (auto &it : word_list) {
+    for (auto &it : input_id_map) {
         m_cost_map[it] = static_cast<float>(log((idx + 1) * logListSize));
         m_max_word_length = std::max(m_max_word_length, (int)it.size());
         ++idx;
@@ -49,10 +49,6 @@ bool Splitter::CanSplit(std::string const &input) {
 
         for (int j = mSize - 1; j >= 0; j--) {
             std::string substr = input.substr(matchedIndex[j] + 1, i - matchedIndex[j]);
-
-            while (!substr.empty() && isdigit(substr.back())) {
-                substr.pop_back();
-            }
 
             if (m_word_set.find(substr) != m_word_set.end()) {
                 found = true;
@@ -91,11 +87,6 @@ void Splitter::Split(std::string const &input, string_vector &result) {
         for (auto j = i - m_max_word_length > 0 ? i - m_max_word_length : 0; j < i; j++) {
 
             chunk = lcInput.substr(j, i - j);
-
-            // Split after digits
-            while (!chunk.empty() && isdigit(chunk.back())) {
-                chunk.pop_back();
-            }
 
             if (m_cost_map.find(chunk) == m_cost_map.end()) {
                 continue;

@@ -2,7 +2,7 @@
 #include <gtest/gtest.h>
 
 #include "BufferMgr.h"
-#include "Engine.h"
+#include "TestEnv.h"
 
 namespace khiin::engine {
 namespace {
@@ -10,11 +10,9 @@ namespace {
 struct BufferMgrTest : ::testing::Test {
   protected:
     void SetUp() override {
-        engine = Engine::Create();
-        bufmgr = engine->buffer_mgr();
+        bufmgr = TestEnv::engine()->buffer_mgr();
     }
-    Engine *engine;
-    BufferMgr *bufmgr;
+    BufferMgr *bufmgr = nullptr;
 };
 
 TEST_F(BufferMgrTest, Loads) {

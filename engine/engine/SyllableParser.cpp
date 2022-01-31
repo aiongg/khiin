@@ -1,5 +1,7 @@
 #include "SyllableParser.h"
 
+#include <algorithm>
+
 #include "KeyConfig.h"
 #include "Syllable.h"
 #include "unicode_utils.h"
@@ -59,6 +61,13 @@ const std::unordered_map<Tone, std::string> kToneToUnicodeMap = {
     {Tone::T8, u8"\u030d"}, {Tone::T9, u8"\u0306"}, {Tone::TK, u8"\u00b7"}};
 
 const std::string kKhinDotStr = u8"\u00b7";
+const std::string kSpaceStr = u8" ";
+
+void ToLower(std::string &str) {
+    std::transform(str.begin(), str.end(), str.begin(), [](unsigned char c) {
+        return std::tolower(c);
+    });
+}
 
 inline bool IsSyllableSeparator(char ch) {
     return ch == '-' || ch == ' ';
@@ -162,6 +171,13 @@ bool AddToneDiacritic(Tone tone, std::string &toneless) {
     return true;
 }
 
+void EraseAll(std::string& input, std::string const &substr) {
+    auto idx = std::string::npos;
+    while ((idx = input.find(substr)) != std::string::npos) {
+        input.erase(idx, substr.size());
+    }
+}
+
 void EraseAllKhin(std::string &input) {
     auto idx = std::string::npos;
     while ((idx = input.find(kKhinDotStr)) != std::string::npos) {
@@ -242,6 +258,7 @@ class SyllableParserImpl : public SyllableParser {
         char telex_key = 0;
         auto found_tone = RemoveToneDiacriticSaveTone(keyconfig, syl, tone, digit_key, telex_key);
         ApplyDeconversionRules(keyconfig, syl);
+        ToLower(syl);
 
         if (!found_tone) {
             has_tone = false;
@@ -260,21 +277,21 @@ class SyllableParserImpl : public SyllableParser {
         }
     }
 
-    virtual string_vector GetMultisylInputSequences(std::string const &word) override {
+    virtual std::vector<InputSequence> AsInputSequences(std::string const &word) override {
+        auto ret = std::vector<InputSequence>();
         std::string word_copy = word;
-        EraseAllKhin(word_copy);
+        EraseAll(word_copy, kKhinDotStr);
         auto start = word_copy.cbegin();
         auto end = word_copy.cend();
 
         auto chunks = std::vector<std::vector<std::string>>();
         auto sep = std::find_if(start, end, IsSyllableSeparator);
         auto has_tone = false;
-
-        auto push_chunk = [&](auto from, auto to, bool allow_toneless) {
+        auto push_chunk = [&](auto from, auto to) {
             auto syl = std::string(from, to);
             auto tmp = std::vector<std::string>();
             ToFuzzy(syl, tmp, has_tone);
-            if (has_tone && allow_toneless) {
+            if (has_tone) {
                 tmp.push_back(std::string(tmp[0].cbegin(), tmp[0].cend() - 1));
             }
             chunks.push_back(std::move(tmp));
@@ -286,23 +303,37 @@ class SyllableParserImpl : public SyllableParser {
         };
 
         while (sep != end) {
-            push_chunk(start, sep, true);
-            push_delim(*sep);
+            // Multi-syl = always allow toneless
+            push_chunk(start, sep);
+            if (*sep != ' ') {
+                push_delim(*sep);
+            }
             start = sep + 1;
             sep = std::find_if(start, end, IsSyllableSeparator);
         }
 
         if (chunks.size() == 0) {
-            push_chunk(start, sep, false);
-        } else {
-            push_chunk(start, sep, true);
+            // Only one chunk = 1 syllable
+            auto tmp = string_vector();
+            ToFuzzy(word_copy, tmp, has_tone);
+            for (auto &ea : tmp) {
+                ret.push_back(InputSequence{ea, false});
+            }
+            if (has_tone) {
+                tmp[0].pop_back();
+                ret.push_back(InputSequence{std::move(tmp[0]), true});
+            }
+            return ret;
         }
 
-        if (chunks.size() == 1) {
-            return chunks[0];
+        // Get the last chunk
+        // Multi-syl = always allow toneless
+        push_chunk(start, sep);
+        auto merged = odometer_merge(chunks);
+        for (auto &ea : merged) {
+            ret.push_back(InputSequence{std::move(ea), false});
         }
-
-        return odometer_merge(chunks);
+        return ret;
     }
 
   private:

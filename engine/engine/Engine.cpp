@@ -85,6 +85,8 @@ class EngineImpl : public Engine {
         command_handlers[CommandType::COMMIT] = &EngineImpl::HandleCommit;
         command_handlers[CommandType::TEST_SEND_KEY] = &EngineImpl::HandleTestSendKey;
         command_handlers[CommandType::SEND_KEY] = &EngineImpl::HandleSendKey;
+
+        m_dictionary->Initialize();
     }
 
     virtual void SendCommand(Command *pCommand) override {
@@ -127,6 +129,10 @@ class EngineImpl : public Engine {
 
     virtual Dictionary *dictionary() override {
         return m_dictionary.get();
+    }
+
+    virtual Splitter *word_splitter() override {
+        return m_dictionary->word_splitter();
     }
 
   private:

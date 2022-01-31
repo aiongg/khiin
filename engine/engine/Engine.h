@@ -20,6 +20,7 @@ class Dictionary;
 class KeyConfig;
 class Segmenter;
 class SyllableParser;
+class Splitter;
 
 class Engine {
   public:
@@ -35,6 +36,7 @@ class Engine {
     virtual KeyConfig *key_configuration() = 0;
     virtual Segmenter *segmenter() = 0;
     virtual SyllableParser *syllable_parser() = 0;
+    virtual Splitter *word_splitter() = 0;
 };
 
 } // namespace khiin::engine

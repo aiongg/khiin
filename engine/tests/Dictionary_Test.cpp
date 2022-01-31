@@ -2,14 +2,13 @@
 #include <gtest/gtest.h>
 
 #include "Dictionary.h"
-#include "Engine.h"
+#include "TestEnv.h"
 
 namespace khiin::engine {
 namespace {
 
 TEST(DictionaryTest, Loads) {
-    auto engine = Engine::Create("./");
-    auto dict = engine->dictionary();
+    auto dict = TestEnv::engine()->dictionary();
 }
 
 } // namespace

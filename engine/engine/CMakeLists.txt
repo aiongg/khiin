@@ -51,7 +51,7 @@ add_library (khiin
     "unicode_utils.h"
     "unicode_utils.cpp"
     "utils.h"
-)
+ "Models.h")
 
 # Debug
 target_link_options(khiin PRIVATE "/MAP")

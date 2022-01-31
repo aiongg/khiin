@@ -9,20 +9,11 @@
 #include <SQLiteCpp/SQLiteCpp.h>
 
 #include "common.h"
+#include "Models.h"
 
 namespace khiin::engine {
 
 using BigramWeightMap = std::unordered_map<std::pair<std::string, std::string>, int>;
-
-struct DictionaryRow {
-    int id;
-    int chhan_id;
-    std::string input;
-    std::string output;
-    int weight;
-    int color;
-    std::string hint;
-};
 
 struct Token {
     int dict_id = 0;
@@ -84,6 +75,8 @@ class Database {
 
     void DictionaryWords(std::vector<std::string> &inputs);
     void LoadSyllables(std::vector<std::string> &syllables);
+    void AllWordsByFreq(std::vector<DictionaryRow> &output);
+
     // auto selectBigrams(std::string lgram, string_vector rgrams) -> BigramWeightMap;
 
   private:

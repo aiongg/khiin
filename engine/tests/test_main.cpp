@@ -9,8 +9,27 @@
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
+#include "TestEnv.h"
+
+namespace {
+static khiin::engine::Engine *g_engine = nullptr;
+}
+
+void TestEnv::SetUp() {
+    g_engine = khiin::engine::Engine::Create("./");
+}
+
+void TestEnv::TearDown() {
+    delete g_engine;
+}
+
+khiin::engine::Engine* TestEnv::engine() {
+    return g_engine;
+}
+
 int main(int argc, char *argv[]) {
-    testing::InitGoogleTest(&argc, argv);
-    testing::InitGoogleMock(&argc, argv);
+    ::testing::AddGlobalTestEnvironment(new TestEnv());
+    ::testing::InitGoogleTest(&argc, argv);
+    ::testing::InitGoogleMock(&argc, argv);
     return RUN_ALL_TESTS();
 }

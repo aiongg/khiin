@@ -13,6 +13,10 @@ static inline const std::string kNasalStr = u8"\u207f";
 static inline const std::string kNasalUpperStr = u8"\u1d3a";
 static inline const std::string kODotStr = u8"o\u0358";
 static inline const std::string kODotUpperStr = u8"O\u0358";
+static inline const std::string kODotsBelowStr = u8"o\u0324";
+static inline const std::string kODotsBelowUpperStr = u8"O\u0324";
+static inline const std::string kUDotsBelowStr = u8"u\u0324";
+static inline const std::string kUDotsBelowUpperStr = u8"U\u0324";
 
 static inline bool is_allowed_other_key(char key) {
     for (auto &c : kAllowedOtherKeys) {
@@ -50,6 +54,8 @@ class KeyCfgImpl : public KeyConfig {
             return SetNasal(key, standalone);
         case VKey::DotAboveRight:
             return SetDotAboveRight(key, standalone);
+        case VKey::DotsBelow:
+            return SetDotsBelow(key);
         default:
             return false;
         }
@@ -125,22 +131,17 @@ class KeyCfgImpl : public KeyConfig {
         m_key_map[VKey::Nasal] = key;
         standalone_nasal = standalone;
 
+        auto key_lc = std::string(1, key);
+        auto key_uc = std::string(1, toupper(key));
+
         if (standalone) {
-            rule_set.conversion_rules.push_back(std::make_pair(std::string(1, key), kNasalStr));
-            rule_set.conversion_rules.push_back(std::make_pair(std::string(1, toupper(key)), kNasalUpperStr));
+            rule_set.conversion_rules.push_back(std::make_pair(key_lc, kNasalStr));
+            rule_set.conversion_rules.push_back(std::make_pair(key_uc, kNasalUpperStr));
         } else {
-            auto a = std::string("n");
-            auto b = std::string("n");
-            auto c = std::string("N");
-            auto d = std::string("N");
-            a.push_back(key);
-            b.push_back(toupper(key));
-            c.push_back(key);
-            d.push_back(toupper(key));
-            rule_set.conversion_rules.push_back(std::make_pair(a, kNasalStr));
-            rule_set.conversion_rules.push_back(std::make_pair(b, kNasalStr));
-            rule_set.conversion_rules.push_back(std::make_pair(c, kNasalUpperStr));
-            rule_set.conversion_rules.push_back(std::make_pair(d, kNasalUpperStr));
+            rule_set.conversion_rules.push_back(std::make_pair("n" + key_lc, kNasalStr));
+            rule_set.conversion_rules.push_back(std::make_pair("n" + key_uc, kNasalStr));
+            rule_set.conversion_rules.push_back(std::make_pair("N" + key_lc, kNasalUpperStr));
+            rule_set.conversion_rules.push_back(std::make_pair("N" + key_uc, kNasalUpperStr));
         }
 
         return true;
@@ -156,25 +157,47 @@ class KeyCfgImpl : public KeyConfig {
 
         auto &rule_set = GetRuleSet(key, VKey::DotAboveRight);
         m_key_map[VKey::DotAboveRight] = key;
-        standalone_nasal = standalone;
+        standalone_dotaboveright = standalone;
+
+        auto key_lc = std::string(1, key);
+        auto key_uc = std::string(1, toupper(key));
 
         if (standalone) {
-            rule_set.conversion_rules.push_back(std::make_pair(std::string(1, key), kODotStr));
-            rule_set.conversion_rules.push_back(std::make_pair(std::string(1, toupper(key)), kODotUpperStr));
+            rule_set.conversion_rules.push_back(std::make_pair(key_lc, kODotStr));
+            rule_set.conversion_rules.push_back(std::make_pair(key_uc, kODotUpperStr));
         } else {
-            auto a = std::string("o");
-            auto b = std::string("o");
-            auto c = std::string("O");
-            auto d = std::string("O");
-            a.push_back(key);
-            b.push_back(toupper(key));
-            c.push_back(key);
-            d.push_back(toupper(key));
-            rule_set.conversion_rules.push_back(std::make_pair(a, kODotStr));
-            rule_set.conversion_rules.push_back(std::make_pair(b, kODotStr));
-            rule_set.conversion_rules.push_back(std::make_pair(c, kODotUpperStr));
-            rule_set.conversion_rules.push_back(std::make_pair(d, kODotUpperStr));
+            rule_set.conversion_rules.push_back(std::make_pair("o" + key_lc, kODotStr));
+            rule_set.conversion_rules.push_back(std::make_pair("o" + key_uc, kODotStr));
+            rule_set.conversion_rules.push_back(std::make_pair("O" + key_lc, kODotUpperStr));
+            rule_set.conversion_rules.push_back(std::make_pair("O" + key_uc, kODotUpperStr));
         }
+
+        return true;
+    }
+
+    bool SetDotsBelow(char key) {
+        if (!is_allowed_other_key(key)) {
+            return false;
+        }
+        if (!is_key_available(key, VKey::DotsBelow)) {
+            return false;
+        }
+
+        auto &rule_set = GetRuleSet(key, VKey::DotsBelow);
+        m_key_map[VKey::DotsBelow] = key;
+        standalone_dotsbelow = false;
+
+        auto key_lc = std::string(1, key);
+        auto key_uc = std::string(1, toupper(key));
+
+        rule_set.conversion_rules.push_back(std::make_pair("o" + key_lc, kODotsBelowStr));
+        rule_set.conversion_rules.push_back(std::make_pair("o" + key_uc, kODotsBelowStr));
+        rule_set.conversion_rules.push_back(std::make_pair("O" + key_lc, kODotsBelowStr));
+        rule_set.conversion_rules.push_back(std::make_pair("O" + key_uc, kODotsBelowStr));
+        rule_set.conversion_rules.push_back(std::make_pair("u" + key_lc, kUDotsBelowStr));
+        rule_set.conversion_rules.push_back(std::make_pair("u" + key_uc, kUDotsBelowStr));
+        rule_set.conversion_rules.push_back(std::make_pair("U" + key_lc, kUDotsBelowStr));
+        rule_set.conversion_rules.push_back(std::make_pair("U" + key_uc, kUDotsBelowStr));
 
         return true;
     }
@@ -220,6 +243,7 @@ KeyConfig *KeyConfig::Create() {
     auto key_config = new KeyCfgImpl();
     key_config->SetKey('n', VKey::Nasal);
     key_config->SetKey('u', VKey::DotAboveRight);
+    key_config->SetKey('r', VKey::DotsBelow);
     return key_config;
 }
 

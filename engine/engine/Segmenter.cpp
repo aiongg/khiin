@@ -3,6 +3,8 @@
 #include "CandidateFinder.h"
 #include "Dictionary.h"
 #include "Engine.h"
+#include "Splitter.h"
+#include "BufferSegment.h"
 
 namespace khiin::engine {
 namespace {
@@ -19,26 +21,31 @@ class SegmenterImpl : public Segmenter {
     // Inherited via Segmenter
     virtual void SegmentWholeBuffer(std::string const &raw_buffer, size_t raw_caret, std::vector<BufferElement> &result,
                                     utf8_size_t &caret) override {
-        auto it = raw_buffer.begin();
-        auto caret_it = it + raw_caret;
-        auto end = raw_buffer.end();
-
-        while (it != end) {
-            auto view = make_string_view(raw_buffer, it, end);
-            auto id = 0;
-            size_t consumed = 0;
-            engine->candidate_finder()->FindBestCandidate(view, "", id, consumed);
-
+        size_t max_splittable_idx = GetMaxSplittableIndex(raw_buffer);
+        auto split = string_vector();
+        engine->word_splitter()->Split(raw_buffer, split);
+        for (auto &ea : split) {
+            auto best_word = engine->dictionary()->BestWord(ea);
+            auto elem = BufferElement(ea);
+            result.push_back(elem);
         }
-
-        // engine->candidate_finder()->...
-        // engine->splitter()->...
-        // engine->dictionary()->...
     }
 
     virtual void LongestFromStart(std::string_view raw_buffer, std::vector<BufferElement> &result) override {}
 
   private:
+    size_t GetMaxSplittableIndex(std::string const &buffer) {
+        auto splitter = engine->word_splitter();
+
+        for (auto i = buffer.size(); i > 0; --i) {
+            if (splitter->CanSplit(buffer.substr(0, i))) {
+                return i;
+            }
+        }
+
+        return std::string::npos;
+    }
+
     Engine *engine = nullptr;
 };
 

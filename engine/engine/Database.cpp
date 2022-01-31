@@ -324,7 +324,7 @@ void Database::DictionaryWords(std::vector<std::string> &inputs) {
     inputs.clear();
     inputs.reserve(20000);
     auto dictionaryQuery = SQLite::Statement(handle, SQL::SELECT_DictionaryInputs);
-    
+
     while (dictionaryQuery.executeStep()) {
         auto dictId = dictionaryQuery.getColumn("id").getInt();
         auto ascii = utf8ToAsciiLower(dictionaryQuery.getColumn("input").getString());
@@ -333,13 +333,25 @@ void Database::DictionaryWords(std::vector<std::string> &inputs) {
     }
 }
 
-void Database::LoadSyllables(std::vector<std::string>& syllables) {
+void Database::LoadSyllables(std::vector<std::string> &syllables) {
     syllables.clear();
     syllables.reserve(1500);
     auto query = SQLite::Statement(handle, SQL::SELECT_Syllables);
 
     while (query.executeStep()) {
         syllables.push_back(query.getColumn("syl").getString());
+    }
+}
+
+void Database::AllWordsByFreq(std::vector<DictionaryRow> &output) {
+    output.clear();
+    output.reserve(17000);
+    auto q = SQLite::Statement(handle, "select * from dictionary order by chhan_id asc");
+    while (q.executeStep()) {
+        output.push_back(DictionaryRow{q.getColumn("id").getInt(), q.getColumn("chhan_id").getInt(),
+                                       q.getColumn("input").getString(), q.getColumn("output").getString(),
+                                       q.getColumn("weight").getInt(), q.getColumn("category").getInt(),
+                                       q.getColumn("annotation").getString()});
     }
 }
 

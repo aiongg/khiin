@@ -23,6 +23,14 @@ static auto to_raw = overloaded //
 
 } // namespace
 
+BufferElement::BufferElement(BufferSegment const &elem) {
+    m_element.emplace<BufferSegment>(elem);
+}
+
+BufferElement::BufferElement(Plaintext const &elem) {
+    m_element.emplace<Plaintext>(elem);
+}
+
 utf8_size_t BufferElement::Size() {
     return std::visit(size_of, m_element);
 }

@@ -13,6 +13,7 @@ class Trie {
     //Trie();
     //Trie(const string_vector &keys);
     static Trie *Create();
+    static Trie *Create(std::vector<std::string> const &words);
 
     virtual void Insert(std::string_view key) = 0;
     virtual bool Remove(std::string_view key) = 0;

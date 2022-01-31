@@ -8,6 +8,7 @@
 
 #include <utf8cpp/utf8/cpp17.h>
 
+#include "TestEnv.h"
 #include "common.h"
 
 namespace khiin::engine {
@@ -43,7 +44,7 @@ class EngineTest : public ::testing::Test {
   protected:
     void SetUp() override {
         setTaikeyPath();
-        engine = Engine::Create();
+        engine = TestEnv::engine();
     }
 
     Engine *engine = nullptr;

@@ -20,6 +20,13 @@ struct Node {
 
 class TrieImpl : public Trie {
   public:
+    TrieImpl() = default;
+    TrieImpl(std::vector<std::string> const &words) {
+        for (auto const &word : words) {
+            Insert(word);
+        }
+    }
+
     virtual void Insert(std::string_view key) override {
         auto curr = &root;
 
@@ -108,7 +115,7 @@ class TrieImpl : public Trie {
         return ret;
     }
 
-    virtual void FindWords(std::string_view query, string_vector& results) {
+    virtual void FindWords(std::string_view query, string_vector &results) {
         results.clear();
 
         if (query.empty()) {
@@ -199,7 +206,7 @@ class TrieImpl : public Trie {
     }
 
     auto Dfs(Node *node, std::string const &prefix, std::string const &suffix, std::vector<std::string> &results,
-                    size_t maxDepth) -> void {
+             size_t maxDepth) -> void {
         if (node->end_of_word) {
             results.push_back(prefix + suffix);
         }
@@ -222,6 +229,10 @@ class TrieImpl : public Trie {
 
 Trie *Trie::Create() {
     return new TrieImpl();
+}
+
+static Trie *Create(std::vector<std::string> const &words) {
+    return new TrieImpl(words);
 }
 
 // auto Trie::autocompleteTone(std::string query) -> string_vector {
@@ -253,7 +264,5 @@ Trie *Trie::Create() {
 // Node
 
 // Trie
-
-
 
 } // namespace khiin::engine

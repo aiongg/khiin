@@ -39,6 +39,16 @@ static auto to_raw = overloaded //
 
 } // namespace
 
+void BufferSegment::AddItem(Syllable syllable) {
+    m_elements.push_back(SegmentElement{});
+    m_elements.back().emplace<Syllable>(syllable);
+}
+
+void BufferSegment::AddItem(Spacer spacer) {
+    m_elements.push_back(SegmentElement{});
+    m_elements.back().emplace<Spacer>(spacer);
+}
+
 utf8_size_t BufferSegment::Size() {
     auto size = 0;
     for (auto &v_elem : m_elements) {
@@ -68,7 +78,7 @@ void BufferSegment::RawIndexed(utf8_size_t caret, std::string &raw, size_t &raw_
                  raw_caret += spacer.size();
              }
          }};
-    
+
     for (auto &v_elem : m_elements) {
         std::visit(to_raw_indexed, v_elem);
     }
