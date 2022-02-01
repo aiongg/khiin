@@ -113,7 +113,6 @@ struct EngineControllerImpl : winrt::implements<EngineControllerImpl, EngineCont
     std::string buffer_{};
     std::vector<std::string> candidates_;
     std::unique_ptr<Engine> m_engine = nullptr;
-    ImeDisplayData display_data{};
 };
 
 //+---------------------------------------------------------------------------
