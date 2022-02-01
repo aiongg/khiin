@@ -52,6 +52,9 @@ class SegmenterImpl : public Segmenter {
             unknown_text.push_back(*it);
             ++it;
         }
+        if (!unknown_text.empty()) {
+            result.push_back(BufferElement(unknown_text));
+        }
     }
 
     virtual void LongestFromStart(std::string_view raw_buffer, std::vector<BufferElement> &result) override {}

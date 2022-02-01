@@ -65,6 +65,16 @@ utf8_size_t BufferElement::RawToComposedCaret(SyllableParser *parser, size_t raw
     return std::visit(raw_to_composed_caret, m_element);
 }
 
+size_t BufferElement::ComposedToRawCaret(SyllableParser* parser, utf8_size_t caret) {
+    if (auto elem = std::get_if<Plaintext>(&m_element)) {
+        return caret;
+    }
+
+    if (auto elem = std::get_if<TaiText>(&m_element)) {
+        return elem->ComposedToRawCaret(parser, caret);
+    }
+}
+
 std::string BufferElement::composed() {
     if (auto elem = std::get_if<Plaintext>(&m_element)) {
         return *elem;

@@ -31,6 +31,7 @@ class TaiText {
 
     void RawIndexed(utf8_size_t caret, std::string &raw, size_t &raw_caret);
     utf8_size_t RawToComposedCaret(SyllableParser *parser, size_t raw_caret);
+    size_t ComposedToRawCaret(SyllableParser *parser, utf8_size_t caret);
 
   private:
     std::vector<Chunk> m_elements;

@@ -35,6 +35,10 @@ void Database::Initialize() {
 }
 
 string_vector Database::GetTrieWordlist() {
+    if (!handle.tableExists("trie_map")) {
+        return string_vector();
+    }
+
     auto query = SQLite::Statement(handle, SQL::SELECT_TrieWords);
     string_vector res;
 

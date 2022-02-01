@@ -61,9 +61,8 @@ class BufferMgrImpl : public BufferMgr {
 
     void InsertContinuous(char ch) {
         // Get raw buffer and cursor position
-        std::string raw_buffer;
-        size_t raw_caret = 0;
-        GetRawBuffer(raw_buffer, raw_caret);
+        auto raw_buffer = GetRawBuffer();
+        auto raw_caret = GetRawCaret();
         raw_buffer.insert(raw_caret, 1, ch);
         ++raw_caret;
 
@@ -74,46 +73,36 @@ class BufferMgrImpl : public BufferMgr {
         UpdateCaret(raw_caret);
     }
 
-    void GetRawBuffer(std::string &raw_buffer, size_t &raw_caret) {
-        raw_buffer.clear();
-
-        size_t caret_elem_idx = 0;
-        size_t caret_idx = 0;
-        LocateCaret(caret_elem_idx, caret_idx);
-
+    std::string GetRawBuffer() {
+        auto ret = std::string();
         for (auto i = 0; i < m_elements.size(); ++i) {
             auto &elem = m_elements[i];
+            ret.append(elem.raw());
+        }
+        return ret;
+    }
 
-            if (i != caret_elem_idx) {
-                auto raw = elem.raw();
-                raw_buffer.append(raw);
+    size_t GetRawCaret() {
+        size_t raw_caret = 0;
+        auto remainder = m_caret;
+        BufferElement *elem = nullptr;
+        for (auto i = 0; i < m_elements.size(); ++i) {
+            elem = &m_elements[i];
+            if (auto size = elem->size(); remainder > size) {
+                auto raw = elem->raw();
+                remainder -= size;
                 raw_caret += raw.size();
                 continue;
             }
 
-            auto raw = std::string();
-            size_t raw_caret = 0;
-            elem.RawIndexed(caret_idx, raw, raw_caret);
-            raw_caret += raw_caret;
+            break;
         }
-    }
-
-    void LocateCaret(size_t &element_index, size_t &caret_index) {
-        auto remainder = m_caret;
-
-        for (auto i = 0; i < m_elements.size(); ++i) {
-            auto &elem = m_elements[i];
-            auto size = elem.size();
-
-            if (remainder > size) {
-                remainder -= size;
-                continue;
-            } else {
-                element_index = i;
-                caret_index = remainder;
-                return;
-            }
+        if (!elem) {
+            return raw_caret;
         }
+
+        raw_caret += elem->ComposedToRawCaret(m_engine->syllable_parser(), remainder);
+        return raw_caret;
     }
 
     void UpdateCaret(size_t raw_caret) {

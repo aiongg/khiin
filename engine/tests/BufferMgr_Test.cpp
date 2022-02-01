@@ -28,5 +28,19 @@ TEST_F(BufferMgrTest, InsertLetter) {
     EXPECT_EQ(preedit->cursor_position(), 1);
 }
 
+TEST_F(BufferMgrTest, InsertSimpleWord) {
+    bufmgr->Insert('p');
+    bufmgr->Insert('e');
+    bufmgr->Insert('n');
+    bufmgr->Insert('g');
+    bufmgr->Insert('a');
+    bufmgr->Insert('n');
+    auto preedit = messages::Preedit::default_instance().New();
+    bufmgr->BuildPreedit(preedit);
+    EXPECT_EQ(preedit->segments().size(), 1);
+    EXPECT_EQ(preedit->segments().at(0).value(), "peng an");
+    EXPECT_EQ(preedit->cursor_position(), 7);
+}
+
 } // namespace
 } // namespace khiin::engine
