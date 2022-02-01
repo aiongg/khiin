@@ -50,53 +50,70 @@ TEST(SyllableParserTest, ParseRawTest2) {
     EXPECT_EQ(syl.composed, u8"hō\u0358");
 }
 
-//TEST(SyllableParserTest, SerializeRaw) {
-//    auto syl = Syllable();
-//    syl.raw_body = "ho";
-//    syl.tone = Tone::T2;
-//    syl.tone_key = '2';
-//    auto keyconfig = KeyConfig::Create();
-//    auto parser = SyllableParser::Create(keyconfig);
-//    auto output = parser->SerializeRaw(syl);
-//
-//    EXPECT_EQ(output, u8"ho2");
-//}
-//
-//TEST(SyllableParserTest, SerializeRawIndexed) {
-//    auto syl = Syllable();
-//    syl.raw_body = "ho";
-//    syl.tone = Tone::T2;
-//    syl.tone_key = '2';
-//    syl.composed = u8"hó";
-//    auto keyconfig = KeyConfig::Create();
-//    auto parser = SyllableParser::Create(keyconfig);
-//    auto output = std::string();
-//    auto raw_caret = size_t(0);
-//    parser->SerializeRaw(syl, 2, output, raw_caret);
-//
-//    EXPECT_EQ(output, u8"ho2");
-//    EXPECT_EQ(raw_caret, 3);
-//}
+TEST(SyllableParserTest, ConvertCaretPosition) {
+    auto keyconfig = KeyConfig::Create();
+    auto parser = SyllableParser::Create(keyconfig);
+    auto syl = Syllable();
+    syl.raw_input = "ho2";
+    syl.raw_body = "ho";
+    syl.tone = Tone::T2;
+    syl.tone_key = '2';
+    syl.composed = u8"hó";
+    size_t caret = std::string::npos;
 
-//TEST(SyllableParserTest, SerializeRawIndexed2) {
-//    auto syl = Syllable();
-//    syl.raw_body = "hounn";
-//    syl.tone = Tone::T3;
-//    syl.tone_key = '3';
-//    syl.composed = u8"hò\u0358ⁿ";
-//    auto keyconfig = KeyConfig::Create();
-//    auto parser = SyllableParser::Create(keyconfig);
-//    auto output = std::string();
-//    auto raw_caret = size_t(0);
-//    parser->SerializeRaw(syl, 4, output, raw_caret);
-//
-//    EXPECT_EQ(output, u8"hounn3");
-//    EXPECT_EQ(raw_caret, 6);
-//
-//    output.clear();
-//    parser->SerializeRaw(syl, 3, output, raw_caret);
-//    EXPECT_EQ(raw_caret, 3);
-//}
+    parser->RawToComposedCaret(syl, 0, caret);
+    EXPECT_EQ(caret, 0);
+    parser->RawToComposedCaret(syl, 1, caret);
+    EXPECT_EQ(caret, 1);
+    parser->RawToComposedCaret(syl, 3, caret);
+    EXPECT_EQ(caret, 2);
+    parser->RawToComposedCaret(syl, 4, caret);
+    EXPECT_EQ(caret, std::string::npos);
+
+
+    parser->ComposedToRawCaret(syl, 0, caret);
+    EXPECT_EQ(caret, 0);
+    parser->ComposedToRawCaret(syl, 1, caret);
+    EXPECT_EQ(caret, 1);
+    parser->ComposedToRawCaret(syl, 2, caret);
+    EXPECT_EQ(caret, 3);
+    parser->ComposedToRawCaret(syl, 3, caret);
+    EXPECT_EQ(caret, std::string::npos);
+}
+
+TEST(SyllableParserTest, ConvertCaretPosition2) {
+    auto keyconfig = KeyConfig::Create();
+    auto parser = SyllableParser::Create(keyconfig);
+    auto syl = Syllable();
+    syl.raw_input = "hounn3";
+    syl.raw_body = "hounn";
+    syl.tone = Tone::T3;
+    syl.tone_key = '3';
+    syl.composed = u8"hò\u0358ⁿ";
+    size_t caret = std::string::npos;
+
+    parser->RawToComposedCaret(syl, 0, caret);
+    EXPECT_EQ(caret, 0);
+    parser->RawToComposedCaret(syl, 1, caret);
+    EXPECT_EQ(caret, 1);
+    parser->RawToComposedCaret(syl, 3, caret);
+    EXPECT_EQ(caret, 3);
+    parser->RawToComposedCaret(syl, 6, caret);
+    EXPECT_EQ(caret, 4);
+    parser->RawToComposedCaret(syl, 7, caret);
+    EXPECT_EQ(caret, std::string::npos);
+
+    parser->ComposedToRawCaret(syl, 0, caret);
+    EXPECT_EQ(caret, 0);
+    parser->ComposedToRawCaret(syl, 1, caret);
+    EXPECT_EQ(caret, 1);
+    parser->ComposedToRawCaret(syl, 3, caret);
+    EXPECT_EQ(caret, 3);
+    parser->ComposedToRawCaret(syl, 4, caret);
+    EXPECT_EQ(caret, 6);
+    parser->ComposedToRawCaret(syl, 5, caret);
+    EXPECT_EQ(caret, std::string::npos);
+}
 
 TEST(SyllableParserTest, ToFuzzy) {
     auto input = u8"hō\u0358";

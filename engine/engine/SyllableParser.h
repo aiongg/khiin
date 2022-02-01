@@ -20,6 +20,9 @@ class SyllableParser {
     virtual void SetKeyConfiguration(KeyConfig *key_config) = 0;
     virtual void ParseRaw(std::string const &input, Syllable &output) = 0;
 
+    virtual void RawToComposedCaret(Syllable &syllable, size_t raw_caret, utf8_size_t &composed_caret) = 0;
+    virtual void ComposedToRawCaret(Syllable &syllable, utf8_size_t composed_caret, size_t &raw_caret) = 0;
+
     virtual void ToFuzzy(std::string const &input, string_vector &output, bool &has_tone) = 0;
     virtual std::vector<InputSequence> AsInputSequences(std::string const &input) = 0;
 

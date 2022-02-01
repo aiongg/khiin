@@ -120,6 +120,7 @@ bool RemoveToneChar(KeyConfig *keyconfig, std::string &input, Tone &tone, char &
 }
 
 void RemoveToneDiacritic(std::string &input) {
+    auto nfd = toNFD(input);
     for (auto &[t, t_str] : kToneToUnicodeMap) {
         if (auto i = input.find(t_str); i != std::string::npos) {
             input.erase(i, t_str.size());
@@ -287,7 +288,7 @@ void ComposedToRawWithAlternates(KeyConfig *keyconfig, const std::string &input,
     }
 }
 
-utf8_size_t RawCaretToComposedCaret(KeyConfig *keyconfig, Syllable& syllable, size_t raw_caret) {
+utf8_size_t RawCaretToComposedCaret(KeyConfig *keyconfig, Syllable &syllable, size_t raw_caret) {
     auto const &input = syllable.raw_input;
     auto const &body = syllable.raw_body;
     auto ret = std::string::npos;
@@ -311,7 +312,7 @@ utf8_size_t RawCaretToComposedCaret(KeyConfig *keyconfig, Syllable& syllable, si
     return ret;
 }
 
-size_t ComposedCaretToRawCaret(KeyConfig* keyconfig, Syllable& syllable, utf8_size_t composed_caret) {
+size_t ComposedCaretToRawCaret(KeyConfig *keyconfig, Syllable &syllable, utf8_size_t composed_caret) {
     auto size = utf8::distance(syllable.composed.cbegin(), syllable.composed.cend());
     auto ret = std::string::npos;
 
@@ -320,7 +321,7 @@ size_t ComposedCaretToRawCaret(KeyConfig* keyconfig, Syllable& syllable, utf8_si
     } else if (composed_caret < size) {
         auto caret = syllable.composed.cbegin();
         utf8::unchecked::advance(caret, composed_caret);
-        auto lhs = std::string(syllable.composed.cbegin(), caret);
+        auto lhs = toNFD(std::string(syllable.composed.cbegin(), caret));
 
         RemoveToneDiacritic(lhs);
         ApplyDeconversionRules(keyconfig, lhs);
@@ -341,6 +342,14 @@ class SyllableParserImpl : public SyllableParser {
     virtual void ParseRaw(std::string const &input, Syllable &output) override {
         output = SylFromRaw(keyconfig, input);
         output.parser = this;
+    }
+
+    virtual void RawToComposedCaret(Syllable &syllable, size_t raw_caret, utf8_size_t &composed_caret) override {
+        composed_caret = RawCaretToComposedCaret(keyconfig, syllable, raw_caret);
+    }
+
+    virtual void ComposedToRawCaret(Syllable &syllable, utf8_size_t composed_caret, size_t &raw_caret) override {
+        raw_caret = ComposedCaretToRawCaret(keyconfig, syllable, composed_caret);
     }
 
     virtual void ToFuzzy(const std::string &input, string_vector &output, bool &has_tone) {
