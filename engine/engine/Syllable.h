@@ -16,6 +16,7 @@ enum class KhinKeyPosition {
 class SyllableParser;
 
 struct Syllable {
+    std::string raw_input;
     std::string raw_body;
     Tone tone = Tone::NaT;
     KhinKeyPosition khin_pos = KhinKeyPosition::None;

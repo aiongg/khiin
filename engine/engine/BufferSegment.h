@@ -12,6 +12,7 @@ enum class Spacer {
     Hyphen,
     Space,
     Zwd,
+    VirtualSpace
 };
 
 // A series of Tai Text syllables and spacers that makes up a single
@@ -23,6 +24,7 @@ class BufferSegment {
     void AddItem(Spacer spacer);
     utf8_size_t Size();
     std::string Raw();
+    std::string Display();
     void RawIndexed(utf8_size_t caret, std::string &raw, size_t &raw_caret);
 
   private:

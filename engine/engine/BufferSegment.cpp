@@ -2,6 +2,7 @@
 
 #include "SyllableParser.h"
 #include "common.h"
+#include "unicode_utils.h"
 
 namespace khiin::engine {
 namespace {
@@ -15,6 +16,21 @@ std::string get_spacer(Spacer spacer) {
         return kHyphenStr;
     case Spacer::Space:
         return kSpaceStr;
+    case Spacer::VirtualSpace:
+        [[falthrough]];
+    default:
+        return std::string();
+    }
+}
+
+std::string get_virtual_spacer(Spacer spacer) {
+    switch (spacer) {
+    case Spacer::Hyphen:
+        return kHyphenStr;
+    case Spacer::Space:
+        [[falthrough]];
+    case Spacer::VirtualSpace:
+        return kSpaceStr;
     default:
         return std::string();
     }
@@ -22,19 +38,26 @@ std::string get_spacer(Spacer spacer) {
 
 static auto size_of = overloaded //
     {[](Syllable &elem) {
-         return 1;
-         // return elem.Size();
+         return Utf8Size(elem.composed);
      },
      [](Spacer &elem) {
-         return 1;
+         return size_t(1);
      }};
 
 static auto to_raw = overloaded //
     {[](Syllable &elem) {
-         return elem.parser->SerializeRaw(elem);
+         return elem.raw_input;
      },
      [](Spacer &elem) {
          return get_spacer(elem);
+     }};
+
+static auto to_display = overloaded //
+    {[](Syllable &elem) {
+         return elem.composed;
+     },
+     [](Spacer &elem) {
+         return get_virtual_spacer(elem);
      }};
 
 } // namespace
@@ -65,11 +88,19 @@ std::string BufferSegment::Raw() {
     return ret;
 }
 
+std::string BufferSegment::Display() {
+    auto ret = std::string();
+    for (auto &elem : m_elements) {
+        ret += std::visit(to_display, elem);
+    }
+    return ret;
+}
+
 void BufferSegment::RawIndexed(utf8_size_t caret, std::string &raw, size_t &raw_caret) {
     auto remainder = caret;
     auto to_raw_indexed = overloaded //
         {[&](Syllable &elem) {
-             elem.parser->SerializeRaw(elem, caret, raw, raw_caret);
+             elem.raw_input;
          },
          [&](Spacer &elem) {
              auto spacer = get_spacer(elem);

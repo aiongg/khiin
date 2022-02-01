@@ -2,6 +2,7 @@
 
 #include <algorithm>
 
+#include "BufferSegment.h"
 #include "KeyConfig.h"
 #include "Syllable.h"
 #include "unicode_utils.h"
@@ -140,8 +141,8 @@ bool RemoveToneDiacriticSaveTone(KeyConfig *keyconfig, std::string &input, Tone 
     return false;
 }
 
-void ApplyConversionRules(KeyConfig *keyconfig, std::string const &input, std::string &output) {
-    output = input;
+std::string ApplyConversionRules(KeyConfig *keyconfig, std::string const &input) {
+    auto output = std::string(input);
     auto &rules = keyconfig->ConversionRules();
 
     for (auto &rule : rules) {
@@ -149,6 +150,8 @@ void ApplyConversionRules(KeyConfig *keyconfig, std::string const &input, std::s
             output.replace(pos, rule.first.size(), rule.second);
         }
     }
+
+    return output;
 }
 
 void ApplyDeconversionRules(KeyConfig *keyconfig, std::string &syllable) {
@@ -162,6 +165,10 @@ void ApplyDeconversionRules(KeyConfig *keyconfig, std::string &syllable) {
 }
 
 bool AddToneDiacritic(Tone tone, std::string &toneless) {
+    if (tone == Tone::NaT) {
+        return false;
+    }
+
     size_t tone_index = 0;
     auto found = FindTonePosition(toneless, tone_index);
     if (!found) {
@@ -171,7 +178,7 @@ bool AddToneDiacritic(Tone tone, std::string &toneless) {
     return true;
 }
 
-void EraseAll(std::string& input, std::string const &substr) {
+void EraseAll(std::string &input, std::string const &substr) {
     auto idx = std::string::npos;
     while ((idx = input.find(substr)) != std::string::npos) {
         input.erase(idx, substr.size());
@@ -185,6 +192,144 @@ void EraseAllKhin(std::string &input) {
     }
 }
 
+Syllable SylFromRaw(KeyConfig *keyconfig, std::string const &input) {
+    auto output = Syllable();
+    output.raw_input = input;
+    output.raw_body = input;
+    RemoveToneChar(keyconfig, output.raw_body, output.tone, output.tone_key);
+    output.composed = ApplyConversionRules(keyconfig, output.raw_body);
+    if (output.tone != Tone::NaT) {
+        AddToneDiacritic(output.tone, output.composed);
+    }
+    output.composed = toNFC(output.composed);
+    return output;
+}
+
+std::string SylToRaw(Syllable const &input) {
+    // TODO handle khin
+    std::string ret = input.raw_body;
+    if (input.tone != Tone::NaT) {
+        ret += input.tone_key;
+    }
+    return ret;
+};
+
+Syllable SylFromComposed(KeyConfig *keyconfig, std::string const &input) {
+    auto copy = toNFD(input);
+    auto tone = Tone::NaT;
+    char digit_key = 0;
+    char telex_key = 0;
+    RemoveToneDiacriticSaveTone(keyconfig, copy, tone, digit_key, telex_key);
+    ApplyDeconversionRules(keyconfig, copy);
+    auto syl = Syllable();
+    syl.composed = input;
+    syl.raw_body = copy;
+    syl.tone = tone;
+    syl.tone_key = digit_key;
+    syl.raw_input = SylToRaw(syl);
+    return syl;
+}
+
+// |raw| may be more than one syllable, and may have separators or tones or not.
+// |target| is exactly one syllable.
+Syllable AlignRawToComposed(KeyConfig *keyconfig, std::string::const_iterator &r_begin,
+                            std::string::const_iterator const &r_end, std::string const &target) {
+    auto compare = SylFromComposed(keyconfig, target);
+
+    auto r_it = r_begin;
+    auto t_it = compare.raw_body.cbegin();
+    auto t_end = compare.raw_body.cend();
+
+    while (r_it != r_end && t_it != t_end && *r_it == *t_it) {
+        ++r_it;
+        ++t_it;
+    }
+
+    if (compare.tone != Tone::NaT) {
+        auto r_maybe_tone = keyconfig->CheckToneKey(*r_it);
+        if (r_maybe_tone != compare.tone && r_it != r_end) {
+            r_maybe_tone = keyconfig->CheckToneKey(r_it[1]);
+            if (r_maybe_tone == compare.tone) {
+                ++r_it;
+            }
+        }
+    }
+
+    auto r_syl = std::string(r_begin, r_it);
+    r_begin = r_it;
+    return SylFromRaw(keyconfig, r_syl);
+}
+
+void ComposedToRawWithAlternates(KeyConfig *keyconfig, const std::string &input, string_vector &output,
+                                 bool &has_tone) {
+    auto syl = toNFD(input);
+    auto tone = Tone::NaT;
+    char digit_key = 0;
+    char telex_key = 0;
+    auto found_tone = RemoveToneDiacriticSaveTone(keyconfig, syl, tone, digit_key, telex_key);
+    ApplyDeconversionRules(keyconfig, syl);
+    ToLower(syl);
+
+    if (!found_tone) {
+        has_tone = false;
+        output.push_back(std::move(syl));
+        return;
+    }
+
+    has_tone = true;
+    syl.push_back(digit_key);
+    output.push_back(syl);
+
+    if (telex_key) {
+        syl.pop_back();
+        syl.push_back(telex_key);
+        output.push_back(syl);
+    }
+}
+
+utf8_size_t RawCaretToComposedCaret(KeyConfig *keyconfig, Syllable& syllable, size_t raw_caret) {
+    auto const &input = syllable.raw_input;
+    auto const &body = syllable.raw_body;
+    auto ret = std::string::npos;
+
+    if (raw_caret == input.size()) {
+        ret = Utf8Size(syllable.composed);
+    } else if (raw_caret < input.size()) {
+        auto lhs = std::string(body.cbegin(), body.cbegin() + raw_caret);
+        lhs = ApplyConversionRules(keyconfig, lhs);
+
+        if (syllable.tone != Tone::NaT) {
+            size_t tone_pos = std::string::npos;
+            FindTonePosition(body, tone_pos);
+            if (tone_pos <= lhs.size()) {
+                AddToneDiacritic(syllable.tone, lhs);
+            }
+        }
+        ret = Utf8Size(toNFC(lhs));
+    }
+
+    return ret;
+}
+
+size_t ComposedCaretToRawCaret(KeyConfig* keyconfig, Syllable& syllable, utf8_size_t composed_caret) {
+    auto size = utf8::distance(syllable.composed.cbegin(), syllable.composed.cend());
+    auto ret = std::string::npos;
+
+    if (composed_caret == size) {
+        ret = syllable.raw_input.size();
+    } else if (composed_caret < size) {
+        auto caret = syllable.composed.cbegin();
+        utf8::unchecked::advance(caret, composed_caret);
+        auto lhs = std::string(syllable.composed.cbegin(), caret);
+
+        RemoveToneDiacritic(lhs);
+        ApplyDeconversionRules(keyconfig, lhs);
+        ret = lhs.size();
+    }
+
+    return ret;
+}
+
 class SyllableParserImpl : public SyllableParser {
   public:
     SyllableParserImpl(KeyConfig *key_config) : keyconfig(key_config) {}
@@ -194,87 +339,12 @@ class SyllableParserImpl : public SyllableParser {
     }
 
     virtual void ParseRaw(std::string const &input, Syllable &output) override {
+        output = SylFromRaw(keyconfig, input);
         output.parser = this;
-        output.raw_body = input;
-        RemoveToneChar(keyconfig, output.raw_body, output.tone, output.tone_key);
-        ApplyConversionRules(keyconfig, output.raw_body, output.composed);
-        if (!AddToneDiacritic(output.tone, output.composed)) {
-            output.composed.push_back(output.tone_key);
-        }
-        output.composed = toNFC(output.composed);
-    }
-
-    virtual void ParseRawIndexed(std::string const &input, size_t input_idx, Syllable &output,
-                                 utf8_size_t &output_idx) override {}
-
-    virtual void Compose(Syllable const &input, std::string &output) override {}
-
-    virtual void ComposeIndexed(Syllable const &input, utf8_size_t input_idx, std::string &output,
-                                size_t &output_idx) override {}
-
-    virtual std::string SerializeRaw(Syllable const &input) override {
-        // TODO handle khin
-        std::string ret = input.raw_body;
-        if (input.tone != Tone::NaT) {
-            ret += input.tone_key;
-        }
-        return ret;
-    };
-
-    virtual void SerializeRaw(Syllable const &input, utf8_size_t caret, std::string &output,
-                              size_t &raw_caret) override {
-        auto &syl = input.composed;
-        auto it = syl.cbegin();
-        utf8::unchecked::advance(it, caret);
-
-        if (it == syl.cend()) {
-            output = SerializeRaw(input);
-            raw_caret = output.size();
-            return;
-        }
-
-        auto lhs = toNFD(std::string(syl.cbegin(), it));
-        auto rhs = toNFD(std::string(it, syl.cend()));
-
-        RemoveToneDiacritic(lhs);
-        RemoveToneDiacritic(rhs);
-        ApplyDeconversionRules(keyconfig, lhs);
-        ApplyDeconversionRules(keyconfig, rhs);
-
-        // TODO: Handle khin (on the left before calling lhs.size())
-
-        raw_caret = lhs.size();
-        output.append(lhs);
-        output.append(rhs);
-        if (input.tone != Tone::NaT) {
-            output.push_back(input.tone_key);
-        }
     }
 
     virtual void ToFuzzy(const std::string &input, string_vector &output, bool &has_tone) {
-        auto syl = toNFD(input);
-        auto tone = Tone::NaT;
-        char digit_key = 0;
-        char telex_key = 0;
-        auto found_tone = RemoveToneDiacriticSaveTone(keyconfig, syl, tone, digit_key, telex_key);
-        ApplyDeconversionRules(keyconfig, syl);
-        ToLower(syl);
-
-        if (!found_tone) {
-            has_tone = false;
-            output.push_back(std::move(syl));
-            return;
-        }
-
-        has_tone = true;
-        syl.push_back(digit_key);
-        output.push_back(syl);
-
-        if (telex_key) {
-            syl.pop_back();
-            syl.push_back(telex_key);
-            output.push_back(syl);
-        }
+        ComposedToRawWithAlternates(keyconfig, input, output, has_tone);
     }
 
     virtual std::vector<InputSequence> AsInputSequences(std::string const &word) override {
@@ -284,9 +354,27 @@ class SyllableParserImpl : public SyllableParser {
         auto start = word_copy.cbegin();
         auto end = word_copy.cend();
 
+        // 1 chunk = either 1 syllable or 1 separator
         auto chunks = std::vector<std::vector<std::string>>();
         auto sep = std::find_if(start, end, IsSyllableSeparator);
         auto has_tone = false;
+
+        // Case 1: Only 1 syllable
+        if (sep == end) {
+            // Only one chunk = 1 syllable
+            auto tmp = string_vector();
+            ToFuzzy(word_copy, tmp, has_tone);
+            for (auto &ea : tmp) {
+                ret.push_back(InputSequence{ea, false});
+            }
+            if (has_tone) {
+                tmp[0].pop_back();
+                ret.push_back(InputSequence{std::move(tmp[0]), true});
+            }
+            return ret;
+        }
+
+        // Case 2: Multiple syllables
         auto push_chunk = [&](auto from, auto to) {
             auto syl = std::string(from, to);
             auto tmp = std::vector<std::string>();
@@ -303,7 +391,6 @@ class SyllableParserImpl : public SyllableParser {
         };
 
         while (sep != end) {
-            // Multi-syl = always allow toneless
             push_chunk(start, sep);
             if (*sep != ' ') {
                 push_delim(*sep);
@@ -311,24 +398,9 @@ class SyllableParserImpl : public SyllableParser {
             start = sep + 1;
             sep = std::find_if(start, end, IsSyllableSeparator);
         }
-
-        if (chunks.size() == 0) {
-            // Only one chunk = 1 syllable
-            auto tmp = string_vector();
-            ToFuzzy(word_copy, tmp, has_tone);
-            for (auto &ea : tmp) {
-                ret.push_back(InputSequence{ea, false});
-            }
-            if (has_tone) {
-                tmp[0].pop_back();
-                ret.push_back(InputSequence{std::move(tmp[0]), true});
-            }
-            return ret;
-        }
-
         // Get the last chunk
-        // Multi-syl = always allow toneless
         push_chunk(start, sep);
+
         auto merged = odometer_merge(chunks);
         for (auto &ea : merged) {
             ret.push_back(InputSequence{std::move(ea), false});
@@ -336,7 +408,30 @@ class SyllableParserImpl : public SyllableParser {
         return ret;
     }
 
-  private:
+    virtual BufferSegment AsBufferSegment(std::string const &raw, std::string const &target) override {
+        auto ret = BufferSegment();
+        auto t_start = target.cbegin();
+        auto t_end = target.cend();
+        auto r_start = raw.cbegin();
+        auto r_end = raw.cend();
+
+        auto sep = std::find_if(t_start, t_end, IsSyllableSeparator);
+
+        while (sep != t_end) {
+            auto syl = AlignRawToComposed(keyconfig, r_start, r_end, std::string(t_start, sep));
+            syl.parser = this;
+            ret.AddItem(syl);
+            ret.AddItem(Spacer::VirtualSpace);
+            t_start = sep + 1;
+            sep = std::find_if(t_start, t_end, IsSyllableSeparator);
+        }
+        auto syl = AlignRawToComposed(keyconfig, r_start, r_end, std::string(t_start, sep));
+        syl.parser = this;
+        ret.AddItem(syl);
+
+        return ret;
+    }
+
     KeyConfig *keyconfig;
 };
 

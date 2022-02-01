@@ -1,10 +1,11 @@
 #include "Segmenter.h"
 
+#include "BufferSegment.h"
 #include "CandidateFinder.h"
 #include "Dictionary.h"
 #include "Engine.h"
 #include "Splitter.h"
-#include "BufferSegment.h"
+#include "SyllableParser.h"
 
 namespace khiin::engine {
 namespace {
@@ -26,6 +27,7 @@ class SegmenterImpl : public Segmenter {
         engine->word_splitter()->Split(raw_buffer, split);
         for (auto &ea : split) {
             auto best_word = engine->dictionary()->BestWord(ea);
+            auto segment = engine->syllable_parser()->AsBufferSegment(ea, best_word->input);
             auto elem = BufferElement(ea);
             result.push_back(elem);
         }
