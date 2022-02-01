@@ -4,7 +4,7 @@
 #include "KeyConfig.h"
 #include "Syllable.h"
 #include "SyllableParser.h"
-#include "BufferSegment.h"
+#include "TaiText.h"
 
 namespace khiin::engine {
 namespace {
@@ -61,23 +61,22 @@ TEST(SyllableParserTest, ConvertCaretPosition) {
     syl.composed = u8"hó";
     size_t caret = std::string::npos;
 
-    parser->RawToComposedCaret(syl, 0, caret);
+    caret = parser->RawToComposedCaret(syl, 0);
     EXPECT_EQ(caret, 0);
-    parser->RawToComposedCaret(syl, 1, caret);
+    caret = parser->RawToComposedCaret(syl, 1);
     EXPECT_EQ(caret, 1);
-    parser->RawToComposedCaret(syl, 3, caret);
+    caret = parser->RawToComposedCaret(syl, 3);
     EXPECT_EQ(caret, 2);
-    parser->RawToComposedCaret(syl, 4, caret);
+    caret = parser->RawToComposedCaret(syl, 4);
     EXPECT_EQ(caret, std::string::npos);
 
-
-    parser->ComposedToRawCaret(syl, 0, caret);
+    caret = parser->ComposedToRawCaret(syl, 0);
     EXPECT_EQ(caret, 0);
-    parser->ComposedToRawCaret(syl, 1, caret);
+    caret = parser->ComposedToRawCaret(syl, 1);
     EXPECT_EQ(caret, 1);
-    parser->ComposedToRawCaret(syl, 2, caret);
+    caret = parser->ComposedToRawCaret(syl, 2);
     EXPECT_EQ(caret, 3);
-    parser->ComposedToRawCaret(syl, 3, caret);
+    caret = parser->ComposedToRawCaret(syl, 3);
     EXPECT_EQ(caret, std::string::npos);
 }
 
@@ -92,26 +91,26 @@ TEST(SyllableParserTest, ConvertCaretPosition2) {
     syl.composed = u8"hò\u0358ⁿ";
     size_t caret = std::string::npos;
 
-    parser->RawToComposedCaret(syl, 0, caret);
+    caret = parser->RawToComposedCaret(syl, 0);
     EXPECT_EQ(caret, 0);
-    parser->RawToComposedCaret(syl, 1, caret);
+    caret = parser->RawToComposedCaret(syl, 1);
     EXPECT_EQ(caret, 1);
-    parser->RawToComposedCaret(syl, 3, caret);
+    caret = parser->RawToComposedCaret(syl, 3);
     EXPECT_EQ(caret, 3);
-    parser->RawToComposedCaret(syl, 6, caret);
+    caret = parser->RawToComposedCaret(syl, 6);
     EXPECT_EQ(caret, 4);
-    parser->RawToComposedCaret(syl, 7, caret);
+    caret = parser->RawToComposedCaret(syl, 7);
     EXPECT_EQ(caret, std::string::npos);
 
-    parser->ComposedToRawCaret(syl, 0, caret);
+    caret = parser->ComposedToRawCaret(syl, 0);
     EXPECT_EQ(caret, 0);
-    parser->ComposedToRawCaret(syl, 1, caret);
+    caret = parser->ComposedToRawCaret(syl, 1);
     EXPECT_EQ(caret, 1);
-    parser->ComposedToRawCaret(syl, 3, caret);
+    caret = parser->ComposedToRawCaret(syl, 3);
     EXPECT_EQ(caret, 3);
-    parser->ComposedToRawCaret(syl, 4, caret);
+    caret = parser->ComposedToRawCaret(syl, 4);
     EXPECT_EQ(caret, 6);
-    parser->ComposedToRawCaret(syl, 5, caret);
+    caret = parser->ComposedToRawCaret(syl, 5);
     EXPECT_EQ(caret, std::string::npos);
 }
 
@@ -189,11 +188,11 @@ TEST(SyllableParserTest, AsBufferSegment) {
     auto parser = SyllableParser::Create(keyconfig);
     auto raw = "pengan";
     auto target = u8"pêng-an";
-    
+
     auto result = parser->AsBufferSegment(raw, target);
-    EXPECT_EQ(result.Raw(), "pengan");
-    EXPECT_EQ(result.Display(), "peng an");
-    EXPECT_EQ(result.Size(), 7);
+    EXPECT_EQ(result.raw(), "pengan");
+    EXPECT_EQ(result.composed(), "peng an");
+    EXPECT_EQ(result.size(), 7);
 }
 
 } // namespace

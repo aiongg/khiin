@@ -1,4 +1,4 @@
-#include "BufferSegment.h"
+#include "TaiText.h"
 
 #include "SyllableParser.h"
 #include "common.h"
@@ -52,7 +52,7 @@ static auto to_raw = overloaded //
          return get_spacer(elem);
      }};
 
-static auto to_display = overloaded //
+static auto to_composed = overloaded //
     {[](Syllable &elem) {
          return elem.composed;
      },
@@ -62,17 +62,21 @@ static auto to_display = overloaded //
 
 } // namespace
 
-void BufferSegment::AddItem(Syllable syllable) {
-    m_elements.push_back(SegmentElement{});
+void TaiText::AddItem(Syllable syllable) {
+    m_elements.push_back(Chunk{});
     m_elements.back().emplace<Syllable>(syllable);
 }
 
-void BufferSegment::AddItem(Spacer spacer) {
-    m_elements.push_back(SegmentElement{});
+void TaiText::AddItem(Spacer spacer) {
+    m_elements.push_back(Chunk{});
     m_elements.back().emplace<Spacer>(spacer);
 }
 
-utf8_size_t BufferSegment::Size() {
+void TaiText::SetCandidate(DictionaryRow *candidate) {
+    this->candidate = candidate;
+}
+
+utf8_size_t TaiText::size() {
     auto size = 0;
     for (auto &v_elem : m_elements) {
         size += std::visit(size_of, v_elem);
@@ -80,7 +84,7 @@ utf8_size_t BufferSegment::Size() {
     return size;
 }
 
-std::string BufferSegment::Raw() {
+std::string TaiText::raw() {
     auto ret = std::string();
     for (auto &v_elem : m_elements) {
         ret += std::visit(to_raw, v_elem);
@@ -88,15 +92,15 @@ std::string BufferSegment::Raw() {
     return ret;
 }
 
-std::string BufferSegment::Display() {
+std::string TaiText::composed() {
     auto ret = std::string();
     for (auto &elem : m_elements) {
-        ret += std::visit(to_display, elem);
+        ret += std::visit(to_composed, elem);
     }
     return ret;
 }
 
-void BufferSegment::RawIndexed(utf8_size_t caret, std::string &raw, size_t &raw_caret) {
+void TaiText::RawIndexed(utf8_size_t caret, std::string &raw, size_t &raw_caret) {
     auto remainder = caret;
     auto to_raw_indexed = overloaded //
         {[&](Syllable &elem) {
@@ -113,6 +117,36 @@ void BufferSegment::RawIndexed(utf8_size_t caret, std::string &raw, size_t &raw_
     for (auto &v_elem : m_elements) {
         std::visit(to_raw_indexed, v_elem);
     }
+}
+
+utf8_size_t TaiText::RawToComposedCaret(SyllableParser *parser, size_t raw_caret) {
+    auto remainder = raw_caret;
+    utf8_size_t caret = 0;
+
+    auto raw_to_composed_caret = overloaded //
+        {[&](Syllable &elem) {
+             if (remainder > elem.raw_input.size()) {
+                 remainder -= elem.raw_input.size();
+                 caret += Utf8Size(elem.composed);
+             } else {
+                 caret += parser->RawToComposedCaret(elem, remainder);
+                 remainder = 0;
+             }
+         },
+         [&](Spacer &elem) {
+             caret += 1;
+             remainder -= 1;
+         }};
+
+    for (auto &v_elem : m_elements) {
+        if (remainder > 0) {
+            std::visit(raw_to_composed_caret, v_elem);
+        } else {
+            break;
+        }
+    }
+
+    return caret;
 }
 
 } // namespace khiin::engine

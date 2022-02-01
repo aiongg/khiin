@@ -33,6 +33,10 @@ class DictionaryImpl : public Dictionary {
         BuildWordSplitter();
     }
 
+    virtual bool StartsWithWord(std::string_view query) override {
+        return word_trie->StartsWithWord(query);
+    }
+
     virtual std::vector<std::string> WordSearch(std::string_view query) override {
         auto ret = std::vector<std::string>();
         word_trie->FindWords(query, ret);

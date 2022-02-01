@@ -13,8 +13,7 @@ TEST(SegmenterTest, SegmentWholeBuffer) {
     auto caret = std::string::npos;
     segmenter->SegmentWholeBuffer("pengan", 6, result, caret);
     EXPECT_EQ(result.size(), 1);
-    EXPECT_EQ(result[0].Raw(), "pengan");
-    EXPECT_EQ(caret, 7);
+    EXPECT_EQ(result[0].raw(), "pengan");
 }
 
 } // namespace

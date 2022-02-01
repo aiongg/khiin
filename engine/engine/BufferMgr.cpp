@@ -35,7 +35,13 @@ class BufferMgrImpl : public BufferMgr {
 
     virtual void Erase(CursorDirection direction) override {}
 
-    virtual void BuildPreedit(messages::Preedit *preedit) override {}
+    virtual void BuildPreedit(messages::Preedit *preedit) override {
+        for (auto &elem : m_elements) {
+            auto segment = preedit->add_segments();
+            segment->set_value(elem.composed());
+        }
+        preedit->set_cursor_position(m_caret);
+    }
 
     virtual void MoveFocus(CursorDirection direction) override {}
 
@@ -64,6 +70,8 @@ class BufferMgrImpl : public BufferMgr {
         std::vector<BufferElement> elements;
         utf8_size_t new_caret_position = 0;
         m_engine->segmenter()->SegmentWholeBuffer(raw_buffer, raw_caret, elements, new_caret_position);
+        m_elements = elements;
+        UpdateCaret(raw_caret);
     }
 
     void GetRawBuffer(std::string &raw_buffer, size_t &raw_caret) {
@@ -77,7 +85,7 @@ class BufferMgrImpl : public BufferMgr {
             auto &elem = m_elements[i];
 
             if (i != caret_elem_idx) {
-                auto raw = elem.Raw();
+                auto raw = elem.raw();
                 raw_buffer.append(raw);
                 raw_caret += raw.size();
                 continue;
@@ -91,11 +99,11 @@ class BufferMgrImpl : public BufferMgr {
     }
 
     void LocateCaret(size_t &element_index, size_t &caret_index) {
-        auto remainder = m_caret_position;
+        auto remainder = m_caret;
 
         for (auto i = 0; i < m_elements.size(); ++i) {
             auto &elem = m_elements[i];
-            auto size = elem.Size();
+            auto size = elem.size();
 
             if (remainder > size) {
                 remainder -= size;
@@ -108,8 +116,31 @@ class BufferMgrImpl : public BufferMgr {
         }
     }
 
+    void UpdateCaret(size_t raw_caret) {
+        utf8_size_t new_caret = 0;
+        auto remainder = raw_caret;
+        BufferElement *elem = nullptr;
+        for (auto i = 0; i < m_elements.size(); ++i) {
+            elem = &m_elements[i];
+            auto raw = elem->raw();
+            if (auto size = raw.size();  remainder > size) {
+                new_caret += elem->size();
+                remainder -= size;
+                continue;
+            }
+            break;
+        }
+
+        if (!elem) {
+            return;
+        }
+
+        new_caret += elem->RawToComposedCaret(m_engine->syllable_parser(), remainder);
+        m_caret = new_caret;
+    }
+
     Engine *m_engine = nullptr;
-    int m_caret_position = 0;
+    utf8_size_t m_caret = 0;
     std::vector<BufferElement> m_elements;
     bool m_converted = false;
     int m_focused_element = 0;

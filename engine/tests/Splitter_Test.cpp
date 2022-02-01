@@ -64,6 +64,11 @@ TEST(SplitterTest, CanSplitTest) {
     EXPECT_TRUE(splitter.CanSplit("goamchaiujoachelanghamgoaukangkhoanesengtiong"));
     EXPECT_TRUE(splitter.CanSplit("li2ho2"));
     EXPECT_FALSE(splitter.CanSplit("ppp"));
+    EXPECT_FALSE(splitter.CanSplit("q"));
+    EXPECT_FALSE(splitter.CanSplit("h"));
+    EXPECT_FALSE(splitter.CanSplit("3"));
+    EXPECT_FALSE(splitter.CanSplit("."));
+    EXPECT_FALSE(splitter.CanSplit("-"));
 }
 
 TEST(SplitterTest, UsingActualEngine) {

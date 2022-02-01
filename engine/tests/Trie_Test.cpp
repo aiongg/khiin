@@ -79,6 +79,17 @@ TEST_F(TrieTest, get_all_words) {
     EXPECT_NE(std::find(res.begin(), res.end(), "cho2"), res.end());
 }
 
+TEST_F(TrieTest, starts_with_word) {
+    ins({"a"});
+    EXPECT_TRUE(trie->StartsWithWord("a"));
+}
+
+TEST_F(TrieTest, starts_with_word2) {
+    ins({"ba"});
+    EXPECT_TRUE(trie->StartsWithWord("baxxx"));
+    EXPECT_FALSE(trie->StartsWithWord("aba"));
+}
+
 /**
 * input: limaianne
 1. Lí mài án-ne.

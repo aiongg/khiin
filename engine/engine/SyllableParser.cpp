@@ -2,7 +2,7 @@
 
 #include <algorithm>
 
-#include "BufferSegment.h"
+#include "TaiText.h"
 #include "KeyConfig.h"
 #include "Syllable.h"
 #include "unicode_utils.h"
@@ -246,7 +246,7 @@ Syllable AlignRawToComposed(KeyConfig *keyconfig, std::string::const_iterator &r
         ++t_it;
     }
 
-    if (compare.tone != Tone::NaT) {
+    if (r_it != r_end && compare.tone != Tone::NaT) {
         auto r_maybe_tone = keyconfig->CheckToneKey(*r_it);
         if (r_maybe_tone != compare.tone && r_it != r_end) {
             r_maybe_tone = keyconfig->CheckToneKey(r_it[1]);
@@ -341,15 +341,14 @@ class SyllableParserImpl : public SyllableParser {
 
     virtual void ParseRaw(std::string const &input, Syllable &output) override {
         output = SylFromRaw(keyconfig, input);
-        output.parser = this;
     }
 
-    virtual void RawToComposedCaret(Syllable &syllable, size_t raw_caret, utf8_size_t &composed_caret) override {
-        composed_caret = RawCaretToComposedCaret(keyconfig, syllable, raw_caret);
+    virtual utf8_size_t RawToComposedCaret(Syllable &syllable, size_t raw_caret) override {
+        return RawCaretToComposedCaret(keyconfig, syllable, raw_caret);
     }
 
-    virtual void ComposedToRawCaret(Syllable &syllable, utf8_size_t composed_caret, size_t &raw_caret) override {
-        raw_caret = ComposedCaretToRawCaret(keyconfig, syllable, composed_caret);
+    virtual size_t ComposedToRawCaret(Syllable &syllable, utf8_size_t composed_caret) override {
+        return ComposedCaretToRawCaret(keyconfig, syllable, composed_caret);
     }
 
     virtual void ToFuzzy(const std::string &input, string_vector &output, bool &has_tone) {
@@ -417,8 +416,8 @@ class SyllableParserImpl : public SyllableParser {
         return ret;
     }
 
-    virtual BufferSegment AsBufferSegment(std::string const &raw, std::string const &target) override {
-        auto ret = BufferSegment();
+    virtual TaiText AsBufferSegment(std::string const &raw, std::string const &target) override {
+        auto ret = TaiText();
         auto t_start = target.cbegin();
         auto t_end = target.cend();
         auto r_start = raw.cbegin();
@@ -428,14 +427,12 @@ class SyllableParserImpl : public SyllableParser {
 
         while (sep != t_end) {
             auto syl = AlignRawToComposed(keyconfig, r_start, r_end, std::string(t_start, sep));
-            syl.parser = this;
             ret.AddItem(syl);
             ret.AddItem(Spacer::VirtualSpace);
             t_start = sep + 1;
             sep = std::find_if(t_start, t_end, IsSyllableSeparator);
         }
         auto syl = AlignRawToComposed(keyconfig, r_start, r_end, std::string(t_start, sep));
-        syl.parser = this;
         ret.AddItem(syl);
 
         return ret;

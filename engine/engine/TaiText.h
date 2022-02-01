@@ -7,6 +7,7 @@
 #include "Syllable.h"
 
 namespace khiin::engine {
+class SyllableParser;
 
 enum class Spacer {
     Hyphen,
@@ -17,18 +18,22 @@ enum class Spacer {
 
 // A series of Tai Text syllables and spacers that makes up a single
 // segment on the buffer (e.g., has a single candidate)
-class BufferSegment {
+class TaiText {
   public:
-    using SegmentElement = std::variant<Syllable, Spacer>;
+    using Chunk = std::variant<Syllable, Spacer>;
     void AddItem(Syllable syllable);
     void AddItem(Spacer spacer);
-    utf8_size_t Size();
-    std::string Raw();
-    std::string Display();
+    void SetCandidate(DictionaryRow *candidate);
+
+    utf8_size_t size();
+    std::string raw();
+    std::string composed();
+
     void RawIndexed(utf8_size_t caret, std::string &raw, size_t &raw_caret);
+    utf8_size_t RawToComposedCaret(SyllableParser *parser, size_t raw_caret);
 
   private:
-    std::vector<SegmentElement> m_elements;
+    std::vector<Chunk> m_elements;
     DictionaryRow *candidate = nullptr;
 };
 

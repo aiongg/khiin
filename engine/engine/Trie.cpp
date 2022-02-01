@@ -92,6 +92,24 @@ class TrieImpl : public Trie {
         return found != nullptr && found->end_of_word;
     }
 
+    virtual bool StartsWithWord(std::string_view query) override {
+        if (query.empty()) {
+            return false;
+        }
+
+        auto curr = &root;
+        for (auto it = query.begin(); it != query.end(); ++it) {
+            if (curr->end_of_word) {
+                return true;
+            } else if (curr->children.find(*it) == curr->children.end()) {
+                return false;
+            }
+
+            curr = curr->children[*it].get();
+        }
+        return curr->end_of_word;
+    }
+
     virtual bool ContainsPrefix(std::string_view query) override {
         auto found = Find(query);
         return found != nullptr && (found->end_of_word || found->children.size() > 0);

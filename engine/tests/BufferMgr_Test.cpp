@@ -19,12 +19,13 @@ TEST_F(BufferMgrTest, Loads) {
     EXPECT_TRUE(bufmgr);
 }
 
-TEST_F(BufferMgrTest, DISABLED_InsertLetter) {
+TEST_F(BufferMgrTest, InsertLetter) {
     bufmgr->Insert('a');
     auto preedit = messages::Preedit::default_instance().New();
     bufmgr->BuildPreedit(preedit);
     EXPECT_EQ(preedit->segments().size(), 1);
     EXPECT_EQ(preedit->segments().at(0).value(), "a");
+    EXPECT_EQ(preedit->cursor_position(), 1);
 }
 
 } // namespace

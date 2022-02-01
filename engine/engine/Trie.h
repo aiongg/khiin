@@ -17,6 +17,7 @@ class Trie {
 
     virtual void Insert(std::string_view key) = 0;
     virtual bool Remove(std::string_view key) = 0;
+    virtual bool StartsWithWord(std::string_view query) = 0;
     virtual bool ContainsWord(std::string_view query) = 0;
     virtual bool ContainsPrefix(std::string_view query) = 0;
     virtual string_vector Autocomplete(std::string const & query, size_t maxDepth = 0) = 0;
