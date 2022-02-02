@@ -10,7 +10,7 @@
 // #define SQLITE_OPEN_NOMUTEX 0x00008000 /* Ok for sqlite3_open_v2() */
 
 #include "Database.h"
-#include "Lomaji.h"
+//#include "Lomaji.h"
 #include "SQL.h"
 
 namespace khiin::engine {
@@ -280,7 +280,8 @@ int Database::buildTrieLookupTable_() {
 
     while (dictionaryQuery.executeStep()) {
         auto dictId = dictionaryQuery.getColumn("id").getInt();
-        auto ascii = utf8ToAsciiLower(dictionaryQuery.getColumn("input").getString());
+        auto ascii = std::string();
+        //utf8ToAsciiLower(dictionaryQuery.getColumn("input").getString());
         auto output = dictionaryQuery.getColumn("output").getString();
 
         static std::regex rInnerTone("\\d(?!$)");
@@ -324,18 +325,18 @@ int Database::buildTrieLookupTable_() {
     }
 }
 
-void Database::DictionaryWords(std::vector<std::string> &inputs) {
-    inputs.clear();
-    inputs.reserve(20000);
-    auto dictionaryQuery = SQLite::Statement(handle, SQL::SELECT_DictionaryInputs);
-
-    while (dictionaryQuery.executeStep()) {
-        auto dictId = dictionaryQuery.getColumn("id").getInt();
-        auto ascii = utf8ToAsciiLower(dictionaryQuery.getColumn("input").getString());
-        auto output = dictionaryQuery.getColumn("output").getString();
-        inputs.push_back(ascii);
-    }
-}
+//void Database::DictionaryWords(std::vector<std::string> &inputs) {
+//    inputs.clear();
+//    inputs.reserve(20000);
+//    auto dictionaryQuery = SQLite::Statement(handle, SQL::SELECT_DictionaryInputs);
+//
+//    while (dictionaryQuery.executeStep()) {
+//        auto dictId = dictionaryQuery.getColumn("id").getInt();
+//        auto ascii = utf8ToAsciiLower(dictionaryQuery.getColumn("input").getString());
+//        auto output = dictionaryQuery.getColumn("output").getString();
+//        inputs.push_back(ascii);
+//    }
+//}
 
 void Database::LoadSyllables(std::vector<std::string> &syllables) {
     syllables.clear();

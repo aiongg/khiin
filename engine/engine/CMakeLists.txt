@@ -4,18 +4,6 @@
 
 # Add source to this project's executable.
 add_library (khiin
-    "SynchronizedBuffer.h"      # delete
-    "SynchronizedBuffer.cpp"    # delete
-    "BufferManager.h"           # delete
-    "BufferManager.cpp"         # delete
-    "Config.h"                  # delete
-    "Config.cpp"                # delete
-    "Caret.cpp"                 # delete
-    "Lomaji.h"                  # delete
-    "Lomaji.cpp"                # delete
-    "ParallelIterators.h"       # delete
-              # delete
-            # delete
     "${PROTOBUF_DIR}/messages.pb.h"
     "${PROTOBUF_DIR}/messages.pb.cc"
     "CandidateFinder.h"
@@ -26,6 +14,8 @@ add_library (khiin
     "BufferMgr.cpp"
     "TaiText.h"
     "TaiText.cpp"
+    "Lomaji.h"
+    "Lomaji.cpp"
     "common.h"
     "Database.h"
     "Database.cpp"

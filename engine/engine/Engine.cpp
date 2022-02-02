@@ -21,7 +21,7 @@
 #include "KeyConfig.h"
 #include "Segmenter.h"
 #include "SyllableParser.h"
-#include "config.h"
+//#include "config.h"
 #include "utils.h"
 
 namespace khiin::engine {
@@ -59,7 +59,7 @@ class EngineImpl : public Engine {
             cfg_path /= CONFIG_FILE;
 
             if (fs::exists(cfg_path)) {
-                m_config = std::make_unique<Config>(cfg_path.string());
+                // m_config = std::make_unique<Config>(cfg_path.string());
             }
         }
 
@@ -67,9 +67,9 @@ class EngineImpl : public Engine {
             m_database = std::make_unique<Database>();
         }
 
-        if (m_config == nullptr) {
-            m_config = std::make_unique<Config>();
-        }
+        // if (m_config == nullptr) {
+        // m_config = std::make_unique<Config>();
+        //}
 
         // m_valid_syllables = m_database->GetSyllableList();
         // m_trie = std::make_unique<Trie>(m_database->GetTrieWordlist(), m_valid_syllables);
@@ -244,7 +244,7 @@ class EngineImpl : public Engine {
     fs::path resource_dir = {};
 
     std::unique_ptr<Database> m_database = nullptr;
-    std::unique_ptr<Config> m_config = nullptr;
+    // std::unique_ptr<Config> m_config = nullptr;
     std::unique_ptr<Splitter> m_splitter = nullptr;
     std::unique_ptr<Trie> m_trie = nullptr;
     std::unique_ptr<BufferMgr> m_buffer_mgr = nullptr;

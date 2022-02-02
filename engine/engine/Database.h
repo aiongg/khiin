@@ -73,7 +73,7 @@ class Database {
     int UnigramCount(const std::string &gram);
     int IncrementNGramCounts(string_vector &grams);
 
-    void DictionaryWords(std::vector<std::string> &inputs);
+    //void DictionaryWords(std::vector<std::string> &inputs);
     void LoadSyllables(std::vector<std::string> &syllables);
     void AllWordsByFreq(std::vector<DictionaryRow> &output);
 
