@@ -7,6 +7,8 @@
 
 namespace khiin::engine {
 
+using namespace messages;
+
 namespace {
 
 class BufferMgrImpl : public BufferMgr {
@@ -35,11 +37,14 @@ class BufferMgrImpl : public BufferMgr {
 
     virtual void Erase(CursorDirection direction) override {}
 
-    virtual void BuildPreedit(messages::Preedit *preedit) override {
+    virtual void BuildPreedit(Preedit *preedit) override {
+        auto display_text = std::string();
         for (auto &elem : m_elements) {
-            auto segment = preedit->add_segments();
-            segment->set_value(elem.composed());
+            display_text.append(elem.composed());
         }
+        auto segment = preedit->add_segments();
+        segment->set_value(display_text);
+        segment->set_status(SegmentStatus::COMPOSING);
         preedit->set_cursor_position(m_caret);
     }
 
@@ -112,7 +117,7 @@ class BufferMgrImpl : public BufferMgr {
         for (auto i = 0; i < m_elements.size(); ++i) {
             elem = &m_elements[i];
             auto raw = elem->raw();
-            if (auto size = raw.size();  remainder > size) {
+            if (auto size = raw.size(); remainder > size) {
                 new_caret += elem->size();
                 remainder -= size;
                 continue;

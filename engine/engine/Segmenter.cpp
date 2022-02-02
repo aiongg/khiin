@@ -26,21 +26,37 @@ class SegmenterImpl : public Segmenter {
             return;
         }
 
+        auto dictionary = engine->dictionary();
         auto splitter = engine->word_splitter();
         auto start = raw_buffer.cbegin();
         auto it = raw_buffer.cbegin();
         auto end = raw_buffer.cend();
         auto unknown_text = std::string();
 
+        auto consume_unknown = [&]() {
+            if (!unknown_text.empty()) {
+                result.push_back(BufferElement(unknown_text));
+                unknown_text.clear();
+            }
+        };
+
         while (it != end) {
             auto remaining_buffer = std::string(it, end);
 
-            if (engine->dictionary()->StartsWithWord(remaining_buffer)) {
-                if (unknown_text.size()) {
-                    result.push_back(BufferElement(unknown_text));
-                    unknown_text.clear();
-                }
+            if (splitter->CanSplit(remaining_buffer)) {
+                consume_unknown();
+                ConsumeSplittableBuffer(remaining_buffer, result);
+                break;
+            }
 
+            if (dictionary->IsSyllablePrefix(remaining_buffer)) {
+                consume_unknown();
+                result.push_back(BufferElement(remaining_buffer));
+                break;
+            }
+
+            if (dictionary->StartsWithWord(remaining_buffer)) {
+                consume_unknown();
                 auto max = GetMaxSplittableIndex(remaining_buffer);
                 if (max != std::string::npos) {
                     ConsumeSplittableBuffer(remaining_buffer.substr(0, max), result);
@@ -52,8 +68,13 @@ class SegmenterImpl : public Segmenter {
             unknown_text.push_back(*it);
             ++it;
         }
-        if (!unknown_text.empty()) {
-            result.push_back(BufferElement(unknown_text));
+
+        if (result.empty()) {
+            return;
+        }
+
+        for (auto i = result.size() - 1; i != 0; --i) {
+            result.insert(result.begin() + i, BufferElement(Spacer::VirtualSpace));
         }
     }
 

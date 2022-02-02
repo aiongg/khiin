@@ -24,13 +24,14 @@ WidePreedit const Utils::WidenPreedit(const Preedit &preedit) {
     auto start_idx = 0;
     for (auto &segment : segments) {
         auto w = Widen(segment.value());
+        D(__FUNCTIONW__, " Segment: \"", w, "\", Start: ", start_idx, ", Size: ", w.size());
         ret.preedit_display += w;
         ret.segment_start_and_size.push_back(std::make_pair(start_idx, w.size()));
         ret.segment_status.push_back(segment.status());
         start_idx += w.size();
     }
 
-    // Need to add code for surrogate pairs to these widening functions...
+    // TODO: Handle surrogate pairs
     ret.cursor = preedit.cursor_position();
     ret.display_size = ret.preedit_display.size();
     return ret;

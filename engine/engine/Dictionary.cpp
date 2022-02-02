@@ -37,6 +37,14 @@ class DictionaryImpl : public Dictionary {
         return word_trie->StartsWithWord(query);
     }
 
+    virtual bool IsSyllablePrefix(std::string_view query) override {
+        return syllable_trie->ContainsPrefix(query);
+    }
+
+    virtual bool IsWord(std::string_view query) override {
+        return word_trie->ContainsWord(query);
+    }
+
     virtual std::vector<std::string> WordSearch(std::string_view query) override {
         auto ret = std::vector<std::string>();
         word_trie->FindWords(query, ret);
@@ -49,9 +57,10 @@ class DictionaryImpl : public Dictionary {
             return &empty_dictionary_row;
         }
         auto id = it->second[0];
-        auto found = std::find_if(dictionary_entries.begin(), dictionary_entries.end(), [&](DictionaryRow const &entry) {
-            return id == entry.id;
-        });
+        auto found =
+            std::find_if(dictionary_entries.begin(), dictionary_entries.end(), [&](DictionaryRow const &entry) {
+                return id == entry.id;
+            });
         if (found == dictionary_entries.end()) {
             return &empty_dictionary_row;
         }

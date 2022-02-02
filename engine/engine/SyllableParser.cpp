@@ -88,7 +88,7 @@ bool HasToneable(std::string_view str) {
 
 bool FindTonePosition(std::string_view str, size_t &position) {
     for (auto &sequence : kOrderedToneableCombinations) {
-        if (auto i = str.find(sequence); i != std::string::npos) {
+        if (auto i = str.find(sequence); i != std::string::npos && str.size() > i + 2) {
             position = i + 2;
             return true;
         }
@@ -238,8 +238,8 @@ Syllable AlignRawToComposed(KeyConfig *keyconfig, std::string::const_iterator &r
     auto compare = SylFromComposed(keyconfig, target);
 
     auto r_it = r_begin;
-    auto t_it = compare.raw_body.cbegin();
-    auto t_end = compare.raw_body.cend();
+    auto t_it = compare.raw_input.cbegin();
+    auto t_end = compare.raw_input.cend();
 
     while (r_it != r_end && t_it != t_end && *r_it == *t_it) {
         ++r_it;

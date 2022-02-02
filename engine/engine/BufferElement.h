@@ -15,16 +15,16 @@ class BufferElement {
   public:
     BufferElement(TaiText const &elem);
     BufferElement(Plaintext const &elem);
+    BufferElement(Spacer elem);
     utf8_size_t size();
     std::string raw();
-    void RawIndexed(utf8_size_t caret, std::string &raw, size_t &raw_caret);
 
     std::string composed();
     utf8_size_t RawToComposedCaret(SyllableParser *parser, size_t raw_caret);
     size_t ComposedToRawCaret(SyllableParser *parser, utf8_size_t caret);
 
   private:
-    std::variant<Plaintext, TaiText> m_element;
+    std::variant<Plaintext, TaiText, Spacer> m_element;
 };
 
 } // namespace khiin::engine
