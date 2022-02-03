@@ -100,6 +100,14 @@ std::string TaiText::composed() {
     return ret;
 }
 
+std::string TaiText::converted() {
+    if (candidate) {
+        return candidate->output;
+    }
+
+    return composed();
+}
+
 void TaiText::RawIndexed(utf8_size_t caret, std::string &raw, size_t &raw_caret) {
     auto remainder = caret;
     auto to_raw_indexed = overloaded //

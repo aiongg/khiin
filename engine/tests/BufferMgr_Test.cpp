@@ -114,5 +114,17 @@ TEST_F(BufferMgrTest, InsertTone) {
     EXPECT_EQ(preedit->cursor_position(), 4);
 }
 
+TEST_F(BufferMgrTest, Candidates1) {
+    auto clist = messages::CandidateList::default_instance().New();
+
+    bufmgr->Insert('p');
+    bufmgr->Insert('e');
+    bufmgr->Insert('n');
+    bufmgr->Insert('g');
+    bufmgr->Insert('a');
+    bufmgr->Insert('n');
+    bufmgr->GetCandidates(clist);
+}
+
 } // namespace
 } // namespace khiin::engine

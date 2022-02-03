@@ -2,6 +2,7 @@
 
 #include "Engine.h"
 #include "BufferMgr.h"
+#include "TestEnv.h"
 
 namespace khiin::engine {
 namespace {
@@ -11,30 +12,12 @@ const std::string DB_FILE = "taikey.db";
 class BufferFx : public ::testing::Test {
   protected:
     void SetUp() override {
-        engine = Engine::Create();
+        engine = TestEnv::engine();
         buf = engine->buffer_mgr();
-
-        //db = new Database(DB_FILE);
-        //auto sylList = db->GetSyllableList();
-        //sp = new Splitter(sylList), tr = new Trie(db->GetTrieWordlist(), sylList);
-        //cf = CandidateFinder::Create(db, sp, tr);
-        //buf = BufferManager::Create(cf);
-    }
-
-    ~BufferFx() {
-        //delete db;
-        //delete sp;
-        //delete tr;
-        //delete cf;
-        delete buf;
     }
 
     Engine *engine = nullptr;
     BufferMgr *buf = nullptr;
-    //Database *db = nullptr;
-    //CandidateFinder *cf = nullptr;
-    //Splitter *sp = nullptr;
-    //Trie *tr = nullptr;
 
     void insert(std::string sequence) {
         for (auto it : sequence) {

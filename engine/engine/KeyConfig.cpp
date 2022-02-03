@@ -72,14 +72,23 @@ class KeyCfgImpl : public KeyConfig {
     virtual void GetToneKeys(Tone tone, char &digit_key, char &telex_key) override {
         // TODO: Handle telex keys
         switch (tone) {
+        case Tone::T1:
+            digit_key = '1';
+            break;
         case Tone::T2:
             digit_key = '2';
             break;
         case Tone::T3:
             digit_key = '3';
             break;
+        case Tone::T4:
+            digit_key = '4';
+            break;
         case Tone::T5:
             digit_key = '5';
+            break;
+        case Tone::T6:
+            digit_key = '6';
             break;
         case Tone::T7:
             digit_key = '7';
@@ -97,12 +106,18 @@ class KeyCfgImpl : public KeyConfig {
         // TODO: Handle telex keys and fallback to digits
 
         switch (ch) {
+        case '1':
+            return Tone::T1;
         case '2':
             return Tone::T2;
         case '3':
             return Tone::T3;
+        case '4':
+            return Tone::T4;
         case '5':
             return Tone::T5;
+        case '6':
+            return Tone::T6;
         case '7':
             return Tone::T7;
         case '8':

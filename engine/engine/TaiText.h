@@ -28,6 +28,7 @@ class TaiText {
     utf8_size_t size();
     std::string raw();
     std::string composed();
+    std::string converted();
 
     void RawIndexed(utf8_size_t caret, std::string &raw, size_t &raw_caret);
     utf8_size_t RawToComposedCaret(SyllableParser *parser, size_t raw_caret);

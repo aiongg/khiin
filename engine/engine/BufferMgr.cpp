@@ -50,7 +50,16 @@ class BufferMgrImpl : public BufferMgr {
 
     virtual void MoveFocus(CursorDirection direction) override {}
 
-    virtual void GetCandidates(messages::CandidateList *candidate_list) override {}
+    virtual void GetCandidates(messages::CandidateList *candidate_list) override {
+        if (m_input_mode == InputMode::Continuous) {
+            auto first_candidate = std::string();
+            for (auto &elem : m_elements) {
+                first_candidate += elem.converted();
+            }
+            auto cand = candidate_list->add_candidates();
+            cand->set_value(first_candidate);
+        }
+    }
 
     virtual void FocusCandidate(int index) override {}
 

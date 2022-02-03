@@ -2,9 +2,9 @@
 
 #include <algorithm>
 
-#include "TaiText.h"
 #include "KeyConfig.h"
 #include "Syllable.h"
+#include "TaiText.h"
 #include "unicode_utils.h"
 
 namespace khiin::engine {
@@ -72,6 +72,15 @@ void ToLower(std::string &str) {
 
 inline bool IsSyllableSeparator(char ch) {
     return ch == '-' || ch == ' ';
+}
+
+inline bool EndsWithPtkh(std::string_view str) {
+    auto ch = str.back();
+    return ch == 'p' || ch == 't' || ch == 'k' || ch == 'h';
+}
+
+inline bool NeedsToneDiacritic(Tone t) {
+    return !(t == Tone::NaT || t == Tone::T1 || t == Tone::T4);
 }
 
 bool HasToneable(std::string_view str) {
@@ -199,7 +208,7 @@ Syllable SylFromRaw(KeyConfig *keyconfig, std::string const &input) {
     output.raw_body = input;
     RemoveToneChar(keyconfig, output.raw_body, output.tone, output.tone_key);
     output.composed = ApplyConversionRules(keyconfig, output.raw_body);
-    if (output.tone != Tone::NaT) {
+    if (NeedsToneDiacritic(output.tone)) {
         AddToneDiacritic(output.tone, output.composed);
     }
     output.composed = toNFC(output.composed);
@@ -273,6 +282,14 @@ void ComposedToRawWithAlternates(KeyConfig *keyconfig, const std::string &input,
 
     if (!found_tone) {
         has_tone = false;
+        output.push_back(syl);
+
+        if (EndsWithPtkh(syl)) {
+            syl.push_back('4');
+        } else {
+            syl.push_back('1');
+        }
+
         output.push_back(std::move(syl));
         return;
     }
@@ -400,9 +417,9 @@ class SyllableParserImpl : public SyllableParser {
 
         while (sep != end) {
             push_chunk(start, sep);
-            if (*sep != ' ') {
-                push_delim(*sep);
-            }
+            // if (*sep != ' ') {
+            //    push_delim(*sep);
+            //}
             start = sep + 1;
             sep = std::find_if(start, end, IsSyllableSeparator);
         }

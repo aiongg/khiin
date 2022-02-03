@@ -101,4 +101,25 @@ std::string BufferElement::composed() {
     }
 }
 
+std::string BufferElement::converted() {
+    if (auto *elem = std::get_if<Plaintext>(&m_element)) {
+        return *elem;
+    } else if (auto *elem = std::get_if<TaiText>(&m_element)) {
+        return elem->converted();
+    } else if (auto *elem = std::get_if<Spacer>(&m_element)) {
+        switch (*elem) {
+        case Spacer::Hyphen:
+            return u8"-";
+        case Spacer::Space:
+            [[fallthrough]];
+        case Spacer::VirtualSpace:
+            return u8" ";
+        default:
+            return u8"";
+        }
+    } else {
+        return u8"";
+    }
+}
+
 } // namespace khiin::engine

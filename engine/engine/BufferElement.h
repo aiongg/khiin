@@ -18,8 +18,9 @@ class BufferElement {
     BufferElement(Spacer elem);
     utf8_size_t size();
     std::string raw();
-
     std::string composed();
+    std::string converted();
+
     utf8_size_t RawToComposedCaret(SyllableParser *parser, size_t raw_caret);
     size_t ComposedToRawCaret(SyllableParser *parser, utf8_size_t caret);
 
