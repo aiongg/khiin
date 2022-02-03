@@ -6,6 +6,7 @@
 #include "Syllable.h"
 #include "TaiText.h"
 #include "unicode_utils.h"
+#include "Lomaji.h"
 
 namespace khiin::engine {
 namespace {
@@ -77,10 +78,6 @@ inline bool IsSyllableSeparator(char ch) {
 inline bool EndsWithPtkh(std::string_view str) {
     auto ch = str.back();
     return ch == 'p' || ch == 't' || ch == 'k' || ch == 'h';
-}
-
-inline bool NeedsToneDiacritic(Tone t) {
-    return !(t == Tone::NaT || t == Tone::T1 || t == Tone::T4);
 }
 
 bool HasToneable(std::string_view str) {
@@ -208,7 +205,7 @@ Syllable SylFromRaw(KeyConfig *keyconfig, std::string const &input) {
     output.raw_body = input;
     RemoveToneChar(keyconfig, output.raw_body, output.tone, output.tone_key);
     output.composed = ApplyConversionRules(keyconfig, output.raw_body);
-    if (NeedsToneDiacritic(output.tone)) {
+    if (Lomaji::NeedsToneDiacritic(output.tone)) {
         AddToneDiacritic(output.tone, output.composed);
     }
     output.composed = toNFC(output.composed);
@@ -250,14 +247,14 @@ Syllable AlignRawToComposed(KeyConfig *keyconfig, std::string::const_iterator &r
     auto t_it = compare.raw_input.cbegin();
     auto t_end = compare.raw_input.cend();
 
-    while (r_it != r_end && t_it != t_end && *r_it == *t_it) {
+    while (r_it != r_end && t_it != t_end && tolower(*r_it) == tolower(*t_it)) {
         ++r_it;
         ++t_it;
     }
 
     if (r_it != r_end && compare.tone != Tone::NaT) {
         auto r_maybe_tone = keyconfig->CheckToneKey(*r_it);
-        if (r_maybe_tone != compare.tone && r_it != r_end) {
+        if (r_maybe_tone != compare.tone && r_it + 1 != r_end) {
             r_maybe_tone = keyconfig->CheckToneKey(r_it[1]);
             if (r_maybe_tone == compare.tone) {
                 ++r_it;

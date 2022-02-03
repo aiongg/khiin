@@ -16,6 +16,7 @@ class Dictionary {
     virtual void Initialize() = 0;
     virtual std::vector<std::string> WordSearch(std::string_view query) = 0;
     virtual bool StartsWithWord(std::string_view query) = 0;
+    virtual bool StartsWithSyllable(std::string_view query) = 0;
     virtual bool IsSyllablePrefix(std::string_view query) = 0;
     virtual bool IsWord(std::string_view query) = 0;
     virtual DictionaryRow *BestWord(std::string const &query) = 0;

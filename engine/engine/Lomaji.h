@@ -34,6 +34,14 @@ inline const uint32_t U32_NN_UC = 0x1D3A;
 inline const uint32_t U32_UR_UC = 0x1E72;
 inline const uint32_t U32_UR = 0x1E73;
 
+class Lomaji {
+  public:
+    static utf8_size_t MoveCaret(std::string_view str, utf8_size_t start_pos, CursorDirection dir);
+    static inline bool NeedsToneDiacritic(Tone t) {
+        return !(t == Tone::NaT || t == Tone::T1 || t == Tone::T4);
+    }
+};
+
 auto asciiSyllableToUtf8(std::string ascii) -> std::string;
 
 auto asciiSyllableToUtf8(std::string ascii, Tone tone, bool khin) -> std::string;

@@ -61,35 +61,12 @@ TEST_F(BufferFx, Trivial) {
     EXPECT_TRUE(true);
 }
 
-TEST_F(BufferFx, Create) {
-    EXPECT_EQ(getBuf(), "");
-    EXPECT_EQ(getCurs(), 0);
-}
-
-TEST_F(BufferFx, Reset) {
-    insert("a");
-    reset();
-    EXPECT_EQ(getBuf(), "");
-    EXPECT_EQ(getCurs(), 0);
-}
-
-TEST_F(BufferFx, Simple) {
-    insert("a");
-    EXPECT_EQ(getBuf(), u8"a");
-    EXPECT_EQ(getCurs(), 1);
-}
-
 TEST_F(BufferFx, LongString) {
     insert("chetioittengsisekaisiongchanephahjihoat");
     EXPECT_EQ(getBuf(), "che tio it teng si se kai siong chan e phah jih oat");
     EXPECT_EQ(getCurs(), 51);
 }
 
-TEST_F(BufferFx, WithTones) {
-    insert("khiam3eng");
-    EXPECT_EQ(getBuf(), u8"khiàm eng");
-    EXPECT_EQ(getCurs(), 9);
-}
 
 TEST_F(BufferFx, WithHyphenGisu) {
     insert("khiam3-eng7");
@@ -249,54 +226,6 @@ TEST_F(BufferFx, DeleteDigit) {
     bksp(1);
 }
 
-TEST_F(BufferFx, Tone1) {
-    insert("a1");
-    //auto cand = buf->getCandidates();
-    //EXPECT_EQ(cand[0].text, "a");
-}
-
-TEST_F(BufferFx, move_cursor) {
-    insert("a");
-    left(1);
-    EXPECT_EQ(getCurs(), 0);
-    left(1);
-    EXPECT_EQ(getCurs(), 0);
-    right(1);
-    EXPECT_EQ(getCurs(), 1);
-    right(1);
-    EXPECT_EQ(getCurs(), 1);
-    reset();
-
-    insert("aja");
-    left(1);
-    EXPECT_EQ(getCurs(), 3);
-    left(1);
-    EXPECT_EQ(getCurs(), 2);
-    reset();
-
-    insert("ah8");
-    EXPECT_EQ(getCurs(), 3);
-    left(1);
-    EXPECT_EQ(getCurs(), 2);
-    left(1);
-    EXPECT_EQ(getCurs(), 0);
-
-    reset();
-    insert("ouhnn8");
-    EXPECT_EQ(getCurs(), 5);
-    left(1);
-    EXPECT_EQ(getCurs(), 4);
-    left(1);
-    EXPECT_EQ(getCurs(), 3);
-    left(1);
-    EXPECT_EQ(getCurs(), 0);
-    right(1);
-    EXPECT_EQ(getCurs(), 3);
-    right(1);
-    EXPECT_EQ(getCurs(), 4);
-    right(1);
-    EXPECT_EQ(getCurs(), 5);
-}
 
 TEST_F(BufferFx, move_cursor_and_insert) {
     insert("aja");

@@ -111,9 +111,9 @@ std::string BufferElement::converted() {
         case Spacer::Hyphen:
             return u8"-";
         case Spacer::Space:
-            [[fallthrough]];
+            return " ";
         case Spacer::VirtualSpace:
-            return u8" ";
+            return u8"";
         default:
             return u8"";
         }

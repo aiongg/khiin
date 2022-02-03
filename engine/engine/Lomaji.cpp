@@ -18,8 +18,6 @@ namespace khiin::engine {
 
 namespace {
 
-
-
 inline const std::string U8_NN = u8"\u207f";
 inline const std::string U8_OU = u8"\u0358";
 inline const std::string U8_T2 = u8"\u0301";
@@ -73,6 +71,10 @@ auto getToneFromKeyMap(std::unordered_map<Tone, char> map, char ch) {
 auto stripToAlpha(std::string str) {
     static std::regex re("[\\d]+");
     return boost::replace_all_copy(std::regex_replace(str, re, ""), "-", " ");
+}
+
+bool IsNoncursorableCodepoint(uint32_t cp) {
+    return 0x0300 < cp && cp < 0x0358;
 }
 
 } // namespace
@@ -345,6 +347,45 @@ auto utf8ToAsciiLower(std::string u8string) -> std::string {
     u8string = std::regex_replace(u8string, khinAtFront, "$2$1");
 
     return u8string;
+}
+
+utf8_size_t Lomaji::MoveCaret(std::string_view str, utf8_size_t start_pos, CursorDirection dir) {
+    auto it = str.cbegin();
+
+    if (dir == CursorDirection::L) {
+        if (start_pos == 0) {
+            return 0;
+        }
+
+        utf8::unchecked::advance(it, start_pos);
+
+        while (it != str.cbegin()) {
+            auto cp = utf8::unchecked::prior(it);
+            if (IsNoncursorableCodepoint(cp)) {
+                continue;
+            } else {
+                break;
+            }
+        }
+    } else if (dir == CursorDirection::R) {
+        if (start_pos == Utf8Size(str)) {
+            return start_pos;
+        }
+
+        utf8::unchecked::advance(it, start_pos + 1);
+
+        while (it != str.cend()) {
+            auto cp = utf8::unchecked::peek_next(it);
+            if (IsNoncursorableCodepoint(cp)) {
+                utf8::unchecked::next(it);
+                continue;
+            } else {
+                break;
+            }
+        }
+    }
+
+    return utf8::unchecked::distance(str.cbegin(), it);
 }
 
 } // namespace khiin::engine

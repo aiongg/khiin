@@ -40,6 +40,14 @@ class SegmenterImpl : public Segmenter {
             }
         };
 
+        auto consume_syllable = [&](const std::string &raw) {
+            Syllable syllable;
+            engine->syllable_parser()->ParseRaw(raw, syllable);
+            TaiText segment;
+            segment.AddItem(syllable);
+            result.push_back(BufferElement(segment));
+        };
+
         while (it != end) {
             auto remaining_buffer = std::string(it, end);
 
@@ -50,17 +58,23 @@ class SegmenterImpl : public Segmenter {
             }
 
             if (dictionary->IsSyllablePrefix(remaining_buffer)) {
-                consume_unknown();
-                result.push_back(BufferElement(remaining_buffer));
+                consume_syllable(remaining_buffer);
                 break;
             }
 
-            if (dictionary->StartsWithWord(remaining_buffer)) {
+            if (dictionary->StartsWithWord(remaining_buffer) || dictionary->StartsWithSyllable(remaining_buffer)) {
                 consume_unknown();
-                auto max = GetMaxSplittableIndex(remaining_buffer);
-                if (max != std::string::npos) {
-                    ConsumeSplittableBuffer(remaining_buffer.substr(0, max), result);
-                    it += max;
+
+                auto max_word = GetMaxSplittableIndex(remaining_buffer);
+                auto max_syl = LongestSyllableFromStart(remaining_buffer);
+
+                if (max_syl > max_word) {
+                    consume_syllable(std::string(remaining_buffer.cbegin(), remaining_buffer.cbegin() + max_syl));
+                    it += max_syl;
+                    continue;
+                } else if (max_word != std::string::npos) {
+                    ConsumeSplittableBuffer(remaining_buffer.substr(0, max_word), result);
+                    it += max_word;
                     continue;
                 }
             }
@@ -68,6 +82,8 @@ class SegmenterImpl : public Segmenter {
             unknown_text.push_back(*it);
             ++it;
         }
+
+        consume_unknown();
 
         if (result.empty()) {
             return;
@@ -102,6 +118,19 @@ class SegmenterImpl : public Segmenter {
         }
 
         return std::string::npos;
+    }
+
+    size_t LongestSyllableFromStart(std::string_view query) {
+        auto i = 1;
+        auto size = query.size();
+        while (i != size) {
+            if (engine->dictionary()->IsSyllablePrefix(query.substr(0, i))) {
+                ++i;
+                continue;
+            }
+            break;
+        }
+        return --i;
     }
 
     Engine *engine = nullptr;

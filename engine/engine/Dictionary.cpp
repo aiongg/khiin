@@ -6,6 +6,7 @@
 #include "Database.h"
 #include "Engine.h"
 #include "KeyConfig.h"
+#include "Lomaji.h"
 #include "Splitter.h"
 #include "SyllableParser.h"
 #include "Trie.h"
@@ -37,7 +38,21 @@ class DictionaryImpl : public Dictionary {
         return word_trie->StartsWithWord(query);
     }
 
+    virtual bool StartsWithSyllable(std::string_view query) override {
+        return syllable_trie->StartsWithWord(query);
+    }
+
     virtual bool IsSyllablePrefix(std::string_view query) override {
+        if (query.empty()) {
+            return false;
+        }
+
+        auto maybe_tone = engine->key_configuration()->CheckToneKey(query.back());
+
+        if (Lomaji::NeedsToneDiacritic(maybe_tone)) {
+            query = query.substr(0, query.size() - 1);
+        }
+
         return syllable_trie->ContainsPrefix(query);
     }
 

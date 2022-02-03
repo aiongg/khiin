@@ -80,6 +80,34 @@ TEST(SyllableParserTest, ParseRawTest4) {
     EXPECT_EQ(syl.composed, u8"bah");
 }
 
+TEST(SyllableParserTest, ParseRawTest5) {
+    auto input = "ouhnn8";
+    auto syl = Syllable();
+    auto keyconfig = KeyConfig::Create();
+    auto parser = SyllableParser::Create(keyconfig);
+
+    parser->ParseRaw(input, syl);
+
+    EXPECT_EQ(syl.raw_body, "ouhnn");
+    EXPECT_EQ(syl.tone, Tone::T8);
+    EXPECT_EQ(syl.tone_key, '8');
+    EXPECT_EQ(syl.composed, u8"o\u030d\u0358h\u207f");
+}
+
+TEST(SyllableParserTest, ParseRawTest6) {
+    auto input = "ian9";
+    auto syl = Syllable();
+    auto keyconfig = KeyConfig::Create();
+    auto parser = SyllableParser::Create(keyconfig);
+
+    parser->ParseRaw(input, syl);
+
+    EXPECT_EQ(syl.raw_body, "ian");
+    EXPECT_EQ(syl.tone, Tone::T9);
+    EXPECT_EQ(syl.tone_key, '9');
+    EXPECT_EQ(syl.composed, u8"iăn");
+}
+
 TEST(SyllableParserTest, ConvertCaretPosition) {
     auto keyconfig = KeyConfig::Create();
     auto parser = SyllableParser::Create(keyconfig);
@@ -238,7 +266,7 @@ TEST(SyllableParserTest, AsInputSequences6) {
     EXPECT_FALSE(result[1].is_fuzzy_monosyllable);
 }
 
-TEST(SyllableParserTest, AsBufferSegment) {
+TEST(SyllableParserTest, AsBufferSegment1) {
     auto keyconfig = KeyConfig::Create();
     auto parser = SyllableParser::Create(keyconfig);
     auto raw = "pengan";
@@ -248,6 +276,17 @@ TEST(SyllableParserTest, AsBufferSegment) {
     EXPECT_EQ(result.raw(), "pengan");
     EXPECT_EQ(result.composed(), "peng an");
     EXPECT_EQ(result.size(), 7);
+}
+
+TEST(SyllableParserTest, AsBufferSegment2) {
+    auto keyconfig = KeyConfig::Create();
+    auto parser = SyllableParser::Create(keyconfig);
+    auto raw = u8"ho";
+    auto target = u8"Hó";
+    auto result = parser->AsBufferSegment(raw, target);
+    EXPECT_EQ(result.raw(), "ho");
+    EXPECT_EQ(result.composed(), "ho");
+    EXPECT_EQ(result.size(), 2);
 }
 
 } // namespace

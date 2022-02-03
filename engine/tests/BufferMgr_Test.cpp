@@ -13,6 +13,40 @@ struct BufferMgrTest : ::testing::Test {
         bufmgr = TestEnv::engine()->buffer_mgr();
         bufmgr->Clear();
     }
+
+    void insert_string(std::string str) {
+        for (auto c : str) {
+            bufmgr->Insert(c);
+        }
+    }
+
+    std::string display() {
+        auto preedit = messages::Preedit::default_instance().New();
+        bufmgr->BuildPreedit(preedit);
+        auto ret = std::string();
+        for (auto &segment : preedit->segments()) {
+            ret += segment.value();
+        }
+        return ret;
+    }
+
+    size_t caret() {
+        auto preedit = messages::Preedit::default_instance().New();
+        bufmgr->BuildPreedit(preedit);
+        return preedit->cursor_position();
+    }
+
+    void curs_left(int n) {
+        for (auto i = 0; i < n; i++) {
+            bufmgr->MoveCaret(CursorDirection::L);
+        }
+    }
+    void curs_right(int n) {
+        for (auto i = 0; i < n; i++) {
+            bufmgr->MoveCaret(CursorDirection::L);
+        }
+    }
+
     BufferMgr *bufmgr = nullptr;
 };
 
@@ -117,13 +151,98 @@ TEST_F(BufferMgrTest, InsertTone) {
 TEST_F(BufferMgrTest, Candidates1) {
     auto clist = messages::CandidateList::default_instance().New();
 
-    bufmgr->Insert('p');
-    bufmgr->Insert('e');
-    bufmgr->Insert('n');
-    bufmgr->Insert('g');
-    bufmgr->Insert('a');
-    bufmgr->Insert('n');
+    insert_string("pengan");
     bufmgr->GetCandidates(clist);
+
+    EXPECT_EQ(clist->candidates().size(), 1);
+    EXPECT_EQ(clist->candidates().at(0).value(), u8"平安");
+}
+
+TEST_F(BufferMgrTest, Simple) {
+    insert_string("a");
+    EXPECT_EQ(display(), "a");
+    EXPECT_EQ(caret(), 1);
+}
+
+TEST_F(BufferMgrTest, Reset) {
+    insert_string("a");
+    bufmgr->Clear();
+    EXPECT_EQ(display(), "");
+    EXPECT_EQ(caret(), 0);
+}
+
+TEST_F(BufferMgrTest, WithTones) {
+    insert_string("peng5an");
+    EXPECT_EQ(display(), u8"pêng an");
+    EXPECT_EQ(caret(), 7);
+}
+
+TEST_F(BufferMgrTest, ian9jin2) {
+    insert_string("ian9");
+    EXPECT_EQ(display(), u8"iăn");
+    insert_string("j");
+    EXPECT_EQ(display(), u8"iăn j");
+    insert_string("i");
+    EXPECT_EQ(display(), u8"iăn ji");
+    insert_string("n");
+    EXPECT_EQ(display(), u8"iăn jin");
+    insert_string("2");
+    EXPECT_EQ(display(), u8"iăn jín");
+    EXPECT_EQ(caret(), 7);
+}
+
+TEST_F(BufferMgrTest, MoveCursor1) {
+    insert_string("a");
+    bufmgr->MoveCaret(CursorDirection::L);
+    EXPECT_EQ(caret(), 0);
+    bufmgr->MoveCaret(CursorDirection::L);
+    EXPECT_EQ(caret(), 0);
+    bufmgr->MoveCaret(CursorDirection::R);
+    EXPECT_EQ(caret(), 1);
+    bufmgr->MoveCaret(CursorDirection::R);
+    EXPECT_EQ(caret(), 1);
+}
+
+TEST_F(BufferMgrTest, MoveCursor2) {
+    insert_string("ah8");
+    EXPECT_EQ(caret(), 3);
+    bufmgr->MoveCaret(CursorDirection::L);
+    EXPECT_EQ(caret(), 2);
+    bufmgr->MoveCaret(CursorDirection::L);
+    EXPECT_EQ(caret(), 0);
+    bufmgr->MoveCaret(CursorDirection::R);
+    EXPECT_EQ(caret(), 2);
+    bufmgr->MoveCaret(CursorDirection::R);
+    EXPECT_EQ(caret(), 3);
+}
+
+TEST_F(BufferMgrTest, MoveCursor3) {
+    insert_string("hahnn8");
+    EXPECT_EQ(caret(), 5);
+    bufmgr->MoveCaret(CursorDirection::L);
+    EXPECT_EQ(caret(), 4);
+    bufmgr->MoveCaret(CursorDirection::L);
+    EXPECT_EQ(caret(), 3);
+    bufmgr->MoveCaret(CursorDirection::L);
+    EXPECT_EQ(caret(), 1);
+    bufmgr->MoveCaret(CursorDirection::L);
+    EXPECT_EQ(caret(), 0);
+    bufmgr->MoveCaret(CursorDirection::R);
+    EXPECT_EQ(caret(), 1);
+    bufmgr->MoveCaret(CursorDirection::R);
+    EXPECT_EQ(caret(), 3);
+    bufmgr->MoveCaret(CursorDirection::R);
+    EXPECT_EQ(caret(), 4);
+    bufmgr->MoveCaret(CursorDirection::R);
+    EXPECT_EQ(caret(), 5);
+}
+
+TEST_F(BufferMgrTest, MoveAndType1) {
+    insert_string("siongho");
+    EXPECT_EQ(display(), "siong ho");
+    curs_left(6);
+    insert_string("h");
+    EXPECT_EQ(display(), "si hong ho");
 }
 
 } // namespace

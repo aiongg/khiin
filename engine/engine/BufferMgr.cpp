@@ -4,6 +4,7 @@
 #include "Engine.h"
 #include "Segmenter.h"
 #include "unicode_utils.h"
+#include "Lomaji.h"
 
 namespace khiin::engine {
 
@@ -17,6 +18,7 @@ class BufferMgrImpl : public BufferMgr {
 
     virtual void Clear() override {
         m_elements.clear();
+        m_caret = 0;
     }
 
     virtual bool IsEmpty() override {
@@ -33,17 +35,16 @@ class BufferMgrImpl : public BufferMgr {
         }
     }
 
-    virtual void MoveCaret(CursorDirection direction) override {}
+    virtual void MoveCaret(CursorDirection direction) override {
+        auto buffer_text = GetDisplayBuffer();
+        m_caret = Lomaji::MoveCaret(buffer_text, m_caret, direction);
+    }
 
     virtual void Erase(CursorDirection direction) override {}
 
     virtual void BuildPreedit(Preedit *preedit) override {
-        auto display_text = std::string();
-        for (auto &elem : m_elements) {
-            display_text.append(elem.composed());
-        }
         auto segment = preedit->add_segments();
-        segment->set_value(display_text);
+        segment->set_value(GetDisplayBuffer());
         segment->set_status(SegmentStatus::COMPOSING);
         preedit->set_cursor_position(m_caret);
     }
@@ -89,9 +90,24 @@ class BufferMgrImpl : public BufferMgr {
 
     std::string GetRawBuffer() {
         auto ret = std::string();
-        for (auto i = 0; i < m_elements.size(); ++i) {
-            auto &elem = m_elements[i];
+        for (auto &elem : m_elements) {
             ret.append(elem.raw());
+        }
+        return ret;
+    }
+
+    std::string GetDisplayBuffer() {
+        auto ret = std::string();
+        for (auto &elem : m_elements) {
+            ret.append(elem.composed());
+        }
+        return ret;
+    }
+
+    utf8_size_t GetDisplayBufferSize() {
+        utf8_size_t ret = 0;
+        for (auto &elem : m_elements) {
+            ret += elem.size();
         }
         return ret;
     }
