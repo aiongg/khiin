@@ -54,7 +54,7 @@ TEST_F(BufferMgrTest, Loads) {
     EXPECT_TRUE(bufmgr);
 }
 
-TEST_F(BufferMgrTest, InsertLetter) {
+TEST_F(BufferMgrTest, Insert_a) {
     bufmgr->Insert('a');
     auto preedit = messages::Preedit::default_instance().New();
     bufmgr->BuildPreedit(preedit);
@@ -63,7 +63,7 @@ TEST_F(BufferMgrTest, InsertLetter) {
     EXPECT_EQ(preedit->cursor_position(), 1);
 }
 
-TEST_F(BufferMgrTest, InsertSimpleWord) {
+TEST_F(BufferMgrTest, Insert_pengan) {
     auto preedit = messages::Preedit::default_instance().New();
 
     bufmgr->Insert('p');
@@ -109,7 +109,7 @@ TEST_F(BufferMgrTest, InsertSimpleWord) {
     EXPECT_EQ(preedit->cursor_position(), 7);
 }
 
-TEST_F(BufferMgrTest, InsertTone) {
+TEST_F(BufferMgrTest, Insert_a2bo5) {
     auto preedit = messages::Preedit::default_instance().New();
 
     bufmgr->Insert('a');
@@ -148,7 +148,7 @@ TEST_F(BufferMgrTest, InsertTone) {
     EXPECT_EQ(preedit->cursor_position(), 4);
 }
 
-TEST_F(BufferMgrTest, Candidates1) {
+TEST_F(BufferMgrTest, Candidates_pengan) {
     auto clist = messages::CandidateList::default_instance().New();
 
     insert_string("pengan");
@@ -158,12 +158,6 @@ TEST_F(BufferMgrTest, Candidates1) {
     EXPECT_EQ(clist->candidates().at(0).value(), u8"平安");
 }
 
-TEST_F(BufferMgrTest, Simple) {
-    insert_string("a");
-    EXPECT_EQ(display(), "a");
-    EXPECT_EQ(caret(), 1);
-}
-
 TEST_F(BufferMgrTest, Reset) {
     insert_string("a");
     bufmgr->Clear();
@@ -171,13 +165,13 @@ TEST_F(BufferMgrTest, Reset) {
     EXPECT_EQ(caret(), 0);
 }
 
-TEST_F(BufferMgrTest, WithTones) {
+TEST_F(BufferMgrTest, Insert_peng5an) {
     insert_string("peng5an");
     EXPECT_EQ(display(), u8"pêng an");
     EXPECT_EQ(caret(), 7);
 }
 
-TEST_F(BufferMgrTest, ian9jin2) {
+TEST_F(BufferMgrTest, Insert_ian9jin2) {
     insert_string("ian9");
     EXPECT_EQ(display(), u8"iăn");
     insert_string("j");
@@ -191,7 +185,7 @@ TEST_F(BufferMgrTest, ian9jin2) {
     EXPECT_EQ(caret(), 7);
 }
 
-TEST_F(BufferMgrTest, MoveCursor1) {
+TEST_F(BufferMgrTest, Move_a) {
     insert_string("a");
     bufmgr->MoveCaret(CursorDirection::L);
     EXPECT_EQ(caret(), 0);
@@ -203,7 +197,7 @@ TEST_F(BufferMgrTest, MoveCursor1) {
     EXPECT_EQ(caret(), 1);
 }
 
-TEST_F(BufferMgrTest, MoveCursor2) {
+TEST_F(BufferMgrTest, Move_ah8) {
     insert_string("ah8");
     EXPECT_EQ(caret(), 3);
     bufmgr->MoveCaret(CursorDirection::L);
@@ -216,7 +210,7 @@ TEST_F(BufferMgrTest, MoveCursor2) {
     EXPECT_EQ(caret(), 3);
 }
 
-TEST_F(BufferMgrTest, MoveCursor3) {
+TEST_F(BufferMgrTest, Move_hahnn8) {
     insert_string("hahnn8");
     EXPECT_EQ(caret(), 5);
     bufmgr->MoveCaret(CursorDirection::L);
@@ -237,12 +231,51 @@ TEST_F(BufferMgrTest, MoveCursor3) {
     EXPECT_EQ(caret(), 5);
 }
 
-TEST_F(BufferMgrTest, MoveAndType1) {
+TEST_F(BufferMgrTest, MoveType_siongho) {
     insert_string("siongho");
     EXPECT_EQ(display(), "siong ho");
     curs_left(6);
     insert_string("h");
     EXPECT_EQ(display(), "si hong ho");
+}
+
+TEST_F(BufferMgrTest, Backspace_a) {
+    insert_string("a");
+    bufmgr->Erase(CursorDirection::L);
+    EXPECT_EQ(display(), "");
+    EXPECT_EQ(caret(), 0);
+}
+
+TEST_F(BufferMgrTest, Delete_a) {
+    insert_string("a");
+    curs_left(1);
+    bufmgr->Erase(CursorDirection::R);
+    EXPECT_EQ(display(), "");
+    EXPECT_EQ(caret(), 0);
+}
+
+TEST_F(BufferMgrTest, Delete_pengan) {
+    insert_string("pengan");
+    EXPECT_EQ(display(), "peng an");
+    EXPECT_EQ(caret(), 7);
+    bufmgr->Erase(CursorDirection::L);
+    EXPECT_EQ(display(), "peng a");
+    EXPECT_EQ(caret(), 6);
+    bufmgr->Erase(CursorDirection::L);
+    EXPECT_EQ(display(), "peng");
+    EXPECT_EQ(caret(), 4);
+    bufmgr->Erase(CursorDirection::L);
+    EXPECT_EQ(display(), "pen");
+    EXPECT_EQ(caret(), 3);
+    bufmgr->Erase(CursorDirection::L);
+    EXPECT_EQ(display(), "pe");
+    EXPECT_EQ(caret(), 2);
+    bufmgr->Erase(CursorDirection::L);
+    EXPECT_EQ(display(), "p");
+    EXPECT_EQ(caret(), 1);
+    bufmgr->Erase(CursorDirection::L);
+    EXPECT_EQ(display(), "");
+    EXPECT_EQ(caret(), 0);
 }
 
 } // namespace

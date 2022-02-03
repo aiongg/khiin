@@ -19,11 +19,19 @@ std::vector<std::string> input_sequence_strings_only(std::vector<InputSequence> 
     return ret;
 }
 
-TEST(SyllableParserTest, ParseRawTest1) {
+struct SyllableParserTest : ::testing::Test {
+  protected:
+    void SetUp() {
+        keyconfig = KeyConfig::Create();
+        parser = SyllableParser::Create(keyconfig);
+    }
+    KeyConfig *keyconfig = nullptr;
+    SyllableParser *parser = nullptr;
+};
+
+TEST_F(SyllableParserTest, ParseRawTest1) {
     auto input = "ho2";
     auto syl = Syllable();
-    auto keyconfig = KeyConfig::Create();
-    auto parser = SyllableParser::Create(keyconfig);
 
     parser->ParseRaw(input, syl);
 
@@ -35,11 +43,9 @@ TEST(SyllableParserTest, ParseRawTest1) {
     EXPECT_EQ(syl.raw_body.size(), 2);
 }
 
-TEST(SyllableParserTest, ParseRawTest2) {
+TEST_F(SyllableParserTest, ParseRawTest2) {
     auto input = "hou7";
     auto syl = Syllable();
-    auto keyconfig = KeyConfig::Create();
-    auto parser = SyllableParser::Create(keyconfig);
 
     parser->ParseRaw(input, syl);
 
@@ -50,11 +56,9 @@ TEST(SyllableParserTest, ParseRawTest2) {
     EXPECT_EQ(syl.composed, u8"hō\u0358");
 }
 
-TEST(SyllableParserTest, ParseRawTest3) {
+TEST_F(SyllableParserTest, ParseRawTest3) {
     auto input = "an1";
     auto syl = Syllable();
-    auto keyconfig = KeyConfig::Create();
-    auto parser = SyllableParser::Create(keyconfig);
 
     parser->ParseRaw(input, syl);
 
@@ -65,11 +69,9 @@ TEST(SyllableParserTest, ParseRawTest3) {
     EXPECT_EQ(syl.composed, u8"an");
 }
 
-TEST(SyllableParserTest, ParseRawTest4) {
+TEST_F(SyllableParserTest, ParseRawTest4) {
     auto input = "bah4";
     auto syl = Syllable();
-    auto keyconfig = KeyConfig::Create();
-    auto parser = SyllableParser::Create(keyconfig);
 
     parser->ParseRaw(input, syl);
 
@@ -80,11 +82,9 @@ TEST(SyllableParserTest, ParseRawTest4) {
     EXPECT_EQ(syl.composed, u8"bah");
 }
 
-TEST(SyllableParserTest, ParseRawTest5) {
+TEST_F(SyllableParserTest, ParseRawTest5) {
     auto input = "ouhnn8";
     auto syl = Syllable();
-    auto keyconfig = KeyConfig::Create();
-    auto parser = SyllableParser::Create(keyconfig);
 
     parser->ParseRaw(input, syl);
 
@@ -94,11 +94,9 @@ TEST(SyllableParserTest, ParseRawTest5) {
     EXPECT_EQ(syl.composed, u8"o\u030d\u0358h\u207f");
 }
 
-TEST(SyllableParserTest, ParseRawTest6) {
+TEST_F(SyllableParserTest, ParseRawTest6) {
     auto input = "ian9";
     auto syl = Syllable();
-    auto keyconfig = KeyConfig::Create();
-    auto parser = SyllableParser::Create(keyconfig);
 
     parser->ParseRaw(input, syl);
 
@@ -108,9 +106,7 @@ TEST(SyllableParserTest, ParseRawTest6) {
     EXPECT_EQ(syl.composed, u8"iăn");
 }
 
-TEST(SyllableParserTest, ConvertCaretPosition) {
-    auto keyconfig = KeyConfig::Create();
-    auto parser = SyllableParser::Create(keyconfig);
+TEST_F(SyllableParserTest, ConvertCaretPosition) {
     auto syl = Syllable();
     syl.raw_input = "ho2";
     syl.raw_body = "ho";
@@ -138,9 +134,7 @@ TEST(SyllableParserTest, ConvertCaretPosition) {
     EXPECT_EQ(caret, std::string::npos);
 }
 
-TEST(SyllableParserTest, ConvertCaretPosition2) {
-    auto keyconfig = KeyConfig::Create();
-    auto parser = SyllableParser::Create(keyconfig);
+TEST_F(SyllableParserTest, ConvertCaretPosition2) {
     auto syl = Syllable();
     syl.raw_input = "hounn3";
     syl.raw_body = "hounn";
@@ -172,10 +166,8 @@ TEST(SyllableParserTest, ConvertCaretPosition2) {
     EXPECT_EQ(caret, std::string::npos);
 }
 
-TEST(SyllableParserTest, ToFuzzy) {
+TEST_F(SyllableParserTest, ToFuzzy) {
     auto input = u8"hō\u0358";
-    auto keyconfig = KeyConfig::Create();
-    auto parser = SyllableParser::Create(keyconfig);
     auto result = std::vector<std::string>();
     auto has_tone = false;
     parser->ToFuzzy(input, result, has_tone);
@@ -184,10 +176,8 @@ TEST(SyllableParserTest, ToFuzzy) {
     EXPECT_TRUE(has_tone);
 }
 
-TEST(SyllableParserTest, AsInputSequences1) {
+TEST_F(SyllableParserTest, AsInputSequences1) {
     auto input = u8"pêng-an";
-    auto keyconfig = KeyConfig::Create();
-    auto parser = SyllableParser::Create(keyconfig);
     auto result = input_sequence_strings_only(parser->AsInputSequences(input));
 
     EXPECT_EQ(result.size(), 4);
@@ -197,10 +187,8 @@ TEST(SyllableParserTest, AsInputSequences1) {
     EXPECT_THAT(result, Contains(u8"peng5an1"));
 }
 
-TEST(SyllableParserTest, AsInputSequences2) {
+TEST_F(SyllableParserTest, AsInputSequences2) {
     auto input = u8"lo\u030dh-·khì";
-    auto keyconfig = KeyConfig::Create();
-    auto parser = SyllableParser::Create(keyconfig);
     auto result = input_sequence_strings_only(parser->AsInputSequences(input));
 
     EXPECT_EQ(result.size(), 4);
@@ -210,10 +198,8 @@ TEST(SyllableParserTest, AsInputSequences2) {
     EXPECT_THAT(result, Contains(u8"loh8khi3"));
 }
 
-TEST(SyllableParserTest, AsInputSequences3) {
+TEST_F(SyllableParserTest, AsInputSequences3) {
     auto input = u8"pêng";
-    auto keyconfig = KeyConfig::Create();
-    auto parser = SyllableParser::Create(keyconfig);
     auto result = parser->AsInputSequences(input);
 
     EXPECT_EQ(result.size(), 2);
@@ -223,10 +209,8 @@ TEST(SyllableParserTest, AsInputSequences3) {
     EXPECT_TRUE(result[1].is_fuzzy_monosyllable);
 }
 
-TEST(SyllableParserTest, AsInputSequences4) {
+TEST_F(SyllableParserTest, AsInputSequences4) {
     auto input = u8"a-bí-cho\u030dk";
-    auto keyconfig = KeyConfig::Create();
-    auto parser = SyllableParser::Create(keyconfig);
     auto result = input_sequence_strings_only(parser->AsInputSequences(input));
 
     EXPECT_EQ(result.size(), 8);
@@ -240,10 +224,8 @@ TEST(SyllableParserTest, AsInputSequences4) {
     EXPECT_THAT(result, Contains(u8"abichok"));
 }
 
-TEST(SyllableParserTest, AsInputSequences5) {
+TEST_F(SyllableParserTest, AsInputSequences5) {
     auto input = u8"an";
-    auto keyconfig = KeyConfig::Create();
-    auto parser = SyllableParser::Create(keyconfig);
     auto result = parser->AsInputSequences(input);
 
     EXPECT_EQ(result.size(), 2);
@@ -253,10 +235,8 @@ TEST(SyllableParserTest, AsInputSequences5) {
     EXPECT_FALSE(result[1].is_fuzzy_monosyllable);
 }
 
-TEST(SyllableParserTest, AsInputSequences6) {
+TEST_F(SyllableParserTest, AsInputSequences6) {
     auto input = u8"bah";
-    auto keyconfig = KeyConfig::Create();
-    auto parser = SyllableParser::Create(keyconfig);
     auto result = parser->AsInputSequences(input);
 
     EXPECT_EQ(result.size(), 2);
@@ -266,27 +246,34 @@ TEST(SyllableParserTest, AsInputSequences6) {
     EXPECT_FALSE(result[1].is_fuzzy_monosyllable);
 }
 
-TEST(SyllableParserTest, AsBufferSegment1) {
-    auto keyconfig = KeyConfig::Create();
-    auto parser = SyllableParser::Create(keyconfig);
+TEST_F(SyllableParserTest, TaiText_pengan) {
     auto raw = "pengan";
     auto target = u8"pêng-an";
 
-    auto result = parser->AsBufferSegment(raw, target);
+    auto result = parser->AsTaiText(raw, target);
     EXPECT_EQ(result.raw(), "pengan");
     EXPECT_EQ(result.composed(), "peng an");
     EXPECT_EQ(result.size(), 7);
 }
 
-TEST(SyllableParserTest, AsBufferSegment2) {
-    auto keyconfig = KeyConfig::Create();
-    auto parser = SyllableParser::Create(keyconfig);
+TEST_F(SyllableParserTest, TaiText_Ho2) {
     auto raw = u8"ho";
     auto target = u8"Hó";
-    auto result = parser->AsBufferSegment(raw, target);
+    auto result = parser->AsTaiText(raw, target);
     EXPECT_EQ(result.raw(), "ho");
     EXPECT_EQ(result.composed(), "ho");
     EXPECT_EQ(result.size(), 2);
+}
+
+TEST_F(SyllableParserTest, Erase_a) {
+    auto s = Syllable();
+    s.composed = "a";
+    s.raw_input = "a";
+    s.raw_body = "a";
+    parser->Erase(s, 0);
+    EXPECT_EQ(s.composed.size(), 0);
+    EXPECT_EQ(s.raw_body.size(), 0);
+    EXPECT_EQ(s.raw_input.size(), 0);
 }
 
 } // namespace

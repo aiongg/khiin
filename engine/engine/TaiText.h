@@ -10,6 +10,7 @@ namespace khiin::engine {
 class SyllableParser;
 
 enum class Spacer {
+    None,
     Hyphen,
     Space,
     Zwd,
@@ -25,14 +26,16 @@ class TaiText {
     void AddItem(Spacer spacer);
     void SetCandidate(DictionaryRow *candidate);
 
-    utf8_size_t size();
-    std::string raw();
-    std::string composed();
-    std::string converted();
+    utf8_size_t size() const;
+    std::string raw() const;
+    std::string composed() const;
+    std::string converted() const;
 
-    void RawIndexed(utf8_size_t caret, std::string &raw, size_t &raw_caret);
-    utf8_size_t RawToComposedCaret(SyllableParser *parser, size_t raw_caret);
-    size_t ComposedToRawCaret(SyllableParser *parser, utf8_size_t caret);
+    void RawIndexed(utf8_size_t caret, std::string &raw, size_t &raw_caret) const;
+    utf8_size_t RawToComposedCaret(SyllableParser *parser, size_t raw_caret) const;
+    size_t ComposedToRawCaret(SyllableParser *parser, utf8_size_t caret) const;
+    void Erase(SyllableParser *parser, utf8_size_t index);
+    bool IsVirtualSpace(utf8_size_t index) const;
 
   private:
     std::vector<Chunk> m_elements;

@@ -102,7 +102,7 @@ class SegmenterImpl : public Segmenter {
         engine->word_splitter()->Split(input, words);
         for (auto &word : words) {
             auto best_match = engine->dictionary()->BestWord(word);
-            auto segment = engine->syllable_parser()->AsBufferSegment(word, best_match->input);
+            auto segment = engine->syllable_parser()->AsTaiText(word, best_match->input);
             segment.SetCandidate(best_match);
             result.push_back(BufferElement(segment));
         }

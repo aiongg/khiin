@@ -221,7 +221,7 @@ std::string SylToRaw(Syllable const &input) {
     return ret;
 };
 
-Syllable SylFromComposed(KeyConfig *keyconfig, std::string const &input) {
+Syllable SylFromComposed(KeyConfig *keyconfig, std::string const &input, char original_tone_key = 0) {
     auto copy = toNFD(input);
     auto tone = Tone::NaT;
     char digit_key = 0;
@@ -232,7 +232,11 @@ Syllable SylFromComposed(KeyConfig *keyconfig, std::string const &input) {
     syl.composed = input;
     syl.raw_body = copy;
     syl.tone = tone;
-    syl.tone_key = digit_key;
+    if (tone != Tone::NaT && original_tone_key) {
+        syl.tone_key = original_tone_key;
+    } else {
+        syl.tone_key = digit_key;
+    }
     syl.raw_input = SylToRaw(syl);
     return syl;
 }
@@ -302,7 +306,7 @@ void ComposedToRawWithAlternates(KeyConfig *keyconfig, const std::string &input,
     }
 }
 
-utf8_size_t RawCaretToComposedCaret(KeyConfig *keyconfig, Syllable &syllable, size_t raw_caret) {
+utf8_size_t RawCaretToComposedCaret(KeyConfig *keyconfig, Syllable const &syllable, size_t raw_caret) {
     auto const &input = syllable.raw_input;
     auto const &body = syllable.raw_body;
     auto ret = std::string::npos;
@@ -326,7 +330,7 @@ utf8_size_t RawCaretToComposedCaret(KeyConfig *keyconfig, Syllable &syllable, si
     return ret;
 }
 
-size_t ComposedCaretToRawCaret(KeyConfig *keyconfig, Syllable &syllable, utf8_size_t composed_caret) {
+size_t ComposedCaretToRawCaret(KeyConfig *keyconfig, Syllable const &syllable, utf8_size_t composed_caret) {
     auto size = utf8::distance(syllable.composed.cbegin(), syllable.composed.cend());
     auto ret = std::string::npos;
 
@@ -357,15 +361,15 @@ class SyllableParserImpl : public SyllableParser {
         output = SylFromRaw(keyconfig, input);
     }
 
-    virtual utf8_size_t RawToComposedCaret(Syllable &syllable, size_t raw_caret) override {
+    virtual utf8_size_t RawToComposedCaret(Syllable const &syllable, size_t raw_caret) override {
         return RawCaretToComposedCaret(keyconfig, syllable, raw_caret);
     }
 
-    virtual size_t ComposedToRawCaret(Syllable &syllable, utf8_size_t composed_caret) override {
+    virtual size_t ComposedToRawCaret(Syllable const &syllable, utf8_size_t composed_caret) override {
         return ComposedCaretToRawCaret(keyconfig, syllable, composed_caret);
     }
 
-    virtual void ToFuzzy(const std::string &input, string_vector &output, bool &has_tone) {
+    virtual void ToFuzzy(std::string const &input, string_vector &output, bool &has_tone) {
         ComposedToRawWithAlternates(keyconfig, input, output, has_tone);
     }
 
@@ -430,7 +434,7 @@ class SyllableParserImpl : public SyllableParser {
         return ret;
     }
 
-    virtual TaiText AsBufferSegment(std::string const &raw, std::string const &target) override {
+    virtual TaiText AsTaiText(std::string const &raw, std::string const &target) override {
         auto ret = TaiText();
         auto t_start = target.cbegin();
         auto t_end = target.cend();
@@ -450,6 +454,11 @@ class SyllableParserImpl : public SyllableParser {
         ret.AddItem(syl);
 
         return ret;
+    }
+
+    virtual void Erase(Syllable &syllable, utf8_size_t index) override {
+        syllable.composed.erase(index, 1);
+        syllable = SylFromComposed(keyconfig, syllable.composed, syllable.tone_key);
     }
 
     KeyConfig *keyconfig;

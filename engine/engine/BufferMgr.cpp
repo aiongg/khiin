@@ -2,9 +2,9 @@
 
 #include "BufferElement.h"
 #include "Engine.h"
+#include "Lomaji.h"
 #include "Segmenter.h"
 #include "unicode_utils.h"
-#include "Lomaji.h"
 
 namespace khiin::engine {
 
@@ -40,7 +40,35 @@ class BufferMgrImpl : public BufferMgr {
         m_caret = Lomaji::MoveCaret(buffer_text, m_caret, direction);
     }
 
-    virtual void Erase(CursorDirection direction) override {}
+    virtual void Erase(CursorDirection direction) override {
+        if (direction == CursorDirection::L) {
+            MoveCaret(CursorDirection::L);
+        }
+
+        auto raw_caret = GetRawCaret();
+        auto remainder = m_caret;
+
+        auto it = m_elements.begin();
+        for (; it != m_elements.end(); ++it) {
+            if (auto size = it->size(); remainder >= size) {
+                remainder -= size;
+            } else {
+                break;
+            }
+        }
+
+        if (it->IsVirtualSpace(remainder) && direction == CursorDirection::R) {
+            MoveCaret(CursorDirection::R);
+            return;
+        }
+
+        it->Erase(m_engine->syllable_parser(), remainder);
+        if (it->size() == 0) {
+            m_elements.erase(it);
+        }
+        auto raw_buffer = GetRawBuffer();
+        UpdateBuffer(raw_buffer, raw_caret);
+    }
 
     virtual void BuildPreedit(Preedit *preedit) override {
         auto segment = preedit->add_segments();
@@ -80,7 +108,10 @@ class BufferMgrImpl : public BufferMgr {
         auto raw_caret = GetRawCaret();
         raw_buffer.insert(raw_caret, 1, ch);
         ++raw_caret;
+        UpdateBuffer(raw_buffer, raw_caret);
+    }
 
+    void UpdateBuffer(std::string const &raw_buffer, size_t raw_caret) {
         std::vector<BufferElement> elements;
         utf8_size_t new_caret_position = 0;
         m_engine->segmenter()->SegmentWholeBuffer(raw_buffer, raw_caret, elements, new_caret_position);
@@ -113,48 +144,47 @@ class BufferMgrImpl : public BufferMgr {
     }
 
     size_t GetRawCaret() {
+        if (m_elements.empty()) {
+            return 0;
+        }
+
         size_t raw_caret = 0;
         auto remainder = m_caret;
-        BufferElement *elem = nullptr;
-        for (auto i = 0; i < m_elements.size(); ++i) {
-            elem = &m_elements[i];
-            if (auto size = elem->size(); remainder > size) {
-                auto raw = elem->raw();
+
+        auto it = m_elements.cbegin();
+        for (; it != m_elements.cend(); ++it) {
+            if (auto size = it->size(); remainder > size) {
                 remainder -= size;
-                raw_caret += raw.size();
-                continue;
+                raw_caret += it->raw().size();
+            } else {
+                break;
             }
-
-            break;
-        }
-        if (!elem) {
-            return raw_caret;
         }
 
-        raw_caret += elem->ComposedToRawCaret(m_engine->syllable_parser(), remainder);
+        raw_caret += it->ComposedToRawCaret(m_engine->syllable_parser(), remainder);
         return raw_caret;
     }
 
     void UpdateCaret(size_t raw_caret) {
-        utf8_size_t new_caret = 0;
-        auto remainder = raw_caret;
-        BufferElement *elem = nullptr;
-        for (auto i = 0; i < m_elements.size(); ++i) {
-            elem = &m_elements[i];
-            auto raw = elem->raw();
-            if (auto size = raw.size(); remainder > size) {
-                new_caret += elem->size();
-                remainder -= size;
-                continue;
-            }
-            break;
-        }
-
-        if (!elem) {
+        if (m_elements.empty()) {
             return;
         }
 
-        new_caret += elem->RawToComposedCaret(m_engine->syllable_parser(), remainder);
+        utf8_size_t new_caret = 0;
+        auto remainder = raw_caret;
+
+        auto it = m_elements.cbegin();
+        for (; it != m_elements.cend(); ++it) {
+            auto raw = it->raw();
+            if (auto raw_size = raw.size(); remainder > raw_size) {
+                new_caret += it->size();
+                remainder -= raw_size;
+            } else {
+                break;
+            }
+        }
+
+        new_caret += it->RawToComposedCaret(m_engine->syllable_parser(), remainder);
         m_caret = new_caret;
     }
 
