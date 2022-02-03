@@ -70,12 +70,10 @@ class CandidateWindow : public BaseWindow<CandidateWindow> {
     float padding = 16.0f;
     float padding_sm = 4.0f;
     float font_size = 16.0f;
-    float row_height = font_size + padding;
+    float m_row_height = font_size + padding;
     unsigned int min_col_width_single = 160;
     unsigned int min_col_width_expanded = 80;
     unsigned int qs_col_width = 32;
-    // unsigned int n_cols = 1;
-    // unsigned int n_rows = 9;
     unsigned int n_cols_expanded = 4;
     unsigned int qs_col = 0;
     unsigned int page_idx = 0;
