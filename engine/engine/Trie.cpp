@@ -87,12 +87,12 @@ class TrieImpl : public Trie {
         return false;
     }
 
-    virtual bool ContainsWord(std::string_view query) override {
+    virtual bool HasKey(std::string_view query) override {
         auto found = Find(query);
         return found != nullptr && found->end_of_word;
     }
 
-    virtual bool StartsWithWord(std::string_view query) override {
+    virtual bool StartsWithKey(std::string_view query) override {
         if (query.empty()) {
             return false;
         }
@@ -110,12 +110,35 @@ class TrieImpl : public Trie {
         return curr->end_of_word;
     }
 
-    virtual bool ContainsPrefix(std::string_view query) override {
+    virtual bool HasKeyOrPrefix(std::string_view query) override {
         auto found = Find(query);
         return found != nullptr && (found->end_of_word || found->children.size() > 0);
     }
 
-    virtual string_vector Autocomplete(std::string const &query, size_t maxDepth) override {
+    virtual size_t LongestKeyOf(std::string_view query) override {
+        size_t ret = 0;
+
+        if (query.empty()) {
+            return ret;
+        }
+
+        auto curr = &root;
+        for (auto it = query.begin(); it != query.end(); ++it) {
+            if (curr->end_of_word) {
+                ret = std::distance(query.begin(), it);
+            }
+
+            if (curr->children.find(*it) == curr->children.end()) {
+                return ret;
+            }
+
+            curr = curr->children[*it].get();
+        }
+
+        return ret;
+    }
+
+    virtual string_vector Autocomplete(std::string const &query, size_t limit, size_t maxDepth) override {
         auto ret = string_vector();
         auto found = Find(query);
 
@@ -123,12 +146,12 @@ class TrieImpl : public Trie {
             return ret;
         }
 
-        if (found->end_of_word && found->children.size() == 0) {
+        if (found->end_of_word && found->children.size() == 0 && limit == 1) {
             ret.push_back(query);
             return ret;
         }
 
-        Dfs(found, query, "", ret, maxDepth);
+        DepthFirstSearch(found, query, "", ret, limit, maxDepth);
 
         return ret;
     }
@@ -223,18 +246,22 @@ class TrieImpl : public Trie {
         return curr;
     }
 
-    auto Dfs(Node *node, std::string const &prefix, std::string const &suffix, std::vector<std::string> &results,
-             size_t maxDepth) -> void {
+    auto DepthFirstSearch(Node *node, std::string const &prefix, std::string const &suffix,
+                          std::vector<std::string> &results, size_t limit, size_t max_depth) -> void {
         if (node->end_of_word) {
             results.push_back(prefix + suffix);
         }
 
-        if (node->children.size() == 0 || --maxDepth == 0) {
+        if (limit != 0 && results.size() >= limit) {
+            return;
+        }
+
+        if (node->children.size() == 0 || --max_depth == 0) {
             return;
         }
 
         for (const auto &it : node->children) {
-            Dfs(it.second.get(), prefix, suffix + it.first, results, maxDepth);
+            DepthFirstSearch(it.second.get(), prefix, suffix + it.first, results, limit, max_depth);
         }
     }
 

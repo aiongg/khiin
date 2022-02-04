@@ -374,7 +374,7 @@ class CandidateFinderImpl : public CandidateFinder {
         // If the collected letters are the whole remainder of the
         // string, and they form a prefix when combined with the existing
         // previous ret, join them together
-        if (next == end && syl_trie->ContainsPrefix(prev + chunk) && candidate.size() > 0) {
+        if (next == end && syl_trie->HasKeyOrPrefix(prev + chunk) && candidate.size() > 0) {
             candidate.back().raw.append(chunk);
             candidate.back().token.clear();
         } else {

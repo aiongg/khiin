@@ -28,7 +28,7 @@ class TrieTest : public ::testing::Test {
 
 TEST_F(TrieTest, search) {
     trie->Insert(u8"niau");
-    bool res = trie->ContainsWord(u8"niau");
+    bool res = trie->HasKey(u8"niau");
     EXPECT_TRUE(res);
 }
 
@@ -37,15 +37,15 @@ TEST_F(TrieTest, remove) {
     trie->Insert(u8"ni");
     trie->Remove(u8"niau");
 
-    EXPECT_TRUE(!trie->ContainsWord(u8"niau"));
-    EXPECT_TRUE(!trie->ContainsWord(u8"nia"));
-    EXPECT_TRUE(trie->ContainsWord(u8"ni"));
-    EXPECT_TRUE(!trie->ContainsWord(u8"n"));
+    EXPECT_TRUE(!trie->HasKey(u8"niau"));
+    EXPECT_TRUE(!trie->HasKey(u8"nia"));
+    EXPECT_TRUE(trie->HasKey(u8"ni"));
+    EXPECT_TRUE(!trie->HasKey(u8"n"));
 }
 
 TEST_F(TrieTest, is_prefix) {
     trie->Insert(u8"niau");
-    EXPECT_TRUE(trie->ContainsPrefix(u8"nia"));
+    EXPECT_TRUE(trie->HasKeyOrPrefix(u8"nia"));
 }
 
 TEST_F(TrieTest, autocomplete) {
@@ -81,13 +81,13 @@ TEST_F(TrieTest, get_all_words) {
 
 TEST_F(TrieTest, starts_with_word) {
     ins({"a"});
-    EXPECT_TRUE(trie->StartsWithWord("a"));
+    EXPECT_TRUE(trie->StartsWithKey("a"));
 }
 
 TEST_F(TrieTest, starts_with_word2) {
     ins({"ba"});
-    EXPECT_TRUE(trie->StartsWithWord("baxxx"));
-    EXPECT_FALSE(trie->StartsWithWord("aba"));
+    EXPECT_TRUE(trie->StartsWithKey("baxxx"));
+    EXPECT_FALSE(trie->StartsWithKey("aba"));
 }
 
 /**

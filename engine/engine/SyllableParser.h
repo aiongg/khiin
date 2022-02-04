@@ -12,7 +12,7 @@ enum class KhinKeyPosition;
 
 struct InputSequence {
     std::string input;
-    bool is_fuzzy_monosyllable;
+    bool is_fuzzy_monosyllable = false;
 };
 
 class SyllableParser {

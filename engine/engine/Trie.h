@@ -17,10 +17,19 @@ class Trie {
 
     virtual void Insert(std::string_view key) = 0;
     virtual bool Remove(std::string_view key) = 0;
-    virtual bool StartsWithWord(std::string_view query) = 0;
-    virtual bool ContainsWord(std::string_view query) = 0;
-    virtual bool ContainsPrefix(std::string_view query) = 0;
-    virtual string_vector Autocomplete(std::string const & query, size_t maxDepth = 0) = 0;
+
+    // If query matches any key from the start
+    virtual bool StartsWithKey(std::string_view query) = 0;
+
+    // If query is a key
+    virtual bool HasKey(std::string_view query) = 0;
+
+    // If query is a key or a key prefix
+    virtual bool HasKeyOrPrefix(std::string_view query) = 0;
+
+    virtual size_t LongestKeyOf(std::string_view query) = 0;
+
+    virtual string_vector Autocomplete(std::string const &query, size_t limit = 0, size_t max_depth = 0) = 0;
     virtual void FindKeys(std::string_view query, bool fuzzy, string_vector &results) = 0;
     virtual void FindWords(std::string_view query, string_vector &results) = 0;
 };

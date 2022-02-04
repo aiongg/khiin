@@ -356,5 +356,20 @@ TEST_F(BufferMgrTest, Insert_khin_ho2_a) {
     EXPECT_EQ(caret(), 5);
 }
 
+TEST_F(BufferMgrTest, Insert_aan2) {
+    insert_string("aan2");
+    EXPECT_EQ(display(), u8"a án");
+}
+
+TEST_F(BufferMgrTest, Insert_len) {
+    insert_string("len");
+    EXPECT_EQ(display(), u8"len");
+}
+
+TEST_F(BufferMgrTest, Insert_poelen) {
+    insert_string("poelen");
+    EXPECT_EQ(display(), u8"poe len");
+}
+
 } // namespace
 } // namespace khiin::engine

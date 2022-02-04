@@ -35,11 +35,11 @@ class DictionaryImpl : public Dictionary {
     }
 
     virtual bool StartsWithWord(std::string_view query) override {
-        return word_trie->StartsWithWord(query);
+        return word_trie->StartsWithKey(query);
     }
 
     virtual bool StartsWithSyllable(std::string_view query) override {
-        return syllable_trie->StartsWithWord(query);
+        return syllable_trie->StartsWithKey(query);
     }
 
     virtual bool IsSyllablePrefix(std::string_view query) override {
@@ -53,11 +53,15 @@ class DictionaryImpl : public Dictionary {
             query = query.substr(0, query.size() - 1);
         }
 
-        return syllable_trie->ContainsPrefix(query);
+        return syllable_trie->HasKeyOrPrefix(query);
+    }
+
+    virtual bool IsWordPrefix(std::string_view query) override {
+        return word_trie->HasKeyOrPrefix(query);
     }
 
     virtual bool IsWord(std::string_view query) override {
-        return word_trie->ContainsWord(query);
+        return word_trie->HasKey(query);
     }
 
     virtual std::vector<std::string> WordSearch(std::string_view query) override {
@@ -69,7 +73,7 @@ class DictionaryImpl : public Dictionary {
     virtual DictionaryRow *BestWord(std::string const &query) override {
         auto it = input_id_map.find(query);
         if (it == input_id_map.end()) {
-            return &empty_dictionary_row;
+            return nullptr;
         }
         auto id = it->second[0];
         auto found =
@@ -77,9 +81,17 @@ class DictionaryImpl : public Dictionary {
                 return id == entry.id;
             });
         if (found == dictionary_entries.end()) {
-            return &empty_dictionary_row;
+            return nullptr;
         }
         return &*found;
+    }
+
+    virtual DictionaryRow *BestAutocomplete(std::string const &query) override {
+        auto words = word_trie->Autocomplete(query, 1);
+        if (words.size()) {
+            return BestWord(words[0]);
+        }
+        return nullptr;
     }
 
     virtual std::vector<std::string> const &AllInputsByFreq() override {

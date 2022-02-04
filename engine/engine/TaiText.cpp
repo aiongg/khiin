@@ -144,7 +144,7 @@ utf8_size_t TaiText::RawToComposedCaret(SyllableParser *parser, size_t raw_caret
          [&](Spacer elem) {
              caret += 1;
              if (elem != Spacer::VirtualSpace) {
-                remainder -= 1;
+                 remainder -= 1;
              }
          }};
 
@@ -159,7 +159,7 @@ utf8_size_t TaiText::RawToComposedCaret(SyllableParser *parser, size_t raw_caret
     return caret;
 }
 
-size_t TaiText::ComposedToRawCaret(SyllableParser* parser, utf8_size_t caret) const {
+size_t TaiText::ComposedToRawCaret(SyllableParser *parser, utf8_size_t caret) const {
     auto remainder = caret;
     size_t raw_caret = 0;
 
@@ -175,7 +175,7 @@ size_t TaiText::ComposedToRawCaret(SyllableParser* parser, utf8_size_t caret) co
          },
          [&](Spacer elem) {
              if (elem != Spacer::VirtualSpace) {
-                raw_caret += 1;
+                 raw_caret += 1;
              }
              remainder -= 1;
          }};
@@ -235,6 +235,14 @@ void TaiText::SetKhin(SyllableParser *parser, KhinKeyPosition khin_pos, char khi
             parser->SetKhin(*elem, khin_pos, khin_key);
         }
     }
+}
+
+TaiText TaiText::FromRawSyllable(SyllableParser *parser, std::string const &syllable) {
+    Syllable syl;
+    parser->ParseRaw(syllable, syl);
+    TaiText ret;
+    ret.AddItem(syl);
+    return ret;
 }
 
 } // namespace khiin::engine

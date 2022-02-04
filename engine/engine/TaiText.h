@@ -22,6 +22,7 @@ enum class Spacer {
 class TaiText {
   public:
     using Chunk = std::variant<Syllable, Spacer>;
+    static TaiText FromRawSyllable(SyllableParser *parser, std::string const &syllable);
     void AddItem(Syllable syllable);
     void AddItem(Spacer spacer);
     void SetCandidate(DictionaryRow *candidate);

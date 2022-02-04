@@ -57,9 +57,22 @@ class SegmenterImpl : public Segmenter {
                 break;
             }
 
+            if (dictionary->IsWordPrefix(remaining_buffer)) {
+                FlushPlaintext();
+                ConsumeWordPrefix(remaining_buffer);
+                break;
+            }
+
             if (dictionary->IsSyllablePrefix(remaining_buffer)) {
                 FlushPlaintext();
                 ConsumeSyllable(remaining_buffer);
+                break;
+            }
+
+            if (auto idx = CanSplitWithTrailingPrefix(remaining_buffer); idx > 0) {
+                FlushPlaintext();
+                ConsumeSplittableBuffer(remaining_buffer.substr(0, idx));
+                ConsumeWordPrefix(remaining_buffer.substr(idx, remaining_buffer.size()));
                 break;
             }
 
@@ -101,23 +114,50 @@ class SegmenterImpl : public Segmenter {
         splitter->Split(input, words);
         for (auto &word : words) {
             auto best_match = dictionary->BestWord(word);
-            auto segment = parser->AsTaiText(word, best_match->input);
-            segment.SetCandidate(best_match);
+            if (best_match) {
+                auto segment = parser->AsTaiText(word, best_match->input);
+                segment.SetCandidate(best_match);
+                m_result->push_back(BufferElement(segment));
+            } else {
+                ConsumeWordPrefix(word);
+            }
+        }
+    }
+
+    void ConsumeWordPrefix(std::string const &raw) {
+        auto best_match = dictionary->BestAutocomplete(raw);
+        if (best_match) {
+            auto segment = parser->AsTaiText(raw, best_match->input);
             m_result->push_back(BufferElement(segment));
+        } else {
+            ConsumeAsRawSyllables(raw);
+        }
+    }
+
+    void ConsumeAsRawSyllables(std::string const &raw) {
+        auto start = raw.cbegin();
+        auto it = start;
+        auto end = raw.cend();
+        while (it != end) {
+            auto max = LongestSyllableIndex(std::string(start, end));
+            if (max == 0) {
+                pending_plaintext += std::string(start, end);
+                break;
+            }
+            it += max;
+            auto syl = std::string(start, it);
+            ConsumeSyllable(syl);
+            start = it;
         }
     }
 
     void ConsumeSyllable(std::string const &raw) {
-        Syllable syllable;
-        parser->ParseRaw(raw, syllable);
-        TaiText segment;
-        segment.AddItem(syllable);
-        m_result->push_back(BufferElement(segment));
+        m_result->push_back(BufferElement(TaiText::FromRawSyllable(parser, raw)));
     };
 
     size_t ConsumeWordsOrSyllable(std::string const &input) {
-        auto max_word = GetMaxSplittableIndex(input);
-        auto max_syl = LongestSyllableFromStart(input);
+        auto max_word = MaxSplittableWordIndex(input);
+        auto max_syl = LongestSyllableIndex(input);
 
         if (max_syl > max_word) {
             auto syl = std::string(input.cbegin(), input.cbegin() + max_syl);
@@ -183,7 +223,7 @@ class SegmenterImpl : public Segmenter {
         }
     }
 
-    size_t GetMaxSplittableIndex(std::string const &str) {
+    size_t MaxSplittableWordIndex(std::string const &str) {
         for (auto i = str.size(); i > 0; --i) {
             if (splitter->CanSplit(str.substr(0, i))) {
                 return i;
@@ -193,10 +233,10 @@ class SegmenterImpl : public Segmenter {
         return std::string::npos;
     }
 
-    size_t LongestSyllableFromStart(std::string_view query) {
+    size_t LongestSyllableIndex(std::string_view query) {
         auto i = 1;
         auto size = query.size();
-        while (i != size) {
+        while (i < size + 1) {
             if (dictionary->IsSyllablePrefix(query.substr(0, i))) {
                 ++i;
                 continue;
@@ -204,6 +244,22 @@ class SegmenterImpl : public Segmenter {
             break;
         }
         return --i;
+    }
+
+    size_t CanSplitWithTrailingPrefix(std::string const& buffer) {
+        auto start = buffer.cbegin();
+        auto it = buffer.cend();
+        auto end = buffer.cend();
+        
+        for (auto it = buffer.cend(); it != start; --it) {
+            auto lhs = std::string(start, it);
+            auto rhs = std::string(it, end);
+            if (splitter->CanSplit(lhs) && dictionary->IsWordPrefix(rhs)) {
+                return lhs.size();
+            }
+        }
+
+        return 0;
     }
 
     Engine *engine = nullptr;

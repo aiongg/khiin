@@ -214,7 +214,7 @@ TEST_F(SyllableParserTest, ToFuzzy) {
     EXPECT_TRUE(has_tone);
 }
 
-TEST_F(SyllableParserTest, AsInputSequences1) {
+TEST_F(SyllableParserTest, AsInputs_pengan) {
     auto input = u8"pêng-an";
     auto result = input_sequence_strings_only(parser->AsInputSequences(input));
 
@@ -225,7 +225,7 @@ TEST_F(SyllableParserTest, AsInputSequences1) {
     EXPECT_THAT(result, Contains(u8"peng5an1"));
 }
 
-TEST_F(SyllableParserTest, AsInputSequences2) {
+TEST_F(SyllableParserTest, AsInputs_lohkhi) {
     auto input = u8"lo\u030dh-·khì";
     auto result = input_sequence_strings_only(parser->AsInputSequences(input));
 
@@ -236,7 +236,7 @@ TEST_F(SyllableParserTest, AsInputSequences2) {
     EXPECT_THAT(result, Contains(u8"loh8khi3"));
 }
 
-TEST_F(SyllableParserTest, AsInputSequences3) {
+TEST_F(SyllableParserTest, AsInputs_peng5) {
     auto input = u8"pêng";
     auto result = parser->AsInputSequences(input);
 
@@ -247,7 +247,7 @@ TEST_F(SyllableParserTest, AsInputSequences3) {
     EXPECT_TRUE(result[1].is_fuzzy_monosyllable);
 }
 
-TEST_F(SyllableParserTest, AsInputSequences4) {
+TEST_F(SyllableParserTest, AsInputs_abichok) {
     auto input = u8"a-bí-cho\u030dk";
     auto result = input_sequence_strings_only(parser->AsInputSequences(input));
 
@@ -262,7 +262,7 @@ TEST_F(SyllableParserTest, AsInputSequences4) {
     EXPECT_THAT(result, Contains(u8"abichok"));
 }
 
-TEST_F(SyllableParserTest, AsInputSequences5) {
+TEST_F(SyllableParserTest, AsInputs_an) {
     auto input = u8"an";
     auto result = parser->AsInputSequences(input);
 
@@ -273,7 +273,7 @@ TEST_F(SyllableParserTest, AsInputSequences5) {
     EXPECT_FALSE(result[1].is_fuzzy_monosyllable);
 }
 
-TEST_F(SyllableParserTest, AsInputSequences6) {
+TEST_F(SyllableParserTest, AsInputs_bah) {
     auto input = u8"bah";
     auto result = parser->AsInputSequences(input);
 

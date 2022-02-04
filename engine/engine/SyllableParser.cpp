@@ -416,6 +416,9 @@ class SyllableParserImpl : public SyllableParser {
     }
 
     virtual std::vector<InputSequence> AsInputSequences(std::string const &word) override {
+        if (word == u8"iăn-jín") {
+            auto x = 3;
+        }
         auto ret = std::vector<InputSequence>();
         std::string word_copy = word;
         EraseAll(word_copy, kKhinDotStr);
@@ -460,9 +463,6 @@ class SyllableParserImpl : public SyllableParser {
 
         while (sep != end) {
             push_chunk(start, sep);
-            // if (*sep != ' ') {
-            //    push_delim(*sep);
-            //}
             start = sep + 1;
             sep = std::find_if(start, end, IsSyllableSeparator);
         }
@@ -473,6 +473,7 @@ class SyllableParserImpl : public SyllableParser {
         for (auto &ea : merged) {
             ret.push_back(InputSequence{std::move(ea), false});
         }
+
         return ret;
     }
 
@@ -488,6 +489,11 @@ class SyllableParserImpl : public SyllableParser {
         while (sep != t_end) {
             auto syl = AlignRawToComposed(keyconfig, r_start, r_end, std::string(t_start, sep));
             ret.AddItem(syl);
+
+            if (r_start == r_end) {
+                return ret;
+            }
+
             ret.AddItem(Spacer::VirtualSpace);
             t_start = sep + 1;
             sep = std::find_if(t_start, t_end, IsSyllableSeparator);
