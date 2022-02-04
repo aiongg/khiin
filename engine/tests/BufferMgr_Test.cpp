@@ -320,5 +320,41 @@ TEST_F(BufferMgrTest, Delete_vspace_sibo) {
     EXPECT_EQ(caret(), 3);
 }
 
+TEST_F(BufferMgrTest, RandomLetters) {
+    insert_string("bo5wdprsfnlji7");
+
+    EXPECT_EQ(display(), "bô wdprsfnl jī");
+    EXPECT_EQ(caret(), 14);
+
+    curs_left(2);
+    erase_left(9);
+
+    EXPECT_EQ(display(), "bô jī");
+    EXPECT_EQ(caret(), 2);
+}
+
+TEST_F(BufferMgrTest, Erase_kah8a) {
+    insert_string("kah8a");
+    EXPECT_EQ(display(), u8"ka\u030dh a");
+    EXPECT_EQ(caret(), 6);
+    curs_left(3);
+    EXPECT_EQ(caret(), 3);
+    erase_left(1);
+    EXPECT_EQ(display(), "kha");
+    EXPECT_EQ(caret(), 1);
+}
+
+TEST_F(BufferMgrTest, Insert_khin_a) {
+    insert_string("--a");
+    EXPECT_EQ(display(), u8"\u00b7a");
+    EXPECT_EQ(caret(), 2);
+}
+
+TEST_F(BufferMgrTest, Insert_khin_ho2_a) {
+    insert_string("ho2---a");
+    EXPECT_EQ(display(), u8"hó-\u00b7a");
+    EXPECT_EQ(caret(), 5);
+}
+
 } // namespace
 } // namespace khiin::engine

@@ -3,10 +3,10 @@
 #include <algorithm>
 
 #include "KeyConfig.h"
+#include "Lomaji.h"
 #include "Syllable.h"
 #include "TaiText.h"
 #include "unicode_utils.h"
-#include "Lomaji.h"
 
 namespace khiin::engine {
 namespace {
@@ -110,18 +110,46 @@ bool FindTonePosition(std::string_view str, size_t &position) {
     return false;
 }
 
-bool RemoveToneChar(KeyConfig *keyconfig, std::string &input, Tone &tone, char &tone_key) {
-    if (!HasToneable(input)) {
+void ParseRawKhin(KeyConfig *keyconfig, Syllable &syl) {
+    if (syl.raw_body.empty()) {
+        return;
+    }
+
+    if (syl.raw_body.size() > 1) {
+        auto hyphen_keys = keyconfig->GetHyphenKeys();
+        for (auto key : hyphen_keys) {
+            if (syl.raw_body[0] == key && syl.raw_body[1] == key) {
+                syl.raw_body.erase(0, 2);
+                syl.khin_pos = KhinKeyPosition::Start;
+                syl.khin_key = key;
+                return;
+            }
+        }
+    }
+
+    auto khin_keys = keyconfig->GetKhinKeys();
+    for (auto key : khin_keys) {
+        if (syl.raw_body.back() == key) {
+            syl.raw_body.pop_back();
+            syl.khin_pos = KhinKeyPosition::End;
+            syl.khin_key = key;
+            return;
+        }
+    }
+}
+
+bool RemoveToneChar(KeyConfig *keyconfig, Syllable &syl) {
+    if (!HasToneable(syl.raw_body)) {
         return false;
     }
 
-    tone = keyconfig->CheckToneKey(input.back());
-    if (tone == Tone::NaT) {
+    syl.tone = keyconfig->CheckToneKey(syl.raw_body.back());
+    if (syl.tone == Tone::NaT) {
         return false;
     }
 
-    tone_key = input.back();
-    input.pop_back();
+    syl.tone_key = syl.raw_body.back();
+    syl.raw_body.pop_back();
     return true;
 }
 
@@ -133,6 +161,18 @@ void RemoveToneDiacritic(std::string &input) {
             return;
         }
     }
+}
+
+bool HasToneDiacritic(std::string const &str) {
+    auto s = toNFD(str);
+    auto it = s.cbegin();
+    while (it != s.cend()) {
+        auto cp = utf8::unchecked::next(it);
+        if (0x0300 <= cp && cp <= 0x030d) {
+            return true;
+        }
+    }
+    return false;
 }
 
 bool RemoveToneDiacriticSaveTone(KeyConfig *keyconfig, std::string &input, Tone &tone, char &key, char &telex_key) {
@@ -148,8 +188,7 @@ bool RemoveToneDiacriticSaveTone(KeyConfig *keyconfig, std::string &input, Tone 
     return false;
 }
 
-std::string ApplyConversionRules(KeyConfig *keyconfig, std::string const &input) {
-    auto output = std::string(input);
+void ApplyConversionRules(KeyConfig *keyconfig, std::string &output) {
     auto &rules = keyconfig->ConversionRules();
 
     for (auto &rule : rules) {
@@ -157,8 +196,6 @@ std::string ApplyConversionRules(KeyConfig *keyconfig, std::string const &input)
             output.replace(pos, rule.first.size(), rule.second);
         }
     }
-
-    return output;
 }
 
 void ApplyDeconversionRules(KeyConfig *keyconfig, std::string &syllable) {
@@ -203,10 +240,15 @@ Syllable SylFromRaw(KeyConfig *keyconfig, std::string const &input) {
     auto output = Syllable();
     output.raw_input = input;
     output.raw_body = input;
-    RemoveToneChar(keyconfig, output.raw_body, output.tone, output.tone_key);
-    output.composed = ApplyConversionRules(keyconfig, output.raw_body);
+    ParseRawKhin(keyconfig, output);
+    RemoveToneChar(keyconfig, output);
+    output.composed = output.raw_body;
+    ApplyConversionRules(keyconfig, output.composed);
     if (Lomaji::NeedsToneDiacritic(output.tone)) {
         AddToneDiacritic(output.tone, output.composed);
+    }
+    if (output.khin_pos != KhinKeyPosition::None) {
+        output.composed.insert(0, kKhinDotStr);
     }
     output.composed = toNFC(output.composed);
     return output;
@@ -315,7 +357,7 @@ utf8_size_t RawCaretToComposedCaret(KeyConfig *keyconfig, Syllable const &syllab
         ret = Utf8Size(syllable.composed);
     } else if (raw_caret < input.size()) {
         auto lhs = std::string(body.cbegin(), body.cbegin() + raw_caret);
-        lhs = ApplyConversionRules(keyconfig, lhs);
+        ApplyConversionRules(keyconfig, lhs);
 
         if (syllable.tone != Tone::NaT) {
             size_t tone_pos = std::string::npos;
@@ -457,10 +499,42 @@ class SyllableParserImpl : public SyllableParser {
     }
 
     virtual void Erase(Syllable &syllable, utf8_size_t index) override {
-        syllable.composed.erase(index, 1);
+        auto size = Utf8Size(syllable.composed);
+        if (index > size) {
+            return;
+        }
+
+        auto from = syllable.composed.begin();
+        utf8::unchecked::advance(from, index);
+
+        auto curs_end = Lomaji::MoveCaret(syllable.composed, index, CursorDirection::R);
+        auto to = syllable.composed.begin();
+        utf8::unchecked::advance(to, curs_end);
+
+        if (HasToneDiacritic(std::string(from, to))) {
+            syllable.tone = Tone::NaT;
+            syllable.tone_key = 0;
+        }
+
+        syllable.composed.erase(from, to);
         syllable = SylFromComposed(keyconfig, syllable.composed, syllable.tone_key);
     }
 
+    virtual void SetKhin(Syllable &syllable, KhinKeyPosition khin_pos, char khin_key) override {
+        if (syllable.khin_pos == KhinKeyPosition::None && khin_pos != KhinKeyPosition::None) {
+            syllable.raw_input.insert(0, 2, khin_key);
+            syllable.composed.insert(0, kKhinDotStr);
+        } else if (syllable.khin_pos != KhinKeyPosition::None && khin_pos == KhinKeyPosition::None &&
+                   syllable.composed.find(kKhinDotStr) == 0) {
+            syllable.raw_input.erase(0, 2);
+            syllable.composed.erase(0, kKhinDotStr.size());
+        }
+
+        syllable.khin_pos = khin_pos;
+        syllable.khin_key = khin_key;
+    }
+
+  private:
     KeyConfig *keyconfig;
 };
 

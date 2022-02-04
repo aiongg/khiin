@@ -16,8 +16,7 @@ class Segmenter {
   public:
     static Segmenter *Create(Engine *engine);
 
-    virtual void SegmentWholeBuffer(std::string const &raw_buffer, size_t raw_caret_position,
-                                    std::vector<BufferElement> &result, utf8_size_t &new_caret_position) = 0;
+    virtual void GetBufferElements(std::string const &raw_buffer, std::vector<BufferElement> &result) = 0;
 
     virtual void LongestFromStart(std::string_view raw_buffer, std::vector<BufferElement> &result) = 0;
 };

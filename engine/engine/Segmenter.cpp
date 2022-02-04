@@ -3,6 +3,7 @@
 #include "CandidateFinder.h"
 #include "Dictionary.h"
 #include "Engine.h"
+#include "KeyConfig.h"
 #include "Splitter.h"
 #include "SyllableParser.h"
 #include "TaiText.h"
@@ -20,77 +21,74 @@ class SegmenterImpl : public Segmenter {
     SegmenterImpl(Engine *engine) : engine(engine) {}
 
     // Inherited via Segmenter
-    virtual void SegmentWholeBuffer(std::string const &raw_buffer, size_t raw_caret, std::vector<BufferElement> &result,
-                                    utf8_size_t &caret) override {
-        if (raw_buffer.empty()) {
+    virtual void GetBufferElements(std::string const &raw_buffer, std::vector<BufferElement> &result) override {
+        m_result = &result;
+
+        if (raw_buffer.empty() || m_result == nullptr) {
             return;
         }
 
-        auto dictionary = engine->dictionary();
-        auto splitter = engine->word_splitter();
-        auto start = raw_buffer.cbegin();
+        dictionary = engine->dictionary();
+        splitter = engine->word_splitter();
+        parser = engine->syllable_parser();
+
         auto it = raw_buffer.cbegin();
         auto end = raw_buffer.cend();
-        auto unknown_text = std::string();
 
-        auto consume_unknown = [&]() {
-            if (!unknown_text.empty()) {
-                result.push_back(BufferElement(unknown_text));
-                unknown_text.clear();
-            }
-        };
-
-        auto consume_syllable = [&](const std::string &raw) {
-            Syllable syllable;
-            engine->syllable_parser()->ParseRaw(raw, syllable);
-            TaiText segment;
-            segment.AddItem(syllable);
-            result.push_back(BufferElement(segment));
-        };
+        bool khin_next = false;
+        char hyphen_key = 0;
+        auto khin_indices = std::vector<std::pair<size_t, char>>();
 
         while (it != end) {
             auto remaining_buffer = std::string(it, end);
 
+            if (auto consumed = ConsumeHyphens(remaining_buffer, khin_next, hyphen_key); consumed > 0) {
+                if (khin_next) {
+                    khin_indices.push_back(std::make_pair(m_result->size(), hyphen_key));
+                }
+                khin_next = false;
+                it += consumed;
+                continue;
+            }
+
             if (splitter->CanSplit(remaining_buffer)) {
-                consume_unknown();
-                ConsumeSplittableBuffer(remaining_buffer, result);
+                FlushPlaintext();
+                ConsumeSplittableBuffer(remaining_buffer);
                 break;
             }
 
             if (dictionary->IsSyllablePrefix(remaining_buffer)) {
-                consume_unknown();
-                consume_syllable(remaining_buffer);
+                FlushPlaintext();
+                ConsumeSyllable(remaining_buffer);
                 break;
             }
 
             if (dictionary->StartsWithWord(remaining_buffer) || dictionary->StartsWithSyllable(remaining_buffer)) {
-                consume_unknown();
-
-                auto max_word = GetMaxSplittableIndex(remaining_buffer);
-                auto max_syl = LongestSyllableFromStart(remaining_buffer);
-
-                if (max_syl > max_word) {
-                    consume_syllable(std::string(remaining_buffer.cbegin(), remaining_buffer.cbegin() + max_syl));
-                    it += max_syl;
-                    continue;
-                } else if (max_word != std::string::npos) {
-                    ConsumeSplittableBuffer(remaining_buffer.substr(0, max_word), result);
-                    it += max_word;
+                FlushPlaintext();
+                if (auto consumed = ConsumeWordsOrSyllable(remaining_buffer); consumed > 0) {
+                    it += consumed;
                     continue;
                 }
             }
 
-            unknown_text.push_back(*it);
+            pending_plaintext.push_back(*it);
             ++it;
         }
 
-        consume_unknown();
+        FlushPlaintext();
 
-        if (result.empty()) {
+        if (m_result->empty()) {
             return;
         }
 
+        for (auto &index : khin_indices) {
+            m_result->at(index.first).SetKhin(parser, KhinKeyPosition::Start, index.second);
+        }
+
         for (auto i = result.size() - 1; i != 0; --i) {
+            if (m_result->at(i).IsSpacerElement() || m_result->at(i - 1).IsSpacerElement()) {
+                continue;
+            }
             result.insert(result.begin() + i, BufferElement(Spacer::VirtualSpace));
         }
     }
@@ -98,20 +96,94 @@ class SegmenterImpl : public Segmenter {
     virtual void LongestFromStart(std::string_view raw_buffer, std::vector<BufferElement> &result) override {}
 
   private:
-    void ConsumeSplittableBuffer(std::string input, std::vector<BufferElement> &result) {
+    void ConsumeSplittableBuffer(std::string input) {
         auto words = std::vector<std::string>();
-        engine->word_splitter()->Split(input, words);
+        splitter->Split(input, words);
         for (auto &word : words) {
-            auto best_match = engine->dictionary()->BestWord(word);
-            auto segment = engine->syllable_parser()->AsTaiText(word, best_match->input);
+            auto best_match = dictionary->BestWord(word);
+            auto segment = parser->AsTaiText(word, best_match->input);
             segment.SetCandidate(best_match);
-            result.push_back(BufferElement(segment));
+            m_result->push_back(BufferElement(segment));
+        }
+    }
+
+    void ConsumeSyllable(std::string const &raw) {
+        Syllable syllable;
+        parser->ParseRaw(raw, syllable);
+        TaiText segment;
+        segment.AddItem(syllable);
+        m_result->push_back(BufferElement(segment));
+    };
+
+    size_t ConsumeWordsOrSyllable(std::string const &input) {
+        auto max_word = GetMaxSplittableIndex(input);
+        auto max_syl = LongestSyllableFromStart(input);
+
+        if (max_syl > max_word) {
+            auto syl = std::string(input.cbegin(), input.cbegin() + max_syl);
+            ConsumeSyllable(syl);
+            return max_syl;
+        } else if (max_word != std::string::npos) {
+            ConsumeSplittableBuffer(input.substr(0, max_word));
+            return max_word;
+        }
+
+        return 0;
+    }
+
+    size_t ConsumeHyphens(std::string const &input, bool &khin_next, char &hyphen_key) {
+        auto hyphen_keys = engine->key_configuration()->GetHyphenKeys();
+        hyphen_key = 0;
+        for (auto key : hyphen_keys) {
+            if (input[0] == key) {
+                hyphen_key = key;
+                break;
+            }
+        }
+
+        if (hyphen_key == 0) {
+            return 0;
+        }
+
+        size_t n_hyphens = 0;
+        for (auto c : input) {
+            if (c == hyphen_key) {
+                ++n_hyphens;
+            }
+        }
+
+        FlushPlaintext();
+        if (n_hyphens == 1 || n_hyphens == 3) {
+            m_result->push_back(BufferElement(Spacer::Hyphen));
+        }
+
+        if (n_hyphens == 2 || n_hyphens == 3) {
+            if (input.size() == n_hyphens) {
+                Syllable syl;
+                parser->ParseRaw(std::string(2, hyphen_key), syl);
+                TaiText segment;
+                segment.AddItem(syl);
+                m_result->push_back(BufferElement(segment));
+            } else {
+                khin_next = true;
+            }
+        }
+
+        if (n_hyphens > 3) {
+            m_result->push_back(BufferElement(std::string(n_hyphens, '-')));
+        }
+
+        return n_hyphens;
+    }
+
+    void FlushPlaintext() {
+        if (!pending_plaintext.empty()) {
+            m_result->push_back(BufferElement(pending_plaintext));
+            pending_plaintext.clear();
         }
     }
 
     size_t GetMaxSplittableIndex(std::string const &str) {
-        auto splitter = engine->word_splitter();
-
         for (auto i = str.size(); i > 0; --i) {
             if (splitter->CanSplit(str.substr(0, i))) {
                 return i;
@@ -125,7 +197,7 @@ class SegmenterImpl : public Segmenter {
         auto i = 1;
         auto size = query.size();
         while (i != size) {
-            if (engine->dictionary()->IsSyllablePrefix(query.substr(0, i))) {
+            if (dictionary->IsSyllablePrefix(query.substr(0, i))) {
                 ++i;
                 continue;
             }
@@ -135,6 +207,12 @@ class SegmenterImpl : public Segmenter {
     }
 
     Engine *engine = nullptr;
+    Dictionary *dictionary = nullptr;
+    Splitter *splitter = nullptr;
+    SyllableParser *parser = nullptr;
+    std::vector<BufferElement> *m_result = nullptr;
+    std::string raw_buffer;
+    std::string pending_plaintext;
 };
 
 } // namespace

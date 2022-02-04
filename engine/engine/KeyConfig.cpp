@@ -69,6 +69,24 @@ class KeyCfgImpl : public KeyConfig {
         return ret;
     }
 
+    virtual std::vector<char> GetHyphenKeys() override {
+        auto ret = std::vector<char>();
+        ret.push_back('-');
+        if (auto it = m_key_map.find(VKey::Hyphen); it != m_key_map.end()) {
+            ret.push_back(it->second);
+        }
+        return ret;
+    }
+
+    virtual std::vector<char> GetKhinKeys() override {
+        auto ret = std::vector<char>();
+        ret.push_back('0');
+        if (auto it = m_key_map.find(VKey::Khin); it != m_key_map.end()) {
+            ret.push_back(it->second);
+        }
+        return ret;
+    }
+
     virtual void GetToneKeys(Tone tone, char &digit_key, char &telex_key) override {
         // TODO: Handle telex keys
         switch (tone) {

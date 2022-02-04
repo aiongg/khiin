@@ -38,6 +38,8 @@ class KeyConfig {
     static KeyConfig *Create();
     virtual bool SetKey(char key, VKey vkey, bool standalone = false) = 0;
     virtual std::vector<ConversionRule> ConversionRules() = 0;
+    virtual std::vector<char> GetHyphenKeys() = 0;
+    virtual std::vector<char> GetKhinKeys() = 0;
     virtual void GetToneKeys(Tone tone, char &digit_key, char &telex_key) = 0;
     virtual Tone CheckToneKey(char ch) = 0;
     virtual void EnableToneDigitFallback(bool enabled) = 0;

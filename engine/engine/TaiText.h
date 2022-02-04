@@ -36,6 +36,8 @@ class TaiText {
     size_t ComposedToRawCaret(SyllableParser *parser, utf8_size_t caret) const;
     void Erase(SyllableParser *parser, utf8_size_t index);
     bool IsVirtualSpace(utf8_size_t index) const;
+    void SetKhin(SyllableParser *parser, KhinKeyPosition khin_pos, char khin_key);
+
 
   private:
     std::vector<Chunk> m_elements;

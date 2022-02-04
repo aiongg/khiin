@@ -29,7 +29,7 @@ struct SyllableParserTest : ::testing::Test {
     SyllableParser *parser = nullptr;
 };
 
-TEST_F(SyllableParserTest, ParseRawTest1) {
+TEST_F(SyllableParserTest, ParseRaw_ho2) {
     auto input = "ho2";
     auto syl = Syllable();
 
@@ -43,7 +43,7 @@ TEST_F(SyllableParserTest, ParseRawTest1) {
     EXPECT_EQ(syl.raw_body.size(), 2);
 }
 
-TEST_F(SyllableParserTest, ParseRawTest2) {
+TEST_F(SyllableParserTest, ParseRaw_hou7) {
     auto input = "hou7";
     auto syl = Syllable();
 
@@ -56,7 +56,7 @@ TEST_F(SyllableParserTest, ParseRawTest2) {
     EXPECT_EQ(syl.composed, u8"hō\u0358");
 }
 
-TEST_F(SyllableParserTest, ParseRawTest3) {
+TEST_F(SyllableParserTest, ParseRaw_an1) {
     auto input = "an1";
     auto syl = Syllable();
 
@@ -69,7 +69,7 @@ TEST_F(SyllableParserTest, ParseRawTest3) {
     EXPECT_EQ(syl.composed, u8"an");
 }
 
-TEST_F(SyllableParserTest, ParseRawTest4) {
+TEST_F(SyllableParserTest, ParseRaw_bah4) {
     auto input = "bah4";
     auto syl = Syllable();
 
@@ -82,7 +82,7 @@ TEST_F(SyllableParserTest, ParseRawTest4) {
     EXPECT_EQ(syl.composed, u8"bah");
 }
 
-TEST_F(SyllableParserTest, ParseRawTest5) {
+TEST_F(SyllableParserTest, ParseRaw_ouhnn8) {
     auto input = "ouhnn8";
     auto syl = Syllable();
 
@@ -94,7 +94,7 @@ TEST_F(SyllableParserTest, ParseRawTest5) {
     EXPECT_EQ(syl.composed, u8"o\u030d\u0358h\u207f");
 }
 
-TEST_F(SyllableParserTest, ParseRawTest6) {
+TEST_F(SyllableParserTest, ParseRaw_ian9) {
     auto input = "ian9";
     auto syl = Syllable();
 
@@ -104,6 +104,44 @@ TEST_F(SyllableParserTest, ParseRawTest6) {
     EXPECT_EQ(syl.tone, Tone::T9);
     EXPECT_EQ(syl.tone_key, '9');
     EXPECT_EQ(syl.composed, u8"iăn");
+}
+
+TEST_F(SyllableParserTest, ParseRaw_hur5) {
+    auto input = "hur5";
+    auto syl = Syllable();
+
+    parser->ParseRaw(input, syl);
+
+    EXPECT_EQ(syl.raw_body, "hur");
+    EXPECT_EQ(syl.tone, Tone::T5);
+    EXPECT_EQ(syl.tone_key, '5');
+    EXPECT_EQ(syl.composed, u8"hṳ\u0302");
+}
+
+TEST_F(SyllableParserTest, ParseRaw_hor3) {
+    auto input = "hor3";
+    auto syl = Syllable();
+
+    parser->ParseRaw(input, syl);
+
+    EXPECT_EQ(syl.raw_body, "hor");
+    EXPECT_EQ(syl.tone, Tone::T3);
+    EXPECT_EQ(syl.tone_key, '3');
+    EXPECT_EQ(syl.composed, u8"hò\u0324");
+}
+
+TEST_F(SyllableParserTest, ParseRaw_khin_only) {
+    auto input = "--";
+    auto syl = Syllable();
+
+    parser->ParseRaw(input, syl);
+
+    EXPECT_EQ(syl.raw_body, "");
+    EXPECT_EQ(syl.tone, Tone::NaT);
+    EXPECT_EQ(syl.tone_key, 0);
+    EXPECT_EQ(syl.composed, u8"\u00b7");
+    EXPECT_EQ(syl.khin_pos, KhinKeyPosition::Start);
+    EXPECT_EQ(syl.khin_key, '-');
 }
 
 TEST_F(SyllableParserTest, ConvertCaretPosition) {
@@ -274,6 +312,39 @@ TEST_F(SyllableParserTest, Erase_a) {
     EXPECT_EQ(s.composed.size(), 0);
     EXPECT_EQ(s.raw_body.size(), 0);
     EXPECT_EQ(s.raw_input.size(), 0);
+}
+
+TEST_F(SyllableParserTest, Erase_kah8) {
+    auto s = Syllable();
+    s.composed = u8"ka\u030dh";
+    s.raw_input = "kah8";
+    s.raw_body = "kah";
+    parser->Erase(s, 1);
+    EXPECT_EQ(s.composed, "kh");
+    EXPECT_EQ(s.raw_body, "kh");
+    EXPECT_EQ(s.raw_input, "kh");
+}
+
+TEST_F(SyllableParserTest, Khin_a) {
+    auto input = "--a";
+    auto s = Syllable();
+    parser->ParseRaw(input, s);
+    EXPECT_EQ(s.composed, "·a");
+    EXPECT_EQ(s.raw_body, "a");
+    EXPECT_EQ(s.raw_input, "--a");
+    EXPECT_EQ(s.khin_pos, KhinKeyPosition::Start);
+    EXPECT_EQ(s.khin_key, '-');
+}
+
+TEST_F(SyllableParserTest, Khin_a0) {
+    auto input = "a0";
+    auto s = Syllable();
+    parser->ParseRaw(input, s);
+    EXPECT_EQ(s.composed, "·a");
+    EXPECT_EQ(s.raw_body, "a");
+    EXPECT_EQ(s.raw_input, "a0");
+    EXPECT_EQ(s.khin_pos, KhinKeyPosition::End);
+    EXPECT_EQ(s.khin_key, '0');
 }
 
 } // namespace

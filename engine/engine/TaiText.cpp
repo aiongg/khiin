@@ -229,4 +229,12 @@ bool TaiText::IsVirtualSpace(utf8_size_t index) const {
     return false;
 }
 
+void TaiText::SetKhin(SyllableParser *parser, KhinKeyPosition khin_pos, char khin_key) {
+    for (auto it = m_elements.begin(); it != m_elements.end(); ++it) {
+        if (auto elem = std::get_if<Syllable>(&*it)) {
+            parser->SetKhin(*elem, khin_pos, khin_key);
+        }
+    }
+}
+
 } // namespace khiin::engine

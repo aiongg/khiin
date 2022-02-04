@@ -8,6 +8,7 @@ namespace khiin::engine {
 class KeyConfig;
 struct Syllable;
 class TaiText;
+enum class KhinKeyPosition;
 
 struct InputSequence {
     std::string input;
@@ -29,6 +30,7 @@ class SyllableParser {
     virtual TaiText AsTaiText(std::string const &raw, std::string const &target) = 0;
 
     virtual void Erase(Syllable &syllable, utf8_size_t index) = 0;
+    virtual void SetKhin(Syllable &syllable, KhinKeyPosition khin_pos, char khin_key) = 0;
 };
 
 } // namespace khiin::engine

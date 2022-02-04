@@ -114,7 +114,8 @@ class BufferMgrImpl : public BufferMgr {
     void UpdateBuffer(std::string const &raw_buffer, size_t raw_caret) {
         std::vector<BufferElement> elements;
         utf8_size_t new_caret_position = 0;
-        m_engine->segmenter()->SegmentWholeBuffer(raw_buffer, raw_caret, elements, new_caret_position);
+        auto segmenter = Segmenter::Create(m_engine);
+        m_engine->segmenter()->GetBufferElements(raw_buffer, elements);
         m_elements = elements;
         UpdateCaret(raw_caret);
     }
