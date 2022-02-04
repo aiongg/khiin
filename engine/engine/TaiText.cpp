@@ -215,7 +215,7 @@ bool TaiText::IsVirtualSpace(utf8_size_t index) const {
     auto it = m_elements.begin();
     for (; it != m_elements.end(); ++it) {
         auto size = std::visit(size_of, *it);
-        if (remainder > size) {
+        if (remainder >= size) {
             remainder -= size;
         } else {
             break;

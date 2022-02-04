@@ -58,6 +58,7 @@ class SegmenterImpl : public Segmenter {
             }
 
             if (dictionary->IsSyllablePrefix(remaining_buffer)) {
+                consume_unknown();
                 consume_syllable(remaining_buffer);
                 break;
             }

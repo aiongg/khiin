@@ -47,6 +47,18 @@ struct BufferMgrTest : ::testing::Test {
         }
     }
 
+    void erase_left(int n) {
+        for (auto i = 0; i < n; i++) {
+            bufmgr->Erase(CursorDirection::L);
+        }
+    }
+
+    void erase_right(int n) {
+        for (auto i = 0; i < n; i++) {
+            bufmgr->Erase(CursorDirection::R);
+        }
+    }
+
     BufferMgr *bufmgr = nullptr;
 };
 
@@ -276,6 +288,36 @@ TEST_F(BufferMgrTest, Delete_pengan) {
     bufmgr->Erase(CursorDirection::L);
     EXPECT_EQ(display(), "");
     EXPECT_EQ(caret(), 0);
+}
+
+TEST_F(BufferMgrTest, Delete_vspace_pengan) {
+    insert_string("pengan");
+    EXPECT_EQ(display(), "peng an");
+    EXPECT_EQ(caret(), 7);
+    curs_left(2);
+    EXPECT_EQ(display(), "peng an");
+    EXPECT_EQ(caret(), 5);
+    erase_left(1);
+    EXPECT_EQ(display(), "peng an");
+    EXPECT_EQ(caret(), 4);
+    erase_right(1);
+    EXPECT_EQ(display(), "peng an");
+    EXPECT_EQ(caret(), 5);
+}
+
+TEST_F(BufferMgrTest, Delete_vspace_sibo) {
+    insert_string("sibo");
+    EXPECT_EQ(display(), "si bo");
+    EXPECT_EQ(caret(), 5);
+    curs_left(2);
+    EXPECT_EQ(display(), "si bo");
+    EXPECT_EQ(caret(), 3);
+    erase_left(1);
+    EXPECT_EQ(display(), "si bo");
+    EXPECT_EQ(caret(), 2);
+    erase_right(1);
+    EXPECT_EQ(display(), "si bo");
+    EXPECT_EQ(caret(), 3);
 }
 
 } // namespace
