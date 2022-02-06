@@ -1,4 +1,5 @@
 #include <iterator>
+#include <queue>
 #include <unordered_map>
 
 #include "common.h"
@@ -151,7 +152,8 @@ class TrieImpl : public Trie {
             return ret;
         }
 
-        DepthFirstSearch(found, query, "", ret, limit, maxDepth);
+        BreadthFirstSearch(found, query, ret, limit);
+        //DepthFirstSearch(found, query, "", ret, limit, maxDepth);
 
         return ret;
     }
@@ -247,6 +249,36 @@ class TrieImpl : public Trie {
         return curr;
     }
 
+    void BreadthFirstSearch(Node *start, std::string const &prefix, std::vector<std::string> &result, int limit) {
+        auto queue = std::queue<std::pair<std::string, Node *>>();
+
+        if (start->end_of_word) {
+            result.push_back(prefix);
+        }
+
+        for (auto &c : start->children) {
+            queue.push(std::make_pair(std::string(1, c.first), c.second.get()));
+        }
+
+        while (!queue.empty()) {
+            auto [suffix, node] = std::move(queue.front());
+            queue.pop();
+
+            if (node->end_of_word) {
+                result.push_back(prefix + suffix);
+
+                if (limit && result.size() >= limit) {
+                    return;
+                }
+            }
+
+            for (auto &c : node->children) {
+                queue.push(std::make_pair(suffix + c.first, c.second.get()));
+            }
+
+        }
+    }
+
     auto DepthFirstSearch(Node *node, std::string const &prefix, std::string const &suffix,
                           std::vector<std::string> &results, size_t limit, size_t max_depth) -> void {
         if (node->end_of_word) {
@@ -271,8 +303,6 @@ class TrieImpl : public Trie {
 
 } // namespace
 
-// Public
-
 Trie *Trie::Create() {
     return new TrieImpl();
 }
@@ -280,35 +310,5 @@ Trie *Trie::Create() {
 static Trie *Create(std::vector<std::string> const &words) {
     return new TrieImpl(words);
 }
-
-// auto Trie::autocompleteTone(std::string query) -> string_vector {
-//    auto ret = string_vector();
-//
-//    if (isdigit(query.back())) {
-//        return ret;
-//    }
-//
-//    Node *found = find_(root, query);
-//
-//    if (!found) {
-//        return ret;
-//    }
-//
-//    static auto tones = "1234567890"s;
-//
-//    for (auto t : tones) {
-//        if (found->hasChild(t) && found->children[t]->isEndOfWord) {
-//            ret.push_back(query + t);
-//        }
-//    }
-//
-//    return ret;
-//}
-
-// Private
-
-// Node
-
-// Trie
 
 } // namespace khiin::engine
