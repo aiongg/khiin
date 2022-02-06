@@ -164,6 +164,14 @@ class EngineImpl : public Engine {
             }
             break;
         }
+        case SpecialKey::SK_SPACE: {
+            if (m_buffer_mgr->IsEmpty()) {
+                output->set_consumable(false);
+            } else {
+                m_buffer_mgr->SelectNextCandidate();
+            }
+            break;
+        }
         default: {
             break;
         }

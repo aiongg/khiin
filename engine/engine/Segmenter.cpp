@@ -152,6 +152,8 @@ class SegmenterImpl {
                     ++n_hyphens;
                     is_hyphen = true;
                     break;
+                } else {
+                    is_hyphen = false;
                 }
             }
             if (!is_hyphen) {

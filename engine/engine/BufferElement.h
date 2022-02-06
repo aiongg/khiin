@@ -36,9 +36,10 @@ class BufferElement {
 
     utf8_size_t RawToComposedCaret(SyllableParser *parser, size_t raw_caret) const;
     size_t ComposedToRawCaret(SyllableParser *parser, utf8_size_t caret) const;
+    bool IsVirtualSpace() const;
     bool IsVirtualSpace(utf8_size_t index) const;
-    bool NeedsSpacerBefore() const;
-    bool NeedsSpacerAfter() const;
+
+    bool is_converted = false;
 
   private:
     std::variant<std::monostate, Plaintext, TaiText, Spacer> m_element;

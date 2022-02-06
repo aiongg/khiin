@@ -15,12 +15,29 @@ using namespace messages;
 namespace {
 
 void AdjustVirtualSpacing(std::vector<BufferElement> &elements) {
+    using namespace unicode;
+
     if (elements.empty()) {
         return;
     }
 
+    elements.erase(std::remove_if(elements.begin(), elements.end(),
+                                  [](BufferElement const &el) {
+                                      return el.IsVirtualSpace();
+                                  }),
+                   elements.end());
+
     for (auto i = elements.size() - 1; i != 0; --i) {
-        if (elements.at(i).NeedsSpacerBefore() && elements.at(i - 1).NeedsSpacerAfter()) {
+        std::string lhs =
+            elements.at(i - 1).is_converted ? elements.at(i - 1).converted() : elements.at(i - 1).composed();
+        std::string rhs = elements.at(i).is_converted ? elements.at(i).converted() : elements.at(i).composed();
+        auto end_cat = end_glyph_type(lhs);
+        auto start_cat = start_glyph_type(rhs);
+
+        if (end_cat == GlyphCategory::Alnum && start_cat == GlyphCategory::Alnum ||
+            end_cat == GlyphCategory::Alnum && start_cat == GlyphCategory::Khin ||
+            end_cat == GlyphCategory::Alnum && start_cat == GlyphCategory::Hanji ||
+            end_cat == GlyphCategory::Hanji && start_cat == GlyphCategory::Alnum) {
             elements.insert(elements.begin() + i, BufferElement(Spacer::VirtualSpace));
         }
     }
@@ -33,6 +50,7 @@ class BufferMgrImpl : public BufferMgr {
     virtual void Clear() override {
         m_elements.clear();
         m_caret = 0;
+        m_buffer_state = BufferState::Empty;
     }
 
     virtual bool IsEmpty() override {
@@ -40,6 +58,10 @@ class BufferMgrImpl : public BufferMgr {
     }
 
     virtual void Insert(char ch) override {
+        if (m_buffer_state == BufferState::Empty) {
+            m_buffer_state = BufferState::InitialComposition;
+        }
+
         switch (m_input_mode) {
         case InputMode::Continuous:
             InsertContinuous(ch);
@@ -85,10 +107,24 @@ class BufferMgrImpl : public BufferMgr {
     }
 
     virtual void BuildPreedit(Preedit *preedit) override {
-        auto segment = preedit->add_segments();
-        segment->set_value(GetDisplayBuffer());
-        segment->set_status(SegmentStatus::COMPOSING);
-        preedit->set_cursor_position(static_cast<int>(m_caret));
+        if (m_buffer_state == BufferState::InitialComposition) {
+            auto segment = preedit->add_segments();
+            segment->set_value(GetDisplayBuffer());
+            segment->set_status(SegmentStatus::COMPOSING);
+            preedit->set_cursor_position(static_cast<int>(m_caret));
+        } else if (m_buffer_state == BufferState::Converted) {
+            for (auto &elem : m_elements) {
+                auto segment = preedit->add_segments();
+                if (elem.is_converted) {
+                    segment->set_value(elem.converted());
+                } else {
+                    segment->set_value(elem.composed());
+                }
+                if (!elem.IsVirtualSpace()) {
+                    segment->set_status(SegmentStatus::CONVERTED);
+                }
+            }           
+        }
     }
 
     virtual void MoveFocus(CursorDirection direction) override {}
@@ -110,7 +146,21 @@ class BufferMgrImpl : public BufferMgr {
         m_input_mode = new_mode;
     }
 
+    virtual void SelectNextCandidate() override {
+        if (m_input_mode == InputMode::Continuous && m_buffer_state == BufferState::InitialComposition) {
+            ConvertWholeBuffer();
+        }
+    }
+
   private:
+    enum class BufferState {
+        Empty,
+        InitialComposition,
+        Converted,
+    };
+
+    BufferState m_buffer_state = BufferState::Empty;
+
     enum class FocusedElementState {
         Focused,
         Composing,
@@ -134,6 +184,14 @@ class BufferMgrImpl : public BufferMgr {
         UpdateCaret(raw_caret);
     }
 
+    void ConvertWholeBuffer() {
+        for (auto &elem : m_elements) {
+            elem.is_converted = true;
+        }
+        m_buffer_state = BufferState::Converted;
+        AdjustVirtualSpacing(m_elements);
+    }
+
     std::string GetRawBuffer() {
         return BufferElement::raw(m_elements);
     }
@@ -141,7 +199,11 @@ class BufferMgrImpl : public BufferMgr {
     std::string GetDisplayBuffer() {
         auto ret = std::string();
         for (auto &elem : m_elements) {
-            ret.append(elem.composed());
+            if (elem.is_converted) {
+                ret.append(elem.converted());
+            } else {
+                ret.append(elem.composed());
+            }
         }
         return ret;
     }

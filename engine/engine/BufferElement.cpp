@@ -141,7 +141,7 @@ std::string BufferElement::converted() const {
     return ""; // std::monostate
 }
 
-DictionaryRow* BufferElement::candidate() const {
+DictionaryRow *BufferElement::candidate() const {
     if (auto elem = std::get_if<TaiText>(&m_element)) {
         return elem->candidate();
     }
@@ -157,6 +157,16 @@ void BufferElement::Erase(SyllableParser *parser, utf8_size_t index) {
     } else if (auto *elem = std::get_if<Spacer>(&m_element)) {
         m_element = Spacer::None;
     }
+}
+
+bool BufferElement::IsVirtualSpace() const {
+    if (auto elem = std::get_if<Spacer>(&m_element)) {
+        if (*elem == Spacer::VirtualSpace) {
+            return true;
+        }
+    }
+
+    return false;
 }
 
 bool BufferElement::IsVirtualSpace(utf8_size_t index) const {
@@ -175,38 +185,6 @@ bool BufferElement::SetKhin(SyllableParser *parser, KhinKeyPosition khin_pos, ch
     if (auto *elem = std::get_if<TaiText>(&m_element)) {
         elem->SetKhin(parser, khin_pos, khin_key);
         return true;
-    }
-
-    return false;
-}
-
-bool BufferElement::NeedsSpacerBefore() const {
-    if (std::holds_alternative<Spacer>(m_element)) {
-        return false;
-    }
-
-    if (std::holds_alternative<TaiText>(m_element)) {
-        return true;
-    }
-
-    if (auto elem = std::get_if<Plaintext>(&m_element)) {
-        return unicode::starts_with_alnum(*elem);
-    }
-
-    return false;
-}
-
-bool BufferElement::NeedsSpacerAfter() const {
-    if (std::holds_alternative<Spacer>(m_element)) {
-        return false;
-    }
-
-    if (std::holds_alternative<TaiText>(m_element)) {
-        return true;
-    }
-
-    if (auto elem = std::get_if<Plaintext>(&m_element)) {
-        return unicode::ends_with_alnum(*elem);
     }
 
     return false;

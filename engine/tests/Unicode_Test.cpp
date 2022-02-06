@@ -5,27 +5,26 @@
 namespace khiin::engine::unicode {
 namespace {
 
-TEST(UnicodeUtilsTest, starts_with_alnum_test) {
-    EXPECT_TRUE(starts_with_alnum("a"));
-    EXPECT_TRUE(starts_with_alnum("A"));
-    EXPECT_TRUE(starts_with_alnum("á"));
-    EXPECT_TRUE(starts_with_alnum("Á"));
-    EXPECT_TRUE(starts_with_alnum("1"));
-    EXPECT_TRUE(starts_with_alnum("n\u030dgh"));
-    EXPECT_FALSE(starts_with_alnum("-a"));
+TEST(UnicodeUtilsTest, glyph_category_alnum) {
+    auto cat = GlyphCategory::Alnum;
+    EXPECT_EQ(cat, start_glyph_type("a"));
+    EXPECT_EQ(cat, start_glyph_type("a"));
+    EXPECT_EQ(cat, start_glyph_type("A"));
+    EXPECT_EQ(cat, start_glyph_type("á"));
+    EXPECT_EQ(cat, start_glyph_type("Á"));
+    EXPECT_EQ(cat, start_glyph_type("1"));
+    EXPECT_EQ(cat, start_glyph_type("n\u030dgh"));
+    EXPECT_EQ(cat, end_glyph_type("a"));
+    EXPECT_EQ(cat, end_glyph_type("a"));
+    EXPECT_EQ(cat, end_glyph_type("A"));
+    EXPECT_EQ(cat, end_glyph_type("á"));
+    EXPECT_EQ(cat, end_glyph_type("Á"));
+    EXPECT_EQ(cat, end_glyph_type("1"));
+    EXPECT_EQ(cat, end_glyph_type("n\u030dgh"));
 }
 
-TEST(UnicodeUtilsTest, ends_with_alnum_test) {
-    EXPECT_TRUE(ends_with_alnum("a"));
-    EXPECT_TRUE(ends_with_alnum("A"));
-    EXPECT_TRUE(ends_with_alnum("á"));
-    EXPECT_TRUE(ends_with_alnum("Á"));
-    EXPECT_TRUE(ends_with_alnum("1"));
-    EXPECT_TRUE(ends_with_alnum("n\u030d"));
-    EXPECT_TRUE(ends_with_alnum("o\u0358"));
-    EXPECT_TRUE(ends_with_alnum("\u1e73"));
-    EXPECT_TRUE(ends_with_alnum("o\u0324"));
-    EXPECT_FALSE(ends_with_alnum("a-"));
+TEST(UnicodeUtilsTest, glyph_category_other) {
+    
 }
 
 } // namespace

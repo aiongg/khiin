@@ -6,6 +6,28 @@
 
 namespace khiin::engine::unicode {
 
+namespace {
+
+constexpr char32_t kHanjiCutoff = 0x2e80;
+
+GlyphCategory glyph_category_of_codepoint(char32_t cp) {
+    if (cp <= 0xFF && isalnum(cp)) {
+        return GlyphCategory::Alnum;
+    }
+
+    if (cp == 0x00b7) {
+        return GlyphCategory::Khin;
+    }
+
+    if (cp >= kHanjiCutoff) {
+        return GlyphCategory::Hanji;
+    }
+
+    return GlyphCategory::Other;
+}
+
+}
+
 std::string to_nfd(std::string_view s) {
     auto u32s = utf8::utf8to32(s);
     ufal::unilib::uninorms::nfd(u32s);
@@ -39,23 +61,28 @@ std::string strip_diacritics(std::string_view str, bool strip_letter_diacritics)
     return utf8::utf32to8(stripped);
 }
 
-bool starts_with_alnum(std::string_view str) {
+GlyphCategory start_glyph_type(std::string_view str) {
     if (str.empty()) {
-        return false;
+        return GlyphCategory::Other;
     }
 
     auto nfd = to_nfd(str);
-    return isalnum(nfd.front());
+    auto it = nfd.begin();
+    auto cp = utf8::unchecked::peek_next(it);
+    return glyph_category_of_codepoint(cp);
 }
 
-bool ends_with_alnum(std::string_view str) {
+GlyphCategory end_glyph_type(std::string_view str) {
     if (str.empty()) {
-        return false;
+        return GlyphCategory::Other;
     }
 
     auto stripped = strip_diacritics(str, true);
-
-    return isalnum(stripped.back());
+    auto size = utf8::unchecked::distance(stripped.begin(), stripped.end());
+    auto it = stripped.begin();
+    utf8::unchecked::advance(it, size - 1);
+    auto cp = utf8::unchecked::peek_next(it);
+    return glyph_category_of_codepoint(cp);
 }
 
-} // namespace khiin::engine
+} // namespace khiin::engine::unicode

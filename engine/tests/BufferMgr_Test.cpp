@@ -371,6 +371,12 @@ TEST_F(BufferMgrTest, Insert_autokhin) {
     EXPECT_EQ(caret(), 17);
 }
 
+TEST_F(BufferMgrTest, Insert_2khins) {
+    insert_string("ho2--a--boe");
+    EXPECT_EQ(display(), u8"hó \u00b7a \u00b7boe");
+    EXPECT_EQ(caret(), 10);
+}
+
 TEST_F(BufferMgrTest, Insert_aan2) {
     insert_string("aan2");
     EXPECT_EQ(display(), u8"a án");
@@ -384,6 +390,21 @@ TEST_F(BufferMgrTest, Insert_len) {
 TEST_F(BufferMgrTest, Insert_poelen) {
     insert_string("poelen");
     EXPECT_EQ(display(), u8"poe len");
+}
+
+TEST_F(BufferMgrTest, Convert_gina) {
+    insert_string("gina");
+    bufmgr->SelectNextCandidate();
+    EXPECT_EQ(display(), u8"囝仔");
+}
+
+TEST_F(BufferMgrTest, Convert_sioutoubai) {
+    insert_string("si7outoubai");
+    bufmgr->SelectNextCandidate();
+    auto preedit = messages::Preedit::default_instance().New();
+    bufmgr->BuildPreedit(preedit);
+    EXPECT_EQ(display(), u8"是 o\u0358-tó\u0358-bái");
+    EXPECT_EQ(preedit->segments().size(), 3);
 }
 
 } // namespace
