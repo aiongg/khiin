@@ -54,22 +54,11 @@ class EngineImpl : public Engine {
             if (fs::exists(db_path)) {
                 m_database = std::unique_ptr<Database>(Database::Connect(db_path.string()));
             }
-
-            auto cfg_path = fs::path(resource_dir);
-            cfg_path /= CONFIG_FILE;
-
-            if (fs::exists(cfg_path)) {
-                // m_config = std::make_unique<Config>(cfg_path.string());
-            }
         }
 
-        if (m_database == nullptr) {
+        if (!m_database) {
             m_database = std::unique_ptr<Database>(Database::TestDb());
         }
-
-        // if (m_config == nullptr) {
-        // m_config = std::make_unique<Config>();
-        //}
 
         m_keyconfig = std::unique_ptr<KeyConfig>(KeyConfig::Create());
         m_syllable_parser = std::unique_ptr<SyllableParser>(SyllableParser::Create(m_keyconfig.get()));
@@ -100,10 +89,6 @@ class EngineImpl : public Engine {
     virtual BufferMgr *buffer_mgr() override {
         return m_buffer_mgr.get();
     }
-
-    //virtual CandidateFinder *candidate_finder() override {
-    //    return m_candidate_finder.get();
-    //}
 
     virtual Database *database() override {
         return m_database.get();

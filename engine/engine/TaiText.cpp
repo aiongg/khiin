@@ -73,7 +73,7 @@ void TaiText::AddItem(Spacer spacer) {
 }
 
 void TaiText::SetCandidate(DictionaryRow *candidate) {
-    this->candidate = candidate;
+    m_candidate = candidate;
 }
 
 utf8_size_t TaiText::size() const {
@@ -101,11 +101,15 @@ std::string TaiText::composed() const {
 }
 
 std::string TaiText::converted() const {
-    if (candidate) {
-        return candidate->output;
+    if (m_candidate) {
+        return m_candidate->output;
     }
 
     return composed();
+}
+
+DictionaryRow* TaiText::candidate() const {
+    return m_candidate;
 }
 
 void TaiText::RawIndexed(utf8_size_t caret, std::string &raw, size_t &raw_caret) const {

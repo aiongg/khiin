@@ -33,6 +33,7 @@ class TaiText {
     std::string raw() const;
     std::string composed() const;
     std::string converted() const;
+    DictionaryRow *candidate() const;
 
     void RawIndexed(utf8_size_t caret, std::string &raw, size_t &raw_caret) const;
     utf8_size_t RawToComposedCaret(SyllableParser *parser, size_t raw_caret) const;
@@ -44,7 +45,7 @@ class TaiText {
 
   private:
     std::vector<Chunk> m_elements;
-    DictionaryRow *candidate = nullptr;
+    DictionaryRow *m_candidate = nullptr;
 };
 
 } // namespace khiin::engine

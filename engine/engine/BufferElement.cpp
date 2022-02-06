@@ -1,5 +1,6 @@
 #include "BufferElement.h"
 
+#include "Models.h"
 #include "SyllableParser.h"
 #include "common.h"
 
@@ -138,6 +139,14 @@ std::string BufferElement::converted() const {
     }
 
     return ""; // std::monostate
+}
+
+DictionaryRow* BufferElement::candidate() const {
+    if (auto elem = std::get_if<TaiText>(&m_element)) {
+        return elem->candidate();
+    }
+
+    return nullptr;
 }
 
 void BufferElement::Erase(SyllableParser *parser, utf8_size_t index) {

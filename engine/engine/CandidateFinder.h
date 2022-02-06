@@ -11,6 +11,7 @@ class Engine;
 class CandidateFinder {
   public:
     static DictionaryRow *BestMatch(Engine *engine, DictionaryRow *lgram, std::string const &query);
+    static DictionaryRow *BestAutocomplete(Engine *engine, DictionaryRow *lgram, std::string const &query);
 };
 
 } // namespace khiin::engine

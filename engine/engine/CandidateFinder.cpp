@@ -8,29 +8,49 @@ namespace khiin::engine {
 
 namespace {
 
-DictionaryRow *BestMatchUnigram(Engine *engine, std::string const &query) {
-    auto words = engine->dictionary()->WordSearch(query);
-    return engine->database()->HighestUnigramCount(words);
+DictionaryRow *BestMatchUnigram(Engine *engine, std::vector<DictionaryRow *> const &options) {
+    return engine->database()->HighestUnigramCount(options);
 }
 
-DictionaryRow *BestMatchBigram(Engine *engine, DictionaryRow *lgram, std::string const &query) {
+DictionaryRow *BestMatchBigram(Engine *engine, DictionaryRow *lgram, std::vector<DictionaryRow *> const &options) {
     assert(lgram);
+    return engine->database()->HighestBigramCount(lgram->output, options);
+}
 
-    auto words = engine->dictionary()->WordSearch(query);
-    return engine->database()->HighestBigramCount(lgram->output, words);
+DictionaryRow *BestMatchImpl(Engine *engine, DictionaryRow *lgram, std::vector<DictionaryRow *> const &options) {
+    if (options.empty()) {
+        return nullptr;
+    }
+
+    if (lgram) {
+        auto ret = BestMatchBigram(engine, lgram, options);
+        if (ret) {
+            return ret;
+        }
+    }
+
+    auto ret = BestMatchUnigram(engine, options);
+    if (ret) {
+        return ret;
+    }
+
+    if (options.size()) {
+        return options[0];
+    }
+
+    return nullptr;
 }
 
 } // namespace
 
 DictionaryRow *CandidateFinder::BestMatch(Engine *engine, DictionaryRow *lgram, std::string const &query) {
-    if (lgram) {
-        auto ret = BestMatchBigram(engine, lgram, query);
-        if (ret != nullptr) {
-            return ret;
-        }
-    }
-    
-    return BestMatchUnigram(engine, query);
+    auto options = engine->dictionary()->WordSearch(query);
+    return BestMatchImpl(engine, lgram, options);
+}
+
+DictionaryRow *CandidateFinder::BestAutocomplete(Engine *engine, DictionaryRow *lgram, std::string const &query) {
+    auto options = engine->dictionary()->Autocomplete(query);
+    return BestMatchImpl(engine, lgram, options);
 }
 
 } // namespace khiin::engine

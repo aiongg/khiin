@@ -78,16 +78,29 @@ class DictionaryImpl : public Dictionary {
         return std::vector<DictionaryRow *>();
     }
 
-    virtual DictionaryRow *BestAutocomplete(std::string const &query) override {
-        auto guesses = word_trie->Autocomplete(query, 1);
-        if (guesses.size()) {
-            for (auto &[key, entries] : input_entry_map) {
-                if (guesses[0] == key) {
-                    return entries[0];
+    virtual std::vector<DictionaryRow *> Autocomplete(std::string const &query) override {
+        auto ret = std::vector<DictionaryRow *>();
+        auto words = word_trie->Autocomplete(query, 10, 5);
+
+        if (words.empty()) {
+            return ret;
+        }
+
+        auto entries = std::set<DictionaryRow *>();
+        for (auto &[key, val] : input_entry_map) {
+            if (auto it = std::find(words.begin(), words.end(), key); it != words.end()) {
+                for (auto &entry : val) {
+                    entries.insert(entry);
                 }
+                words.erase(it);
+            }
+            if (words.empty()) {
+                break;
             }
         }
-        return nullptr;
+
+        ret.assign(entries.begin(), entries.end());
+        return ret;
     }
 
     virtual std::vector<std::string> const &AllInputsByFreq() override {

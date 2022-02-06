@@ -52,7 +52,7 @@ class SegmenterImpl {
         }
 
         if (dictionary->IsWordPrefix(remainder)) {
-            ConsumeWordPrefix(remainder);
+            ConsumeWordPrefix(nullptr, remainder);
             return remainder.size();
         }
 
@@ -63,7 +63,7 @@ class SegmenterImpl {
 
         if (auto idx = CanSplitWithTrailingPrefix(remainder); idx > 0) {
             ConsumeSplittableBuffer(remainder.substr(0, idx));
-            ConsumeWordPrefix(remainder.substr(idx, remainder.size()));
+            ConsumeWordPrefix(nullptr, remainder.substr(idx, remainder.size()));
             return remainder.size();
         }
 
@@ -85,14 +85,18 @@ class SegmenterImpl {
             if (best_match) {
                 AddElement(BufferElement(TaiText::FromMatching(parser, word, best_match)));
             } else {
-                ConsumeWordPrefix(word);
+                ConsumeWordPrefix(prev_best, word);
             }
             prev_best = best_match;
         }
     }
 
-    void ConsumeWordPrefix(std::string const &raw) {
-        auto best_match = dictionary->BestAutocomplete(raw);
+    void ConsumeWordPrefix(DictionaryRow *lgram, std::string const &raw) {
+        if (lgram == nullptr && m_result->size()) {
+            lgram = m_result->back().candidate();
+        }
+
+        auto best_match = CandidateFinder::BestAutocomplete(m_engine, lgram, raw);
         if (best_match) {
             AddElement(BufferElement(TaiText::FromMatching(parser, raw, best_match)));
         } else {

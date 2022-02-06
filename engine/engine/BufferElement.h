@@ -8,6 +8,7 @@
 namespace khiin::engine {
 
 class SyllableParser;
+struct DictionaryRow;
 class Punctuation {};
 using Plaintext = std::string;
 
@@ -28,6 +29,7 @@ class BufferElement {
     std::string raw() const;
     std::string composed() const;
     std::string converted() const;
+    DictionaryRow *candidate() const;
 
     void Erase(SyllableParser *parser, utf8_size_t index);
     bool SetKhin(SyllableParser *parser, KhinKeyPosition khin_pos, char khin_key);
