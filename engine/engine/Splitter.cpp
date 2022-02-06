@@ -20,13 +20,13 @@ inline auto isDigit(std::string const &str) {
 
 Splitter::Splitter() {}
 
-Splitter::Splitter(const string_vector &input_id_map) {
-    std::copy(input_id_map.cbegin(), input_id_map.cend(), std::inserter(m_word_set, m_word_set.begin()));
+Splitter::Splitter(const string_vector &input_entry_map) {
+    std::copy(input_entry_map.cbegin(), input_entry_map.cend(), std::inserter(m_word_set, m_word_set.begin()));
 
-    auto logListSize = static_cast<float>(log(input_id_map.size()));
+    auto logListSize = static_cast<float>(log(input_entry_map.size()));
 
     size_t idx = 0;
-    for (auto &it : input_id_map) {
+    for (auto &it : input_entry_map) {
         m_cost_map[it] = static_cast<float>(log((idx + 1) * logListSize));
         m_max_word_length = std::max(m_max_word_length, (int)it.size());
         ++idx;

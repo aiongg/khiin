@@ -16,7 +16,7 @@ namespace khiin::engine {
 class Splitter {
   public:
     Splitter();
-    Splitter(const string_vector &input_id_map);
+    Splitter(const string_vector &input_entry_map);
     bool CanSplit(std::string const &input);
     void Split(std::string const &input, string_vector &result);
 

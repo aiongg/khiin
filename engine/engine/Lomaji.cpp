@@ -7,10 +7,12 @@
 #include <unilib/uninorms.h>
 #include <unilib/unistrip.h>
 
+
 #include <utf8cpp/utf8.h>
 #include <utf8cpp/utf8/cpp17.h>
 
 #include "Lomaji.h"
+#include "unicode_utils.h"
 
 namespace utf8u = utf8::unchecked;
 
@@ -148,7 +150,7 @@ auto asciiSyllableToUtf8(std::string ascii, Tone tone, bool khin) -> std::string
         ret = placeToneOnSyllable(ret, tone);
     }
 
-    return toNFC(ret);
+    return unicode::to_nfc(ret);
 }
 
 auto checkTone78Swap(std::string u8syllable, Tone tone) -> Tone {
@@ -176,7 +178,7 @@ auto getToneFromTelex(char ch) -> Tone {
 }
 
 auto hasToneDiacritic(std::string str) -> bool {
-    str = toNFD(str);
+    str = unicode::to_nfd(str);
 
     auto b = str.cbegin();
     auto e = str.cend();
@@ -193,17 +195,7 @@ auto hasToneDiacritic(std::string str) -> bool {
     return false;
 }
 
-auto stripDiacritics(std::string str) {
 
-    auto u32s = utf8::utf8to32(str);
-    auto stripped = std::u32string();
-
-    for (auto &c : u32s) {
-        stripped.push_back(ufal::unilib::unistrip::strip_combining_marks(c));
-    }
-
-    return boost::erase_all_copy(utf8::utf32to8(stripped), u8"\u00b7");
-}
 
 auto placeToneOnSyllable(std::string u8syllable, Tone tone) -> std::string {
     if (tone == Tone::NaT) {
@@ -213,7 +205,7 @@ auto placeToneOnSyllable(std::string u8syllable, Tone tone) -> std::string {
     static std::regex tone_mid_ae(u8"o[ae][mnptkh]");
     static std::string ordered_vowel_matches[] = {u8"o", u8"a", u8"e", u8"u", u8"i", u8"ng", u8"m"};
 
-    auto ret = stripDiacritics(u8syllable);
+    auto ret = unicode::strip_diacritics(u8syllable);
 
     // BOOST_LOG_TRIVIAL(debug) << boost::format("stripped syl: %1%") % ret;
 
@@ -321,7 +313,7 @@ auto utf8ToAsciiLower(std::string u8string) -> std::string {
         return u8string;
     }
 
-    u8string = toNFD(u8string);
+    u8string = unicode::to_nfd(u8string);
     auto start = u8string.begin();
     auto it = u8string.begin();
     auto end = u8string.end();
@@ -368,7 +360,7 @@ utf8_size_t Lomaji::MoveCaret(std::string_view str, utf8_size_t start_pos, Curso
             }
         }
     } else if (dir == CursorDirection::R) {
-        if (start_pos == Utf8Size(str)) {
+        if (start_pos == unicode::utf8_size(str)) {
             return start_pos;
         }
 

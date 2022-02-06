@@ -10,6 +10,7 @@ enum class KhinKeyPosition {
     None,
     Start,
     End,
+    Virtual,
 };
 
 struct Syllable {

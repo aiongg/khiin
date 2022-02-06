@@ -4,10 +4,8 @@
 #include <string>
 #include <vector>
 
-//#include <boost/algorithm/string.hpp>
-#include <boost/format.hpp>
-
 #include "common.h"
+#include "utils.h"
 
 namespace khiin::engine {
 namespace SQL {
@@ -30,27 +28,29 @@ static std::string makeSQLBinder(size_t n, std::string sep) {
     return res;
 }
 
-static std::string questionMarks(size_t n) { return makeSQLBinder(n, "?"); }
+static std::string questionMarks(size_t n) {
+    return makeSQLBinder(n, "?");
+}
 
 static std::string questionMarkPairs(size_t n) {
     return makeSQLBinder(n, "(?, ?)");
 }
 
-static std::string unigramPair(size_t n) { return makeSQLBinder(n, "(?, 1)"); }
+static std::string unigramPair(size_t n) {
+    return makeSQLBinder(n, "(?, 1)");
+}
 
 static std::string bigramTriple(size_t n) {
     return makeSQLBinder(n, "(?, ?, 1)");
 }
 
-const std::string SELECT_DictionaryInputs =
-    "SELECT id, input, output FROM dictionary";
+const std::string SELECT_DictionaryInputs = "SELECT id, input, output FROM dictionary";
 
 const std::string SELECT_TrieWords = "SELECT DISTINCT ascii FROM trie_map";
 
 const std::string INSERT_TrieMap(size_t n) {
-    boost::format sql("INSERT INTO trie_map(ascii, dictionary_id) VALUES %1%");
-    sql % questionMarkPairs(n);
-    return sql.str();
+    std::string sql = "INSERT INTO trie_map(ascii, dictionary_id) VALUES %s";
+    return utils::format(sql, questionMarkPairs(n));
 }
 
 const std::string CREATE_TrieMapTable = R"(
@@ -63,13 +63,11 @@ CREATE TABLE trie_map (
     UNIQUE(ascii, dictionary_id)
 ))";
 
-const std::string INDEX_TrieMapTable =
-    "CREATE INDEX trie_map_ascii_idx ON trie_map(ascii)";
+const std::string INDEX_TrieMapTable = "CREATE INDEX trie_map_ascii_idx ON trie_map(ascii)";
 
 const std::string SELECT_Unigram = "SELECT * FROM unigram_freq WHERE gram = ?";
 
-const std::string SELECT_Syllables =
-    "SELECT DISTINCT syl FROM syllables_by_freq ORDER BY id ASC";
+const std::string SELECT_Syllables = "SELECT DISTINCT syl FROM syllables_by_freq ORDER BY id ASC";
 
 const std::string SELECT_Dictionary_1 =
     R"(SELECT dictionary.*
@@ -81,26 +79,24 @@ ORDER BY
     dictionary.weight DESC,
     dictionary.chhan_id ASC)";
 
-const std::string SELECT_Dictionary_N(size_t n) {
-    boost::format sql(
-        R"(
+const inline std::string SELECT_Dictionary_N(size_t n) {
+    std::string sql = R"(
 SELECT
     dictionary.*
 FROM trie_map
 INNER JOIN dictionary
 ON trie_map.dictionary_id = dictionary.id
 WHERE trie_map.ascii IN
-(%1%)
+(%s)
 ORDER BY
 dictionary.weight DESC,
-dictionary.chhan_id ASC)");
+dictionary.chhan_id ASC)";
 
-    sql % questionMarks(n);
-    return sql.str();
+    return utils::format(sql, questionMarks(n));
 }
 
 const std::string SELECT_Tokens(size_t n) {
-    boost::format sql(R"(
+    std::string sql = R"(
 WITH d AS (
     SELECT
         dictionary.*,
@@ -108,7 +104,7 @@ WITH d AS (
     FROM trie_map
     INNER JOIN dictionary
     ON trie_map.dictionary_id = dictionary.id
-    WHERE trie_map.ascii IN (%1%)
+    WHERE trie_map.ascii IN (%s)
 )
 SELECT
     d.*,
@@ -121,45 +117,72 @@ ORDER BY
     d.input_length DESC,
     d.weight DESC,
     d.chhan_id ASC
-)");
+)";
 
-    sql % questionMarks(n);
-    return sql.str();
+    return utils::format(sql, questionMarks(n));
 }
 
-const std::string SELECT_Bigrams(size_t n) {
-    boost::format sql(R"(
+const inline std::string SELECT_Bigrams(size_t n) {
+    std::string sql = R"(
 SELECT rgram, n
 FROM bigram_freq
-WHERE lgram = ? AND rgram in (%1%))");
+WHERE lgram = ? AND rgram in (%s)
+ORDER BY n DESC)";
 
-    sql % questionMarks(n);
-    return sql.str();
+    return utils::format(sql, questionMarks(n));
 }
 
-const std::string UPSERT_OneGram = R"(
+const inline std::string SELECT_Unigrams(size_t n) {
+    std::string sql = R"(
+SELECT gram, n
+FROM unigram_freq
+WHERE gram in (%s)
+ORDER BY n DESC)";
+
+    return utils::format(sql, questionMarks(n));
+}
+
+const inline std::string SELECT_BestUnigram(size_t n){
+    std::string sql = R"(
+SELECT *
+FROM unigram_freq
+WHERE gram in (%s)
+ORDER BY n DESC LIMIT 1)";
+    return utils::format(sql, questionMarks(n));
+}
+
+const inline std::string SELECT_BestBigram(size_t n) {
+    std::string sql = R"(
+SELECT *
+FROM bigram_freq
+WHERE lgram = ?
+AND gram in (%s)
+ORDER BY n DESC LIMIT 1)";
+    return utils::format(sql, questionMarks(n));
+}
+
+const inline std::string UPSERT_OneGram = R"(
 INSERT INTO unigram_freq (gram, n) VALUES (?, 1)
 ON CONFLICT DO UPDATE SET n = n + 1 WHERE gram = ?
 )";
 
-const std::string UPSERT_Unigrams(size_t n) {
-    boost::format sql(R"(
-INSERT INTO unigram_freq (gram, n) VALUES %1%
-ON CONFLICT DO UPDATE SET n = n + 1 WHERE gram IN (%2%))");
+const inline std::string UPSERT_Unigrams(size_t n) {
+    std::string sql = R"(
+INSERT INTO unigram_freq (gram, n)
+VALUES %s
+ON CONFLICT DO UPDATE
+SET n = n + 1
+WHERE gram IN (%s))";
 
-    sql % unigramPair(n) % questionMarks(n);
-    return sql.str();
+    return utils::format(sql, unigramPair(n), questionMarks(n));
 }
 
 const std::string UPSERT_Bigrams(size_t n) {
-    boost::format sql(R"(
-INSERT INTO bigram_freq (lgram, rgram, n) VALUES %1%
+    std::string sql = R"(
+INSERT INTO bigram_freq (lgram, rgram, n) VALUES %s
 ON CONFLICT DO UPDATE SET n = n + 1 WHERE (lgram, rgram) IN ( 
-VALUES %2% ))");
-
-    sql % bigramTriple(n) % questionMarkPairs(n);
-
-    return sql.str();
+VALUES %s ))";
+    return utils::format(sql, bigramTriple(n), questionMarkPairs(n));
 }
 
 const std::string CREATE_DummyDatabase() {

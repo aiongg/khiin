@@ -164,7 +164,8 @@ class TrieImpl : public Trie {
         }
 
         auto curr = &root;
-        for (auto it = query.begin(); it != query.end(); it++) {
+        auto it = query.begin();
+        while (it != query.end()) {
             if (curr->children.find(*it) == curr->children.end()) {
                 return;
             }

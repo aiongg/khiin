@@ -5,6 +5,7 @@
 #include <vector>
 
 #include "Lomaji.h"
+#include "messages.h"
 
 namespace khiin::engine {
 
@@ -13,7 +14,6 @@ enum class VKey {
     Nasal,
     DotAboveRight,
     DotsBelow,
-    Khin,
     Hyphen,
     TelexTone2,
     TelexTone3,
@@ -22,6 +22,7 @@ enum class VKey {
     TelexTone7,
     TelexTone8,
     TelexTone9,
+    TelexKhin,
 };
 
 using ConversionRule = std::pair<std::string, std::string>;
@@ -36,10 +37,12 @@ class KeyConfig {
   public:
     static KeyConfig *CreateEmpty();
     static KeyConfig *Create();
+    static KeyConfig *Create(messages::KeyConfiguration configuration);
     virtual bool SetKey(char key, VKey vkey, bool standalone = false) = 0;
     virtual std::vector<ConversionRule> ConversionRules() = 0;
     virtual std::vector<char> GetHyphenKeys() = 0;
     virtual std::vector<char> GetKhinKeys() = 0;
+    virtual bool IsHyphen(char ch) = 0;
     virtual void GetToneKeys(Tone tone, char &digit_key, char &telex_key) = 0;
     virtual Tone CheckToneKey(char ch) = 0;
     virtual void EnableToneDigitFallback(bool enabled) = 0;

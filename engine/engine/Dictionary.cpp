@@ -10,6 +10,9 @@
 #include "Splitter.h"
 #include "SyllableParser.h"
 #include "Trie.h"
+#include "messages.h"
+
+#include <mutex>
 
 namespace khiin::engine {
 
@@ -32,6 +35,7 @@ class DictionaryImpl : public Dictionary {
         BuildWordTrie();
         BuildSyllableTrie();
         BuildWordSplitter();
+        engine->RegisterConfigChangedListener(this);
     }
 
     virtual bool StartsWithWord(std::string_view query) override {
@@ -64,32 +68,24 @@ class DictionaryImpl : public Dictionary {
         return word_trie->HasKey(query);
     }
 
-    virtual std::vector<std::string> WordSearch(std::string_view query) override {
-        auto ret = std::vector<std::string>();
-        word_trie->FindWords(query, ret);
-        return ret;
-    }
+    virtual std::vector<DictionaryRow *> WordSearch(std::string const &query) override {
+        for (auto &[key, entries] : input_entry_map) {
+            if (key == query) {
+                return entries;
+            }
+        }
 
-    virtual DictionaryRow *BestWord(std::string const &query) override {
-        auto it = input_id_map.find(query);
-        if (it == input_id_map.end()) {
-            return nullptr;
-        }
-        auto id = it->second[0];
-        auto found =
-            std::find_if(dictionary_entries.begin(), dictionary_entries.end(), [&](DictionaryRow const &entry) {
-                return id == entry.id;
-            });
-        if (found == dictionary_entries.end()) {
-            return nullptr;
-        }
-        return &*found;
+        return std::vector<DictionaryRow *>();
     }
 
     virtual DictionaryRow *BestAutocomplete(std::string const &query) override {
-        auto words = word_trie->Autocomplete(query, 1);
-        if (words.size()) {
-            return BestWord(words[0]);
+        auto guesses = word_trie->Autocomplete(query, 1);
+        if (guesses.size()) {
+            for (auto &[key, entries] : input_entry_map) {
+                if (guesses[0] == key) {
+                    return entries[0];
+                }
+            }
         }
         return nullptr;
     }
@@ -102,6 +98,10 @@ class DictionaryImpl : public Dictionary {
         return splitter.get();
     };
 
+    virtual void OnConfigChanged(messages::AppConfig config) override {
+        // Reload with new KeyConfig
+    }
+
   private:
     void LoadDictionaryData() {
         dictionary_entries.clear();
@@ -109,7 +109,7 @@ class DictionaryImpl : public Dictionary {
     }
 
     void LoadInputSequences() {
-        input_id_map.clear();
+        input_entry_map.clear();
         splitter_words.clear();
         trie_words.clear();
         auto parser = engine->syllable_parser();
@@ -120,7 +120,7 @@ class DictionaryImpl : public Dictionary {
             auto inputs = parser->AsInputSequences(entry.input);
 
             for (auto &ea : inputs) {
-                CacheInputId(ea.input, entry.id);
+                CacheInput(ea.input, &entry);
                 auto &key = ea.input;
                 if (ea.is_fuzzy_monosyllable && seen_fuzzy_monosyls.find(key) == seen_fuzzy_monosyls.end()) {
                     seen_fuzzy_monosyls.insert(key);
@@ -161,14 +161,14 @@ class DictionaryImpl : public Dictionary {
         splitter = std::make_unique<Splitter>(splitter_words);
     }
 
-    void CacheInputId(std::string input, int id) {
-        if (auto it = input_id_map.find(input); it != input_id_map.end()) {
-            auto &ids = it->second;
-            if (std::find(ids.cbegin(), ids.cend(), id) == ids.cend()) {
-                ids.push_back(id);
+    void CacheInput(std::string input, DictionaryRow *entry) {
+        if (auto it = input_entry_map.find(input); it != input_entry_map.end()) {
+            auto &entries = it->second;
+            if (std::find(entries.cbegin(), entries.cend(), entry) == entries.cend()) {
+                entries.push_back(entry);
             }
         } else {
-            input_id_map[input] = std::vector<int>{id};
+            input_entry_map[input] = std::vector<DictionaryRow *>{entry};
         }
     }
 
@@ -180,7 +180,7 @@ class DictionaryImpl : public Dictionary {
     std::vector<DictionaryRow> dictionary_entries;
     std::vector<std::string> trie_words;
     std::vector<std::string> splitter_words;
-    std::unordered_map<std::string, std::vector<int>> input_id_map;
+    std::unordered_map<std::string, std::vector<DictionaryRow *>> input_entry_map;
 };
 
 } // namespace

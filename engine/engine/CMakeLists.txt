@@ -4,7 +4,9 @@
 
 # Add source to this project's executable.
 add_library (khiin
-    "${PROTOBUF_DIR}/messages.pb.h"
+    "${PROTOBUF_DIR}/config.pb.h"
+    "${PROTOBUF_DIR}/config.pb.cc"
+    "${PROTOBUF_DIR}/messages.pb.cc"
     "${PROTOBUF_DIR}/messages.pb.cc"
     "CandidateFinder.h"
     "CandidateFinder.cpp"
@@ -41,7 +43,7 @@ add_library (khiin
     "unicode_utils.h"
     "unicode_utils.cpp"
     "utils.h"
- "Models.h")
+ "Models.h"   "Config.h" "KhinHandler.h" "KhinHandler.cpp")
 
 # Debug
 target_link_options(khiin PRIVATE "/MAP")

@@ -154,7 +154,7 @@ bool RemoveToneChar(KeyConfig *keyconfig, Syllable &syl) {
 }
 
 void RemoveToneDiacritic(std::string &input) {
-    auto nfd = toNFD(input);
+    auto nfd = unicode::to_nfd(input);
     for (auto &[t, t_str] : kToneToUnicodeMap) {
         if (auto i = input.find(t_str); i != std::string::npos) {
             input.erase(i, t_str.size());
@@ -164,7 +164,7 @@ void RemoveToneDiacritic(std::string &input) {
 }
 
 bool HasToneDiacritic(std::string const &str) {
-    auto s = toNFD(str);
+    auto s = unicode::to_nfd(str);
     auto it = s.cbegin();
     while (it != s.cend()) {
         auto cp = utf8::unchecked::next(it);
@@ -250,7 +250,7 @@ Syllable SylFromRaw(KeyConfig *keyconfig, std::string const &input) {
     if (output.khin_pos != KhinKeyPosition::None) {
         output.composed.insert(0, kKhinDotStr);
     }
-    output.composed = toNFC(output.composed);
+    output.composed = unicode::to_nfc(output.composed);
     return output;
 }
 
@@ -264,7 +264,7 @@ std::string SylToRaw(Syllable const &input) {
 };
 
 Syllable SylFromComposed(KeyConfig *keyconfig, std::string const &input, char original_tone_key = 0) {
-    auto copy = toNFD(input);
+    auto copy = unicode::to_nfd(input);
     auto tone = Tone::NaT;
     char digit_key = 0;
     char telex_key = 0;
@@ -315,7 +315,7 @@ Syllable AlignRawToComposed(KeyConfig *keyconfig, std::string::const_iterator &r
 
 void ComposedToRawWithAlternates(KeyConfig *keyconfig, const std::string &input, string_vector &output,
                                  bool &has_tone) {
-    auto syl = toNFD(input);
+    auto syl = unicode::to_nfd(input);
     auto tone = Tone::NaT;
     char digit_key = 0;
     char telex_key = 0;
@@ -354,7 +354,7 @@ utf8_size_t RawCaretToComposedCaret(KeyConfig *keyconfig, Syllable const &syllab
     auto ret = std::string::npos;
 
     if (raw_caret == input.size()) {
-        ret = Utf8Size(syllable.composed);
+        ret = unicode::utf8_size(syllable.composed);
     } else if (raw_caret < input.size()) {
         auto lhs = std::string(body.cbegin(), body.cbegin() + raw_caret);
         ApplyConversionRules(keyconfig, lhs);
@@ -366,14 +366,14 @@ utf8_size_t RawCaretToComposedCaret(KeyConfig *keyconfig, Syllable const &syllab
                 AddToneDiacritic(syllable.tone, lhs);
             }
         }
-        ret = Utf8Size(toNFC(lhs));
+        ret = unicode::utf8_size(unicode::to_nfc(lhs));
     }
 
     return ret;
 }
 
 size_t ComposedCaretToRawCaret(KeyConfig *keyconfig, Syllable const &syllable, utf8_size_t composed_caret) {
-    auto size = utf8::distance(syllable.composed.cbegin(), syllable.composed.cend());
+    size_t size = utf8::distance(syllable.composed.cbegin(), syllable.composed.cend());
     auto ret = std::string::npos;
 
     if (composed_caret == size) {
@@ -381,7 +381,7 @@ size_t ComposedCaretToRawCaret(KeyConfig *keyconfig, Syllable const &syllable, u
     } else if (composed_caret < size) {
         auto caret = syllable.composed.cbegin();
         utf8::unchecked::advance(caret, composed_caret);
-        auto lhs = toNFD(std::string(syllable.composed.cbegin(), caret));
+        auto lhs = unicode::to_nfd(std::string(syllable.composed.cbegin(), caret));
 
         RemoveToneDiacritic(lhs);
         ApplyDeconversionRules(keyconfig, lhs);
@@ -505,7 +505,7 @@ class SyllableParserImpl : public SyllableParser {
     }
 
     virtual void Erase(Syllable &syllable, utf8_size_t index) override {
-        auto size = Utf8Size(syllable.composed);
+        auto size = unicode::utf8_size(syllable.composed);
         if (index > size) {
             return;
         }
@@ -528,11 +528,15 @@ class SyllableParserImpl : public SyllableParser {
 
     virtual void SetKhin(Syllable &syllable, KhinKeyPosition khin_pos, char khin_key) override {
         if (syllable.khin_pos == KhinKeyPosition::None && khin_pos != KhinKeyPosition::None) {
-            syllable.raw_input.insert(0, 2, khin_key);
+            if (khin_pos != KhinKeyPosition::Virtual) {
+                syllable.raw_input.insert(0, 2, khin_key);
+            }
             syllable.composed.insert(0, kKhinDotStr);
         } else if (syllable.khin_pos != KhinKeyPosition::None && khin_pos == KhinKeyPosition::None &&
                    syllable.composed.find(kKhinDotStr) == 0) {
-            syllable.raw_input.erase(0, 2);
+            if (syllable.khin_pos != KhinKeyPosition::Virtual) {
+                syllable.raw_input.erase(0, 2);
+            }
             syllable.composed.erase(0, kKhinDotStr.size());
         }
 

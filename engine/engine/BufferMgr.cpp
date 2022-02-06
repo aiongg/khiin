@@ -2,6 +2,8 @@
 
 #include "BufferElement.h"
 #include "Engine.h"
+#include "KeyConfig.h"
+#include "KhinHandler.h"
 #include "Lomaji.h"
 #include "Segmenter.h"
 #include "unicode_utils.h"
@@ -11,6 +13,18 @@ namespace khiin::engine {
 using namespace messages;
 
 namespace {
+
+void AdjustVirtualSpacing(std::vector<BufferElement> &elements) {
+    if (elements.empty()) {
+        return;
+    }
+
+    for (auto i = elements.size() - 1; i != 0; --i) {
+        if (elements.at(i).NeedsSpacerBefore() && elements.at(i - 1).NeedsSpacerAfter()) {
+            elements.insert(elements.begin() + i, BufferElement(Spacer::VirtualSpace));
+        }
+    }
+}
 
 class BufferMgrImpl : public BufferMgr {
   public:
@@ -74,7 +88,7 @@ class BufferMgrImpl : public BufferMgr {
         auto segment = preedit->add_segments();
         segment->set_value(GetDisplayBuffer());
         segment->set_status(SegmentStatus::COMPOSING);
-        preedit->set_cursor_position(m_caret);
+        preedit->set_cursor_position(static_cast<int>(m_caret));
     }
 
     virtual void MoveFocus(CursorDirection direction) override {}
@@ -113,19 +127,15 @@ class BufferMgrImpl : public BufferMgr {
 
     void UpdateBuffer(std::string const &raw_buffer, size_t raw_caret) {
         std::vector<BufferElement> elements;
-        utf8_size_t new_caret_position = 0;
-        auto segmenter = Segmenter::Create(m_engine);
-        m_engine->segmenter()->GetBufferElements(raw_buffer, elements);
+        Segmenter::SegmentWholeBuffer(m_engine, raw_buffer, elements);
+        KhinHandler::AutokhinBuffer(m_engine->syllable_parser(), elements);
+        AdjustVirtualSpacing(elements);
         m_elements = elements;
         UpdateCaret(raw_caret);
     }
 
     std::string GetRawBuffer() {
-        auto ret = std::string();
-        for (auto &elem : m_elements) {
-            ret.append(elem.raw());
-        }
-        return ret;
+        return BufferElement::raw(m_elements);
     }
 
     std::string GetDisplayBuffer() {

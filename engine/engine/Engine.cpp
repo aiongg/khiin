@@ -16,13 +16,13 @@
 #include "utf8cpp/utf8.h"
 
 #include "BufferMgr.h"
-#include "CandidateFinder.h"
+//#include "CandidateFinder.h"
 #include "Dictionary.h"
 #include "KeyConfig.h"
-#include "Segmenter.h"
 #include "SyllableParser.h"
-//#include "config.h"
 #include "utils.h"
+#include "Database.h"
+#include "Splitter.h"
 
 namespace khiin::engine {
 namespace {
@@ -44,7 +44,7 @@ class EngineImpl : public Engine {
 
     void Initialize() {
         if (resource_dir.empty()) {
-            resource_dir = Utils::findResourceDirectory();
+            resource_dir = utils::findResourceDirectory();
         }
 
         if (!resource_dir.empty()) {
@@ -52,7 +52,7 @@ class EngineImpl : public Engine {
             db_path /= DB_FILE;
 
             if (fs::exists(db_path)) {
-                m_database = std::make_unique<Database>(db_path.string());
+                m_database = std::unique_ptr<Database>(Database::Connect(db_path.string()));
             }
 
             auto cfg_path = fs::path(resource_dir);
@@ -64,22 +64,16 @@ class EngineImpl : public Engine {
         }
 
         if (m_database == nullptr) {
-            m_database = std::make_unique<Database>();
+            m_database = std::unique_ptr<Database>(Database::TestDb());
         }
 
         // if (m_config == nullptr) {
         // m_config = std::make_unique<Config>();
         //}
 
-        // m_valid_syllables = m_database->GetSyllableList();
-        // m_trie = std::make_unique<Trie>(m_database->GetTrieWordlist(), m_valid_syllables);
-
         m_keyconfig = std::unique_ptr<KeyConfig>(KeyConfig::Create());
         m_syllable_parser = std::unique_ptr<SyllableParser>(SyllableParser::Create(m_keyconfig.get()));
         m_dictionary = std::unique_ptr<Dictionary>(Dictionary::Create(this));
-        // m_splitter = std::make_unique<Splitter>(m_valid_syllables);
-        m_segmenter = std::unique_ptr<Segmenter>(Segmenter::Create(this));
-        m_candidate_finder = std::unique_ptr<CandidateFinder>(CandidateFinder::Create(this));
         m_buffer_mgr = std::unique_ptr<BufferMgr>(BufferMgr::Create(this));
 
         command_handlers[CommandType::COMMIT] = &EngineImpl::HandleCommit;
@@ -107,13 +101,9 @@ class EngineImpl : public Engine {
         return m_buffer_mgr.get();
     }
 
-    virtual CandidateFinder *candidate_finder() override {
-        return m_candidate_finder.get();
-    }
-
-    virtual Segmenter *segmenter() override {
-        return m_segmenter.get();
-    }
+    //virtual CandidateFinder *candidate_finder() override {
+    //    return m_candidate_finder.get();
+    //}
 
     virtual Database *database() override {
         return m_database.get();
@@ -133,6 +123,10 @@ class EngineImpl : public Engine {
 
     virtual Splitter *word_splitter() override {
         return m_dictionary->word_splitter();
+    }
+
+    virtual void RegisterConfigChangedListener(ConfigChangeListener *listener) override {
+        config_change_listeners.push_back(listener);
     }
 
   private:
@@ -209,7 +203,8 @@ class EngineImpl : public Engine {
         auto input = command->mutable_input();
         auto output = command->mutable_output();
 
-        if (m_buffer_mgr->IsEmpty() && !isalnum(input->key_event().key_code())) {
+        auto key = input->key_event().key_code();
+        if (m_buffer_mgr->IsEmpty() && !isalnum(key) && !m_keyconfig->IsHyphen(key)) {
             output->set_consumable(false);
         } else {
             output->set_consumable(true);
@@ -244,12 +239,10 @@ class EngineImpl : public Engine {
     fs::path resource_dir = {};
 
     std::unique_ptr<Database> m_database = nullptr;
-    // std::unique_ptr<Config> m_config = nullptr;
     std::unique_ptr<Splitter> m_splitter = nullptr;
-    std::unique_ptr<Trie> m_trie = nullptr;
+    //std::unique_ptr<Trie> m_trie = nullptr;
     std::unique_ptr<BufferMgr> m_buffer_mgr = nullptr;
-    std::unique_ptr<CandidateFinder> m_candidate_finder = nullptr;
-    std::unique_ptr<Segmenter> m_segmenter = nullptr;
+    //std::unique_ptr<CandidateFinder> m_candidate_finder = nullptr;
     std::unique_ptr<KeyConfig> m_keyconfig = nullptr;
     std::unique_ptr<SyllableParser> m_syllable_parser = nullptr;
     std::unique_ptr<Dictionary> m_dictionary = nullptr;
@@ -258,6 +251,7 @@ class EngineImpl : public Engine {
 
     std::shared_ptr<Output> prev_output = nullptr;
     std::unordered_map<CommandType, decltype(&HandleNone)> command_handlers = {};
+    std::vector<ConfigChangeListener *> config_change_listeners;
 };
 
 } // namespace

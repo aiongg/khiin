@@ -8,6 +8,8 @@
 namespace khiin::engine {
 
 inline const std::string kKhiinHome = "KHIIN_HOME";
+inline const std::string CONFIG_FILE = "taikey.json";
+inline const std::string DB_FILE = "taikey.db";
 
 using string_vector = std::vector<std::string>;
 

@@ -14,11 +14,11 @@ class Engine;
 //   user input (e.g. by typing a break character such as a tone, space, etc.)
 class Segmenter {
   public:
-    static Segmenter *Create(Engine *engine);
+    //static Segmenter *Create(Engine *engine);
+    static void SegmentWholeBuffer(Engine *engine, std::string const &raw_buffer, std::vector<BufferElement> &result);
 
-    virtual void GetBufferElements(std::string const &raw_buffer, std::vector<BufferElement> &result) = 0;
-
-    virtual void LongestFromStart(std::string_view raw_buffer, std::vector<BufferElement> &result) = 0;
+    //virtual void GetBufferElements(std::string const &raw_buffer, std::vector<BufferElement> &result) = 0;
+    //virtual void LongestFromStart(std::string_view raw_buffer, std::vector<BufferElement> &result) = 0;
 };
 
 } // namespace khiin::engine

@@ -11,124 +11,90 @@
 namespace khiin::engine {
 namespace {
 
-std::string_view make_string_view(std::string const &str, std::string::const_iterator first,
-                                  std::string::const_iterator last) noexcept {
-    return std::string_view(str.data() + (first - str.begin()), last - first);
-}
-
-class SegmenterImpl : public Segmenter {
+class SegmenterImpl {
   public:
-    SegmenterImpl(Engine *engine) : engine(engine) {}
-
-    // Inherited via Segmenter
-    virtual void GetBufferElements(std::string const &raw_buffer, std::vector<BufferElement> &result) override {
-        m_result = &result;
-
-        if (raw_buffer.empty() || m_result == nullptr) {
-            return;
-        }
-
+    void ProcessBuffer(Engine *engine, std::string const *raw_buffer, std::vector<BufferElement> *result) {
+        m_engine = engine;
+        m_buffer = raw_buffer;
+        m_result = result;
         dictionary = engine->dictionary();
         splitter = engine->word_splitter();
         parser = engine->syllable_parser();
+        keyconfig = engine->key_configuration();
 
-        auto it = raw_buffer.cbegin();
-        auto end = raw_buffer.cend();
-
-        bool khin_next = false;
-        char hyphen_key = 0;
-        auto khin_indices = std::vector<std::pair<size_t, char>>();
+        auto it = m_buffer->cbegin();
+        auto end = m_buffer->cend();
 
         while (it != end) {
-            auto remaining_buffer = std::string(it, end);
+            auto remainder = std::string(it, end);
+            auto consumed = TryConsume(remainder);
 
-            if (auto consumed = ConsumeHyphens(remaining_buffer, khin_next, hyphen_key); consumed > 0) {
-                if (khin_next) {
-                    khin_indices.push_back(std::make_pair(m_result->size(), hyphen_key));
-                }
-                khin_next = false;
+            if (consumed > 0) {
                 it += consumed;
-                continue;
+            } else {
+                pending_plaintext.push_back(*it);
+                ++it;
             }
-
-            if (splitter->CanSplit(remaining_buffer)) {
-                FlushPlaintext();
-                ConsumeSplittableBuffer(remaining_buffer);
-                break;
-            }
-
-            if (dictionary->IsWordPrefix(remaining_buffer)) {
-                FlushPlaintext();
-                ConsumeWordPrefix(remaining_buffer);
-                break;
-            }
-
-            if (dictionary->IsSyllablePrefix(remaining_buffer)) {
-                FlushPlaintext();
-                ConsumeSyllable(remaining_buffer);
-                break;
-            }
-
-            if (auto idx = CanSplitWithTrailingPrefix(remaining_buffer); idx > 0) {
-                FlushPlaintext();
-                ConsumeSplittableBuffer(remaining_buffer.substr(0, idx));
-                ConsumeWordPrefix(remaining_buffer.substr(idx, remaining_buffer.size()));
-                break;
-            }
-
-            if (dictionary->StartsWithWord(remaining_buffer) || dictionary->StartsWithSyllable(remaining_buffer)) {
-                FlushPlaintext();
-                if (auto consumed = ConsumeWordsOrSyllable(remaining_buffer); consumed > 0) {
-                    it += consumed;
-                    continue;
-                }
-            }
-
-            pending_plaintext.push_back(*it);
-            ++it;
         }
 
         FlushPlaintext();
-
-        if (m_result->empty()) {
-            return;
-        }
-
-        for (auto &index : khin_indices) {
-            m_result->at(index.first).SetKhin(parser, KhinKeyPosition::Start, index.second);
-        }
-
-        for (auto i = result.size() - 1; i != 0; --i) {
-            if (m_result->at(i).IsSpacerElement() || m_result->at(i - 1).IsSpacerElement()) {
-                continue;
-            }
-            result.insert(result.begin() + i, BufferElement(Spacer::VirtualSpace));
-        }
     }
 
-    virtual void LongestFromStart(std::string_view raw_buffer, std::vector<BufferElement> &result) override {}
-
   private:
+    size_t TryConsume(std::string const &remainder) {
+        if (auto consumed = ConsumeHyphens(remainder); consumed > 0) {
+            return consumed;
+        }
+
+        if (splitter->CanSplit(remainder)) {
+            ConsumeSplittableBuffer(remainder);
+            return remainder.size();
+        }
+
+        if (dictionary->IsWordPrefix(remainder)) {
+            ConsumeWordPrefix(remainder);
+            return remainder.size();
+        }
+
+        if (dictionary->IsSyllablePrefix(remainder)) {
+            ConsumeSyllable(remainder);
+            return remainder.size();
+        }
+
+        if (auto idx = CanSplitWithTrailingPrefix(remainder); idx > 0) {
+            ConsumeSplittableBuffer(remainder.substr(0, idx));
+            ConsumeWordPrefix(remainder.substr(idx, remainder.size()));
+            return remainder.size();
+        }
+
+        if (dictionary->StartsWithWord(remainder) || dictionary->StartsWithSyllable(remainder)) {
+            if (auto consumed = ConsumeWordsOrSyllable(remainder); consumed > 0) {
+                return consumed;
+            }
+        }
+
+        return 0;
+    }
+
     void ConsumeSplittableBuffer(std::string input) {
         auto words = std::vector<std::string>();
         splitter->Split(input, words);
+        DictionaryRow *prev_best = nullptr;
         for (auto &word : words) {
-            auto best_match = dictionary->BestWord(word);
+            auto best_match = CandidateFinder::BestMatch(m_engine, prev_best, word);
             if (best_match) {
-                auto segment = parser->AsTaiText(word, best_match->input);
-                segment.SetCandidate(best_match);
-                m_result->push_back(BufferElement(segment));
+                AddElement(BufferElement(TaiText::FromMatching(parser, word, best_match)));
             } else {
                 ConsumeWordPrefix(word);
             }
+            prev_best = best_match;
         }
     }
 
     void ConsumeWordPrefix(std::string const &raw) {
         auto best_match = dictionary->BestAutocomplete(raw);
         if (best_match) {
-            auto segment = parser->AsTaiText(raw, best_match->input);
-            m_result->push_back(BufferElement(segment));
+            AddElement(BufferElement(TaiText::FromMatching(parser, raw, best_match)));
         } else {
             ConsumeAsRawSyllables(raw);
         }
@@ -152,7 +118,7 @@ class SegmenterImpl : public Segmenter {
     }
 
     void ConsumeSyllable(std::string const &raw) {
-        m_result->push_back(BufferElement(TaiText::FromRawSyllable(parser, raw)));
+        AddElement(BufferElement(TaiText::FromRawSyllable(parser, raw)));
     };
 
     size_t ConsumeWordsOrSyllable(std::string const &input) {
@@ -171,46 +137,26 @@ class SegmenterImpl : public Segmenter {
         return 0;
     }
 
-    size_t ConsumeHyphens(std::string const &input, bool &khin_next, char &hyphen_key) {
-        auto hyphen_keys = engine->key_configuration()->GetHyphenKeys();
-        hyphen_key = 0;
-        for (auto key : hyphen_keys) {
-            if (input[0] == key) {
-                hyphen_key = key;
+    size_t ConsumeHyphens(std::string const &input) {
+        auto hyphen_keys = keyconfig->GetHyphenKeys();
+
+        size_t n_hyphens = 0;
+        auto is_hyphen = false;
+        for (auto c : input) {
+            for (auto key : hyphen_keys) {
+                if (c == key) {
+                    ++n_hyphens;
+                    is_hyphen = true;
+                    break;
+                }
+            }
+            if (!is_hyphen) {
                 break;
             }
         }
 
-        if (hyphen_key == 0) {
-            return 0;
-        }
-
-        size_t n_hyphens = 0;
-        for (auto c : input) {
-            if (c == hyphen_key) {
-                ++n_hyphens;
-            }
-        }
-
-        FlushPlaintext();
-        if (n_hyphens == 1 || n_hyphens == 3) {
-            m_result->push_back(BufferElement(Spacer::Hyphen));
-        }
-
-        if (n_hyphens == 2 || n_hyphens == 3) {
-            if (input.size() == n_hyphens) {
-                Syllable syl;
-                parser->ParseRaw(std::string(2, hyphen_key), syl);
-                TaiText segment;
-                segment.AddItem(syl);
-                m_result->push_back(BufferElement(segment));
-            } else {
-                khin_next = true;
-            }
-        }
-
-        if (n_hyphens > 3) {
-            m_result->push_back(BufferElement(std::string(n_hyphens, '-')));
+        if (n_hyphens > 0) {
+            AddElement(BufferElement(std::string(n_hyphens, '-')));
         }
 
         return n_hyphens;
@@ -246,11 +192,11 @@ class SegmenterImpl : public Segmenter {
         return --i;
     }
 
-    size_t CanSplitWithTrailingPrefix(std::string const& buffer) {
+    size_t CanSplitWithTrailingPrefix(std::string const &buffer) {
         auto start = buffer.cbegin();
         auto it = buffer.cend();
         auto end = buffer.cend();
-        
+
         for (auto it = buffer.cend(); it != start; --it) {
             auto lhs = std::string(start, it);
             auto rhs = std::string(it, end);
@@ -262,19 +208,28 @@ class SegmenterImpl : public Segmenter {
         return 0;
     }
 
-    Engine *engine = nullptr;
+    void AddElement(BufferElement &&elem) {
+        FlushPlaintext();
+        m_result->push_back(elem);
+    }
+
+    Engine *m_engine = nullptr;
+    std::vector<BufferElement> *m_result = nullptr;
+    std::string const *m_buffer = nullptr;
+
     Dictionary *dictionary = nullptr;
     Splitter *splitter = nullptr;
     SyllableParser *parser = nullptr;
-    std::vector<BufferElement> *m_result = nullptr;
-    std::string raw_buffer;
+    KeyConfig *keyconfig = nullptr;
+
     std::string pending_plaintext;
 };
 
 } // namespace
 
-Segmenter *Segmenter::Create(Engine *engine) {
-    return new SegmenterImpl(engine);
+void Segmenter::SegmentWholeBuffer(Engine *engine, std::string const &raw_buffer, std::vector<BufferElement> &result) {
+    auto impl = SegmenterImpl();
+    impl.ProcessBuffer(engine, &raw_buffer, &result);
 }
 
 } // namespace khiin::engine

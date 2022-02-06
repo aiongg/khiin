@@ -5,6 +5,8 @@
 namespace khiin::engine {
 namespace {
 
+using namespace khiin::messages;
+
 constexpr char kDisallowedTelexKeys[] = {'a', 'e', 'h', 'i', 'k', 'm', 'n', 'o', 'p', 't', 'u'};
 constexpr char kAllowedTelexKeys[] = {'b', 'c', 'd', 'f', 'g', 'j', 'l', 'q', 'r', 's', 'v', 'w', 'x', 'y', 'z'};
 constexpr char kAllowedOtherKeys[] = {'d', 'f', 'q', 'r', 'v', 'w', 'x', 'y', 'z'};
@@ -17,6 +19,8 @@ static inline const std::string kODotsBelowStr = u8"o\u0324";
 static inline const std::string kODotsBelowUpperStr = u8"O\u0324";
 static inline const std::string kUDotsBelowStr = u8"u\u0324";
 static inline const std::string kUDotsBelowUpperStr = u8"U\u0324";
+
+constexpr char kDefaultNasal = 'n';
 
 static inline bool is_allowed_other_key(char key) {
     for (auto &c : kAllowedOtherKeys) {
@@ -49,6 +53,7 @@ static inline bool is_allowed_dotaboveright_key(char key, bool standalone) {
 class KeyCfgImpl : public KeyConfig {
   public:
     virtual bool SetKey(char key, VKey vkey, bool standalone = false) override {
+        auto set = false;
         switch (vkey) {
         case VKey::Nasal:
             return SetNasal(key, standalone);
@@ -81,7 +86,7 @@ class KeyCfgImpl : public KeyConfig {
     virtual std::vector<char> GetKhinKeys() override {
         auto ret = std::vector<char>();
         ret.push_back('0');
-        if (auto it = m_key_map.find(VKey::Khin); it != m_key_map.end()) {
+        if (auto it = m_key_map.find(VKey::TelexKhin); it != m_key_map.end()) {
             ret.push_back(it->second);
         }
         return ret;
@@ -151,6 +156,16 @@ class KeyCfgImpl : public KeyConfig {
         return;
     }
 
+    virtual bool IsHyphen(char ch) override {
+        auto hyphen_keys = GetHyphenKeys();
+        for (auto key : hyphen_keys) {
+            if (ch == key) {
+                return true;
+            }
+        }
+        return false;
+    }
+
   private:
     bool SetNasal(char key, bool standalone) {
         if (!is_allowed_nasal_key(key, standalone)) {
@@ -218,7 +233,6 @@ class KeyCfgImpl : public KeyConfig {
 
         auto &rule_set = GetRuleSet(key, VKey::DotsBelow);
         m_key_map[VKey::DotsBelow] = key;
-        standalone_dotsbelow = false;
 
         auto key_lc = std::string(1, key);
         auto key_uc = std::string(1, toupper(key));
@@ -252,6 +266,28 @@ class KeyCfgImpl : public KeyConfig {
         return rule_set;
     }
 
+    void ClearKey(char key) {
+        auto vkey = VKey::None;
+
+        for (auto &[vk, ch] : m_key_map) {
+            if (key == ch) {
+                vkey = vk;
+            }
+        }
+
+        if (vkey == VKey::None) {
+            return;
+        }
+
+        if (auto it = m_key_map.find(vkey); it != m_key_map.end()) {
+            m_key_map.erase(it);
+        }
+        m_conversion_rule_sets.erase(
+            std::remove_if(m_conversion_rule_sets.begin(), m_conversion_rule_sets.end(), [&](ConversionRuleSet &ea) {
+                return ea.vkey == vkey;
+            }));
+    }
+
     inline bool is_key_available(char key, VKey vkey) {
         for (auto &[used_vkey, used_key] : m_key_map) {
             if (key == used_key && vkey != used_vkey) {
@@ -266,7 +302,6 @@ class KeyCfgImpl : public KeyConfig {
     std::unordered_map<VKey, char> m_key_map;
     bool standalone_nasal = false;
     bool standalone_dotaboveright = false;
-    bool standalone_dotsbelow = false;
     bool use_fallback_tone_digits = true;
 };
 
@@ -277,6 +312,31 @@ KeyConfig *KeyConfig::Create() {
     key_config->SetKey('n', VKey::Nasal);
     key_config->SetKey('u', VKey::DotAboveRight);
     key_config->SetKey('r', VKey::DotsBelow);
+    return key_config;
+}
+
+KeyConfig *KeyConfig::Create(KeyConfiguration config) {
+    auto key_config = new KeyCfgImpl();
+    std::string key;
+
+    key = config.nasal();
+    if (key.size() == 1) {
+        key_config->SetKey(tolower(key.front()), VKey::Nasal, true);
+    } else if (key.size() == 2 && tolower(key.front()) == 'n') {
+        key_config->SetKey(tolower(key.back()), VKey::Nasal, false);
+    }
+
+    key = config.dot_above_right();
+    if (key.size() == 1) {
+        key_config->SetKey(tolower(key.front()), VKey::DotAboveRight, true);
+    } else if (key.size() == 2 && tolower(key.front()) == 'o') {
+        key_config->SetKey(tolower(key.back()), VKey::DotAboveRight, false);
+    }
+
+    key = config.dots_below();
+    if (key.size() > 0) {
+        key_config->SetKey(tolower(key.front()), VKey::DotsBelow, false);
+    }
     return key_config;
 }
 

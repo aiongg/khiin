@@ -20,6 +20,26 @@ BufferElement::BufferElement(Spacer elem) {
     m_element.emplace<Spacer>(elem);
 }
 
+std::string BufferElement::raw(std::vector<BufferElement> const &elements) {
+    auto ret = std::string();
+    for (auto const &elem : elements) {
+        ret.append(elem.raw());
+    }
+    return ret;
+}
+
+void BufferElement::Replace(TaiText const &elem) {
+    m_element.emplace<TaiText>(elem);
+}
+
+void BufferElement::Replace(Plaintext const &elem) {
+    m_element.emplace<Plaintext>(elem);
+}
+
+void BufferElement::Replace(Spacer elem) {
+    m_element.emplace<Spacer>(elem);
+}
+
 utf8_size_t BufferElement::size() const {
     if (auto *elem = std::get_if<Plaintext>(&m_element)) {
         return elem->size();
@@ -142,16 +162,45 @@ bool BufferElement::IsVirtualSpace(utf8_size_t index) const {
     return false;
 }
 
-void BufferElement::SetKhin(SyllableParser *parser, KhinKeyPosition khin_pos, char khin_key) {
-    if (auto *elem = std::get_if<Plaintext>(&m_element)) {
-        elem->insert(0, u8"\u00b7");
-    } else if (auto *elem = std::get_if<TaiText>(&m_element)) {
+bool BufferElement::SetKhin(SyllableParser *parser, KhinKeyPosition khin_pos, char khin_key) {
+    if (auto *elem = std::get_if<TaiText>(&m_element)) {
         elem->SetKhin(parser, khin_pos, khin_key);
+        return true;
     }
+
+    return false;
 }
 
-bool BufferElement::IsSpacerElement() const {
-    return std::holds_alternative<Spacer>(m_element);
+bool BufferElement::NeedsSpacerBefore() const {
+    if (std::holds_alternative<Spacer>(m_element)) {
+        return false;
+    }
+
+    if (std::holds_alternative<TaiText>(m_element)) {
+        return true;
+    }
+
+    if (auto elem = std::get_if<Plaintext>(&m_element)) {
+        return unicode::starts_with_alnum(*elem);
+    }
+
+    return false;
+}
+
+bool BufferElement::NeedsSpacerAfter() const {
+    if (std::holds_alternative<Spacer>(m_element)) {
+        return false;
+    }
+
+    if (std::holds_alternative<TaiText>(m_element)) {
+        return true;
+    }
+
+    if (auto elem = std::get_if<Plaintext>(&m_element)) {
+        return unicode::ends_with_alnum(*elem);
+    }
+
+    return false;
 }
 
 } // namespace khiin::engine

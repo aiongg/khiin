@@ -54,8 +54,6 @@ auto getToneFromTelex(char ch) -> Tone;
 
 auto hasToneDiacritic(std::string sv) -> bool;
 
-auto stripDiacritics(std::string s);
-
 auto placeToneOnSyllable(std::string u8syllable, Tone tone) -> std::string;
 
 auto spaceAsciiByUtf8(std::string ascii, std::string lomaji) -> string_vector;

@@ -10,6 +10,7 @@
 namespace khiin::engine {
 namespace {
 
+    /*
 const std::string DB_FILE = "taikey.db";
 
 class CandidateFx : public ::testing::Test {
@@ -17,10 +18,10 @@ class CandidateFx : public ::testing::Test {
     void SetUp() override {
         engine = Engine::Create();
         cf = engine->candidate_finder();
-        /*db = new Database(DB_FILE);
-        auto sylList = db->GetSyllableList();
-        splitter = new Splitter(sylList), trie = new Trie(db->GetTrieWordlist(), sylList);
-        cf = CandidateFinder::Create(new MockEngine());*/
+        //db = new Database(DB_FILE);
+        //auto sylList = db->GetSyllableList();
+        //splitter = new Splitter(sylList), trie = new Trie(db->GetTrieWordlist(), sylList);
+        //cf = CandidateFinder::Create(new MockEngine());
     }
 
     ~CandidateFx() {
@@ -87,6 +88,6 @@ TEST_F(CandidateFx, find_long_string) {
 
     BOOST_LOG_TRIVIAL(debug) << "Re-running candidate selection: " << v;
 }
-
+*/
 } // namespace
 } // namespace khiin::engine

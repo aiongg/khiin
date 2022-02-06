@@ -333,7 +333,7 @@ TEST_F(BufferMgrTest, RandomLetters) {
     EXPECT_EQ(caret(), 2);
 }
 
-TEST_F(BufferMgrTest, Erase_kah8a) {
+TEST_F(BufferMgrTest, Delete_kah8a) {
     insert_string("kah8a");
     EXPECT_EQ(display(), u8"ka\u030dh a");
     EXPECT_EQ(caret(), 6);
@@ -342,6 +342,15 @@ TEST_F(BufferMgrTest, Erase_kah8a) {
     erase_left(1);
     EXPECT_EQ(display(), "kha");
     EXPECT_EQ(caret(), 1);
+}
+
+TEST_F(BufferMgrTest, Delete_siokhoaa) {
+    insert_string("siokhoaa");
+    EXPECT_EQ(display(), "sio khoa a");
+    EXPECT_EQ(caret(), 10);
+    erase_left(1);
+    EXPECT_EQ(display(), "sio khoa");
+    EXPECT_EQ(caret(), 8);
 }
 
 TEST_F(BufferMgrTest, Insert_khin_a) {
@@ -354,6 +363,12 @@ TEST_F(BufferMgrTest, Insert_khin_ho2_a) {
     insert_string("ho2---a");
     EXPECT_EQ(display(), u8"hó-\u00b7a");
     EXPECT_EQ(caret(), 5);
+}
+
+TEST_F(BufferMgrTest, Insert_autokhin) {
+    insert_string("a--babababa");
+    EXPECT_EQ(display(), u8"a ·ba ·ba ·ba ·ba");
+    EXPECT_EQ(caret(), 17);
 }
 
 TEST_F(BufferMgrTest, Insert_aan2) {

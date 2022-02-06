@@ -17,7 +17,7 @@ add_executable(test_khiin_engine
     "Segmenter_Test.cpp"
     "Splitter_Test.cpp"
     "TestEnv.h"
-)
+ "Unicode_Test.cpp" "UtilsTest.cpp")
 
 target_link_libraries(test_khiin_engine khiin SQLiteCpp ${Boost_LIBRARIES} ${Protobuf_LITE_LIBRARY} GTest::gmock GTest::gtest GTest::gmock_main GTest::gtest_main)
 

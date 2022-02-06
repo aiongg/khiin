@@ -20,12 +20,12 @@ std::string join(std::vector<std::string> &parts, std::string delim) {
     return ret;
 }
 
-static std::vector<std::string> input_id_map = //
+static std::vector<std::string> input_entry_map = //
     {"goa2", "goa",        "m7chai",    "mchai", "joache", "joa7che7", "lang5", "lang", "ham5", "ham", "u7",
      "u",    "kangkhoan2", "kangkhoan", "e",     "seng",   "tiong",    "li2",   "li",   "ho2",  "ho",  "la"};
 
 TEST(SplitterTest, SplitSentence) {
-    auto splitter = Splitter(input_id_map);
+    auto splitter = Splitter(input_entry_map);
 
     std::vector<std::string> res;
     splitter.Split("goamchaiujoachelanghamgoaukangkhoanesengtiong", res);
@@ -34,7 +34,7 @@ TEST(SplitterTest, SplitSentence) {
 }
 
 TEST(SplitterTest, split_sentence_fail) {
-    auto splitter = Splitter(input_id_map);
+    auto splitter = Splitter(input_entry_map);
 
     std::vector<std::string> res;
     splitter.Split("goamchaiblarg", res);
@@ -43,7 +43,7 @@ TEST(SplitterTest, split_sentence_fail) {
 }
 
 TEST(SplitterTest, split_sentence_digits) {
-    auto splitter = Splitter(input_id_map);
+    auto splitter = Splitter(input_entry_map);
     std::vector<std::string> res;
     splitter.Split("goam7chai", res);
     std::string joined = join(res, " ");
@@ -51,7 +51,7 @@ TEST(SplitterTest, split_sentence_digits) {
 }
 
 TEST(SplitterTest, SplitSentenceDigitsLong) {
-    auto splitter = Splitter(input_id_map);
+    auto splitter = Splitter(input_entry_map);
     std::vector<std::string> res;
     splitter.Split("goa2mchaiu7joa7che7lang5ham5goa2ukangkhoan2esengtiong", res);
     auto joined = join(res, " ");
@@ -59,7 +59,7 @@ TEST(SplitterTest, SplitSentenceDigitsLong) {
 }
 
 TEST(SplitterTest, CanSplitTest) {
-    auto splitter = Splitter(input_id_map);
+    auto splitter = Splitter(input_entry_map);
     EXPECT_TRUE(splitter.CanSplit("liho"));
     EXPECT_TRUE(splitter.CanSplit("goamchaiujoachelanghamgoaukangkhoanesengtiong"));
     EXPECT_TRUE(splitter.CanSplit("li2ho2"));
@@ -82,7 +82,7 @@ TEST(SplitterTest, UsingActualEngine) {
     std::string joined = join(res, " ");
     EXPECT_EQ(joined,
               "gou tui tiunn kin ku ka siok thekiong e chu liau chite siaulian kesi sim chong ba pih lai koe "
-              "sin e i e sithe kui bin longsi baksai kap phinn kou che beng beng sit i koe sin chincheng siu tioh chin "
+              "sin e i e sithe kui bin longsi baksai kap phinn kou che beng beng si ti koe sin chincheng siu tioh chin "
               "toae thong khou");
 }
 
