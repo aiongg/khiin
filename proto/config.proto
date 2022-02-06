@@ -1,0 +1,31 @@
+syntax = "proto3";
+
+package khiin.messages;
+option optimize_for = LITE_RUNTIME;
+
+message KeyConfiguration {
+    string telex_t2 = 1;
+    string telex_t3 = 2;
+    string telex_t5 = 3;
+    string telex_t6 = 4;
+    string telex_t7 = 5;
+    string telex_t8 = 6;
+    string telex_t9 = 7;
+    string telex_khin = 8;
+    string alt_hyphen = 9;
+    string nasal = 10;
+    string dot_above_right = 11;
+    string dots_below = 12;
+    bool enable_uppercase_nasal = 13;
+    bool use_digits_as_fallback = 14;
+}
+
+enum InputMode {
+    IM_CONTINUOUS = 0;
+    IM_SINGLE_WORD = 1;
+    IM_PRO = 2;
+}
+
+message AppConfig {
+    KeyConfiguration key_config = 1;
+}
