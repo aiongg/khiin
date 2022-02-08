@@ -45,7 +45,11 @@ utf8_size_t BufferElement::size() const {
     if (auto *elem = std::get_if<Plaintext>(&m_element)) {
         return elem->size();
     } else if (auto *elem = std::get_if<TaiText>(&m_element)) {
-        return elem->size();
+        if (is_converted && elem->candidate()) {
+            return unicode::utf8_size(elem->candidate()->output);
+        } else {
+            return elem->size();
+        }
     } else if (auto *elem = std::get_if<Spacer>(&m_element)) {
         return utf8_size_t(1);
     } else { // std::monostate
@@ -87,7 +91,11 @@ size_t BufferElement::ComposedToRawCaret(SyllableParser *parser, utf8_size_t car
     if (auto *elem = std::get_if<Plaintext>(&m_element)) {
         return caret;
     } else if (auto *elem = std::get_if<TaiText>(&m_element)) {
-        return elem->ComposedToRawCaret(parser, caret);
+        if (is_converted) {
+            return elem->ConvertedToRawCaret(parser, caret);
+        } else {
+            return elem->ComposedToRawCaret(parser, caret);
+        }
     } else if (auto *elem = std::get_if<Spacer>(&m_element)) {
         switch (*elem) {
         case Spacer::Space:
@@ -141,7 +149,7 @@ std::string BufferElement::converted() const {
     return ""; // std::monostate
 }
 
-DictionaryRow *BufferElement::candidate() const {
+TaiToken *BufferElement::candidate() const {
     if (auto elem = std::get_if<TaiText>(&m_element)) {
         return elem->candidate();
     }

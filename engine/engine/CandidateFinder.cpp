@@ -1,23 +1,25 @@
 #include "CandidateFinder.h"
 
+#include "BufferElement.h"
 #include "Database.h"
 #include "Dictionary.h"
 #include "Engine.h"
+#include "SyllableParser.h"
 
 namespace khiin::engine {
 
 namespace {
 
-DictionaryRow *BestMatchUnigram(Engine *engine, std::vector<DictionaryRow *> const &options) {
+TaiToken *BestMatchUnigram(Engine *engine, std::vector<TaiToken *> const &options) {
     return engine->database()->HighestUnigramCount(options);
 }
 
-DictionaryRow *BestMatchBigram(Engine *engine, DictionaryRow *lgram, std::vector<DictionaryRow *> const &options) {
+TaiToken *BestMatchBigram(Engine *engine, TaiToken *lgram, std::vector<TaiToken *> const &options) {
     assert(lgram);
     return engine->database()->HighestBigramCount(lgram->output, options);
 }
 
-DictionaryRow *BestMatchImpl(Engine *engine, DictionaryRow *lgram, std::vector<DictionaryRow *> const &options) {
+TaiToken *BestMatchImpl(Engine *engine, TaiToken *lgram, std::vector<TaiToken *> const &options) {
     if (options.empty()) {
         return nullptr;
     }
@@ -41,16 +43,40 @@ DictionaryRow *BestMatchImpl(Engine *engine, DictionaryRow *lgram, std::vector<D
     return nullptr;
 }
 
+std::vector<BufferElementList> GetCandidatesFromStartImpl(Engine *engine, TaiToken *lgram,
+                                                                   std::string const &raw_query,
+                                                                   std::vector<TaiToken *> const &options) {
+    auto ret = std::vector<BufferElementList>();
+    auto parser = engine->syllable_parser();
+
+    for (auto option : options) {
+        auto tai_text = parser->AsTaiText(raw_query, option->input);
+        tai_text.SetCandidate(option);
+        auto elem = BufferElement(std::move(tai_text));
+        elem.is_converted = true;
+        ret.push_back(std::vector<BufferElement>{std::move(elem)});
+    }
+
+    return ret;
+}
+
 } // namespace
 
-DictionaryRow *CandidateFinder::BestMatch(Engine *engine, DictionaryRow *lgram, std::string const &query) {
+TaiToken *CandidateFinder::BestMatch(Engine *engine, TaiToken *lgram, std::string const &query) {
     auto options = engine->dictionary()->WordSearch(query);
     return BestMatchImpl(engine, lgram, options);
 }
 
-DictionaryRow *CandidateFinder::BestAutocomplete(Engine *engine, DictionaryRow *lgram, std::string const &query) {
+TaiToken *CandidateFinder::BestAutocomplete(Engine *engine, TaiToken *lgram, std::string const &query) {
     auto options = engine->dictionary()->Autocomplete(query);
     return BestMatchImpl(engine, lgram, options);
+}
+
+std::vector<BufferElementList> CandidateFinder::GetCandidatesFromStart(Engine *engine, TaiToken *lgram,
+                                                                                std::string const &query) {
+    // TODO - add dictionary method for finding candidates
+    auto options = engine->dictionary()->WordSearch(query);
+    return GetCandidatesFromStartImpl(engine, lgram, query, options);
 }
 
 } // namespace khiin::engine

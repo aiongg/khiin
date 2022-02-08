@@ -10,6 +10,7 @@ void DisplayAttributeInfoEnum::load(_Out_ DisplayAttributeInfoEnum **ppDaiiEnum)
     auto infoEnum = winrt::make_self<DisplayAttributeInfoEnum>();
     infoEnum->addAttribute(AttrInfoKey::Input, DisplayAttribute_Input);
     infoEnum->addAttribute(AttrInfoKey::Converted, DisplayAttribute_Converted);
+    infoEnum->addAttribute(AttrInfoKey::Focused, DisplayAttribute_Focused);
     infoEnum.copy_to(ppDaiiEnum);
 }
 

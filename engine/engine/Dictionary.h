@@ -17,8 +17,8 @@ class Dictionary : public ConfigChangeListener {
     virtual void Initialize() = 0;
 
     virtual std::vector<std::string> const &AllInputsByFreq() = 0;
-    virtual std::vector<DictionaryRow *> WordSearch(std::string const &query) = 0;
-    virtual std::vector<DictionaryRow *> Autocomplete(std::string const &query) = 0;
+    virtual std::vector<TaiToken *> WordSearch(std::string const &query) = 0;
+    virtual std::vector<TaiToken *> Autocomplete(std::string const &query) = 0;
 
     virtual bool StartsWithWord(std::string_view query) = 0;
     virtual bool StartsWithSyllable(std::string_view query) = 0;

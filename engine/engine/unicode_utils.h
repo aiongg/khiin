@@ -24,6 +24,7 @@ std::string to_nfd(std::string_view str);
 std::string to_nfc(std::string_view str);
 std::string strip_diacritics(std::string_view str, bool strip_letter_diacritics = false);
 
+GlyphCategory glyph_type(std::string::const_iterator const &it);
 GlyphCategory start_glyph_type(std::string_view str);
 GlyphCategory end_glyph_type(std::string_view str);
 

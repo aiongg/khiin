@@ -80,6 +80,8 @@ void CompositionMgr::DoComposition(TfEditCookie cookie, ITfContext *pContext, Pr
             attribute_atom = service->input_attribute();
         } else if (status == SegmentStatus::CONVERTED) {
             attribute_atom = service->converted_attribute();
+        } else if (status == SegmentStatus::FOCUSED) {
+            attribute_atom = service->focused_attribute();
         } else {
             continue;
         }

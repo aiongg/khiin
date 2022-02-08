@@ -18,7 +18,6 @@ namespace khiin::engine {
 
 namespace {
 
-static auto empty_dictionary_row = DictionaryRow{};
 size_t kDictionarySize = 17000;
 size_t kDistinctInputs = kDictionarySize * 2;
 
@@ -68,25 +67,25 @@ class DictionaryImpl : public Dictionary {
         return word_trie->HasKey(query);
     }
 
-    virtual std::vector<DictionaryRow *> WordSearch(std::string const &query) override {
+    virtual std::vector<TaiToken *> WordSearch(std::string const &query) override {
         for (auto &[key, entries] : input_entry_map) {
             if (key == query) {
                 return entries;
             }
         }
 
-        return std::vector<DictionaryRow *>();
+        return std::vector<TaiToken *>();
     }
 
-    virtual std::vector<DictionaryRow *> Autocomplete(std::string const &query) override {
-        auto ret = std::vector<DictionaryRow *>();
+    virtual std::vector<TaiToken *> Autocomplete(std::string const &query) override {
+        auto ret = std::vector<TaiToken *>();
         auto words = word_trie->Autocomplete(query, 10, 5);
 
         if (words.empty()) {
             return ret;
         }
 
-        auto entries = std::set<DictionaryRow *>();
+        auto entries = std::set<TaiToken *>();
         for (auto &[key, val] : input_entry_map) {
             if (auto it = std::find(words.begin(), words.end(), key); it != words.end()) {
                 for (auto &entry : val) {
@@ -174,14 +173,14 @@ class DictionaryImpl : public Dictionary {
         splitter = std::make_unique<Splitter>(splitter_words);
     }
 
-    void CacheInput(std::string input, DictionaryRow *entry) {
+    void CacheInput(std::string input, TaiToken *entry) {
         if (auto it = input_entry_map.find(input); it != input_entry_map.end()) {
             auto &entries = it->second;
             if (std::find(entries.cbegin(), entries.cend(), entry) == entries.cend()) {
                 entries.push_back(entry);
             }
         } else {
-            input_entry_map[input] = std::vector<DictionaryRow *>{entry};
+            input_entry_map[input] = std::vector<TaiToken *>{entry};
         }
     }
 
@@ -190,10 +189,10 @@ class DictionaryImpl : public Dictionary {
     std::unique_ptr<Trie> syllable_trie = nullptr;
     std::unique_ptr<Splitter> splitter = nullptr;
 
-    std::vector<DictionaryRow> dictionary_entries;
+    std::vector<TaiToken> dictionary_entries;
     std::vector<std::string> trie_words;
     std::vector<std::string> splitter_words;
-    std::unordered_map<std::string, std::vector<DictionaryRow *>> input_entry_map;
+    std::unordered_map<std::string, std::vector<TaiToken *>> input_entry_map;
 };
 
 } // namespace

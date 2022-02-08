@@ -4,14 +4,14 @@
 
 namespace khiin::engine {
 
-struct DictionaryRow {
+struct TaiToken {
     int id;
     int chhan_id;
     std::string input;
     std::string output;
     int weight;
-    int color;
-    std::string hint;
+    int category;
+    std::string annotation;
 };
 
 } // namespace khiin::engine

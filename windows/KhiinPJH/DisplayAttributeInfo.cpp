@@ -30,6 +30,19 @@ const DisplayAttributeBundle DisplayAttribute_Converted =
                                TF_ATTR_TARGET_CONVERTED // attribute info
                            }};
 
+// 829893fb-728d-11ec-8c6e-e0d46491b35a
+const DisplayAttributeBundle DisplayAttribute_Focused =
+    DisplayAttributeBundle{L"Focused",
+                           {0x829893fb, 0x728d, 0x11ec, {0x8c, 0x6e, 0xe0, 0xd4, 0x64, 0x91, 0xb3, 0x5a}},
+                           TF_DISPLAYATTRIBUTE{
+                               {TF_CT_NONE, 0},         // text color
+                               {TF_CT_NONE, 0},         // background color
+                               TF_LS_SOLID,             // underline style
+                               TRUE,                    // underline boldness
+                               {TF_CT_NONE, 0},         // underline color
+                               TF_ATTR_TARGET_CONVERTED // attribute info
+                           }};
+
 HRESULT DisplayAttributeInfo::Initialize(DisplayAttributeBundle &bundle) {
     description = bundle.description;
     guid = bundle.guid;

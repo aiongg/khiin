@@ -30,6 +30,7 @@ struct TextService : winrt::implements<TextService, IUnknown> {
 
     virtual TfGuidAtom input_attribute() = 0;
     virtual TfGuidAtom converted_attribute() = 0;
+    virtual TfGuidAtom focused_attribute() = 0;
 };
 
 struct TextServiceFactory {

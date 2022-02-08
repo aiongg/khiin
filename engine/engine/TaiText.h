@@ -23,29 +23,30 @@ class TaiText {
   public:
     using Chunk = std::variant<Syllable, Spacer>;
     static TaiText FromRawSyllable(SyllableParser *parser, std::string const &syllable);
-    static TaiText FromMatching(SyllableParser *parser, std::string const &input, DictionaryRow *match);
+    static TaiText FromMatching(SyllableParser *parser, std::string const &input, TaiToken *match);
 
     void AddItem(Syllable syllable);
     void AddItem(Spacer spacer);
-    void SetCandidate(DictionaryRow *candidate);
+    void SetCandidate(TaiToken *candidate);
 
     utf8_size_t size() const;
     std::string raw() const;
     std::string composed() const;
     std::string converted() const;
-    DictionaryRow *candidate() const;
+    TaiToken *candidate() const;
 
     void RawIndexed(utf8_size_t caret, std::string &raw, size_t &raw_caret) const;
     utf8_size_t RawToComposedCaret(SyllableParser *parser, size_t raw_caret) const;
     size_t ComposedToRawCaret(SyllableParser *parser, utf8_size_t caret) const;
+    size_t ConvertedToRawCaret(SyllableParser *parser, utf8_size_t caret) const;
+
     void Erase(SyllableParser *parser, utf8_size_t index);
     bool IsVirtualSpace(utf8_size_t index) const;
     void SetKhin(SyllableParser *parser, KhinKeyPosition khin_pos, char khin_key);
 
-
   private:
     std::vector<Chunk> m_elements;
-    DictionaryRow *m_candidate = nullptr;
+    TaiToken *m_candidate = nullptr;
 };
 
 } // namespace khiin::engine

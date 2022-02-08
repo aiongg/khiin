@@ -23,10 +23,10 @@ class Database {
     static Database *TestDb();
     static Database *Connect(std::string db_filename);
 
-    virtual DictionaryRow *HighestUnigramCount(std::vector<DictionaryRow *> const &grams) = 0;
-    virtual DictionaryRow *HighestBigramCount(std::string const &lgram, std::vector<DictionaryRow *> const &rgrams) = 0;
+    virtual TaiToken *HighestUnigramCount(std::vector<TaiToken *> const &grams) = 0;
+    virtual TaiToken *HighestBigramCount(std::string const &lgram, std::vector<TaiToken *> const &rgrams) = 0;
     virtual void LoadSyllables(std::vector<std::string> &syllables) = 0;
-    virtual void AllWordsByFreq(std::vector<DictionaryRow> &output) = 0;
+    virtual void AllWordsByFreq(std::vector<TaiToken> &output) = 0;
 };
 
 } // namespace khiin::engine

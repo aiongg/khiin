@@ -79,7 +79,7 @@ class SegmenterImpl {
     void ConsumeSplittableBuffer(std::string input) {
         auto words = std::vector<std::string>();
         splitter->Split(input, words);
-        DictionaryRow *prev_best = nullptr;
+        TaiToken *prev_best = nullptr;
         for (auto &word : words) {
             auto best_match = CandidateFinder::BestMatch(m_engine, prev_best, word);
             if (best_match) {
@@ -91,7 +91,7 @@ class SegmenterImpl {
         }
     }
 
-    void ConsumeWordPrefix(DictionaryRow *lgram, std::string const &raw) {
+    void ConsumeWordPrefix(TaiToken *lgram, std::string const &raw) {
         if (lgram == nullptr && m_result->size()) {
             lgram = m_result->back().candidate();
         }

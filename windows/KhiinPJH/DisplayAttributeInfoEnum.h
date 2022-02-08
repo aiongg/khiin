@@ -7,6 +7,7 @@ namespace khiin::win32 {
 enum class AttrInfoKey {
     Input = 0,
     Converted,
+    Focused
 };
 
 struct DisplayAttributeInfoEnum : winrt::implements<DisplayAttributeInfoEnum, IEnumTfDisplayAttributeInfo> {

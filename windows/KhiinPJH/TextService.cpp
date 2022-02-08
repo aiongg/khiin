@@ -75,6 +75,7 @@ struct TextServiceImpl :
     void InitDisplayAttributes() {
         winrt::check_hresult(category_mgr_->RegisterGUID(DisplayAttribute_Input.guid, &input_attribute_));
         winrt::check_hresult(category_mgr_->RegisterGUID(DisplayAttribute_Converted.guid, &converted_attribute_));
+        winrt::check_hresult(category_mgr_->RegisterGUID(DisplayAttribute_Focused.guid, &focused_attribute_));
     }
 
     winrt::com_ptr<ITfThreadMgr> threadMgr_ = nullptr;
@@ -94,6 +95,7 @@ struct TextServiceImpl :
 
     TfGuidAtom input_attribute_ = TF_INVALID_GUIDATOM;
     TfGuidAtom converted_attribute_ = TF_INVALID_GUIDATOM;
+    TfGuidAtom focused_attribute_ = TF_INVALID_GUIDATOM;
 
   public:
     //+---------------------------------------------------------------------------
@@ -171,6 +173,10 @@ struct TextServiceImpl :
 
     virtual TfGuidAtom converted_attribute() {
         return converted_attribute_;
+    }
+
+    virtual TfGuidAtom focused_attribute() {
+        return focused_attribute_;
     }
 
     //+---------------------------------------------------------------------------

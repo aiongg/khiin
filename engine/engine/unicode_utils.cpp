@@ -26,7 +26,7 @@ GlyphCategory glyph_category_of_codepoint(char32_t cp) {
     return GlyphCategory::Other;
 }
 
-}
+} // namespace
 
 std::string to_nfd(std::string_view s) {
     auto u32s = utf8::utf8to32(s);
@@ -59,6 +59,11 @@ std::string strip_diacritics(std::string_view str, bool strip_letter_diacritics)
     }
 
     return utf8::utf32to8(stripped);
+}
+
+GlyphCategory glyph_type(std::string::const_iterator const &it) {
+    auto cp = utf8::unchecked::peek_next(it);
+    return glyph_category_of_codepoint(cp);
 }
 
 GlyphCategory start_glyph_type(std::string_view str) {

@@ -10,15 +10,20 @@
 namespace khiin::engine {
 namespace {
 
-void AllWordsByFreqImpl(SQLite::Database &db, std::vector<DictionaryRow> &output) {
+void AllWordsByFreqImpl(SQLite::Database &db, std::vector<TaiToken> &output) {
     output.clear();
     output.reserve(17000);
     auto q = SQLite::Statement(db, "select * from dictionary order by chhan_id asc");
     while (q.executeStep()) {
-        output.push_back(DictionaryRow{q.getColumn("id").getInt(), q.getColumn("chhan_id").getInt(),
-                                       q.getColumn("input").getString(), q.getColumn("output").getString(),
-                                       q.getColumn("weight").getInt(), q.getColumn("category").getInt(),
-                                       q.getColumn("annotation").getString()});
+        auto token = TaiToken();
+        token.id = q.getColumn("id").getInt();
+        token.chhan_id = q.getColumn("chhan_id").getInt();
+        token.input = q.getColumn("input").getString();
+        token.output = q.getColumn("output").getString();
+        token.weight = q.getColumn("weight").getInt();
+        token.category = q.getColumn("category").getInt();
+        token.annotation = q.getColumn("annotation").getString();
+        output.push_back(std::move(token));
     }
 }
 
@@ -32,7 +37,7 @@ void LoadSyllablesImpl(SQLite::Database &db, std::vector<std::string> &syllables
     }
 }
 
-DictionaryRow *HighestUnigramCountImpl(SQLite::Database &db, std::vector<DictionaryRow *> const &grams) {
+TaiToken *HighestUnigramCountImpl(SQLite::Database &db, std::vector<TaiToken *> const &grams) {
     if (grams.empty()) {
         return nullptr;
     }
@@ -59,8 +64,8 @@ DictionaryRow *HighestUnigramCountImpl(SQLite::Database &db, std::vector<Diction
     return nullptr;
 }
 
-DictionaryRow *HighestBigramCountImpl(SQLite::Database &db, std::string const &lgram,
-                                      std::vector<DictionaryRow *> const &rgrams) {
+TaiToken *HighestBigramCountImpl(SQLite::Database &db, std::string const &lgram,
+                                      std::vector<TaiToken *> const &rgrams) {
     if (lgram.empty() || rgrams.empty()) {
         return nullptr;
     }
@@ -94,7 +99,7 @@ class DatabaseImpl : public Database {
         db_handle = std::unique_ptr<SQLite::Database>(handle);
     }
 
-    virtual void AllWordsByFreq(std::vector<DictionaryRow> &output) override {
+    virtual void AllWordsByFreq(std::vector<TaiToken> &output) override {
         AllWordsByFreqImpl(*db_handle, output);
     }
 
@@ -102,12 +107,12 @@ class DatabaseImpl : public Database {
         LoadSyllablesImpl(*db_handle, syllables);
     }
 
-    virtual DictionaryRow *HighestUnigramCount(std::vector<DictionaryRow *> const &grams) override {
+    virtual TaiToken *HighestUnigramCount(std::vector<TaiToken *> const &grams) override {
         return HighestUnigramCountImpl(*db_handle, grams);
     }
 
-    virtual DictionaryRow *HighestBigramCount(std::string const &lgram,
-                                              std::vector<DictionaryRow *> const &rgrams) override {
+    virtual TaiToken *HighestBigramCount(std::string const &lgram,
+                                              std::vector<TaiToken *> const &rgrams) override {
         return HighestBigramCountImpl(*db_handle, lgram, rgrams);
     }
 
