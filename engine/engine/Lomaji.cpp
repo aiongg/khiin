@@ -7,7 +7,6 @@
 #include <unilib/uninorms.h>
 #include <unilib/unistrip.h>
 
-
 #include <utf8cpp/utf8.h>
 #include <utf8cpp/utf8/cpp17.h>
 
@@ -195,8 +194,6 @@ auto hasToneDiacritic(std::string str) -> bool {
     return false;
 }
 
-
-
 auto placeToneOnSyllable(std::string u8syllable, Tone tone) -> std::string {
     if (tone == Tone::NaT) {
         return u8syllable;
@@ -342,8 +339,12 @@ auto utf8ToAsciiLower(std::string u8string) -> std::string {
 }
 
 utf8_size_t Lomaji::MoveCaret(std::string_view str, utf8_size_t start_pos, CursorDirection dir) {
-    auto it = str.cbegin();
+    auto str_size = unicode::utf8_size(str);
+    if (start_pos > str_size) {
+        return str_size;
+    }
 
+    auto it = str.cbegin();
     if (dir == CursorDirection::L) {
         if (start_pos == 0) {
             return 0;

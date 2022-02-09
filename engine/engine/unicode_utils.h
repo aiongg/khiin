@@ -28,5 +28,7 @@ GlyphCategory glyph_type(std::string::const_iterator const &it);
 GlyphCategory start_glyph_type(std::string_view str);
 GlyphCategory end_glyph_type(std::string_view str);
 
+size_t letter_count(std::string input);
+
 } // namespace unicode
 } // namespace khiin::engine

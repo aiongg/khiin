@@ -45,7 +45,11 @@ TaiToken *BestMatchImpl(Engine *engine, TaiToken *lgram, std::vector<TaiToken *>
 
 std::vector<BufferElementList> GetCandidatesFromStartImpl(Engine *engine, TaiToken *lgram,
                                                                    std::string const &raw_query,
-                                                                   std::vector<TaiToken *> const &options) {
+                                                                   std::vector<TaiToken *> &options) {
+    std::sort(options.begin(), options.end(), [](TaiToken *a, TaiToken *b) {
+        return unicode::letter_count(a->input) > unicode::letter_count(b->input);
+    });
+
     auto ret = std::vector<BufferElementList>();
     auto parser = engine->syllable_parser();
 
@@ -75,7 +79,7 @@ TaiToken *CandidateFinder::BestAutocomplete(Engine *engine, TaiToken *lgram, std
 std::vector<BufferElementList> CandidateFinder::GetCandidatesFromStart(Engine *engine, TaiToken *lgram,
                                                                                 std::string const &query) {
     // TODO - add dictionary method for finding candidates
-    auto options = engine->dictionary()->WordSearch(query);
+    auto options = engine->dictionary()->AllWordsFromStart(query);
     return GetCandidatesFromStartImpl(engine, lgram, query, options);
 }
 

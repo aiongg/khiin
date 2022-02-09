@@ -90,4 +90,18 @@ GlyphCategory end_glyph_type(std::string_view str) {
     return glyph_category_of_codepoint(cp);
 }
 
+size_t letter_count(std::string input) {
+    auto nfd = to_nfd(input);
+    auto ascii = std::string();
+    auto it = nfd.begin();
+    while (it != nfd.end()) {
+        auto cp = utf8::unchecked::peek_next(it);
+        if (cp < 0xFF && isalpha(cp)) {
+            ascii.push_back(cp);
+        }
+        ++it;
+    }
+    return ascii.size();
+}
+
 } // namespace khiin::engine::unicode

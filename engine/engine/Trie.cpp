@@ -158,7 +158,7 @@ class TrieImpl : public Trie {
         return ret;
     }
 
-    virtual void FindWords(std::string_view query, string_vector &results) {
+    virtual void FindKeys(std::string_view query, string_vector &results) {
         results.clear();
 
         if (query.empty()) {
@@ -176,60 +176,6 @@ class TrieImpl : public Trie {
             ++it;
             if (curr->end_of_word) {
                 results.push_back(std::string(query.begin(), it));
-            }
-        }
-    }
-
-    virtual void FindKeys(std::string_view query, bool fuzzy, string_vector &results) {
-        results.clear();
-
-        if (query.empty()) {
-            return;
-        }
-
-        if (!root.HasChild(query[0])) {
-            return;
-        }
-
-        auto curr = &root;
-        static auto tones = std::string("1234567890");
-
-        for (auto it = query.begin(); it != query.end(); it++) {
-            if (curr->children.find(*it) == curr->children.end()) {
-                return;
-            }
-
-            auto substr = std::string(query.begin(), std::next(it));
-            curr = curr->children[*it].get();
-
-            if (curr->end_of_word) {
-                results.push_back(substr);
-            }
-
-            if (fuzzy) {
-                if (it + 1 != query.end() && isdigit(*(it + 1))) {
-                    // tone provided, skip this one
-                    continue;
-                }
-
-                if (it + 1 != query.end() && isdigit(*it) && *(it + 1) != '0' &&
-                    // only check for khin after provided tone
-                    curr->HasChild('0') && curr->children['0']->end_of_word) {
-                    results.push_back(substr + '0');
-                    continue;
-                }
-
-                // otherwise check all tones
-                for (auto jt : tones) {
-                    if (curr->HasChild(jt) && curr->children[jt]->end_of_word) {
-                        results.push_back(substr + jt);
-
-                        // final khin after tone number
-                        if (curr->children[jt]->HasChild('0') && curr->children[jt]->children['0']->end_of_word) {
-                            results.push_back(substr + jt + '0');
-                        }
-                    }
-                }
             }
         }
     }

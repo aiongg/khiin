@@ -37,15 +37,15 @@ class DictionaryImpl : public Dictionary {
         engine->RegisterConfigChangedListener(this);
     }
 
-    virtual bool StartsWithWord(std::string_view query) override {
+    virtual bool StartsWithWord(std::string_view query) const override {
         return word_trie->StartsWithKey(query);
     }
 
-    virtual bool StartsWithSyllable(std::string_view query) override {
+    virtual bool StartsWithSyllable(std::string_view query) const override {
         return syllable_trie->StartsWithKey(query);
     }
 
-    virtual bool IsSyllablePrefix(std::string_view query) override {
+    virtual bool IsSyllablePrefix(std::string_view query) const override {
         if (query.empty()) {
             return false;
         }
@@ -59,15 +59,15 @@ class DictionaryImpl : public Dictionary {
         return syllable_trie->HasKeyOrPrefix(query);
     }
 
-    virtual bool IsWordPrefix(std::string_view query) override {
+    virtual bool IsWordPrefix(std::string_view query) const override {
         return word_trie->HasKeyOrPrefix(query);
     }
 
-    virtual bool IsWord(std::string_view query) override {
+    virtual bool IsWord(std::string_view query) const override {
         return word_trie->HasKey(query);
     }
 
-    virtual std::vector<TaiToken *> WordSearch(std::string const &query) override {
+    virtual std::vector<TaiToken *> WordSearch(std::string const &query) const override {
         for (auto &[key, entries] : input_entry_map) {
             if (key == query) {
                 return entries;
@@ -77,9 +77,35 @@ class DictionaryImpl : public Dictionary {
         return std::vector<TaiToken *>();
     }
 
-    virtual std::vector<TaiToken *> Autocomplete(std::string const &query) override {
+    virtual std::vector<TaiToken *> Autocomplete(std::string const &query) const override {
         auto ret = std::vector<TaiToken *>();
         auto words = word_trie->Autocomplete(query, 10, 5);
+
+        if (words.empty()) {
+            return ret;
+        }
+
+        auto entries = std::set<TaiToken *>();
+        for (auto &[key, val] : input_entry_map) {
+            if (auto it = std::find(words.begin(), words.end(), key); it != words.end()) {
+                for (auto &entry : val) {
+                    entries.insert(entry);
+                }
+                words.erase(it);
+            }
+            if (words.empty()) {
+                break;
+            }
+        }
+
+        ret.assign(entries.begin(), entries.end());
+        return ret;
+    }
+
+    virtual std::vector<TaiToken*> AllWordsFromStart(std::string const& query) const override {
+        auto ret = std::vector<TaiToken *>();
+        auto words = std::vector<std::string>();
+        word_trie->FindKeys(query, words);
 
         if (words.empty()) {
             return ret;

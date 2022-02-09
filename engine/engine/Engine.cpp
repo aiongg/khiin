@@ -208,20 +208,8 @@ class EngineImpl : public Engine {
         auto output = command->mutable_output();
         auto preedit = output->mutable_preedit();
         m_buffer_mgr->BuildPreedit(preedit);
-        // preedit->set_cursor_position(buffer->getCursor());
-        // auto segment = preedit->add_segments();
-        // segment->set_status(SegmentStatus::COMPOSING);
-        // segment->set_value(buffer->getDisplayBuffer());
-
         auto candidate_list = command->mutable_output()->mutable_candidate_list();
         m_buffer_mgr->GetCandidates(candidate_list);
-
-        // auto cand_list = output->mutable_candidate_list();
-        // for (auto &c : curr_candidates) {
-        //    auto candidate = cand_list->add_candidates();
-        //    candidate->set_value(c.text);
-        //    candidate->set_category(Candidate_Category_BASIC);
-        //}
     }
 
     // void HandleRevert(Command *command, Output *output) {}

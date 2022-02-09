@@ -166,7 +166,7 @@ TEST_F(BufferMgrTest, Candidates_pengan) {
     insert_string("pengan");
     bufmgr->GetCandidates(clist);
 
-    EXPECT_EQ(clist->candidates().size(), 1);
+    EXPECT_GT(clist->candidates().size(), 20);
     EXPECT_EQ(clist->candidates().at(0).value(), u8"平安");
 }
 
@@ -405,6 +405,23 @@ TEST_F(BufferMgrTest, Convert_sioutoubai) {
     bufmgr->BuildPreedit(preedit);
     EXPECT_EQ(display(), u8"是 o\u0358-tó\u0358-bái");
     EXPECT_EQ(preedit->segments().size(), 3);
+}
+
+TEST_F(BufferMgrTest, Convert_erase) {
+    insert_string("ho2");
+    bufmgr->SelectNextCandidate();
+    erase_left(1);
+    EXPECT_EQ(display(), "");
+    EXPECT_EQ(caret(), 0);
+}
+
+TEST_F(BufferMgrTest, Convert_ho_twice) {
+    insert_string("ho");
+    bufmgr->SelectNextCandidate();
+    bufmgr->SelectNextCandidate();
+    auto candlist = messages::CandidateList::default_instance().New();
+    bufmgr->GetCandidates(candlist);
+    EXPECT_GT(candlist->candidates_size(), 2);
 }
 
 } // namespace

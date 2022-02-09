@@ -77,10 +77,18 @@ std::string BufferElement::raw() const {
 }
 
 utf8_size_t BufferElement::RawToComposedCaret(SyllableParser *parser, size_t raw_caret) const {
+    if (raw_caret == 0) {
+        return 0;
+    }
+
     if (auto *elem = std::get_if<Plaintext>(&m_element)) {
         return raw_caret;
     } else if (auto *elem = std::get_if<TaiText>(&m_element)) {
-        return elem->RawToComposedCaret(parser, raw_caret);
+        if (is_converted && elem->candidate()) {
+            return unicode::utf8_size(elem->candidate()->output);
+        } else {
+            return elem->RawToComposedCaret(parser, raw_caret);
+        }
     } else if (auto *elem = std::get_if<Spacer>(&m_element)) {
         return utf8_size_t(1);
     }
@@ -88,6 +96,10 @@ utf8_size_t BufferElement::RawToComposedCaret(SyllableParser *parser, size_t raw
 }
 
 size_t BufferElement::ComposedToRawCaret(SyllableParser *parser, utf8_size_t caret) const {
+    if (caret == 0) {
+        return 0;
+    }
+
     if (auto *elem = std::get_if<Plaintext>(&m_element)) {
         return caret;
     } else if (auto *elem = std::get_if<TaiText>(&m_element)) {

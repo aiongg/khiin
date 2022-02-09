@@ -52,6 +52,19 @@ BufferElementList ConvertWholeBuffer(BufferElementList elements) {
     return elements;
 }
 
+bool ContainsCandidate(BufferElementList const& a, BufferElementList const& b) {
+    auto i = 0;
+    auto size = min(a.size(), b.size());
+    for (; i < size; ++i) {
+        auto &el_a = a[i];
+        auto &el_b = b[i];
+        if (el_a.converted() != el_b.converted()) {
+            return false;
+        }
+    }
+    return true;
+}
+
 class BufferMgrImpl : public BufferMgr {
   public:
     BufferMgrImpl(Engine *engine) : m_engine(engine) {}
@@ -69,7 +82,7 @@ class BufferMgrImpl : public BufferMgr {
 
     virtual void Insert(char ch) override {
         if (m_buffer_state == BufferState::Empty) {
-            m_buffer_state = BufferState::InitialComposition;
+            m_buffer_state = BufferState::Composition;
         }
 
         switch (m_input_mode) {
@@ -112,32 +125,40 @@ class BufferMgrImpl : public BufferMgr {
         if (it->size() == 0) {
             m_elements.erase(it);
         }
+
+        if (IsEmpty()) {
+            Clear();
+        }
+
         auto raw_buffer = GetRawBuffer();
         UpdateBuffer(raw_buffer, raw_caret);
     }
 
     virtual void BuildPreedit(Preedit *preedit) override {
-        if (m_buffer_state == BufferState::InitialComposition) {
-            auto segment = preedit->add_segments();
-            segment->set_value(GetDisplayBuffer());
-            segment->set_status(SegmentStatus::COMPOSING);
-        } else if (m_buffer_state == BufferState::Converted) {
-            auto i = 0;
-            for (auto &elem : m_elements) {
-                auto segment = preedit->add_segments();
-                if (elem.is_converted) {
-                    segment->set_value(elem.converted());
-                } else {
-                    segment->set_value(elem.composed());
-                }
-                if (!elem.IsVirtualSpace()) {
-                    if (i == m_focused_element) {
+        {
+            auto it = m_elements.cbegin();
+            auto end = m_elements.cend();
+            while (it != end) {
+                if ((it != end - 1 && it->IsVirtualSpace() && !it[1].is_converted) || (!it->is_converted)) {
+                    auto composing_text = std::string();
+                    while (it != end && (it->IsVirtualSpace() || !it->is_converted)) {
+                        composing_text += it->composed();
+                        ++it;
+                    }
+                    auto segment = preedit->add_segments();
+                    segment->set_status(SegmentStatus::COMPOSING);
+                    segment->set_value(composing_text);
+                    continue;
+                } else if (it->is_converted) {
+                    auto segment = preedit->add_segments();
+                    segment->set_value(it->converted());
+                    if (std::distance(m_elements.cbegin(), it) == m_focused_element) {
                         segment->set_status(SegmentStatus::FOCUSED);
                     } else {
                         segment->set_status(SegmentStatus::CONVERTED);
                     }
                 }
-                ++i;
+                ++it;
             }
         }
 
@@ -145,6 +166,10 @@ class BufferMgrImpl : public BufferMgr {
     }
 
     virtual void GetCandidates(messages::CandidateList *candidate_list) override {
+        if (m_buffer_state == BufferState::Converted) {
+            return;
+        }
+
         for (auto &cand : m_candidates) {
             auto display_str = std::string();
             for (auto &elem : cand) {
@@ -157,6 +182,8 @@ class BufferMgrImpl : public BufferMgr {
             auto candidate_output = candidate_list->add_candidates();
             candidate_output->set_value(display_str);
         }
+
+        candidate_list->set_focused(static_cast<int32_t>(m_focused_candidate));
     }
 
     virtual void MoveFocus(CursorDirection direction) override {}
@@ -168,25 +195,18 @@ class BufferMgrImpl : public BufferMgr {
     }
 
     virtual void SelectNextCandidate() override {
-        //if (m_input_mode == InputMode::Continuous && m_buffer_state == BufferState::InitialComposition) {
-            //ConvertWholeBuffer();
-        //}
+        if (m_input_mode == InputMode::Continuous && m_buffer_state == BufferState::Composition) {
+            m_buffer_state = BufferState::Converted;
+            SelectCandidate(0);
+        } else if (m_buffer_state == BufferState::Converted) {
+            m_buffer_state = BufferState::CandidateSelection;
+            SelectCandidate((m_focused_candidate + 1) % m_candidates.size());
+        } else if (m_buffer_state == BufferState::CandidateSelection) {
+            SelectCandidate((m_focused_candidate + 1) % m_candidates.size());
+        }
     }
 
   private:
-    enum class BufferState {
-        Empty,
-        InitialComposition,
-        Converted,
-    };
-
-    BufferState m_buffer_state = BufferState::Empty;
-
-    enum class FocusedElementState {
-        Focused,
-        Composing,
-    };
-
     void InsertContinuous(char ch) {
         // Get raw buffer and cursor position
         auto raw_buffer = GetRawBuffer();
@@ -209,13 +229,17 @@ class BufferMgrImpl : public BufferMgr {
     void UpdateCandidates(std::string const &raw_buffer) {
         m_candidates.clear();
 
-        if (m_input_mode == InputMode::Continuous && m_buffer_state == BufferState::InitialComposition) {
+        if (m_input_mode == InputMode::Continuous && m_buffer_state == BufferState::Composition) {
             m_candidates.push_back(ConvertWholeBuffer(m_elements));
         }
 
         auto candidates = CandidateFinder::GetCandidatesFromStart(m_engine, nullptr, raw_buffer);
 
         for (auto &c : candidates) {
+            if (!m_candidates.empty() && ContainsCandidate(m_candidates[0], c)) {
+                continue;
+            }
+
             m_candidates.push_back(std::move(c));
         }
     }
@@ -285,12 +309,50 @@ class BufferMgrImpl : public BufferMgr {
         m_caret = new_caret;
     }
 
+    void SelectCandidate(size_t index) {
+        if (index >= m_candidates.size()) {
+            return;
+        }
+
+        auto raw_caret = GetRawCaret();
+        auto &candidate = m_candidates.at(index);
+        auto raw_buffer = GetRawBuffer();
+        auto candidate_raw = std::string();
+        for (auto &el : candidate) {
+            candidate_raw += el.raw();
+        }
+        auto raw_remainder = raw_buffer.substr(candidate_raw.size(), raw_buffer.size());
+
+        auto elements = BufferElementList();
+        Segmenter::SegmentWholeBuffer(m_engine, raw_remainder, elements);
+        KhinHandler::AutokhinBuffer(m_engine->syllable_parser(), elements);
+        elements.insert(elements.begin(), candidate.begin(), candidate.end());
+        AdjustVirtualSpacing(elements);
+        m_elements = elements;
+        UpdateCaret(raw_caret);
+        m_focused_candidate = index;
+    }
+
+    enum class BufferState {
+        Empty,
+        Composition,
+        Converted,
+        CandidateSelection,
+    };
+
+    enum class FocusedElementState {
+        Focused,
+        Composing,
+    };
+
     Engine *m_engine = nullptr;
     utf8_size_t m_caret = 0;
     BufferElementList m_elements; // DISPLAY BUFFER ONLY
     std::vector<BufferElementList> m_candidates;
+    size_t m_focused_candidate = 0;
     bool m_converted = false;
     int m_focused_element = 0;
+    BufferState m_buffer_state = BufferState::Empty;
     FocusedElementState m_focused_element_state = FocusedElementState::Composing;
     InputMode m_input_mode = InputMode::Continuous;
 };
