@@ -131,7 +131,7 @@ struct CandidateListUIImpl :
         if (edit_state == EditState::EDIT_COMPOSING) {
             m_pager = std::make_unique<CandidatePager>(&m_candidate_list);
             m_edit_state = edit_state;
-        } else if ( edit_state == EditState::EDIT_SELECTING) {
+        } else if (edit_state == EditState::EDIT_SELECTING) {
             if (m_edit_state != EditState::EDIT_SELECTING) {
                 m_pager = std::make_unique<CandidatePager>(&m_candidate_list);
             }
@@ -152,8 +152,8 @@ struct CandidateListUIImpl :
         m_candidate_grid.clear();
         m_pager->GetPage(m_candidate_grid, focused_col);
         D("Quickselect col: ", focused_col);
-        m_candidate_window->SetScreenCoordinates(text_rect);
-        m_candidate_window->SetCandidates(display_mode, &m_candidate_grid, focused_id, focused_col, qs_active);
+        m_candidate_window->SetCandidates(display_mode, &m_candidate_grid, focused_id, focused_col, qs_active,
+                                          text_rect);
         Show();
     }
 

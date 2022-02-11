@@ -37,9 +37,8 @@ class CandidateWindow : public BaseWindow<CandidateWindow> {
     virtual void Hide() = 0;
     virtual bool Showing() = 0;
     virtual void SetCandidates(DisplayMode display_mode, CandidateGrid *candidate_grid, int focused_id, size_t qs_col,
-                               bool qs_active) = 0;
+                               bool qs_active, RECT text_position) = 0;
     virtual void SetDisplaySize(DisplaySize display_size) = 0;
-    virtual void SetScreenCoordinates(RECT text_rect) = 0;
 };
 
 } // namespace khiin::win32

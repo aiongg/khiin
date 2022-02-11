@@ -10,6 +10,8 @@ namespace khiin::win32 {
 
 namespace {
 
+using namespace winrt;
+using namespace D2D1;
 using namespace messages;
 using uint = unsigned int;
 
@@ -19,10 +21,26 @@ constexpr float kMarkerWidth = 4.0f;
 constexpr float kMarkerHeight = 16.0f;
 constexpr float kFontSize = 16.0f;
 constexpr float kFontSizeSmall = 16.0f;
-constexpr float kRowHeight = kFontSize + kPadding;
+constexpr float kRowHeight = kFontSize + kPadding * 2;
 constexpr uint min_col_width_single = 160;
 constexpr uint min_col_width_expanded = 80;
 constexpr uint kQsColWidth = kPaddingSmall * 2 + kMarkerWidth + kPadding * 2 + kFontSize;
+
+const D2D1::ColorF kColorText = D2D1::ColorF(D2D1::ColorF::Black);
+const D2D1::ColorF kColorTextDisabled = D2D1::ColorF(D2D1::ColorF::Gray);
+const D2D1::ColorF kColorTextExtended = D2D1::ColorF(D2D1::ColorF::DarkGray);
+const D2D1::ColorF kColorTextHint = D2D1::ColorF(D2D1::ColorF::ForestGreen);
+const D2D1::ColorF kColorBackground = D2D1::ColorF(0.97f, 0.97f, 0.97f);
+const D2D1::ColorF kColorBackgroundSelected = D2D1::ColorF(0.90f, 0.90f, 0.90f);
+const D2D1::ColorF kColorAccent = D2D1::ColorF(D2D1::ColorF::CornflowerBlue);
+
+const D2D1::ColorF kDarkColorText = D2D1::ColorF(0.98f, 0.98f, 0.98f);
+const D2D1::ColorF kDarkColorTextDisabled = D2D1::ColorF(D2D1::ColorF::LightGray);
+const D2D1::ColorF kDarkColorTextExtended = D2D1::ColorF(D2D1::ColorF::WhiteSmoke);
+const D2D1::ColorF kDarkColorTextHint = D2D1::ColorF(D2D1::ColorF::LightGoldenrodYellow);
+const D2D1::ColorF kDarkColorBackground = D2D1::ColorF(0.17f, 0.17f, 0.17f);
+const D2D1::ColorF kDarkColorBackgroundSelected = D2D1::ColorF(0.12f, 0.12f, 0.12f);
+const D2D1::ColorF kDarkColorAccent = D2D1::ColorF(D2D1::ColorF::LightSkyBlue);
 
 struct CWndMetrics {
     float padding = kPadding;
@@ -38,21 +56,25 @@ struct CWndMetrics {
 };
 
 struct CWndColors {
-    D2D1::ColorF text = D2D1::ColorF(D2D1::ColorF::Black);
-    D2D1::ColorF text_disabled = D2D1::ColorF(D2D1::ColorF::Gray);
-    D2D1::ColorF text_extended = D2D1::ColorF(D2D1::ColorF::DarkGray);
-    D2D1::ColorF bg = D2D1::ColorF(0.97f, 0.97f, 0.97f);
-    D2D1::ColorF bg_selected = D2D1::ColorF(0.90f, 0.90f, 0.90f);
-    D2D1::ColorF accent = D2D1::ColorF(D2D1::ColorF::CornflowerBlue);
-    D2D1::ColorF hint = D2D1::ColorF(D2D1::ColorF::ForestGreen);
+    D2D1::ColorF text = kColorText;
+    D2D1::ColorF text_disabled = kColorTextDisabled;
+    D2D1::ColorF text_extended = kColorTextExtended;
+    D2D1::ColorF text_hint = kColorTextHint;
+    D2D1::ColorF bg = kColorBackground;
+    D2D1::ColorF bg_selected = kColorBackgroundSelected;
+    D2D1::ColorF accent = kColorAccent;
 };
-
 CWndColors const kLightColorScheme = CWndColors();
 CWndColors const kDarkColorScheme =
-    CWndColors{D2D1::ColorF(0.98f, 0.98f, 0.98f),      D2D1::ColorF(D2D1::ColorF::LightGray),
-               D2D1::ColorF(D2D1::ColorF::WhiteSmoke),   D2D1::ColorF(0.17f, 0.17f, 0.17f),
-               D2D1::ColorF(0.12f, 0.12f, 0.12f),      D2D1::ColorF(D2D1::ColorF::LightSkyBlue),
-               D2D1::ColorF(D2D1::ColorF::LightGoldenrodYellow)};
+    CWndColors{// clang-format off
+    kDarkColorText,
+    kDarkColorTextDisabled,    
+    kDarkColorTextExtended,
+    kDarkColorTextHint,
+    kDarkColorBackground,
+    kDarkColorBackgroundSelected,
+    kDarkColorAccent
+}; // clang-format on
 
 CWndMetrics GetMetricsForSize(DisplaySize size) {
     auto metrics = CWndMetrics();
@@ -91,43 +113,48 @@ static const DWORD kDwStyle = WS_BORDER | WS_POPUP;
 
 static const DWORD kDwExStyle = WS_EX_TOPMOST | WS_EX_TOOLWINDOW | WS_EX_NOACTIVATE;
 
-winrt::com_ptr<ID2D1Factory1> CreateD2D1Factory() {
-    auto factory = winrt::com_ptr<ID2D1Factory1>();
-    winrt::check_hresult(D2D1CreateFactory(D2D1_FACTORY_TYPE_SINGLE_THREADED, factory.put()));
+com_ptr<ID2D1Factory1> CreateD2D1Factory() {
+    auto factory = com_ptr<ID2D1Factory1>();
+    check_hresult(::D2D1CreateFactory(D2D1_FACTORY_TYPE_SINGLE_THREADED, factory.put()));
     return factory;
 }
 
-winrt::com_ptr<IDWriteFactory3> CreateDwriteFactory() {
-    auto factory = winrt::com_ptr<IDWriteFactory3>();
-    winrt::check_hresult(::DWriteCreateFactory(DWRITE_FACTORY_TYPE_SHARED, __uuidof(IDWriteFactory3),
-                                               reinterpret_cast<IUnknown **>(factory.put())));
+com_ptr<IDWriteFactory3> CreateDwriteFactory() {
+    auto factory = com_ptr<IDWriteFactory3>();
+    check_hresult(::DWriteCreateFactory(DWRITE_FACTORY_TYPE_SHARED, __uuidof(IDWriteFactory3),
+                                        reinterpret_cast<IUnknown **>(factory.put())));
     return factory;
 }
 
-winrt::com_ptr<ID2D1HwndRenderTarget> CreateRenderTarget(winrt::com_ptr<ID2D1Factory1> const &factory,
-                                                         HWND const &hwnd) {
+com_ptr<ID2D1HwndRenderTarget> CreateRenderTarget(com_ptr<ID2D1Factory1> const &factory, HWND const &hwnd) {
     WINRT_ASSERT(factory);
     RECT rc;
     ::GetClientRect(hwnd, &rc);
     D2D1_SIZE_U size = D2D1::SizeU(rc.right, rc.bottom);
-    auto target = winrt::com_ptr<ID2D1HwndRenderTarget>();
-    winrt::check_hresult(factory->CreateHwndRenderTarget(D2D1::RenderTargetProperties(),
-                                                         D2D1::HwndRenderTargetProperties(hwnd, size), target.put()));
+    auto target = com_ptr<ID2D1HwndRenderTarget>();
+    check_hresult(factory->CreateHwndRenderTarget(D2D1::RenderTargetProperties(),
+                                                  D2D1::HwndRenderTargetProperties(hwnd, size), target.put()));
     return target;
 }
 
 float CenterTextLayoutY(IDWriteTextLayout *layout, float available_height) {
     DWRITE_TEXT_METRICS dwt_metrics;
-    winrt::check_hresult(layout->GetMetrics(&dwt_metrics));
+    check_hresult(layout->GetMetrics(&dwt_metrics));
     return (available_height - dwt_metrics.height) / 2;
 }
 
 struct CandidateLayout {
     Candidate const *candidate = nullptr;
-    winrt::com_ptr<IDWriteTextLayout> layout = winrt::com_ptr<IDWriteTextLayout>();
+    com_ptr<IDWriteTextLayout> layout = com_ptr<IDWriteTextLayout>();
 };
 
-using CandidateLayoutGrid = std::vector<std::vector<CandidateLayout>>;
+struct CandidateColumn {
+    std::vector<CandidateLayout> rows;
+    uint width = 0;
+    bool quickselect = false;
+};
+
+using CandidateLayoutGrid = std::vector<CandidateColumn>;
 
 class CandidateWindowImpl : public CandidateWindow {
   public:
@@ -263,36 +290,27 @@ class CandidateWindowImpl : public CandidateWindow {
     }
 
     virtual void SetCandidates(DisplayMode display_mode, CandidateGrid *candidate_grid, int focused_id, size_t qs_col,
-                               bool qs_active) override {
+                               bool qs_active, RECT text_position) override {
         D(__FUNCTIONW__);
         m_candidate_grid = candidate_grid;
         m_display_mode = display_mode;
         m_focused_id = focused_id;
         m_quickselect_col = qs_col;
         m_quickselect_active = qs_active;
+        m_text_rect = text_position;
         CalculateLayout();
     }
 
-    virtual void SetScreenCoordinates(RECT text_rect_px) override {
-        D(__FUNCTIONW__);
-        if (Showing()) {
-            return;
-        }
-        auto left = text_rect_px.left - metrics.qs_col_w;
-        auto top = text_rect_px.bottom + static_cast<int>(metrics.padding);
-        ::SetWindowPos(m_hwnd, NULL, left, top, 0, 0, SWP_NOSIZE | SWP_NOZORDER | SWP_NOACTIVATE);
-    }
-
     virtual void SetDisplaySize(DisplaySize display_size) override {
-        metrics = GetMetricsForSize(display_size);
+        m_metrics = GetMetricsForSize(display_size);
         DiscardGraphicsResources();
     }
 
   private:
     void OnCreate() {
         D(__FUNCTIONW__);
-        m_d2factory = CreateD2D1Factory();
-        m_dwfactory = CreateDwriteFactory();
+        m_d2d1 = CreateD2D1Factory();
+        m_dwrite = CreateDwriteFactory();
         m_dpi = ::GetDpiForWindow(m_hwnd);
         m_dpi_parent = ::GetDpiForWindow(m_hwnd_parent);
         m_scale = static_cast<float>(m_dpi / USER_DEFAULT_SCREEN_DPI);
@@ -301,8 +319,8 @@ class CandidateWindowImpl : public CandidateWindow {
 
     void EnsureRenderTarget() {
         D(__FUNCTIONW__);
-        if (m_d2factory && m_hwnd && !m_target) {
-            m_target = CreateRenderTarget(m_d2factory, m_hwnd);
+        if (m_d2d1 && m_hwnd && !m_target) {
+            m_target = CreateRenderTarget(m_d2d1, m_hwnd);
             m_target->SetDpi(static_cast<float>(m_dpi), static_cast<float>(m_dpi));
         }
     }
@@ -310,41 +328,41 @@ class CandidateWindowImpl : public CandidateWindow {
     void EnsureTextFormat() {
         D(__FUNCTIONW__);
         if (!m_textformat) {
-            winrt::check_hresult(m_dwfactory->CreateTextFormat(L"Arial", NULL, DWRITE_FONT_WEIGHT_REGULAR,
-                                                               DWRITE_FONT_STYLE_NORMAL, DWRITE_FONT_STRETCH_NORMAL,
-                                                               metrics.font_size, L"en-us", m_textformat.put()));
-            winrt::check_hresult(m_textformat->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_LEADING));
-            winrt::check_hresult(m_textformat->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_NEAR));
+            check_hresult(m_dwrite->CreateTextFormat(L"Arial", NULL, DWRITE_FONT_WEIGHT_REGULAR,
+                                                     DWRITE_FONT_STYLE_NORMAL, DWRITE_FONT_STRETCH_NORMAL,
+                                                     m_metrics.font_size, L"en-us", m_textformat.put()));
+            check_hresult(m_textformat->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_LEADING));
+            check_hresult(m_textformat->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_NEAR));
         }
 
         if (!m_textformat_sm) {
-            winrt::check_hresult(m_dwfactory->CreateTextFormat(L"Arial", NULL, DWRITE_FONT_WEIGHT_REGULAR,
-                                                               DWRITE_FONT_STYLE_NORMAL, DWRITE_FONT_STRETCH_NORMAL,
-                                                               metrics.font_size_sm, L"en-us", m_textformat_sm.put()));
-            winrt::check_hresult(m_textformat_sm->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_LEADING));
-            winrt::check_hresult(m_textformat_sm->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_NEAR));
+            check_hresult(m_dwrite->CreateTextFormat(L"Arial", NULL, DWRITE_FONT_WEIGHT_REGULAR,
+                                                     DWRITE_FONT_STYLE_NORMAL, DWRITE_FONT_STRETCH_NORMAL,
+                                                     m_metrics.font_size_sm, L"en-us", m_textformat_sm.put()));
+            check_hresult(m_textformat_sm->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_LEADING));
+            check_hresult(m_textformat_sm->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_NEAR));
         }
     }
 
     void EnsureBrush() {
         D(__FUNCTIONW__);
         if (!m_brush) {
-            winrt::check_hresult(m_target->CreateSolidColorBrush(colors.text, m_brush.put()));
+            check_hresult(m_target->CreateSolidColorBrush(m_colors.text, m_brush.put()));
         }
     }
 
     void CreateGraphicsResources() {
         D(__FUNCTIONW__);
         if (!m_textformat) {
-            winrt::check_hresult(m_dwfactory->CreateTextFormat(
-                L"Kozuka Gothic Pr6N R", NULL, DWRITE_FONT_WEIGHT_REGULAR, DWRITE_FONT_STYLE_NORMAL,
-                DWRITE_FONT_STRETCH_NORMAL, metrics.font_size, L"en-us", m_textformat.put()));
-            winrt::check_hresult(m_textformat->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_LEADING));
-            winrt::check_hresult(m_textformat->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_FAR));
+            check_hresult(m_dwrite->CreateTextFormat(L"Kozuka Gothic Pr6N R", NULL, DWRITE_FONT_WEIGHT_REGULAR,
+                                                     DWRITE_FONT_STYLE_NORMAL, DWRITE_FONT_STRETCH_NORMAL,
+                                                     m_metrics.font_size, L"en-us", m_textformat.put()));
+            check_hresult(m_textformat->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_LEADING));
+            check_hresult(m_textformat->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_FAR));
         }
 
         if (!m_brush) {
-            winrt::check_hresult(m_target->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::Black), m_brush.put()));
+            check_hresult(m_target->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::Black), m_brush.put()));
         }
     }
 
@@ -358,63 +376,87 @@ class CandidateWindowImpl : public CandidateWindow {
     }
 
     void OnDisplayChange() {
+        // TODO: Fix for multiple monitors
+        //auto hmon = ::MonitorFromWindow(m_hwnd, MONITOR_DEFAULTTONEAREST);
+        //auto info = MONITORINFO();
+        //info.cbSize = sizeof(MONITORINFO);
+        //::GetMonitorInfo(hmon, &info);
+        //m_max_width = info.rcMonitor.right - info.rcMonitor.left;
+        //m_max_height = info.rcMonitor.bottom - info.rcMonitor.top;
+
         m_max_width = ::GetSystemMetrics(SM_CXFULLSCREEN);
         m_max_height = ::GetSystemMetrics(SM_CYFULLSCREEN);
     }
 
     void CalculateLayout() {
         D(__FUNCTIONW__);
-        if (!m_dwfactory || !m_candidate_grid) {
+        if (!m_dwrite || !m_candidate_grid) {
             return;
         }
 
         EnsureTextFormat();
 
         m_candidate_layouts.clear();
-        m_col_widths.clear();
 
         auto min_col_width =
-            (m_display_mode == DisplayMode::Expanded) ? metrics.min_col_w_multi : metrics.min_col_w_single;
+            (m_display_mode == DisplayMode::Expanded) ? m_metrics.min_col_w_multi : m_metrics.min_col_w_single;
         auto page_width = 0.0f;
-        auto row_height = 0.0f;
+        auto col_idx = 0;
 
         for (auto &grid_col : *m_candidate_grid) {
-            auto layout_col = std::vector<CandidateLayout>();
+            auto col = CandidateColumn();
             auto column_width = 0.0f;
 
             for (auto &candidate : grid_col) {
                 auto &value = Utils::Widen(candidate->value());
-                auto layout = winrt::com_ptr<IDWriteTextLayout>();
-                D(value, " (", value.size(), ")");
-                winrt::check_hresult(m_dwfactory->CreateTextLayout(value.c_str(), static_cast<UINT32>(value.size() + 1),
-                                                                   m_textformat.get(), static_cast<float>(m_max_width),
-                                                                   row_height, layout.put()));
+
+                auto layout = com_ptr<IDWriteTextLayout>();
+                check_hresult(m_dwrite->CreateTextLayout(value.c_str(), static_cast<UINT32>(value.size() + 1),
+                                                         m_textformat.get(), static_cast<float>(m_max_width),
+                                                         m_metrics.row_height, layout.put()));
+
                 DWRITE_TEXT_METRICS dwtm;
-                winrt::check_hresult(layout->GetMetrics(&dwtm));
+                check_hresult(layout->GetMetrics(&dwtm));
+
                 column_width = std::max(column_width, dwtm.width);
-                layout_col.push_back(CandidateLayout{candidate, std::move(layout)});
-                row_height = std::max(row_height, dwtm.height);
+                col.rows.push_back(CandidateLayout{candidate, std::move(layout)});
             }
 
-            column_width = std::max(column_width, static_cast<float>(min_col_width)) + metrics.qs_col_w;
+            column_width = std::max(column_width, static_cast<float>(min_col_width)) + m_metrics.qs_col_w;
 
-            if (column_width > (min_col_width + metrics.qs_col_w - metrics.padding)) {
-                column_width += metrics.padding;
+            if (column_width > (min_col_width + m_metrics.qs_col_w - m_metrics.padding)) {
+                column_width += m_metrics.padding;
             }
 
-            D("Col width: ", column_width);
-            m_col_widths.push_back(column_width);
             page_width += column_width;
-            m_candidate_layouts.push_back(std::move(layout_col));
+            col.width = column_width;
+
+            if (col_idx == m_quickselect_col) {
+                col.quickselect = true;
+            }
+
+            m_candidate_layouts.push_back(std::move(col));
         }
 
-        row_height += metrics.padding;
-        metrics.row_height = row_height;
-        auto page_height = m_candidate_grid->at(0).size() * row_height;
-        D("page_height: ", page_height, " (", page_height * m_scale, ")");
-        D("page_width: ", page_width, " (", page_width * m_scale, ")");
-        ::SetWindowPos(m_hwnd, NULL, 0, 0, static_cast<int>(page_width * m_scale),
-                       static_cast<int>(page_height * m_scale), SWP_NOMOVE | SWP_NOACTIVATE | SWP_NOZORDER);
+        auto page_height = m_candidate_grid->at(0).size() * m_metrics.row_height;
+        auto page_height_px = static_cast<int>(page_height * m_scale);
+        auto page_width_px = static_cast<int>(page_width * m_scale);
+
+        auto page_left = m_text_rect.left - m_metrics.qs_col_w;
+        auto page_top = m_text_rect.bottom + static_cast<int>(m_metrics.padding);
+
+        RECT wnd_rect;
+        ::GetWindowRect(m_hwnd, &wnd_rect);
+
+        if (wnd_rect.right + page_width_px > m_max_width) {
+            page_left = m_max_width - page_width_px - m_metrics.padding_sm;
+        }
+
+        if (wnd_rect.bottom + page_height_px > m_max_height) {
+            page_top = m_text_rect.top - page_height_px - m_metrics.padding;
+        }
+
+        ::SetWindowPos(m_hwnd, NULL, page_left, page_top, page_width_px, page_height_px, SWP_NOACTIVATE | SWP_NOZORDER);
         ::RedrawWindow(m_hwnd, NULL, NULL, RDW_INVALIDATE | RDW_UPDATENOW);
     }
 
@@ -439,74 +481,68 @@ class CandidateWindowImpl : public CandidateWindow {
     }
 
     void DrawFocused(float left, float top, uint col_width) {
-        m_brush->SetColor(colors.bg_selected);
+        m_brush->SetColor(m_colors.bg_selected);
         m_target->FillRoundedRectangle(
-            D2D1::RoundedRect(D2D1::RectF(left, top, col_width - metrics.padding, top + metrics.row_height),
-                              metrics.padding_sm, metrics.padding_sm),
+            D2D1::RoundedRect(D2D1::RectF(left, top, col_width - m_metrics.padding, top + m_metrics.row_height),
+                              m_metrics.padding_sm, m_metrics.padding_sm),
             m_brush.get());
 
-        m_brush->SetColor(colors.accent);
+        m_brush->SetColor(m_colors.accent);
         m_target->FillRoundedRectangle(
-            D2D1::RoundedRect(D2D1::RectF(left + metrics.marker_w, top + (metrics.row_height - metrics.marker_h) / 2,
-                                          left + metrics.marker_w * 2,
-                                          top + (metrics.row_height - metrics.marker_h) / 2 + metrics.marker_h),
+            D2D1::RoundedRect(D2D1::RectF(left + m_metrics.marker_w,
+                                          top + (m_metrics.row_height - m_metrics.marker_h) / 2,
+                                          left + m_metrics.marker_w * 2,
+                                          top + (m_metrics.row_height - m_metrics.marker_h) / 2 + m_metrics.marker_h),
                               2.0f, 2.0f),
             m_brush.get());
     }
 
-    void DrawQuickSelect(int number, float left, float top) {
-        auto val = std::to_wstring(number);
-        auto layout = winrt::com_ptr<IDWriteTextLayout>();
-        winrt::check_hresult(m_dwfactory->CreateTextLayout(val.c_str(), static_cast<UINT32>(val.size() + 1),
-                                                           m_textformat_sm.get(), metrics.qs_col_w, metrics.row_height,
-                                                           layout.put()));
-        auto x = left + metrics.marker_w * 2 + metrics.padding;
-        auto y = top + CenterTextLayoutY(layout.get(), metrics.row_height);
+    void DrawQuickSelect(std::wstring label, float left, float top) {
+        auto layout = com_ptr<IDWriteTextLayout>();
+        check_hresult(m_dwrite->CreateTextLayout(label.c_str(), static_cast<UINT32>(label.size() + 1),
+                                                 m_textformat_sm.get(), m_metrics.qs_col_w, m_metrics.row_height,
+                                                 layout.put()));
+        auto x = left + m_metrics.marker_w * 2 + m_metrics.padding;
+        auto y = top + CenterTextLayoutY(layout.get(), m_metrics.row_height);
         if (m_quickselect_active) {
-            m_brush->SetColor(colors.text);
+            m_brush->SetColor(m_colors.text);
         } else {
-            m_brush->SetColor(colors.text_disabled);
+            m_brush->SetColor(m_colors.text_disabled);
         }
         m_target->DrawTextLayout(D2D1::Point2F(x, y), layout.get(), m_brush.get());
     }
 
     void DrawCandidate(CandidateLayout &candidate, float left, float top) {
-        auto x = left + metrics.qs_col_w;
-        auto y = top + CenterTextLayoutY(candidate.layout.get(), metrics.row_height);
-        m_brush->SetColor(colors.text);
+        auto x = left + m_metrics.qs_col_w;
+        auto y = top + CenterTextLayoutY(candidate.layout.get(), m_metrics.row_height);
+        m_brush->SetColor(m_colors.text);
         m_target->DrawTextLayout(D2D1::Point2F(x, y), candidate.layout.get(), m_brush.get(),
                                  D2D1_DRAW_TEXT_OPTIONS_ENABLE_COLOR_FONT);
     }
 
     void Draw() {
         D(__FUNCTIONW__);
-        m_target->Clear(colors.bg);
-
+        m_target->Clear(m_colors.bg);
         EnsureBrush();
-        auto row_top = 0.0f;
-        auto row_left = 0.0f;
 
-        auto origin = D2D1::Point2F(metrics.qs_col_w, metrics.padding / 2);
-        D("origin: ", metrics.qs_col_w, ",", metrics.padding);
-
-        auto col_idx = 0;
+        auto top = 0.0f;
+        auto left = 0.0f;
+        auto qs_label = 1;
         for (auto &column : m_candidate_layouts) {
-            auto qs_number = 1;
-            for (auto &row : column) {
+            for (auto &row : column.rows) {
                 if (row.candidate->id() == m_focused_id) {
-                    DrawFocused(row_left, row_top, m_col_widths.at(col_idx));
+                    DrawFocused(left, top, column.width);
                 }
 
-                if (col_idx == m_quickselect_col) {
-                    DrawQuickSelect(qs_number, row_left, row_top);
-                    ++qs_number;
+                if (column.quickselect) {
+                    DrawQuickSelect(std::to_wstring(qs_label), left, top);
+                    ++qs_label;
                 }
 
-                DrawCandidate(row, row_left, row_top);
-                row_top += metrics.row_height;
+                DrawCandidate(row, left, top);
+                top += m_metrics.row_height;
             }
-            row_left += m_col_widths.at(col_idx);
-            ++col_idx;
+            left += column.width;
         }
     }
 
@@ -529,18 +565,19 @@ class CandidateWindowImpl : public CandidateWindow {
     bool m_showing = false;
     HWND m_hwnd_parent = nullptr;
 
-    winrt::com_ptr<ID2D1Factory1> m_d2factory = nullptr;
-    winrt::com_ptr<IDWriteFactory3> m_dwfactory = nullptr;
-    winrt::com_ptr<ID2D1HwndRenderTarget> m_target = nullptr;
-    winrt::com_ptr<ID2D1SolidColorBrush> m_brush = nullptr;
-    winrt::com_ptr<IDWriteTextFormat> m_textformat = nullptr;
-    winrt::com_ptr<IDWriteTextFormat> m_textformat_sm = nullptr;
+    com_ptr<ID2D1Factory1> m_d2d1 = nullptr;
+    com_ptr<IDWriteFactory3> m_dwrite = nullptr;
+    com_ptr<ID2D1HwndRenderTarget> m_target = nullptr;
+    com_ptr<ID2D1SolidColorBrush> m_brush = nullptr;
+    com_ptr<IDWriteTextFormat> m_textformat = nullptr;
+    com_ptr<IDWriteTextFormat> m_textformat_sm = nullptr;
 
 #pragma warning(push)
 #pragma warning(disable : 26812)
     DWM_WINDOW_CORNER_PREFERENCE m_border_radius = DWMWCP_ROUND;
 #pragma warning(pop)
     RECT m_border_thickness{};
+
 
     uint m_max_width = 0;
     uint m_max_height = 0;
@@ -549,9 +586,9 @@ class CandidateWindowImpl : public CandidateWindow {
     float m_scale = 1.0f;
 
     // Candidate rendering
-    CWndMetrics metrics = GetMetricsForSize(DisplaySize::S);
-    CWndColors colors = kDarkColorScheme;
-    std::vector<uint> m_col_widths{};
+    RECT m_text_rect;
+    CWndMetrics m_metrics = GetMetricsForSize(DisplaySize::S);
+    CWndColors m_colors = kLightColorScheme;
     CandidateGrid *m_candidate_grid = nullptr;
     DisplayMode m_display_mode = DisplayMode::Short;
     int m_focused_id = -1;
