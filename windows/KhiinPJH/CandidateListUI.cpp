@@ -26,6 +26,10 @@ class CandidatePager {
     CandidatePager(CandidateList *const list) : m_candidate_list(list) {}
 
     void SetDisplayMode(DisplayMode mode) {
+        if (display_mode == DisplayMode::Long && mode == DisplayMode::Short) {
+            return;
+        }
+
         display_mode = mode;
     }
 
@@ -55,13 +59,13 @@ class CandidatePager {
         auto max_page_size = max_cols_per_page * max_col_size;
 
         auto curr_page = std::div(static_cast<int>(m_focused_index), max_page_size).quot;
-        focused_col = std::div(static_cast<int>(m_focused_index), max_col_size).quot;
 
         D("curr_page: ", curr_page);
 
         auto start_index = max_page_size * curr_page;
         auto end_index = min(total, max_page_size * (curr_page + 1));
         auto n_cols = divide_ceil(end_index - start_index, max_col_size);
+        focused_col = std::div(static_cast<int>(m_focused_index - start_index), max_col_size).quot;
 
         {
             auto start = candidates.begin() + start_index;
@@ -147,6 +151,7 @@ struct CandidateListUIImpl :
         m_pager->SetFocus(focused_id);
         m_candidate_grid.clear();
         m_pager->GetPage(m_candidate_grid, focused_col);
+        D("Quickselect col: ", focused_col);
         m_candidate_window->SetScreenCoordinates(text_rect);
         m_candidate_window->SetCandidates(display_mode, &m_candidate_grid, focused_id, focused_col, qs_active);
         Show();

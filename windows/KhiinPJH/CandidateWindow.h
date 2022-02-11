@@ -14,6 +14,14 @@ enum class DisplayMode {
     Expanded,
 };
 
+enum class DisplaySize {
+    S,
+    M,
+    L,
+    XL,
+    XXL,
+};
+
 using CandidateColumn = std::vector<messages::Candidate const *>;
 using CandidateGrid = std::vector<CandidateColumn>;
 
@@ -28,8 +36,9 @@ class CandidateWindow : public BaseWindow<CandidateWindow> {
     virtual void Show() = 0;
     virtual void Hide() = 0;
     virtual bool Showing() = 0;
-    virtual void SetCandidates(DisplayMode display_mode, CandidateGrid *candidate_grid, int focused_id,
-                               size_t qs_col, bool qs_active) = 0;
+    virtual void SetCandidates(DisplayMode display_mode, CandidateGrid *candidate_grid, int focused_id, size_t qs_col,
+                               bool qs_active) = 0;
+    virtual void SetDisplaySize(DisplaySize display_size) = 0;
     virtual void SetScreenCoordinates(RECT text_rect) = 0;
 };
 
