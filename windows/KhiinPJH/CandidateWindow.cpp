@@ -192,7 +192,7 @@ class CandidateWindowImpl : public CandidateWindow {
         }
         case WM_DISPLAYCHANGE: {
             D("WM_DISPLAYCHANGE");
-            OnDisplayChange();
+            GetMonitorInfo();
             break;
         }
         case WM_DPICHANGED: {
@@ -240,6 +240,7 @@ class CandidateWindowImpl : public CandidateWindow {
         }
         case WM_WINDOWPOSCHANGING: {
             D("WM_WINDOWPOSCHANGING");
+            GetMonitorInfo();
             break;
         }
         case WM_WINDOWPOSCHANGED: {
@@ -314,7 +315,7 @@ class CandidateWindowImpl : public CandidateWindow {
         m_dpi = ::GetDpiForWindow(m_hwnd);
         m_dpi_parent = ::GetDpiForWindow(m_hwnd_parent);
         m_scale = static_cast<float>(m_dpi / USER_DEFAULT_SCREEN_DPI);
-        OnDisplayChange();
+        GetMonitorInfo();
     }
 
     void EnsureRenderTarget() {
@@ -375,17 +376,13 @@ class CandidateWindowImpl : public CandidateWindow {
         m_candidate_layouts.clear();
     }
 
-    void OnDisplayChange() {
-        // TODO: Fix for multiple monitors
-        //auto hmon = ::MonitorFromWindow(m_hwnd, MONITOR_DEFAULTTONEAREST);
-        //auto info = MONITORINFO();
-        //info.cbSize = sizeof(MONITORINFO);
-        //::GetMonitorInfo(hmon, &info);
-        //m_max_width = info.rcMonitor.right - info.rcMonitor.left;
-        //m_max_height = info.rcMonitor.bottom - info.rcMonitor.top;
-
-        m_max_width = ::GetSystemMetrics(SM_CXFULLSCREEN);
-        m_max_height = ::GetSystemMetrics(SM_CYFULLSCREEN);
+    void GetMonitorInfo() {
+        auto hmon = ::MonitorFromWindow(m_hwnd_parent, MONITOR_DEFAULTTONEAREST);
+        auto info = MONITORINFO();
+        info.cbSize = sizeof(MONITORINFO);
+        ::GetMonitorInfo(hmon, &info);
+        m_max_width = info.rcMonitor.right;
+        m_max_height = info.rcMonitor.bottom;
     }
 
     void CalculateLayout() {
@@ -442,17 +439,14 @@ class CandidateWindowImpl : public CandidateWindow {
         auto page_height_px = static_cast<int>(page_height * m_scale);
         auto page_width_px = static_cast<int>(page_width * m_scale);
 
-        auto page_left = m_text_rect.left - m_metrics.qs_col_w;
+        auto page_left = m_text_rect.left - m_metrics.qs_col_w * m_scale;
         auto page_top = m_text_rect.bottom + static_cast<int>(m_metrics.padding);
 
-        RECT wnd_rect;
-        ::GetWindowRect(m_hwnd, &wnd_rect);
-
-        if (wnd_rect.right + page_width_px > m_max_width) {
+        if (page_left + page_width_px > m_max_width) {
             page_left = m_max_width - page_width_px - m_metrics.padding_sm;
         }
 
-        if (wnd_rect.bottom + page_height_px > m_max_height) {
+        if (page_top + page_height_px > m_max_height) {
             page_top = m_text_rect.top - page_height_px - m_metrics.padding;
         }
 
