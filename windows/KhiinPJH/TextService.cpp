@@ -28,7 +28,7 @@ struct TextServiceImpl :
         EngineControllerFactory::Create(engine_.put());
         compositionMgr_ = winrt::make_self<CompositionMgr>();
         threadMgrEventSink_ = winrt::make_self<ThreadMgrEventSink>();
-        candidateListUI_ = winrt::make_self<CandidateListUI>();
+        CandidateListUIFactory::Create(candidateListUI_.put());
         keyEventSink_ = winrt::make_self<KeyEventSink>();
     }
 
@@ -136,9 +136,9 @@ struct TextServiceImpl :
         return engine_.get();
     }
 
-    virtual ITfUIElement *candidate_ui() override {
+    virtual CandidateListUI *candidate_ui() override {
         D(__FUNCTIONW__);
-        return candidateListUI_.as<ITfUIElement>().get();
+        return candidateListUI_.get();
     }
 
     virtual winrt::com_ptr<ITfContext> GetTopContext() override {
@@ -164,7 +164,7 @@ struct TextServiceImpl :
                                          ITfComposition *pComposition) override {
         D(__FUNCTIONW__);
         compositionMgr_->ClearComposition();
-        candidateListUI_->Show(false);
+        candidateListUI_->Hide();
     }
 
     virtual TfGuidAtom input_attribute() {

@@ -170,6 +170,7 @@ class BufferMgrImpl : public BufferMgr {
             return;
         }
 
+        auto id = 0;
         for (auto &cand : m_candidates) {
             auto display_str = std::string();
             for (auto &elem : cand) {
@@ -181,6 +182,8 @@ class BufferMgrImpl : public BufferMgr {
             }
             auto candidate_output = candidate_list->add_candidates();
             candidate_output->set_value(display_str);
+            candidate_output->set_id(id);
+            ++id;
         }
 
         candidate_list->set_focused(static_cast<int32_t>(m_focused_candidate));

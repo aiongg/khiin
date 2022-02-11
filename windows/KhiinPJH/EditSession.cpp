@@ -49,8 +49,7 @@ struct EditSessionImpl : winrt::implements<EditSessionImpl, ITfEditSession> {
         auto composition_mgr = cast_as<CompositionMgr>(service->composition_mgr());
         auto candidate_ui = cast_as<CandidateListUI>(service->candidate_ui());
         bool composing = composition_mgr->composing();
-        BOOL shown;
-        candidate_ui->IsShown(&shown);
+        bool Showing = candidate_ui->Showing();
 
         if (command.output().error() == ErrorCode::FAIL) {
             composition_mgr->CommitComposition(ec, context.get());
@@ -64,13 +63,13 @@ struct EditSessionImpl : winrt::implements<EditSessionImpl, ITfEditSession> {
             composition_mgr->DoComposition(ec, context.get(), command.output().preedit());
 
             if (command.output().candidate_list().candidates().size() > 0) {
-                candidate_ui->Update(context.get(), command.output().candidate_list(),
+                candidate_ui->Update(context.get(), command.output().edit_state(), command.output().candidate_list(),
                                      GetEditRect(ec, composition_mgr, context.get()));
-                if (!shown) {
-                    winrt::check_hresult(candidate_ui->Show(true));
+                if (!Showing) {
+                    candidate_ui->Show();
                 }
             } else {
-                winrt::check_hresult(candidate_ui->Show(false));
+                candidate_ui->Hide();
             }
         }
 

@@ -12,12 +12,6 @@ namespace {
 
 using namespace messages;
 
-enum class DisplayMode {
-    Short,
-    Long,
-    Expanded,
-};
-
 constexpr size_t kExpandedCols = 4;
 constexpr size_t kShortColSize = 5;
 constexpr size_t kLongColSize = 9;
@@ -25,59 +19,6 @@ constexpr size_t kLongColSize = 9;
 static inline auto divide_ceil(unsigned int x, unsigned int y) {
     return x / y + (x % y != 0);
 }
-
-class CandidatePager {
-  public:
-    CandidatePager(CandidateList *list) : m_candidate_list(list) {}
-
-    void SetFocus(size_t index) {
-        m_focused_index = index;
-    }
-
-    std::vector<std::vector<Candidate const *>> GetPage(size_t focused_index) {
-        auto ret = std::vector<std::vector<Candidate const *>>();
-
-        if (!m_candidate_list) {
-            return ret;
-        }
-
-        auto &candidates = m_candidate_list->candidates();
-        auto total_items_avail = candidates.size();
-
-        if (total_items_avail == 0) {
-            return ret;
-        }
-
-        auto max_cols_per_page = (display_mode == DisplayMode::Expanded) ? kExpandedCols : 1;
-        auto max_items_per_col = display_mode == DisplayMode::Short ? kShortColSize : kLongColSize;
-        auto max_items_per_page = (display_mode == DisplayMode::Expanded ? kExpandedCols : 1) * max_items_per_col;
-
-        auto curr_page = focused_index % max_items_per_page;
-
-        auto item_start_idx = max_items_per_page * curr_page;
-        auto item_end_idx = min(total_items_avail, max_items_per_page * (curr_page + 1));
-        auto n_cols = divide_ceil(item_end_idx - item_start_idx, max_items_per_col);
-
-        for (auto col_idx = 0; col_idx < n_cols; ++col_idx) {
-            auto col = std::vector<Candidate const *>();
-            auto n_items = min(item_end_idx - item_start_idx, max_items_per_col);
-
-            for (auto row_idx = 0; row_idx < n_items; ++row_idx) {
-                auto &item = candidates.at(item_start_idx + row_idx);
-                col.push_back(&item);
-            }
-            item_start_idx += n_items;
-            ret.push_back(std::move(col));
-        }
-
-        return ret;
-    }
-
-  private:
-    CandidateList *m_candidate_list = nullptr;
-    DisplayMode display_mode = DisplayMode::Short;
-    size_t m_focused_index = std::string::npos;
-};
 
 static inline constexpr int kCornerRadius = 4;
 
@@ -109,6 +50,19 @@ winrt::com_ptr<ID2D1HwndRenderTarget> CreateRenderTarget(winrt::com_ptr<ID2D1Fac
                                                          D2D1::HwndRenderTargetProperties(hwnd, size), target.put()));
     return target;
 }
+
+float CenterY(IDWriteTextLayout *layout, float available_height) {
+    DWRITE_TEXT_METRICS metrics;
+    winrt::check_hresult(layout->GetMetrics(&metrics));
+    return (available_height - metrics.height) / 2;
+}
+
+struct CandidateLayout {
+    Candidate const *candidate = nullptr;
+    winrt::com_ptr<IDWriteTextLayout> layout = winrt::com_ptr<IDWriteTextLayout>();
+};
+
+using CandidateLayoutGrid = std::vector<std::vector<CandidateLayout>>;
 
 class CandidateWindowImpl : public CandidateWindow {
   public:
@@ -239,19 +193,24 @@ class CandidateWindowImpl : public CandidateWindow {
         m_showing = false;
     }
 
-    virtual bool showing() override {
+    virtual bool Showing() override {
         return m_showing;
     }
 
-    virtual void SetCandidates(messages::CandidateList *candidate_list) override {
+    virtual void SetCandidates(DisplayMode display_mode, CandidateGrid *candidate_grid, int focused_id, size_t qs_col,
+                               bool qs_active) override {
         D(__FUNCTIONW__);
-        m_candidate_list = candidate_list;
+        m_candidate_grid = candidate_grid;
+        m_display_mode = display_mode;
+        m_focused_id = focused_id;
+        m_quickselect_col = qs_col;
+        m_quickselect_active = qs_active;
         CalculateLayout();
     }
 
     virtual void SetScreenCoordinates(RECT text_rect_px) override {
         D(__FUNCTIONW__);
-        if (showing()) {
+        if (Showing()) {
             return;
         }
         auto left = text_rect_px.left - qs_col_width;
@@ -316,7 +275,7 @@ class CandidateWindowImpl : public CandidateWindow {
         m_target = nullptr;
         m_brush = nullptr;
         m_textformat = nullptr;
-        candidate_layout_matrix.clear();
+        m_candidate_layouts.clear();
     }
 
     void OnDisplayChange() {
@@ -326,66 +285,48 @@ class CandidateWindowImpl : public CandidateWindow {
 
     void CalculateLayout() {
         D(__FUNCTIONW__);
-        if (!m_dwfactory || !m_candidate_list) {
+        if (!m_dwfactory || !m_candidate_grid) {
             return;
         }
 
         EnsureTextFormat();
 
-        candidate_layout_matrix.clear();
+        m_candidate_layouts.clear();
         m_col_widths.clear();
-        auto &candidates = m_candidate_list->candidates();
-        auto total_items_avail = candidates.size();
 
-        if (total_items_avail == 0) {
-            return;
-        }
-
-        auto min_col_width = (display_mode == DisplayMode::Expanded) ? min_col_width_expanded : min_col_width_single;
-        auto max_cols_per_page = (display_mode == DisplayMode::Expanded) ? n_cols_expanded : 1;
-        auto max_items_per_col = display_mode == DisplayMode::Short ? short_col_size : long_col_size;
-        auto max_items_per_page = (display_mode == DisplayMode::Expanded ? expanded_n_cols : 1) * max_items_per_col;
-
-        auto item_start_idx = max_items_per_page * page_idx;
-        auto item_end_idx = min(total_items_avail, max_items_per_page * (page_idx + 1));
-        auto n_cols = divide_ceil(item_end_idx - item_start_idx, max_items_per_col);
-
-        auto page_idx = 0;
+        auto longest_col = m_candidate_grid->at(0).size();
+        auto min_col_width = (m_display_mode == DisplayMode::Expanded) ? min_col_width_expanded : min_col_width_single;
         auto page_width = 0.0f;
-        auto longest_col = 0;
         auto row_height = 0.0f;
 
-        for (auto col_idx = 0; col_idx < n_cols; ++col_idx) {
-            auto column = std::vector<winrt::com_ptr<IDWriteTextLayout>>();
+        for (auto &grid_col : *m_candidate_grid) {
+            auto layout_col = std::vector<CandidateLayout>();
             auto column_width = 0.0f;
-            auto n_items = min(item_end_idx - item_start_idx, max_items_per_col);
-            if (longest_col == 0) {
-                longest_col = n_items;
-            }
 
-            for (auto row_idx = 0; row_idx < n_items; ++row_idx) {
-                auto &item = candidates.at(item_start_idx + row_idx);
-                auto &item_value = Utils::Widen(item.value());
-                auto item_layout = winrt::com_ptr<IDWriteTextLayout>();
-                D(item_value, " (", item_value.size(), ")");
-                winrt::check_hresult(m_dwfactory->CreateTextLayout(
-                    item_value.c_str(), static_cast<UINT32>(item_value.size() + 1), m_textformat.get(),
-                    static_cast<float>(m_max_width), row_height, item_layout.put()));
+            for (auto &candidate : grid_col) {
+                auto &value = Utils::Widen(candidate->value());
+                auto layout = winrt::com_ptr<IDWriteTextLayout>();
+                D(value, " (", value.size(), ")");
+                winrt::check_hresult(m_dwfactory->CreateTextLayout(value.c_str(), static_cast<UINT32>(value.size() + 1),
+                                                                   m_textformat.get(), static_cast<float>(m_max_width),
+                                                                   row_height, layout.put()));
                 DWRITE_TEXT_METRICS metrics;
-                winrt::check_hresult(item_layout->GetMetrics(&metrics));
+                winrt::check_hresult(layout->GetMetrics(&metrics));
                 column_width = std::max(column_width, metrics.width);
-                column.push_back(std::move(item_layout));
+                layout_col.push_back(CandidateLayout{candidate, std::move(layout)});
                 row_height = std::max(row_height, metrics.height);
             }
-            item_start_idx += n_items;
+
             column_width = std::max(column_width, static_cast<float>(min_col_width)) + qs_col_width;
+
             if (column_width > (min_col_width + qs_col_width - padding)) {
                 column_width += padding;
             }
+
             D("Col width: ", column_width);
             m_col_widths.push_back(column_width);
             page_width += column_width;
-            candidate_layout_matrix.push_back(std::move(column));
+            m_candidate_layouts.push_back(std::move(layout_col));
         }
 
         row_height += padding;
@@ -429,12 +370,51 @@ class CandidateWindowImpl : public CandidateWindow {
 
         EnsureBrush();
         SetBrushColor(text_color);
+        auto row_top = 0.0f;
+        auto row_left = 0.0f;
+
         auto origin = D2D1::Point2F(qs_col_width, padding / 2);
         D("origin: ", qs_col_width, ",", padding);
 
         auto col_idx = 0;
-        for (auto &column : candidate_layout_matrix) {
-            for (auto &row_layout : column) {
+        for (auto &column : m_candidate_layouts) {
+            auto qs_number = 1;
+            for (auto &row : column) {
+                if (row.candidate->id() == m_focused_id) {
+                    auto highlight_rect =
+                        D2D1::RectF(row_left, row_top, m_col_widths.at(col_idx) - padding, row_top + m_row_height);
+                    auto highlight_roundrect = D2D1::RoundedRect(highlight_rect, padding_sm, padding_sm);
+                    SetBrushColor(bg_selected_color);
+                    m_target->FillRoundedRectangle(highlight_roundrect, m_brush.get());
+
+                    auto highlight_dot = D2D1::RoundedRect(
+                        D2D1::RectF(row_left + m_marker_width, row_top + (m_row_height - m_marker_height) / 2,
+                                    row_left + m_marker_width * 2,
+                                    row_top + (m_row_height - m_marker_height) / 2 + m_marker_height),
+                        2.0f, 2.0f);
+                    SetBrushColor(highlight_color);
+                    m_target->FillRoundedRectangle(highlight_dot, m_brush.get());
+                    SetBrushColor(text_color);
+                }
+
+                if (col_idx == m_quickselect_col) {
+                    auto qs_str = std::to_wstring(qs_number);
+                    auto qs_layout = winrt::com_ptr<IDWriteTextLayout>();
+                    winrt::check_hresult(
+                        m_dwfactory->CreateTextLayout(qs_str.c_str(), static_cast<UINT32>(qs_str.size() + 1),
+                                                      m_textformat.get(), qs_col_width, m_row_height, qs_layout.put()));
+                    origin.x = row_left + m_marker_width * 2 + padding;
+                    origin.y = row_top + CenterY(qs_layout.get(), m_row_height);
+                    if (!m_quickselect_active) {
+                        SetBrushColor(qs_disabled_color);
+                    }
+                    m_target->DrawTextLayout(origin, qs_layout.get(), m_brush.get());
+                    if (!m_quickselect_active) {
+                        SetBrushColor(text_color);
+                    }
+                    ++qs_number;
+                }
+
                 // uncomment to draw boxes around each candidate
                 // DWRITE_TEXT_METRICS metrics;
                 // row_layout->GetMetrics(&metrics);
@@ -444,12 +424,13 @@ class CandidateWindowImpl : public CandidateWindow {
                 //                       (int)origin.y + (int)metrics.height);
                 // m_target->DrawRectangle(&box, m_brush.get(), 1, NULL);
 
-                m_target->DrawTextLayout(origin, row_layout.get(), m_brush.get(),
+                origin.x = row_left + qs_col_width;
+                origin.y = row_top + CenterY(row.layout.get(), m_row_height);
+                m_target->DrawTextLayout(origin, row.layout.get(), m_brush.get(),
                                          D2D1_DRAW_TEXT_OPTIONS_ENABLE_COLOR_FONT);
-                origin.y += m_row_height;
+                row_top += m_row_height;
             }
-            origin.x += m_col_widths.at(col_idx);
-            origin.y = padding;
+            row_left += m_col_widths.at(col_idx);
         }
     }
 
@@ -479,8 +460,10 @@ class CandidateWindowImpl : public CandidateWindow {
     winrt::com_ptr<IDWriteTextFormat> m_textformat = nullptr;
 
     D2D1::ColorF text_color = D2D1::ColorF(D2D1::ColorF::Black);
-    D2D1::ColorF bg_selected_color = D2D1::ColorF(D2D1::ColorF::LightSkyBlue);
+    D2D1::ColorF bg_selected_color = D2D1::ColorF(0.90f, 0.90f, 0.90f);
+    D2D1::ColorF highlight_color = D2D1::ColorF(D2D1::ColorF::CornflowerBlue);
     D2D1::ColorF bg_color = D2D1::ColorF(0.97f, 0.97f, 0.97f);
+    D2D1::ColorF qs_disabled_color = D2D1::ColorF(D2D1::ColorF::Gray);
 
 #pragma warning(push)
 #pragma warning(disable : 26812)
@@ -493,25 +476,30 @@ class CandidateWindowImpl : public CandidateWindow {
     unsigned int m_dpi_parent = USER_DEFAULT_SCREEN_DPI;
     unsigned int m_dpi = USER_DEFAULT_SCREEN_DPI;
     float m_scale = 1.0f;
-    float padding = 16.0f;
+    float padding = 8.0f;
     float padding_sm = 4.0f;
+    float m_marker_width = 4.0f;
+    float m_marker_height = 16.0f;
     float font_size = 16.0f;
     float m_row_height = font_size + padding;
     unsigned int min_col_width_single = 160;
     unsigned int min_col_width_expanded = 80;
-    unsigned int qs_col_width = 32;
+    unsigned int qs_col_width = padding_sm + m_marker_width + padding * 2 + 12;
     unsigned int n_cols_expanded = 4;
     unsigned int qs_col = 0;
     unsigned int page_idx = 0;
     int selected_idx = -1;
-    DisplayMode display_mode = DisplayMode::Long;
     unsigned int short_col_size = 5;
     unsigned int long_col_size = 9;
     unsigned int expanded_n_cols = 4;
     std::vector<unsigned int> m_col_widths{};
 
-    messages::CandidateList *m_candidate_list = nullptr;
-    std::vector<std::vector<winrt::com_ptr<IDWriteTextLayout>>> candidate_layout_matrix = {};
+    CandidateGrid *m_candidate_grid = nullptr;
+    DisplayMode m_display_mode = DisplayMode::Short;
+    int m_focused_id = -1;
+    CandidateLayoutGrid m_candidate_layouts = {};
+    size_t m_quickselect_col = 0;
+    bool m_quickselect_active = false;
 };
 
 } // namespace
