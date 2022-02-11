@@ -172,7 +172,7 @@ class CandidateWindowImpl : public CandidateWindow {
 
     virtual LRESULT CALLBACK WndProc(UINT uMsg, WPARAM wParam, LPARAM lParam) override {
         switch (uMsg) {
-        case WM_NCCREATE: {
+        case WM_NCCREATE:
             D("WM_NCCREATE");
 #pragma warning(push)
 #pragma warning(disable : 26812)
@@ -180,8 +180,7 @@ class CandidateWindowImpl : public CandidateWindow {
                                     sizeof(DWM_WINDOW_CORNER_PREFERENCE));
 #pragma warning(pop)
             break;
-        }
-        case WM_CREATE: {
+        case WM_CREATE:
             D("WM_CREATE");
             try {
                 OnCreate();
@@ -189,76 +188,69 @@ class CandidateWindowImpl : public CandidateWindow {
             } catch (...) {
                 return -1;
             }
-        }
-        case WM_DISPLAYCHANGE: {
+        case WM_DISPLAYCHANGE:
             D("WM_DISPLAYCHANGE");
             GetMonitorInfo();
             break;
-        }
-        case WM_DPICHANGED: {
+        case WM_DPICHANGED:
             D("WM_DPICHANGED");
             OnDpiChanged(HIWORD(wParam), (RECT *)lParam);
             return 0;
-        }
-        case WM_NCCALCSIZE: {
-            D("WM_NCCALCSIZE");
+        case WM_MOUSEMOVE:
+            OnMouseMove(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
             break;
-        }
-        case WM_NCPAINT: {
-            D("WM_NCPAINT");
+        case WM_MOUSELEAVE:
+            D("WM_MOUSELEAVE");
+            OnMouseLeave();
             break;
-        }
-        case WM_NCACTIVATE: {
-            D("WM_NCACTIVATE");
+        case WM_LBUTTONDOWN:
+            OnClick(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
             break;
-        }
-        case WM_ACTIVATE: {
-            D("WM_ACTIVATE");
-            break;
-        }
-        case WM_PAINT: {
+        case WM_PAINT:
             D("WM_PAINT");
             Render();
             return 0;
-        }
-        case WM_DESTROY: {
-            D("WM_DESTROY");
-            break;
-        }
-        case WM_NCDESTROY: {
-            D("WM_NCDESTROY");
-            break;
-        }
-        case WM_MOVE: {
-            D("WM_MOVE");
-            break;
-        }
-        case WM_SIZE: {
+        case WM_SIZE:
             D("WM_SIZE");
             OnResize(LOWORD(lParam), HIWORD(lParam));
             break;
-        }
-        case WM_WINDOWPOSCHANGING: {
+        case WM_WINDOWPOSCHANGING:
             D("WM_WINDOWPOSCHANGING");
             GetMonitorInfo();
             break;
-        }
-        case WM_WINDOWPOSCHANGED: {
+        case WM_NCCALCSIZE:
+            D("WM_NCCALCSIZE");
+            break;
+        case WM_NCPAINT:
+            D("WM_NCPAINT");
+            break;
+        case WM_NCACTIVATE:
+            D("WM_NCACTIVATE");
+            break;
+        case WM_ACTIVATE:
+            D("WM_ACTIVATE");
+            break;
+        case WM_DESTROY:
+            D("WM_DESTROY");
+            break;
+        case WM_NCDESTROY:
+            D("WM_NCDESTROY");
+            break;
+        case WM_MOVE:
+            D("WM_MOVE");
+            break;
+        case WM_WINDOWPOSCHANGED:
             D("WM_WINDOWPOSCHANGED");
             break;
-        }
-        case WM_SHOWWINDOW: {
+        case WM_SHOWWINDOW:
             D("WM_SHOWWINDOW");
             break;
-        }
-        case WM_ERASEBKGND: {
+        case WM_ERASEBKGND:
             D("WM_ERASEBKGND");
             break;
-        }
-        default: {
+        default:
             D(__FUNCTIONW__, " (", uMsg, ")");
             break;
-        }
         }
 
         return ::DefWindowProc(m_hwnd, uMsg, wParam, lParam);
@@ -316,6 +308,49 @@ class CandidateWindowImpl : public CandidateWindow {
         m_dpi_parent = ::GetDpiForWindow(m_hwnd_parent);
         m_scale = static_cast<float>(m_dpi / USER_DEFAULT_SCREEN_DPI);
         GetMonitorInfo();
+    }
+
+    void OnDpiChanged(WORD dpi, RECT *pNewSize) {
+        D(__FUNCTIONW__);
+        if (m_target) {
+            m_target->SetDpi(dpi, dpi);
+        }
+        m_dpi = dpi;
+        m_dpi_parent = ::GetDpiForWindow(m_hwnd_parent);
+        m_scale = static_cast<float>(m_dpi_parent) / USER_DEFAULT_SCREEN_DPI;
+        auto width = pNewSize->right - pNewSize->left;
+        auto height = pNewSize->bottom - pNewSize->top;
+        D("W", width, "H", height);
+        ::SetWindowPos(m_hwnd, NULL, pNewSize->left, pNewSize->top, width, height, SWP_NOZORDER | SWP_NOACTIVATE);
+    }
+
+    void OnResize(unsigned int width, unsigned int height) {
+        D(__FUNCTIONW__);
+        EnsureRenderTarget();
+        m_target->Resize(D2D1_SIZE_U{width, height});
+    }
+
+    void OnMouseMove(UINT x, UINT y) {
+        D("moved to: (", x, ",", y, ")");
+        if (!m_tracking_mouse) {
+            TRACKMOUSEEVENT tme;
+            tme.cbSize = sizeof(TRACKMOUSEEVENT);
+            tme.dwFlags = TME_LEAVE;
+            tme.hwndTrack = m_hwnd;
+            if (::TrackMouseEvent(&tme)) {
+                m_tracking_mouse = true;
+            }
+        }
+    }
+
+    void OnMouseLeave() {
+        m_tracking_mouse = false;
+    }
+
+    void OnClick(UINT x, UINT y) {
+        ::SetCapture(m_hwnd);
+        D("clicked at: (", x, ",", y, ")");
+        //::ReleaseCapture();
     }
 
     void EnsureRenderTarget() {
@@ -454,26 +489,6 @@ class CandidateWindowImpl : public CandidateWindow {
         ::RedrawWindow(m_hwnd, NULL, NULL, RDW_INVALIDATE | RDW_UPDATENOW);
     }
 
-    void OnDpiChanged(WORD dpi, RECT *pNewSize) {
-        D(__FUNCTIONW__);
-        if (m_target) {
-            m_target->SetDpi(dpi, dpi);
-        }
-        m_dpi = dpi;
-        m_dpi_parent = ::GetDpiForWindow(m_hwnd_parent);
-        m_scale = static_cast<float>(m_dpi_parent) / USER_DEFAULT_SCREEN_DPI;
-        auto width = pNewSize->right - pNewSize->left;
-        auto height = pNewSize->bottom - pNewSize->top;
-        D("W", width, "H", height);
-        ::SetWindowPos(m_hwnd, NULL, pNewSize->left, pNewSize->top, width, height, SWP_NOZORDER | SWP_NOACTIVATE);
-    }
-
-    void OnResize(unsigned int width, unsigned int height) {
-        D(__FUNCTIONW__);
-        EnsureRenderTarget();
-        m_target->Resize(D2D1_SIZE_U{width, height});
-    }
-
     void DrawFocused(float left, float top, uint col_width) {
         m_brush->SetColor(m_colors.bg_selected);
         m_target->FillRoundedRectangle(
@@ -558,6 +573,7 @@ class CandidateWindowImpl : public CandidateWindow {
 
     bool m_showing = false;
     HWND m_hwnd_parent = nullptr;
+    bool m_tracking_mouse = false;
 
     com_ptr<ID2D1Factory1> m_d2d1 = nullptr;
     com_ptr<IDWriteFactory3> m_dwrite = nullptr;
@@ -571,7 +587,6 @@ class CandidateWindowImpl : public CandidateWindow {
     DWM_WINDOW_CORNER_PREFERENCE m_border_radius = DWMWCP_ROUND;
 #pragma warning(pop)
     RECT m_border_thickness{};
-
 
     uint m_max_width = 0;
     uint m_max_height = 0;

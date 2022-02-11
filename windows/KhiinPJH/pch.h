@@ -24,6 +24,7 @@
 #include <dwrite_3.h>
 #include <msctf.h>
 #include <windows.h>
+#include <windowsx.h>
 #include <winrt/base.h>
 
 #pragma comment(lib, "windowsapp")
