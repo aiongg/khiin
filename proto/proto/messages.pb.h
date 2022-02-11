@@ -214,6 +214,29 @@ inline const std::string& ErrorCode_Name(T enum_t_value) {
 }
 bool ErrorCode_Parse(
     ::PROTOBUF_NAMESPACE_ID::ConstStringParam name, ErrorCode* value);
+enum EditState : int {
+  EDIT_EMPTY = 0,
+  EDIT_COMPOSING = 1,
+  EDIT_CONVERTED = 2,
+  EDIT_SELECTING = 3,
+  EditState_INT_MIN_SENTINEL_DO_NOT_USE_ = std::numeric_limits<::PROTOBUF_NAMESPACE_ID::int32>::min(),
+  EditState_INT_MAX_SENTINEL_DO_NOT_USE_ = std::numeric_limits<::PROTOBUF_NAMESPACE_ID::int32>::max()
+};
+bool EditState_IsValid(int value);
+constexpr EditState EditState_MIN = EDIT_EMPTY;
+constexpr EditState EditState_MAX = EDIT_SELECTING;
+constexpr int EditState_ARRAYSIZE = EditState_MAX + 1;
+
+const std::string& EditState_Name(EditState value);
+template<typename T>
+inline const std::string& EditState_Name(T enum_t_value) {
+  static_assert(::std::is_same<T, EditState>::value ||
+    ::std::is_integral<T>::value,
+    "Incorrect type passed to function EditState_Name.");
+  return EditState_Name(static_cast<EditState>(enum_t_value));
+}
+bool EditState_Parse(
+    ::PROTOBUF_NAMESPACE_ID::ConstStringParam name, EditState* value);
 enum CommandType : int {
   SEND_KEY = 0,
   REVERT = 1,
@@ -1329,7 +1352,8 @@ class Output final :
     kPreeditFieldNumber = 2,
     kCandidateListFieldNumber = 3,
     kErrorFieldNumber = 1,
-    kConsumableFieldNumber = 4,
+    kEditStateFieldNumber = 4,
+    kConsumableFieldNumber = 5,
   };
   // .khiin.messages.Preedit preedit = 2;
   bool has_preedit() const;
@@ -1376,7 +1400,16 @@ class Output final :
   void _internal_set_error(::khiin::messages::ErrorCode value);
   public:
 
-  // bool consumable = 4;
+  // .khiin.messages.EditState edit_state = 4;
+  void clear_edit_state();
+  ::khiin::messages::EditState edit_state() const;
+  void set_edit_state(::khiin::messages::EditState value);
+  private:
+  ::khiin::messages::EditState _internal_edit_state() const;
+  void _internal_set_edit_state(::khiin::messages::EditState value);
+  public:
+
+  // bool consumable = 5;
   void clear_consumable();
   bool consumable() const;
   void set_consumable(bool value);
@@ -1395,6 +1428,7 @@ class Output final :
   ::khiin::messages::Preedit* preedit_;
   ::khiin::messages::CandidateList* candidate_list_;
   int error_;
+  int edit_state_;
   bool consumable_;
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   friend struct ::TableStruct_messages_2eproto;
@@ -2379,7 +2413,27 @@ inline void Output::set_allocated_candidate_list(::khiin::messages::CandidateLis
   // @@protoc_insertion_point(field_set_allocated:khiin.messages.Output.candidate_list)
 }
 
-// bool consumable = 4;
+// .khiin.messages.EditState edit_state = 4;
+inline void Output::clear_edit_state() {
+  edit_state_ = 0;
+}
+inline ::khiin::messages::EditState Output::_internal_edit_state() const {
+  return static_cast< ::khiin::messages::EditState >(edit_state_);
+}
+inline ::khiin::messages::EditState Output::edit_state() const {
+  // @@protoc_insertion_point(field_get:khiin.messages.Output.edit_state)
+  return _internal_edit_state();
+}
+inline void Output::_internal_set_edit_state(::khiin::messages::EditState value) {
+  
+  edit_state_ = value;
+}
+inline void Output::set_edit_state(::khiin::messages::EditState value) {
+  _internal_set_edit_state(value);
+  // @@protoc_insertion_point(field_set:khiin.messages.Output.edit_state)
+}
+
+// bool consumable = 5;
 inline void Output::clear_consumable() {
   consumable_ = false;
 }
@@ -2633,6 +2687,7 @@ template <> struct is_proto_enum< ::khiin::messages::SpecialKey> : ::std::true_t
 template <> struct is_proto_enum< ::khiin::messages::ModifierKey> : ::std::true_type {};
 template <> struct is_proto_enum< ::khiin::messages::SegmentStatus> : ::std::true_type {};
 template <> struct is_proto_enum< ::khiin::messages::ErrorCode> : ::std::true_type {};
+template <> struct is_proto_enum< ::khiin::messages::EditState> : ::std::true_type {};
 template <> struct is_proto_enum< ::khiin::messages::CommandType> : ::std::true_type {};
 
 PROTOBUF_NAMESPACE_CLOSE

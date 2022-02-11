@@ -7,6 +7,22 @@
 #include "TextService.h"
 
 namespace khiin::win32 {
+namespace {
+
+RECT GetEditRect(TfEditCookie ec, CompositionMgr *composition_mgr, ITfContext *context) {
+    auto range = winrt::com_ptr<ITfRange>();
+    composition_mgr->GetTextRange(ec, range.put());
+
+    auto contextView = winrt::com_ptr<ITfContextView>();
+    winrt::check_hresult(context->GetActiveView(contextView.put()));
+
+    RECT rect;
+    BOOL clipped;
+    winrt::check_hresult(contextView->GetTextExt(ec, range.get(), &rect, &clipped));
+    return rect;
+}
+
+} // namespace
 
 using namespace khiin::messages;
 
@@ -48,17 +64,8 @@ struct EditSessionImpl : winrt::implements<EditSessionImpl, ITfEditSession> {
             composition_mgr->DoComposition(ec, context.get(), command.output().preedit());
 
             if (command.output().candidate_list().candidates().size() > 0) {
-                auto range = winrt::com_ptr<ITfRange>();
-                composition_mgr->GetTextRange(ec, range.put());
-
-                auto contextView = winrt::com_ptr<ITfContextView>();
-                winrt::check_hresult(context->GetActiveView(contextView.put()));
-
-                RECT rect;
-                BOOL clipped;
-                winrt::check_hresult(contextView->GetTextExt(ec, range.get(), &rect, &clipped));
-                candidate_ui->Update(context.get(), command.output().candidate_list(), std::move(rect));
-
+                candidate_ui->Update(context.get(), command.output().candidate_list(),
+                                     GetEditRect(ec, composition_mgr, context.get()));
                 if (!shown) {
                     winrt::check_hresult(candidate_ui->Show(true));
                 }
@@ -70,7 +77,7 @@ struct EditSessionImpl : winrt::implements<EditSessionImpl, ITfEditSession> {
         return S_OK;
         CATCH_FOR_HRESULT;
     }
-    
+
   private:
     winrt::com_ptr<TextService> service = nullptr;
     winrt::com_ptr<ITfContext> context = nullptr;

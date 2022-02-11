@@ -73,7 +73,7 @@ class BufferMgrImpl : public BufferMgr {
         m_elements.clear();
         m_candidates.clear();
         m_caret = 0;
-        m_buffer_state = BufferState::Empty;
+        m_edit_state = EditState::EDIT_EMPTY;
     }
 
     virtual bool IsEmpty() override {
@@ -81,8 +81,8 @@ class BufferMgrImpl : public BufferMgr {
     }
 
     virtual void Insert(char ch) override {
-        if (m_buffer_state == BufferState::Empty) {
-            m_buffer_state = BufferState::Composition;
+        if (m_edit_state == EditState::EDIT_EMPTY) {
+            m_edit_state = EditState::EDIT_COMPOSING;
         }
 
         switch (m_input_mode) {
@@ -166,7 +166,7 @@ class BufferMgrImpl : public BufferMgr {
     }
 
     virtual void GetCandidates(messages::CandidateList *candidate_list) override {
-        if (m_buffer_state == BufferState::Converted) {
+        if (m_edit_state == EditState::EDIT_CONVERTED) {
             return;
         }
 
@@ -195,15 +195,19 @@ class BufferMgrImpl : public BufferMgr {
     }
 
     virtual void SelectNextCandidate() override {
-        if (m_input_mode == InputMode::Continuous && m_buffer_state == BufferState::Composition) {
-            m_buffer_state = BufferState::Converted;
+        if (m_input_mode == InputMode::Continuous && m_edit_state == EditState::EDIT_COMPOSING) {
+            m_edit_state = EditState::EDIT_CONVERTED;
             SelectCandidate(0);
-        } else if (m_buffer_state == BufferState::Converted) {
-            m_buffer_state = BufferState::CandidateSelection;
+        } else if (m_edit_state == EDIT_CONVERTED) {
+            m_edit_state = EditState::EDIT_SELECTING;
             SelectCandidate((m_focused_candidate + 1) % m_candidates.size());
-        } else if (m_buffer_state == BufferState::CandidateSelection) {
+        } else if (m_edit_state == EditState::EDIT_SELECTING) {
             SelectCandidate((m_focused_candidate + 1) % m_candidates.size());
         }
+    }
+
+    virtual EditState edit_state() {
+        return m_edit_state;
     }
 
   private:
@@ -229,7 +233,7 @@ class BufferMgrImpl : public BufferMgr {
     void UpdateCandidates(std::string const &raw_buffer) {
         m_candidates.clear();
 
-        if (m_input_mode == InputMode::Continuous && m_buffer_state == BufferState::Composition) {
+        if (m_input_mode == InputMode::Continuous && m_edit_state == EditState::EDIT_COMPOSING) {
             m_candidates.push_back(ConvertWholeBuffer(m_elements));
         }
 
@@ -333,13 +337,6 @@ class BufferMgrImpl : public BufferMgr {
         m_focused_candidate = index;
     }
 
-    enum class BufferState {
-        Empty,
-        Composition,
-        Converted,
-        CandidateSelection,
-    };
-
     enum class FocusedElementState {
         Focused,
         Composing,
@@ -352,7 +349,7 @@ class BufferMgrImpl : public BufferMgr {
     size_t m_focused_candidate = 0;
     bool m_converted = false;
     int m_focused_element = 0;
-    BufferState m_buffer_state = BufferState::Empty;
+    EditState m_edit_state = EditState::EDIT_EMPTY;
     FocusedElementState m_focused_element_state = FocusedElementState::Composing;
     InputMode m_input_mode = InputMode::Continuous;
 };

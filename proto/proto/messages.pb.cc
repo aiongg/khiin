@@ -108,6 +108,8 @@ constexpr Output::Output(
   , candidate_list_(nullptr)
   , error_(0)
 
+  , edit_state_(0)
+
   , consumable_(false){}
 struct OutputDefaultTypeInternal {
   constexpr OutputDefaultTypeInternal()
@@ -465,6 +467,65 @@ bool ErrorCode_Parse(
       ErrorCode_entries, 2, name, &int_value);
   if (success) {
     *value = static_cast<ErrorCode>(int_value);
+  }
+  return success;
+}
+bool EditState_IsValid(int value) {
+  switch (value) {
+    case 0:
+    case 1:
+    case 2:
+    case 3:
+      return true;
+    default:
+      return false;
+  }
+}
+
+static ::PROTOBUF_NAMESPACE_ID::internal::ExplicitlyConstructed<std::string> EditState_strings[4] = {};
+
+static const char EditState_names[] =
+  "EDIT_COMPOSING"
+  "EDIT_CONVERTED"
+  "EDIT_EMPTY"
+  "EDIT_SELECTING";
+
+static const ::PROTOBUF_NAMESPACE_ID::internal::EnumEntry EditState_entries[] = {
+  { {EditState_names + 0, 14}, 1 },
+  { {EditState_names + 14, 14}, 2 },
+  { {EditState_names + 28, 10}, 0 },
+  { {EditState_names + 38, 14}, 3 },
+};
+
+static const int EditState_entries_by_number[] = {
+  2, // 0 -> EDIT_EMPTY
+  0, // 1 -> EDIT_COMPOSING
+  1, // 2 -> EDIT_CONVERTED
+  3, // 3 -> EDIT_SELECTING
+};
+
+const std::string& EditState_Name(
+    EditState value) {
+  static const bool dummy =
+      ::PROTOBUF_NAMESPACE_ID::internal::InitializeEnumStrings(
+          EditState_entries,
+          EditState_entries_by_number,
+          4, EditState_strings);
+  (void) dummy;
+  int idx = ::PROTOBUF_NAMESPACE_ID::internal::LookUpEnumName(
+      EditState_entries,
+      EditState_entries_by_number,
+      4, value);
+  return idx == -1 ? ::PROTOBUF_NAMESPACE_ID::internal::GetEmptyString() :
+                     EditState_strings[idx].get();
+}
+bool EditState_Parse(
+    ::PROTOBUF_NAMESPACE_ID::ConstStringParam name, EditState* value) {
+  int int_value;
+  bool success = ::PROTOBUF_NAMESPACE_ID::internal::LookUpEnumValue(
+      EditState_entries, 4, name, &int_value);
+  if (success) {
+    *value = static_cast<EditState>(int_value);
   }
   return success;
 }
@@ -2173,9 +2234,18 @@ const char* Output::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::int
         } else
           goto handle_unusual;
         continue;
-      // bool consumable = 4;
+      // .khiin.messages.EditState edit_state = 4;
       case 4:
         if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 32)) {
+          ::PROTOBUF_NAMESPACE_ID::uint64 val = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
+          CHK_(ptr);
+          _internal_set_edit_state(static_cast<::khiin::messages::EditState>(val));
+        } else
+          goto handle_unusual;
+        continue;
+      // bool consumable = 5;
+      case 5:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 40)) {
           consumable_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
           CHK_(ptr);
         } else
@@ -2233,10 +2303,17 @@ failure:
         3, _Internal::candidate_list(this), target, stream);
   }
 
-  // bool consumable = 4;
+  // .khiin.messages.EditState edit_state = 4;
+  if (this->_internal_edit_state() != 0) {
+    target = stream->EnsureSpace(target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteEnumToArray(
+      4, this->_internal_edit_state(), target);
+  }
+
+  // bool consumable = 5;
   if (this->_internal_consumable() != 0) {
     target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteBoolToArray(4, this->_internal_consumable(), target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteBoolToArray(5, this->_internal_consumable(), target);
   }
 
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
@@ -2275,7 +2352,13 @@ size_t Output::ByteSizeLong() const {
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::EnumSize(this->_internal_error());
   }
 
-  // bool consumable = 4;
+  // .khiin.messages.EditState edit_state = 4;
+  if (this->_internal_edit_state() != 0) {
+    total_size += 1 +
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::EnumSize(this->_internal_edit_state());
+  }
+
+  // bool consumable = 5;
   if (this->_internal_consumable() != 0) {
     total_size += 1 + 1;
   }
@@ -2308,6 +2391,9 @@ void Output::MergeFrom(const Output& from) {
   }
   if (from._internal_error() != 0) {
     _internal_set_error(from._internal_error());
+  }
+  if (from._internal_edit_state() != 0) {
+    _internal_set_edit_state(from._internal_edit_state());
   }
   if (from._internal_consumable() != 0) {
     _internal_set_consumable(from._internal_consumable());

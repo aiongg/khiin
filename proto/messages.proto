@@ -113,14 +113,22 @@ enum ErrorCode {
     FAIL = 1;
 }
 
+enum EditState {
+    EDIT_EMPTY = 0;
+    EDIT_COMPOSING = 1;
+    EDIT_CONVERTED = 2;
+    EDIT_SELECTING = 3;
+}
+
 // The response portion of the message, from engine back to app
 message Output {
     ErrorCode error = 1;
     Preedit preedit = 2;
     CandidateList candidate_list = 3;
+    EditState edit_state = 4;
 
     // Used with Windows TSF OnTestKeyDown method
-    bool consumable = 4;
+    bool consumable = 5;
 }
 
 enum CommandType {

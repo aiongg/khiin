@@ -172,8 +172,7 @@ void CandidateListUI::makeCandidateWindow() {
         parentWnd = ::GetFocus();
     }
 
-    candidateWindow = std::make_unique<CandidateWindow>(parentWnd);
-    candidateWindow->Create();
+    candidateWindow = std::unique_ptr<CandidateWindow>(CandidateWindow::Create(parentWnd));
 }
 
 } // namespace khiin::win32

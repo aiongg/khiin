@@ -210,6 +210,7 @@ class EngineImpl : public Engine {
         m_buffer_mgr->BuildPreedit(preedit);
         auto candidate_list = command->mutable_output()->mutable_candidate_list();
         m_buffer_mgr->GetCandidates(candidate_list);
+        output->set_edit_state(m_buffer_mgr->edit_state());
     }
 
     // void HandleRevert(Command *command, Output *output) {}

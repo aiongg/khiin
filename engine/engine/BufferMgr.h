@@ -30,6 +30,7 @@ class BufferMgr {
     virtual void BuildPreedit(messages::Preedit *preedit) = 0;
     virtual void GetCandidates(messages::CandidateList *candidate_list) = 0;
     virtual void SelectNextCandidate() = 0;
+    virtual messages::EditState edit_state() = 0;
 };
 
 } // namespace khiin::engine
