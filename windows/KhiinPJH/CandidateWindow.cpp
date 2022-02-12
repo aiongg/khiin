@@ -1,9 +1,10 @@
 #include "pch.h"
 
-#include <algorithm>
-
 #include "CandidateWindow.h"
 
+#include <algorithm>
+
+#include "GridLayout.h"
 #include "Utils.h"
 
 namespace khiin::win32 {
@@ -13,6 +14,7 @@ namespace {
 using namespace winrt;
 using namespace D2D1;
 using namespace messages;
+using namespace geometry;
 using uint = unsigned int;
 
 constexpr float kPadding = 8.0f;
@@ -64,6 +66,7 @@ struct CWndColors {
     D2D1::ColorF bg_selected = kColorBackgroundSelected;
     D2D1::ColorF accent = kColorAccent;
 };
+
 CWndColors const kLightColorScheme = CWndColors();
 CWndColors const kDarkColorScheme =
     CWndColors{// clang-format off
@@ -148,13 +151,7 @@ struct CandidateLayout {
     com_ptr<IDWriteTextLayout> layout = com_ptr<IDWriteTextLayout>();
 };
 
-struct CandidateColumn {
-    std::vector<CandidateLayout> rows;
-    uint width = 0;
-    bool quickselect = false;
-};
-
-using CandidateLayoutGrid = std::vector<CandidateColumn>;
+using CandidateLayoutGrid = GridLayoutContainer<CandidateLayout>;
 
 class CandidateWindowImpl : public CandidateWindow {
   public:
@@ -196,6 +193,10 @@ class CandidateWindowImpl : public CandidateWindow {
             D("WM_DPICHANGED");
             OnDpiChanged(HIWORD(wParam), (RECT *)lParam);
             return 0;
+        case WM_MOUSEACTIVATE:
+            D("WM_MOUSEACTIVATE");
+            break;
+            // return MA_NOACTIVATE;
         case WM_MOUSEMOVE:
             OnMouseMove(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
             break;
@@ -204,7 +205,9 @@ class CandidateWindowImpl : public CandidateWindow {
             OnMouseLeave();
             break;
         case WM_LBUTTONDOWN:
-            OnClick(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+            if (HandleClick(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam))) {
+                return 0;
+            }
             break;
         case WM_PAINT:
             D("WM_PAINT");
@@ -267,6 +270,11 @@ class CandidateWindowImpl : public CandidateWindow {
 
         ::ShowWindow(m_hwnd, SW_SHOWNA);
         m_showing = true;
+
+        if (!m_tracking_mouse) {
+            ::SetCapture(m_hwnd);
+            m_tracking_mouse = true;
+        }
     }
 
     virtual void Hide() override {
@@ -276,6 +284,11 @@ class CandidateWindowImpl : public CandidateWindow {
 
         ::ShowWindow(m_hwnd, SW_HIDE);
         m_showing = false;
+
+        if (m_tracking_mouse) {
+            ::ReleaseCapture();
+            m_tracking_mouse = false;
+        }
     }
 
     virtual bool Showing() override {
@@ -332,25 +345,35 @@ class CandidateWindowImpl : public CandidateWindow {
 
     void OnMouseMove(UINT x, UINT y) {
         D("moved to: (", x, ",", y, ")");
-        if (!m_tracking_mouse) {
-            TRACKMOUSEEVENT tme;
-            tme.cbSize = sizeof(TRACKMOUSEEVENT);
-            tme.dwFlags = TME_LEAVE;
-            tme.hwndTrack = m_hwnd;
-            if (::TrackMouseEvent(&tme)) {
-                m_tracking_mouse = true;
-            }
-        }
+        // if (!m_tracking_mouse) {
+        //    TRACKMOUSEEVENT tme;
+        //    tme.cbSize = sizeof(TRACKMOUSEEVENT);
+        //    tme.dwFlags = TME_LEAVE;
+        //    tme.hwndTrack = m_hwnd;
+        //    if (::TrackMouseEvent(&tme)) {
+        //        m_tracking_mouse = true;
+        //        D("Set capture");
+        //        ::SetCapture(m_hwnd);
+        //    }
+        //}
     }
 
     void OnMouseLeave() {
         m_tracking_mouse = false;
+        D("Release capture");
+        //::ReleaseCapture();
     }
 
-    void OnClick(UINT x, UINT y) {
-        ::SetCapture(m_hwnd);
+    bool HandleClick(UINT x, UINT y) {
         D("clicked at: (", x, ",", y, ")");
-        //::ReleaseCapture();
+        auto rect = RECT{};
+        ::GetClientRect(m_hwnd, &rect);
+        POINT pt{x, y};
+
+        if (!::PtInRect(&rect, pt)) {
+            Hide();
+            return false;
+        }
     }
 
     void EnsureRenderTarget() {
@@ -408,7 +431,6 @@ class CandidateWindowImpl : public CandidateWindow {
         m_brush = nullptr;
         m_textformat = nullptr;
         m_textformat_sm = nullptr;
-        m_candidate_layouts.clear();
     }
 
     void GetMonitorInfo() {
@@ -420,6 +442,25 @@ class CandidateWindowImpl : public CandidateWindow {
         m_max_height = info.rcMonitor.bottom;
     }
 
+    uint MinColWidth() {
+        return (m_display_mode == DisplayMode::Expanded) ? m_metrics.min_col_w_multi : m_metrics.min_col_w_single;
+    }
+
+    void AddLayoutToGrid(int row, int col, Candidate const *candidate) {
+        auto &value = Utils::Widen(candidate->value());
+        auto layout = com_ptr<IDWriteTextLayout>();
+        check_hresult(m_dwrite->CreateTextLayout(value.c_str(), static_cast<UINT32>(value.size() + 1),
+                                                 m_textformat.get(), static_cast<float>(m_max_width),
+                                                 m_metrics.row_height, layout.put()));
+
+        DWRITE_TEXT_METRICS dwtm;
+        check_hresult(layout->GetMetrics(&dwtm));
+
+        m_layout_grid.EnsureColumnWidth(col, dwtm.width + m_metrics.qs_col_w);
+        m_layout_grid.EnsureRowHeight(dwtm.height);
+        m_layout_grid.AddItem(row, col, CandidateLayout{candidate, std::move(layout)});
+    }
+
     void CalculateLayout() {
         D(__FUNCTIONW__);
         if (!m_dwrite || !m_candidate_grid) {
@@ -428,64 +469,34 @@ class CandidateWindowImpl : public CandidateWindow {
 
         EnsureTextFormat();
 
-        m_candidate_layouts.clear();
+        auto n_cols = m_candidate_grid->size();
+        auto n_rows = m_candidate_grid->at(0).size();
 
-        auto min_col_width =
-            (m_display_mode == DisplayMode::Expanded) ? m_metrics.min_col_w_multi : m_metrics.min_col_w_single;
-        auto page_width = 0.0f;
-        auto col_idx = 0;
+        m_layout_grid = CandidateLayoutGrid(n_rows, n_cols, MinColWidth());
+        m_layout_grid.SetRowPadding(m_metrics.padding);
 
-        for (auto &grid_col : *m_candidate_grid) {
-            auto col = CandidateColumn();
-            auto column_width = 0.0f;
-
-            for (auto &candidate : grid_col) {
-                auto &value = Utils::Widen(candidate->value());
-
-                auto layout = com_ptr<IDWriteTextLayout>();
-                check_hresult(m_dwrite->CreateTextLayout(value.c_str(), static_cast<UINT32>(value.size() + 1),
-                                                         m_textformat.get(), static_cast<float>(m_max_width),
-                                                         m_metrics.row_height, layout.put()));
-
-                DWRITE_TEXT_METRICS dwtm;
-                check_hresult(layout->GetMetrics(&dwtm));
-
-                column_width = std::max(column_width, dwtm.width);
-                col.rows.push_back(CandidateLayout{candidate, std::move(layout)});
+        for (auto col_idx = 0; col_idx < n_cols; ++col_idx) {
+            auto &candidates = m_candidate_grid->at(col_idx);
+            for (auto row_idx = 0; row_idx < candidates.size(); ++row_idx) {
+                auto candidate = candidates[row_idx];
+                AddLayoutToGrid(row_idx, col_idx, candidate);
             }
-
-            column_width = std::max(column_width, static_cast<float>(min_col_width)) + m_metrics.qs_col_w;
-
-            if (column_width > (min_col_width + m_metrics.qs_col_w - m_metrics.padding)) {
-                column_width += m_metrics.padding;
-            }
-
-            page_width += column_width;
-            col.width = column_width;
-
-            if (col_idx == m_quickselect_col) {
-                col.quickselect = true;
-            }
-
-            m_candidate_layouts.push_back(std::move(col));
         }
 
-        auto page_height = m_candidate_grid->at(0).size() * m_metrics.row_height;
-        auto page_height_px = static_cast<int>(page_height * m_scale);
-        auto page_width_px = static_cast<int>(page_width * m_scale);
+        auto grid_size = m_layout_grid.GetGridSize();
+        auto left = m_text_rect.left - m_metrics.qs_col_w * m_scale;
+        auto top = m_text_rect.bottom;
+        auto width = grid_size.width * m_scale;
+        auto height = grid_size.height * m_scale;
 
-        auto page_left = m_text_rect.left - m_metrics.qs_col_w * m_scale;
-        auto page_top = m_text_rect.bottom + static_cast<int>(m_metrics.padding);
-
-        if (page_left + page_width_px > m_max_width) {
-            page_left = m_max_width - page_width_px - m_metrics.padding_sm;
+        if (left + width > m_max_width) {
+            left = m_max_width - width;
+        }
+        if (top + height > m_max_height) {
+            top = m_text_rect.top - height;
         }
 
-        if (page_top + page_height_px > m_max_height) {
-            page_top = m_text_rect.top - page_height_px - m_metrics.padding;
-        }
-
-        ::SetWindowPos(m_hwnd, NULL, page_left, page_top, page_width_px, page_height_px, SWP_NOACTIVATE | SWP_NOZORDER);
+        ::SetWindowPos(m_hwnd, NULL, left, top, width, height, SWP_NOACTIVATE | SWP_NOZORDER);
         ::RedrawWindow(m_hwnd, NULL, NULL, RDW_INVALIDATE | RDW_UPDATENOW);
     }
 
@@ -534,24 +545,24 @@ class CandidateWindowImpl : public CandidateWindow {
         m_target->Clear(m_colors.bg);
         EnsureBrush();
 
-        auto top = 0.0f;
-        auto left = 0.0f;
         auto qs_label = 1;
-        for (auto &column : m_candidate_layouts) {
-            for (auto &row : column.rows) {
-                if (row.candidate->id() == m_focused_id) {
-                    DrawFocused(left, top, column.width);
+        for (auto col_idx = 0; col_idx < m_layout_grid.cols(); ++col_idx) {
+            auto &col = m_layout_grid.items[col_idx];
+            for (auto row_idx = 0; row_idx < col.size(); ++row_idx) {
+                auto value = m_layout_grid.GetItem(row_idx, col_idx);
+                auto cell = m_layout_grid.GetCellRect(row_idx, col_idx);
+
+                if (value.candidate->id() == m_focused_id) {
+                    DrawFocused(cell.left(), cell.top(), cell.width);
                 }
 
-                if (column.quickselect) {
-                    DrawQuickSelect(std::to_wstring(qs_label), left, top);
+                if (col_idx == m_quickselect_col) {
+                    DrawQuickSelect(std::to_wstring(qs_label), cell.left(), cell.top());
                     ++qs_label;
                 }
 
-                DrawCandidate(row, left, top);
-                top += m_metrics.row_height;
+                DrawCandidate(value, cell.left(), cell.top());
             }
-            left += column.width;
         }
     }
 
@@ -595,13 +606,13 @@ class CandidateWindowImpl : public CandidateWindow {
     float m_scale = 1.0f;
 
     // Candidate rendering
+    CandidateLayoutGrid m_layout_grid;
+    CandidateGrid *m_candidate_grid = nullptr;
     RECT m_text_rect;
     CWndMetrics m_metrics = GetMetricsForSize(DisplaySize::S);
     CWndColors m_colors = kLightColorScheme;
-    CandidateGrid *m_candidate_grid = nullptr;
     DisplayMode m_display_mode = DisplayMode::Short;
     int m_focused_id = -1;
-    CandidateLayoutGrid m_candidate_layouts = {};
     size_t m_quickselect_col = 0;
     bool m_quickselect_active = false;
 };

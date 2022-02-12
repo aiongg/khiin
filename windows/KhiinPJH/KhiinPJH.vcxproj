@@ -212,6 +212,8 @@
     <ClInclude Include="CompositionMgr.h" />
     <ClInclude Include="DllModule.h" />
     <ClInclude Include="DisplayAttributeInfoEnum.h" />
+    <ClInclude Include="Geometry.h" />
+    <ClInclude Include="GridLayout.h" />
     <ClInclude Include="KeyEvent.h" />
     <ClInclude Include="KeyEventSink.h" />
     <ClInclude Include="KhiinClassFactory.h" />
@@ -238,6 +240,7 @@
     <ClCompile Include="Compartment.cpp" />
     <ClCompile Include="CompositionMgr.cpp" />
     <ClCompile Include="DisplayAttributeInfoEnum.cpp" />
+    <ClCompile Include="GridLayout.cpp" />
     <ClCompile Include="KeyEvent.cpp" />
     <ClCompile Include="KeyEventSink.cpp" />
     <ClCompile Include="KhiinClassFactory.cpp" />
