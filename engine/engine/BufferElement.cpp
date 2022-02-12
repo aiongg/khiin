@@ -21,14 +21,6 @@ BufferElement::BufferElement(Spacer elem) {
     m_element.emplace<Spacer>(elem);
 }
 
-std::string BufferElement::raw(std::vector<BufferElement> const &elements) {
-    auto ret = std::string();
-    for (auto const &elem : elements) {
-        ret.append(elem.raw());
-    }
-    return ret;
-}
-
 void BufferElement::Replace(TaiText const &elem) {
     m_element.emplace<TaiText>(elem);
 }
@@ -74,6 +66,10 @@ std::string BufferElement::raw() const {
     } else { // std::monostate
         return "";
     }
+}
+
+utf8_size_t BufferElement::raw_size() const {
+    return unicode::utf8_size(raw());
 }
 
 utf8_size_t BufferElement::RawToComposedCaret(SyllableParser *parser, size_t raw_caret) const {

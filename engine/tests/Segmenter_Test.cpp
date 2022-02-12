@@ -7,9 +7,9 @@
 namespace khiin::engine {
 namespace {
 
-TEST(SegmenterTest, SegmentWholeBuffer) {
+TEST(SegmenterTest, SegmentText) {
     auto result = std::vector<BufferElement>();
-    Segmenter::SegmentWholeBuffer(TestEnv::engine(), "pengan", result);
+    Segmenter::SegmentText(TestEnv::engine(), "pengan", result);
     EXPECT_EQ(result.size(), 1);
     EXPECT_EQ(result[0].raw(), "pengan");
 }

@@ -424,5 +424,17 @@ TEST_F(BufferMgrTest, Convert_ho_twice) {
     EXPECT_GT(candlist->candidates_size(), 2);
 }
 
+TEST_F(BufferMgrTest, Convert_erase_middle) {
+    insert_string("siannebo");
+    bufmgr->SelectNextCandidate();
+    curs_left(1);
+    erase_left(1);
+    EXPECT_EQ(display(), "是按無");
+    EXPECT_EQ(caret(), 2);
+    insert_string("ho");
+    EXPECT_EQ(display(), "是按 ho 無");
+    EXPECT_EQ(caret(), 5);
+}
+
 } // namespace
 } // namespace khiin::engine

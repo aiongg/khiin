@@ -19,14 +19,13 @@ class BufferElement {
     BufferElement(Plaintext const &elem);
     BufferElement(Spacer elem);
 
-    static std::string raw(std::vector<BufferElement> const &elements);
-
     void Replace(TaiText const &elem);
     void Replace(Plaintext const &elem);
     void Replace(Spacer elem);
 
     utf8_size_t size() const;
     std::string raw() const;
+    utf8_size_t raw_size() const;
     std::string composed() const;
     std::string converted() const;
     TaiToken *candidate() const;

@@ -15,6 +15,60 @@ using namespace messages;
 
 namespace {
 
+struct RawCaretInfo {
+    size_t raw_caret_prefix;
+    utf8_size_t remainder;
+    BufferElementList::iterator element;
+};
+
+struct CaretInfo {
+    utf8_size_t caret_prefix;
+    size_t remainder;
+    BufferElementList::iterator element;
+};
+
+RawCaretInfo IterToCaret(utf8_size_t caret, BufferElementList &elements) {
+    size_t raw_caret = 0;
+    auto rem = caret;
+
+    auto it = elements.begin();
+    for (; it != elements.end(); ++it) {
+        if (auto size = it->size(); rem > size) {
+            rem -= size;
+            raw_caret += it->raw_size();
+        } else {
+            break;
+        }
+    }
+
+    return RawCaretInfo{raw_caret, rem, it};
+}
+
+CaretInfo IterToRawCaret(size_t raw_caret, BufferElementList &elements) {
+    utf8_size_t caret = 0;
+    auto rem = raw_caret;
+
+    auto it = elements.begin();
+    for (; it != elements.end(); ++it) {
+        if (auto size = it->raw_size(); rem > size) {
+            rem -= size;
+            caret += it->size();
+        } else {
+            break;
+        }
+    }
+
+    return CaretInfo{caret, rem, it};
+}
+
+std::string GetRawBufferText(BufferElementList::iterator begin, BufferElementList::iterator end) {
+    auto ret = std::string();
+    for (; begin != end; ++begin) {
+        ret.append(begin->raw());
+    }
+    return ret;
+}
+
 void AdjustVirtualSpacing(BufferElementList &elements) {
     using namespace unicode;
 
@@ -52,7 +106,7 @@ BufferElementList ConvertWholeBuffer(BufferElementList elements) {
     return elements;
 }
 
-bool ContainsCandidate(BufferElementList const& a, BufferElementList const& b) {
+bool ContainsCandidate(BufferElementList const &a, BufferElementList const &b) {
     auto i = 0;
     auto size = min(a.size(), b.size());
     for (; i < size; ++i) {
@@ -104,34 +158,13 @@ class BufferMgrImpl : public BufferMgr {
             MoveCaret(CursorDirection::L);
         }
 
-        auto raw_caret = GetRawCaret();
-        auto remainder = m_caret;
+        auto info = IterToCaret(m_caret, m_elements);
 
-        auto it = m_elements.begin();
-        for (; it != m_elements.end(); ++it) {
-            if (auto size = it->size(); remainder >= size) {
-                remainder -= size;
-            } else {
-                break;
-            }
+        if (info.element->is_converted) {
+            EraseConverted(info);
+        } else {
+            EraseComposing(direction);
         }
-
-        if (it->IsVirtualSpace(remainder) && direction == CursorDirection::R) {
-            MoveCaret(CursorDirection::R);
-            return;
-        }
-
-        it->Erase(m_engine->syllable_parser(), remainder);
-        if (it->size() == 0) {
-            m_elements.erase(it);
-        }
-
-        if (IsEmpty()) {
-            Clear();
-        }
-
-        auto raw_buffer = GetRawBuffer();
-        UpdateBuffer(raw_buffer, raw_caret);
     }
 
     virtual void BuildPreedit(Preedit *preedit) override {
@@ -218,15 +251,37 @@ class BufferMgrImpl : public BufferMgr {
         // Get raw buffer and cursor position
         auto raw_buffer = GetRawBuffer();
         auto raw_caret = GetRawCaret();
-        raw_buffer.insert(raw_caret, 1, ch);
+        auto it = raw_buffer.begin();
+        utf8::unchecked::advance(it, raw_caret);
+        raw_buffer.insert(it, 1, ch);
         ++raw_caret;
         UpdateBuffer(raw_buffer, raw_caret);
         UpdateCandidates(raw_buffer);
     }
 
+    struct CompositionIters {
+        BufferElementList::iterator begin;
+        BufferElementList::iterator end;
+    };
+
+    CompositionIters GetCompositionIters() {
+        auto ret = CompositionIters();
+        auto it = m_elements.begin();
+        auto end = m_elements.end();
+        while (it != end && it->is_converted) {
+            ++it;
+        }
+        ret.begin = it;
+        while (it != end && !it->is_converted) {
+            ++it;
+        }
+        ret.end = it;
+        return ret;
+    }
+
     void UpdateBuffer(std::string const &raw_buffer, size_t raw_caret) {
         std::vector<BufferElement> elements;
-        Segmenter::SegmentWholeBuffer(m_engine, raw_buffer, elements);
+        Segmenter::SegmentText(m_engine, raw_buffer, elements);
         KhinHandler::AutokhinBuffer(m_engine->syllable_parser(), elements);
         AdjustVirtualSpacing(elements);
         m_elements = elements;
@@ -252,7 +307,7 @@ class BufferMgrImpl : public BufferMgr {
     }
 
     std::string GetRawBuffer() {
-        return BufferElement::raw(m_elements);
+        return GetRawBufferText(m_elements.begin(), m_elements.end());
     }
 
     std::string GetDisplayBuffer() {
@@ -276,21 +331,9 @@ class BufferMgrImpl : public BufferMgr {
             return 0;
         }
 
-        size_t raw_caret = 0;
-        auto remainder = m_caret;
-
-        auto it = m_elements.cbegin();
-        for (; it != m_elements.cend(); ++it) {
-            if (auto size = it->size(); remainder > size) {
-                remainder -= size;
-                raw_caret += it->raw().size();
-            } else {
-                break;
-            }
-        }
-
-        raw_caret += it->ComposedToRawCaret(m_engine->syllable_parser(), remainder);
-        return raw_caret;
+        auto info = IterToCaret(m_caret, m_elements);
+        auto raw_caret_remainder = info.element->ComposedToRawCaret(m_engine->syllable_parser(), info.remainder);
+        return info.raw_caret_prefix + raw_caret_remainder;
     }
 
     void UpdateCaret(size_t raw_caret) {
@@ -298,22 +341,9 @@ class BufferMgrImpl : public BufferMgr {
             return;
         }
 
-        utf8_size_t new_caret = 0;
-        auto remainder = raw_caret;
-
-        auto it = m_elements.cbegin();
-        for (; it != m_elements.cend(); ++it) {
-            auto raw = it->raw();
-            if (auto raw_size = raw.size(); remainder > raw_size) {
-                new_caret += it->size();
-                remainder -= raw_size;
-            } else {
-                break;
-            }
-        }
-
-        new_caret += it->RawToComposedCaret(m_engine->syllable_parser(), remainder);
-        m_caret = new_caret;
+        auto info = IterToRawCaret(raw_caret, m_elements);
+        auto caret_remainder = info.element->RawToComposedCaret(m_engine->syllable_parser(), info.remainder);
+        m_caret = info.caret_prefix + caret_remainder;
     }
 
     void SelectCandidate(size_t index) {
@@ -331,13 +361,63 @@ class BufferMgrImpl : public BufferMgr {
         auto raw_remainder = raw_buffer.substr(candidate_raw.size(), raw_buffer.size());
 
         auto elements = BufferElementList();
-        Segmenter::SegmentWholeBuffer(m_engine, raw_remainder, elements);
+        Segmenter::SegmentText(m_engine, raw_remainder, elements);
         KhinHandler::AutokhinBuffer(m_engine->syllable_parser(), elements);
         elements.insert(elements.begin(), candidate.begin(), candidate.end());
         AdjustVirtualSpacing(elements);
         m_elements = elements;
         UpdateCaret(raw_caret);
         m_focused_candidate = index;
+    }
+
+    void EraseConverted(RawCaretInfo info) {
+        auto &element = *info.element;
+        auto text = element.converted();
+        auto start = info.remainder;
+        auto end = Lomaji::MoveCaret(text, start, CursorDirection::R);
+        auto from = text.begin();
+        auto to = text.begin();
+        utf8::unchecked::advance(from, start);
+        utf8::unchecked::advance(to, end);
+        text.erase(from, to);
+
+        if (text.empty()) {
+            m_elements.erase(info.element);
+        } else {
+            element = BufferElement(text);
+            element.is_converted = false;
+        }
+    }
+
+    void EraseComposing(CursorDirection direction) {
+        auto raw_caret = GetRawCaret();
+        auto remainder = m_caret;
+
+        auto it = m_elements.begin();
+        for (; it != m_elements.end(); ++it) {
+            if (auto size = it->size(); remainder >= size) {
+                remainder -= size;
+            } else {
+                break;
+            }
+        }
+
+        if (it->IsVirtualSpace(remainder) && direction == CursorDirection::R) {
+            MoveCaret(CursorDirection::R);
+            return;
+        }
+
+        it->Erase(m_engine->syllable_parser(), remainder);
+        if (it->size() == 0) {
+            m_elements.erase(it);
+        }
+
+        if (IsEmpty()) {
+            Clear();
+        }
+
+        auto raw_buffer = GetRawBuffer();
+        UpdateBuffer(raw_buffer, raw_caret);
     }
 
     enum class FocusedElementState {

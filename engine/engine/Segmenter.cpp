@@ -32,8 +32,10 @@ class SegmenterImpl {
             if (consumed > 0) {
                 it += consumed;
             } else {
-                pending_plaintext.push_back(*it);
-                ++it;
+                auto tmp = it;
+                utf8::unchecked::next(tmp);
+                pending_plaintext.append(std::string(it, tmp));
+                it = tmp;
             }
         }
 
@@ -233,7 +235,7 @@ class SegmenterImpl {
 
 } // namespace
 
-void Segmenter::SegmentWholeBuffer(Engine *engine, std::string const &raw_buffer, std::vector<BufferElement> &result) {
+void Segmenter::SegmentText(Engine *engine, std::string const &raw_buffer, std::vector<BufferElement> &result) {
     auto impl = SegmenterImpl();
     impl.ProcessBuffer(engine, &raw_buffer, &result);
 }
