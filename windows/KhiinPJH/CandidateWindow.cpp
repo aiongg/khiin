@@ -4,8 +4,10 @@
 
 #include <algorithm>
 
+#include "Colors.h"
 #include "GridLayout.h"
 #include "Utils.h"
+#include "Graphics.h"
 
 namespace khiin::win32 {
 
@@ -28,22 +30,6 @@ constexpr uint min_col_width_single = 160;
 constexpr uint min_col_width_expanded = 80;
 constexpr uint kQsColWidth = kPaddingSmall * 2 + kMarkerWidth + kPadding * 2 + kFontSize;
 
-const D2D1::ColorF kColorText = D2D1::ColorF(D2D1::ColorF::Black);
-const D2D1::ColorF kColorTextDisabled = D2D1::ColorF(D2D1::ColorF::Gray);
-const D2D1::ColorF kColorTextExtended = D2D1::ColorF(D2D1::ColorF::DarkGray);
-const D2D1::ColorF kColorTextHint = D2D1::ColorF(D2D1::ColorF::ForestGreen);
-const D2D1::ColorF kColorBackground = D2D1::ColorF(0.97f, 0.97f, 0.97f);
-const D2D1::ColorF kColorBackgroundSelected = D2D1::ColorF(0.90f, 0.90f, 0.90f);
-const D2D1::ColorF kColorAccent = D2D1::ColorF(D2D1::ColorF::CornflowerBlue);
-
-const D2D1::ColorF kDarkColorText = D2D1::ColorF(0.98f, 0.98f, 0.98f);
-const D2D1::ColorF kDarkColorTextDisabled = D2D1::ColorF(D2D1::ColorF::LightGray);
-const D2D1::ColorF kDarkColorTextExtended = D2D1::ColorF(D2D1::ColorF::WhiteSmoke);
-const D2D1::ColorF kDarkColorTextHint = D2D1::ColorF(D2D1::ColorF::LightGoldenrodYellow);
-const D2D1::ColorF kDarkColorBackground = D2D1::ColorF(0.17f, 0.17f, 0.17f);
-const D2D1::ColorF kDarkColorBackgroundSelected = D2D1::ColorF(0.12f, 0.12f, 0.12f);
-const D2D1::ColorF kDarkColorAccent = D2D1::ColorF(D2D1::ColorF::LightSkyBlue);
-
 struct CWndMetrics {
     float padding = kPadding;
     float padding_sm = kPaddingSmall;
@@ -56,28 +42,6 @@ struct CWndMetrics {
     uint min_col_w_multi = 80;
     uint qs_col_w = kQsColWidth;
 };
-
-struct CWndColors {
-    D2D1::ColorF text = kColorText;
-    D2D1::ColorF text_disabled = kColorTextDisabled;
-    D2D1::ColorF text_extended = kColorTextExtended;
-    D2D1::ColorF text_hint = kColorTextHint;
-    D2D1::ColorF bg = kColorBackground;
-    D2D1::ColorF bg_selected = kColorBackgroundSelected;
-    D2D1::ColorF accent = kColorAccent;
-};
-
-CWndColors const kLightColorScheme = CWndColors();
-CWndColors const kDarkColorScheme =
-    CWndColors{// clang-format off
-    kDarkColorText,
-    kDarkColorTextDisabled,    
-    kDarkColorTextExtended,
-    kDarkColorTextHint,
-    kDarkColorBackground,
-    kDarkColorBackgroundSelected,
-    kDarkColorAccent
-}; // clang-format on
 
 CWndMetrics GetMetricsForSize(DisplaySize size) {
     auto metrics = CWndMetrics();
@@ -115,30 +79,6 @@ static inline constexpr int kCornerRadius = 4;
 static const DWORD kDwStyle = WS_BORDER | WS_POPUP;
 
 static const DWORD kDwExStyle = WS_EX_TOPMOST | WS_EX_TOOLWINDOW | WS_EX_NOACTIVATE;
-
-com_ptr<ID2D1Factory1> CreateD2D1Factory() {
-    auto factory = com_ptr<ID2D1Factory1>();
-    check_hresult(::D2D1CreateFactory(D2D1_FACTORY_TYPE_SINGLE_THREADED, factory.put()));
-    return factory;
-}
-
-com_ptr<IDWriteFactory3> CreateDwriteFactory() {
-    auto factory = com_ptr<IDWriteFactory3>();
-    check_hresult(::DWriteCreateFactory(DWRITE_FACTORY_TYPE_SHARED, __uuidof(IDWriteFactory3),
-                                        reinterpret_cast<IUnknown **>(factory.put())));
-    return factory;
-}
-
-com_ptr<ID2D1HwndRenderTarget> CreateRenderTarget(com_ptr<ID2D1Factory1> const &factory, HWND const &hwnd) {
-    WINRT_ASSERT(factory);
-    RECT rc;
-    ::GetClientRect(hwnd, &rc);
-    D2D1_SIZE_U size = D2D1::SizeU(rc.right, rc.bottom);
-    auto target = com_ptr<ID2D1HwndRenderTarget>();
-    check_hresult(factory->CreateHwndRenderTarget(D2D1::RenderTargetProperties(),
-                                                  D2D1::HwndRenderTargetProperties(hwnd, size), target.put()));
-    return target;
-}
 
 float CenterTextLayoutY(IDWriteTextLayout *layout, float available_height) {
     DWRITE_TEXT_METRICS dwt_metrics;
@@ -187,7 +127,7 @@ class CandidateWindowImpl : public CandidateWindow {
             }
         case WM_DISPLAYCHANGE:
             D("WM_DISPLAYCHANGE");
-            GetMonitorInfo();
+            OnMonitorSizeChange();
             break;
         case WM_DPICHANGED:
             D("WM_DPICHANGED");
@@ -219,7 +159,7 @@ class CandidateWindowImpl : public CandidateWindow {
             break;
         case WM_WINDOWPOSCHANGING:
             D("WM_WINDOWPOSCHANGING");
-            GetMonitorInfo();
+            OnMonitorSizeChange();
             break;
         case WM_NCCALCSIZE:
             D("WM_NCCALCSIZE");
@@ -315,12 +255,12 @@ class CandidateWindowImpl : public CandidateWindow {
   private:
     void OnCreate() {
         D(__FUNCTIONW__);
-        m_d2d1 = CreateD2D1Factory();
-        m_dwrite = CreateDwriteFactory();
+        m_d2d1 = Graphics::CreateD2D1Factory();
+        m_dwrite = Graphics::CreateDwriteFactory();
         m_dpi = ::GetDpiForWindow(m_hwnd);
         m_dpi_parent = ::GetDpiForWindow(m_hwnd_parent);
         m_scale = static_cast<float>(m_dpi / USER_DEFAULT_SCREEN_DPI);
-        GetMonitorInfo();
+        OnMonitorSizeChange();
     }
 
     void OnDpiChanged(WORD dpi, RECT *pNewSize) {
@@ -379,7 +319,7 @@ class CandidateWindowImpl : public CandidateWindow {
     void EnsureRenderTarget() {
         D(__FUNCTIONW__);
         if (m_d2d1 && m_hwnd && !m_target) {
-            m_target = CreateRenderTarget(m_d2d1, m_hwnd);
+            m_target = Graphics::CreateRenderTarget(m_d2d1, m_hwnd);
             m_target->SetDpi(static_cast<float>(m_dpi), static_cast<float>(m_dpi));
         }
     }
@@ -433,7 +373,7 @@ class CandidateWindowImpl : public CandidateWindow {
         m_textformat_sm = nullptr;
     }
 
-    void GetMonitorInfo() {
+    void OnMonitorSizeChange() {
         auto hmon = ::MonitorFromWindow(m_hwnd_parent, MONITOR_DEFAULTTONEAREST);
         auto info = MONITORINFO();
         info.cbSize = sizeof(MONITORINFO);
@@ -443,7 +383,7 @@ class CandidateWindowImpl : public CandidateWindow {
     }
 
     uint MinColWidth() {
-        return (m_display_mode == DisplayMode::Expanded) ? m_metrics.min_col_w_multi : m_metrics.min_col_w_single;
+        return (m_display_mode == DisplayMode::Grid) ? m_metrics.min_col_w_multi : m_metrics.min_col_w_single;
     }
 
     void AddLayoutToGrid(int row, int col, Candidate const *candidate) {
@@ -550,10 +490,15 @@ class CandidateWindowImpl : public CandidateWindow {
             auto &col = m_layout_grid.items[col_idx];
             for (auto row_idx = 0; row_idx < col.size(); ++row_idx) {
                 auto value = m_layout_grid.GetItem(row_idx, col_idx);
+
+                if (!value.candidate || !value.layout) {
+                    continue;
+                }
+
                 auto cell = m_layout_grid.GetCellRect(row_idx, col_idx);
 
                 if (value.candidate->id() == m_focused_id) {
-                    DrawFocused(cell.left(), cell.top(), cell.width);
+                    DrawFocused(cell.left(), cell.top(), cell.width());
                 }
 
                 if (col_idx == m_quickselect_col) {
@@ -610,8 +555,8 @@ class CandidateWindowImpl : public CandidateWindow {
     CandidateGrid *m_candidate_grid = nullptr;
     RECT m_text_rect;
     CWndMetrics m_metrics = GetMetricsForSize(DisplaySize::S);
-    CWndColors m_colors = kLightColorScheme;
-    DisplayMode m_display_mode = DisplayMode::Short;
+    Colors m_colors = kLightColorScheme;
+    DisplayMode m_display_mode = DisplayMode::ShortColumn;
     int m_focused_id = -1;
     size_t m_quickselect_col = 0;
     bool m_quickselect_active = false;

@@ -213,12 +213,14 @@
     <ClInclude Include="DllModule.h" />
     <ClInclude Include="DisplayAttributeInfoEnum.h" />
     <ClInclude Include="Geometry.h" />
+    <ClInclude Include="Graphics.h" />
     <ClInclude Include="GridLayout.h" />
     <ClInclude Include="KeyEvent.h" />
     <ClInclude Include="KeyEventSink.h" />
     <ClInclude Include="KhiinClassFactory.h" />
     <ClInclude Include="EngineController.h" />
     <ClInclude Include="resource1.h" />
+    <ClInclude Include="Colors.h" />
     <ClInclude Include="TextService.h" />
     <ClInclude Include="log.h" />
     <ClInclude Include="pch.h" />
@@ -240,7 +242,7 @@
     <ClCompile Include="Compartment.cpp" />
     <ClCompile Include="CompositionMgr.cpp" />
     <ClCompile Include="DisplayAttributeInfoEnum.cpp" />
-    <ClCompile Include="GridLayout.cpp" />
+    <ClCompile Include="Graphics.cpp" />
     <ClCompile Include="KeyEvent.cpp" />
     <ClCompile Include="KeyEventSink.cpp" />
     <ClCompile Include="KhiinClassFactory.cpp" />

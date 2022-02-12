@@ -15,12 +15,6 @@ struct GridLayout {
         col_widths_ = std::vector<int>(num_cols, min_col_width);
     };
 
-    //inline void SetSize(int num_rows, int num_cols, int min_col_width = 0) {
-    //    rows_ = num_rows;
-    //    cols_ = num_cols;
-    //    col_widths_ = std::vector<int>(num_cols, min_col_width);
-    //}
-
     inline void EnsureColumnWidth(size_t column_index, int width) {
         assert(column_index < col_widths_.size());
         col_widths_[column_index] = std::max<int>(col_widths_[column_index], width);

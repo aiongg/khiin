@@ -26,7 +26,7 @@ class CandidatePager {
     CandidatePager(CandidateList *const list) : m_candidate_list(list) {}
 
     void SetDisplayMode(DisplayMode mode) {
-        if (display_mode == DisplayMode::Long && mode == DisplayMode::Short) {
+        if (display_mode == DisplayMode::LongColumn && mode == DisplayMode::ShortColumn) {
             return;
         }
 
@@ -54,8 +54,8 @@ class CandidatePager {
         }
 
         auto total = candidates.size();
-        auto max_cols_per_page = (display_mode == DisplayMode::Expanded) ? kExpandedCols : 1;
-        auto max_col_size = display_mode == DisplayMode::Short ? kShortColSize : kLongColSize;
+        auto max_cols_per_page = (display_mode == DisplayMode::Grid) ? kExpandedCols : 1;
+        auto max_col_size = display_mode == DisplayMode::ShortColumn ? kShortColSize : kLongColSize;
         auto max_page_size = max_cols_per_page * max_col_size;
 
         auto curr_page = std::div(static_cast<int>(m_focused_index), max_page_size).quot;
@@ -87,7 +87,7 @@ class CandidatePager {
 
   private:
     CandidateList *const m_candidate_list;
-    DisplayMode display_mode = DisplayMode::Short;
+    DisplayMode display_mode = DisplayMode::ShortColumn;
     size_t m_focused_index = 0;
 };
 
@@ -124,7 +124,7 @@ struct CandidateListUIImpl :
         }
 
         auto focused_id = -1;
-        auto display_mode = DisplayMode::Short;
+        auto display_mode = DisplayMode::ShortColumn;
         size_t focused_col = 0;
         bool qs_active = false;
 
@@ -137,7 +137,7 @@ struct CandidateListUIImpl :
             }
 
             if (m_candidate_list.focused() >= kShortColSize) {
-                display_mode = DisplayMode::Long;
+                display_mode = DisplayMode::LongColumn;
             }
 
             focused_id = m_candidate_list.focused();

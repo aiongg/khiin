@@ -14,30 +14,40 @@ struct Size {
 
 struct Rect {
     Rect() = default;
-    Rect(Point origin, int width, int height) : origin(origin), width(width), height(height){};
+    Rect(Point origin, int width, int height) : origin_(origin), width_(width), height_(height){};
 
     inline int left() {
-        return origin.x;
+        return origin_.x;
     }
     inline int right() {
-        return origin.x + width;
+        return origin_.x + width_;
     }
     inline int top() {
-        return origin.y;
+        return origin_.y;
     }
     inline int bottom() {
-        return origin.y + height;
+        return origin_.y + height_;
+    }
+    inline int width() {
+        return width_;
+    }
+    inline int height() {
+        return height_;
     }
     inline Size size() {
-        return Size{width, height};
+        return Size{width_, height_};
     }
     inline bool Hit(Point const &p) {
         return p.x >= left() && p.x <= right() && p.x >= top() && p.x <= bottom();
     }
+    inline Point origin() {
+        return origin_;
+    }
 
-    Point origin; // Top-left
-    int width;
-    int height;
+  private:
+    Point origin_; // Top-left
+    int width_;
+    int height_;
 };
 
 } // namespace khiin::geometry

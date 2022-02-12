@@ -9,9 +9,9 @@ extern std::wstring kCandidateWindowClassName;
 extern GUID kCandidateWindowGuid;
 
 enum class DisplayMode {
-    Short,
-    Long,
-    Expanded,
+    ShortColumn,
+    LongColumn,
+    Grid,
 };
 
 enum class DisplaySize {
