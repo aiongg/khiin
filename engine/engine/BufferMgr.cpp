@@ -257,7 +257,7 @@ class BufferMgrImpl : public BufferMgr {
     }
 
     virtual void Insert(char ch) override {
-        if (m_edit_state == EditState::EDIT_EMPTY) {
+        if (m_edit_state != EditState::EDIT_COMPOSING) {
             m_edit_state = EditState::EDIT_COMPOSING;
         }
 
@@ -271,8 +271,11 @@ class BufferMgrImpl : public BufferMgr {
     }
 
     virtual void MoveCaret(CursorDirection direction) override {
-        auto buffer_text = GetDisplayBuffer();
-        m_caret = Lomaji::MoveCaret(buffer_text, m_caret, direction);
+        //if (!HasComposingSection(m_composition)) {
+            //MoveFocus(direction);
+        //} else {
+            MoveCaretBasic(direction);
+        //}
     }
 
     virtual void Erase(CursorDirection direction) override {
@@ -281,9 +284,15 @@ class BufferMgrImpl : public BufferMgr {
         }
 
         auto element = ElementAtCaret(m_caret, m_composition);
+        auto caret = m_caret - BufferSize(m_composition.begin(), element);
+
+        if (element->size() == caret) {
+            ++element;
+            caret = 0;
+        }
 
         if (element->is_converted) {
-            EraseConverted(element);
+            EraseConverted(element, caret);
         } else {
             EraseComposing(direction);
         }
@@ -344,8 +353,6 @@ class BufferMgrImpl : public BufferMgr {
         candidate_list->set_focused(static_cast<int32_t>(m_focused_candidate));
     }
 
-    virtual void MoveFocus(CursorDirection direction) override {}
-
     virtual void FocusCandidate(int index) override {}
 
     virtual void SetInputMode(InputMode new_mode) override {
@@ -369,6 +376,17 @@ class BufferMgrImpl : public BufferMgr {
     }
 
   private:
+    void MoveCaretBasic(CursorDirection direction) {
+        auto buffer_text = GetDisplayBuffer();
+        m_caret = Lomaji::MoveCaret(buffer_text, m_caret, direction);
+    }
+
+    virtual void MoveFocus(CursorDirection direction) override {
+        if (m_focused_element == 0 && direction == CursorDirection::L) {
+            MoveCaretBasic(direction);
+        }
+    }
+
     void InsertContinuous(char ch) {
         SplitBufferForComposition();
         auto raw_composition = GetRawBufferText(m_composition.begin(), m_composition.end());
@@ -377,8 +395,13 @@ class BufferMgrImpl : public BufferMgr {
         utf8::unchecked::advance(it, raw_caret);
         raw_composition.insert(it, 1, ch);
         ++raw_caret;
-        UpdateBuffer(raw_composition, raw_caret);
+
+        m_composition.clear();
+        Segmenter::SegmentText(m_engine, raw_composition, m_composition);
+        KhinHandler::AutokhinBuffer(m_engine->syllable_parser(), m_composition);
+
         UpdateCandidates(raw_composition);
+        JoinBufferAfterComposition(raw_caret);
     }
 
     void SplitBufferForComposition() {
@@ -397,7 +420,8 @@ class BufferMgrImpl : public BufferMgr {
         }
     }
 
-    void JoinBufferAfterComposition() {
+    void JoinBufferAfterComposition(utf8_size_t composition_raw_caret) {
+        auto raw_caret = RawBufferSize(m_precomp.begin(), m_precomp.end()) + composition_raw_caret;
         if (!m_precomp.empty()) {
             m_composition.insert(m_composition.begin(), m_precomp.begin(), m_precomp.end());
             m_caret += BufferSize(m_precomp.begin(), m_precomp.end());
@@ -407,6 +431,8 @@ class BufferMgrImpl : public BufferMgr {
             m_composition.insert(m_composition.end(), m_postcomp.begin(), m_postcomp.end());
             m_postcomp.clear();
         }
+        AdjustVirtualSpacing(m_composition);
+        m_caret = SyncCaretFromRaw(raw_caret, m_composition, m_engine->syllable_parser());
     }
 
     void UpdateBuffer(std::string const &raw_buffer, size_t raw_caret) {
@@ -414,8 +440,6 @@ class BufferMgrImpl : public BufferMgr {
         Segmenter::SegmentText(m_engine, raw_buffer, elements);
         KhinHandler::AutokhinBuffer(m_engine->syllable_parser(), elements);
         m_composition = elements;
-        raw_caret += RawBufferSize(m_precomp.begin(), m_precomp.end());
-        JoinBufferAfterComposition();
         AdjustVirtualSpacing(m_composition);
         m_caret = SyncCaretFromRaw(raw_caret, m_composition, m_engine->syllable_parser());
     }
@@ -463,6 +487,13 @@ class BufferMgrImpl : public BufferMgr {
             return;
         }
 
+        if (HasComposingSection(m_composition)) {
+            IsolateCompositionBuffer(m_composition, m_precomp, m_postcomp);
+            if (!m_precomp.empty()) {
+                m_caret -= BufferSize(m_precomp.begin(), m_precomp.end());
+            }
+        }
+
         auto raw_caret = GetRawCaret(m_caret, m_composition, m_engine->syllable_parser());
         auto &candidate = m_candidates.at(index);
         auto raw_buffer = GetRawBuffer();
@@ -472,23 +503,21 @@ class BufferMgrImpl : public BufferMgr {
         }
         auto raw_remainder = raw_buffer.substr(candidate_raw.size(), raw_buffer.size());
 
-        auto elements = BufferElementList();
-        Segmenter::SegmentText(m_engine, raw_remainder, elements);
-        KhinHandler::AutokhinBuffer(m_engine->syllable_parser(), elements);
-        elements.insert(elements.begin(), candidate.begin(), candidate.end());
-        AdjustVirtualSpacing(elements);
-        m_composition = elements;
-        m_caret = SyncCaretFromRaw(raw_caret, m_composition, m_engine->syllable_parser());
+        m_composition.clear();
+        Segmenter::SegmentText(m_engine, raw_remainder, m_composition);
+        KhinHandler::AutokhinBuffer(m_engine->syllable_parser(), m_composition);
+        m_composition.insert(m_composition.begin(), candidate.begin(), candidate.end());
+
+        JoinBufferAfterComposition(raw_caret);
         m_focused_candidate = index;
     }
 
-    void EraseConverted(BufferElementList::iterator caret_element) {
+    void EraseConverted(BufferElementList::iterator caret_element, utf8_size_t caret) {
         auto text = caret_element->converted();
-        auto start = m_caret - BufferSize(m_composition.begin(), caret_element);
-        auto end = Lomaji::MoveCaret(text, start, CursorDirection::R);
+        auto end = Lomaji::MoveCaret(text, caret, CursorDirection::R);
         auto from = text.begin();
         auto to = text.begin();
-        utf8::unchecked::advance(from, start);
+        utf8::unchecked::advance(from, caret);
         utf8::unchecked::advance(to, end);
         text.erase(from, to);
 
@@ -530,22 +559,22 @@ class BufferMgrImpl : public BufferMgr {
         UpdateBuffer(raw_buffer, raw_caret);
     }
 
-    enum class FocusedElementState {
-        Focused,
-        Composing,
-    };
+    // enum class FocusedElementState {
+    //    Focused,
+    //    Composing,
+    //};
 
     Engine *m_engine = nullptr;
     utf8_size_t m_caret = 0;
-    BufferElementList m_precomp;  // Converted elements before the composition
+    BufferElementList m_precomp;     // Converted elements before the composition
     BufferElementList m_composition; // Elements in the composition
-    BufferElementList m_postcomp; // Converted elements after the composition
+    BufferElementList m_postcomp;    // Converted elements after the composition
     std::vector<BufferElementList> m_candidates;
     size_t m_focused_candidate = 0;
-    bool m_converted = false;
+    // bool m_converted = false;
     int m_focused_element = 0;
     EditState m_edit_state = EditState::EDIT_EMPTY;
-    FocusedElementState m_focused_element_state = FocusedElementState::Composing;
+    // FocusedElementState m_focused_element_state = FocusedElementState::Composing;
     InputMode m_input_mode = InputMode::Continuous;
 };
 

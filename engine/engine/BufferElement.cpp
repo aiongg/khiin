@@ -134,7 +134,7 @@ TaiToken *BufferElement::candidate() const {
 
 void BufferElement::Erase(SyllableParser *parser, utf8_size_t index) {
     if (auto elem = std::get_if<Plaintext>(&m_element)) {
-        elem->erase(index, 1);
+        unicode::safe_erase(*elem, index, 1);
     } else if (auto elem = std::get_if<TaiText>(&m_element)) {
         elem->Erase(parser, index);
     } else if (auto elem = std::get_if<VirtualSpace>(&m_element)) {

@@ -400,7 +400,7 @@ TEST_F(BufferMgrTest, Convert_sioutoubai) {
     EXPECT_EQ(preedit->segments().size(), 3);
 }
 
-TEST_F(BufferMgrTest, Convert_erase) {
+TEST_F(BufferMgrTest, Convert_erase_ho2) {
     insert_string("ho2");
     bufmgr->SelectNextCandidate();
     erase_left(1);
@@ -416,7 +416,19 @@ TEST_F(BufferMgrTest, Convert_ho_twice) {
     EXPECT_GT(candlist->candidates_size(), 2);
 }
 
-TEST_F(BufferMgrTest, Convert_erase_middle) {
+TEST_F(BufferMgrTest, Convert_erase_kamanne) {
+    insert_string("kamanne");
+    bufmgr->SelectNextCandidate();
+    EXPECT_EQ(display(), u8"咁按呢");
+    erase_left(1);
+    EXPECT_EQ(display(), u8"咁按");
+    erase_left(1);
+    EXPECT_EQ(display(), u8"咁");
+    erase_left(1);
+    EXPECT_EQ(display(), u8"");
+}
+
+TEST_F(BufferMgrTest, Convert_erase_insert) {
     insert_string("siannebo");
     bufmgr->SelectNextCandidate();
     curs_left(1);
@@ -441,6 +453,26 @@ TEST_F(BufferMgrTest, Convert_insert_middle) {
     insert_string("o");
     EXPECT_EQ(display(), u8"按 ho 呢");
     bufmgr->SelectNextCandidate();
+}
+
+TEST_F(BufferMgrTest, Convert_insert_erase) {
+    insert_string("anne");
+    bufmgr->SelectNextCandidate();
+    curs_left(1);
+    insert_string("ho");
+    erase_left(2);
+    auto preedit = get_preedit();
+    EXPECT_EQ(preedit->segments_size(), 1);
+    EXPECT_EQ(display(), u8"按呢");
+}
+
+TEST_F(BufferMgrTest, Focus_element) {
+    insert_string("kamanne");
+    bufmgr->SelectNextCandidate();
+    curs_right(1);
+    auto preedit = get_preedit();
+    EXPECT_EQ(preedit->segments_size(), 2);
+    EXPECT_EQ(preedit->segments().at(1).status(), SegmentStatus::FOCUSED);
 }
 
 } // namespace

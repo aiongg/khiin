@@ -44,5 +44,17 @@ inline bool contains_hanji(std::string_view str) {
     return false;
 }
 
+inline void safe_erase(std::string& str, utf8_size_t index, size_t count = 1) {
+    auto size = utf8_size(str);
+    if (index >= size) {
+        return;
+    }
+    auto from = str.begin();
+    utf8::unchecked::advance(from, index);
+    auto to = from;
+    utf8::unchecked::advance(to, count);
+    str.erase(from, to);
+}
+
 } // namespace unicode
 } // namespace khiin::engine
