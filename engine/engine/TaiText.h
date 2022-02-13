@@ -9,24 +9,20 @@
 namespace khiin::engine {
 class SyllableParser;
 
-enum class Spacer {
-    None,
-    Hyphen,
-    Space,
-    Zwd,
-    VirtualSpace
+struct VirtualSpace {
+    bool erased = false;
 };
 
 // A series of Tai Text syllables and spacers that makes up a single
 // segment on the buffer (e.g., has a single candidate)
 class TaiText {
   public:
-    using Chunk = std::variant<Syllable, Spacer>;
+    using Chunk = std::variant<Syllable, VirtualSpace>;
     static TaiText FromRawSyllable(SyllableParser *parser, std::string const &syllable);
     static TaiText FromMatching(SyllableParser *parser, std::string const &input, TaiToken *match);
 
     void AddItem(Syllable syllable);
-    void AddItem(Spacer spacer);
+    void AddItem(VirtualSpace spacer);
     void SetCandidate(TaiToken *candidate);
 
     utf8_size_t size() const;
@@ -35,7 +31,6 @@ class TaiText {
     std::string converted() const;
     TaiToken *candidate() const;
 
-    void RawIndexed(utf8_size_t caret, std::string &raw, size_t &raw_caret) const;
     utf8_size_t RawToComposedCaret(SyllableParser *parser, size_t raw_caret) const;
     size_t ComposedToRawCaret(SyllableParser *parser, utf8_size_t caret) const;
     size_t ConvertedToRawCaret(SyllableParser *parser, utf8_size_t caret) const;

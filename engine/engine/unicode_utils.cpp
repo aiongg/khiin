@@ -8,7 +8,6 @@ namespace khiin::engine::unicode {
 
 namespace {
 
-constexpr char32_t kHanjiCutoff = 0x2e80;
 
 GlyphCategory glyph_category_of_codepoint(char32_t cp) {
     if (cp <= 0xFF && isalnum(cp)) {

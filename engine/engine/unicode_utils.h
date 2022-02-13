@@ -8,11 +8,13 @@ using utf8_size_t = size_t; // number of UTF codepoints, 1-4 bytes
 
 namespace unicode {
 
+inline constexpr char32_t kHanjiCutoff = 0x2e80;
+
 enum class GlyphCategory {
-        Other,
-        Alnum,
-        Khin,
-        Hanji,
+    Other,
+    Alnum,
+    Khin,
+    Hanji,
 };
 
 template <typename T>
@@ -29,6 +31,18 @@ GlyphCategory start_glyph_type(std::string_view str);
 GlyphCategory end_glyph_type(std::string_view str);
 
 size_t letter_count(std::string input);
+
+inline bool contains_hanji(std::string_view str) {
+    auto it = str.cbegin();
+    auto end = str.cend();
+    while (it != end) {
+        auto cp = utf8::unchecked::next(it);
+        if (cp >= kHanjiCutoff) {
+            return true;
+        }
+    }
+    return false;
+}
 
 } // namespace unicode
 } // namespace khiin::engine

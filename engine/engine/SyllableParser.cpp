@@ -494,7 +494,7 @@ class SyllableParserImpl : public SyllableParser {
                 return ret;
             }
 
-            ret.AddItem(Spacer::VirtualSpace);
+            ret.AddItem(VirtualSpace());
             t_start = sep + 1;
             sep = std::find_if(t_start, t_end, IsSyllableSeparator);
         }

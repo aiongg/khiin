@@ -10,90 +10,111 @@
 #include "unicode_utils.h"
 
 namespace khiin::engine {
-
-using namespace messages;
-
 namespace {
+using namespace messages;
+using namespace unicode;
 
-struct RawCaretInfo {
-    size_t raw_caret_prefix;
-    utf8_size_t remainder;
-    BufferElementList::iterator element;
-};
+// Returns size of composed or converted buffer in unicode codepoints
+utf8_size_t BufferSize(BufferElementList::iterator const &from, BufferElementList::iterator const &to) {
+    auto it = from;
+    utf8_size_t size = 0;
 
-struct CaretInfo {
-    utf8_size_t caret_prefix;
-    size_t remainder;
-    BufferElementList::iterator element;
-};
+    for (; it != to; ++it) {
+        size += it->size();
+    }
 
-RawCaretInfo IterToCaret(utf8_size_t caret, BufferElementList &elements) {
-    size_t raw_caret = 0;
+    return size;
+}
+
+// Returns size of the raw buffer in unicode codepoints
+utf8_size_t RawBufferSize(BufferElementList::iterator const &from, BufferElementList::iterator const &to) {
+    auto it = from;
+    utf8_size_t size = 0;
+
+    for (; it != to; ++it) {
+        size += it->raw_size();
+    }
+
+    return size;
+}
+
+// Returns iterator pointing to the element at visile caret position
+BufferElementList::iterator ElementAtCaret(utf8_size_t caret, BufferElementList &elements) {
     auto rem = caret;
-
     auto it = elements.begin();
     for (; it != elements.end(); ++it) {
         if (auto size = it->size(); rem > size) {
             rem -= size;
-            raw_caret += it->raw_size();
         } else {
             break;
         }
     }
-
-    return RawCaretInfo{raw_caret, rem, it};
+    return it;
 }
 
-CaretInfo IterToRawCaret(size_t raw_caret, BufferElementList &elements) {
-    utf8_size_t caret = 0;
+// Returns iterator pointing to the element at raw caret position
+BufferElementList::iterator ElementAtRawCaret(utf8_size_t raw_caret, BufferElementList &elements) {
     auto rem = raw_caret;
-
     auto it = elements.begin();
     for (; it != elements.end(); ++it) {
         if (auto size = it->raw_size(); rem > size) {
             rem -= size;
-            caret += it->size();
         } else {
             break;
         }
     }
-
-    return CaretInfo{caret, rem, it};
+    return it;
 }
 
-std::string GetRawBufferText(BufferElementList::iterator begin, BufferElementList::iterator end) {
+// Returns the raw text between |from| and |to|
+std::string GetRawBufferText(BufferElementList::iterator const &from, BufferElementList::iterator const &to) {
+    auto it = from;
     auto ret = std::string();
-    for (; begin != end; ++begin) {
-        ret.append(begin->raw());
+    for (; it != to; ++it) {
+        ret.append(it->raw());
     }
     return ret;
 }
 
-void AdjustVirtualSpacing(BufferElementList &elements) {
-    using namespace unicode;
+// Removes all virtual space elements
+void RemoveVirtualSpaces(BufferElementList &elements) {
+    auto it = std::remove_if(elements.begin(), elements.end(), [](BufferElement const &el) {
+        return el.IsVirtualSpace();
+    });
+    elements.erase(it, elements.end());
+}
 
+// Returns true if two words |lhs| and |rhs| need a space between them
+// in the standard orthography. In particular, spaces are required between:
+// Lomaji and Lomaji, Lomaji and Hanji, and before a khin dot.
+bool NeedsVirtualSpace(std::string const &lhs, std::string const &rhs) {
+    auto left = end_glyph_type(lhs);
+    auto right = start_glyph_type(rhs);
+
+    if (left == GlyphCategory::Alnum && right == GlyphCategory::Alnum ||
+        left == GlyphCategory::Alnum && right == GlyphCategory::Khin ||
+        left == GlyphCategory::Alnum && right == GlyphCategory::Hanji ||
+        left == GlyphCategory::Hanji && right == GlyphCategory::Alnum) {
+        return true;
+    }
+    return false;
+}
+
+// Adds virtual spacer elements where required
+void AdjustVirtualSpacing(BufferElementList &elements) {
     if (elements.empty()) {
         return;
     }
 
-    elements.erase(std::remove_if(elements.begin(), elements.end(),
-                                  [](BufferElement const &el) {
-                                      return el.IsVirtualSpace();
-                                  }),
-                   elements.end());
+    RemoveVirtualSpaces(elements);
 
     for (auto i = elements.size() - 1; i != 0; --i) {
         std::string lhs =
             elements.at(i - 1).is_converted ? elements.at(i - 1).converted() : elements.at(i - 1).composed();
         std::string rhs = elements.at(i).is_converted ? elements.at(i).converted() : elements.at(i).composed();
-        auto end_cat = end_glyph_type(lhs);
-        auto start_cat = start_glyph_type(rhs);
 
-        if (end_cat == GlyphCategory::Alnum && start_cat == GlyphCategory::Alnum ||
-            end_cat == GlyphCategory::Alnum && start_cat == GlyphCategory::Khin ||
-            end_cat == GlyphCategory::Alnum && start_cat == GlyphCategory::Hanji ||
-            end_cat == GlyphCategory::Hanji && start_cat == GlyphCategory::Alnum) {
-            elements.insert(elements.begin() + i, BufferElement(Spacer::VirtualSpace));
+        if (NeedsVirtualSpace(lhs, rhs)) {
+            elements.insert(elements.begin() + i, BufferElement(VirtualSpace()));
         }
     }
 }
@@ -119,19 +140,120 @@ bool ContainsCandidate(BufferElementList const &a, BufferElementList const &b) {
     return true;
 }
 
+// Input |caret| is the visible displayed caret, in unicode code points. Returns
+// the corresponding raw caret.
+size_t GetRawCaret(utf8_size_t caret, BufferElementList &elements, SyllableParser *parser) {
+    if (elements.empty()) {
+        return 0;
+    }
+
+    auto begin = elements.begin();
+    auto it = ElementAtCaret(caret, elements);
+    auto remainder = caret - BufferSize(begin, it);
+    auto raw_remainder = it->ComposedToRawCaret(parser, remainder);
+    return RawBufferSize(begin, it) + raw_remainder;
+}
+
+// Input |raw_caret| is the raw caret position, in unicode code points. Returns
+// the corresponding display caret position.
+utf8_size_t SyncCaretFromRaw(size_t raw_caret, BufferElementList &elements, SyllableParser *parser) {
+    if (elements.empty()) {
+        return 0;
+    }
+    auto begin = elements.begin();
+    auto it = ElementAtRawCaret(raw_caret, elements);
+    auto raw_remainder = raw_caret - RawBufferSize(begin, it);
+    auto remainder = it->RawToComposedCaret(parser, raw_remainder);
+    return BufferSize(begin, it) + remainder;
+}
+
+// Returns true if there are any non-converted elements in the compostion
+bool HasComposingSection(BufferElementList const &elements) {
+    for (auto &el : elements) {
+        if (!el.is_converted) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+// Moves converted sections before and after composition
+// into separate holders |lhs| and |rhs|. Buffer must be re-joined later.
+void IsolateCompositionBuffer(BufferElementList &composing, BufferElementList &lhs, BufferElementList &rhs) {
+    auto begin = composing.begin();
+    auto it = composing.begin();
+    auto end = composing.end();
+    while (it != end && it->is_converted) {
+        ++it;
+    }
+    if (it != composing.begin()) {
+        lhs.insert(lhs.begin(), begin, it);
+        it = composing.erase(composing.begin(), it);
+        end = composing.end();
+    }
+    while (it != end && !it->is_converted) {
+        ++it;
+    }
+    if (it != composing.end()) {
+        rhs.insert(rhs.begin(), it, composing.end());
+        composing.erase(it, composing.end());
+    }
+}
+
+// Only call this when the whole buffer is converted. Buffer will be split
+// at the caret if the caret element is Hanji, or keep the caret element
+// in place if it is Lomaji.
+void SplitConvertedBufferForComposition(utf8_size_t caret, BufferElementList &composing, BufferElementList &lhs,
+                                        BufferElementList &rhs) {
+    auto begin = composing.begin();
+    auto elem = ElementAtCaret(caret, composing);
+
+    if (begin != elem) {
+        lhs.insert(lhs.begin(), begin, elem);
+        begin = composing.erase(begin, elem);
+    }
+
+    auto end = composing.end();
+    if (begin != end && begin != end - 1) {
+        ++begin;
+        rhs.insert(rhs.begin(), begin, end);
+        composing.erase(begin, end);
+    }
+
+    // Only one element remaining: if Hanji we split it and
+    // start a new composition buffer, if Lomaji we keep it as-is
+    if (auto converted = composing.begin()->converted(); unicode::contains_hanji(converted)) {
+        auto remainder = caret - BufferSize(lhs.begin(), lhs.end());
+        auto it = converted.begin();
+        utf8::unchecked::advance(it, remainder);
+        if (it != converted.begin()) {
+            auto tmp = BufferElement(std::string(converted.begin(), it));
+            tmp.is_converted = true;
+            lhs.push_back(std::move(tmp));
+        }
+        if (it != converted.end()) {
+            auto tmp = BufferElement(std::string(it, converted.end()));
+            tmp.is_converted = true;
+            rhs.insert(rhs.begin(), std::move(tmp));
+        }
+        composing.clear();
+    }
+}
+
 class BufferMgrImpl : public BufferMgr {
   public:
     BufferMgrImpl(Engine *engine) : m_engine(engine) {}
 
     virtual void Clear() override {
-        m_elements.clear();
+        m_composition.clear();
         m_candidates.clear();
         m_caret = 0;
         m_edit_state = EditState::EDIT_EMPTY;
     }
 
     virtual bool IsEmpty() override {
-        return m_elements.empty();
+        return m_composition.empty();
     }
 
     virtual void Insert(char ch) override {
@@ -158,10 +280,10 @@ class BufferMgrImpl : public BufferMgr {
             MoveCaret(CursorDirection::L);
         }
 
-        auto info = IterToCaret(m_caret, m_elements);
+        auto element = ElementAtCaret(m_caret, m_composition);
 
-        if (info.element->is_converted) {
-            EraseConverted(info);
+        if (element->is_converted) {
+            EraseConverted(element);
         } else {
             EraseComposing(direction);
         }
@@ -169,8 +291,8 @@ class BufferMgrImpl : public BufferMgr {
 
     virtual void BuildPreedit(Preedit *preedit) override {
         {
-            auto it = m_elements.cbegin();
-            auto end = m_elements.cend();
+            auto it = m_composition.cbegin();
+            auto end = m_composition.cend();
             while (it != end) {
                 if ((it != end - 1 && it->IsVirtualSpace() && !it[1].is_converted) || (!it->is_converted)) {
                     auto composing_text = std::string();
@@ -185,7 +307,7 @@ class BufferMgrImpl : public BufferMgr {
                 } else if (it->is_converted) {
                     auto segment = preedit->add_segments();
                     segment->set_value(it->converted());
-                    if (std::distance(m_elements.cbegin(), it) == m_focused_element) {
+                    if (std::distance(m_composition.cbegin(), it) == m_focused_element) {
                         segment->set_status(SegmentStatus::FOCUSED);
                     } else {
                         segment->set_status(SegmentStatus::CONVERTED);
@@ -248,51 +370,61 @@ class BufferMgrImpl : public BufferMgr {
 
   private:
     void InsertContinuous(char ch) {
-        // Get raw buffer and cursor position
-        auto raw_buffer = GetRawBuffer();
-        auto raw_caret = GetRawCaret();
-        auto it = raw_buffer.begin();
+        SplitBufferForComposition();
+        auto raw_composition = GetRawBufferText(m_composition.begin(), m_composition.end());
+        auto raw_caret = GetRawCaret(m_caret, m_composition, m_engine->syllable_parser());
+        auto it = raw_composition.begin();
         utf8::unchecked::advance(it, raw_caret);
-        raw_buffer.insert(it, 1, ch);
+        raw_composition.insert(it, 1, ch);
         ++raw_caret;
-        UpdateBuffer(raw_buffer, raw_caret);
-        UpdateCandidates(raw_buffer);
+        UpdateBuffer(raw_composition, raw_caret);
+        UpdateCandidates(raw_composition);
     }
 
-    struct CompositionIters {
-        BufferElementList::iterator begin;
-        BufferElementList::iterator end;
-    };
+    void SplitBufferForComposition() {
+        if (m_composition.empty()) {
+            return;
+        }
 
-    CompositionIters GetCompositionIters() {
-        auto ret = CompositionIters();
-        auto it = m_elements.begin();
-        auto end = m_elements.end();
-        while (it != end && it->is_converted) {
-            ++it;
+        if (HasComposingSection(m_composition)) {
+            IsolateCompositionBuffer(m_composition, m_precomp, m_postcomp);
+        } else {
+            SplitConvertedBufferForComposition(m_caret, m_composition, m_precomp, m_postcomp);
         }
-        ret.begin = it;
-        while (it != end && !it->is_converted) {
-            ++it;
+
+        if (!m_precomp.empty()) {
+            m_caret -= BufferSize(m_precomp.begin(), m_precomp.end());
         }
-        ret.end = it;
-        return ret;
+    }
+
+    void JoinBufferAfterComposition() {
+        if (!m_precomp.empty()) {
+            m_composition.insert(m_composition.begin(), m_precomp.begin(), m_precomp.end());
+            m_caret += BufferSize(m_precomp.begin(), m_precomp.end());
+            m_precomp.clear();
+        }
+        if (!m_postcomp.empty()) {
+            m_composition.insert(m_composition.end(), m_postcomp.begin(), m_postcomp.end());
+            m_postcomp.clear();
+        }
     }
 
     void UpdateBuffer(std::string const &raw_buffer, size_t raw_caret) {
         std::vector<BufferElement> elements;
         Segmenter::SegmentText(m_engine, raw_buffer, elements);
         KhinHandler::AutokhinBuffer(m_engine->syllable_parser(), elements);
-        AdjustVirtualSpacing(elements);
-        m_elements = elements;
-        UpdateCaret(raw_caret);
+        m_composition = elements;
+        raw_caret += RawBufferSize(m_precomp.begin(), m_precomp.end());
+        JoinBufferAfterComposition();
+        AdjustVirtualSpacing(m_composition);
+        m_caret = SyncCaretFromRaw(raw_caret, m_composition, m_engine->syllable_parser());
     }
 
     void UpdateCandidates(std::string const &raw_buffer) {
         m_candidates.clear();
 
         if (m_input_mode == InputMode::Continuous && m_edit_state == EditState::EDIT_COMPOSING) {
-            m_candidates.push_back(ConvertWholeBuffer(m_elements));
+            m_candidates.push_back(ConvertWholeBuffer(m_composition));
         }
 
         auto candidates = CandidateFinder::GetCandidatesFromStart(m_engine, nullptr, raw_buffer);
@@ -307,12 +439,12 @@ class BufferMgrImpl : public BufferMgr {
     }
 
     std::string GetRawBuffer() {
-        return GetRawBufferText(m_elements.begin(), m_elements.end());
+        return GetRawBufferText(m_composition.begin(), m_composition.end());
     }
 
     std::string GetDisplayBuffer() {
         auto ret = std::string();
-        for (auto &elem : m_elements) {
+        for (auto &elem : m_composition) {
             if (elem.is_converted) {
                 ret.append(elem.converted());
             } else {
@@ -326,32 +458,12 @@ class BufferMgrImpl : public BufferMgr {
         return unicode::utf8_size(GetDisplayBuffer());
     }
 
-    size_t GetRawCaret() {
-        if (m_elements.empty()) {
-            return 0;
-        }
-
-        auto info = IterToCaret(m_caret, m_elements);
-        auto raw_caret_remainder = info.element->ComposedToRawCaret(m_engine->syllable_parser(), info.remainder);
-        return info.raw_caret_prefix + raw_caret_remainder;
-    }
-
-    void UpdateCaret(size_t raw_caret) {
-        if (m_elements.empty()) {
-            return;
-        }
-
-        auto info = IterToRawCaret(raw_caret, m_elements);
-        auto caret_remainder = info.element->RawToComposedCaret(m_engine->syllable_parser(), info.remainder);
-        m_caret = info.caret_prefix + caret_remainder;
-    }
-
     void SelectCandidate(size_t index) {
         if (index >= m_candidates.size()) {
             return;
         }
 
-        auto raw_caret = GetRawCaret();
+        auto raw_caret = GetRawCaret(m_caret, m_composition, m_engine->syllable_parser());
         auto &candidate = m_candidates.at(index);
         auto raw_buffer = GetRawBuffer();
         auto candidate_raw = std::string();
@@ -365,15 +477,14 @@ class BufferMgrImpl : public BufferMgr {
         KhinHandler::AutokhinBuffer(m_engine->syllable_parser(), elements);
         elements.insert(elements.begin(), candidate.begin(), candidate.end());
         AdjustVirtualSpacing(elements);
-        m_elements = elements;
-        UpdateCaret(raw_caret);
+        m_composition = elements;
+        m_caret = SyncCaretFromRaw(raw_caret, m_composition, m_engine->syllable_parser());
         m_focused_candidate = index;
     }
 
-    void EraseConverted(RawCaretInfo info) {
-        auto &element = *info.element;
-        auto text = element.converted();
-        auto start = info.remainder;
+    void EraseConverted(BufferElementList::iterator caret_element) {
+        auto text = caret_element->converted();
+        auto start = m_caret - BufferSize(m_composition.begin(), caret_element);
         auto end = Lomaji::MoveCaret(text, start, CursorDirection::R);
         auto from = text.begin();
         auto to = text.begin();
@@ -382,19 +493,18 @@ class BufferMgrImpl : public BufferMgr {
         text.erase(from, to);
 
         if (text.empty()) {
-            m_elements.erase(info.element);
+            m_composition.erase(caret_element);
         } else {
-            element = BufferElement(text);
-            element.is_converted = false;
+            caret_element->Replace(text);
         }
     }
 
     void EraseComposing(CursorDirection direction) {
-        auto raw_caret = GetRawCaret();
+        auto raw_caret = GetRawCaret(m_caret, m_composition, m_engine->syllable_parser());
         auto remainder = m_caret;
 
-        auto it = m_elements.begin();
-        for (; it != m_elements.end(); ++it) {
+        auto it = m_composition.begin();
+        for (; it != m_composition.end(); ++it) {
             if (auto size = it->size(); remainder >= size) {
                 remainder -= size;
             } else {
@@ -409,7 +519,7 @@ class BufferMgrImpl : public BufferMgr {
 
         it->Erase(m_engine->syllable_parser(), remainder);
         if (it->size() == 0) {
-            m_elements.erase(it);
+            m_composition.erase(it);
         }
 
         if (IsEmpty()) {
@@ -427,7 +537,9 @@ class BufferMgrImpl : public BufferMgr {
 
     Engine *m_engine = nullptr;
     utf8_size_t m_caret = 0;
-    BufferElementList m_elements; // DISPLAY BUFFER ONLY
+    BufferElementList m_precomp;  // Converted elements before the composition
+    BufferElementList m_composition; // Elements in the composition
+    BufferElementList m_postcomp; // Converted elements after the composition
     std::vector<BufferElementList> m_candidates;
     size_t m_focused_candidate = 0;
     bool m_converted = false;

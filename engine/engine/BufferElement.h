@@ -17,15 +17,16 @@ class BufferElement {
     BufferElement();
     BufferElement(TaiText const &elem);
     BufferElement(Plaintext const &elem);
-    BufferElement(Spacer elem);
+    BufferElement(VirtualSpace elem);
 
     void Replace(TaiText const &elem);
     void Replace(Plaintext const &elem);
-    void Replace(Spacer elem);
+    void Replace(VirtualSpace elem);
 
     utf8_size_t size() const;
-    std::string raw() const;
     utf8_size_t raw_size() const;
+
+    std::string raw() const;
     std::string composed() const;
     std::string converted() const;
     TaiToken *candidate() const;
@@ -42,7 +43,7 @@ class BufferElement {
     bool is_converted = false;
 
   private:
-    std::variant<std::monostate, Plaintext, TaiText, Spacer> m_element;
+    std::variant<std::monostate, Plaintext, TaiText, VirtualSpace> m_element;
 };
 
 using BufferElementList = std::vector<BufferElement>;

@@ -6,6 +6,7 @@
 
 namespace khiin::engine {
 namespace {
+using namespace messages;
 
 struct BufferMgrTest : ::testing::Test {
   protected:
@@ -59,6 +60,18 @@ struct BufferMgrTest : ::testing::Test {
         }
     }
 
+    Preedit *get_preedit() {
+        auto preedit = Preedit::default_instance().New();
+        bufmgr->BuildPreedit(preedit);
+        return preedit;
+    }
+
+    CandidateList* get_candidates() {
+        auto candlist = CandidateList::default_instance().New();
+        bufmgr->GetCandidates(candlist);
+        return candlist;
+    }
+
     BufferMgr *bufmgr = nullptr;
 };
 
@@ -68,104 +81,85 @@ TEST_F(BufferMgrTest, Loads) {
 
 TEST_F(BufferMgrTest, Insert_a) {
     bufmgr->Insert('a');
-    auto preedit = messages::Preedit::default_instance().New();
-    bufmgr->BuildPreedit(preedit);
+    auto preedit = get_preedit();
     EXPECT_EQ(preedit->segments().size(), 1);
     EXPECT_EQ(preedit->segments().at(0).value(), "a");
     EXPECT_EQ(preedit->cursor_position(), 1);
 }
 
 TEST_F(BufferMgrTest, Insert_pengan) {
-    auto preedit = messages::Preedit::default_instance().New();
-
     bufmgr->Insert('p');
-    preedit->Clear();
-    bufmgr->BuildPreedit(preedit);
+    auto preedit = get_preedit();
     EXPECT_EQ(preedit->segments().size(), 1);
     EXPECT_EQ(preedit->segments().at(0).value(), "p");
     EXPECT_EQ(preedit->cursor_position(), 1);
 
     bufmgr->Insert('e');
-    preedit->Clear();
-    bufmgr->BuildPreedit(preedit);
+    preedit = get_preedit();
     EXPECT_EQ(preedit->segments().size(), 1);
     EXPECT_EQ(preedit->segments().at(0).value(), "pe");
     EXPECT_EQ(preedit->cursor_position(), 2);
 
     bufmgr->Insert('n');
-    preedit->Clear();
-    bufmgr->BuildPreedit(preedit);
+    preedit = get_preedit();
     EXPECT_EQ(preedit->segments().size(), 1);
     EXPECT_EQ(preedit->segments().at(0).value(), "pen");
     EXPECT_EQ(preedit->cursor_position(), 3);
 
     bufmgr->Insert('g');
-    preedit->Clear();
-    bufmgr->BuildPreedit(preedit);
+    preedit = get_preedit();
     EXPECT_EQ(preedit->segments().size(), 1);
     EXPECT_EQ(preedit->segments().at(0).value(), "peng");
     EXPECT_EQ(preedit->cursor_position(), 4);
 
     bufmgr->Insert('a');
-    preedit->Clear();
-    bufmgr->BuildPreedit(preedit);
+    preedit = get_preedit();
     EXPECT_EQ(preedit->segments().size(), 1);
     EXPECT_EQ(preedit->segments().at(0).value(), "peng a");
     EXPECT_EQ(preedit->cursor_position(), 6);
 
     bufmgr->Insert('n');
-    preedit->Clear();
-    bufmgr->BuildPreedit(preedit);
+    preedit = get_preedit();
     EXPECT_EQ(preedit->segments().size(), 1);
     EXPECT_EQ(preedit->segments().at(0).value(), "peng an");
     EXPECT_EQ(preedit->cursor_position(), 7);
 }
 
 TEST_F(BufferMgrTest, Insert_a2bo5) {
-    auto preedit = messages::Preedit::default_instance().New();
-
     bufmgr->Insert('a');
-    preedit->Clear();
-    bufmgr->BuildPreedit(preedit);
+    auto preedit = get_preedit();
     EXPECT_EQ(preedit->segments().size(), 1);
     EXPECT_EQ(preedit->segments().at(0).value(), "a");
     EXPECT_EQ(preedit->cursor_position(), 1);
 
     bufmgr->Insert('2');
-    preedit->Clear();
-    bufmgr->BuildPreedit(preedit);
+    preedit = get_preedit();
     EXPECT_EQ(preedit->segments().size(), 1);
     EXPECT_EQ(preedit->segments().at(0).value(), u8"á");
     EXPECT_EQ(preedit->cursor_position(), 1);
 
     bufmgr->Insert('b');
-    preedit->Clear();
-    bufmgr->BuildPreedit(preedit);
+    preedit = get_preedit();
     EXPECT_EQ(preedit->segments().size(), 1);
     EXPECT_EQ(preedit->segments().at(0).value(), u8"á b");
     EXPECT_EQ(preedit->cursor_position(), 3);
 
     bufmgr->Insert('o');
-    preedit->Clear();
-    bufmgr->BuildPreedit(preedit);
+    preedit = get_preedit();
     EXPECT_EQ(preedit->segments().size(), 1);
     EXPECT_EQ(preedit->segments().at(0).value(), u8"á bo");
     EXPECT_EQ(preedit->cursor_position(), 4);
 
     bufmgr->Insert('5');
-    preedit->Clear();
-    bufmgr->BuildPreedit(preedit);
+    preedit = get_preedit();
     EXPECT_EQ(preedit->segments().size(), 1);
     EXPECT_EQ(preedit->segments().at(0).value(), u8"á bô");
     EXPECT_EQ(preedit->cursor_position(), 4);
 }
 
 TEST_F(BufferMgrTest, Candidates_pengan) {
-    auto clist = messages::CandidateList::default_instance().New();
-
     insert_string("pengan");
-    bufmgr->GetCandidates(clist);
-
+    auto clist = get_candidates();
     EXPECT_GT(clist->candidates().size(), 20);
     EXPECT_EQ(clist->candidates().at(0).value(), u8"平安");
 }
@@ -401,8 +395,7 @@ TEST_F(BufferMgrTest, Convert_gina) {
 TEST_F(BufferMgrTest, Convert_sioutoubai) {
     insert_string("si7outoubai");
     bufmgr->SelectNextCandidate();
-    auto preedit = messages::Preedit::default_instance().New();
-    bufmgr->BuildPreedit(preedit);
+    auto preedit = get_preedit();
     EXPECT_EQ(display(), u8"是 o\u0358-tó\u0358-bái");
     EXPECT_EQ(preedit->segments().size(), 3);
 }
@@ -419,8 +412,7 @@ TEST_F(BufferMgrTest, Convert_ho_twice) {
     insert_string("ho");
     bufmgr->SelectNextCandidate();
     bufmgr->SelectNextCandidate();
-    auto candlist = messages::CandidateList::default_instance().New();
-    bufmgr->GetCandidates(candlist);
+    auto candlist = get_candidates();
     EXPECT_GT(candlist->candidates_size(), 2);
 }
 
@@ -429,11 +421,26 @@ TEST_F(BufferMgrTest, Convert_erase_middle) {
     bufmgr->SelectNextCandidate();
     curs_left(1);
     erase_left(1);
-    EXPECT_EQ(display(), "是按無");
+    EXPECT_EQ(display(), u8"是按無");
     EXPECT_EQ(caret(), 2);
-    insert_string("ho");
-    EXPECT_EQ(display(), "是按 ho 無");
+    insert_string("h");
+    EXPECT_EQ(display(), u8"是按 h 無");
+    EXPECT_EQ(caret(), 4);
+    insert_string("o");
+    EXPECT_EQ(display(), u8"是按 ho 無");
     EXPECT_EQ(caret(), 5);
+}
+
+TEST_F(BufferMgrTest, Convert_insert_middle) {
+    insert_string("anne");
+    bufmgr->SelectNextCandidate();
+    curs_left(1);
+    insert_string("h");
+    auto preedit = get_preedit();
+    EXPECT_EQ(preedit->segments_size(), 3);
+    insert_string("o");
+    EXPECT_EQ(display(), u8"按 ho 呢");
+    bufmgr->SelectNextCandidate();
 }
 
 } // namespace
