@@ -15,7 +15,7 @@ bool IsNoncursorableCodepoint(uint32_t cp) {
 } // namespace
 
 utf8_size_t Lomaji::MoveCaret(std::string_view str, utf8_size_t start_pos, CursorDirection dir) {
-    auto str_size = unicode::utf8_size(str);
+    auto str_size = unicode::u8_size(str);
     if (start_pos > str_size) {
         return str_size;
     }
@@ -37,7 +37,7 @@ utf8_size_t Lomaji::MoveCaret(std::string_view str, utf8_size_t start_pos, Curso
             }
         }
     } else if (dir == CursorDirection::R) {
-        if (start_pos == unicode::utf8_size(str)) {
+        if (start_pos == unicode::u8_size(str)) {
             return start_pos;
         }
 

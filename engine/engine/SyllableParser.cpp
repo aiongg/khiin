@@ -354,7 +354,7 @@ utf8_size_t RawCaretToComposedCaret(KeyConfig *keyconfig, Syllable const &syllab
     auto ret = std::string::npos;
 
     if (raw_caret == input.size()) {
-        ret = unicode::utf8_size(syllable.composed);
+        ret = unicode::u8_size(syllable.composed);
     } else if (raw_caret < input.size()) {
         auto lhs = std::string(body.cbegin(), body.cbegin() + raw_caret);
         ApplyConversionRules(keyconfig, lhs);
@@ -366,7 +366,7 @@ utf8_size_t RawCaretToComposedCaret(KeyConfig *keyconfig, Syllable const &syllab
                 AddToneDiacritic(syllable.tone, lhs);
             }
         }
-        ret = unicode::utf8_size(unicode::to_nfc(lhs));
+        ret = unicode::u8_size(unicode::to_nfc(lhs));
     }
 
     return ret;
@@ -505,7 +505,7 @@ class SyllableParserImpl : public SyllableParser {
     }
 
     virtual void Erase(Syllable &syllable, utf8_size_t index) override {
-        auto size = unicode::utf8_size(syllable.composed);
+        auto size = unicode::u8_size(syllable.composed);
         if (index > size) {
             return;
         }

@@ -2,12 +2,10 @@
 
 #include <unilib/uninorms.h>
 #include <unilib/unistrip.h>
-#include <utf8cpp/utf8/cpp17.h>
 
-namespace khiin::engine::unicode {
+namespace khiin::unicode {
 
 namespace {
-
 
 GlyphCategory glyph_category_of_codepoint(char32_t cp) {
     if (cp <= 0xFF && isalnum(cp)) {
@@ -26,18 +24,6 @@ GlyphCategory glyph_category_of_codepoint(char32_t cp) {
 }
 
 } // namespace
-
-std::string to_nfd(std::string_view s) {
-    auto u32s = utf8::utf8to32(s);
-    ufal::unilib::uninorms::nfd(u32s);
-    return utf8::utf32to8(u32s);
-}
-
-std::string to_nfc(std::string_view s) {
-    auto u32s = utf8::utf8to32(s);
-    ufal::unilib::uninorms::nfc(u32s);
-    return utf8::utf32to8(u32s);
-}
 
 std::string strip_diacritics(std::string_view str, bool strip_letter_diacritics) {
     auto u32s = utf8::utf8to32(to_nfd(str));
@@ -87,20 +73,6 @@ GlyphCategory end_glyph_type(std::string_view str) {
     utf8::unchecked::advance(it, size - 1);
     auto cp = utf8::unchecked::peek_next(it);
     return glyph_category_of_codepoint(cp);
-}
-
-size_t letter_count(std::string input) {
-    auto nfd = to_nfd(input);
-    auto ascii = std::string();
-    auto it = nfd.begin();
-    while (it != nfd.end()) {
-        auto cp = utf8::unchecked::peek_next(it);
-        if (cp < 0xFF && isalpha(cp)) {
-            ascii.push_back(cp);
-        }
-        ++it;
-    }
-    return ascii.size();
 }
 
 } // namespace khiin::engine::unicode

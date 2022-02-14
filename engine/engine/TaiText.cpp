@@ -11,7 +11,7 @@ namespace {
 
 static auto size_of = overloaded //
     {[](Syllable const &elem) {
-         return unicode::utf8_size(elem.composed);
+         return unicode::u8_size(elem.composed);
      },
      [](VirtualSpace elem) {
          return size_t(1);
@@ -94,7 +94,7 @@ utf8_size_t TaiText::RawToComposedCaret(SyllableParser *parser, size_t raw_caret
             if (auto elem = std::get_if<Syllable>(&v_elem)) {
                 if (remainder > elem->raw_input.size()) {
                     remainder -= elem->raw_input.size();
-                    caret += unicode::utf8_size(elem->composed);
+                    caret += unicode::u8_size(elem->composed);
                 } else {
                     caret += parser->RawToComposedCaret(*elem, remainder);
                     remainder = 0;
@@ -120,7 +120,7 @@ size_t TaiText::ComposedToRawCaret(SyllableParser *parser, utf8_size_t caret) co
         }
 
         if (auto elem = std::get_if<Syllable>(&v_elem)) {
-            if (auto size = unicode::utf8_size(elem->composed); remainder > size) {
+            if (auto size = unicode::u8_size(elem->composed); remainder > size) {
                 remainder -= size;
                 raw_caret += elem->raw_input.size();
             } else {
@@ -147,7 +147,7 @@ size_t TaiText::ConvertedToRawCaret(SyllableParser *parser, utf8_size_t caret) c
         }
 
         if (auto elem = std::get_if<Syllable>(&v_elem)) {
-            if (auto size = unicode::utf8_size(elem->composed); remainder > size) {
+            if (auto size = unicode::u8_size(elem->composed); remainder > size) {
                 remainder -= size;
                 raw_caret += elem->raw_input.size();
             } else {

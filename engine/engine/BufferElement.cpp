@@ -5,6 +5,8 @@
 #include "common.h"
 
 namespace khiin::engine {
+using namespace unicode;
+
 namespace {} // namespace
 
 BufferElement::BufferElement() {}
@@ -13,8 +15,8 @@ BufferElement::BufferElement(TaiText const &elem) {
     m_element.emplace<TaiText>(elem);
 }
 
-BufferElement::BufferElement(Plaintext const &elem) {
-    m_element.emplace<Plaintext>(elem);
+BufferElement::BufferElement(std::string const &elem) {
+    m_element.emplace<std::string>(elem);
 }
 
 BufferElement::BufferElement(VirtualSpace elem) {
@@ -25,8 +27,8 @@ void BufferElement::Replace(TaiText const &elem) {
     m_element.emplace<TaiText>(elem);
 }
 
-void BufferElement::Replace(Plaintext const &elem) {
-    m_element.emplace<Plaintext>(elem);
+void BufferElement::Replace(std::string const &elem) {
+    m_element.emplace<std::string>(elem);
 }
 
 void BufferElement::Replace(VirtualSpace elem) {
@@ -34,11 +36,11 @@ void BufferElement::Replace(VirtualSpace elem) {
 }
 
 utf8_size_t BufferElement::size() const {
-    if (auto elem = std::get_if<Plaintext>(&m_element)) {
-        return unicode::utf8_size(*elem);
+    if (auto elem = std::get_if<std::string>(&m_element)) {
+        return u8_size(*elem);
     } else if (auto elem = std::get_if<TaiText>(&m_element)) {
         if (is_converted && elem->candidate()) {
-            return unicode::utf8_size(elem->candidate()->output);
+            return u8_size(elem->candidate()->output);
         } else {
             return elem->size();
         }
@@ -50,7 +52,7 @@ utf8_size_t BufferElement::size() const {
 }
 
 std::string BufferElement::raw() const {
-    if (auto elem = std::get_if<Plaintext>(&m_element)) {
+    if (auto elem = std::get_if<std::string>(&m_element)) {
         return *elem;
     } else if (auto elem = std::get_if<TaiText>(&m_element)) {
         return elem->raw();
@@ -60,7 +62,7 @@ std::string BufferElement::raw() const {
 }
 
 utf8_size_t BufferElement::raw_size() const {
-    return unicode::utf8_size(raw());
+    return unicode::u8_size(raw());
 }
 
 utf8_size_t BufferElement::RawToComposedCaret(SyllableParser *parser, size_t raw_caret) const {
@@ -68,11 +70,11 @@ utf8_size_t BufferElement::RawToComposedCaret(SyllableParser *parser, size_t raw
         return 0;
     }
 
-    if (auto elem = std::get_if<Plaintext>(&m_element)) {
+    if (auto elem = std::get_if<std::string>(&m_element)) {
         return raw_caret;
     } else if (auto elem = std::get_if<TaiText>(&m_element)) {
         if (is_converted && elem->candidate()) {
-            return unicode::utf8_size(elem->candidate()->output);
+            return u8_size(elem->candidate()->output);
         } else {
             return elem->RawToComposedCaret(parser, raw_caret);
         }
@@ -87,7 +89,7 @@ size_t BufferElement::ComposedToRawCaret(SyllableParser *parser, utf8_size_t car
         return 0;
     }
 
-    if (auto elem = std::get_if<Plaintext>(&m_element)) {
+    if (auto elem = std::get_if<std::string>(&m_element)) {
         return caret;
     } else if (auto elem = std::get_if<TaiText>(&m_element)) {
         if (is_converted) {
@@ -101,7 +103,7 @@ size_t BufferElement::ComposedToRawCaret(SyllableParser *parser, utf8_size_t car
 }
 
 std::string BufferElement::composed() const {
-    if (auto elem = std::get_if<Plaintext>(&m_element)) {
+    if (auto elem = std::get_if<std::string>(&m_element)) {
         return *elem;
     } else if (auto elem = std::get_if<TaiText>(&m_element)) {
         return elem->composed();
@@ -113,7 +115,7 @@ std::string BufferElement::composed() const {
 }
 
 std::string BufferElement::converted() const {
-    if (auto elem = std::get_if<Plaintext>(&m_element)) {
+    if (auto elem = std::get_if<std::string>(&m_element)) {
         return *elem;
     } else if (auto elem = std::get_if<TaiText>(&m_element)) {
         return elem->converted();
@@ -133,8 +135,8 @@ TaiToken *BufferElement::candidate() const {
 }
 
 void BufferElement::Erase(SyllableParser *parser, utf8_size_t index) {
-    if (auto elem = std::get_if<Plaintext>(&m_element)) {
-        unicode::safe_erase(*elem, index, 1);
+    if (auto elem = std::get_if<std::string>(&m_element)) {
+        safe_erase(*elem, index, 1);
     } else if (auto elem = std::get_if<TaiText>(&m_element)) {
         elem->Erase(parser, index);
     } else if (auto elem = std::get_if<VirtualSpace>(&m_element)) {

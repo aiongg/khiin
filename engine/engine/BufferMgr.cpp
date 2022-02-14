@@ -479,7 +479,7 @@ class BufferMgrImpl : public BufferMgr {
     }
 
     utf8_size_t GetDisplayBufferSize() {
-        return unicode::utf8_size(GetDisplayBuffer());
+        return u8_size(GetDisplayBuffer());
     }
 
     void SelectCandidate(size_t index) {

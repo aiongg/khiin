@@ -35,7 +35,7 @@ void AutokhinBufferImpl(SyllableParser *parser, std::vector<BufferElement> &buff
                 }
             } else {
                 raw.erase(raw.end() - 2, raw.end());
-                it->Replace(Plaintext(raw));
+                it->Replace(std::string(raw));
                 if (auto next = std::next(it); next == buffer.end()) {
                     auto elem = TaiText::FromRawSyllable(parser, "--");
                     buffer.insert(it, BufferElement(elem));
