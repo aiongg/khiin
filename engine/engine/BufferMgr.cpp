@@ -203,7 +203,7 @@ void IsolateCompositionBuffer(BufferElementList &composing, BufferElementList &l
 
 // Only call this when the whole buffer is converted. Buffer will be split
 // at the caret if the caret element is Hanji, or keep the caret element
-// in place if it is Lomaji.
+// in place if it is Lomaji. Buffer must be re-joined later.
 void SplitConvertedBufferForComposition(utf8_size_t caret, BufferElementList &composing, BufferElementList &lhs,
                                         BufferElementList &rhs) {
     auto begin = composing.begin();
@@ -211,14 +211,14 @@ void SplitConvertedBufferForComposition(utf8_size_t caret, BufferElementList &co
 
     if (begin != elem) {
         lhs.insert(lhs.begin(), begin, elem);
-        begin = composing.erase(begin, elem);
+        elem = composing.erase(begin, elem);
     }
 
     auto end = composing.end();
-    if (begin != end && begin != end - 1) {
-        ++begin;
-        rhs.insert(rhs.begin(), begin, end);
-        composing.erase(begin, end);
+    if (elem != end && elem != end - 1) {
+        ++elem;
+        rhs.insert(rhs.begin(), elem, end);
+        composing.erase(elem, end);
     }
 
     // Only one element remaining: if Hanji we split it and
