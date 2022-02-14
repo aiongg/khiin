@@ -44,7 +44,7 @@ struct BufferMgrTest : ::testing::Test {
     }
     void curs_right(int n) {
         for (auto i = 0; i < n; i++) {
-            bufmgr->MoveCaret(CursorDirection::L);
+            bufmgr->MoveCaret(CursorDirection::R);
         }
     }
 
@@ -453,6 +453,7 @@ TEST_F(BufferMgrTest, Convert_insert_middle) {
     insert_string("o");
     EXPECT_EQ(display(), u8"按 ho 呢");
     bufmgr->SelectNextCandidate();
+    EXPECT_EQ(display(), u8"按好呢");
 }
 
 TEST_F(BufferMgrTest, Convert_insert_erase) {
@@ -469,10 +470,23 @@ TEST_F(BufferMgrTest, Convert_insert_erase) {
 TEST_F(BufferMgrTest, Focus_element) {
     insert_string("kamanne");
     bufmgr->SelectNextCandidate();
-    curs_right(1);
+
     auto preedit = get_preedit();
     EXPECT_EQ(preedit->segments_size(), 2);
+    EXPECT_EQ(preedit->segments().at(0).status(), SegmentStatus::FOCUSED);
+    EXPECT_EQ(preedit->segments().at(1).status(), SegmentStatus::CONVERTED);
+
+    curs_right(1);
+    preedit = get_preedit();
+    EXPECT_EQ(preedit->segments_size(), 2);
+    EXPECT_EQ(preedit->segments().at(0).status(), SegmentStatus::CONVERTED);
     EXPECT_EQ(preedit->segments().at(1).status(), SegmentStatus::FOCUSED);
+
+    curs_left(1);
+    preedit = get_preedit();
+    EXPECT_EQ(preedit->segments_size(), 2);
+    EXPECT_EQ(preedit->segments().at(0).status(), SegmentStatus::FOCUSED);
+    EXPECT_EQ(preedit->segments().at(1).status(), SegmentStatus::CONVERTED);
 }
 
 } // namespace
