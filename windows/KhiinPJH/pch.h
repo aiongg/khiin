@@ -56,14 +56,6 @@ inline bool is_guid_of<ITfCandidateListUIElementBehavior>(guid const &id) noexce
     catch (winrt::hresult_error const &ex) { \
         CHECK_RETURN_HRESULT(ex.code());     \
     }                                        \
-    catch (std::exception const &ex) {       \
-        D("Exception: ", ex.what());         \
-        return E_FAIL;                       \
-    }                                        \
-    catch (...) {                            \
-        D("Unknown exception occurred.");    \
-        return E_FAIL;                       \
-    }                                        \
     return S_OK;
 
 // Windows 11 polyfill

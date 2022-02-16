@@ -113,9 +113,20 @@ STDMETHODIMP DllRegisterServer() {
     return S_OK;
 }
 
+LONG WINAPI TopLevelExceptionFilter(LPEXCEPTION_POINTERS e) {
+    // When the IME crashes during initialization for any reason,
+    // Windows continues to try loading the IME into every process
+    // that enters the foreground after the previous one crashed.
+    // Here we unregister the IME entirely to prevent that from happening.
+    // You must re-register after a crash.
+    DllUnregisterServer();
+    return EXCEPTION_EXECUTE_HANDLER;
+}
+
 BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserved) {
     switch (ul_reason_for_call) {
     case DLL_PROCESS_ATTACH:
+        ::SetUnhandledExceptionFilter(TopLevelExceptionFilter);
         ::DisableThreadLibraryCalls(hModule);
         return ModuleImpl::OnDllProcessAttach(hModule, lpReserved != nullptr);
     case DLL_PROCESS_DETACH:
