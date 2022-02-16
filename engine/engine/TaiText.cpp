@@ -35,6 +35,35 @@ static auto to_composed = overloaded //
 
 } // namespace
 
+bool TaiText::operator==(TaiText const &rhs) const {
+    if (m_elements.size() != rhs.m_elements.size()) {
+        return false;
+    }
+
+    for (auto i = 0; i < m_elements.size(); ++i) {
+        auto &l = m_elements[i];
+        auto &r = rhs.m_elements[i];
+
+        auto lvs = std::get_if<VirtualSpace>(&l);
+        auto rvs = std::get_if<VirtualSpace>(&r);
+
+        if (lvs && rvs) {
+            continue;
+        }
+
+        auto lsyl = std::get_if<Syllable>(&l);
+        auto rsyl = std::get_if<Syllable>(&r);
+
+        if (lsyl && rsyl && *lsyl == *rsyl) {
+            continue;
+        }
+
+        return false;
+    }
+
+    return true;
+}
+
 void TaiText::AddItem(Syllable syllable) {
     m_elements.push_back(Chunk{});
     m_elements.back().emplace<Syllable>(syllable);

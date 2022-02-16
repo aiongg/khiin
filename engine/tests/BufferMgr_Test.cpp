@@ -189,9 +189,9 @@ TEST_F(BufferMgrTest, Reset) {
     EXPECT_EQ(caret(), 0);
 }
 
-TEST_F(BufferMgrTest, Insert_peng5an) {
-    insert_string("peng5an");
-    EXPECT_EQ(display(), u8"pêng an");
+TEST_F(BufferMgrTest, Insert_tai7chi) {
+    insert_string("tai7chi");
+    EXPECT_EQ(display(), u8"tāi chi");
     EXPECT_EQ(caret(), 7);
 }
 
@@ -234,8 +234,8 @@ TEST_F(BufferMgrTest, Move_ah8) {
     EXPECT_EQ(caret(), 3);
 }
 
-TEST_F(BufferMgrTest, Move_hahnn8) {
-    insert_string("hahnn8");
+TEST_F(BufferMgrTest, Move_sou2i2) {
+    insert_string("sou2i2"); // só͘ í
     EXPECT_EQ(caret(), 5);
     bufmgr->MoveCaret(CursorDirection::L);
     EXPECT_EQ(caret(), 4);
@@ -260,7 +260,7 @@ TEST_F(BufferMgrTest, MoveType_siongho) {
     EXPECT_EQ(display(), "siong ho");
     curs_left(6);
     insert_string("h");
-    EXPECT_EQ(display(), "si hong ho");
+    EXPECT_EQ(display(), "si ho ng ho");
 }
 
 TEST_F(BufferMgrTest, Backspace_a) {
@@ -278,43 +278,43 @@ TEST_F(BufferMgrTest, Delete_a) {
     EXPECT_EQ(caret(), 0);
 }
 
-TEST_F(BufferMgrTest, Delete_pengan) {
-    insert_string("pengan");
-    EXPECT_EQ(display(), "peng an");
+TEST_F(BufferMgrTest, Delete_taichi) {
+    insert_string("taichi");
+    EXPECT_EQ(display(), "tai chi");
     EXPECT_EQ(caret(), 7);
     bufmgr->Erase(CursorDirection::L);
-    EXPECT_EQ(display(), "peng a");
+    EXPECT_EQ(display(), "tai ch");
     EXPECT_EQ(caret(), 6);
     bufmgr->Erase(CursorDirection::L);
-    EXPECT_EQ(display(), "peng");
+    EXPECT_EQ(display(), "tai c");
+    EXPECT_EQ(caret(), 5);
+    bufmgr->Erase(CursorDirection::L);
+    EXPECT_EQ(display(), "ta i");
     EXPECT_EQ(caret(), 4);
     bufmgr->Erase(CursorDirection::L);
-    EXPECT_EQ(display(), "pen");
-    EXPECT_EQ(caret(), 3);
-    bufmgr->Erase(CursorDirection::L);
-    EXPECT_EQ(display(), "pe");
+    EXPECT_EQ(display(), "ta");
     EXPECT_EQ(caret(), 2);
     bufmgr->Erase(CursorDirection::L);
-    EXPECT_EQ(display(), "p");
+    EXPECT_EQ(display(), "t");
     EXPECT_EQ(caret(), 1);
     bufmgr->Erase(CursorDirection::L);
     EXPECT_EQ(display(), "");
     EXPECT_EQ(caret(), 0);
 }
 
-TEST_F(BufferMgrTest, Delete_vspace_pengan) {
-    insert_string("pengan");
-    EXPECT_EQ(display(), "peng an");
+TEST_F(BufferMgrTest, Delete_taichi_vspace) {
+    insert_string("taichi");
+    EXPECT_EQ(display(), "tai chi");
     EXPECT_EQ(caret(), 7);
-    curs_left(2);
-    EXPECT_EQ(display(), "peng an");
-    EXPECT_EQ(caret(), 5);
-    erase_left(1);
-    EXPECT_EQ(display(), "peng an");
+    curs_left(3);
+    EXPECT_EQ(display(), "tai chi");
     EXPECT_EQ(caret(), 4);
+    erase_left(1);
+    EXPECT_EQ(display(), "tai chi");
+    EXPECT_EQ(caret(), 3);
     erase_right(1);
-    EXPECT_EQ(display(), "peng an");
-    EXPECT_EQ(caret(), 5);
+    EXPECT_EQ(display(), "tai chi");
+    EXPECT_EQ(caret(), 4);
 }
 
 TEST_F(BufferMgrTest, Delete_vspace_sibo) {
@@ -356,15 +356,6 @@ TEST_F(BufferMgrTest, Delete_kah8a) {
     EXPECT_EQ(caret(), 1);
 }
 
-TEST_F(BufferMgrTest, Delete_siokhoaa) {
-    insert_string("siokhoaa");
-    EXPECT_EQ(display(), "sio khoa a");
-    EXPECT_EQ(caret(), 10);
-    erase_left(1);
-    EXPECT_EQ(display(), "sio khoa");
-    EXPECT_EQ(caret(), 8);
-}
-
 TEST_F(BufferMgrTest, Insert_khin_a) {
     insert_string("--a");
     EXPECT_EQ(display(), u8"\u00b7a");
@@ -378,14 +369,14 @@ TEST_F(BufferMgrTest, Insert_khin_ho2_a) {
 }
 
 TEST_F(BufferMgrTest, Insert_autokhin) {
-    insert_string("a--babababa");
-    EXPECT_EQ(display(), u8"a ·ba ·ba ·ba ·ba");
+    insert_string("a--bobobobo");
+    EXPECT_EQ(display(), u8"a ·bo ·bo ·bo ·bo");
     EXPECT_EQ(caret(), 17);
 }
 
 TEST_F(BufferMgrTest, Insert_2khins) {
-    insert_string("ho2--a--boe");
-    EXPECT_EQ(display(), u8"hó \u00b7a \u00b7boe");
+    insert_string("ho2--si7--bo5");
+    EXPECT_EQ(display(), u8"hó ·sī ·bô");
     EXPECT_EQ(caret(), 10);
 }
 
@@ -400,8 +391,18 @@ TEST_F(BufferMgrTest, Insert_len) {
 }
 
 TEST_F(BufferMgrTest, Insert_poelen) {
-    insert_string("poelen");
-    EXPECT_EQ(display(), u8"poe len");
+    bufmgr->Insert('m');
+    EXPECT_EQ(display(), "m");
+    EXPECT_EQ(caret(), 1);
+    bufmgr->Insert('n');
+    EXPECT_EQ(display(), "mn");
+    EXPECT_EQ(caret(), 2);
+    bufmgr->Insert('g');
+    EXPECT_EQ(display(), "mng");
+    EXPECT_EQ(caret(), 3);
+    bufmgr->Insert('7');
+    EXPECT_EQ(display(), u8"mn\u0304g");
+    EXPECT_EQ(caret(), 4);
 }
 
 TEST_F(BufferMgrTest, Convert_gina) {
@@ -410,7 +411,7 @@ TEST_F(BufferMgrTest, Convert_gina) {
     EXPECT_EQ(display(), u8"囝仔");
 }
 
-TEST_F(BufferMgrTest, Convert_sioutoubai) {
+TEST_F(BufferMgrTest, DISABLED_Convert_sioutoubai) {
     insert_string("si7outoubai");
     bufmgr->SelectNextCandidate();
     auto preedit = get_preedit();
@@ -426,22 +427,32 @@ TEST_F(BufferMgrTest, Convert_erase_ho2) {
     EXPECT_EQ(caret(), 0);
 }
 
-TEST_F(BufferMgrTest, Convert_ho_twice) {
-    insert_string("ho");
-    bufmgr->SelectNextCandidate();
-    bufmgr->SelectNextCandidate();
-    auto candlist = get_candidates();
-    EXPECT_GT(candlist->candidates_size(), 2);
+TEST_F(BufferMgrTest, Convert_e) {
+    insert_string("e");
+    auto cands = get_cand_strings();
+    EXPECT_EQ(cands.size(), 8);
+    EXPECT_THAT(cands, Contains(u8"个"));
+    EXPECT_THAT(cands, Contains(u8"兮"));
+    EXPECT_THAT(cands, Contains(u8"鞋"));
+    EXPECT_THAT(cands, Contains(u8"ê"));
+    EXPECT_THAT(cands, Contains(u8"能"));
+    EXPECT_THAT(cands, Contains(u8"會"));
+    EXPECT_THAT(cands, Contains(u8"下"));
+    EXPECT_THAT(cands, Contains(u8"ē"));
+}
+
+bool OrEqual(std::string test, std::string v1, std::string v2) {
+    return test == v1 || test == v2;
 }
 
 TEST_F(BufferMgrTest, Convert_erase_kamanne) {
     insert_string("kamanne");
     bufmgr->SelectNextCandidate();
-    EXPECT_EQ(display(), u8"咁按呢");
+    ASSERT_PRED3(OrEqual, display(), "咁按呢", "敢按呢");
     erase_left(1);
-    EXPECT_EQ(display(), u8"咁按");
+    ASSERT_PRED3(OrEqual, display(), "咁按", "敢按");
     erase_left(1);
-    EXPECT_EQ(display(), u8"咁");
+    ASSERT_PRED3(OrEqual, display(), "咁", "敢");
     erase_left(1);
     EXPECT_EQ(display(), u8"");
 }

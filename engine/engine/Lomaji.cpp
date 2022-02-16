@@ -9,7 +9,7 @@ namespace khiin::engine {
 namespace {
 
 bool IsNoncursorableCodepoint(uint32_t cp) {
-    return 0x0300 < cp && cp < 0x0358;
+    return 0x0300 <= cp && cp <= 0x0358;
 }
 
 } // namespace

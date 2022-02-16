@@ -16,6 +16,7 @@ constexpr const char *conv_input_id = "input_id";
 constexpr const char *conv_output = "output";
 constexpr const char *conv_annotation = "annotation";
 constexpr const char *conv_category = "category";
+constexpr const char *conv_weight = "weight";
 
 namespace {
 
@@ -149,7 +150,8 @@ const inline std::string SELECT_ConversionsByInputId_One = R"(
             f.input,
             c.output,
             c.category,
-            c.annotation
+            c.annotation,
+            c.weight
         FROM conversions AS c
         INNER JOIN frequency AS f
         ON c.input_id = f.id
@@ -232,80 +234,41 @@ const inline std::string SELECT_ConversionsByInputId_One = R"(
 const std::string CREATE_DummyDatabase() {
     return std::string(R"(BEGIN TRANSACTION;
     DROP TABLE IF EXISTS "version";
-    CREATE TABLE IF NOT EXISTS "version" (
-	    "key"	TEXT,
-	    "value"	INTEGER
-    );
-    DROP TABLE IF EXISTS "syllables_by_freq";
-    CREATE TABLE IF NOT EXISTS "syllables_by_freq" (
-	    "id"	INTEGER,
-	    "syl"	TEXT UNIQUE,
-	    PRIMARY KEY("id")
-    );
+    DROP TABLE IF EXISTS "syllables";
     DROP TABLE IF EXISTS "unigram_freq";
-    CREATE TABLE IF NOT EXISTS "unigram_freq" (
-	    "id"	INTEGER,
-	    "gram"	TEXT NOT NULL UNIQUE,
-	    "n"	INTEGER NOT NULL,
-	    PRIMARY KEY("id")
-    );
     DROP TABLE IF EXISTS "bigram_freq";
-    CREATE TABLE IF NOT EXISTS "bigram_freq" (
-	    "id"	INTEGER,
-	    "lgram"	TEXT,
-	    "rgram"	TEXT,
-	    "n"	INTEGER NOT NULL,
-	    PRIMARY KEY("id"),
-	    UNIQUE("lgram","rgram")
+    DROP TABLE IF EXISTS "conversions";
+    DROP TABLE IF EXISTS "frequency";
+    CREATE TABLE IF NOT EXISTS "version" ("key" TEXT, "value" INTEGER);
+    CREATE TABLE "syllables" ("id" INTEGER PRIMARY KEY, "input" TEXT NOT NULL, UNIQUE("input"));
+    CREATE TABLE IF NOT EXISTS "unigram_freq" ("id" INTEGER, "gram" TEXT NOT NULL UNIQUE, "n" INTEGER NOT NULL, PRIMARY KEY("id"));
+    CREATE TABLE IF NOT EXISTS "bigram_freq" ("id" INTEGER, "lgram" TEXT, "rgram" TEXT, "n" INTEGER NOT NULL, PRIMARY KEY("id"), UNIQUE("lgram","rgram"));
+    CREATE TABLE "frequency" ("id" INTEGER PRIMARY KEY, "input" TEXT NOT NULL, "freq" INTEGER, "chhan_id" INTEGER, UNIQUE("input"));
+    CREATE TABLE "conversions" (
+     "id"           INTEGER PRIMARY KEY,
+     "input_id"     INTEGER,
+     "output"       TEXT NOT NULL,
+     "weight"       INTEGER,
+     "category"     INTEGER,
+     "annotation"   TEXT,
+     UNIQUE("input_id","output"),
+        FOREIGN KEY("input_id") REFERENCES "frequency"("id")
     );
-    DROP TABLE IF EXISTS "dictionary";
-    CREATE TABLE IF NOT EXISTS "dictionary" (
-	    "id"	INTEGER,
-	    "chhan_id"	INTEGER,
-	    "input"	TEXT NOT NULL,
-	    "output"	TEXT NOT NULL,
-	    "weight"	INTEGER,
-	    "input_length"	INTEGER,
-	    "category"	INTEGER,
-	    "annotation"	TEXT,
-	    PRIMARY KEY("id"),
-	    UNIQUE("input","output")
-    );
-    INSERT INTO "version" VALUES ('id',1),
-     ('created_at',1639838788),
-     ('last_updated',1639839434);
-    INSERT INTO "syllables_by_freq" VALUES
-     (1,'e'), (2,'a'), (3,'si'), (4,'bo'), (5,'lang'),
-     (6,'chit'), (7,'chiah'), (8,'m'), (9,'i'), (10,'khi'),
-     (11,'kong'), (12,'u'), (13,'lai'), (14,'ti'), (15,'be'),
-     (16,'ke'), (17,'kau'), (18,'tioh'),  (19,'ka'), (20,'kiann'),
-     (21,'li'), (22,'thau'), (23,'cho'), (24,'ki'), (25,'hou'),
-     (26,'chai'), (27,'ho'), (28,'te'), (29,'goa'), (30,'to'),
-     (31,'toa'), (32,'cheng'), (33,'su'), (34,'na'), (35,'sai'),
-     (36,'chiu'), (37,'tai'), (38,'hoe'), (39,'che'), (40,'koe'),
-     (41,'beh'), (42,'kha'), (43,'khoann'), (44,'seng'), (45,'boe'),
-     (46,'sin'), (47,'chin'), (48,'chu'), (49,'kou'), (50,'chhiu'),
-     (51,'au'), (52,'chinn'), (53,'lou'), (54,'chhui'), (55,'se'),
-     (56,'chi'), (57,'bou'), (58,'ni'), (59,'ma'), (60,'lau'),
-     (61,'sann'), (62,'teng'), (63,'kui'), (64,'bin'), (65,'tng'),
-     (66,'ku'), (67,'tang'), (68,'hong'), (69,'eng'), (70,'ia'),
-     (71,'pou'), (72,'kang'), (73,'sim'), (74,'keng'), (75,'chui'),
-     (76,'sio'), (77,'jit'), (78,'oan'), (79,'siong'), (80,'tit'),
-     (81,'hi'), (82,'ai'), (83,'koh'), (84,'khah'), (85,'in'),
-     (86,'ui'), (87,'chhau'), (88,'leng'), (89,'koan'), (90,'tau'),
-     (91,'tou'), (92,'thang'), (93,'chun'), (94,'long'), (95,'chhut'),
-     (96,'put'), (97,'koann'), (98,'hu'), (99,'bi'), (100,'peh');
-    INSERT INTO "dictionary" VALUES
-     (1,85,'a','阿',1000,1,NULL,NULL),
-     (2,631,'a','唖',1000,1,NULL,NULL);
+    INSERT INTO "version" VALUES ('id',1), ('created_at',1639838788), ('last_updated',1639839434);
+    INSERT INTO "syllables" VALUES (1,'e'), (2,'a'), (3,'si'), (4,'bo'), (5,'lang'), (6,'chit'), (7,'chiah'), (8,'m'), (9,'i'), (10,'khi');
+    INSERT INTO "frequency" VALUES (1, "ê", 100, 1), (2, "bô", 50, 2), (3, "tio̍h", 20, 3);
+    INSERT INTO "conversions" VALUES
+     (1,1,'个',1000,1,NULL), (2,1,'兮',900,1,NULL), (3,1,'ê',800,1,NULL),
+     (4,2,'無',1000,1,NULL), (5,2,'bô',900,1,NULL),
+     (6,3,'着',1000,1,NULL), (7,3,'tio̍h',900,1,NULL);
     DROP INDEX IF EXISTS "unigram_freq_gram_idx";
     CREATE INDEX IF NOT EXISTS "unigram_freq_gram_idx" ON "unigram_freq" (
-	    "gram"
+     "gram"
     );
     DROP INDEX IF EXISTS "bigram_freq_gram_index";
     CREATE INDEX IF NOT EXISTS "bigram_freq_gram_index" ON "bigram_freq" (
-	    "lgram",
-	    "rgram"
+     "lgram",
+     "rgram"
     );
     COMMIT;
     )");

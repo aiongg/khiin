@@ -14,6 +14,7 @@ enum class KhinKeyPosition {
 };
 
 struct Syllable {
+    bool operator==(Syllable const &rhs) const;
     std::string raw_input;
     std::string raw_body;
     Tone tone = Tone::NaT;

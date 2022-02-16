@@ -1,6 +1,7 @@
 #include "SyllableParser.h"
 
 #include <algorithm>
+#include <iterator>
 
 #include "KeyConfig.h"
 #include "Lomaji.h"
@@ -39,6 +40,20 @@ std::vector<T> odometer_merge(std::vector<std::vector<T>> const &vector_set) {
     return ret;
 }
 
+std::string copy_str_tolower(std::string_view input) {
+    auto ret = std::string();
+    std::transform(input.cbegin(), input.cend(), std::back_inserter(ret), [](unsigned char c) {
+        return std::tolower(c);
+    });
+    return ret;
+}
+
+void str_tolower(std::string &str) {
+    std::transform(str.begin(), str.end(), str.begin(), [](unsigned char c) {
+        return std::tolower(c);
+    });
+}
+
 inline const char32_t kNasalLower = 0x207f;
 inline const char32_t kNasalUpper = 0x1d3a;
 inline const char32_t kDotAboveRight = 0x0358;
@@ -51,10 +66,9 @@ inline const char32_t kTone7 = 0x0304;
 inline const char32_t kTone8 = 0x030d;
 inline const char32_t kTone9 = 0x0306;
 
-inline const std::vector<std::string> kOrderedToneableCombinations = {"OA", "Oa", "oa", "OE", "Oe", "oe"};
-
-inline constexpr char kOrderedToneableLetters[] = {'O', 'o', 'A', 'a', 'E', 'e', 'U',
-                                                   'u', 'I', 'i', 'M', 'm', 'N', 'n'};
+inline constexpr char *kOrderedToneablesIndex2[] = {"oa", "oe"};
+inline constexpr char *kOrderedToneablesIndex1[] = {"o", "a", "e", "u", "i", "ng", "m"};
+inline constexpr char kToneableLetters[] = {'a', 'e', 'i', 'm', 'n', 'o', 'u'};
 
 inline constexpr char kSyllableSeparator[] = {' ', '-'};
 
@@ -64,12 +78,6 @@ const std::unordered_map<Tone, std::string> kToneToUnicodeMap = {
 
 const std::string kKhinDotStr = u8"\u00b7";
 const std::string kSpaceStr = u8" ";
-
-void ToLower(std::string &str) {
-    std::transform(str.begin(), str.end(), str.begin(), [](unsigned char c) {
-        return std::tolower(c);
-    });
-}
 
 inline bool IsSyllableSeparator(char ch) {
     return ch == '-' || ch == ' ';
@@ -82,8 +90,8 @@ inline bool EndsWithPtkh(std::string_view str) {
 
 bool HasToneable(std::string_view str) {
     for (auto &c1 : str) {
-        for (auto &c2 : kOrderedToneableLetters) {
-            if (c1 == c2) {
+        for (auto &c2 : kToneableLetters) {
+            if (tolower(c1) == c2) {
                 return true;
             }
         }
@@ -92,22 +100,22 @@ bool HasToneable(std::string_view str) {
     return false;
 }
 
-bool FindTonePosition(std::string_view str, size_t &position) {
-    for (auto &sequence : kOrderedToneableCombinations) {
+size_t FindTonePosition(std::string_view strv) {
+    auto str = copy_str_tolower(strv);
+
+    for (auto &sequence : kOrderedToneablesIndex2) {
         if (auto i = str.find(sequence); i != std::string::npos && str.size() > i + 2) {
-            position = i + 2;
-            return true;
+            return i + 2;
         }
     }
 
-    for (auto &letter : kOrderedToneableLetters) {
+    for (auto &letter : kOrderedToneablesIndex1) {
         if (auto i = str.find(letter); i != std::string::npos) {
-            position = i + 1;
-            return true;
+            return i + 1;
         }
     }
 
-    return false;
+    return std::string::npos;
 }
 
 void ParseRawKhin(KeyConfig *keyconfig, Syllable &syl) {
@@ -213,9 +221,8 @@ bool AddToneDiacritic(Tone tone, std::string &toneless) {
         return false;
     }
 
-    size_t tone_index = 0;
-    auto found = FindTonePosition(toneless, tone_index);
-    if (!found) {
+    size_t tone_index = FindTonePosition(toneless);
+    if (tone_index == std::string::npos) {
         return false;
     }
     toneless.insert(tone_index, kToneToUnicodeMap.at(tone));
@@ -299,9 +306,9 @@ Syllable AlignRawToComposed(KeyConfig *keyconfig, std::string::const_iterator &r
     }
 
     if (r_it != r_end && compare.tone != Tone::NaT) {
-        auto r_maybe_tone = keyconfig->CheckToneKey(*r_it);
-        if (r_maybe_tone != compare.tone && r_it + 1 != r_end) {
-            r_maybe_tone = keyconfig->CheckToneKey(r_it[1]);
+        auto r_maybe_tone = keyconfig->CheckToneKey(r_it[-1]);
+        if (r_maybe_tone != compare.tone) {
+            r_maybe_tone = keyconfig->CheckToneKey(r_it[0]);
             if (r_maybe_tone == compare.tone) {
                 ++r_it;
             }
@@ -321,7 +328,7 @@ void ComposedToRawWithAlternates(KeyConfig *keyconfig, const std::string &input,
     char telex_key = 0;
     auto found_tone = RemoveToneDiacriticSaveTone(keyconfig, syl, tone, digit_key, telex_key);
     ApplyDeconversionRules(keyconfig, syl);
-    ToLower(syl);
+    str_tolower(syl);
 
     if (!found_tone) {
         has_tone = false;
@@ -360,8 +367,7 @@ utf8_size_t RawCaretToComposedCaret(KeyConfig *keyconfig, Syllable const &syllab
         ApplyConversionRules(keyconfig, lhs);
 
         if (syllable.tone != Tone::NaT) {
-            size_t tone_pos = std::string::npos;
-            FindTonePosition(body, tone_pos);
+            size_t tone_pos = FindTonePosition(body);
             if (tone_pos <= lhs.size()) {
                 AddToneDiacritic(syllable.tone, lhs);
             }

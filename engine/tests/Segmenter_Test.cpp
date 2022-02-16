@@ -9,9 +9,9 @@ namespace {
 
 TEST(SegmenterTest, SegmentText) {
     auto result = std::vector<BufferElement>();
-    Segmenter::SegmentText(TestEnv::engine(), "pengan", result);
+    Segmenter::SegmentText(TestEnv::engine(), "taichi", result);
     EXPECT_EQ(result.size(), 1);
-    EXPECT_EQ(result[0].raw(), "pengan");
+    EXPECT_EQ(result[0].raw(), "taichi");
 }
 
 } // namespace

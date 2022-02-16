@@ -19,7 +19,7 @@ namespace khiin::engine {
 namespace {
 
 inline bool IsHigherFrequency(TaiToken *left, TaiToken *right) {
-    return left->id < right->id;
+    return left->input_id == right->input_id ? left->weight > right->weight : left->input_id < right->input_id;
 }
 
 inline void SortTokens(std::vector<TaiToken *> &tokens) {

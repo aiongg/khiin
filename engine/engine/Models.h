@@ -12,6 +12,7 @@ struct InputByFreq {
 struct TaiToken {
     int id;
     int chhan_id;
+    int input_id;
     std::string input;
     std::string output;
     int weight;

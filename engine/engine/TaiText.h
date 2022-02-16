@@ -21,6 +21,8 @@ class TaiText {
     static TaiText FromRawSyllable(SyllableParser *parser, std::string const &syllable);
     static TaiText FromMatching(SyllableParser *parser, std::string const &input, TaiToken *match);
 
+    bool operator==(TaiText const &rhs) const;
+
     void AddItem(Syllable syllable);
     void AddItem(VirtualSpace spacer);
     void SetCandidate(TaiToken *candidate);

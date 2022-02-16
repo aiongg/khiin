@@ -8,7 +8,7 @@ namespace khiin::unicode {
 namespace {
 
 GlyphCategory glyph_category_of_codepoint(char32_t cp) {
-    if (cp <= 0xFF && isalnum(cp)) {
+    if ((cp <= 0xFF && isalnum(cp)) || cp == 0x207f) {
         return GlyphCategory::Alnum;
     }
 

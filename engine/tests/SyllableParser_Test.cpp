@@ -106,6 +106,18 @@ TEST_F(SyllableParserTest, ParseRaw_ian9) {
     EXPECT_EQ(syl.composed, u8"iăn");
 }
 
+TEST_F(SyllableParserTest, ParseRaw_mng5) {
+    auto input = "mng5";
+    auto syl = Syllable();
+
+    parser->ParseRaw(input, syl);
+
+    EXPECT_EQ(syl.raw_body, "mng");
+    EXPECT_EQ(syl.tone, Tone::T5);
+    EXPECT_EQ(syl.tone_key, '5');
+    EXPECT_EQ(syl.composed, u8"mn\u0302g");
+}
+
 TEST_F(SyllableParserTest, ParseRaw_hur5) {
     auto input = "hur5";
     auto syl = Syllable();
@@ -345,6 +357,17 @@ TEST_F(SyllableParserTest, Khin_a0) {
     EXPECT_EQ(s.raw_input, "a0");
     EXPECT_EQ(s.khin_pos, KhinKeyPosition::End);
     EXPECT_EQ(s.khin_key, '0');
+}
+
+TEST_F(SyllableParserTest, AsTaiText_sou2i2) {
+    auto input = u8"sou2i2";
+    auto target = u8"só͘ í";
+    auto result = parser->AsTaiText(input, target);
+    auto tt = TaiText();
+    tt.AddItem(Syllable{"sou2", "sou", Tone::T2, KhinKeyPosition::None, '2', 0, "só͘"});
+    tt.AddItem(VirtualSpace());
+    tt.AddItem(Syllable{"i2", "i", Tone::T2, KhinKeyPosition::None, '2', 0, "í"});
+    EXPECT_EQ(result, tt);
 }
 
 } // namespace

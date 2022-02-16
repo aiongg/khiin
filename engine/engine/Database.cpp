@@ -26,10 +26,12 @@ void ConversionsByInputImpl(SQLite::Database &db, int input_id,
     while (q.executeStep()) {
         auto token = TaiToken();
         token.id = q.getColumn(SQL::conv_id).getInt();
+        token.input_id = input_id;
         token.input = q.getColumn(SQL::freq_input).getString();
         token.output = q.getColumn(SQL::conv_output).getString();
         token.annotation = q.getColumn(SQL::conv_annotation).getString();
         token.category = q.getColumn(SQL::conv_category).getInt();
+        token.weight = q.getColumn(SQL::conv_weight).getInt();
         conversions.push_back(std::move(token));
     }
 }

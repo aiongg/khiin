@@ -71,7 +71,7 @@ TEST(SplitterTest, CanSplitTest) {
     EXPECT_FALSE(splitter.CanSplit("-"));
 }
 
-TEST(SplitterTest, UsingActualEngine) {
+TEST(SplitterTest, DISABLED_UsingActualEngine) {
     auto splitter = TestEnv::engine()->dictionary()->word_splitter();
     std::vector<std::string> res;
 
