@@ -7,6 +7,7 @@
 namespace khiin::engine {
 namespace {
 using namespace messages;
+using ::testing::Contains;
 
 struct BufferMgrTest : ::testing::Test {
   protected:
@@ -66,10 +67,19 @@ struct BufferMgrTest : ::testing::Test {
         return preedit;
     }
 
-    CandidateList* get_candidates() {
+    CandidateList *get_candidates() {
         auto candlist = CandidateList::default_instance().New();
         bufmgr->GetCandidates(candlist);
         return candlist;
+    }
+
+    std::vector<std::string> get_cand_strings() {
+        auto cands = get_candidates()->candidates();
+        auto ret = std::vector<std::string>();
+        for (auto c : cands) {
+            ret.push_back(c.value());
+        }
+        return ret;
     }
 
     BufferMgr *bufmgr = nullptr;
@@ -87,81 +97,89 @@ TEST_F(BufferMgrTest, Insert_a) {
     EXPECT_EQ(preedit->cursor_position(), 1);
 }
 
-TEST_F(BufferMgrTest, Insert_pengan) {
-    bufmgr->Insert('p');
+TEST_F(BufferMgrTest, Insert_taichi) {
+    bufmgr->Insert('t');
     auto preedit = get_preedit();
     EXPECT_EQ(preedit->segments().size(), 1);
-    EXPECT_EQ(preedit->segments().at(0).value(), "p");
+    EXPECT_EQ(preedit->segments().at(0).value(), "t");
     EXPECT_EQ(preedit->cursor_position(), 1);
-
-    bufmgr->Insert('e');
-    preedit = get_preedit();
-    EXPECT_EQ(preedit->segments().size(), 1);
-    EXPECT_EQ(preedit->segments().at(0).value(), "pe");
-    EXPECT_EQ(preedit->cursor_position(), 2);
-
-    bufmgr->Insert('n');
-    preedit = get_preedit();
-    EXPECT_EQ(preedit->segments().size(), 1);
-    EXPECT_EQ(preedit->segments().at(0).value(), "pen");
-    EXPECT_EQ(preedit->cursor_position(), 3);
-
-    bufmgr->Insert('g');
-    preedit = get_preedit();
-    EXPECT_EQ(preedit->segments().size(), 1);
-    EXPECT_EQ(preedit->segments().at(0).value(), "peng");
-    EXPECT_EQ(preedit->cursor_position(), 4);
 
     bufmgr->Insert('a');
     preedit = get_preedit();
     EXPECT_EQ(preedit->segments().size(), 1);
-    EXPECT_EQ(preedit->segments().at(0).value(), "peng a");
-    EXPECT_EQ(preedit->cursor_position(), 6);
+    EXPECT_EQ(preedit->segments().at(0).value(), "ta");
+    EXPECT_EQ(preedit->cursor_position(), 2);
 
-    bufmgr->Insert('n');
+    bufmgr->Insert('i');
     preedit = get_preedit();
     EXPECT_EQ(preedit->segments().size(), 1);
-    EXPECT_EQ(preedit->segments().at(0).value(), "peng an");
+    EXPECT_EQ(preedit->segments().at(0).value(), "ta i");
+    EXPECT_EQ(preedit->cursor_position(), 4);
+
+    bufmgr->Insert('c');
+    preedit = get_preedit();
+    EXPECT_EQ(preedit->segments().size(), 1);
+    EXPECT_EQ(preedit->segments().at(0).value(), "tai c");
+    EXPECT_EQ(preedit->cursor_position(), 5);
+
+    bufmgr->Insert('h');
+    preedit = get_preedit();
+    EXPECT_EQ(preedit->segments().size(), 1);
+    EXPECT_EQ(preedit->segments().at(0).value(), "tai ch");
+    EXPECT_EQ(preedit->cursor_position(), 6);
+
+    bufmgr->Insert('i');
+    preedit = get_preedit();
+    EXPECT_EQ(preedit->segments().size(), 1);
+    EXPECT_EQ(preedit->segments().at(0).value(), "tai chi");
     EXPECT_EQ(preedit->cursor_position(), 7);
 }
 
-TEST_F(BufferMgrTest, Insert_a2bo5) {
-    bufmgr->Insert('a');
+TEST_F(BufferMgrTest, Insert_to7si7) {
+    bufmgr->Insert('t');
     auto preedit = get_preedit();
     EXPECT_EQ(preedit->segments().size(), 1);
-    EXPECT_EQ(preedit->segments().at(0).value(), "a");
+    EXPECT_EQ(preedit->segments().at(0).value(), "t");
     EXPECT_EQ(preedit->cursor_position(), 1);
-
-    bufmgr->Insert('2');
-    preedit = get_preedit();
-    EXPECT_EQ(preedit->segments().size(), 1);
-    EXPECT_EQ(preedit->segments().at(0).value(), u8"á");
-    EXPECT_EQ(preedit->cursor_position(), 1);
-
-    bufmgr->Insert('b');
-    preedit = get_preedit();
-    EXPECT_EQ(preedit->segments().size(), 1);
-    EXPECT_EQ(preedit->segments().at(0).value(), u8"á b");
-    EXPECT_EQ(preedit->cursor_position(), 3);
 
     bufmgr->Insert('o');
     preedit = get_preedit();
     EXPECT_EQ(preedit->segments().size(), 1);
-    EXPECT_EQ(preedit->segments().at(0).value(), u8"á bo");
-    EXPECT_EQ(preedit->cursor_position(), 4);
+    EXPECT_EQ(preedit->segments().at(0).value(), u8"to");
+    EXPECT_EQ(preedit->cursor_position(), 2);
 
-    bufmgr->Insert('5');
+    bufmgr->Insert('7');
     preedit = get_preedit();
     EXPECT_EQ(preedit->segments().size(), 1);
-    EXPECT_EQ(preedit->segments().at(0).value(), u8"á bô");
+    EXPECT_EQ(preedit->segments().at(0).value(), u8"tō");
+    EXPECT_EQ(preedit->cursor_position(), 2);
+
+    bufmgr->Insert('s');
+    preedit = get_preedit();
+    EXPECT_EQ(preedit->segments().size(), 1);
+    EXPECT_EQ(preedit->segments().at(0).value(), u8"tō s");
     EXPECT_EQ(preedit->cursor_position(), 4);
+
+    bufmgr->Insert('i');
+    preedit = get_preedit();
+    EXPECT_EQ(preedit->segments().size(), 1);
+    EXPECT_EQ(preedit->segments().at(0).value(), u8"tō si");
+    EXPECT_EQ(preedit->cursor_position(), 5);
+
+    bufmgr->Insert('7');
+    preedit = get_preedit();
+    EXPECT_EQ(preedit->segments().size(), 1);
+    EXPECT_EQ(preedit->segments().at(0).value(), u8"tō sī");
+    EXPECT_EQ(preedit->cursor_position(), 5);
 }
 
-TEST_F(BufferMgrTest, Candidates_pengan) {
-    insert_string("pengan");
-    auto clist = get_candidates();
-    EXPECT_GT(clist->candidates().size(), 20);
-    EXPECT_EQ(clist->candidates().at(0).value(), u8"平安");
+TEST_F(BufferMgrTest, Candidates_taichi) {
+    insert_string("taichi");
+    auto cands = get_cand_strings();
+    EXPECT_GT(cands.size(), 3);
+    EXPECT_THAT(cands, Contains(u8"事志"));
+    EXPECT_THAT(cands, Contains(u8"代志"));
+    EXPECT_THAT(cands, Contains(u8"tāi-chì"));
 }
 
 TEST_F(BufferMgrTest, Reset) {

@@ -22,7 +22,7 @@ class ConfigChangeListener;
 class Engine {
   public:
     static Engine *Create();
-    static Engine *Create(std::string home_dir);
+    static Engine *Create(std::string dbfile);
 
     virtual void SendCommand(messages::Command *command) = 0;
 

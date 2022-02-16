@@ -63,6 +63,7 @@ fs::path DefaultResourceDirectory() {
     }
     auto path = fs::path(Utils::Narrow(dll_path));
     path.replace_filename("resources");
+    path /= "khiin.db";
     return path;
 }
 
@@ -131,9 +132,8 @@ void EngineControllerFactory::OnDllProcessDetach(HMODULE module) {
     DllModule::Release();
 }
 
-HRESULT EngineControllerFactory::Create(EngineController **ppEngineCtrl) {
+void EngineControllerFactory::Create(EngineController **ppEngineCtrl) {
     as_self<EngineController>(winrt::make_self<EngineControllerImpl>()).copy_to(ppEngineCtrl);
-    return S_OK;
 }
 
 } // namespace khiin::win32

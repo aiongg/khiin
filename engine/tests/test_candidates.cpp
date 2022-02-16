@@ -11,14 +11,14 @@ namespace khiin::engine {
 namespace {
 
     /*
-const std::string DB_FILE = "taikey.db";
+const std::string kDatabaseFilename = "taikey.db";
 
 class CandidateFx : public ::testing::Test {
   protected:
     void SetUp() override {
         engine = Engine::Create();
         cf = engine->candidate_finder();
-        //db = new Database(DB_FILE);
+        //db = new Database(kDatabaseFilename);
         //auto sylList = db->GetSyllableList();
         //splitter = new Splitter(sylList), trie = new Trie(db->GetTrieWordlist(), sylList);
         //cf = CandidateFinder::Create(new MockEngine());

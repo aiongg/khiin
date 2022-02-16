@@ -9,12 +9,12 @@
 namespace khiin::engine {
 namespace {
 
-static const auto DB_FILE = "taikey.db";
+static const auto kDatabaseFilename = "khiin.db";
 
 class DatabaseTest : public ::testing::Test {
   protected:
     void SetUp() override {
-        db = Database::Connect(DB_FILE);
+        db = Database::Connect(kDatabaseFilename);
     }
     void TearDown() override {
         delete db;

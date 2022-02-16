@@ -79,7 +79,7 @@ inline fs::path findResourceDirectory() {
 #endif
     fs::path path;
     for (auto &dir : searchDirectories) {
-        path = fs::path(dir) /= DB_FILE;
+        path = fs::path(dir) /= kDatabaseFilename;
         if (fs::exists(path)) {
             return fs::path(dir);
         }

@@ -210,8 +210,8 @@ struct TextServiceImpl :
         threadMgr_.copy_from(pThreadMgr);
         clientId_ = tid;
         activateFlags_ = dwFlags;
-
         return OnActivate();
+
         CATCH_FOR_HRESULT;
     }
 

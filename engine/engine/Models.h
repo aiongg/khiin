@@ -4,6 +4,11 @@
 
 namespace khiin::engine {
 
+struct InputByFreq {
+    int id;
+    std::string input;
+};
+
 struct TaiToken {
     int id;
     int chhan_id;

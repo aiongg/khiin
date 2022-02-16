@@ -26,7 +26,8 @@ class Database {
     virtual TaiToken *HighestUnigramCount(std::vector<TaiToken *> const &grams) = 0;
     virtual TaiToken *HighestBigramCount(std::string const &lgram, std::vector<TaiToken *> const &rgrams) = 0;
     virtual void LoadSyllables(std::vector<std::string> &syllables) = 0;
-    virtual void AllWordsByFreq(std::vector<TaiToken> &output) = 0;
+    virtual void AllWordsByFreq(std::vector<InputByFreq> &output) = 0;
+    virtual void ConversionsByInputId(int input_id, std::vector<TaiToken> &conversions) = 0;
 };
 
 } // namespace khiin::engine

@@ -2,12 +2,12 @@
 
 #include "KeyEventSink.h"
 
-#include "EngineController.h"
 #include "EditSession.h"
+#include "EngineController.h"
 #include "common.h"
 
 namespace khiin::win32 {
-    using namespace messages;
+using namespace messages;
 
 enum class KeyEventSink::KeyAction { Test, Input };
 

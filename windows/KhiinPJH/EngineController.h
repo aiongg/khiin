@@ -22,7 +22,7 @@ struct EngineController : winrt::implements<EngineController, IUnknown> {
 struct EngineControllerFactory {
     static void OnDllProcessAttach(HMODULE module);
     static void OnDllProcessDetach(HMODULE module);
-    static HRESULT Create(EngineController **ppEngine);
+    static void Create(EngineController **ppEngine);
 };
 
 } // namespace khiin::win32

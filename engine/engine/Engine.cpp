@@ -34,31 +34,30 @@ class EngineImpl : public Engine {
   public:
     EngineImpl() {}
 
-    EngineImpl(std::string resource_dir) {
-        auto path = fs::path(resource_dir);
-
-        if (fs::exists(path)) {
-            this->resource_dir = path;
-        }
-    }
+    EngineImpl(std::string dbfile) : m_dbfilename(dbfile) {}
 
     void Initialize() {
-        if (resource_dir.empty()) {
-            resource_dir = utils::findResourceDirectory();
-        }
-
-        if (!resource_dir.empty()) {
-            auto db_path = fs::path(resource_dir);
-            db_path /= DB_FILE;
-
-            if (fs::exists(db_path)) {
-                m_database = std::unique_ptr<Database>(Database::Connect(db_path.string()));
-            }
-        }
-
-        if (!m_database) {
+        auto db_path = fs::path(m_dbfilename);
+        if (fs::exists(db_path)) {
+            m_database = std::unique_ptr<Database>(Database::Connect(db_path.string()));
+        } else {
             m_database = std::unique_ptr<Database>(Database::TestDb());
         }
+
+        //if (resource_dir.empty()) {
+        //    resource_dir = utils::findResourceDirectory();
+        //}
+
+        //if (!resource_dir.empty()) {
+        //    auto db_path = fs::path(resource_dir);
+        //    db_path /= kDatabaseFilename;
+
+        //    if (fs::exists(db_path)) {
+        //    }
+        //}
+
+        //if (!m_database) {
+        //}
 
         m_keyconfig = std::unique_ptr<KeyConfig>(KeyConfig::Create());
         m_syllable_parser = std::unique_ptr<SyllableParser>(SyllableParser::Create(m_keyconfig.get()));
@@ -219,6 +218,7 @@ class EngineImpl : public Engine {
     // void HandlePlaceCursor(Command *command, Output *output) {}
 
     fs::path resource_dir = {};
+    std::string m_dbfilename = ":memory:";
 
     std::unique_ptr<Database> m_database = nullptr;
     std::unique_ptr<Splitter> m_splitter = nullptr;
@@ -244,8 +244,8 @@ Engine *Engine::Create() {
     return engine;
 }
 
-Engine *Engine::Create(std::string home_dir) {
-    auto engine = new EngineImpl(home_dir);
+Engine *Engine::Create(std::string dbfile) {
+    auto engine = new EngineImpl(dbfile);
     engine->Initialize();
     return engine;
 }
