@@ -20,12 +20,13 @@ std::string join(std::vector<std::string> &parts, std::string delim) {
     return ret;
 }
 
-static std::vector<std::string> input_entry_map = //
-    {"goa2", "goa",        "m7chai",    "mchai", "joache", "joa7che7", "lang5", "lang", "ham5", "ham", "u7",
-     "u",    "kangkhoan2", "kangkhoan", "e",     "seng",   "tiong",    "li2",   "li",   "ho2",  "ho",  "la"};
+static std::vector<std::string> words = //
+    {"goa2", "goa", "m7chai",     "mchai",     "joache",    "joa7che7", "lang5", "lang", "ham5", "ham",
+     "u7",   "u",   "kangkhoan2", "kangkhoan", "e",         "seng",     "tiong", "li2",  "li",   "ho2",
+     "ho",   "la",  "toa7",       "toa",       "toa7lang5", "toalang",  "to",    "a",    "ng"};
 
 TEST(SplitterTest, SplitSentence) {
-    auto splitter = Splitter(input_entry_map);
+    auto splitter = Splitter(words);
 
     std::vector<std::string> res;
     splitter.Split("goamchaiujoachelanghamgoaukangkhoanesengtiong", res);
@@ -34,7 +35,7 @@ TEST(SplitterTest, SplitSentence) {
 }
 
 TEST(SplitterTest, split_sentence_fail) {
-    auto splitter = Splitter(input_entry_map);
+    auto splitter = Splitter(words);
 
     std::vector<std::string> res;
     splitter.Split("goamchaiblarg", res);
@@ -43,7 +44,7 @@ TEST(SplitterTest, split_sentence_fail) {
 }
 
 TEST(SplitterTest, split_sentence_digits) {
-    auto splitter = Splitter(input_entry_map);
+    auto splitter = Splitter(words);
     std::vector<std::string> res;
     splitter.Split("goam7chai", res);
     std::string joined = join(res, " ");
@@ -51,7 +52,7 @@ TEST(SplitterTest, split_sentence_digits) {
 }
 
 TEST(SplitterTest, SplitSentenceDigitsLong) {
-    auto splitter = Splitter(input_entry_map);
+    auto splitter = Splitter(words);
     std::vector<std::string> res;
     splitter.Split("goa2mchaiu7joa7che7lang5ham5goa2ukangkhoan2esengtiong", res);
     auto joined = join(res, " ");
@@ -59,7 +60,7 @@ TEST(SplitterTest, SplitSentenceDigitsLong) {
 }
 
 TEST(SplitterTest, CanSplitTest) {
-    auto splitter = Splitter(input_entry_map);
+    auto splitter = Splitter(words);
     EXPECT_TRUE(splitter.CanSplit("liho"));
     EXPECT_TRUE(splitter.CanSplit("goamchaiujoachelanghamgoaukangkhoanesengtiong"));
     EXPECT_TRUE(splitter.CanSplit("li2ho2"));
@@ -69,6 +70,22 @@ TEST(SplitterTest, CanSplitTest) {
     EXPECT_FALSE(splitter.CanSplit("3"));
     EXPECT_FALSE(splitter.CanSplit("."));
     EXPECT_FALSE(splitter.CanSplit("-"));
+}
+
+TEST(SplitterTest, MaxSplitSize) {
+    auto splitter = Splitter(words);
+    EXPECT_EQ(splitter.MaxSplitSize(""), 0);
+    EXPECT_EQ(splitter.MaxSplitSize("liho"), 4);
+    EXPECT_EQ(splitter.MaxSplitSize("lihox"), 4);
+    EXPECT_EQ(splitter.MaxSplitSize("lihoxyzasdf"), 4);
+    EXPECT_EQ(splitter.MaxSplitSize("lihxyz"), 2);
+    EXPECT_EQ(splitter.MaxSplitSize("mchaijoachelang"), 15);
+    EXPECT_EQ(splitter.MaxSplitSize("xyz"), 0);
+}
+
+TEST(SplitterTest, SplitIndices) {
+    auto splitter = Splitter(words);
+    EXPECT_EQ(splitter.MaxSplitSize("toalang"), 7);
 }
 
 TEST(SplitterTest, DISABLED_UsingActualEngine) {

@@ -23,6 +23,7 @@
 #include "utils.h"
 #include "Database.h"
 #include "Splitter.h"
+#include "Trie.h"
 
 namespace khiin::engine {
 namespace {
@@ -103,10 +104,6 @@ class EngineImpl : public Engine {
 
     virtual Dictionary *dictionary() override {
         return m_dictionary.get();
-    }
-
-    virtual Splitter *word_splitter() override {
-        return m_dictionary->word_splitter();
     }
 
     virtual void RegisterConfigChangedListener(ConfigChangeListener *listener) override {

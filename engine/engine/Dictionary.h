@@ -10,6 +10,7 @@ namespace khiin::engine {
 
 class Engine;
 class Splitter;
+class Trie;
 
 class Dictionary : public ConfigChangeListener {
   public:
@@ -28,6 +29,7 @@ class Dictionary : public ConfigChangeListener {
     virtual bool IsWord(std::string_view query) const = 0;
 
     virtual Splitter *word_splitter() = 0;
+    virtual Trie *word_trie() = 0;
 
     // Inherited via ConfigChangeListener
     virtual void OnConfigChanged(messages::AppConfig config) override = 0;

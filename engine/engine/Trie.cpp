@@ -1,13 +1,69 @@
+#include "Trie.h"
+
+#include <assert.h>
+#include <bitset>
+#include <deque>
 #include <iterator>
 #include <queue>
 #include <unordered_map>
 
+#include "Splitter.h"
 #include "common.h"
-#include "trie.h"
 
 namespace khiin::engine {
 
 namespace {
+
+inline int bitscan_forward(uint64_t x) {
+    auto bits = std::bitset<64>((x & -x) - 1);
+    return bits.count();
+}
+
+const int bitscan_reverse(uint64_t x) {
+    int ret = 0;
+    while (x >>= 1) {
+        ++ret;
+    }
+    return ret;
+}
+
+std::vector<int> get_bit_positions(uint64_t bb_ull) {
+    auto ret = std::vector<int>();
+    while (bb_ull != 0) {
+        auto pos = bitscan_forward(bb_ull);
+        auto bb = std::bitset<64>(bb_ull);
+        bb.set(pos, false);
+        bb_ull = bb.to_ullong();
+        ret.push_back(pos);
+    }
+    return ret;
+}
+
+struct SplitCost {
+    uint64_t split = 0;
+    int to_idx = 0;
+    float cost = 0.0f;
+};
+
+inline bool IsCheaper(SplitCost &a, SplitCost &b) {
+    return a.cost / a.to_idx < b.cost / b.to_idx;
+}
+
+void TrimSplitCostQueue(std::deque<SplitCost> &costs, int limit = 10) {
+    std::sort(costs.begin(), costs.end(), IsCheaper);
+    if (costs.size() > limit) {
+        costs.erase(costs.begin() + limit, costs.end());
+    }
+}
+
+void PushBackIfCheaper(std::deque<SplitCost> &queue, SplitCost &&sc) {
+    for (auto &el : queue) {
+        if (IsCheaper(sc, el)) {
+            queue.push_back(std::move(sc));
+            return;
+        }
+    }
+}
 
 struct Node {
     using ChildrenType = std::unordered_map<char, std::unique_ptr<Node>>;
@@ -153,12 +209,12 @@ class TrieImpl : public Trie {
         }
 
         BreadthFirstSearch(found, query, ret, limit);
-        //DepthFirstSearch(found, query, "", ret, limit, maxDepth);
+        // DepthFirstSearch(found, query, "", ret, limit, maxDepth);
 
         return ret;
     }
 
-    virtual void FindKeys(std::string_view query, string_vector &results) {
+    virtual void FindKeys(std::string_view query, std::vector<std::string> &results) {
         results.clear();
 
         if (query.empty()) {
@@ -178,6 +234,67 @@ class TrieImpl : public Trie {
                 results.push_back(std::string(query.begin(), it));
             }
         }
+    }
+
+    virtual std::vector<std::vector<int>> AllSplits(std::string_view query, SplitterCostMap const &cost_map) override {
+        int limit = 100;
+        query = query.substr(0, 64);
+        auto result = std::vector<SplitCost>();
+        auto queue = std::deque<SplitCost>{SplitCost()};
+
+        while (!queue.empty() && result.size() < limit) {
+            auto front = std::move(queue.front());
+            queue.pop_front();
+            auto node = &root;
+
+            auto start_idx = front.split == 0 ? 0 : bitscan_reverse(front.split);
+            auto end_idx = start_idx + 1;
+
+            for (auto it = query.begin() + start_idx; it != query.end(); ++it) {
+                if (node->children.find(*it) == node->children.end()) {
+                    break;
+                }
+
+                node = node->children[*it].get();
+
+                if (node->end_of_word) {
+                    auto found = cost_map.find(std::string(query.begin() + start_idx, it + 1));
+                    if (found != cost_map.end()) {
+                        auto bits = std::bitset<64>(front.split);
+                        bits.set(end_idx, true);
+
+                        auto tmp = front;
+                        tmp.cost += found->second;
+                        tmp.split = bits.to_ullong();
+                        tmp.to_idx = end_idx;
+
+                        if (it + 1 != query.end()) {
+                            if (queue.size() > limit) {
+                                PushBackIfCheaper(queue, std::move(tmp));
+                                TrimSplitCostQueue(queue, limit);
+                            } else {
+                                queue.push_back(std::move(tmp));
+                            }
+                        } else {
+                            result.push_back(std::move(tmp));
+                        }
+                    }
+                } else if (it + 1 == query.end()) {
+                    result.push_back(front);
+                }
+                ++end_idx;
+            }
+        }
+
+        auto ret = std::vector<std::vector<int>>();
+
+        std::sort(result.begin(), result.end(), IsCheaper);
+
+        for (auto &cost : result) {
+            ret.push_back(get_bit_positions(cost.split));
+        }
+
+        return ret;
     }
 
   private:
@@ -221,12 +338,11 @@ class TrieImpl : public Trie {
             for (auto &c : node->children) {
                 queue.push(std::make_pair(suffix + c.first, c.second.get()));
             }
-
         }
     }
 
-    auto DepthFirstSearch(Node *node, std::string const &prefix, std::string const &suffix,
-                          std::vector<std::string> &results, size_t limit, size_t max_depth) -> void {
+    void DepthFirstSearch(Node *node, std::string const &prefix, std::string const &suffix,
+                          std::vector<std::string> &results, size_t limit, size_t max_depth) {
         if (node->end_of_word) {
             results.push_back(prefix + suffix);
         }

@@ -9,6 +9,8 @@
 using namespace std::string_literals;
 
 namespace khiin::engine {
+namespace {
+using WordSet = std::unordered_set<std::string>;
 
 inline auto isDigit(std::string const &str) {
     std::stringstream s;
@@ -18,88 +20,104 @@ inline auto isDigit(std::string const &str) {
     return (s >> d) ? !(s >> c) : false;
 }
 
+struct SplitCheckResult {
+    std::vector<bool> splits_at;
+    std::vector<int> split_indices;
+};
+
+SplitCheckResult CheckSplittable(WordSet const &words, std::string const &query) {
+    auto size = query.size();
+    std::vector<bool> splits_at(size + 1, false);
+    std::vector<int> split_indices;
+    split_indices.push_back(-1);
+
+    for (auto i = 0; i < size; ++i) {
+        auto n_splits = static_cast<int>(split_indices.size());
+
+        for (auto j = n_splits - 1; j >= 0; j--) {
+            std::string substr =
+                query.substr(static_cast<size_t>(split_indices[j] + 1), static_cast<size_t>(i - split_indices[j]));
+
+            if (words.find(substr) != words.end()) {
+                splits_at[i] = true;
+                split_indices.push_back(i);
+                break;
+            }
+        }
+    }
+
+    return SplitCheckResult{std::move(splits_at), std::move(split_indices)};
+}
+
+} // namespace
+
 Splitter::Splitter() {}
 
-Splitter::Splitter(const string_vector &input_entry_map) {
-    std::copy(input_entry_map.cbegin(), input_entry_map.cend(), std::inserter(m_word_set, m_word_set.begin()));
+Splitter::Splitter(std::vector<std::string> const &words_by_frequency) {
+    std::copy(words_by_frequency.cbegin(), words_by_frequency.cend(), std::inserter(m_word_set, m_word_set.begin()));
 
-    auto logListSize = static_cast<float>(log(input_entry_map.size()));
+    auto log_size = static_cast<float>(log(words_by_frequency.size()));
 
-    size_t idx = 0;
-    for (auto &it : input_entry_map) {
-        m_cost_map[it] = static_cast<float>(log((idx + 1) * logListSize));
+    auto idx = 0;
+    for (auto &it : words_by_frequency) {
+        m_cost_map[it] = static_cast<float>(log((idx + 1) * log_size));
         m_max_word_length = std::max(m_max_word_length, (int)it.size());
         ++idx;
     }
 }
 
-bool Splitter::CanSplit(std::string const &input) {
-    auto len = input.size();
-    if (len == 0) {
+size_t Splitter::MaxSplitSize(std::string const &input) const {
+    if (input.empty()) {
+        return 0;
+    }
+
+    auto result = CheckSplittable(m_word_set, input);
+    return static_cast<size_t>(result.split_indices.back() + 1);
+}
+
+bool Splitter::CanSplit(std::string const &input) const {
+    if (input.empty()) {
         return true;
     }
 
-    std::vector<bool> dp(len + 1, false);
-    std::vector<int> matchedIndex;
-    matchedIndex.push_back(-1);
-
-    for (int i = 0; i < len; i++) {
-        auto mSize = static_cast<int>(matchedIndex.size());
-        auto found = false;
-
-        for (int j = mSize - 1; j >= 0; j--) {
-            std::string substr = input.substr(matchedIndex[j] + 1, i - matchedIndex[j]);
-
-            if (m_word_set.find(substr) != m_word_set.end()) {
-                found = true;
-            }
-        }
-
-        if (found) {
-            dp[i] = true;
-            matchedIndex.push_back(i);
-        }
-    }
-
-    return dp[len - 1];
+    auto result = CheckSplittable(m_word_set, input);
+    return result.splits_at[input.size() - 1];
 }
 
-void Splitter::Split(std::string const &input, string_vector &result) {
+void Splitter::Split(std::string const &input, string_vector &result) const {
     result.clear();
     if (input.empty()) {
         return;
     }
 
-    auto lcInput(input);
-    std::transform(lcInput.begin(), lcInput.end(), lcInput.begin(), (int (*)(int))tolower);
-    const auto len = lcInput.size();
+    const auto len = input.size();
 
     std::vector<std::pair<float, int>> cost;
     cost.reserve(len + 1);
     cost.push_back(std::make_pair(0.0f, -1));
     auto chunk = std::string();
-    auto curCost = 0.0f;
+    auto curr_cost = 0.0f;
 
     for (auto i = 1; i < len + 1; i++) {
-        auto minCost = cost[i - 1].first + 9e9f;
-        auto minCostIdx = i - 1;
+        auto min_cost = cost[i - 1].first + 9e9f;
+        auto min_cost_idx = i - 1;
 
         for (auto j = i - m_max_word_length > 0 ? i - m_max_word_length : 0; j < i; j++) {
 
-            chunk = lcInput.substr(j, i - j);
+            chunk = input.substr(j, i - j);
 
             if (m_cost_map.find(chunk) == m_cost_map.end()) {
                 continue;
             }
 
-            curCost = cost[j].first + m_cost_map.at(chunk);
-            if (curCost <= minCost) {
-                minCost = curCost;
-                minCostIdx = j;
+            curr_cost = cost[j].first + m_cost_map.at(chunk);
+            if (curr_cost <= min_cost) {
+                min_cost = curr_cost;
+                min_cost_idx = j;
             }
         }
 
-        cost.push_back(std::make_pair(minCost, minCostIdx));
+        cost.push_back(std::make_pair(min_cost, min_cost_idx));
     }
 
     auto n = len;
@@ -116,6 +134,10 @@ void Splitter::Split(std::string const &input, string_vector &result) {
         }
         n = preIndex;
     }
+}
+
+SplitterCostMap const & Splitter::cost_map() const {
+    return m_cost_map;
 }
 
 } // namespace khiin::engine

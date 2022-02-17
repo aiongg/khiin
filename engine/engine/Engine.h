@@ -11,12 +11,13 @@
 namespace khiin::engine {
 
 class BufferMgr;
-//class CandidateFinder;
+// class CandidateFinder;
 class Database;
 class Dictionary;
 class KeyConfig;
 class SyllableParser;
 class Splitter;
+class Trie;
 class ConfigChangeListener;
 
 class Engine {
@@ -29,12 +30,11 @@ class Engine {
     virtual void RegisterConfigChangedListener(ConfigChangeListener *listener) = 0;
 
     virtual BufferMgr *buffer_mgr() = 0;
-    //virtual CandidateFinder *candidate_finder() = 0;
+    // virtual CandidateFinder *candidate_finder() = 0;
     virtual Database *database() = 0;
     virtual Dictionary *dictionary() = 0;
     virtual KeyConfig *key_configuration() = 0;
     virtual SyllableParser *syllable_parser() = 0;
-    virtual Splitter *word_splitter() = 0;
 };
 
 } // namespace khiin::engine

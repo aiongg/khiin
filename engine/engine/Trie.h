@@ -10,8 +10,8 @@ namespace khiin::engine {
 
 class Trie {
   public:
-    //Trie();
-    //Trie(const string_vector &keys);
+    // Trie();
+    // Trie(const string_vector &keys);
     static Trie *Create();
     static Trie *Create(std::vector<std::string> const &words);
 
@@ -20,6 +20,9 @@ class Trie {
 
     // If query matches any key from the start
     virtual bool StartsWithKey(std::string_view query) = 0;
+
+    virtual std::vector<std::vector<int>> AllSplits(std::string_view query,
+                                                    std::unordered_map<std::string, float> const &cost_map) = 0;
 
     // If query is a key
     virtual bool HasKey(std::string_view query) = 0;
@@ -30,7 +33,7 @@ class Trie {
     virtual size_t LongestKeyOf(std::string_view query) = 0;
 
     virtual string_vector Autocomplete(std::string const &query, size_t limit = 0, size_t max_depth = 0) = 0;
-    //virtual void FindKeys(std::string_view query, bool fuzzy, string_vector &results) = 0;
+    // virtual void FindKeys(std::string_view query, bool fuzzy, string_vector &results) = 0;
     virtual void FindKeys(std::string_view query, string_vector &results) = 0;
 };
 

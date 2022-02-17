@@ -20,14 +20,14 @@ class CandidateFx : public ::testing::Test {
         cf = engine->candidate_finder();
         //db = new Database(kDatabaseFilename);
         //auto sylList = db->GetSyllableList();
-        //splitter = new Splitter(sylList), trie = new Trie(db->GetTrieWordlist(), sylList);
+        //m_word_splitter = new Splitter(sylList), trie = new Trie(db->GetTrieWordlist(), sylList);
         //cf = CandidateFinder::Create(new MockEngine());
     }
 
     ~CandidateFx() {
         delete engine;
         delete db;
-        delete splitter;
+        delete m_word_splitter;
         delete trie;
         delete cf;
     }
@@ -38,7 +38,7 @@ class CandidateFx : public ::testing::Test {
 
     Engine *engine = nullptr;
     Database *db = nullptr;
-    Splitter *splitter = nullptr;
+    Splitter *m_word_splitter = nullptr;
     Trie *trie = nullptr;
     CandidateFinder *cf = nullptr;
 };

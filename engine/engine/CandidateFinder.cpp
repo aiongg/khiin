@@ -4,11 +4,26 @@
 #include "Database.h"
 #include "Dictionary.h"
 #include "Engine.h"
+#include "Splitter.h"
 #include "SyllableParser.h"
+#include "Trie.h"
 
 namespace khiin::engine {
 
 namespace {
+
+inline bool IsHigherFrequency(TaiToken *left, TaiToken *right) {
+    return left->input_id == right->input_id ? left->weight > right->weight : left->input_id < right->input_id;
+}
+
+inline void SortTokens(std::vector<TaiToken *> &tokens) {
+    std::sort(tokens.begin(), tokens.end(), IsHigherFrequency);
+}
+
+std::string RemoveRawFromStart(TaiText const &text, std::string const &raw_query) {
+    auto ret = std::string();
+    auto prefix = text.raw();
+}
 
 TaiToken *BestMatchUnigram(Engine *engine, std::vector<TaiToken *> const &options) {
     return engine->database()->HighestUnigramCount(options);
@@ -19,7 +34,7 @@ TaiToken *BestMatchBigram(Engine *engine, TaiToken *lgram, std::vector<TaiToken 
     return engine->database()->HighestBigramCount(lgram->output, options);
 }
 
-TaiToken *BestMatchImpl(Engine *engine, TaiToken *lgram, std::vector<TaiToken *> const &options) {
+TaiToken *BestMatchImpl(Engine *engine, TaiToken *lgram, std::vector<TaiToken *> &options) {
     if (options.empty()) {
         return nullptr;
     }
@@ -37,15 +52,15 @@ TaiToken *BestMatchImpl(Engine *engine, TaiToken *lgram, std::vector<TaiToken *>
     }
 
     if (options.size()) {
+        SortTokens(options);
         return options[0];
     }
 
     return nullptr;
 }
 
-std::vector<BufferElementList> GetCandidatesFromStartImpl(Engine *engine, TaiToken *lgram,
-                                                                   std::string const &raw_query,
-                                                                   std::vector<TaiToken *> &options) {
+std::vector<BufferElementList> GetCandidatesFromStartImpl(Engine *engine, TaiToken *lgram, std::string const &raw_query,
+                                                          std::vector<TaiToken *> &options) {
     std::sort(options.begin(), options.end(), [](TaiToken *a, TaiToken *b) {
         return unicode::letter_count(a->input) > unicode::letter_count(b->input);
     });
@@ -77,9 +92,10 @@ TaiToken *CandidateFinder::BestAutocomplete(Engine *engine, TaiToken *lgram, std
 }
 
 std::vector<BufferElementList> CandidateFinder::GetCandidatesFromStart(Engine *engine, TaiToken *lgram,
-                                                                                std::string const &query) {
+                                                                       std::string const &query) {
     // TODO - add dictionary method for finding candidates
     auto options = engine->dictionary()->AllWordsFromStart(query);
+    auto test = engine->dictionary()->word_trie()->AllSplits(query, engine->dictionary()->word_splitter()->cost_map());
     return GetCandidatesFromStartImpl(engine, lgram, query, options);
 }
 

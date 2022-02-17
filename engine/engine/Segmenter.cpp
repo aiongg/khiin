@@ -18,7 +18,7 @@ class SegmenterImpl {
         m_buffer = raw_buffer;
         m_result = result;
         dictionary = engine->dictionary();
-        splitter = engine->word_splitter();
+        splitter = dictionary->word_splitter();
         parser = engine->syllable_parser();
         keyconfig = engine->key_configuration();
 
@@ -128,7 +128,7 @@ class SegmenterImpl {
     };
 
     size_t ConsumeWordsOrSyllable(std::string const &input) {
-        auto max_word = MaxSplittableWordIndex(input);
+        auto max_word = splitter->MaxSplitSize(input);
         auto max_syl = LongestSyllableIndex(input);
 
         if (max_syl > max_word) {
@@ -175,16 +175,6 @@ class SegmenterImpl {
             m_result->push_back(BufferElement(pending_plaintext));
             pending_plaintext.clear();
         }
-    }
-
-    size_t MaxSplittableWordIndex(std::string const &str) {
-        for (auto i = str.size(); i > 0; --i) {
-            if (splitter->CanSplit(str.substr(0, i))) {
-                return i;
-            }
-        }
-
-        return std::string::npos;
     }
 
     size_t LongestSyllableIndex(std::string_view query) {

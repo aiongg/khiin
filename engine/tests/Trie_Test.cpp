@@ -1,4 +1,5 @@
 #include <gtest/gtest.h>
+#include <gmock/gmock.h>
 
 #include <memory>
 
@@ -7,6 +8,7 @@
 namespace khiin::engine {
 namespace {
 
+using ::testing::Contains;
 using namespace std;
 using namespace khiin::engine;
 
@@ -63,12 +65,12 @@ TEST_F(TrieTest, autocomplete) {
 }
 
 TEST_F(TrieTest, autocomplete_tone) {
-    //ins({u8"na2", u8"na7", u8"nai"});
+    // ins({u8"na2", u8"na7", u8"nai"});
 
-    //std::vector<std::string> res = trie->AutocompleteTone(u8"na");
-    //EXPECT_EQ(res.size(), 2);
-    //EXPECT_NE(std::find(res.begin(), res.end(), "na2"), res.end());
-    //EXPECT_NE(std::find(res.begin(), res.end(), "na7"), res.end());
+    // std::vector<std::string> res = trie->AutocompleteTone(u8"na");
+    // EXPECT_EQ(res.size(), 2);
+    // EXPECT_NE(std::find(res.begin(), res.end(), "na2"), res.end());
+    // EXPECT_NE(std::find(res.begin(), res.end(), "na7"), res.end());
 }
 
 TEST_F(TrieTest, get_all_words) {
@@ -90,6 +92,13 @@ TEST_F(TrieTest, starts_with_word2) {
     EXPECT_FALSE(trie->StartsWithKey("aba"));
 }
 
+TEST_F(TrieTest, BitSplit) {
+    ins({"the", "me", "theme", "meat", "at", "them", "eat"});
+    // theme at, them eat, the meat, the me at
+    //auto ret = trie->AllSplits("themeat");
+    //EXPECT_EQ(ret.size(), 4);
+}
+
 /**
 * input: limaianne
 1. Lí mài án-ne.
@@ -99,7 +108,7 @@ TEST_F(TrieTest, starts_with_word2) {
 5. Lim ài an--ne.
 6. Lim ài án-ne.
 */
-//TEST_F(TrieFx, sentence_split) {
+// TEST_F(TrieFx, sentence_split) {
 //    ins({"li", "mai", "an", "ne", "ma", "ian", "iann", "lim", "ai", "e", "anne"});
 //    auto res = trie->splitSentence2("limaianne");
 //    int i = 0;

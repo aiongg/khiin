@@ -18,14 +18,6 @@ namespace khiin::engine {
 
 namespace {
 
-inline bool IsHigherFrequency(TaiToken *left, TaiToken *right) {
-    return left->input_id == right->input_id ? left->weight > right->weight : left->input_id < right->input_id;
-}
-
-inline void SortTokens(std::vector<TaiToken *> &tokens) {
-    std::sort(tokens.begin(), tokens.end(), IsHigherFrequency);
-}
-
 template <typename T>
 void SortAndDedupe(std::vector<T> &vec) {
     std::sort(vec.begin(), vec.end());
@@ -46,7 +38,7 @@ class DictionaryImpl : public Dictionary {
     }
 
     virtual bool StartsWithWord(std::string_view query) const override {
-        return word_trie->StartsWithKey(query);
+        return m_word_trie->StartsWithKey(query);
     }
 
     virtual bool StartsWithSyllable(std::string_view query) const override {
@@ -68,32 +60,26 @@ class DictionaryImpl : public Dictionary {
     }
 
     virtual bool IsWordPrefix(std::string_view query) const override {
-        return word_trie->HasKeyOrPrefix(query);
+        return m_word_trie->HasKeyOrPrefix(query);
     }
 
     virtual bool IsWord(std::string_view query) const override {
-        return word_trie->HasKey(query);
+        return m_word_trie->HasKey(query);
     }
 
     virtual std::vector<TaiToken *> WordSearch(std::string const &query) override {
-        auto ret = GetOrCacheTokens(query);
-        SortTokens(ret);
-        return ret;
+        return GetOrCacheTokens(query);
     }
 
     virtual std::vector<TaiToken *> Autocomplete(std::string const &query) override {
-        auto words = word_trie->Autocomplete(query, 10, 5);
-        auto ret = GetOrCacheTokens(words);
-        SortTokens(ret);
-        return ret;
+        auto words = m_word_trie->Autocomplete(query, 10, 5);
+        return GetOrCacheTokens(words);
     }
 
     virtual std::vector<TaiToken *> AllWordsFromStart(std::string const &query) override {
         auto words = std::vector<std::string>();
-        word_trie->FindKeys(query, words);
-        auto ret = GetOrCacheTokens(words);
-        SortTokens(ret);
-        return ret;
+        m_word_trie->FindKeys(query, words);
+        return GetOrCacheTokens(words);
     }
 
     virtual std::vector<std::string> const &AllInputsByFreq() override {
@@ -101,7 +87,11 @@ class DictionaryImpl : public Dictionary {
     }
 
     virtual Splitter *word_splitter() override {
-        return splitter.get();
+        return m_word_splitter.get();
+    };
+
+    virtual Trie *word_trie() override {
+        return m_word_trie.get();
     };
 
     virtual void OnConfigChanged(messages::AppConfig config) override {
@@ -140,10 +130,10 @@ class DictionaryImpl : public Dictionary {
 
     void BuildWordTrie() {
         auto parser = engine->syllable_parser();
-        word_trie = std::unique_ptr<Trie>(Trie::Create());
+        m_word_trie = std::unique_ptr<Trie>(Trie::Create());
 
         for (auto &word : trie_inputs) {
-            word_trie->Insert(word);
+            m_word_trie->Insert(word);
         }
     }
 
@@ -162,7 +152,7 @@ class DictionaryImpl : public Dictionary {
     }
 
     void BuildWordSplitter() {
-        splitter = std::make_unique<Splitter>(splitter_inputs);
+        m_word_splitter = std::make_unique<Splitter>(splitter_inputs);
     }
 
     void CacheId(std::string const &input, int input_id) {
@@ -228,9 +218,9 @@ class DictionaryImpl : public Dictionary {
     }
 
     Engine *engine = nullptr;
-    std::unique_ptr<Trie> word_trie = nullptr;
+    std::unique_ptr<Trie> m_word_trie = nullptr;
     std::unique_ptr<Trie> syllable_trie = nullptr;
-    std::unique_ptr<Splitter> splitter = nullptr;
+    std::unique_ptr<Splitter> m_word_splitter = nullptr;
 
     std::unordered_map<int, TaiToken> m_token_cache;
     std::unordered_map<int, std::vector<TaiToken *>> m_input_id_token_cache;

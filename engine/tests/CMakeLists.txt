@@ -2,7 +2,7 @@ include_directories(${PROJECT_SOURCE_DIR}/engine)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 
 add_executable(test_khiin_engine
-    "test_main.cpp"
+    "Test_Main.cpp"
     "Engine_Test.cpp"
     "Trie_Test.cpp"
     "test_buffer.cpp"

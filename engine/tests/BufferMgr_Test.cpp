@@ -518,5 +518,28 @@ TEST_F(BufferMgrTest, Focus_element) {
     EXPECT_EQ(preedit->segments().at(1).status(), SegmentStatus::CONVERTED);
 }
 
+TEST_F(BufferMgrTest, Convert_e5) {
+    insert_string("e5");
+    auto cands = get_cand_strings();
+    EXPECT_EQ(cands.size(), 4);
+
+    auto preedit = get_preedit();
+    EXPECT_EQ(preedit->segments().size(), 1);
+    EXPECT_EQ(preedit->segments().at(0).value(), u8"ê");
+    EXPECT_EQ(preedit->segments().at(0).status(), SegmentStatus::COMPOSING);
+    EXPECT_EQ(caret(), 1);
+    bufmgr->SelectNextCandidate();
+    preedit = get_preedit();
+    EXPECT_EQ(preedit->segments().size(), 1);
+    EXPECT_EQ(preedit->segments().at(0).value(), cands[0]);
+    EXPECT_EQ(preedit->segments().at(0).status(), SegmentStatus::FOCUSED);
+    EXPECT_EQ(caret(), 1);
+}
+
+TEST_F(BufferMgrTest, TmpTest) {
+    insert_string("iniauchiaheanneoupoetemthangchhikimhiahanahesitihiasisinithia");
+    insert_string("n");
+}
+
 } // namespace
 } // namespace khiin::engine
