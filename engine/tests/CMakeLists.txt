@@ -6,7 +6,7 @@ add_executable(test_khiin_engine
     "Engine_Test.cpp"
     "Trie_Test.cpp"
     "test_buffer.cpp"
-    "test_lomaji.cpp"
+    "Lomaji_Test.cpp"
     "test_db.cpp"
     "test_candidates.cpp"
     "Syllable_test.cpp"

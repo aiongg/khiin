@@ -39,7 +39,7 @@ class KeyConfig {
     static KeyConfig *Create();
     static KeyConfig *Create(messages::KeyConfiguration configuration);
     virtual bool SetKey(char key, VKey vkey, bool standalone = false) = 0;
-    virtual std::vector<ConversionRule> ConversionRules() = 0;
+    virtual std::vector<ConversionRule> const &ConversionRules() = 0;
     virtual std::vector<char> GetHyphenKeys() = 0;
     virtual std::vector<char> GetKhinKeys() = 0;
     virtual bool IsHyphen(char ch) = 0;

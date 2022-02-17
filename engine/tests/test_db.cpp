@@ -9,7 +9,7 @@
 namespace khiin::engine {
 namespace {
 
-static const auto kDatabaseFilename = "khiin.db";
+static const auto kDatabaseFilename = "khiin_test.db";
 
 class DatabaseTest : public ::testing::Test {
   protected:

@@ -27,6 +27,7 @@ class Lomaji {
         return !(t == Tone::NaT || t == Tone::T1 || t == Tone::T4);
     }
     static bool IsLomaji(std::string_view str);
+    static std::string Decompose(std::string_view str);
 };
 
 } // namespace khiin::engine

@@ -322,7 +322,7 @@ Syllable AlignRawToComposed(KeyConfig *keyconfig, std::string::const_iterator &r
 
 void ComposedToRawWithAlternates(KeyConfig *keyconfig, const std::string &input, string_vector &output,
                                  bool &has_tone) {
-    auto syl = unicode::to_nfd(input);
+    auto syl = Lomaji::Decompose(input);
     auto tone = Tone::NaT;
     char digit_key = 0;
     char telex_key = 0;
@@ -439,7 +439,7 @@ class SyllableParserImpl : public SyllableParser {
         // Case 1: Only 1 syllable
         if (sep == end) {
             // Only one chunk = 1 syllable
-            auto tmp = string_vector();
+            auto tmp = std::vector<std::string>();
             ToFuzzy(word_copy, tmp, has_tone);
             for (auto &ea : tmp) {
                 ret.push_back(InputSequence{ea, false});

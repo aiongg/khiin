@@ -66,12 +66,14 @@ class KeyCfgImpl : public KeyConfig {
         }
     }
 
-    virtual std::vector<ConversionRule> ConversionRules() override {
-        auto ret = std::vector<ConversionRule>();
-        for (auto &rule : m_conversion_rule_sets) {
-            std::copy(rule.conversion_rules.begin(), rule.conversion_rules.end(), std::back_inserter(ret));
+    virtual std::vector<ConversionRule> const &ConversionRules() override {
+        if (m_conversion_rule_cache.empty()) {
+            for (auto &rule : m_conversion_rule_sets) {
+                std::copy(rule.conversion_rules.begin(), rule.conversion_rules.end(),
+                          std::back_inserter(m_conversion_rule_cache));
+            }
         }
-        return ret;
+        return m_conversion_rule_cache;
     }
 
     virtual std::vector<char> GetHyphenKeys() override {
@@ -298,6 +300,7 @@ class KeyCfgImpl : public KeyConfig {
         return true;
     }
 
+    std::vector<ConversionRule> m_conversion_rule_cache;
     std::vector<ConversionRuleSet> m_conversion_rule_sets;
     std::unordered_map<VKey, char> m_key_map;
     bool standalone_nasal = false;

@@ -119,18 +119,17 @@ class DictionaryImpl : public Dictionary {
         splitter_inputs.clear();
         trie_inputs.clear();
         auto parser = engine->syllable_parser();
-        auto seen = std::set<std::string>();
-        auto seen_fuzzy_monosyls = std::set<std::string>();
+        auto seen = std::unordered_set<std::string>();
+        auto seen_fuzzy_monosyls = std::unordered_set<std::string>();
 
         for (auto &row : m_inputs_by_freq) {
             auto input_sequences = parser->AsInputSequences(row.input);
             for (auto &input_seq : input_sequences) {
                 auto &key = input_seq.input;
                 CacheId(key, row.id);
-                if (input_seq.is_fuzzy_monosyllable && seen_fuzzy_monosyls.find(key) == seen_fuzzy_monosyls.end()) {
-                    seen_fuzzy_monosyls.insert(key);
+                if (input_seq.is_fuzzy_monosyllable && seen_fuzzy_monosyls.insert(key).second) {
                     splitter_inputs.push_back(key);
-                } else if (seen.find(key) == seen.end()) {
+                } else if (seen.insert(key).second) {
                     seen.insert(key);
                     splitter_inputs.push_back(key);
                     trie_inputs.push_back(key);

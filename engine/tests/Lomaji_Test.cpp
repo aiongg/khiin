@@ -6,9 +6,14 @@
 namespace khiin::engine {
 namespace {
 
-TEST(Lomaji, QuickDeconversion) {
-    auto in = u8"\u00e1";
+TEST(Lomaji, QuickDecompose) {
+    auto in = u8"á";
     auto out = Lomaji::Decompose(in);
+    EXPECT_EQ(out, u8"a\u0301");
+
+    in = u8"áàâāa̍ăó͘ṳ";
+    out = Lomaji::Decompose(in);
+    EXPECT_STREQ(out.data(), u8"a\u0301a\u0300a\u0302a\u0304a\u030da\u0306o\u0301\u0358u\u0324");
 }
 
 // TEST(Lomaji, place_tone_on_syllable) {
