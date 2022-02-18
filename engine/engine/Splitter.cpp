@@ -84,7 +84,7 @@ bool Splitter::CanSplit(std::string const &input) const {
     return result.splits_at[input.size() - 1];
 }
 
-void Splitter::Split(std::string const &input, string_vector &result) const {
+void Splitter::Split(std::string const &input, std::vector<std::string> &result) const {
     result.clear();
     if (input.empty()) {
         return;
@@ -120,8 +120,8 @@ void Splitter::Split(std::string const &input, string_vector &result) const {
         cost.push_back(std::make_pair(min_cost, min_cost_idx));
     }
 
-    auto n = len;
-    decltype(n) preIndex;
+    size_t n = len;
+    size_t preIndex;
 
     while (n > 0) {
         preIndex = cost[n].second;
