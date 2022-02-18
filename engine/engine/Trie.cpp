@@ -245,12 +245,11 @@ class TrieImpl : public Trie {
 
         for (auto start = qbegin; start != qend; ++start) {
             auto start_idx = std::distance(qbegin, start);
+            auto node = &root;
 
-            if (table[start_idx + 1].size() == limit) {
+            if (table[start_idx].empty()) {
                 continue;
             }
-
-            auto node = &root;
 
             for (auto it = start; it != qend; ++it) {
                 auto end_idx = std::distance(qbegin, it) + 1;
@@ -269,7 +268,7 @@ class TrieImpl : public Trie {
                             bits.set(end_idx, true);
                             auto split = bits.to_ullong();
                             auto cost = result.cost + found->second;
-                            PushBackIfCheaper(table[end_idx], 10, split, cost);
+                            PushBackIfCheaper(table[end_idx], limit, split, cost);
                         }
                     }
                 }
