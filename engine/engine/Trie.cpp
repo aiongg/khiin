@@ -10,35 +10,11 @@
 
 #include "Splitter.h"
 #include "common.h"
+#include "utils.h"
 
 namespace khiin::engine {
 
 namespace {
-
-inline int bitscan_forward(uint64_t x) {
-    auto bits = std::bitset<64>((x & -x) - 1);
-    return bits.count();
-}
-
-const int bitscan_reverse(uint64_t x) {
-    int ret = 0;
-    while (x >>= 1) {
-        ++ret;
-    }
-    return ret;
-}
-
-std::vector<int> get_bit_positions(uint64_t bb_ull) {
-    auto ret = std::vector<int>();
-    while (bb_ull != 0) {
-        auto pos = bitscan_forward(bb_ull);
-        auto bb = std::bitset<64>(bb_ull);
-        bb.set(pos, false);
-        bb_ull = bb.to_ullong();
-        ret.push_back(pos);
-    }
-    return ret;
-}
 
 struct SplitCost {
     uint64_t split = 0;
@@ -49,6 +25,12 @@ inline bool IsCheaper(SplitCost &a, SplitCost &b) {
     return a.cost < b.cost;
 }
 
+/**
+* |vec| is sorted by cost from low to high.
+ * If size of |vec| is under the limit, push back directly.
+ * Otherwise, check cost against the last element (highest cost), and
+ * replace/re-sort only if it is cheaper.
+ */
 void PushBackIfCheaper(std::vector<SplitCost> &vec, int limit, uint64_t split, float cost) {
     if (vec.size() < limit) {
         vec.push_back(SplitCost{split, cost});
@@ -192,8 +174,8 @@ class TrieImpl : public Trie {
         return ret;
     }
 
-    virtual string_vector Autocomplete(std::string const &query, size_t limit, size_t maxDepth) override {
-        auto ret = string_vector();
+    virtual std::vector<std::string> Autocomplete(std::string const &query, int limit, int maxDepth) override {
+        auto ret = std::vector<std::string>();
         auto found = Find(query);
 
         if (found == nullptr) {
@@ -234,15 +216,26 @@ class TrieImpl : public Trie {
     }
 
     virtual std::vector<std::vector<int>> AllSplits(std::string_view query, SplitterCostMap const &cost_map) override {
-        int limit = 100;
+        int limit = 10;
         query = query.substr(0, 64);
         auto query_size = query.size();
 
+        /**
+         * The table contains one row for each index in the query string, up to max of 64
+         * Each row contains a result vector, which will reach a max size of |limit|
+         * Each result contains a uint64_t called |split| representing a bitfield,
+         * where the position of each set bit represents a split in the query string,
+         * plus the total cost associated with that split pattern.
+         */
         auto table = std::vector<std::vector<SplitCost>>(query.size() + 1, std::vector<SplitCost>());
         table[0].push_back(SplitCost());
         auto qbegin = query.begin();
         auto qend = query.end();
 
+        /**
+         * |start| is a pointer to the letter one past the end of the current split index
+         * e.g., each result in the table at index |start_idx| has a split at that position
+         */
         for (auto start = qbegin; start != qend; ++start) {
             auto start_idx = std::distance(qbegin, start);
             auto node = &root;
@@ -251,8 +244,14 @@ class TrieImpl : public Trie {
                 continue;
             }
 
+            /**
+             * Iterate through the remainder of the query string with pointer |it|.
+             * When query[start, it] is a word, check if the cost is cheaper than
+             * the most expensive result currently stored in table[it_idx]. If so,
+             * replace the most expensive one with the cheaper one.
+             */
             for (auto it = start; it != qend; ++it) {
-                auto end_idx = std::distance(qbegin, it) + 1;
+                auto it_idx = std::distance(qbegin, it) + 1;
 
                 if (node->children.find(*it) == node->children.end()) {
                     break;
@@ -261,14 +260,13 @@ class TrieImpl : public Trie {
                 node = node->children[*it].get();
 
                 if (node->end_of_word) {
-                    auto found = cost_map.find(std::string(start, it + 1));
-                    if (found != cost_map.end()) {
+                    if (auto found = cost_map.find(std::string(start, it + 1)); found != cost_map.end()) {
                         for (auto &result : table[start_idx]) {
                             auto bits = std::bitset<64>(result.split);
-                            bits.set(end_idx, true);
+                            bits.set(it_idx, true);
                             auto split = bits.to_ullong();
                             auto cost = result.cost + found->second;
-                            PushBackIfCheaper(table[end_idx], limit, split, cost);
+                            PushBackIfCheaper(table[it_idx], limit, split, cost);
                         }
                     }
                 }

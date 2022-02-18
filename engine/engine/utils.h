@@ -1,5 +1,6 @@
 #pragma once
 
+#include <bitset>
 #include <cstdio>
 #include <filesystem>
 #include <string>
@@ -86,6 +87,31 @@ inline fs::path findResourceDirectory() {
     }
 
     return fs::path();
+}
+
+inline int bitscan_forward(uint64_t x) {
+    auto bits = std::bitset<64>((x & -x) - 1);
+    return static_cast<int>(bits.count());
+}
+
+inline int bitscan_reverse(uint64_t x) {
+    int ret = 0;
+    while (x >>= 1) {
+        ++ret;
+    }
+    return ret;
+}
+
+inline std::vector<int> bitpositions(uint64_t bb_ull) {
+    auto ret = std::vector<int>();
+    while (bb_ull != 0) {
+        auto pos = bitscan_forward(bb_ull);
+        auto bits = std::bitset<64>(bb_ull);
+        bits.set(pos, false);
+        bb_ull = bits.to_ullong();
+        ret.push_back(pos);
+    }
+    return ret;
 }
 
 } // namespace khiin::engine::utils

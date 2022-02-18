@@ -32,7 +32,7 @@ class Trie {
 
     virtual size_t LongestKeyOf(std::string_view query) = 0;
 
-    virtual string_vector Autocomplete(std::string const &query, size_t limit = 0, size_t max_depth = 0) = 0;
+    virtual string_vector Autocomplete(std::string const &query, int limit = 0, int max_depth = 0) = 0;
     // virtual void FindKeys(std::string_view query, bool fuzzy, string_vector &results) = 0;
     virtual void FindKeys(std::string_view query, string_vector &results) = 0;
 };
