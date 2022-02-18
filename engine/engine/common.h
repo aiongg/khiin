@@ -16,8 +16,6 @@ inline const std::string kDatabaseFilename = "khiin.db";
 //inline const std::string kDatabaseFilename = "khiin_test.db";
 //#endif
 
-using string_vector = std::vector<std::string>;
-
 enum class CursorDirection {
     L,
     R,

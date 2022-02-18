@@ -138,16 +138,8 @@ class BufferMgrImpl : public BufferMgr {
 
         auto id = 0;
         for (auto &cand : m_candidates) {
-            auto display_str = std::string();
-            for (auto &elem : cand) {
-                if (elem.is_converted) {
-                    display_str += elem.converted();
-                } else {
-                    display_str += elem.composed();
-                }
-            }
             auto candidate_output = candidate_list->add_candidates();
-            candidate_output->set_value(display_str);
+            candidate_output->set_value(cand.Text());
             candidate_output->set_id(id);
             ++id;
         }
@@ -191,7 +183,7 @@ class BufferMgrImpl : public BufferMgr {
 
         if (m_nav_mode == NavMode::BySegment) {
             auto it = m_composition.Begin() + m_focused_element;
-            
+
             if (direction == CursorDirection::R) {
                 if (m_focused_element >= m_composition.get().size() - 1) {
                     return;
@@ -254,18 +246,19 @@ class BufferMgrImpl : public BufferMgr {
     void UpdateCandidatesContinuous(std::string const &raw_buffer) {
         m_candidates.clear();
 
-        if (m_input_mode == InputMode::Continuous && m_edit_state == EditState::EDIT_COMPOSING) {
-            m_candidates.push_back(ConvertWholeBuffer(m_composition.get()));
-        }
+        //if (m_input_mode == InputMode::Continuous && m_edit_state == EditState::EDIT_COMPOSING) {
+        //    m_candidates.push_back(ConvertWholeBuffer(m_composition.get()));
+        //}
 
-        auto candidates = CandidateFinder::GetCandidatesFromStart(m_engine, nullptr, raw_buffer);
+        auto candidates = CandidateFinder::ContinuousCandidates(m_engine, nullptr, raw_buffer);
+        // auto candidates = CandidateFinder::GetCandidatesFromStart(m_engine, nullptr, raw_buffer);
 
         for (auto &c : candidates) {
-            if (!m_candidates.empty() && ContainsCandidate(m_candidates[0], c)) {
-                continue;
-            }
+            //if (!m_candidates.empty() && ContainsCandidate(m_candidates[0], c)) {
+            //    continue;
+            //}
 
-            m_candidates.push_back(std::move(c));
+            m_candidates.push_back(BufferElementList(c.get()));
         }
     }
 
@@ -297,16 +290,13 @@ class BufferMgrImpl : public BufferMgr {
         auto raw_caret = m_composition.RawCaretFrom(m_caret, m_engine->syllable_parser());
         auto &candidate = m_candidates.at(index);
         auto raw_buffer = GetRawBuffer();
-        auto candidate_raw = std::string();
-        for (auto &el : candidate) {
-            candidate_raw += el.raw();
-        }
+        auto candidate_raw = candidate.RawText();
         auto raw_remainder = raw_buffer.substr(candidate_raw.size(), raw_buffer.size());
 
         m_composition.Clear();
         Segmenter::SegmentText(m_engine, raw_remainder, m_composition.get());
         KhinHandler::AutokhinBuffer(m_engine->syllable_parser(), m_composition.get());
-        m_composition.get().insert(m_composition.Begin(), candidate.begin(), candidate.end());
+        m_composition.get().insert(m_composition.Begin(), candidate.Begin(), candidate.End());
 
         raw_caret = m_composition.Join(raw_caret, m_precomp, m_postcomp);
         m_caret = m_composition.CaretFrom(raw_caret, m_engine->syllable_parser());
@@ -380,7 +370,7 @@ class BufferMgrImpl : public BufferMgr {
     Buffer m_precomp;     // Converted elements before the composition
     Buffer m_composition; // Elements in the composition
     Buffer m_postcomp;    // Converted elements after the composition
-    std::vector<BufferElementList> m_candidates;
+    std::vector<Buffer> m_candidates;
     size_t m_focused_candidate = 0;
     int m_focused_element = 0;
     EditState m_edit_state = EditState::EDIT_EMPTY;

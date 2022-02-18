@@ -26,12 +26,12 @@ inline bool IsCheaper(SplitCost &a, SplitCost &b) {
 }
 
 /**
-* |vec| is sorted by cost from low to high.
+ * |vec| is sorted by cost from low to high.
  * If size of |vec| is under the limit, push back directly.
  * Otherwise, check cost against the last element (highest cost), and
  * replace/re-sort only if it is cheaper.
  */
-void PushBackIfCheaper(std::vector<SplitCost> &vec, int limit, uint64_t split, float cost) {
+void SaveIfCheaper(std::vector<SplitCost> &vec, int limit, uint64_t split, float cost) {
     if (vec.size() < limit) {
         vec.push_back(SplitCost{split, cost});
         std::sort(vec.begin(), vec.end(), IsCheaper);
@@ -215,9 +215,9 @@ class TrieImpl : public Trie {
         }
     }
 
-    virtual std::vector<std::vector<int>> AllSplits(std::string_view query, SplitterCostMap const &cost_map) override {
+    virtual std::vector<std::vector<int>> Multisplit(std::string_view query, WordCostMap const &cost_map) override {
         int limit = 10;
-        query = query.substr(0, 64);
+        query = query.substr(0, 63);
         auto query_size = query.size();
 
         /**
@@ -266,7 +266,7 @@ class TrieImpl : public Trie {
                             bits.set(it_idx, true);
                             auto split = bits.to_ullong();
                             auto cost = result.cost + found->second;
-                            PushBackIfCheaper(table[it_idx], limit, split, cost);
+                            SaveIfCheaper(table[it_idx], limit, split, cost);
                         }
                     }
                 }
@@ -274,11 +274,18 @@ class TrieImpl : public Trie {
         }
 
         auto ret = std::vector<std::vector<int>>();
+        auto last_row = table.end() - 1;
+        while (last_row != table.begin() && last_row->empty()) {
+            --last_row;
+        }
 
-        // std::sort(result.begin(), result.end(), IsCheaper);
-        // for (auto &cost : result) {
-        //    ret.push_back(get_bit_positions(cost.split));
-        //}
+        for (auto &result : *last_row) {
+            ret.push_back(utils::bitpositions(result.split));
+
+            if (ret.size() >= limit) {
+                last_row = table.begin();
+            }
+        }
 
         return ret;
     }

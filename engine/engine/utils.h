@@ -90,7 +90,7 @@ inline fs::path findResourceDirectory() {
 }
 
 inline int bitscan_forward(uint64_t x) {
-    auto bits = std::bitset<64>((x & -x) - 1);
+    auto bits = std::bitset<64>((x & -static_cast<int64_t>(x)) - 1);
     return static_cast<int>(bits.count());
 }
 

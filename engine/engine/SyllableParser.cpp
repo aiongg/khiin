@@ -320,7 +320,7 @@ Syllable AlignRawToComposed(KeyConfig *keyconfig, std::string::const_iterator &r
     return SylFromRaw(keyconfig, r_syl);
 }
 
-void ComposedToRawWithAlternates(KeyConfig *keyconfig, const std::string &input, string_vector &output,
+void ComposedToRawWithAlternates(KeyConfig *keyconfig, const std::string &input, std::vector<std::string> &output,
                                  bool &has_tone) {
     auto syl = Lomaji::Decompose(input);
     auto tone = Tone::NaT;
@@ -417,7 +417,7 @@ class SyllableParserImpl : public SyllableParser {
         return ComposedCaretToRawCaret(keyconfig, syllable, composed_caret);
     }
 
-    virtual void ToFuzzy(std::string const &input, string_vector &output, bool &has_tone) {
+    virtual void ToFuzzy(std::string const &input, std::vector<std::string> &output, bool &has_tone) {
         ComposedToRawWithAlternates(keyconfig, input, output, has_tone);
     }
 

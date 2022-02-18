@@ -29,6 +29,7 @@ class TaiText {
 
     utf8_size_t size() const;
     std::string raw() const;
+    utf8_size_t RawSize() const;
     std::string composed() const;
     std::string converted() const;
     TaiToken *candidate() const;

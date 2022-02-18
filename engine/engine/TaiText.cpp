@@ -94,6 +94,16 @@ std::string TaiText::raw() const {
     return ret;
 }
 
+utf8_size_t TaiText::RawSize() const {
+    utf8_size_t size = 0;
+    for (auto &v_elem : m_elements) {
+        if (auto elem = std::get_if<Syllable>(&v_elem)) {
+            size += elem->raw_input.size();
+        }
+    }
+    return size;
+}
+
 std::string TaiText::composed() const {
     auto ret = std::string();
     for (auto &elem : m_elements) {

@@ -21,7 +21,7 @@ class Trie {
     // If query matches any key from the start
     virtual bool StartsWithKey(std::string_view query) = 0;
 
-    virtual std::vector<std::vector<int>> AllSplits(std::string_view query,
+    virtual std::vector<std::vector<int>> Multisplit(std::string_view query,
                                                     std::unordered_map<std::string, float> const &cost_map) = 0;
 
     // If query is a key
@@ -32,9 +32,9 @@ class Trie {
 
     virtual size_t LongestKeyOf(std::string_view query) = 0;
 
-    virtual string_vector Autocomplete(std::string const &query, int limit = 0, int max_depth = 0) = 0;
+    virtual std::vector<std::string> Autocomplete(std::string const &query, int limit = 0, int max_depth = 0) = 0;
     // virtual void FindKeys(std::string_view query, bool fuzzy, string_vector &results) = 0;
-    virtual void FindKeys(std::string_view query, string_vector &results) = 0;
+    virtual void FindKeys(std::string_view query, std::vector<std::string> &results) = 0;
 };
 
 } // namespace khiin::engine

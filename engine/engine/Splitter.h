@@ -9,7 +9,7 @@
 #include "errors.h"
 
 namespace khiin::engine {
-using SplitterCostMap = std::unordered_map<std::string, float>;
+using WordCostMap = std::unordered_map<std::string, float>;
 
 // Can determine whether a string may be split by the words contained in it,
 // and can attempt to perform the best split (when the imported word list is
@@ -17,15 +17,15 @@ using SplitterCostMap = std::unordered_map<std::string, float>;
 class Splitter {
   public:
     Splitter();
-    Splitter(string_vector const &words);
-    size_t MaxSplitSize(std::string const &input) const;
-    bool CanSplit(std::string const &input) const;
-    void Split(std::string const &input, string_vector &result) const;
-    SplitterCostMap const &cost_map() const;
+    Splitter(std::vector<std::string> const &words);
+    size_t MaxSplitSize(std::string_view input) const;
+    bool CanSplit(std::string_view input) const;
+    void Split(std::string const &input, std::vector<std::string> &result) const;
+    WordCostMap const &cost_map() const;
 
   private:
     std::unordered_set<std::string> m_word_set;
-    SplitterCostMap m_cost_map;
+    WordCostMap m_cost_map;
     int m_max_word_length = 0;
 };
 

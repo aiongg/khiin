@@ -25,7 +25,7 @@ struct SplitCheckResult {
     std::vector<int> split_indices;
 };
 
-SplitCheckResult CheckSplittable(WordSet const &words, std::string const &query) {
+SplitCheckResult CheckSplittable(WordSet const &words, std::string_view query) {
     auto size = query.size();
     std::vector<bool> splits_at(size + 1, false);
     std::vector<int> split_indices;
@@ -35,10 +35,10 @@ SplitCheckResult CheckSplittable(WordSet const &words, std::string const &query)
         auto n_splits = static_cast<int>(split_indices.size());
 
         for (auto j = n_splits - 1; j >= 0; j--) {
-            std::string substr =
+            auto substrv =
                 query.substr(static_cast<size_t>(split_indices[j] + 1), static_cast<size_t>(i - split_indices[j]));
 
-            if (words.find(substr) != words.end()) {
+            if (words.find(std::string(substrv.begin(), substrv.end())) != words.end()) {
                 splits_at[i] = true;
                 split_indices.push_back(i);
                 break;
@@ -66,7 +66,7 @@ Splitter::Splitter(std::vector<std::string> const &words_by_frequency) {
     }
 }
 
-size_t Splitter::MaxSplitSize(std::string const &input) const {
+size_t Splitter::MaxSplitSize(std::string_view input) const {
     if (input.empty()) {
         return 0;
     }
@@ -75,7 +75,7 @@ size_t Splitter::MaxSplitSize(std::string const &input) const {
     return static_cast<size_t>(result.split_indices.back() + 1);
 }
 
-bool Splitter::CanSplit(std::string const &input) const {
+bool Splitter::CanSplit(std::string_view input) const {
     if (input.empty()) {
         return true;
     }
@@ -136,7 +136,7 @@ void Splitter::Split(std::string const &input, std::vector<std::string> &result)
     }
 }
 
-SplitterCostMap const & Splitter::cost_map() const {
+WordCostMap const & Splitter::cost_map() const {
     return m_cost_map;
 }
 

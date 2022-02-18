@@ -1,5 +1,3 @@
-// libtaikey.cpp : Defines the entry point for the application.
-//
 //#ifdef _WIN32
 //#ifdef _MSC_VER
 //#pragma execution_character_set("utf-8")
@@ -16,14 +14,11 @@
 #include "utf8cpp/utf8.h"
 
 #include "BufferMgr.h"
-//#include "CandidateFinder.h"
+#include "Database.h"
 #include "Dictionary.h"
 #include "KeyConfig.h"
 #include "SyllableParser.h"
 #include "utils.h"
-#include "Database.h"
-#include "Splitter.h"
-#include "Trie.h"
 
 namespace khiin::engine {
 namespace {
@@ -45,11 +40,11 @@ class EngineImpl : public Engine {
             m_database = std::unique_ptr<Database>(Database::TestDb());
         }
 
-        //if (resource_dir.empty()) {
+        // if (resource_dir.empty()) {
         //    resource_dir = utils::findResourceDirectory();
         //}
 
-        //if (!resource_dir.empty()) {
+        // if (!resource_dir.empty()) {
         //    auto db_path = fs::path(resource_dir);
         //    db_path /= kDatabaseFilename;
 
@@ -57,7 +52,7 @@ class EngineImpl : public Engine {
         //    }
         //}
 
-        //if (!m_database) {
+        // if (!m_database) {
         //}
 
         m_keyconfig = std::unique_ptr<KeyConfig>(KeyConfig::Create());
@@ -218,15 +213,12 @@ class EngineImpl : public Engine {
     std::string m_dbfilename = ":memory:";
 
     std::unique_ptr<Database> m_database = nullptr;
-    std::unique_ptr<Splitter> m_splitter = nullptr;
-    //std::unique_ptr<Trie> m_trie = nullptr;
     std::unique_ptr<BufferMgr> m_buffer_mgr = nullptr;
-    //std::unique_ptr<CandidateFinder> m_candidate_finder = nullptr;
     std::unique_ptr<KeyConfig> m_keyconfig = nullptr;
     std::unique_ptr<SyllableParser> m_syllable_parser = nullptr;
     std::unique_ptr<Dictionary> m_dictionary = nullptr;
 
-    string_vector m_valid_syllables;
+    std::vector<std::string> m_valid_syllables;
 
     std::shared_ptr<Output> prev_output = nullptr;
     std::unordered_map<CommandType, decltype(&HandleNone)> command_handlers = {};

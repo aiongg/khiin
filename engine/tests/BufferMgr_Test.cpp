@@ -176,7 +176,7 @@ TEST_F(BufferMgrTest, Insert_to7si7) {
 TEST_F(BufferMgrTest, Candidates_taichi) {
     insert_string("taichi");
     auto cands = get_cand_strings();
-    EXPECT_GT(cands.size(), 3);
+    EXPECT_EQ(cands.size(), 3);
     EXPECT_THAT(cands, Contains(u8"事志"));
     EXPECT_THAT(cands, Contains(u8"代志"));
     EXPECT_THAT(cands, Contains(u8"tāi-chì"));
@@ -537,8 +537,7 @@ TEST_F(BufferMgrTest, Convert_e5) {
 }
 
 TEST_F(BufferMgrTest, TmpTest) {
-    insert_string("iniauchiaheanneoupoetemthangchhikimhiahanahesitihiasisinithia");
-    insert_string("n");
+    insert_string("simsianne");
 }
 
 } // namespace

@@ -16,7 +16,7 @@ static khiin::engine::Engine *g_engine = nullptr;
 }
 
 void TestEnv::SetUp() {
-    g_engine = khiin::engine::Engine::Create("./khiin.db");
+    g_engine = khiin::engine::Engine::Create("./khiin_test.db");
 }
 
 void TestEnv::TearDown() {
