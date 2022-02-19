@@ -536,8 +536,9 @@ TEST_F(BufferMgrTest, Convert_e5) {
     EXPECT_EQ(caret(), 1);
 }
 
-TEST_F(BufferMgrTest, TmpTest) {
-    insert_string("simsianne");
+TEST_F(BufferMgrTest, DISABLED_TmpTest) {
+    insert_string("iniauchiaheanneoupoetemthangchhikimhiahanahesitihiasisinithia");
+    insert_string("n");
 }
 
 } // namespace

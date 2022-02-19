@@ -201,11 +201,11 @@ class BufferMgrImpl : public BufferMgr {
                 }
             }
 
-            m_focused_element = std::distance(m_composition.Begin(), it);
+            m_focused_element = static_cast<int>(std::distance(m_composition.Begin(), it));
         } else if (m_nav_mode == NavMode::ByCharacter) {
             MoveCaretBasic(direction);
             auto it = m_composition.At(m_caret);
-            m_focused_element = std::distance(m_composition.Begin(), it);
+            m_focused_element = static_cast<int>(std::distance(m_composition.Begin(), it));
         }
     }
 
@@ -219,10 +219,12 @@ class BufferMgrImpl : public BufferMgr {
         ++raw_caret;
 
         m_composition.Clear();
+        m_candidates.clear();
+        //m_candidates = CandidateFinder::ContinuousCandidates()
         Segmenter::SegmentText(m_engine, raw_composition, m_composition.get());
         KhinHandler::AutokhinBuffer(m_engine->syllable_parser(), m_composition.get());
-
-        UpdateCandidatesContinuous(raw_composition);
+        m_candidates = CandidateFinder::ContinuousCandidates(m_engine, nullptr, raw_composition);
+        //UpdateCandidatesContinuous(raw_composition);
         raw_caret = m_composition.Join(raw_caret, m_precomp, m_postcomp);
         m_caret = m_composition.CaretFrom(raw_caret, m_engine->syllable_parser());
     }
@@ -291,7 +293,7 @@ class BufferMgrImpl : public BufferMgr {
         auto &candidate = m_candidates.at(index);
         auto raw_buffer = GetRawBuffer();
         auto candidate_raw = candidate.RawText();
-        auto raw_remainder = raw_buffer.substr(candidate_raw.size(), raw_buffer.size());
+        auto raw_remainder = std::string(raw_buffer.cbegin() + candidate_raw.size(), raw_buffer.cend());
 
         m_composition.Clear();
         Segmenter::SegmentText(m_engine, raw_remainder, m_composition.get());

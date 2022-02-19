@@ -17,13 +17,12 @@ namespace khiin::engine {
 namespace {
 
 struct SplitCost {
+    bool operator<(SplitCost const& rhs) const {
+        return cost < rhs.cost;
+    }
     uint64_t split = 0;
     float cost = 0.0f;
 };
-
-inline bool IsCheaper(SplitCost &a, SplitCost &b) {
-    return a.cost < b.cost;
-}
 
 /**
  * |vec| is sorted by cost from low to high.
@@ -34,12 +33,12 @@ inline bool IsCheaper(SplitCost &a, SplitCost &b) {
 void SaveIfCheaper(std::vector<SplitCost> &vec, int limit, uint64_t split, float cost) {
     if (vec.size() < limit) {
         vec.push_back(SplitCost{split, cost});
-        std::sort(vec.begin(), vec.end(), IsCheaper);
+        std::sort(vec.begin(), vec.end());
     } else {
         if (cost < vec.back().cost) {
             vec.back().split = split;
             vec.back().cost = cost;
-            std::sort(vec.begin(), vec.end(), IsCheaper);
+            std::sort(vec.begin(), vec.end());
         }
     }
 }
@@ -216,7 +215,7 @@ class TrieImpl : public Trie {
     }
 
     virtual std::vector<std::vector<int>> Multisplit(std::string_view query, WordCostMap const &cost_map) override {
-        int limit = 10;
+        int limit = 5;
         query = query.substr(0, 63);
         auto query_size = query.size();
 

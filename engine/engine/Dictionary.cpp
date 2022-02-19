@@ -68,18 +68,24 @@ class DictionaryImpl : public Dictionary {
     }
 
     virtual std::vector<TaiToken *> WordSearch(std::string const &query) override {
-        return GetOrCacheTokens(query);
+        auto ret = std::vector<TaiToken *>();
+        GetOrCacheTokens(query, ret);
+        return ret;
     }
 
     virtual std::vector<TaiToken *> Autocomplete(std::string const &query) override {
+        auto ret = std::vector<TaiToken *>();
         auto words = m_word_trie->Autocomplete(query, 10, 5);
-        return GetOrCacheTokens(words);
+        GetOrCacheTokens(words, ret);
+        return ret;
     }
 
     virtual std::vector<TaiToken *> AllWordsFromStart(std::string const &query) override {
+        auto ret = std::vector<TaiToken *>();
         auto words = std::vector<std::string>();
         m_word_trie->FindKeys(query, words);
-        return GetOrCacheTokens(words);
+        GetOrCacheTokens(words, ret);
+        return ret;
     }
 
     virtual std::vector<std::string> const &AllInputsByFreq() override {
@@ -175,55 +181,39 @@ class DictionaryImpl : public Dictionary {
         }
     }
 
-    std::vector<TaiToken *> GetOrCacheTokens(std::string const &input) {
-        auto ret = std::vector<TaiToken *>();
-
-        auto ids = m_input_ids.find(input);
-        if (ids == m_input_ids.end()) {
-            return ret;
+    void GetOrCacheTokens(std::string const &input, std::vector<TaiToken *> &output) {
+        if (auto ids = m_input_ids.find(input); ids != m_input_ids.end()) {
+            GetOrCacheTokens(ids->second, output);
         }
-
-        return GetOrCacheTokens(ids->second);
     }
 
-    std::vector<TaiToken *> GetOrCacheTokens(std::vector<std::string> const &inputs) {
-        auto ret = std::vector<TaiToken *>();
+    void GetOrCacheTokens(std::vector<std::string> const &inputs, std::vector<TaiToken *> &output) {
         for (auto &input : inputs) {
-            auto tokens = GetOrCacheTokens(input);
-            ret.insert(ret.end(), tokens.begin(), tokens.end());
+            GetOrCacheTokens(input, output);
         }
-        SortAndDedupe(ret);
-        return ret;
     }
 
-    std::vector<TaiToken *> GetOrCacheTokens(int input_id) {
-        auto ret = std::vector<TaiToken *>();
+    void GetOrCacheTokens(std::vector<int> const &input_ids, std::vector<TaiToken *> &output) {
+        for (auto id : input_ids) {
+            GetOrCacheTokens(id, output);
+        }
+    }
 
+    void GetOrCacheTokens(int input_id, std::vector<TaiToken *> &output) {
         if (auto cached = m_input_id_token_cache.find(input_id); cached != m_input_id_token_cache.end()) {
-            return cached->second;
+            output.insert(output.end(), cached->second.begin(), cached->second.end());
+            return;
         }
 
+        m_input_id_token_cache[input_id] = std::vector<TaiToken *>();
+        auto &ptr_cache = m_input_id_token_cache[input_id];
         auto tokens = std::vector<TaiToken>();
         m_engine->database()->ConversionsByInputId(input_id, tokens);
         for (auto &token : tokens) {
             auto inserted = m_token_cache.insert(std::make_pair(token.id, std::move(token)));
-            ret.push_back(&inserted.first->second);
+            ptr_cache.push_back(&inserted.first->second);
+            output.push_back(&inserted.first->second);
         }
-
-        SortAndDedupe(ret);
-        return ret;
-    }
-
-    std::vector<TaiToken *> GetOrCacheTokens(std::vector<int> const &input_ids) {
-        auto ret = std::vector<TaiToken *>();
-
-        for (auto id : input_ids) {
-            auto tokens = GetOrCacheTokens(id);
-            ret.insert(ret.end(), tokens.begin(), tokens.end());
-        }
-
-        SortAndDedupe(ret);
-        return ret;
     }
 
     Engine *m_engine = nullptr;
@@ -234,7 +224,7 @@ class DictionaryImpl : public Dictionary {
     // Calculated; depend on KeyConfig
     std::unordered_map<std::string, std::vector<int>> m_input_ids;
     std::vector<std::string> m_user_inputs;
-    
+
     // From the database
     std::unordered_map<int, TaiToken> m_token_cache;
     std::unordered_map<int, std::vector<TaiToken *>> m_input_id_token_cache;

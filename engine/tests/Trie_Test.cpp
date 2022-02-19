@@ -102,13 +102,13 @@ std::string str_from_vec_int(std::vector<int> data) {
 TEST_F(TrieTest, Multisplit) {
     ins({"the", "me", "theme", "meat", "at", "them", "eat"});
     auto cost_map = std::unordered_map<std::string, float>();
-    cost_map.insert(std::make_pair("the", 1));
-    cost_map.insert(std::make_pair("at", 2));
-    cost_map.insert(std::make_pair("me", 3));
-    cost_map.insert(std::make_pair("eat", 4));
-    cost_map.insert(std::make_pair("them", 5));
-    cost_map.insert(std::make_pair("meat", 6));
-    cost_map.insert(std::make_pair("theme", 7));
+    cost_map.insert(std::make_pair("the", 1.0f));
+    cost_map.insert(std::make_pair("at", 1.1f));
+    cost_map.insert(std::make_pair("me", 1.2f));
+    cost_map.insert(std::make_pair("eat", 1.3f));
+    cost_map.insert(std::make_pair("them", 1.4f));
+    cost_map.insert(std::make_pair("meat", 1.5f));
+    cost_map.insert(std::make_pair("theme", 1.6f));
 
     // theme at, them eat, the meat, the me at
     auto ret = trie->Multisplit("themeat", cost_map);
