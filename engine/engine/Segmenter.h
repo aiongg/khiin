@@ -8,6 +8,15 @@ namespace khiin::engine {
 
 class Engine;
 
+enum class BufferSegmentType {
+    Splittable,
+    WordPrefix,
+    SyllablePrefix,
+    SplittableWithTrailingPrefix,
+    Hyphens,
+
+};
+
 // - Can find possible segmentations either for the entire buffer
 //   or from the beginning of the buffer
 // - Segmentation may be based on either dictionary Candidates or
@@ -22,21 +31,3 @@ class Segmenter {
 };
 
 } // namespace khiin::engine
-
-// Misc notes from a call:
-// pe nan -> peng an
-// penan -> peng an
-
-// RAW:       PENAN
-// COMPOSING: PE NA N
-// CARET:         ^
-// INSERT:        G
-// RAW:       PENGAN
-// RAW INSERT:   ^           A
-// COMPOSING: PENG AN
-// CARET:         ^          B
-
-// COMPOSING BUFFER + COMPOSING CARET POSITION
-//               -------> RAW BUFFER + RAW CARET POSITION
-//               -------> INSERT KEY AT RAW CARET POSITION
-//               -------> CUT INTO COMPOSING BUFFER & COMPOSING CARET POSITION

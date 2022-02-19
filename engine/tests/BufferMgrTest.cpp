@@ -83,6 +83,7 @@ struct BufferMgrTest : ::testing::Test {
     }
 
     BufferMgr *bufmgr = nullptr;
+    Engine *engine = nullptr;
 };
 
 TEST_F(BufferMgrTest, Loads) {

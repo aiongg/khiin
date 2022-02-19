@@ -2,22 +2,22 @@ include_directories(${PROJECT_SOURCE_DIR}/engine)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 
 add_executable(test_khiin_engine
-    "Test_Main.cpp"
-    "Engine_Test.cpp"
-    "Trie_Test.cpp"
+    "TestMain.cpp"
+    "EngineTest.cpp"
+    "TrieTest.cpp"
     "test_buffer.cpp"
-    "Lomaji_Test.cpp"
+    "LomajiTest.cpp"
     "test_db.cpp"
-    "test_candidates.cpp"
-    "Syllable_test.cpp"
-    "KeyConfig_Test.cpp"
-    "SyllableParser_Test.cpp"
-    "Dictionary_Test.cpp"
-    "BufferMgr_Test.cpp"
-    "Segmenter_Test.cpp"
-    "Splitter_Test.cpp"
+    
+    "SyllableTest.cpp"
+    "KeyConfigTest.cpp"
+    "SyllableParserTest.cpp"
+    "DictionaryTest.cpp"
+    "BufferMgrTest.cpp"
+    "SegmenterTest.cpp"
+    "SplitterTest.cpp"
     "TestEnv.h"
- "Unicode_Test.cpp" "UtilsTest.cpp" )
+ "UnicodeTest.cpp" "UtilsTest.cpp" )
 
 target_link_libraries(test_khiin_engine khiin SQLiteCpp ${Boost_LIBRARIES} ${Protobuf_LITE_LIBRARY} GTest::gmock GTest::gtest GTest::gmock_main GTest::gtest_main)
 

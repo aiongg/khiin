@@ -220,11 +220,9 @@ class BufferMgrImpl : public BufferMgr {
 
         m_composition.Clear();
         m_candidates.clear();
-        //m_candidates = CandidateFinder::ContinuousCandidates()
         Segmenter::SegmentText(m_engine, raw_composition, m_composition.get());
         KhinHandler::AutokhinBuffer(m_engine->syllable_parser(), m_composition.get());
         m_candidates = CandidateFinder::ContinuousCandidates(m_engine, nullptr, raw_composition);
-        //UpdateCandidatesContinuous(raw_composition);
         raw_caret = m_composition.Join(raw_caret, m_precomp, m_postcomp);
         m_caret = m_composition.CaretFrom(raw_caret, m_engine->syllable_parser());
     }
@@ -242,25 +240,6 @@ class BufferMgrImpl : public BufferMgr {
 
         if (!m_precomp.Empty()) {
             m_caret -= m_precomp.Size();
-        }
-    }
-
-    void UpdateCandidatesContinuous(std::string const &raw_buffer) {
-        m_candidates.clear();
-
-        //if (m_input_mode == InputMode::Continuous && m_edit_state == EditState::EDIT_COMPOSING) {
-        //    m_candidates.push_back(ConvertWholeBuffer(m_composition.get()));
-        //}
-
-        auto candidates = CandidateFinder::ContinuousCandidates(m_engine, nullptr, raw_buffer);
-        // auto candidates = CandidateFinder::GetCandidatesFromStart(m_engine, nullptr, raw_buffer);
-
-        for (auto &c : candidates) {
-            //if (!m_candidates.empty() && ContainsCandidate(m_candidates[0], c)) {
-            //    continue;
-            //}
-
-            m_candidates.push_back(BufferElementList(c.get()));
         }
     }
 
