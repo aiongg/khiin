@@ -27,12 +27,15 @@ class TaiText {
     void AddItem(VirtualSpace spacer);
     void SetCandidate(TaiToken *candidate);
 
-    utf8_size_t size() const;
-    std::string raw() const;
+    std::string RawText() const;
     utf8_size_t RawSize() const;
-    std::string composed() const;
-    std::string converted() const;
+    std::string ComposedText() const;
+    utf8_size_t ComposedSize() const;
+    std::string ConvertedText() const;
+    utf8_size_t ConvertedSize() const;
+    size_t SyllableSize() const;
     TaiToken *candidate() const;
+
 
     utf8_size_t RawToComposedCaret(SyllableParser *parser, size_t raw_caret) const;
     size_t ComposedToRawCaret(SyllableParser *parser, utf8_size_t caret) const;

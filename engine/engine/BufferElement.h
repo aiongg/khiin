@@ -23,7 +23,7 @@ class BufferElement {
     void Replace(VirtualSpace elem);
 
     utf8_size_t size() const;
-    utf8_size_t raw_size() const;
+    utf8_size_t RawSize() const;
 
     std::string raw() const;
     std::string composed() const;

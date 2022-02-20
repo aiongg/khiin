@@ -32,7 +32,7 @@ bool NeedsVirtualSpace(std::string const &lhs, std::string const &rhs) {
 using iterator = BufferElementList::iterator;
 using const_iterator = BufferElementList::const_iterator;
 
-utf8_size_t Buffer::Size(iterator const &from, iterator const &to) {
+utf8_size_t Buffer::TextSize(iterator const &from, iterator const &to) {
     auto it = from;
     utf8_size_t size = 0;
 
@@ -43,12 +43,12 @@ utf8_size_t Buffer::Size(iterator const &from, iterator const &to) {
     return size;
 }
 
-utf8_size_t Buffer::RawSize(iterator const &from, iterator const &to) {
+utf8_size_t Buffer::RawTextSize(iterator const &from, iterator const &to) {
     auto it = from;
     utf8_size_t size = 0;
 
     for (; it != to; ++it) {
-        size += it->raw_size();
+        size += it->RawSize();
     }
 
     return size;
@@ -91,8 +91,16 @@ iterator Buffer::End() {
     return m_elements.end();
 }
 
+BufferElement &Buffer::At(size_t index) {
+    return m_elements.at(index);
+}
+
+void Buffer::Append(Buffer &rhs) {
+    m_elements.insert(m_elements.end(), rhs.Begin(), rhs.End());
+}
+
 // Returns iterator pointing to the element at visible caret position
-iterator Buffer::At(utf8_size_t caret) {
+iterator Buffer::IterCaret(utf8_size_t caret) {
     auto rem = caret;
     auto it = Begin();
     auto end = End();
@@ -107,12 +115,12 @@ iterator Buffer::At(utf8_size_t caret) {
 }
 
 // Returns iterator pointing to the element at raw caret position
-iterator Buffer::AtRaw(utf8_size_t raw_caret) {
+iterator Buffer::IterRawCaret(utf8_size_t raw_caret) {
     auto rem = raw_caret;
     auto it = Begin();
     auto end = End();
     for (; it != end; ++it) {
-        if (auto size = it->raw_size(); rem > size) {
+        if (auto size = it->RawSize(); rem > size) {
             rem -= size;
         } else {
             break;
@@ -137,12 +145,12 @@ bool Buffer::Empty() {
     return m_elements.empty();
 }
 
-utf8_size_t Buffer::Size() {
-    return Size(Begin(), End());
+utf8_size_t Buffer::TextSize() {
+    return TextSize(Begin(), End());
 }
 
-size_t Buffer::RawSize() {
-    return RawSize(Begin(), End());
+size_t Buffer::RawTextSize() {
+    return RawTextSize(Begin(), End());
 }
 
 // Input |caret| is the visible displayed caret, in unicode code points. Returns
@@ -153,10 +161,10 @@ size_t Buffer::RawCaretFrom(utf8_size_t caret, SyllableParser *parser) {
     }
 
     auto begin = Begin();
-    auto it = At(caret);
-    auto remainder = caret - Size(begin, it);
+    auto it = IterCaret(caret);
+    auto remainder = caret - TextSize(begin, it);
     auto raw_remainder = it->ComposedToRawCaret(parser, remainder);
-    return RawSize(begin, it) + raw_remainder;
+    return RawTextSize(begin, it) + raw_remainder;
 }
 
 utf8_size_t Buffer::CaretFrom(utf8_size_t raw_caret, SyllableParser *parser) {
@@ -164,10 +172,10 @@ utf8_size_t Buffer::CaretFrom(utf8_size_t raw_caret, SyllableParser *parser) {
         return 0;
     }
     auto begin = Begin();
-    auto it = AtRaw(raw_caret);
-    auto raw_remainder = raw_caret - RawSize(begin, it);
+    auto it = IterRawCaret(raw_caret);
+    auto raw_remainder = raw_caret - RawTextSize(begin, it);
     auto remainder = it->RawToComposedCaret(parser, raw_remainder);
-    return Size(begin, it) + remainder;
+    return TextSize(begin, it) + remainder;
 }
 
 std::string Buffer::RawText() {
@@ -227,7 +235,7 @@ void Buffer::IsolateComposing(Buffer &pre, Buffer &post) {
 // in place if it is Lomaji. Buffer must be re-joined later.
 void Buffer::SplitForComposition(utf8_size_t caret, Buffer &pre, Buffer &post) {
     auto begin = Begin();
-    auto elem = At(caret);
+    auto elem = IterCaret(caret);
 
     if (begin != elem) {
         pre.get().insert(pre.Begin(), begin, elem);
@@ -244,7 +252,7 @@ void Buffer::SplitForComposition(utf8_size_t caret, Buffer &pre, Buffer &post) {
     // Only one element remaining: if Hanji we split it and
     // start a new composition buffer, if Lomaji we keep it as-is
     if (auto converted = Begin()->converted(); unicode::contains_hanji(converted)) {
-        auto remainder = caret - pre.Size();
+        auto remainder = caret - pre.TextSize();
 
         auto it = converted.begin();
         utf8::unchecked::advance(it, remainder);
@@ -263,7 +271,7 @@ void Buffer::SplitForComposition(utf8_size_t caret, Buffer &pre, Buffer &post) {
 }
 
 utf8_size_t Buffer::Join(utf8_size_t raw_caret, Buffer &pre, Buffer &post) {
-    raw_caret = pre.RawSize() + raw_caret;
+    raw_caret = pre.RawTextSize() + raw_caret;
 
     if (!pre.Empty()) {
         m_elements.insert(Begin(), pre.Begin(), pre.End());
@@ -279,8 +287,19 @@ utf8_size_t Buffer::Join(utf8_size_t raw_caret, Buffer &pre, Buffer &post) {
     return raw_caret;
 }
 
+void Buffer::Replace(size_t index, Buffer &other) {
+    auto it = m_elements.erase(m_elements.begin() + index);
+    m_elements.insert(it, other.Begin(), other.End());
+}
+
 void Buffer::AdjustVirtualSpacing() {
     AdjustVirtualSpacing(m_elements);
+}
+
+void Buffer::SetConverted(bool converted) {
+    for (auto &elem : m_elements) {
+        elem.is_converted = converted;
+    }
 }
 
 BufferElementList &Buffer::get() {

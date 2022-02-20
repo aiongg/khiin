@@ -19,6 +19,8 @@ class CandidateFinder {
                                                                  std::string const &query);
     static std::vector<Buffer> ContinuousCandidates(Engine *engine, TaiToken *lgram,
                                                                std::string const &query);
+    static bool HasExactMatch(Engine *engine, std::string_view query);
+    static Buffer ContinuousBestMatch(Engine *engine, TaiToken *lgram, std::string_view query);
 };
 
 } // namespace khiin::engine

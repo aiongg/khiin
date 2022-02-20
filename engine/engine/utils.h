@@ -2,8 +2,8 @@
 
 #include <bitset>
 #include <cstdio>
-#include <filesystem>
 #include <string>
+#include <filesystem>
 
 #include "common.h"
 
@@ -14,7 +14,7 @@ namespace {
  * Convert all std::strings to const char* using constexpr if (C++17)
  */
 template <typename T>
-auto convert(T &&t) {
+auto to_const_char_ptr(T &&t) {
     if constexpr (std::is_same<std::remove_cv_t<std::remove_reference_t<T>>, std::string>::value) {
         return std::forward<T>(t).c_str();
     } else {
@@ -36,58 +36,23 @@ std::string format_internal(const std::string &format, Args &&...args) {
     snprintf(buf.get(), size, format.c_str(), args...);
     return std::string(buf.get(), buf.get() + size - 1);
 }
+
 } // namespace
 
-namespace fs = std::filesystem;
+template <typename... Args>
+std::string format(std::string fmt, Args &&...args) {
+    return format_internal(fmt, to_const_char_ptr(std::forward<Args>(args))...);
+}
 
 const inline std::string_view make_string_view(std::string const &str, std::string::const_iterator first,
                                                std::string::const_iterator last) noexcept {
     return std::string_view(str.data() + (first - str.begin()), last - first);
 }
 
-const inline std::vector<std::string> split_string(std::string_view str, char delimiter) {
-    auto ret = std::vector<std::string>();
-    auto begin = size_t(0);
-    auto end = str.find(delimiter);
-    while (end != std::string::npos) {
-        ret.emplace_back(str.substr(begin, end - begin));
-        begin = end + 1;
-        end = str.find(delimiter, begin);
-    }
-    ret.emplace_back(str.substr(begin, end));
-    return ret;
-}
+std::vector<std::string> split_string(std::string_view str, char delimiter);
+std::vector<std::string> split_string_multi(std::string_view str, std::string_view delimiters);
 
-template <typename... Args>
-std::string format(std::string fmt, Args &&...args) {
-    return format_internal(fmt, convert(std::forward<Args>(args))...);
-}
-
-inline fs::path findResourceDirectory() {
-#pragma warning(push)
-#pragma warning(disable : 4996)
-    auto tkpath = ::getenv(kKhiinHome.c_str());
-#pragma warning(pop)
-
-    if (tkpath == nullptr) {
-        return fs::path();
-    }
-
-#ifdef _WIN32
-    auto searchDirectories = split_string(tkpath, ';');
-#else
-    auto searchDirectories = split_string(tkpath, ':');
-#endif
-    fs::path path;
-    for (auto &dir : searchDirectories) {
-        path = fs::path(dir) /= kDatabaseFilename;
-        if (fs::exists(path)) {
-            return fs::path(dir);
-        }
-    }
-
-    return fs::path();
-}
+std::filesystem::path findResourceDirectory();
 
 inline int bitscan_forward(uint64_t x) {
     auto bits = std::bitset<64>((x & -static_cast<int64_t>(x)) - 1);

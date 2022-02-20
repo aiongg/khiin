@@ -17,7 +17,7 @@ namespace khiin::engine {
 namespace {
 
 struct SplitCost {
-    bool operator<(SplitCost const& rhs) const {
+    bool operator<(SplitCost const &rhs) const {
         return cost < rhs.cost;
     }
     uint64_t split = 0;
@@ -214,8 +214,8 @@ class TrieImpl : public Trie {
         }
     }
 
-    virtual std::vector<std::vector<int>> Multisplit(std::string_view query, WordCostMap const &cost_map) override {
-        int limit = 5;
+    virtual std::vector<std::vector<int>> Multisplit(std::string_view query, WordCostMap const &cost_map,
+                                                     uint32_t limit) override {
         query = query.substr(0, 63);
         auto query_size = query.size();
 

@@ -301,18 +301,18 @@ TEST_F(SyllableParserTest, TaiText_pengan) {
     auto target = u8"pêng-an";
 
     auto result = parser->AsTaiText(raw, target);
-    EXPECT_EQ(result.raw(), "pengan");
-    EXPECT_EQ(result.composed(), "peng an");
-    EXPECT_EQ(result.size(), 7);
+    EXPECT_EQ(result.RawText(), "pengan");
+    EXPECT_EQ(result.ComposedText(), "peng an");
+    EXPECT_EQ(result.ComposedSize(), 7);
 }
 
 TEST_F(SyllableParserTest, TaiText_Ho2) {
     auto raw = u8"ho";
     auto target = u8"Hó";
     auto result = parser->AsTaiText(raw, target);
-    EXPECT_EQ(result.raw(), "ho");
-    EXPECT_EQ(result.composed(), "ho");
-    EXPECT_EQ(result.size(), 2);
+    EXPECT_EQ(result.RawText(), "ho");
+    EXPECT_EQ(result.ComposedText(), "ho");
+    EXPECT_EQ(result.ComposedSize(), 2);
 }
 
 TEST_F(SyllableParserTest, Erase_a) {

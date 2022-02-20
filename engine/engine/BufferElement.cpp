@@ -42,7 +42,7 @@ utf8_size_t BufferElement::size() const {
         if (is_converted && elem->candidate()) {
             return u8_size(elem->candidate()->output);
         } else {
-            return elem->size();
+            return elem->ComposedSize();
         }
     } else if (auto elem = std::get_if<VirtualSpace>(&m_element)) {
         return utf8_size_t(1);
@@ -55,13 +55,13 @@ std::string BufferElement::raw() const {
     if (auto elem = std::get_if<std::string>(&m_element)) {
         return *elem;
     } else if (auto elem = std::get_if<TaiText>(&m_element)) {
-        return elem->raw();
+        return elem->RawText();
     } else { // VirtualSpace && std::Monostate
         return std::string();
     }
 }
 
-utf8_size_t BufferElement::raw_size() const {
+utf8_size_t BufferElement::RawSize() const {
     return unicode::u8_size(raw());
 }
 
@@ -106,7 +106,7 @@ std::string BufferElement::composed() const {
     if (auto elem = std::get_if<std::string>(&m_element)) {
         return *elem;
     } else if (auto elem = std::get_if<TaiText>(&m_element)) {
-        return elem->composed();
+        return elem->ComposedText();
     } else if (auto elem = std::get_if<VirtualSpace>(&m_element)) {
         return std::string(1, ' ');
     }
@@ -118,7 +118,7 @@ std::string BufferElement::converted() const {
     if (auto elem = std::get_if<std::string>(&m_element)) {
         return *elem;
     } else if (auto elem = std::get_if<TaiText>(&m_element)) {
-        return elem->converted();
+        return elem->ConvertedText();
     } else if (auto elem = std::get_if<VirtualSpace>(&m_element)) {
         return std::string(1, ' ');
     }

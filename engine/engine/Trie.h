@@ -21,8 +21,8 @@ class Trie {
     // If query matches any key from the start
     virtual bool StartsWithKey(std::string_view query) = 0;
 
-    virtual std::vector<std::vector<int>> Multisplit(std::string_view query,
-                                                    std::unordered_map<std::string, float> const &cost_map) = 0;
+    virtual std::vector<std::vector<int>>
+    Multisplit(std::string_view query, std::unordered_map<std::string, float> const &cost_map, uint32_t limit) = 0;
 
     // If query is a key
     virtual bool HasKey(std::string_view query) = 0;

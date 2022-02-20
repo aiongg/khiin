@@ -25,11 +25,15 @@ class BufferMgr {
     virtual void MoveCaret(CursorDirection direction) = 0;
     virtual void Erase(CursorDirection direction) = 0;
     virtual void MoveFocus(CursorDirection direction) = 0;
+
+    virtual void HandleSelectOrFocus() = 0;
+    virtual void FocusNextCandidate() = 0;
     virtual void FocusCandidate(int index) = 0;
+    virtual void SelectCandidate(int index) = 0;
+
     virtual void SetInputMode(InputMode new_mode) = 0;
     virtual void BuildPreedit(messages::Preedit *preedit) = 0;
     virtual void GetCandidates(messages::CandidateList *candidate_list) = 0;
-    virtual void SelectNextCandidate() = 0;
     virtual messages::EditState edit_state() = 0;
 };
 

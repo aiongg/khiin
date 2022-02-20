@@ -1,18 +1,15 @@
 #pragma once
 
-#include <utf8cpp/utf8.h>
-#include <utf8cpp/utf8/cpp17.h>
 #include <unilib/uninorms.h>
 #include <unilib/unistrip.h>
+#include <utf8cpp/utf8.h>
+#include <utf8cpp/utf8/cpp17.h>
 
 namespace khiin {
 
 using utf8_size_t = size_t; // number of UTF codepoints, 1-4 bytes
 
 namespace unicode {
-
-template <typename IterT>
-using u8iterator = utf8::unchecked::iterator<IterT>;
 
 inline constexpr char32_t kHanjiCutoff = 0x2e80;
 
@@ -22,6 +19,29 @@ enum class GlyphCategory {
     Khin,
     Hanji,
 };
+
+namespace {
+
+const inline GlyphCategory glyph_category_of_codepoint(char32_t cp) {
+    if ((cp <= 0xFF && isalnum(cp)) || cp == 0x207f) {
+        return GlyphCategory::Alnum;
+    }
+
+    if (cp == 0x00b7) {
+        return GlyphCategory::Khin;
+    }
+
+    if (cp >= kHanjiCutoff) {
+        return GlyphCategory::Hanji;
+    }
+
+    return GlyphCategory::Other;
+}
+
+} // namespace
+
+template <typename IterT>
+using u8iterator = utf8::unchecked::iterator<IterT>;
 
 template <typename StrT>
 static inline utf8_size_t u8_size(StrT const &string) {
@@ -44,8 +64,14 @@ std::string to_nfc(StrT const &s) {
 
 std::string strip_diacritics(std::string_view str, bool strip_letter_diacritics = false);
 
-GlyphCategory glyph_type(std::string::const_iterator const &it);
+template <typename octet_iterator>
+GlyphCategory glyph_type(octet_iterator it) {
+    auto cp = utf8::unchecked::peek_next(it);
+    return glyph_category_of_codepoint(cp);
+}
+
 GlyphCategory start_glyph_type(std::string_view str);
+
 GlyphCategory end_glyph_type(std::string_view str);
 
 template <typename StrT>
@@ -74,12 +100,26 @@ bool contains_hanji(StrT str) {
     auto end = u8_cend(str);
 
     for (; it != end; ++it) {
-        if (*it > kHanjiCutoff) {
+        if (*it >= kHanjiCutoff) {
             return true;
         }
     }
 
     return false;
+}
+
+template <typename StrT>
+bool contains_only_hanji(StrT str) {
+    auto it = u8_cbegin(str);
+    auto end = u8_cend(str);
+
+    for (; it != end; ++it) {
+        if (*it < kHanjiCutoff) {
+            return false;
+        }
+    }
+
+    return true;
 }
 
 template <typename StrT>
@@ -108,6 +148,5 @@ inline void safe_erase(std::string &str, utf8_size_t index, size_t count = 1) {
     str.erase(from, to);
 }
 
-
 } // namespace unicode
-} // namespace khiin::engine
+} // namespace khiin

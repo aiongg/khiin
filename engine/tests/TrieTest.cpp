@@ -111,7 +111,7 @@ TEST_F(TrieTest, Multisplit) {
     cost_map.insert(std::make_pair("theme", 1.6f));
 
     // theme at, them eat, the meat, the me at
-    auto ret = trie->Multisplit("themeat", cost_map);
+    auto ret = trie->Multisplit("themeat", cost_map, 5);
     EXPECT_EQ(ret.size(), 4);
 }
 

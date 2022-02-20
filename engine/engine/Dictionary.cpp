@@ -92,9 +92,9 @@ class DictionaryImpl : public Dictionary {
         return m_user_inputs;
     }
 
-    virtual std::vector<std::vector<std::string>> Segment(std::string_view query) override {
+    virtual std::vector<std::vector<std::string>> Segment(std::string_view query, uint32_t limit) override {
         auto ret = std::vector<std::vector<std::string>>();
-        auto segmentations = m_word_trie->Multisplit(query, m_word_splitter->cost_map());
+        auto segmentations = m_word_trie->Multisplit(query, m_word_splitter->cost_map(), limit);
         for (auto &seg : segmentations) {
             auto vec = std::vector<std::string>();
             auto start = query.begin();

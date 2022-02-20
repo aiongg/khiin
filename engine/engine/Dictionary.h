@@ -21,7 +21,7 @@ class Dictionary : public ConfigChangeListener {
     virtual std::vector<TaiToken *> WordSearch(std::string const &query) = 0;
     virtual std::vector<TaiToken *> Autocomplete(std::string const &query) = 0;
     virtual std::vector<TaiToken *> AllWordsFromStart(std::string const &query) = 0;
-    virtual std::vector<std::vector<std::string>> Segment(std::string_view query) = 0;
+    virtual std::vector<std::vector<std::string>> Segment(std::string_view query, uint32_t limit) = 0;
 
     virtual bool StartsWithWord(std::string_view query) const = 0;
     virtual bool StartsWithSyllable(std::string_view query) const = 0;

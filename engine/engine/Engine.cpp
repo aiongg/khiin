@@ -159,7 +159,7 @@ class EngineImpl : public Engine {
             if (m_buffer_mgr->IsEmpty()) {
                 output->set_consumable(false);
             } else {
-                m_buffer_mgr->SelectNextCandidate();
+                m_buffer_mgr->HandleSelectOrFocus();
             }
             break;
         }
