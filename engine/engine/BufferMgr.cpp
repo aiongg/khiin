@@ -15,40 +15,21 @@ namespace {
 using namespace messages;
 using namespace unicode;
 
-BufferElementList ConvertWholeBuffer(BufferElementList elements) {
-    for (auto &elem : elements) {
-        elem.is_converted = true;
-    }
-    Buffer::AdjustVirtualSpacing(elements);
-    return elements;
-}
-
-bool ContainsCandidate(BufferElementList const &a, BufferElementList const &b) {
-    auto i = 0;
-    auto size = min(a.size(), b.size());
-    for (; i < size; ++i) {
-        auto &el_a = a[i];
-        auto &el_b = b[i];
-        if (el_a.converted() != el_b.converted()) {
-            return false;
-        }
-    }
-    return true;
-}
-
 class BufferMgrImpl : public BufferMgr {
   public:
     BufferMgrImpl(Engine *engine) : m_engine(engine) {}
 
     virtual void Clear() override {
         m_composition.Clear();
-        m_composition_copy.Clear();
         m_candidates.clear();
         m_caret = 0;
         m_edit_state = EditState::EDIT_EMPTY;
         NavMode m_nav_mode = NavMode::ByCharacter;
         m_focused_candidate = 0;
         m_focused_element = 0;
+
+        m_composition_copy.Clear();
+        m_caret_copy = 0;
     }
 
     virtual bool IsEmpty() override {
@@ -75,10 +56,6 @@ class BufferMgrImpl : public BufferMgr {
         } else if (m_edit_state == EditState::EDIT_CONVERTED) {
             MoveFocus(direction);
         }
-        // if (!HasComposingSection(m_composition)) {
-        // MoveFocus(direction);
-        //} else {
-        //}
     }
 
     virtual void Erase(CursorDirection direction) override {
@@ -170,7 +147,7 @@ class BufferMgrImpl : public BufferMgr {
             FocusCandidate(0);
         } else {
             m_edit_state = EditState::EDIT_SELECTING;
-            FocusCandidate(static_cast<int>((m_focused_candidate + 1) % m_candidates.size()));
+            FocusCandidate((m_focused_candidate + 1) % m_candidates.size());
         }
     }
 
@@ -184,7 +161,7 @@ class BufferMgrImpl : public BufferMgr {
         }
     }
 
-    virtual void FocusCandidate(int index) override {
+    virtual void FocusCandidate(size_t index) override {
         assert(index < m_candidates.size());
 
         if (m_composition_copy.Empty()) {
@@ -196,7 +173,7 @@ class BufferMgrImpl : public BufferMgr {
         FocusCandidate_(index);
     }
 
-    virtual void SelectCandidate(int index) {
+    virtual void SelectCandidate(size_t index) {
         m_nav_mode = NavMode::BySegment;
         SelectCandidate_(index);
     }

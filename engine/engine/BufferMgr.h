@@ -29,8 +29,8 @@ class BufferMgr {
     virtual void HandleSelectOrFocus() = 0;
     virtual void FocusNextCandidate() = 0;
     virtual void FocusPrevCandidate() = 0;
-    virtual void FocusCandidate(int index) = 0;
-    virtual void SelectCandidate(int index) = 0;
+    virtual void FocusCandidate(size_t index) = 0;
+    virtual void SelectCandidate(size_t index) = 0;
 
     virtual void SetInputMode(InputMode new_mode) = 0;
     virtual void BuildPreedit(messages::Preedit *preedit) = 0;
