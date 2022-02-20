@@ -164,6 +164,7 @@ size_t Buffer::RawCaretFrom(utf8_size_t caret, SyllableParser *parser) {
 
     auto begin = Begin();
     auto it = IterCaret(caret);
+    assert(it != End());
     auto remainder = caret - TextSize(begin, it);
     auto raw_remainder = it->ComposedToRawCaret(parser, remainder);
     return RawTextSize(begin, it) + raw_remainder;
@@ -176,7 +177,6 @@ utf8_size_t Buffer::CaretFrom(utf8_size_t raw_caret, SyllableParser *parser) {
     auto begin = Begin();
     auto it = IterRawCaret(raw_caret);
     assert(it != End());
-
     auto raw_remainder = raw_caret - RawTextSize(begin, it);
     auto remainder = it->RawToComposedCaret(parser, raw_remainder);
     return TextSize(begin, it) + remainder;

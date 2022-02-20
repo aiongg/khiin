@@ -42,6 +42,7 @@ class BufferMgrImpl : public BufferMgr {
 
     virtual void Clear() override {
         m_composition.Clear();
+        m_composition_copy.Clear();
         m_candidates.clear();
         m_caret = 0;
         m_edit_state = EditState::EDIT_EMPTY;
@@ -185,6 +186,13 @@ class BufferMgrImpl : public BufferMgr {
 
     virtual void FocusCandidate(int index) override {
         assert(index < m_candidates.size());
+
+        if (m_composition_copy.Empty()) {
+            SaveBufferState();
+        } else {
+            RestoreSavedBufferState();
+        }
+
         FocusCandidate_(index);
     }
 
@@ -296,7 +304,7 @@ class BufferMgrImpl : public BufferMgr {
 
     void FocusCandidate_(size_t index) {
         auto raw_caret = m_composition.RawCaretFrom(m_caret, m_engine->syllable_parser());
-        auto &candidate = m_candidates.at(index);
+        Buffer candidate = m_candidates.at(index);
         m_composition.SplitAtElement(m_focused_element, &m_precomp, nullptr);
 
         m_focused_element = 0;
@@ -440,6 +448,16 @@ class BufferMgrImpl : public BufferMgr {
         return u8_size(GetDisplayBuffer());
     }
 
+    void SaveBufferState() {
+        m_composition_copy = m_composition;
+        m_caret_copy = m_caret;
+    }
+
+    void RestoreSavedBufferState() {
+        m_composition = m_composition_copy;
+        m_caret = m_caret_copy;
+    }
+
     enum class NavMode {
         ByCharacter,
         BySegment,
@@ -447,15 +465,18 @@ class BufferMgrImpl : public BufferMgr {
 
     Engine *m_engine = nullptr;
     utf8_size_t m_caret = 0;
-    Buffer m_composition; // Elements in the composition
-    Buffer m_precomp;     // Converted elements before the composition
-    Buffer m_postcomp;    // Converted elements after the composition
+    Buffer m_composition;      // Elements in the composition
+    Buffer m_precomp;          // Converted elements before the composition
+    Buffer m_postcomp;         // Converted elements after the composition
     std::vector<Buffer> m_candidates;
     size_t m_focused_candidate = 0;
     size_t m_focused_element = 0;
     EditState m_edit_state = EditState::EDIT_EMPTY;
     InputMode m_input_mode = InputMode::Continuous;
     NavMode m_nav_mode = NavMode::ByCharacter;
+
+    Buffer m_composition_copy; // Used when focusing candidates
+    utf8_size_t m_caret_copy = 0;
 };
 
 } // namespace
