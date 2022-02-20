@@ -164,8 +164,23 @@ class BufferMgrImpl : public BufferMgr {
     }
 
     virtual void FocusNextCandidate() override {
-        assert(m_edit_state == EditState::EDIT_SELECTING);
-        FocusCandidate((m_focused_candidate + 1) % m_candidates.size());
+        if (m_edit_state == EditState::EDIT_COMPOSING) {
+            m_edit_state = EditState::EDIT_SELECTING;
+            FocusCandidate(0);
+        } else {
+            m_edit_state = EditState::EDIT_SELECTING;
+            FocusCandidate(static_cast<int>((m_focused_candidate + 1) % m_candidates.size()));
+        }
+    }
+
+    virtual void FocusPrevCandidate() override {
+        m_edit_state = EditState::EDIT_SELECTING;
+
+        if (m_focused_candidate == 0) {
+            FocusCandidate(m_candidates.size() - 1);
+        } else {
+            FocusCandidate(m_focused_candidate - 1);
+        }
     }
 
     virtual void FocusCandidate(int index) override {
@@ -257,7 +272,9 @@ class BufferMgrImpl : public BufferMgr {
         Segmenter::SegmentText(m_engine, raw_composition, m_composition.get());
         KhinHandler::AutokhinBuffer(m_engine->syllable_parser(), m_composition.get());
         m_candidates = CandidateFinder::ContinuousCandidates(m_engine, nullptr, raw_composition);
-        raw_caret = m_composition.Join(raw_caret, m_precomp, m_postcomp);
+        raw_caret += m_precomp.RawTextSize();
+        m_composition.Join(&m_precomp, &m_postcomp);
+        m_composition.AdjustVirtualSpacing();
         m_caret = m_composition.CaretFrom(raw_caret, m_engine->syllable_parser());
     }
 
@@ -278,56 +295,50 @@ class BufferMgrImpl : public BufferMgr {
     }
 
     void FocusCandidate_(size_t index) {
+        auto raw_caret = m_composition.RawCaretFrom(m_caret, m_engine->syllable_parser());
         auto &candidate = m_candidates.at(index);
-        auto focused_elem_it = m_composition.Begin() + m_focused_element;
+        m_composition.SplitAtElement(m_focused_element, &m_precomp, nullptr);
 
+        m_focused_element = 0;
+
+        auto replace_from = m_composition.Begin();
         auto raw_cand_size = candidate.RawTextSize();
-        auto raw_elem_size = focused_elem_it->RawSize();
 
-        if (raw_cand_size == raw_elem_size) {
-            m_composition.Replace(m_focused_element, candidate);
-        } else {
-            auto deconverted = std::string();
-            auto raw_remainder = 0;
-            auto elem_it = focused_elem_it;
+        auto replace_to = m_composition.IterRawCaret(raw_cand_size) + 1;
+        auto raw_buf_size = Buffer::RawTextSize(replace_from, replace_to);
 
-            if (raw_cand_size < raw_elem_size) {
-                raw_remainder = raw_elem_size - raw_cand_size;
-            } else if (focused_elem_it != m_composition.End()) {
-                ++elem_it;
-                raw_remainder = raw_cand_size - raw_elem_size;
+        assert(raw_buf_size >= raw_cand_size);
+
+        if (raw_buf_size > raw_cand_size) {
+            auto raw_text = Buffer::RawText(replace_from, replace_to);
+            auto raw_it = raw_text.begin() + raw_buf_size - (raw_buf_size - raw_cand_size);
+            auto deconverted = std::string(raw_it, raw_text.end());
+
+            if (replace_to != m_composition.End()) {
+                ++replace_to;
             }
 
-            while (elem_it != m_composition.End() &&
+            while (replace_to != m_composition.End() &&
                    (!CandidateFinder::HasExactMatch(m_engine, deconverted) || deconverted.empty())) {
-                auto raw = elem_it->raw();
-                auto raw_size = elem_it->RawSize();
-
-                if (raw_remainder > raw_size) {
-                    raw_remainder -= raw_size;
-                    ++elem_it;
-                    continue;
-                }
-
-                auto it = raw.begin();
-                utf8::unchecked::advance(it, raw_size - raw_remainder);
-                deconverted.append(it, raw.end());
-                ++elem_it;
+                deconverted.append(replace_to->raw());
+                ++replace_to;
             }
 
             auto next_buf = CandidateFinder::ContinuousBestMatch(m_engine, nullptr, deconverted);
             next_buf.SetConverted(false);
             candidate.Append(next_buf);
-            auto cand_size = candidate.TextSize();
-            auto buf_size = Buffer::TextSize(m_composition.Begin(), focused_elem_it);
-            auto it = m_composition.get().erase(focused_elem_it, elem_it);
-            m_composition.get().insert(it, candidate.get().begin(), candidate.get().end());
-            if (m_caret < cand_size + buf_size) {
-                m_caret = cand_size + buf_size;
-            }
+
+            auto cand_raw_size = candidate.RawTextSize();
+            auto pre_raw_size = m_precomp.RawTextSize();
+            raw_caret = max(raw_caret, cand_raw_size + pre_raw_size);
         }
 
+        m_composition.Replace(replace_from, replace_to, candidate);
+        m_focused_element = m_precomp.get().size();
         m_focused_candidate = index;
+        m_composition.Join(&m_precomp, &m_postcomp);
+        m_composition.AdjustVirtualSpacing();
+        m_caret = m_composition.CaretFrom(raw_caret, m_engine->syllable_parser());
     }
 
     void SelectCandidate_(size_t index) {
@@ -356,7 +367,9 @@ class BufferMgrImpl : public BufferMgr {
         m_composition.get().insert(m_composition.Begin(), candidate.Begin(), candidate.End());
 
         m_focused_element = m_precomp.get().size();
-        raw_caret = m_composition.Join(raw_caret, m_precomp, m_postcomp);
+        raw_caret += m_precomp.RawTextSize();
+        m_composition.Join(&m_precomp, &m_postcomp);
+        m_composition.AdjustVirtualSpacing();
         m_caret = m_composition.CaretFrom(raw_caret, m_engine->syllable_parser());
 
         m_focused_candidate = 0;
@@ -434,16 +447,15 @@ class BufferMgrImpl : public BufferMgr {
 
     Engine *m_engine = nullptr;
     utf8_size_t m_caret = 0;
-    Buffer m_precomp;     // Converted elements before the composition
     Buffer m_composition; // Elements in the composition
+    Buffer m_precomp;     // Converted elements before the composition
     Buffer m_postcomp;    // Converted elements after the composition
     std::vector<Buffer> m_candidates;
     size_t m_focused_candidate = 0;
-    int m_focused_element = 0;
+    size_t m_focused_element = 0;
     EditState m_edit_state = EditState::EDIT_EMPTY;
     InputMode m_input_mode = InputMode::Continuous;
     NavMode m_nav_mode = NavMode::ByCharacter;
-    // FocusedElementState m_focused_element_state = FocusedElementState::Composing;
 };
 
 } // namespace

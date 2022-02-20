@@ -1,5 +1,7 @@
 #include "Buffer.h"
 
+#include <assert.h>
+
 #include "SyllableParser.h"
 #include "unicode_utils.h"
 
@@ -173,6 +175,8 @@ utf8_size_t Buffer::CaretFrom(utf8_size_t raw_caret, SyllableParser *parser) {
     }
     auto begin = Begin();
     auto it = IterRawCaret(raw_caret);
+    assert(it != End());
+
     auto raw_remainder = raw_caret - RawTextSize(begin, it);
     auto remainder = it->RawToComposedCaret(parser, raw_remainder);
     return TextSize(begin, it) + remainder;
@@ -270,25 +274,42 @@ void Buffer::SplitForComposition(utf8_size_t caret, Buffer &pre, Buffer &post) {
     }
 }
 
-utf8_size_t Buffer::Join(utf8_size_t raw_caret, Buffer &pre, Buffer &post) {
-    raw_caret = pre.RawTextSize() + raw_caret;
+void Buffer::SplitAtElement(size_t index, Buffer *pre, Buffer *post) {
+    assert(index < m_elements.size());
 
-    if (!pre.Empty()) {
-        m_elements.insert(Begin(), pre.Begin(), pre.End());
-        pre.Clear();
+    if (index == 0) {
+        return;
     }
 
-    if (!post.Empty()) {
-        m_elements.insert(End(), post.Begin(), post.End());
-        post.Clear();
+    auto begin = m_elements.begin();
+    auto it = begin + index;
+
+    if (pre) {
+        pre->get().insert(pre->Begin(), begin, it);
+        it = m_elements.erase(begin, it);
     }
 
-    AdjustVirtualSpacing();
-    return raw_caret;
+    if (post && std::distance(it, m_elements.end()) > 1) {
+        ++it;
+        post->get().insert(post->Begin(), it, m_elements.end());
+        m_elements.erase(it, m_elements.end());
+    }
 }
 
-void Buffer::Replace(size_t index, Buffer &other) {
-    auto it = m_elements.erase(m_elements.begin() + index);
+void Buffer::Join(Buffer *pre, Buffer *post) {
+    if (pre && !pre->Empty()) {
+        m_elements.insert(Begin(), pre->Begin(), pre->End());
+        pre->Clear();
+    }
+
+    if (post && !post->Empty()) {
+        m_elements.insert(End(), post->Begin(), post->End());
+        post->Clear();
+    }
+}
+
+void Buffer::Replace(iterator first, iterator last, Buffer &other) {
+    auto it = m_elements.erase(first, last);
     m_elements.insert(it, other.Begin(), other.End());
 }
 

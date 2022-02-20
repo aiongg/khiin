@@ -135,6 +135,14 @@ class EngineImpl : public Engine {
             m_buffer_mgr->MoveCaret(CursorDirection::L);
             break;
         }
+        case SpecialKey::SK_DOWN: {
+            m_buffer_mgr->FocusNextCandidate();
+            break;
+        }
+        case SpecialKey::SK_UP: {
+            m_buffer_mgr->FocusPrevCandidate();
+            break;
+        }
         case SpecialKey::SK_ENTER: {
             HandleCommit(command);
             return;

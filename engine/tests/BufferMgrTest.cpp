@@ -53,6 +53,18 @@ struct BufferMgrTest : ::testing::Test {
         }
     }
 
+    void curs_down(int n) {
+        for (auto i = 0; i < n; ++i) {
+            bufmgr->FocusNextCandidate();
+        }
+    }
+
+    void curs_up(int n) {
+        for (auto i = 0; i < n; ++i) {
+            bufmgr->FocusPrevCandidate();
+        }
+    }
+
     void key_bksp(int n) {
         for (auto i = 0; i < n; i++) {
             bufmgr->Erase(CursorDirection::L);
@@ -65,8 +77,10 @@ struct BufferMgrTest : ::testing::Test {
         }
     }
 
-    void spacebar() {
-        bufmgr->HandleSelectOrFocus();
+    void spacebar(int n) {
+        for (auto i = 0; i < n; ++i) {
+            bufmgr->HandleSelectOrFocus();
+        }
     }
 
     Preedit *get_preedit() {
@@ -437,7 +451,6 @@ TEST_F(BufferKhinTest, Insert_2khins) {
     EXPECT_EQ(caret(), 10);
 }
 
-
 //+---------------------------------------------------------------------------
 //
 // Candidates
@@ -479,13 +492,13 @@ struct BufferConversionTest : public BufferMgrTest {};
 
 TEST_F(BufferConversionTest, Convert_gina) {
     typing("gina");
-    spacebar();
+    spacebar(1);
     EXPECT_EQ(display(), u8"囝仔");
 }
 
 TEST_F(BufferConversionTest, Convert_erase_ho2) {
     typing("ho2");
-    spacebar();
+    spacebar(1);
     key_bksp(1);
     EXPECT_EQ(display(), "");
     EXPECT_EQ(caret(), 0);
@@ -493,7 +506,7 @@ TEST_F(BufferConversionTest, Convert_erase_ho2) {
 
 TEST_F(BufferConversionTest, Convert_erase_kamanne) {
     typing("kamanne");
-    spacebar();
+    spacebar(1);
     ASSERT_PRED3(OrEqual, display(), "咁按呢", "敢按呢");
     key_bksp(1);
     ASSERT_PRED3(OrEqual, display(), "咁按", "敢按");
@@ -505,7 +518,7 @@ TEST_F(BufferConversionTest, Convert_erase_kamanne) {
 
 TEST_F(BufferConversionTest, Convert_erase_insert) {
     typing("siannebo");
-    spacebar();
+    spacebar(1);
     curs_left(1);
     key_bksp(1);
     EXPECT_EQ(display(), u8"是按無");
@@ -520,14 +533,14 @@ TEST_F(BufferConversionTest, Convert_erase_insert) {
 
 TEST_F(BufferConversionTest, Convert_insert_middle) {
     typing("anne");
-    spacebar();
+    spacebar(1);
     curs_left(1);
     typing("h");
     auto preedit = get_preedit();
     EXPECT_EQ(preedit->segments_size(), 3);
     typing("o");
     EXPECT_EQ(display(), u8"按 ho 呢");
-    spacebar();
+    spacebar(1);
     EXPECT_EQ(display(), u8"按好呢");
     preedit = get_preedit();
     EXPECT_EQ(preedit->segments_size(), 3);
@@ -536,7 +549,7 @@ TEST_F(BufferConversionTest, Convert_insert_middle) {
 
 TEST_F(BufferConversionTest, Convert_insert_erase) {
     typing("anne");
-    spacebar();
+    spacebar(1);
     curs_left(1);
     typing("ho");
     key_bksp(2);
@@ -555,7 +568,7 @@ TEST_F(BufferConversionTest, Convert_e5) {
     EXPECT_EQ(preedit->segments().at(0).value(), u8"ê");
     EXPECT_EQ(preedit->segments().at(0).status(), SegmentStatus::COMPOSING);
     EXPECT_EQ(caret(), 1);
-    spacebar();
+    spacebar(1);
     preedit = get_preedit();
     EXPECT_EQ(preedit->segments().size(), 1);
     EXPECT_EQ(preedit->segments().at(0).value(), cands[0]);
@@ -578,7 +591,7 @@ TEST_F(BufferConversionTest, Convert_ebe1) {
 
 TEST_F(BufferConversionTest, Convert_ebe2) {
     typing("ebe");
-    spacebar();
+    spacebar(1);
 
     auto preedit = get_preedit();
     auto segments = preedit->segments();
@@ -592,8 +605,7 @@ TEST_F(BufferConversionTest, Convert_ebe2) {
 
 TEST_F(BufferConversionTest, Convert_ebe3) {
     typing("ebe");
-    spacebar();
-    spacebar();
+    spacebar(2);
 
     auto preedit = get_preedit();
     auto segments = preedit->segments();
@@ -607,9 +619,9 @@ TEST_F(BufferConversionTest, Convert_ebe3) {
 
 TEST_F(BufferConversionTest, Convert_ebe4) {
     typing("ebe");
-    spacebar();
+    spacebar(1);
     curs_right(1);
-    spacebar();
+    spacebar(1);
 
     auto preedit = get_preedit();
     auto segments = preedit->segments();
@@ -621,30 +633,76 @@ TEST_F(BufferConversionTest, Convert_ebe4) {
     EXPECT_EQ(caret(), 2);
 }
 
-TEST_F(BufferConversionTest, Convert_boe) {
+TEST_F(BufferConversionTest, Convert_boe1) {
     typing("boe");
-    spacebar();
+    spacebar(1);
+    auto preedit = get_preedit();
+    auto segments = preedit->segments();
+    EXPECT_TRUE(get_candidates()->candidates().empty());
+    EXPECT_EQ(segments.size(), 1);
+    EXPECT_EQ(segments.at(0).value(), "未");
+    EXPECT_EQ(segments.at(0).status(), SegmentStatus::FOCUSED);
+    EXPECT_EQ(caret(), 1);
+}
+
+TEST_F(BufferConversionTest, Convert_boe2) {
+    typing("boe");
+    spacebar(8);
+    auto preedit = get_preedit();
+    auto segments = preedit->segments();
+    EXPECT_EQ(segments.size(), 2);
+    EXPECT_EQ(segments.at(0).value(), "無");
+    EXPECT_EQ(segments.at(0).status(), SegmentStatus::FOCUSED);
+    EXPECT_EQ(segments.at(1).value(), " e");
+    EXPECT_EQ(segments.at(1).status(), SegmentStatus::COMPOSING);
+    EXPECT_EQ(caret(), 3);
+}
+
+TEST_F(BufferConversionTest, Convert_boe3) {
+    typing("boe");
+    spacebar(9);
+    auto preedit = get_preedit();
+    auto segments = preedit->segments();
+    EXPECT_EQ(segments.size(), 2);
+    EXPECT_EQ(segments.at(0).value(), "bô");
+    EXPECT_EQ(segments.at(0).status(), SegmentStatus::FOCUSED);
+    EXPECT_EQ(segments.at(1).value(), " e");
+    EXPECT_EQ(segments.at(1).status(), SegmentStatus::COMPOSING);
+    EXPECT_EQ(caret(), 4);
+}
+
+TEST_F(BufferConversionTest, Convert_boe4) {
+    typing("boe");
+    spacebar(10);
     auto preedit = get_preedit();
     auto segments = preedit->segments();
     EXPECT_EQ(segments.size(), 1);
     EXPECT_EQ(segments.at(0).value(), "未");
     EXPECT_EQ(segments.at(0).status(), SegmentStatus::FOCUSED);
     EXPECT_EQ(caret(), 1);
+}
 
-    spacebar();
-    spacebar();
-    spacebar();
-    spacebar();
-    spacebar();
-    spacebar();
-    spacebar();
-    preedit = get_preedit();
-    segments = preedit->segments();
-    EXPECT_EQ(segments.size(), 2);
-    EXPECT_EQ(segments.at(0).value(), "無");
+TEST_F(BufferConversionTest, Focus_boe) {
+    typing("boe");
+    curs_down(1);
+    auto preedit = get_preedit();
+    auto segments = preedit->segments();
+    EXPECT_EQ(get_candidates()->candidates_size(), 10);
+    EXPECT_EQ(segments.size(), 1);
+    EXPECT_EQ(segments.at(0).value(), "未");
     EXPECT_EQ(segments.at(0).status(), SegmentStatus::FOCUSED);
-    EXPECT_EQ(segments.at(1).value(), "e");
-    EXPECT_EQ(segments.at(1).status(), SegmentStatus::COMPOSING);
+    EXPECT_EQ(caret(), 1);
+}
+
+TEST_F(BufferConversionTest, Focus_taichi) {
+    typing("taichi");
+    curs_down(1);
+    auto preedit = get_preedit();
+    auto segments = preedit->segments();
+    EXPECT_EQ(get_candidates()->candidates_size(), 3);
+    EXPECT_EQ(segments.size(), 1);
+    EXPECT_EQ(segments.at(0).value(), "事志");
+    EXPECT_EQ(segments.at(0).status(), SegmentStatus::FOCUSED);
     EXPECT_EQ(caret(), 2);
 }
 
@@ -658,7 +716,7 @@ struct BufferNavigationTest : public BufferMgrTest {};
 
 TEST_F(BufferNavigationTest, Focus_element) {
     typing("kamanne");
-    spacebar();
+    spacebar(1);
 
     auto preedit = get_preedit();
     EXPECT_EQ(preedit->segments_size(), 2);

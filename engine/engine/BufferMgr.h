@@ -28,6 +28,7 @@ class BufferMgr {
 
     virtual void HandleSelectOrFocus() = 0;
     virtual void FocusNextCandidate() = 0;
+    virtual void FocusPrevCandidate() = 0;
     virtual void FocusCandidate(int index) = 0;
     virtual void SelectCandidate(int index) = 0;
 

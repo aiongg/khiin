@@ -73,14 +73,18 @@ class Buffer {
     // in place if it is Lomaji. Buffer must be re-joined later.
     void SplitForComposition(utf8_size_t caret, Buffer &pre, Buffer &post);
 
-    utf8_size_t Join(utf8_size_t raw_caret, Buffer &pre, Buffer &post);
+    // Move all elements up to |index| into |pre|, and all elements
+    // after |index| into |post|. Either |pre| or |post| may be nullptr.
+    void SplitAtElement(size_t index, Buffer *pre, Buffer *post);
+
+    void Join(Buffer *pre, Buffer *post);
     void AdjustVirtualSpacing();
 
     // Append all elements of |rhs| to this Buffer
     void Append(Buffer &rhs);
 
     // Replace element at |index| in this Buffer with all elements from |replace|
-    void Replace(size_t index, Buffer &other);
+    void Replace(iterator first, iterator last, Buffer &other);
 
     void SetConverted(bool converted);
 
