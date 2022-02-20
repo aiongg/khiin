@@ -85,6 +85,10 @@ void Buffer::AdjustVirtualSpacing(BufferElementList &elements) {
 
 Buffer::Buffer(BufferElementList &&elements) : m_elements(elements) {}
 
+Buffer::Buffer(BufferElement &&element) {
+    m_elements.push_back(std::move(element));
+}
+
 iterator Buffer::Begin() {
     return m_elements.begin();
 }
@@ -99,6 +103,14 @@ BufferElement &Buffer::At(size_t index) {
 
 void Buffer::Append(Buffer &rhs) {
     m_elements.insert(m_elements.end(), rhs.Begin(), rhs.End());
+}
+
+void Buffer::Append(std::string &&str) {
+    m_elements.push_back(BufferElement(std::move(str)));
+}
+
+void Buffer::Append(TaiText &&taitext) {
+    m_elements.push_back(BufferElement(taitext));
 }
 
 // Returns iterator pointing to the element at visible caret position

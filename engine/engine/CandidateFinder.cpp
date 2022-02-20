@@ -3,6 +3,7 @@
 #include "Database.h"
 #include "Dictionary.h"
 #include "Engine.h"
+#include "Segmenter.h"
 #include "Splitter.h"
 #include "SyllableParser.h"
 #include "Trie.h"
@@ -105,6 +106,16 @@ Buffer WordsToBuffer(Engine *engine, std::vector<std::string> &words) {
     return Buffer(std::move(elems));
 }
 
+Buffer ContinuousBestMatchImpl(Engine *engine, TaiToken *lgram, std::string_view query) {
+    auto segmentations = engine->dictionary()->Segment(query, 1);
+
+    if (segmentations.empty()) {
+        return Buffer();
+    }
+
+    return WordsToBuffer(engine, segmentations[0]);
+}
+
 std::vector<Buffer> ContinuousCandidatesImpl(Engine *engine, TaiToken *lgram, std::string const &query) {
     auto all_cands = std::vector<Buffer>();
     auto segmentations = engine->dictionary()->Segment(query, 5);
@@ -128,14 +139,39 @@ std::vector<Buffer> ContinuousCandidatesImpl(Engine *engine, TaiToken *lgram, st
     return ret;
 }
 
-Buffer ContinuousBestMatchImpl(Engine *engine, TaiToken *lgram, std::string_view query) {
-    auto segmentations = engine->dictionary()->Segment(query, 1);
+std::vector<Buffer> MultiSegmentCandidatesImpl(Engine *engine, TaiToken *lgram, std::string const &query) {
+    auto candidates = std::vector<Buffer>{Buffer()};
+    auto segments = Segmenter::SegmentText2(engine, query);
 
-    if (segmentations.empty()) {
-        return Buffer();
+    for (auto i = 0; i < segments.size(); ++i) {
+        auto &seg = segments[i];
+        auto seg_raw_comp = query.substr(seg.start, seg.size);
+
+        switch (seg.type) {
+        case SegmentType::Splittable:
+            if (i == 0) {
+                candidates = ContinuousCandidatesImpl(engine, nullptr, seg_raw_comp);
+            } else {
+                candidates[0].Append(ContinuousBestMatchImpl(engine, nullptr, seg_raw_comp));
+            }
+            break;
+        case SegmentType::Hyphens:
+            candidates[0].Append(std::string(seg.size, '-'));
+            break;
+        case SegmentType::None:
+            candidates[0].Append(std::move(seg_raw_comp));
+            break;
+        case SegmentType::SyllablePrefix:
+            candidates[0].Append(TaiText::FromRawSyllable(engine->syllable_parser(), seg_raw_comp));
+            break;
+        case SegmentType::WordPrefix:
+            auto best_match = CandidateFinder::BestAutocomplete(engine, nullptr, seg_raw_comp);
+            candidates[0].Append(TaiText::FromMatching(engine->syllable_parser(), seg_raw_comp, best_match));
+            break;
+        }
     }
 
-    return WordsToBuffer(engine, segmentations[0]);
+    return candidates;
 }
 
 } // namespace
@@ -157,6 +193,10 @@ std::vector<Buffer> CandidateFinder::GetCandidatesFromStart(Engine *engine, TaiT
 
 std::vector<Buffer> CandidateFinder::ContinuousCandidates(Engine *engine, TaiToken *lgram, std::string const &query) {
     return ContinuousCandidatesImpl(engine, lgram, query);
+}
+
+std::vector<Buffer> CandidateFinder::MultiSegmentCandidates(Engine *engine, TaiToken *lgram, std::string const &query) {
+    return MultiSegmentCandidatesImpl(engine, lgram, query);
 }
 
 Buffer CandidateFinder::ContinuousBestMatch(Engine *engine, TaiToken *lgram, std::string_view query) {

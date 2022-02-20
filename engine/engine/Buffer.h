@@ -29,7 +29,8 @@ class Buffer {
     static void AdjustVirtualSpacing(BufferElementList &elements);
 
     Buffer() = default;
-    Buffer(BufferElementList &&m_elements);
+    Buffer(BufferElementList &&elements);
+    Buffer(BufferElement &&element);
 
     iterator Begin();
     iterator End();
@@ -82,6 +83,12 @@ class Buffer {
 
     // Append all elements of |rhs| to this Buffer
     void Append(Buffer &rhs);
+
+    // Append a plain text string as a new buffer element
+    void Append(std::string &&str);
+
+    // Append a TaiText as a new buffer element
+    void Append(TaiText &&taitext);
 
     // Replace element at |index| in this Buffer with all elements from |replace|
     void Replace(iterator first, iterator last, Buffer &other);
