@@ -65,6 +65,10 @@ class BufferMgrImpl : public BufferMgr {
         candidate_list->set_focused(static_cast<int32_t>(m_focused_candidate));
     }
 
+    virtual bool IsEmpty() override {
+        return m_composition.Empty();
+    }
+
     virtual void Clear() override {
         m_composition.Clear();
         m_candidates.clear();
@@ -76,10 +80,6 @@ class BufferMgrImpl : public BufferMgr {
 
         m_composition_copy.Clear();
         m_caret_copy = 0;
-    }
-
-    virtual bool IsEmpty() override {
-        return m_composition.Empty();
     }
 
     virtual void Insert(char ch) override {
@@ -94,35 +94,6 @@ class BufferMgrImpl : public BufferMgr {
         default:
             break;
         }
-    }
-
-    virtual void HandleLeftRight(CursorDirection direction) override {
-        if (m_edit_state == EditState::EDIT_COMPOSING) {
-            MoveCaret(direction);
-        } else if (m_edit_state == EditState::EDIT_CONVERTED) {
-            MoveFocus(direction);
-        }
-    }
-
-    virtual void HandleSelectOrFocus() override {
-        if (m_input_mode == InputMode::Continuous && m_edit_state == EditState::EDIT_COMPOSING) {
-            m_edit_state = EditState::EDIT_CONVERTED;
-            SelectCandidate(0);
-        } else if (m_edit_state == EDIT_CONVERTED) {
-            m_edit_state = EditState::EDIT_SELECTING;
-            FocusNextCandidate();
-        } else if (m_edit_state == EditState::EDIT_SELECTING) {
-            FocusNextCandidate();
-        }
-    }
-
-    virtual bool HandleSelectOrCommit() override {
-        if (m_edit_state == EditState::EDIT_SELECTING) {
-            SelectCandidate(m_focused_candidate);
-            return false;
-        }
-
-        return true;
     }
 
     virtual void Erase(CursorDirection direction) override {
@@ -142,6 +113,35 @@ class BufferMgrImpl : public BufferMgr {
             EraseConverted(elem_it, caret);
         } else {
             EraseComposing(direction);
+        }
+    }
+
+    virtual void HandleLeftRight(CursorDirection direction) override {
+        if (m_edit_state == EditState::EDIT_COMPOSING) {
+            MoveCaret(direction);
+        } else if (m_edit_state == EditState::EDIT_CONVERTED) {
+            MoveFocus(direction);
+        }
+    }
+
+    virtual bool HandleSelectOrCommit() override {
+        if (m_edit_state == EditState::EDIT_SELECTING) {
+            SelectCandidate(m_focused_candidate);
+            return false;
+        }
+
+        return true;
+    }
+
+    virtual void HandleSelectOrFocus() override {
+        if (m_input_mode == InputMode::Continuous && m_edit_state == EditState::EDIT_COMPOSING) {
+            m_edit_state = EditState::EDIT_CONVERTED;
+            SelectCandidate(0);
+        } else if (m_edit_state == EDIT_CONVERTED) {
+            m_edit_state = EditState::EDIT_SELECTING;
+            FocusNextCandidate();
+        } else if (m_edit_state == EditState::EDIT_SELECTING) {
+            FocusNextCandidate();
         }
     }
 
@@ -181,7 +181,7 @@ class BufferMgrImpl : public BufferMgr {
 
         assert(index < m_candidates.size());
 
-        //if (m_composition_copy.Empty()) {
+        // if (m_composition_copy.Empty()) {
         //    SaveBufferState();
         //} else {
         //    RestoreSavedBufferState();
@@ -228,7 +228,7 @@ class BufferMgrImpl : public BufferMgr {
         SetFocusedCandidateIndexToCurrent();
     }
 
-    virtual void MoveFocus(CursorDirection direction) override {
+    void MoveFocus(CursorDirection direction) {
         if (m_nav_mode == NavMode::BySegment && m_focused_element == 0 && direction == CursorDirection::L) {
             m_nav_mode = NavMode::ByCharacter;
         }
