@@ -25,7 +25,7 @@ class BufferMgr {
     virtual void HandleLeftRight(CursorDirection direction) = 0;
     virtual void Erase(CursorDirection direction) = 0;
     virtual void MoveFocus(CursorDirection direction) = 0;
-
+    virtual bool HandleSelectOrCommit() = 0;
     virtual void HandleSelectOrFocus() = 0;
     virtual void FocusNextCandidate() = 0;
     virtual void FocusPrevCandidate() = 0;

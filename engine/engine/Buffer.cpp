@@ -105,6 +105,10 @@ BufferElement &Buffer::At(size_t index) {
     return m_elements.at(index);
 }
 
+size_t Buffer::Size() {
+    return m_elements.size();
+}
+
 void Buffer::Append(Buffer &rhs) {
     m_elements.insert(m_elements.end(), rhs.Begin(), rhs.End());
 }

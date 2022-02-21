@@ -144,8 +144,11 @@ class EngineImpl : public Engine {
             break;
         }
         case SpecialKey::SK_ENTER: {
-            HandleCommit(command);
-            return;
+            if (m_buffer_mgr->HandleSelectOrCommit()) {
+                HandleCommit(command);
+                return;
+            }
+            break;
         }
         case SpecialKey::SK_BACKSPACE: {
             if (m_buffer_mgr->IsEmpty()) {

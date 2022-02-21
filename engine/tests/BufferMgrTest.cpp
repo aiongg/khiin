@@ -70,6 +70,10 @@ struct BufferMgrTest : ::testing::Test {
         }
     }
 
+    void enter() {
+        bufmgr->HandleSelectOrCommit();
+    }
+
     Preedit *get_preedit() {
         auto preedit = Preedit::default_instance().New();
         bufmgr->BuildPreedit(preedit);
@@ -115,6 +119,17 @@ struct BufferMgrTest : ::testing::Test {
     std::string CandidateAt(int candidate_index) {
         auto cands = get_cand_strings();
         return cands[candidate_index];
+    }
+
+    int CandidateIndexOf(std::string candidate) {
+        auto cands = get_cand_strings();
+        for (auto i = 0; i < cands.size(); ++i) {
+            if (cands[i] == candidate) {
+                return i;
+            }
+        }
+
+        return -1;
     }
 
     // Expectations
@@ -690,6 +705,51 @@ TEST_F(CandidateNavigationTest, Focus_xyz) {
     curs_right(1);
     curs_down(1);
     ExpectCandidate("xyz", 0, true);
+}
+
+TEST_F(CandidateNavigationTest, Focus_si__bo) {
+    typing("si--bo");
+    curs_down(1);
+}
+
+//+---------------------------------------------------------------------------
+//
+// Candidate selection
+//
+//----------------------------------------------------------------------------
+
+struct CandidateSelectionTest : public BufferMgrTest {};
+
+TEST_F(CandidateSelectionTest, Select_e) {
+    typing("e");
+    curs_down(2);
+    enter();
+    ExpectSegment(1, 0, FOCUSED, "兮", 1);
+    ExpectCandidatesHidden();
+}
+
+TEST_F(CandidateSelectionTest, Select_ebe1) {
+    typing("ebe");
+    auto i = CandidateIndexOf("會");
+    spacebar(i);
+    enter();
+    ExpectSegment(2, 0, CONVERTED, "會", 2);
+    ExpectSegment(2, 1, FOCUSED, "未", 2);
+}
+
+TEST_F(CandidateSelectionTest, Select_ebe2) {
+    typing("ebe");
+    spacebar(2);
+    ExpectSegment(2, 0, FOCUSED, "兮", 2);
+    ExpectSegment(2, 1, CONVERTED, "未", 2);
+    enter();
+    ExpectSegment(2, 0, CONVERTED, "兮", 2);
+    ExpectSegment(2, 1, FOCUSED, "未", 2);
+    ExpectCandidatesHidden();
+    curs_right(1);
+    spacebar(1);
+    ExpectSegment(2, 0, CONVERTED, "兮", 2);
+    ExpectSegment(2, 1, FOCUSED, "袂", 2);
 }
 
 } // namespace
