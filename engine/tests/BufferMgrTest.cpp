@@ -141,6 +141,12 @@ struct BufferMgrTest : ::testing::Test {
         EXPECT_EQ(segments.at(segment_index).status(), segment_status);
     }
 
+    void ExpectSegment(int segment_size, int segment_index, SegmentStatus segment_status) {
+        auto segments = get_segments();
+        EXPECT_EQ(segments.size(), segment_size);
+        EXPECT_EQ(segments.at(segment_index).status(), segment_status);
+    }
+
     void ExpectEmpty() {
         EXPECT_TRUE(bufmgr->IsEmpty());
     }
@@ -619,23 +625,16 @@ struct BufferNavigationTest : public BufferMgrTest {};
 TEST_F(BufferNavigationTest, Focus_element) {
     typing("kamanne");
     spacebar(1);
-
-    auto segments = get_segments();
-    EXPECT_EQ(segments.size(), 2);
-    EXPECT_EQ(segments.at(0).status(), SegmentStatus::FOCUSED);
-    EXPECT_EQ(segments.at(1).status(), SegmentStatus::CONVERTED);
+    ExpectSegment(2, 0, FOCUSED);
+    ExpectSegment(2, 1, CONVERTED);
 
     curs_right(1);
-    segments = get_segments();
-    EXPECT_EQ(segments.size(), 2);
-    EXPECT_EQ(segments.at(0).status(), SegmentStatus::CONVERTED);
-    EXPECT_EQ(segments.at(1).status(), SegmentStatus::FOCUSED);
-
+    ExpectSegment(2, 0, CONVERTED);
+    ExpectSegment(2, 1, FOCUSED);
+    
     curs_left(1);
-    segments = get_segments();
-    EXPECT_EQ(segments.size(), 2);
-    EXPECT_EQ(segments.at(0).status(), SegmentStatus::FOCUSED);
-    EXPECT_EQ(segments.at(1).status(), SegmentStatus::CONVERTED);
+    ExpectSegment(2, 0, FOCUSED);
+    ExpectSegment(2, 1, CONVERTED);
 }
 
 TEST_F(BufferMgrTest, DISABLED_TmpTest) {
