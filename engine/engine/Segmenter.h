@@ -24,7 +24,7 @@ struct SegmentOffset {
 
 class Segmenter {
   public:
-    static std::vector<SegmentOffset> SegmentText2(Engine *engine, std::string_view raw_buffer);
+    static std::vector<SegmentOffset> SegmentText(Engine *engine, std::string_view raw_buffer);
 };
 
 } // namespace khiin::engine

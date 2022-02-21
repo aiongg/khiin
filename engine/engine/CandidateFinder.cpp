@@ -65,13 +65,22 @@ bool LeavesGoodRemainder(Dictionary *dict, TaiText const &prefix, std::string_vi
 }
 
 std::vector<Buffer> GetCandidatesFromStartImpl(Engine *engine, TaiToken *lgram, std::string const &raw_query) {
-    auto options = engine->dictionary()->AllWordsFromStart(raw_query);
+    auto ret = std::vector<Buffer>();
+
+    auto segments = Segmenter::SegmentText(engine, raw_query);
+    if (segments.at(0).type != SegmentType::Splittable) {
+        ret.push_back(Buffer(raw_query.substr(0, segments.at(0).size)));
+        ret.back().SetConverted(true);
+        return ret;
+    }
+    
+    auto query = raw_query.substr(0, segments.at(0).size);
+    auto options = engine->dictionary()->AllWordsFromStart(query);
 
     std::sort(options.begin(), options.end(), [](TaiToken *a, TaiToken *b) {
         return unicode::letter_count(a->input) > unicode::letter_count(b->input);
     });
 
-    auto ret = std::vector<Buffer>();
     auto parser = engine->syllable_parser();
     auto seen = std::unordered_set<std::string>();
 
@@ -80,9 +89,9 @@ std::vector<Buffer> GetCandidatesFromStartImpl(Engine *engine, TaiToken *lgram, 
             continue;
         }
 
-        auto tai_text = parser->AsTaiText(raw_query, option->input);
+        auto tai_text = parser->AsTaiText(query, option->input);
 
-        if (!LeavesGoodRemainder(engine->dictionary(), tai_text, raw_query)) {
+        if (!LeavesGoodRemainder(engine->dictionary(), tai_text, query)) {
             continue;
         }
 
@@ -141,7 +150,7 @@ std::vector<Buffer> ContinuousCandidatesImpl(Engine *engine, TaiToken *lgram, st
 
 std::vector<Buffer> MultiSegmentCandidatesImpl(Engine *engine, TaiToken *lgram, std::string const &query) {
     auto candidates = std::vector<Buffer>{Buffer()};
-    auto segments = Segmenter::SegmentText2(engine, query);
+    auto segments = Segmenter::SegmentText(engine, query);
 
     for (auto i = 0; i < segments.size(); ++i) {
         auto &seg = segments[i];
@@ -170,6 +179,8 @@ std::vector<Buffer> MultiSegmentCandidatesImpl(Engine *engine, TaiToken *lgram, 
             break;
         }
     }
+
+    candidates.at(0).SetConverted(true);
 
     return candidates;
 }

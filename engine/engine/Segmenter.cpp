@@ -61,7 +61,7 @@ size_t CheckSplittableWithTrailingPrefix(Engine *engine, std::string_view str) {
     return 0;
 }
 
-size_t CheckSyllable(Engine *engine, std::string_view str) {
+size_t MaxSyllable(Engine* engine, std::string_view str) {
     auto dictionary = engine->dictionary();
 
     if (!dictionary->StartsWithSyllable(str)) {
@@ -80,7 +80,29 @@ size_t CheckSyllable(Engine *engine, std::string_view str) {
     return --i;
 }
 
-std::vector<SegmentOffset> SegmentText2Impl(Engine *engine, std::string_view raw_buffer) {
+size_t MaxSplitSize(Engine* engine, std::string_view str) {
+    return engine->dictionary()->word_splitter()->MaxSplitSize(str);
+}
+
+std::pair<size_t, SegmentType> CheckSyllableOrSplittable(Engine *engine, std::string_view str) {
+    auto ret = std::make_pair(size_t(0), SegmentType::None);
+    auto max_syl = MaxSyllable(engine, str);
+    auto max_split = MaxSplitSize(engine, str);
+
+    if (max_syl > 0 || max_split > 0) {
+        if (max_syl > max_split) {
+            ret.first = max_syl;
+            ret.second = SegmentType::SyllablePrefix;
+        } else {
+            ret.first = max_split;
+            ret.second = SegmentType::Splittable;
+        }
+    }
+
+    return ret;
+}
+
+std::vector<SegmentOffset> SegmentTextImpl(Engine *engine, std::string_view raw_buffer) {
     auto ret = std::vector<SegmentOffset>();
     auto begin = raw_buffer.begin();
     auto it = raw_buffer.begin();
@@ -133,9 +155,9 @@ std::vector<SegmentOffset> SegmentText2Impl(Engine *engine, std::string_view raw
             break;
         }
 
-        if (auto size = CheckSyllable(engine, remainder); size > 0) {
+        if (auto [size, type] = CheckSyllableOrSplittable(engine, remainder); size > 0) {
             flush_plaintext();
-            ret.push_back(SegmentOffset{SegmentType::SyllablePrefix, index, size});
+            ret.push_back(SegmentOffset{type, index, size});
             it += size;
             continue;
         }
@@ -156,8 +178,8 @@ std::vector<SegmentOffset> SegmentText2Impl(Engine *engine, std::string_view raw
 
 } // namespace
 
-std::vector<SegmentOffset> Segmenter::SegmentText2(Engine *engine, std::string_view raw_buffer) {
-    return SegmentText2Impl(engine, raw_buffer);
+std::vector<SegmentOffset> Segmenter::SegmentText(Engine *engine, std::string_view raw_buffer) {
+    return SegmentTextImpl(engine, raw_buffer);
 }
 
 } // namespace khiin::engine

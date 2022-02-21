@@ -22,7 +22,7 @@ class BufferMgr {
     virtual void Clear() = 0;
     virtual bool IsEmpty() = 0;
     virtual void Insert(char ch) = 0;
-    virtual void MoveCaret(CursorDirection direction) = 0;
+    virtual void HandleLeftRight(CursorDirection direction) = 0;
     virtual void Erase(CursorDirection direction) = 0;
     virtual void MoveFocus(CursorDirection direction) = 0;
 

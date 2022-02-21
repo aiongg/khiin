@@ -78,7 +78,11 @@ void Buffer::AdjustVirtualSpacing(BufferElementList &elements) {
         std::string rhs = elements.at(i).is_converted ? elements.at(i).converted() : elements.at(i).composed();
 
         if (NeedsVirtualSpace(lhs, rhs)) {
-            elements.insert(elements.begin() + i, BufferElement(VirtualSpace()));
+            auto tmp = BufferElement(VirtualSpace());
+            if (elements.at(i - 1).is_converted && elements.at(i).is_converted) {
+                tmp.is_converted = true;
+            }
+            elements.insert(elements.begin() + i, std::move(tmp));
         }
     }
 }

@@ -128,11 +128,11 @@ class EngineImpl : public Engine {
             break;
         }
         case SpecialKey::SK_RIGHT: {
-            m_buffer_mgr->MoveCaret(CursorDirection::R);
+            m_buffer_mgr->HandleLeftRight(CursorDirection::R);
             break;
         }
         case SpecialKey::SK_LEFT: {
-            m_buffer_mgr->MoveCaret(CursorDirection::L);
+            m_buffer_mgr->HandleLeftRight(CursorDirection::L);
             break;
         }
         case SpecialKey::SK_DOWN: {

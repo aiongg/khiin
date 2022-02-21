@@ -7,7 +7,6 @@
 #include "KeyConfig.h"
 #include "KhinHandler.h"
 #include "Lomaji.h"
-#include "Segmenter.h"
 #include "unicode_utils.h"
 
 namespace khiin::engine {
@@ -97,9 +96,9 @@ class BufferMgrImpl : public BufferMgr {
         }
     }
 
-    virtual void MoveCaret(CursorDirection direction) override {
+    virtual void HandleLeftRight(CursorDirection direction) override {
         if (m_edit_state == EditState::EDIT_COMPOSING) {
-            MoveCaretBasic(direction);
+            MoveCaret(direction);
         } else if (m_edit_state == EditState::EDIT_CONVERTED) {
             MoveFocus(direction);
         }
@@ -147,7 +146,11 @@ class BufferMgrImpl : public BufferMgr {
             FocusCandidate(0);
         } else {
             m_edit_state = EditState::EDIT_SELECTING;
-            FocusCandidate((m_focused_candidate + 1) % m_candidates.size());
+            if (m_focused_candidate == m_candidates.size() - 1) {
+                FocusCandidate(0);
+            } else {
+                FocusCandidate((m_focused_candidate + 1));
+            }
         }
     }
 
@@ -162,6 +165,11 @@ class BufferMgrImpl : public BufferMgr {
     }
 
     virtual void FocusCandidate(size_t index) override {
+        if (m_candidates.empty()) {
+            m_edit_state = EditState::EDIT_CONVERTED;
+            return;
+        }
+
         assert(index < m_candidates.size());
 
         if (m_composition_copy.Empty()) {
@@ -183,7 +191,7 @@ class BufferMgrImpl : public BufferMgr {
     }
 
   private:
-    void MoveCaretBasic(CursorDirection direction) {
+    void MoveCaret(CursorDirection direction) {
         auto buffer_text = GetDisplayBuffer();
         m_caret = Lomaji::MoveCaret(buffer_text, m_caret, direction);
         FocusElementAtCursor();
@@ -239,7 +247,7 @@ class BufferMgrImpl : public BufferMgr {
                 OnFocusElementChange(idx);
             }
         } else if (m_nav_mode == NavMode::ByCharacter) {
-            MoveCaretBasic(direction);
+            MoveCaret(direction);
         }
     }
 
@@ -391,7 +399,7 @@ class BufferMgrImpl : public BufferMgr {
         }
 
         if (it->IsVirtualSpace(remainder) && direction == CursorDirection::R) {
-            MoveCaret(CursorDirection::R);
+            HandleLeftRight(CursorDirection::R);
             return;
         }
 
