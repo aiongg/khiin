@@ -40,19 +40,19 @@ std::vector<T> odometer_merge(std::vector<std::vector<T>> const &vector_set) {
     return ret;
 }
 
-std::string copy_str_tolower(std::string_view input) {
-    auto ret = std::string();
-    std::transform(input.cbegin(), input.cend(), std::back_inserter(ret), [](unsigned char c) {
-        return std::tolower(c);
-    });
-    return ret;
-}
-
-void str_tolower(std::string &str) {
-    std::transform(str.begin(), str.end(), str.begin(), [](unsigned char c) {
-        return std::tolower(c);
-    });
-}
+//void str_tolower(std::string &str) {
+//    std::transform(str.begin(), str.end(), str.begin(), [](unsigned char c) {
+//        return std::tolower(c);
+//    });
+//}
+//
+//std::string copy_str_tolower(std::string_view input) {
+//    auto ret = std::string();
+//    std::transform(input.cbegin(), input.cend(), std::back_inserter(ret), [](unsigned char c) {
+//        return std::tolower(c);
+//    });
+//    return ret;
+//}
 
 inline const char32_t kNasalLower = 0x207f;
 inline const char32_t kNasalUpper = 0x1d3a;
@@ -101,7 +101,7 @@ bool HasToneable(std::string_view str) {
 }
 
 size_t FindTonePosition(std::string_view strv) {
-    auto str = copy_str_tolower(strv);
+    auto str = unicode::copy_str_tolower(strv);
 
     for (auto &sequence : kOrderedToneablesIndex2) {
         if (auto i = str.find(sequence); i != std::string::npos && str.size() > i + 2) {
@@ -328,7 +328,7 @@ void ComposedToRawWithAlternates(KeyConfig *keyconfig, const std::string &input,
     char telex_key = 0;
     auto found_tone = RemoveToneDiacriticSaveTone(keyconfig, syl, tone, digit_key, telex_key);
     ApplyDeconversionRules(keyconfig, syl);
-    str_tolower(syl);
+    unicode::str_tolower(syl);
 
     if (!found_tone) {
         has_tone = false;

@@ -283,6 +283,11 @@ TEST_F(BufferInsertionTest, mng7) {
     ExpectSegment(1, 0, COMPOSING, "mn\u0304g", 4);
 }
 
+TEST_F(BufferInsertionTest, Goa) {
+    typing("Goa");
+    ExpectSegment(1, 0, COMPOSING, "Goa", 3);
+}
+
 //+---------------------------------------------------------------------------
 //
 // Caret movement
@@ -750,6 +755,26 @@ TEST_F(CandidateSelectionTest, Select_ebe2) {
     spacebar(1);
     ExpectSegment(2, 0, CONVERTED, "兮", 2);
     ExpectSegment(2, 1, FOCUSED, "袂", 2);
+}
+
+TEST_F(CandidateSelectionTest, Select_ex) {
+    typing("ex");
+    spacebar(1);
+    ExpectSegment(3, 0, FOCUSED, "个", 3);
+    ExpectSegment(3, 1, CONVERTED, " ", 3);
+    ExpectSegment(3, 2, CONVERTED, "x", 3);
+    curs_down(1);
+    ExpectSegment(3, 0, FOCUSED, "兮", 3);
+    enter();
+    ExpectSegment(3, 0, CONVERTED, "兮", 3);
+    curs_right(2);
+    curs_down(1);
+}
+
+TEST_F(CandidateSelectionTest, Select_goa21) {
+    typing("goa21");
+    key_bksp(1);
+    spacebar(1);
 }
 
 } // namespace

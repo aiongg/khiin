@@ -121,6 +121,10 @@ void Buffer::Append(TaiText &&taitext) {
     m_elements.push_back(BufferElement(taitext));
 }
 
+iterator Buffer::Erase(iterator it) {
+    return m_elements.erase(it);
+}
+
 // Returns iterator pointing to the element at visible caret position
 iterator Buffer::IterCaret(utf8_size_t caret) {
     auto rem = caret;

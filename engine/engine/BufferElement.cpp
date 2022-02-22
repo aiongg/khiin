@@ -9,6 +9,10 @@ using namespace unicode;
 
 namespace {} // namespace
 
+bool BufferElement::ConvertedEq(BufferElement const &lhs, BufferElement const &rhs) {
+    return lhs.converted() == rhs.converted();
+}
+
 BufferElement::BufferElement() {}
 
 BufferElement::BufferElement(TaiText const &elem) {
@@ -21,6 +25,10 @@ BufferElement::BufferElement(std::string const &elem) {
 
 BufferElement::BufferElement(VirtualSpace elem) {
     m_element.emplace<VirtualSpace>(elem);
+}
+
+bool BufferElement::operator==(BufferElement const &rhs) const {
+    return BufferElement::ConvertedEq(*this, rhs);
 }
 
 void BufferElement::Replace(TaiText const &elem) {

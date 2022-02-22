@@ -38,6 +38,7 @@ class Buffer {
     const_iterator CEnd();
     BufferElement& At(size_t index);
     size_t Size();
+    iterator Erase(iterator it);
 
     // Returns iterator pointing to the element at the caret, using the
     // visible caret position

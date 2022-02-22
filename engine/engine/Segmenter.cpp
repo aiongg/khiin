@@ -179,7 +179,8 @@ std::vector<SegmentOffset> SegmentTextImpl(Engine *engine, std::string_view raw_
 } // namespace
 
 std::vector<SegmentOffset> Segmenter::SegmentText(Engine *engine, std::string_view raw_buffer) {
-    return SegmentTextImpl(engine, raw_buffer);
+    auto lc = unicode::copy_str_tolower(raw_buffer);
+    return SegmentTextImpl(engine, lc);
 }
 
 } // namespace khiin::engine

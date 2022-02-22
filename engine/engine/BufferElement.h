@@ -13,10 +13,14 @@ class Punctuation {};
 
 class BufferElement {
   public:
+    static bool ConvertedEq(BufferElement const &lhs, BufferElement const &rhs);
+
     BufferElement();
     BufferElement(TaiText const &elem);
     BufferElement(std::string const &elem);
     BufferElement(VirtualSpace elem);
+
+    bool operator==(BufferElement const &rhs) const;
 
     void Replace(TaiText const &elem);
     void Replace(std::string const &elem);

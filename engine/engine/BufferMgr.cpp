@@ -77,9 +77,6 @@ class BufferMgrImpl : public BufferMgr {
         NavMode m_nav_mode = NavMode::ByCharacter;
         m_focused_candidate = 0;
         m_focused_element = 0;
-
-        m_composition_copy.Clear();
-        m_caret_copy = 0;
     }
 
     virtual void Insert(char ch) override {
@@ -114,13 +111,17 @@ class BufferMgrImpl : public BufferMgr {
         } else {
             EraseComposing(direction);
         }
+
+        if (m_focused_element > m_composition.Size() - 1) {
+            OnFocusElementChange(m_composition.Size() - 1);
+        }
     }
 
     virtual void HandleLeftRight(CursorDirection direction) override {
         if (m_edit_state == EditState::EDIT_COMPOSING) {
             MoveCaret(direction);
         } else if (m_edit_state == EditState::EDIT_CONVERTED) {
-            MoveFocus(direction);
+            MoveFocusOrCaret(direction);
         }
     }
 
@@ -181,12 +182,6 @@ class BufferMgrImpl : public BufferMgr {
 
         assert(index < m_candidates.size());
 
-        // if (m_composition_copy.Empty()) {
-        //    SaveBufferState();
-        //} else {
-        //    RestoreSavedBufferState();
-        //}
-
         FocusCandidate_(index);
     }
 
@@ -228,37 +223,41 @@ class BufferMgrImpl : public BufferMgr {
         SetFocusedCandidateIndexToCurrent();
     }
 
-    void MoveFocus(CursorDirection direction) {
+    void MoveFocusOrCaret(CursorDirection direction) {
         if (m_nav_mode == NavMode::BySegment && m_focused_element == 0 && direction == CursorDirection::L) {
             m_nav_mode = NavMode::ByCharacter;
         }
 
         if (m_nav_mode == NavMode::BySegment) {
-            auto it = m_composition.Begin() + m_focused_element;
-
-            if (direction == CursorDirection::R) {
-                if (m_focused_element >= m_composition.get().size() - 1) {
-                    return;
-                }
-
-                ++it;
-                while (it->IsVirtualSpace()) {
-                    ++it;
-                }
-            } else if (direction == CursorDirection::L) {
-
-                --it;
-                while (it->IsVirtualSpace()) {
-                    --it;
-                }
-            }
-
-            auto idx = static_cast<int>(std::distance(m_composition.Begin(), it));
-            if (idx != m_focused_element) {
-                OnFocusElementChange(idx);
-            }
+            MoveFocus(direction);
         } else if (m_nav_mode == NavMode::ByCharacter) {
             MoveCaret(direction);
+        }
+    }
+
+    void MoveFocus(CursorDirection direction) {
+        auto it = m_composition.Begin() + m_focused_element;
+
+        if (direction == CursorDirection::R) {
+            if (m_focused_element >= m_composition.Size() - 1) {
+                return;
+            }
+
+            ++it;
+            while (it->IsVirtualSpace()) {
+                ++it;
+            }
+        } else if (direction == CursorDirection::L) {
+
+            --it;
+            while (it->IsVirtualSpace()) {
+                --it;
+            }
+        }
+
+        auto idx = static_cast<int>(std::distance(m_composition.Begin(), it));
+        if (idx != m_focused_element) {
+            OnFocusElementChange(idx);
         }
     }
 
@@ -277,7 +276,7 @@ class BufferMgrImpl : public BufferMgr {
 
         KhinHandler::AutokhinBuffer(m_engine->syllable_parser(), m_composition.get());
         raw_caret += m_precomp.RawTextSize();
-        m_focused_element = m_precomp.get().size();
+        OnFocusElementChange(m_precomp.Size());
         m_composition.Join(&m_precomp, &m_postcomp);
         m_composition.AdjustVirtualSpacing();
         m_caret = m_composition.CaretFrom(raw_caret, m_engine->syllable_parser());
@@ -303,8 +302,6 @@ class BufferMgrImpl : public BufferMgr {
         auto raw_caret = m_composition.RawCaretFrom(m_caret, m_engine->syllable_parser());
         Buffer candidate = m_candidates.at(index);
         m_composition.SplitAtElement(m_focused_element, &m_precomp, nullptr);
-
-        m_focused_element = 0;
 
         auto replace_from = m_composition.Begin();
         auto raw_cand_size = candidate.RawTextSize();
@@ -339,7 +336,6 @@ class BufferMgrImpl : public BufferMgr {
         }
 
         m_composition.Replace(replace_from, replace_to, candidate);
-        m_focused_element = m_precomp.get().size();
         m_focused_candidate = index;
         m_composition.Join(&m_precomp, &m_postcomp);
         m_composition.AdjustVirtualSpacing();
@@ -367,14 +363,14 @@ class BufferMgrImpl : public BufferMgr {
         for (auto i = 0; i < m_candidates.size(); ++i) {
             auto &check = m_candidates.at(i).At(0);
 
-            auto curr_cand = current.candidate();
-            auto check_cand = check.candidate();
-
-            if (curr_cand && check_cand && curr_cand->output == check_cand->output) {
+            if (current == check) {
                 m_focused_candidate = i;
-                break;
+                return;
             }
         }
+
+        // Should not reach here
+        assert("Current buffer element is not a candidate");
     }
 
     void EraseConverted(BufferElementList::iterator caret_element, utf8_size_t caret) {
@@ -387,7 +383,7 @@ class BufferMgrImpl : public BufferMgr {
         text.erase(from, to);
 
         if (text.empty()) {
-            m_composition.get().erase(caret_element);
+            m_composition.Erase(caret_element);
         } else {
             caret_element->Replace(text);
         }
@@ -441,23 +437,6 @@ class BufferMgrImpl : public BufferMgr {
         return u8_size(GetDisplayBuffer());
     }
 
-    void ClearSavedBufferState() {
-        m_composition_copy.Clear();
-        m_caret_copy = 0;
-    }
-
-    void SaveBufferState() {
-        m_composition_copy = m_composition;
-        m_caret_copy = m_caret;
-    }
-
-    void RestoreSavedBufferState() {
-        if (!m_composition_copy.Empty()) {
-            m_composition = m_composition_copy;
-            m_caret = m_caret_copy;
-        }
-    }
-
     enum class NavMode {
         ByCharacter,
         BySegment,
@@ -474,9 +453,6 @@ class BufferMgrImpl : public BufferMgr {
     EditState m_edit_state = EditState::EDIT_EMPTY;
     InputMode m_input_mode = InputMode::Continuous;
     NavMode m_nav_mode = NavMode::ByCharacter;
-
-    Buffer m_composition_copy; // Used when focusing candidates
-    utf8_size_t m_caret_copy = 0;
 };
 
 } // namespace

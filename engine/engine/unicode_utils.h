@@ -136,6 +136,22 @@ size_t letter_count(StrT input) {
     return count;
 }
 
+template <typename StrT>
+void str_tolower(StrT &str) {
+    std::transform(str.begin(), str.end(), str.begin(), [](unsigned char c) {
+        return std::tolower(c);
+    });
+}
+
+template <typename StrT>
+std::string copy_str_tolower(StrT const &str) {
+    auto ret = std::string();
+    std::transform(str.cbegin(), str.cend(), std::back_inserter(ret), [](unsigned char c) {
+        return std::tolower(c);
+    });
+    return ret;
+}
+
 inline void safe_erase(std::string &str, utf8_size_t index, size_t count = 1) {
     auto size = u8_size(str);
     if (index >= size) {
