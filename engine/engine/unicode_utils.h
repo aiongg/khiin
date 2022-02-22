@@ -11,7 +11,33 @@ using utf8_size_t = size_t; // number of UTF codepoints, 1-4 bytes
 
 namespace unicode {
 
+inline constexpr char kMaxAscii = 0x7f;
 inline constexpr char32_t kHanjiCutoff = 0x2e80;
+inline constexpr char32_t kNasalLower = 0x207f;
+inline constexpr char32_t kNasalUpper = 0x1d3a;
+inline constexpr char32_t kDotAboveRight = 0x0358;
+inline constexpr char32_t kDotsBelow = 0x0324;
+inline constexpr char32_t kKhinDot = 0x00b7;
+inline constexpr char32_t kTone2 = 0x0301;
+inline constexpr char32_t kTone3 = 0x0300;
+inline constexpr char32_t kTone5 = 0x0302;
+inline constexpr char32_t kTone7 = 0x0304;
+inline constexpr char32_t kTone8 = 0x030d;
+inline constexpr char32_t kTone9 = 0x0306;
+inline constexpr char32_t kToneLowerBound = kTone3;
+inline constexpr char32_t kToneUpperBound = kTone8;
+
+inline constexpr bool is_tone(char32_t c) {
+    return c >= kToneLowerBound && c <= kToneUpperBound;
+}
+
+inline constexpr bool is_hanji(char32_t c) {
+    return c >= kHanjiCutoff;
+}
+
+inline constexpr bool is_nasal(char32_t c) {
+    return c == kNasalLower || c == kNasalUpper;
+}
 
 enum class GlyphCategory {
     Other,
@@ -23,7 +49,7 @@ enum class GlyphCategory {
 namespace {
 
 const inline GlyphCategory glyph_category_of_codepoint(char32_t cp) {
-    if ((cp <= 0xFF && isalnum(cp)) || cp == 0x207f) {
+    if ((cp <= kMaxAscii && isalnum(cp)) || is_nasal(cp)) {
         return GlyphCategory::Alnum;
     }
 
@@ -31,7 +57,7 @@ const inline GlyphCategory glyph_category_of_codepoint(char32_t cp) {
         return GlyphCategory::Khin;
     }
 
-    if (cp >= kHanjiCutoff) {
+    if (is_hanji(cp)) {
         return GlyphCategory::Hanji;
     }
 
@@ -60,6 +86,17 @@ std::string to_nfc(StrT const &s) {
     auto u32s = utf8::utf8to32(s);
     ufal::unilib::uninorms::nfc(u32s);
     return utf8::utf32to8(u32s);
+}
+
+inline std::u32string u8_to_u32_nfd(std::string_view s) {
+    auto u32s = utf8::utf8to32(s);
+    ufal::unilib::uninorms::nfd(u32s);
+    return u32s;
+}
+
+inline std::string u32_to_u8_nfc(std::u32string &u32str) {
+    ufal::unilib::uninorms::nfc(u32str);
+    return utf8::utf32to8(u32str);
 }
 
 std::string strip_diacritics(std::string_view str, bool strip_letter_diacritics = false);

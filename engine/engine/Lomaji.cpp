@@ -9,9 +9,26 @@
 
 namespace khiin::engine {
 namespace {
+namespace u8u = utf8::unchecked;
+using namespace unicode;
 
 bool IsCombiningCharacter(uint32_t cp) {
     return 0x0300 <= cp && cp <= 0x0358;
+}
+
+inline constexpr char32_t kNasal = 0x207f;
+inline constexpr char32_t kNasalUpper = 0x1d3a;
+
+inline bool IsUpper(char32_t c) {
+    return c <= kMaxAscii && isupper(c);
+}
+
+inline bool IsAlpha(char32_t c) {
+    return c <= kMaxAscii && isalpha(c);
+}
+
+inline bool BothAlpha(char32_t c1, char32_t c2) {
+    return c1 <= kMaxAscii && c2 <= kMaxAscii && isalpha(c1) && isalpha(c2);
 }
 
 constexpr std::initializer_list<std::pair<const unsigned int, const char *>> kLatinDecompositionData = {
@@ -34,7 +51,7 @@ static const std::unordered_map<unsigned int, const char *> kDecompositionMap{kL
 } // namespace
 
 utf8_size_t Lomaji::MoveCaret(std::string_view str, utf8_size_t start_pos, CursorDirection dir) {
-    auto str_size = unicode::u8_size(str);
+    auto str_size = u8_size(str);
     if (start_pos > str_size) {
         return str_size;
     }
@@ -45,10 +62,10 @@ utf8_size_t Lomaji::MoveCaret(std::string_view str, utf8_size_t start_pos, Curso
             return 0;
         }
 
-        utf8::unchecked::advance(it, start_pos);
+        u8u::advance(it, start_pos);
 
         while (it != str.cbegin()) {
-            auto cp = utf8::unchecked::prior(it);
+            auto cp = u8u::prior(it);
             if (IsCombiningCharacter(cp)) {
                 continue;
             } else {
@@ -56,16 +73,16 @@ utf8_size_t Lomaji::MoveCaret(std::string_view str, utf8_size_t start_pos, Curso
             }
         }
     } else if (dir == CursorDirection::R) {
-        if (start_pos == unicode::u8_size(str)) {
+        if (start_pos == u8_size(str)) {
             return start_pos;
         }
 
-        utf8::unchecked::advance(it, start_pos + 1);
+        u8u::advance(it, start_pos + 1);
 
         while (it != str.cend()) {
-            auto cp = utf8::unchecked::peek_next(it);
+            auto cp = u8u::peek_next(it);
             if (IsCombiningCharacter(cp)) {
-                utf8::unchecked::next(it);
+                u8u::advance(it, 1);
                 continue;
             } else {
                 break;
@@ -73,14 +90,14 @@ utf8_size_t Lomaji::MoveCaret(std::string_view str, utf8_size_t start_pos, Curso
         }
     }
 
-    return utf8::unchecked::distance(str.cbegin(), it);
+    return u8u::distance(str.cbegin(), it);
 }
 
 bool Lomaji::IsLomaji(std::string_view str) {
     auto it = str.begin();
     while (it != str.end()) {
-        auto cp = utf8::unchecked::next(it);
-        if (cp >= unicode::kHanjiCutoff) {
+        auto cp = u8u::next(it);
+        if (cp >= kHanjiCutoff) {
             return false;
         }
     }
@@ -89,8 +106,8 @@ bool Lomaji::IsLomaji(std::string_view str) {
 
 std::string Lomaji::Decompose(std::string_view str) {
     auto ret = std::string();
-    auto it = unicode::u8_begin(str);
-    auto end = unicode::u8_end(str);
+    auto it = u8_begin(str);
+    auto end = u8_end(str);
     for (; it != end; ++it) {
         if (auto &found = kDecompositionMap.find(*it); found != kDecompositionMap.end()) {
             ret.append(found->second);
@@ -101,58 +118,71 @@ std::string Lomaji::Decompose(std::string_view str) {
     return ret;
 }
 
-std::string Lomaji::MatchCapitalization(std::string_view pattern, std::string_view input) {
-    auto ret = std::string();
-
-    if (pattern.empty() || input.empty()) {
-        return ret;
+// Synchronizes the capitalization from |pattern| with the string |output|
+std::string Lomaji::MatchCapitalization(std::string_view pattern, std::string_view output) {
+    if (pattern.empty() || output.empty()) {
+        return std::string();
     }
 
-    auto pat = utf8::utf8to32(unicode::to_nfd(pattern));
-    auto inp = utf8::utf8to32(unicode::to_nfd(input));
+    auto ret = std::u32string();
 
-    auto pat_it = pat.begin();
-    auto pat_end = pat.end();
+    auto u32_pattern = u8_to_u32_nfd(pattern);
+    auto p_it = u32_pattern.begin();
+    auto p_end = u32_pattern.end();
 
-    auto inp_it = inp.begin();
-    auto inp_end = inp.end();
+    auto u32_output = u8_to_u32_nfd(output);
+    auto o_it = u32_output.begin();
+    auto o_end = u32_output.end();
 
-    while (pat_it != pat_end && inp_it != inp_end) {
-        while (pat_it != pat_end && (*pat_it > 0x7f || !isalpha(*pat_it))) {
-            ++pat_it;
+    while (p_it != p_end && o_it != o_end) {
+        while (p_it != p_end && !IsAlpha(*p_it)) {
+            ++p_it;
         }
 
-        while (inp_it != inp_end && (*inp_it > 0x7f || !isalpha(*inp_it))) {
-            utf8::append(*inp_it, ret);
-            ++inp_it;
+        while (o_it != o_end && *o_it != kNasal && !IsAlpha(*o_it)) {
+            ret.push_back(*o_it);
+            ++o_it;
         }
 
-        if (pat_it == pat_end || inp_it == inp_end) {
+        if (p_it == p_end || o_it == o_end) {
             break;
         }
 
-        if (*pat_it < 0xff && *inp_it < 0xff && isalpha(*pat_it) && isalpha(*inp_it)) {
-            if (tolower(*pat_it) == tolower(*inp_it)) {
-                utf8::append(*pat_it, ret);
-                ++pat_it;
-                ++inp_it;
+        if (BothAlpha(*p_it, *o_it)) {
+            if (tolower(*p_it) == tolower(*o_it)) {
+                ret.push_back(*p_it);
+                ++p_it;
+                ++o_it;
                 continue;
             } else {
                 break;
             }
         }
 
-        utf8::append(*inp_it, ret);
-        utf8::unchecked::advance(pat_it, 1);
-        utf8::unchecked::advance(inp_it, 1);
+        if (*o_it == kNasal && IsUpper(*p_it)) {
+            ret.push_back(kNasalUpper);
+            ++o_it;
+
+            auto tmp = tolower(*p_it);
+            ++p_it;
+            if (p_it != p_end && tolower(*p_it) == tmp) {
+                ++p_it;
+            }
+
+            continue;
+        }
+
+        ret.push_back(*o_it);
+        u8u::advance(p_it, 1);
+        u8u::advance(o_it, 1);
     }
 
-    while (inp_it != inp_end) {
-        utf8::append(*inp_it, ret);
-        ++inp_it;
+    while (o_it != o_end) {
+        ret.push_back(*o_it);
+        ++o_it;
     }
 
-    return unicode::to_nfc(ret);
+    return u32_to_u8_nfc(ret);
 }
 
 } // namespace khiin::engine

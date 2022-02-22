@@ -11,6 +11,8 @@
 
 namespace khiin::engine {
 namespace {
+using namespace unicode;
+namespace u8u = utf8::unchecked;
 
 // Merges sets of strings using an "odometer-like" wrapping iterator
 template <typename T>
@@ -40,31 +42,19 @@ std::vector<T> odometer_merge(std::vector<std::vector<T>> const &vector_set) {
     return ret;
 }
 
-//void str_tolower(std::string &str) {
+// void str_tolower(std::string &str) {
 //    std::transform(str.begin(), str.end(), str.begin(), [](unsigned char c) {
 //        return std::tolower(c);
 //    });
 //}
 //
-//std::string copy_str_tolower(std::string_view input) {
+// std::string copy_str_tolower(std::string_view input) {
 //    auto ret = std::string();
 //    std::transform(input.cbegin(), input.cend(), std::back_inserter(ret), [](unsigned char c) {
 //        return std::tolower(c);
 //    });
 //    return ret;
 //}
-
-inline const char32_t kNasalLower = 0x207f;
-inline const char32_t kNasalUpper = 0x1d3a;
-inline const char32_t kDotAboveRight = 0x0358;
-inline const char32_t kDotsBelow = 0x0324;
-inline const char32_t kKhinDot = 0x00b7;
-inline const char32_t kTone2 = 0x0301;
-inline const char32_t kTone3 = 0x0300;
-inline const char32_t kTone5 = 0x0302;
-inline const char32_t kTone7 = 0x0304;
-inline const char32_t kTone8 = 0x030d;
-inline const char32_t kTone9 = 0x0306;
 
 inline constexpr char *kOrderedToneablesIndex2[] = {"oa", "oe"};
 inline constexpr char *kOrderedToneablesIndex1[] = {"o", "a", "e", "u", "i", "ng", "m"};
@@ -175,8 +165,8 @@ bool HasToneDiacritic(std::string const &str) {
     auto s = unicode::to_nfd(str);
     auto it = s.cbegin();
     while (it != s.cend()) {
-        auto cp = utf8::unchecked::next(it);
-        if (0x0300 <= cp && cp <= 0x030d) {
+        auto cp = u8u::next(it);
+        if (is_tone(cp)) {
             return true;
         }
     }
@@ -271,7 +261,7 @@ std::string SylToRaw(Syllable const &input) {
 };
 
 Syllable SylFromComposed(KeyConfig *keyconfig, std::string const &input, char original_tone_key = 0) {
-    auto copy = unicode::to_nfd(input);
+    auto copy = to_nfd(input);
     auto tone = Tone::NaT;
     char digit_key = 0;
     char telex_key = 0;
@@ -361,7 +351,7 @@ utf8_size_t RawCaretToComposedCaret(KeyConfig *keyconfig, Syllable const &syllab
     auto ret = std::string::npos;
 
     if (raw_caret == input.size()) {
-        ret = unicode::u8_size(syllable.composed);
+        ret = u8_size(syllable.composed);
     } else if (raw_caret < input.size()) {
         auto lhs = std::string(body.cbegin(), body.cbegin() + raw_caret);
         ApplyConversionRules(keyconfig, lhs);
@@ -372,7 +362,7 @@ utf8_size_t RawCaretToComposedCaret(KeyConfig *keyconfig, Syllable const &syllab
                 AddToneDiacritic(syllable.tone, lhs);
             }
         }
-        ret = unicode::u8_size(unicode::to_nfc(lhs));
+        ret = u8_size(to_nfc(lhs));
     }
 
     return ret;
@@ -386,8 +376,8 @@ size_t ComposedCaretToRawCaret(KeyConfig *keyconfig, Syllable const &syllable, u
         ret = syllable.raw_input.size();
     } else if (composed_caret < size) {
         auto caret = syllable.composed.cbegin();
-        utf8::unchecked::advance(caret, composed_caret);
-        auto lhs = unicode::to_nfd(std::string(syllable.composed.cbegin(), caret));
+        u8u::advance(caret, composed_caret);
+        auto lhs = to_nfd(std::string(syllable.composed.cbegin(), caret));
 
         RemoveToneDiacritic(lhs);
         ApplyDeconversionRules(keyconfig, lhs);
@@ -485,7 +475,7 @@ class SyllableParserImpl : public SyllableParser {
 
     virtual TaiText AsTaiText(std::string const &raw, std::string const &target) override {
         auto ret = TaiText();
-        auto raw_lc = unicode::copy_str_tolower(raw);
+        auto raw_lc = copy_str_tolower(raw);
         auto t_start = target.cbegin();
         auto t_end = target.cend();
         auto r_start = raw.cbegin();
@@ -512,17 +502,17 @@ class SyllableParserImpl : public SyllableParser {
     }
 
     virtual void Erase(Syllable &syllable, utf8_size_t index) override {
-        auto size = unicode::u8_size(syllable.composed);
+        auto size = u8_size(syllable.composed);
         if (index > size) {
             return;
         }
 
         auto from = syllable.composed.begin();
-        utf8::unchecked::advance(from, index);
+        u8u::advance(from, index);
 
         auto curs_end = Lomaji::MoveCaret(syllable.composed, index, CursorDirection::R);
         auto to = syllable.composed.begin();
-        utf8::unchecked::advance(to, curs_end);
+        u8u::advance(to, curs_end);
 
         if (HasToneDiacritic(std::string(from, to))) {
             syllable.tone = Tone::NaT;

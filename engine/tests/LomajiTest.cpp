@@ -26,6 +26,7 @@ TEST(Lomaji, Capitalization) {
     EXPECT_STREQ(Lomaji::MatchCapitalization("O", "ŏ\u0358").data(), u8"Ŏ\u0358");
     EXPECT_STREQ(Lomaji::MatchCapitalization("A", "aa").data(), u8"Aa");
     EXPECT_STREQ(Lomaji::MatchCapitalization("Ou", "o\u0358").data(), u8"O\u0358");
+    EXPECT_STREQ(Lomaji::MatchCapitalization("TANN", "ta\u207f").data(), u8"TA\u1d3a");
 }
 
 // TEST(Lomaji, place_tone_on_syllable) {
