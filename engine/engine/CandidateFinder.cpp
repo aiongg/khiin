@@ -11,6 +11,7 @@
 namespace khiin::engine {
 
 namespace {
+using namespace unicode;
 
 inline bool IsHigherFrequency(TaiToken *left, TaiToken *right) {
     return left->input_id == right->input_id ? left->weight > right->weight : left->input_id < right->input_id;
@@ -73,9 +74,10 @@ std::vector<Buffer> GetCandidatesFromStartImpl(Engine *engine, TaiToken *lgram, 
         ret.back().SetConverted(true);
         return ret;
     }
-    
+
     auto query = raw_query.substr(0, segments.at(0).size);
-    auto options = engine->dictionary()->AllWordsFromStart(query);
+    auto query_lc = unicode::copy_str_tolower(query);
+    auto options = engine->dictionary()->AllWordsFromStart(query_lc);
 
     std::sort(options.begin(), options.end(), [](TaiToken *a, TaiToken *b) {
         return unicode::letter_count(a->input) > unicode::letter_count(b->input);
@@ -175,7 +177,11 @@ std::vector<Buffer> MultiSegmentCandidatesImpl(Engine *engine, TaiToken *lgram, 
             break;
         case SegmentType::WordPrefix:
             auto best_match = CandidateFinder::BestAutocomplete(engine, nullptr, seg_raw_comp);
-            candidates[0].Append(TaiText::FromMatching(engine->syllable_parser(), seg_raw_comp, best_match));
+            if (best_match) {
+                candidates[0].Append(TaiText::FromMatching(engine->syllable_parser(), seg_raw_comp, best_match));
+            } else {
+                candidates[0].Append(TaiText::FromRawSyllable(engine->syllable_parser(), seg_raw_comp));
+            }
             break;
         }
     }
@@ -188,12 +194,12 @@ std::vector<Buffer> MultiSegmentCandidatesImpl(Engine *engine, TaiToken *lgram, 
 } // namespace
 
 TaiToken *CandidateFinder::BestMatch(Engine *engine, TaiToken *lgram, std::string const &query) {
-    auto options = engine->dictionary()->WordSearch(query);
+    auto options = engine->dictionary()->WordSearch(copy_str_tolower(query));
     return BestMatchImpl(engine, lgram, options);
 }
 
 TaiToken *CandidateFinder::BestAutocomplete(Engine *engine, TaiToken *lgram, std::string const &query) {
-    auto options = engine->dictionary()->Autocomplete(query);
+    auto options = engine->dictionary()->Autocomplete(copy_str_tolower(query));
     return BestMatchImpl(engine, lgram, options);
 }
 

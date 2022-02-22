@@ -28,6 +28,7 @@ class Lomaji {
     }
     static bool IsLomaji(std::string_view str);
     static std::string Decompose(std::string_view str);
+    static std::string MatchCapitalization(std::string_view pattern, std::string_view input);
 };
 
 } // namespace khiin::engine

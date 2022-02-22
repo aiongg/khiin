@@ -361,13 +361,21 @@ TEST_F(SyllableParserTest, Khin_a0) {
 
 TEST_F(SyllableParserTest, AsTaiText_sou2i2) {
     auto input = u8"sou2i2";
-    auto target = u8"só͘ í";
+    auto target = u8"só\u0358 í";
     auto result = parser->AsTaiText(input, target);
     auto tt = TaiText();
     tt.AddItem(Syllable{"sou2", "sou", Tone::T2, KhinKeyPosition::None, '2', 0, "só͘"});
     tt.AddItem(VirtualSpace());
     tt.AddItem(Syllable{"i2", "i", Tone::T2, KhinKeyPosition::None, '2', 0, "í"});
     EXPECT_EQ(result, tt);
+}
+
+TEST_F(SyllableParserTest, TaiText_capitals) {
+    auto input = "Goa2";
+    auto target = "góa";
+    auto result = parser->AsTaiText(input, target);
+    EXPECT_EQ(result.RawText(), "Goa2");
+    EXPECT_EQ(result.ComposedText(), "Góa");
 }
 
 } // namespace

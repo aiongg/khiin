@@ -10,7 +10,7 @@
 namespace khiin::engine {
 namespace {
 
-bool IsNoncursorableCodepoint(uint32_t cp) {
+bool IsCombiningCharacter(uint32_t cp) {
     return 0x0300 <= cp && cp <= 0x0358;
 }
 
@@ -49,7 +49,7 @@ utf8_size_t Lomaji::MoveCaret(std::string_view str, utf8_size_t start_pos, Curso
 
         while (it != str.cbegin()) {
             auto cp = utf8::unchecked::prior(it);
-            if (IsNoncursorableCodepoint(cp)) {
+            if (IsCombiningCharacter(cp)) {
                 continue;
             } else {
                 break;
@@ -64,7 +64,7 @@ utf8_size_t Lomaji::MoveCaret(std::string_view str, utf8_size_t start_pos, Curso
 
         while (it != str.cend()) {
             auto cp = utf8::unchecked::peek_next(it);
-            if (IsNoncursorableCodepoint(cp)) {
+            if (IsCombiningCharacter(cp)) {
                 utf8::unchecked::next(it);
                 continue;
             } else {
@@ -99,6 +99,60 @@ std::string Lomaji::Decompose(std::string_view str) {
         }
     }
     return ret;
+}
+
+std::string Lomaji::MatchCapitalization(std::string_view pattern, std::string_view input) {
+    auto ret = std::string();
+
+    if (pattern.empty() || input.empty()) {
+        return ret;
+    }
+
+    auto pat = utf8::utf8to32(unicode::to_nfd(pattern));
+    auto inp = utf8::utf8to32(unicode::to_nfd(input));
+
+    auto pat_it = pat.begin();
+    auto pat_end = pat.end();
+
+    auto inp_it = inp.begin();
+    auto inp_end = inp.end();
+
+    while (pat_it != pat_end && inp_it != inp_end) {
+        while (pat_it != pat_end && (*pat_it > 0x7f || !isalpha(*pat_it))) {
+            ++pat_it;
+        }
+
+        while (inp_it != inp_end && (*inp_it > 0x7f || !isalpha(*inp_it))) {
+            utf8::append(*inp_it, ret);
+            ++inp_it;
+        }
+
+        if (pat_it == pat_end || inp_it == inp_end) {
+            break;
+        }
+
+        if (*pat_it < 0xff && *inp_it < 0xff && isalpha(*pat_it) && isalpha(*inp_it)) {
+            if (tolower(*pat_it) == tolower(*inp_it)) {
+                utf8::append(*pat_it, ret);
+                ++pat_it;
+                ++inp_it;
+                continue;
+            } else {
+                break;
+            }
+        }
+
+        utf8::append(*inp_it, ret);
+        utf8::unchecked::advance(pat_it, 1);
+        utf8::unchecked::advance(inp_it, 1);
+    }
+
+    while (inp_it != inp_end) {
+        utf8::append(*inp_it, ret);
+        ++inp_it;
+    }
+
+    return unicode::to_nfc(ret);
 }
 
 } // namespace khiin::engine

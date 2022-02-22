@@ -272,6 +272,9 @@ class BufferMgrImpl : public BufferMgr {
 
         m_candidates = CandidateFinder::MultiSegmentCandidates(m_engine, nullptr, raw_composition);
         m_composition = m_candidates[0];
+
+        assert(m_composition.RawText() == raw_composition);
+
         m_composition.SetConverted(false);
 
         KhinHandler::AutokhinBuffer(m_engine->syllable_parser(), m_composition.get());

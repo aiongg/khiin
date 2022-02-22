@@ -94,7 +94,8 @@ class DictionaryImpl : public Dictionary {
 
     virtual std::vector<std::vector<std::string>> Segment(std::string_view query, uint32_t limit) override {
         auto ret = std::vector<std::vector<std::string>>();
-        auto segmentations = m_word_trie->Multisplit(query, m_word_splitter->cost_map(), limit);
+        auto query_lc = unicode::copy_str_tolower(query);
+        auto segmentations = m_word_trie->Multisplit(query_lc, m_word_splitter->cost_map(), limit);
         for (auto &seg : segmentations) {
             auto vec = std::vector<std::string>();
             auto start = query.begin();

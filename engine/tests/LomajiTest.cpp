@@ -16,6 +16,18 @@ TEST(Lomaji, QuickDecompose) {
     EXPECT_STREQ(out.data(), u8"a\u0301a\u0300a\u0302a\u0304a\u030da\u0306o\u0301\u0358u\u0324");
 }
 
+TEST(Lomaji, Capitalization) {
+    EXPECT_STREQ(Lomaji::MatchCapitalization("", "").data(), u8"");
+    EXPECT_STREQ(Lomaji::MatchCapitalization("AaAa", "aaAA").data(), u8"AaAa");
+    EXPECT_STREQ(Lomaji::MatchCapitalization("AaAa", "ááÁÁ").data(), u8"ÁáÁá");
+    EXPECT_STREQ(Lomaji::MatchCapitalization("AaAa", "ááÁÁ").data(), u8"ÁáÁá");
+    EXPECT_STREQ(Lomaji::MatchCapitalization("TaIOaN", "tâi-oân").data(), u8"TâI-OâN");
+    EXPECT_STREQ(Lomaji::MatchCapitalization("tAioAn", "tâi-oân").data(), u8"tÂi-oÂn");
+    EXPECT_STREQ(Lomaji::MatchCapitalization("O", "ŏ\u0358").data(), u8"Ŏ\u0358");
+    EXPECT_STREQ(Lomaji::MatchCapitalization("A", "aa").data(), u8"Aa");
+    EXPECT_STREQ(Lomaji::MatchCapitalization("Ou", "o\u0358").data(), u8"O\u0358");
+}
+
 // TEST(Lomaji, place_tone_on_syllable) {
 //    std::string ret = placeToneOnSyllable(u8"oan", Tone::T2);
 //    EXPECT_EQ(ret, u8"oa\u0301n");

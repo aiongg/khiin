@@ -146,7 +146,11 @@ utf8_size_t TaiText::ComposedSize() const {
 
 std::string TaiText::ConvertedText() const {
     if (m_candidate) {
-        return m_candidate->output;
+        if (Lomaji::IsLomaji(m_candidate->output)) {
+            return Lomaji::MatchCapitalization(RawText(), m_candidate->output);
+        } else {
+            return m_candidate->output;
+        }
     }
 
     return ComposedText();

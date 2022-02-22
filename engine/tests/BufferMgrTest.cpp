@@ -502,6 +502,18 @@ TEST_F(CandidatesTest, Candidates_e) {
     ExpectCandidate("ē");
 }
 
+TEST_F(CandidatesTest, Goa_goa) {
+    typing("goa");
+    ExpectCandidateSize(2);
+    ExpectCandidate("我");
+    ExpectCandidate("góa");
+    bufmgr->Clear();
+    typing("Goa");
+    ExpectCandidateSize(2);
+    ExpectCandidate("我");
+    ExpectCandidate("Góa");
+}
+
 //+---------------------------------------------------------------------------
 //
 // Conversions
