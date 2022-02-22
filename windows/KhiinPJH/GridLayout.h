@@ -10,8 +10,7 @@ namespace khiin::geometry {
 
 struct GridLayout {
     GridLayout() = default;
-    GridLayout(int num_rows, int num_cols, int min_col_width = 0) :
-        rows_(num_rows), cols_(num_cols) {
+    GridLayout(int num_rows, int num_cols, int min_col_width = 0) : rows_(num_rows), cols_(num_cols) {
         col_widths_ = std::vector<int>(num_cols, min_col_width);
     };
 
@@ -53,6 +52,26 @@ struct GridLayout {
         return Size{width, height};
     }
 
+    inline std::pair<int, int> HitTest(Point const &pt) {
+        auto size = GetGridSize();
+        if (0 <= pt.x && pt.x <= size.width && 0 <= pt.y && pt.y <= size.height) {
+            auto row = std::div(pt.y, row_height_ + row_pad_).quot;
+            auto col = 0;
+            auto acc_w = 0;
+            for (auto w : col_widths_) {
+                acc_w += w;
+                if (pt.x <= acc_w) {
+                    break;
+                }
+                ++col;
+            }
+            if (row < rows_ && col < cols_) {
+                return std::make_pair(row, col);
+            }
+        }
+        return std::make_pair(-1, -1);
+    }
+
   protected:
     std::vector<int> col_widths_;
     int rows_ = 0;
@@ -78,10 +97,19 @@ struct GridLayoutContainer : public GridLayout {
         items[col][row] = item;
     }
 
-    T GetItem(int row, int col) {
+    T &GetItem(int row, int col) {
         assert(row <= rows_);
         assert(col <= cols_);
         return items[col][row];
+    }
+
+    T *GetItemByHit(Point pt) {
+        auto [row, col] = HitTest(pt);
+        if (row != -1 && col != -1) {
+            return &items[col][row];
+        }
+
+        return nullptr;
     }
 
     std::vector<std::vector<T>> items;

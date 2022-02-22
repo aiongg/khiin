@@ -350,8 +350,8 @@ class BufferMgrImpl : public BufferMgr {
 
         FocusCandidate_(index);
 
-        auto n_elems_added = m_candidates.at(index).Size();
-        auto n_elems_remaining = std::distance(m_composition.Begin() + m_focused_element, m_composition.End());
+        size_t n_elems_added = m_candidates.at(index).Size();
+        size_t n_elems_remaining = std::distance(m_composition.Begin() + m_focused_element, m_composition.End());
 
         if (n_elems_remaining > n_elems_added && m_edit_state == EditState::EDIT_SELECTING) {
             m_focused_element += n_elems_added;

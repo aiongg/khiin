@@ -5,9 +5,9 @@
 #include <algorithm>
 
 #include "Colors.h"
+#include "Graphics.h"
 #include "GridLayout.h"
 #include "Utils.h"
-#include "Graphics.h"
 
 namespace khiin::win32 {
 
@@ -17,7 +17,6 @@ using namespace winrt;
 using namespace D2D1;
 using namespace messages;
 using namespace geometry;
-using uint = unsigned int;
 
 constexpr float kPadding = 8.0f;
 constexpr float kPaddingSmall = 4.0f;
@@ -26,9 +25,9 @@ constexpr float kMarkerHeight = 16.0f;
 constexpr float kFontSize = 16.0f;
 constexpr float kFontSizeSmall = 16.0f;
 constexpr float kRowHeight = kFontSize + kPadding * 2;
-constexpr uint min_col_width_single = 160;
-constexpr uint min_col_width_expanded = 80;
-constexpr uint kQsColWidth = kPaddingSmall * 2 + kMarkerWidth + kPadding * 2 + kFontSize;
+constexpr uint32_t min_col_width_single = 160;
+constexpr uint32_t min_col_width_expanded = 80;
+constexpr uint32_t kQsColWidth = kPaddingSmall * 2 + kMarkerWidth + kPadding * 2 + kFontSize;
 
 struct CWndMetrics {
     float padding = kPadding;
@@ -38,9 +37,9 @@ struct CWndMetrics {
     float font_size = kFontSize;
     float font_size_sm = kFontSizeSmall;
     float row_height = kRowHeight;
-    uint min_col_w_single = 160;
-    uint min_col_w_multi = 80;
-    uint qs_col_w = kQsColWidth;
+    uint32_t min_col_w_single = 160;
+    uint32_t min_col_w_multi = 80;
+    uint32_t qs_col_w = kQsColWidth;
 };
 
 CWndMetrics GetMetricsForSize(DisplaySize size) {
@@ -283,36 +282,61 @@ class CandidateWindowImpl : public CandidateWindow {
         m_target->Resize(D2D1_SIZE_U{width, height});
     }
 
+    bool GetPointInClientDp(UINT x, UINT y, Point &pt) {
+        auto rect = RECT{};
+        ::GetClientRect(m_hwnd, &rect);
+        POINT pt_px{x, y};
+
+        pt.x = static_cast<int>(x / m_scale);
+        pt.y = static_cast<int>(y / m_scale);
+
+        if (!::PtInRect(&rect, pt_px)) {
+            return false;
+        } else {
+            return true;
+        }
+    }
+
     void OnMouseMove(UINT x, UINT y) {
-        D("moved to: (", x, ",", y, ")");
-        // if (!m_tracking_mouse) {
-        //    TRACKMOUSEEVENT tme;
-        //    tme.cbSize = sizeof(TRACKMOUSEEVENT);
-        //    tme.dwFlags = TME_LEAVE;
-        //    tme.hwndTrack = m_hwnd;
-        //    if (::TrackMouseEvent(&tme)) {
-        //        m_tracking_mouse = true;
-        //        D("Set capture");
-        //        ::SetCapture(m_hwnd);
-        //    }
-        //}
+        auto pt = Point();
+        auto in_window = GetPointInClientDp(x, y, pt);
+
+        if (!in_window) {
+            m_mouse_focused_id = -1;
+            return;
+        }
+
+        auto item = m_layout_grid.GetItemByHit(pt);
+        auto next_id = -1;
+        if (item) {
+            next_id = item->candidate->id();
+        }
+        if (m_mouse_focused_id != next_id) {
+            m_mouse_focused_id = next_id;
+            ::RedrawWindow(m_hwnd, NULL, NULL, RDW_INVALIDATE | RDW_UPDATENOW);
+        }
     }
 
     void OnMouseLeave() {
         m_tracking_mouse = false;
+        m_mouse_focused_id = -1;
         D("Release capture");
         //::ReleaseCapture();
     }
 
     bool HandleClick(UINT x, UINT y) {
         D("clicked at: (", x, ",", y, ")");
-        auto rect = RECT{};
-        ::GetClientRect(m_hwnd, &rect);
-        POINT pt{x, y};
+        auto pt = Point();
+        auto in_window = GetPointInClientDp(x, y, pt);
 
-        if (!::PtInRect(&rect, pt)) {
+        if (!in_window) {
             Hide();
             return false;
+        }
+
+        auto item = m_layout_grid.GetItemByHit(pt);
+        if (item) {
+            D("Clicked item: ", item->candidate->id());
         }
     }
 
@@ -353,7 +377,7 @@ class CandidateWindowImpl : public CandidateWindow {
     void CreateGraphicsResources() {
         D(__FUNCTIONW__);
         if (!m_textformat) {
-            check_hresult(m_dwrite->CreateTextFormat(L"Kozuka Gothic Pr6N R", NULL, DWRITE_FONT_WEIGHT_REGULAR,
+            check_hresult(m_dwrite->CreateTextFormat(L"Arial", NULL, DWRITE_FONT_WEIGHT_REGULAR,
                                                      DWRITE_FONT_STYLE_NORMAL, DWRITE_FONT_STRETCH_NORMAL,
                                                      m_metrics.font_size, L"en-us", m_textformat.put()));
             check_hresult(m_textformat->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_LEADING));
@@ -382,7 +406,7 @@ class CandidateWindowImpl : public CandidateWindow {
         m_max_height = info.rcMonitor.bottom;
     }
 
-    uint MinColWidth() {
+    uint32_t MinColWidth() {
         return (m_display_mode == DisplayMode::Grid) ? m_metrics.min_col_w_multi : m_metrics.min_col_w_single;
     }
 
@@ -440,13 +464,15 @@ class CandidateWindowImpl : public CandidateWindow {
         ::RedrawWindow(m_hwnd, NULL, NULL, RDW_INVALIDATE | RDW_UPDATENOW);
     }
 
-    void DrawFocused(float left, float top, uint col_width) {
+    void DrawFocusedBackground(float left, float top, uint32_t col_width) {
         m_brush->SetColor(m_colors.bg_selected);
         m_target->FillRoundedRectangle(
             D2D1::RoundedRect(D2D1::RectF(left, top, col_width - m_metrics.padding, top + m_metrics.row_height),
                               m_metrics.padding_sm, m_metrics.padding_sm),
             m_brush.get());
+    }
 
+    void DrawFocusedMarker(float left, float top) {
         m_brush->SetColor(m_colors.accent);
         m_target->FillRoundedRectangle(
             D2D1::RoundedRect(D2D1::RectF(left + m_metrics.marker_w,
@@ -455,6 +481,11 @@ class CandidateWindowImpl : public CandidateWindow {
                                           top + (m_metrics.row_height - m_metrics.marker_h) / 2 + m_metrics.marker_h),
                               2.0f, 2.0f),
             m_brush.get());
+    }
+
+    void DrawFocused(float left, float top, uint32_t col_width) {
+        DrawFocusedBackground(left, top, col_width);
+        DrawFocusedMarker(left, top);
     }
 
     void DrawQuickSelect(std::wstring label, float left, float top) {
@@ -489,7 +520,7 @@ class CandidateWindowImpl : public CandidateWindow {
         for (auto col_idx = 0; col_idx < m_layout_grid.cols(); ++col_idx) {
             auto &col = m_layout_grid.items[col_idx];
             for (auto row_idx = 0; row_idx < col.size(); ++row_idx) {
-                auto value = m_layout_grid.GetItem(row_idx, col_idx);
+                auto &value = m_layout_grid.GetItem(row_idx, col_idx);
 
                 if (!value.candidate || !value.layout) {
                     continue;
@@ -499,6 +530,8 @@ class CandidateWindowImpl : public CandidateWindow {
 
                 if (value.candidate->id() == m_focused_id) {
                     DrawFocused(cell.left(), cell.top(), cell.width());
+                } else if (value.candidate->id() == m_mouse_focused_id) {
+                    DrawFocusedBackground(cell.left(), cell.top(), cell.width());
                 }
 
                 if (col_idx == m_quickselect_col) {
@@ -544,10 +577,10 @@ class CandidateWindowImpl : public CandidateWindow {
 #pragma warning(pop)
     RECT m_border_thickness{};
 
-    uint m_max_width = 0;
-    uint m_max_height = 0;
-    uint m_dpi_parent = USER_DEFAULT_SCREEN_DPI;
-    uint m_dpi = USER_DEFAULT_SCREEN_DPI;
+    uint32_t m_max_width = 0;
+    uint32_t m_max_height = 0;
+    uint32_t m_dpi_parent = USER_DEFAULT_SCREEN_DPI;
+    uint32_t m_dpi = USER_DEFAULT_SCREEN_DPI;
     float m_scale = 1.0f;
 
     // Candidate rendering
@@ -560,6 +593,7 @@ class CandidateWindowImpl : public CandidateWindow {
     int m_focused_id = -1;
     size_t m_quickselect_col = 0;
     bool m_quickselect_active = false;
+    int m_mouse_focused_id = -1;
 };
 
 } // namespace

@@ -18,6 +18,8 @@ using namespace khiin::messages;
 
 volatile HMODULE g_module = nullptr;
 
+std::string const kDbFilename = "khiin_test.db";
+
 static std::unordered_map<int, SpecialKey> kWindowsToKhiinKeyCode = {
     // clang-format off
     {VK_BACK, SpecialKey::SK_BACKSPACE},
@@ -63,7 +65,7 @@ fs::path DefaultResourceDirectory() {
     }
     auto path = fs::path(Utils::Narrow(dll_path));
     path.replace_filename("resources");
-    path /= "khiin.db";
+    path /= kDbFilename;
     return path;
 }
 

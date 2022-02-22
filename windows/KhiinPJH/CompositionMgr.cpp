@@ -8,10 +8,13 @@
 #include "common.h"
 
 namespace khiin::win32 {
+namespace {
 
 using namespace messages;
 
 inline static int kMaxBufSize = 512;
+
+} // namespace
 
 //+---------------------------------------------------------------------------
 //
@@ -55,7 +58,7 @@ void CompositionMgr::DoComposition(TfEditCookie cookie, ITfContext *pContext, Pr
         auto is_empty = FALSE;
         winrt::check_hresult(range->IsEmpty(cookie, &is_empty));
         if (is_empty != TRUE) {
-            winrt::check_hresult(range->SetText(cookie, 0, L"", 0));
+            winrt::check_hresult(range->SetText(cookie, TF_ST_CORRECTION, L"", 0));
         }
     } else {
         // or get a new one
@@ -66,7 +69,8 @@ void CompositionMgr::DoComposition(TfEditCookie cookie, ITfContext *pContext, Pr
     // set text
     auto comp_range = winrt::com_ptr<ITfRange>();
     winrt::check_hresult(composition->GetRange(comp_range.put()));
-    winrt::check_hresult(comp_range->SetText(cookie, 0, w_preedit.preedit_display.c_str(), w_preedit.display_size));
+    winrt::check_hresult(
+        comp_range->SetText(cookie, TF_ST_CORRECTION, w_preedit.preedit_display.c_str(), w_preedit.display_size));
 
     // here we do each segment's attributes, but for now just one
     auto display_attribute = winrt::com_ptr<ITfProperty>();
@@ -119,6 +123,10 @@ void CompositionMgr::CommitComposition(TfEditCookie cookie, ITfContext *pContext
     }
     auto comp_range = winrt::com_ptr<ITfRange>();
     winrt::check_hresult(composition->GetRange(comp_range.put()));
+
+    auto display_attribute = winrt::com_ptr<ITfProperty>();
+    winrt::check_hresult(pContext->GetProperty(GUID_PROP_ATTRIBUTE, display_attribute.put()));
+    winrt::check_hresult(display_attribute->Clear(cookie, comp_range.get()));
 
     auto end_range = winrt::com_ptr<ITfRange>();
     winrt::check_hresult(comp_range->Clone(end_range.put()));

@@ -31,7 +31,6 @@ WidePreedit const Utils::WidenPreedit(const Preedit &preedit) {
         start_idx += w.size();
     }
 
-    // TODO: Handle surrogate pairs
     ret.cursor = preedit.cursor_position();
     ret.display_size = ret.preedit_display.size();
     return ret;

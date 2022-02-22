@@ -42,20 +42,6 @@ std::vector<T> odometer_merge(std::vector<std::vector<T>> const &vector_set) {
     return ret;
 }
 
-// void str_tolower(std::string &str) {
-//    std::transform(str.begin(), str.end(), str.begin(), [](unsigned char c) {
-//        return std::tolower(c);
-//    });
-//}
-//
-// std::string copy_str_tolower(std::string_view input) {
-//    auto ret = std::string();
-//    std::transform(input.cbegin(), input.cend(), std::back_inserter(ret), [](unsigned char c) {
-//        return std::tolower(c);
-//    });
-//    return ret;
-//}
-
 inline constexpr char *kOrderedToneablesIndex2[] = {"oa", "oe"};
 inline constexpr char *kOrderedToneablesIndex1[] = {"o", "a", "e", "u", "i", "ng", "m"};
 inline constexpr char kToneableLetters[] = {'a', 'e', 'i', 'm', 'n', 'o', 'u'};
