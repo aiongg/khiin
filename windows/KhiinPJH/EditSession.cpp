@@ -59,7 +59,7 @@ struct EditSessionImpl : winrt::implements<EditSessionImpl, ITfEditSession> {
             } else {
                 composition_mgr->CommitComposition(ec, context.get(), command.output().preedit());
             }
-        } else if (command.type() == CommandType::SEND_KEY) {
+        } else if (command.type() == CommandType::SEND_KEY || command.type() == CommandType::SELECT_CANDIDATE) {
             composition_mgr->DoComposition(ec, context.get(), command.output().preedit());
 
             if (command.output().candidate_list().candidates().size() > 0) {

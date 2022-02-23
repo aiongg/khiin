@@ -179,6 +179,12 @@ struct TextServiceImpl :
         return focused_attribute_;
     }
 
+    virtual void OnCandidateSelected(int32_t candidate_id) override {
+        auto command = engine_->SelectCandidate(candidate_id);
+        auto context = GetTopContext();
+        EditSession::HandleAction(this, context.get(), std::move(command));
+    }
+
     //+---------------------------------------------------------------------------
     //
     // ITfTextInputProcessorEx

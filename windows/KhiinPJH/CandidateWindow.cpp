@@ -27,7 +27,7 @@ constexpr float kFontSizeSmall = 16.0f;
 constexpr float kRowHeight = kFontSize + kPadding * 2;
 constexpr uint32_t min_col_width_single = 160;
 constexpr uint32_t min_col_width_expanded = 80;
-constexpr uint32_t kQsColWidth = kPaddingSmall * 2 + kMarkerWidth + kPadding * 2 + kFontSize;
+constexpr uint32_t kQsColWidth = static_cast<uint32_t>(kPaddingSmall * 2 + kMarkerWidth + kPadding * 2 + kFontSize);
 
 struct CWndMetrics {
     float padding = kPadding;
@@ -202,6 +202,12 @@ class CandidateWindowImpl : public CandidateWindow {
         return kCandidateWindowClassName;
     }
 
+    virtual void RegisterCandidateSelectListener(CandidateSelectListener *listener) override {
+        if (std::find(m_focus_listeners.begin(), m_focus_listeners.end(), listener) == m_focus_listeners.end()) {
+            m_focus_listeners.push_back(listener);
+        }
+    }
+
     virtual void Show() override {
         if (m_showing) {
             return;
@@ -285,7 +291,7 @@ class CandidateWindowImpl : public CandidateWindow {
     bool GetPointInClientDp(UINT x, UINT y, Point &pt) {
         auto rect = RECT{};
         ::GetClientRect(m_hwnd, &rect);
-        POINT pt_px{x, y};
+        POINT pt_px{static_cast<LONG>(x), static_cast<LONG>(y)};
 
         pt.x = static_cast<int>(x / m_scale);
         pt.y = static_cast<int>(y / m_scale);
@@ -307,12 +313,12 @@ class CandidateWindowImpl : public CandidateWindow {
         }
 
         auto item = m_layout_grid.GetItemByHit(pt);
-        auto next_id = -1;
+        auto hover_candidate_id = -1;
         if (item) {
-            next_id = item->candidate->id();
+            hover_candidate_id = item->candidate->id();
         }
-        if (m_mouse_focused_id != next_id) {
-            m_mouse_focused_id = next_id;
+        if (m_mouse_focused_id != hover_candidate_id) {
+            m_mouse_focused_id = hover_candidate_id;
             ::RedrawWindow(m_hwnd, NULL, NULL, RDW_INVALIDATE | RDW_UPDATENOW);
         }
     }
@@ -320,12 +326,9 @@ class CandidateWindowImpl : public CandidateWindow {
     void OnMouseLeave() {
         m_tracking_mouse = false;
         m_mouse_focused_id = -1;
-        D("Release capture");
-        //::ReleaseCapture();
     }
 
     bool HandleClick(UINT x, UINT y) {
-        D("clicked at: (", x, ",", y, ")");
         auto pt = Point();
         auto in_window = GetPointInClientDp(x, y, pt);
 
@@ -336,7 +339,15 @@ class CandidateWindowImpl : public CandidateWindow {
 
         auto item = m_layout_grid.GetItemByHit(pt);
         if (item) {
-            D("Clicked item: ", item->candidate->id());
+            NotifyCandidateSelectListeners(item->candidate);
+        }
+    }
+
+    void NotifyCandidateSelectListeners(Candidate const *candidate) {
+        for (auto listener : m_focus_listeners) {
+            if (listener) {
+                listener->OnSelectCandidate(candidate->id());
+            }
         }
     }
 
@@ -420,8 +431,8 @@ class CandidateWindowImpl : public CandidateWindow {
         DWRITE_TEXT_METRICS dwtm;
         check_hresult(layout->GetMetrics(&dwtm));
 
-        m_layout_grid.EnsureColumnWidth(col, dwtm.width + m_metrics.qs_col_w);
-        m_layout_grid.EnsureRowHeight(dwtm.height);
+        m_layout_grid.EnsureColumnWidth(col, static_cast<int>(dwtm.width + m_metrics.qs_col_w));
+        m_layout_grid.EnsureRowHeight(static_cast<int>(dwtm.height));
         m_layout_grid.AddItem(row, col, CandidateLayout{candidate, std::move(layout)});
     }
 
@@ -594,6 +605,8 @@ class CandidateWindowImpl : public CandidateWindow {
     size_t m_quickselect_col = 0;
     bool m_quickselect_active = false;
     int m_mouse_focused_id = -1;
+
+    std::vector<CandidateSelectListener *> m_focus_listeners;
 };
 
 } // namespace

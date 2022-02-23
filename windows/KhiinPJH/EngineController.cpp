@@ -83,7 +83,7 @@ struct EngineControllerImpl : winrt::implements<EngineControllerImpl, EngineCont
         m_engine.reset(nullptr);
     }
 
-    virtual Command TestKey(KeyEvent win_key_event) {
+    virtual Command TestKey(KeyEvent win_key_event) override {
         auto cmd = Command();
         cmd.set_type(CommandType::TEST_SEND_KEY);
         auto key_event = cmd.mutable_input()->mutable_key_event();
@@ -97,11 +97,19 @@ struct EngineControllerImpl : winrt::implements<EngineControllerImpl, EngineCont
         return cmd;
     }
 
-    virtual Command OnKey(KeyEvent win_key_event) {
+    virtual Command OnKey(KeyEvent win_key_event) override {
         auto cmd = Command();
         cmd.set_type(CommandType::SEND_KEY);
         auto key_event = cmd.mutable_input()->mutable_key_event();
         TranslateKeyEvent(&win_key_event, key_event);
+        m_engine->SendCommand(&cmd);
+        return cmd;
+    }
+
+    virtual Command SelectCandidate(int32_t candidate_id) override {
+        auto cmd = Command();
+        cmd.set_type(CommandType::SELECT_CANDIDATE);
+        cmd.mutable_input()->set_candidate_id(candidate_id);
         m_engine->SendCommand(&cmd);
         return cmd;
     }

@@ -63,6 +63,7 @@ class EngineImpl : public Engine {
         command_handlers[CommandType::COMMIT] = &EngineImpl::HandleCommit;
         command_handlers[CommandType::TEST_SEND_KEY] = &EngineImpl::HandleTestSendKey;
         command_handlers[CommandType::SEND_KEY] = &EngineImpl::HandleSendKey;
+        command_handlers[CommandType::SELECT_CANDIDATE] = &EngineImpl::HandleSelectCandidate;
 
         m_dictionary->Initialize();
     }
@@ -215,8 +216,12 @@ class EngineImpl : public Engine {
         output->set_edit_state(m_buffer_mgr->edit_state());
     }
 
+    void HandleSelectCandidate(Command *command) {
+        m_buffer_mgr->SelectCandidate(command->input().candidate_id());
+        AttachPreeditWithCandidates(command);
+    }
+
     // void HandleRevert(Command *command, Output *output) {}
-    // void HandleSelectCandidate(Command *command, Output *output) {}
     // void HandleFocusCandidate(Command *command, Output *output) {}
     // void HandlePlaceCursor(Command *command, Output *output) {}
 

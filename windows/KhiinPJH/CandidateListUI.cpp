@@ -13,9 +13,9 @@ namespace {
 
 using namespace messages;
 
-constexpr size_t kExpandedCols = 4;
-constexpr size_t kShortColSize = 5;
-constexpr size_t kLongColSize = 9;
+constexpr uint32_t kExpandedCols = 4;
+constexpr uint32_t kShortColSize = 5;
+constexpr uint32_t kLongColSize = 9;
 
 static inline auto divide_ceil(unsigned int x, unsigned int y) {
     return x / y + (x % y != 0);
@@ -53,7 +53,7 @@ class CandidatePager {
             return;
         }
 
-        auto total = candidates.size();
+        auto total = static_cast<uint32_t>(candidates.size());
         auto max_cols_per_page = (display_mode == DisplayMode::Grid) ? kExpandedCols : 1;
         auto max_col_size = display_mode == DisplayMode::ShortColumn ? kShortColSize : kLongColSize;
         auto max_page_size = max_cols_per_page * max_col_size;
@@ -93,15 +93,16 @@ class CandidatePager {
 
 struct CandidateListUIImpl :
     public winrt::implements<CandidateListUIImpl, ITfCandidateListUIElementBehavior,
-                             ITfIntegratableCandidateListUIElement, CandidateListUI> {
+                             ITfIntegratableCandidateListUIElement, CandidateListUI>,
+    CandidateSelectListener {
     virtual void Initialize(TextService *pTextService) override {
-        service.copy_from(pTextService);
+        m_service.copy_from(pTextService);
     }
 
     virtual void Uninitialize() override {
         D(__FUNCTIONW__);
-        service = nullptr;
-        context = nullptr;
+        m_service = nullptr;
+        m_context = nullptr;
         DestroyCandidateWindow();
         m_candidate_window.reset(nullptr);
     }
@@ -116,7 +117,7 @@ struct CandidateListUIImpl :
     virtual void Update(ITfContext *pContext, EditState edit_state, const messages::CandidateList &candidate_list,
                         RECT text_rect) override {
         D(__FUNCTIONW__);
-        context.copy_from(pContext);
+        m_context.copy_from(pContext);
         m_candidate_list.CopyFrom(candidate_list);
 
         if (!m_candidate_window) {
@@ -171,6 +172,10 @@ struct CandidateListUIImpl :
         if (m_candidate_window) {
             m_candidate_window->Hide();
         }
+    }
+
+    virtual void OnSelectCandidate(int32_t id) override {
+        m_service->OnCandidateSelected(id);
     }
 
     //+---------------------------------------------------------------------------
@@ -297,7 +302,7 @@ struct CandidateListUIImpl :
   private:
     void makeCandidateWindow() {
         auto contextView = winrt::com_ptr<ITfContextView>();
-        winrt::check_hresult(context->GetActiveView(contextView.put()));
+        winrt::check_hresult(m_context->GetActiveView(contextView.put()));
 
         HWND parentWnd;
         winrt::check_hresult(contextView->GetWnd(&parentWnd));
@@ -307,10 +312,11 @@ struct CandidateListUIImpl :
         }
 
         m_candidate_window = std::unique_ptr<CandidateWindow>(CandidateWindow::Create(parentWnd));
+        m_candidate_window->RegisterCandidateSelectListener(this);
     }
 
-    winrt::com_ptr<TextService> service = nullptr;
-    winrt::com_ptr<ITfContext> context = nullptr;
+    winrt::com_ptr<TextService> m_service = nullptr;
+    winrt::com_ptr<ITfContext> m_context = nullptr;
     CandidateList m_candidate_list = {};
     std::unique_ptr<CandidateWindow> m_candidate_window = nullptr;
     std::unique_ptr<CandidatePager> m_pager = nullptr;

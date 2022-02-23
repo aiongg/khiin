@@ -28,6 +28,7 @@ struct TextService : winrt::implements<TextService, IUnknown> {
     virtual winrt::com_ptr<ITfContext> GetTopContext() = 0;
     virtual winrt::com_ptr<ITfCompositionSink> CreateCompositionSink(ITfContext *context) = 0;
     virtual void OnCompositionTerminated(TfEditCookie ecWrite, ITfContext *context, ITfComposition *pComposition) = 0;
+    virtual void OnCandidateSelected(int32_t candidate_id) = 0;
 
     virtual TfGuidAtom input_attribute() = 0;
     virtual TfGuidAtom converted_attribute() = 0;

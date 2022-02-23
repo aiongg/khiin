@@ -25,6 +25,10 @@ enum class DisplaySize {
 using CandidateColumn = std::vector<messages::Candidate const *>;
 using CandidateGrid = std::vector<CandidateColumn>;
 
+struct CandidateSelectListener {
+    virtual void OnSelectCandidate(int32_t id) = 0;
+};
+
 class CandidateWindow : public BaseWindow<CandidateWindow> {
   public:
     static CandidateWindow *Create(HWND parent);
@@ -39,6 +43,7 @@ class CandidateWindow : public BaseWindow<CandidateWindow> {
     virtual void SetCandidates(DisplayMode display_mode, CandidateGrid *candidate_grid, int focused_id, size_t qs_col,
                                bool qs_active, RECT text_position) = 0;
     virtual void SetDisplaySize(DisplaySize display_size) = 0;
+    virtual void RegisterCandidateSelectListener(CandidateSelectListener *listener) = 0;
 };
 
 } // namespace khiin::win32
