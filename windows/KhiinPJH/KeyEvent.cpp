@@ -19,11 +19,11 @@ KeyEvent::KeyEvent(UINT message, WPARAM wParam, LPARAM lParam) noexcept :
     keyboardState[VK_CONTROL] = vkControlTmp;
 }
 
-char KeyEvent::ascii() {
+char KeyEvent::ascii() const {
     return ascii_;
 }
 
-int KeyEvent::keyCode() {
+int KeyEvent::keyCode() const {
     return wParam;
 }
 

@@ -30,7 +30,6 @@ class Engine {
     virtual void RegisterConfigChangedListener(ConfigChangeListener *listener) = 0;
 
     virtual BufferMgr *buffer_mgr() = 0;
-    // virtual CandidateFinder *candidate_finder() = 0;
     virtual Database *database() = 0;
     virtual Dictionary *dictionary() = 0;
     virtual KeyConfig *key_configuration() = 0;

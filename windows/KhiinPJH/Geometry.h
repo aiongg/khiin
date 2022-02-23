@@ -34,6 +34,24 @@ struct Rect {
     inline int height() {
         return height_;
     }
+    inline float leftf() {
+        return static_cast<float>(origin_.x);
+    }
+    inline float rightf() {
+        return static_cast<float>(origin_.x + width_);
+    }
+    inline float topf() {
+        return static_cast<float>(origin_.y);
+    }
+    inline float bottomf() {
+        return static_cast<float>(origin_.y + height_);
+    }
+    inline float widthf() {
+        return static_cast<float>(width_);
+    }
+    inline float heightf() {
+        return static_cast<float>(height_);
+    }
     inline Size size() {
         return Size{width_, height_};
     }

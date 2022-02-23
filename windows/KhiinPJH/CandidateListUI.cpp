@@ -2,6 +2,7 @@
 
 #include "CandidateListUI.h"
 
+#include "CandidatePager.h"
 #include "CandidateWindow.h"
 #include "EditSession.h"
 #include "TextService.h"
@@ -13,83 +14,9 @@ namespace {
 
 using namespace messages;
 
-constexpr uint32_t kExpandedCols = 4;
-constexpr uint32_t kShortColSize = 5;
-constexpr uint32_t kLongColSize = 9;
-
-static inline auto divide_ceil(unsigned int x, unsigned int y) {
-    return x / y + (x % y != 0);
+bool IsArrowKey(int key_code) {
+    return key_code == VK_LEFT || key_code == VK_UP || key_code == VK_RIGHT || key_code == VK_DOWN;
 }
-
-class CandidatePager {
-  public:
-    CandidatePager(CandidateList *const list) : m_candidate_list(list) {}
-
-    void SetDisplayMode(DisplayMode mode) {
-        if (display_mode == DisplayMode::LongColumn && mode == DisplayMode::ShortColumn) {
-            return;
-        }
-
-        display_mode = mode;
-    }
-
-    void SetFocus(int id) {
-        auto index = 0;
-
-        for (auto &candidate : m_candidate_list->candidates()) {
-            if (id == candidate.id()) {
-                m_focused_index = index;
-                break;
-            }
-
-            ++index;
-        }
-    }
-
-    void GetPage(CandidateGrid &grid, size_t &focused_col) {
-        auto &candidates = m_candidate_list->candidates();
-
-        if (candidates.empty()) {
-            return;
-        }
-
-        auto total = static_cast<uint32_t>(candidates.size());
-        auto max_cols_per_page = (display_mode == DisplayMode::Grid) ? kExpandedCols : 1;
-        auto max_col_size = display_mode == DisplayMode::ShortColumn ? kShortColSize : kLongColSize;
-        auto max_page_size = max_cols_per_page * max_col_size;
-
-        auto curr_page = std::div(static_cast<int>(m_focused_index), max_page_size).quot;
-
-        D("curr_page: ", curr_page);
-
-        auto start_index = max_page_size * curr_page;
-        auto end_index = min(total, max_page_size * (curr_page + 1));
-        auto n_cols = divide_ceil(end_index - start_index, max_col_size);
-        focused_col = std::div(static_cast<int>(m_focused_index - start_index), max_col_size).quot;
-
-        {
-            auto start = candidates.begin() + start_index;
-            auto it = start;
-            auto end = candidates.begin() + end_index;
-            auto col = CandidateColumn();
-            for (; it != end; ++it) {
-                if (it == start + max_col_size) {
-                    grid.push_back(std::move(col));
-                    col = CandidateColumn();
-                    start = it;
-                }
-
-                col.push_back(&*it);
-            }
-            grid.push_back(std::move(col));
-        }
-    }
-
-  private:
-    CandidateList *const m_candidate_list;
-    DisplayMode display_mode = DisplayMode::ShortColumn;
-    size_t m_focused_index = 0;
-};
 
 struct CandidateListUIImpl :
     public winrt::implements<CandidateListUIImpl, ITfCandidateListUIElementBehavior,
@@ -97,6 +24,7 @@ struct CandidateListUIImpl :
     CandidateSelectListener {
     virtual void Initialize(TextService *pTextService) override {
         m_service.copy_from(pTextService);
+        m_pager = std::unique_ptr<CandidatePager>(CandidatePager::Create());
     }
 
     virtual void Uninitialize() override {
@@ -105,6 +33,7 @@ struct CandidateListUIImpl :
         m_context = nullptr;
         DestroyCandidateWindow();
         m_candidate_window.reset(nullptr);
+        m_pager.reset(nullptr);
     }
 
     virtual void DestroyCandidateWindow() override {
@@ -119,47 +48,74 @@ struct CandidateListUIImpl :
         D(__FUNCTIONW__);
         m_context.copy_from(pContext);
         m_candidate_list.CopyFrom(candidate_list);
+        m_edit_state = edit_state;
+        m_text_rect = text_rect;
 
         if (!m_candidate_window) {
-            makeCandidateWindow();
+            RegisterCandidateWindow();
         }
 
-        auto focused_id = -1;
-        auto display_mode = DisplayMode::ShortColumn;
-        size_t focused_col = 0;
-        bool qs_active = false;
-
-        if (edit_state == EditState::EDIT_COMPOSING) {
-            m_pager = std::make_unique<CandidatePager>(&m_candidate_list);
-            m_edit_state = edit_state;
-        } else if (edit_state == EditState::EDIT_SELECTING) {
-            if (m_edit_state != EditState::EDIT_SELECTING) {
-                m_pager = std::make_unique<CandidatePager>(&m_candidate_list);
-            }
-
-            if (m_candidate_list.focused() >= kShortColSize) {
-                display_mode = DisplayMode::LongColumn;
-            }
-
-            focused_id = m_candidate_list.focused();
-            m_edit_state = edit_state;
-            qs_active = true;
+        if (m_edit_state == EditState::EDIT_COMPOSING) {
+            m_pager->SetCandidateList(&m_candidate_list);
+        } else if (m_edit_state == EditState::EDIT_SELECTING) {
+            m_pager->SetFocus(m_candidate_list.focused());
         }
 
-        D("EditState: ", m_edit_state, ", DisplayMode: ", static_cast<int>(display_mode));
-
-        m_pager->SetDisplayMode(display_mode);
-        m_pager->SetFocus(focused_id);
-        m_candidate_grid.clear();
-        m_pager->GetPage(m_candidate_grid, focused_col);
-        D("Quickselect col: ", focused_col);
-        m_candidate_window->SetCandidates(display_mode, &m_candidate_grid, focused_id, focused_col, qs_active,
-                                          text_rect);
-        Show();
+        UpdateWindow();
     }
 
     virtual bool Showing() override {
         return m_candidate_window && m_candidate_window->Showing();
+    }
+
+    virtual bool Selecting() override {
+        return m_edit_state == EditState::EDIT_SELECTING;
+    }
+
+    virtual bool MultiColumn() override {
+        return m_candidate_grid.size() > 1;
+    }
+
+    virtual int PageCount() override {
+        return m_pager->PageCount();
+    }
+
+    virtual int MaxQuickSelect() override {
+        auto focused_col = m_pager->GetFocusedColumnIndex();
+        if (focused_col < m_candidate_grid.size()) {
+            return static_cast<int>(m_candidate_grid.at(focused_col).size());
+        }
+        return 0;
+    }
+
+    virtual int QuickSelect(int index) override {
+        auto focused_col = m_pager->GetFocusedColumnIndex();
+
+        if (focused_col < m_candidate_grid.size()) {
+            auto &col = m_candidate_grid.at(focused_col);
+            if (index < col.size()) {
+                auto cand = col.at(index);
+                return cand->id();
+            }
+        }
+
+        return -1;
+    }
+
+    virtual int RotateNext() override {
+        if (m_pager->PageCount() < 2) {
+            return -1;
+        }
+
+        return m_pager->NextPageCandidateId();
+    }
+
+    virtual int RotatePrev() override {
+        if (m_pager->PageCount() < 2) {
+            return -1;
+        }
+
+        return m_pager->PrevPageCandidateId();
     }
 
     virtual void Show() override {
@@ -173,6 +129,12 @@ struct CandidateListUIImpl :
             m_candidate_window->Hide();
         }
     }
+
+    //+---------------------------------------------------------------------------
+    //
+    // CandidateSelectListener
+    //
+    //----------------------------------------------------------------------------
 
     virtual void OnSelectCandidate(int32_t id) override {
         m_service->OnCandidateSelected(id);
@@ -233,24 +195,31 @@ struct CandidateListUIImpl :
     virtual STDMETHODIMP GetUpdatedFlags(DWORD *pdwFlags) override {
         return E_NOTIMPL;
     }
+
     virtual STDMETHODIMP GetDocumentMgr(ITfDocumentMgr **ppdim) override {
         return E_NOTIMPL;
     }
+
     virtual STDMETHODIMP GetCount(UINT *puCount) override {
         return E_NOTIMPL;
     }
+
     virtual STDMETHODIMP GetSelection(UINT *puIndex) override {
         return E_NOTIMPL;
     }
+
     virtual STDMETHODIMP GetString(UINT uIndex, BSTR *pstr) override {
         return E_NOTIMPL;
     }
+
     virtual STDMETHODIMP GetPageIndex(UINT *pIndex, UINT uSize, UINT *puPageCnt) override {
         return E_NOTIMPL;
     }
+
     virtual STDMETHODIMP SetPageIndex(UINT *pIndex, UINT uPageCnt) override {
         return E_NOTIMPL;
     }
+
     virtual STDMETHODIMP GetCurrentPage(UINT *puPage) override {
         return E_NOTIMPL;
     }
@@ -300,7 +269,7 @@ struct CandidateListUIImpl :
     }
 
   private:
-    void makeCandidateWindow() {
+    void RegisterCandidateWindow() {
         auto contextView = winrt::com_ptr<ITfContextView>();
         winrt::check_hresult(m_context->GetActiveView(contextView.put()));
 
@@ -315,6 +284,28 @@ struct CandidateListUIImpl :
         m_candidate_window->RegisterCandidateSelectListener(this);
     }
 
+    void UpdateWindow() {
+        m_candidate_grid.clear();
+        m_pager->GetPage(m_candidate_grid);
+        bool qs_active = m_edit_state == EditState::EDIT_SELECTING;
+        auto focused_cand_id = m_pager->GetFocusedCandidateId();
+        auto focused_col = m_pager->GetFocusedColumnIndex();
+        auto display_mode = m_pager->GetDisplayMode();
+
+        m_candidate_window->SetCandidates(display_mode, &m_candidate_grid, focused_cand_id, focused_col, qs_active,
+                                          m_text_rect);
+        Show();
+    }
+
+    bool DigitKeyIsQuickSelect(char key_char) {
+        auto key_int = key_char - '0';
+        auto available_qs = m_candidate_grid.at(m_focused_col).size();
+        if (key_int > 0 && key_int <= available_qs) {
+            return true;
+        }
+        return false;
+    }
+
     winrt::com_ptr<TextService> m_service = nullptr;
     winrt::com_ptr<ITfContext> m_context = nullptr;
     CandidateList m_candidate_list = {};
@@ -322,6 +313,8 @@ struct CandidateListUIImpl :
     std::unique_ptr<CandidatePager> m_pager = nullptr;
     EditState m_edit_state = EditState::EDIT_EMPTY;
     CandidateGrid m_candidate_grid = CandidateGrid();
+    size_t m_focused_col = 0;
+    RECT m_text_rect;
 };
 
 } // namespace

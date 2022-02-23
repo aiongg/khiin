@@ -259,7 +259,7 @@ struct TextServiceImpl :
         displayAttributes_.as<IEnumTfDisplayAttributeInfo>().copy_to(ppEnum);
         CATCH_FOR_HRESULT;
     }
-
+     
     virtual STDMETHODIMP GetDisplayAttributeInfo(REFGUID guid, ITfDisplayAttributeInfo **ppInfo) override {
         TRY_FOR_HRESULT;
         displayAttributes_->findByGuid(guid, ppInfo);

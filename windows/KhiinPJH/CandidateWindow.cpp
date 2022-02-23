@@ -341,6 +341,7 @@ class CandidateWindowImpl : public CandidateWindow {
         if (item) {
             NotifyCandidateSelectListeners(item->candidate);
         }
+        return true;
     }
 
     void NotifyCandidateSelectListeners(Candidate const *candidate) {
@@ -444,11 +445,11 @@ class CandidateWindowImpl : public CandidateWindow {
 
         EnsureTextFormat();
 
-        auto n_cols = m_candidate_grid->size();
-        auto n_rows = m_candidate_grid->at(0).size();
+        int n_cols = static_cast<int>(m_candidate_grid->size());
+        int n_rows = static_cast<int>(m_candidate_grid->at(0).size());
 
         m_layout_grid = CandidateLayoutGrid(n_rows, n_cols, MinColWidth());
-        m_layout_grid.SetRowPadding(m_metrics.padding);
+        m_layout_grid.SetRowPadding(static_cast<int>(m_metrics.padding));
 
         for (auto col_idx = 0; col_idx < n_cols; ++col_idx) {
             auto &candidates = m_candidate_grid->at(col_idx);
@@ -460,7 +461,7 @@ class CandidateWindowImpl : public CandidateWindow {
 
         auto grid_size = m_layout_grid.GetGridSize();
         auto left = m_text_rect.left - m_metrics.qs_col_w * m_scale;
-        auto top = m_text_rect.bottom;
+        auto top = m_text_rect.bottom * 1.0f;
         auto width = grid_size.width * m_scale;
         auto height = grid_size.height * m_scale;
 
@@ -471,11 +472,16 @@ class CandidateWindowImpl : public CandidateWindow {
             top = m_text_rect.top - height;
         }
 
-        ::SetWindowPos(m_hwnd, NULL, left, top, width, height, SWP_NOACTIVATE | SWP_NOZORDER);
+        auto l = static_cast<int>(left);
+        auto t = static_cast<int>(top);
+        auto w = static_cast<int>(width);
+        auto h = static_cast<int>(height);
+
+        ::SetWindowPos(m_hwnd, NULL, l, t, w, h, SWP_NOACTIVATE | SWP_NOZORDER);
         ::RedrawWindow(m_hwnd, NULL, NULL, RDW_INVALIDATE | RDW_UPDATENOW);
     }
 
-    void DrawFocusedBackground(float left, float top, uint32_t col_width) {
+    void DrawFocusedBackground(float left, float top, float col_width) {
         m_brush->SetColor(m_colors.bg_selected);
         m_target->FillRoundedRectangle(
             D2D1::RoundedRect(D2D1::RectF(left, top, col_width - m_metrics.padding, top + m_metrics.row_height),
@@ -494,7 +500,7 @@ class CandidateWindowImpl : public CandidateWindow {
             m_brush.get());
     }
 
-    void DrawFocused(float left, float top, uint32_t col_width) {
+    void DrawFocused(float left, float top, float col_width) {
         DrawFocusedBackground(left, top, col_width);
         DrawFocusedMarker(left, top);
     }
@@ -502,7 +508,7 @@ class CandidateWindowImpl : public CandidateWindow {
     void DrawQuickSelect(std::wstring label, float left, float top) {
         auto layout = com_ptr<IDWriteTextLayout>();
         check_hresult(m_dwrite->CreateTextLayout(label.c_str(), static_cast<UINT32>(label.size() + 1),
-                                                 m_textformat_sm.get(), m_metrics.qs_col_w, m_metrics.row_height,
+                                                 m_textformat_sm.get(), static_cast<float>(m_metrics.qs_col_w), m_metrics.row_height,
                                                  layout.put()));
         auto x = left + m_metrics.marker_w * 2 + m_metrics.padding;
         auto y = top + CenterTextLayoutY(layout.get(), m_metrics.row_height);
@@ -540,17 +546,17 @@ class CandidateWindowImpl : public CandidateWindow {
                 auto cell = m_layout_grid.GetCellRect(row_idx, col_idx);
 
                 if (value.candidate->id() == m_focused_id) {
-                    DrawFocused(cell.left(), cell.top(), cell.width());
+                    DrawFocused(cell.leftf(), cell.topf(), cell.widthf());
                 } else if (value.candidate->id() == m_mouse_focused_id) {
-                    DrawFocusedBackground(cell.left(), cell.top(), cell.width());
+                    DrawFocusedBackground(cell.leftf(), cell.topf(), cell.widthf());
                 }
 
                 if (col_idx == m_quickselect_col) {
-                    DrawQuickSelect(std::to_wstring(qs_label), cell.left(), cell.top());
+                    DrawQuickSelect(std::to_wstring(qs_label), cell.leftf(), cell.topf());
                     ++qs_label;
                 }
 
-                DrawCandidate(value, cell.left(), cell.top());
+                DrawCandidate(value, cell.leftf(), cell.topf());
             }
         }
     }

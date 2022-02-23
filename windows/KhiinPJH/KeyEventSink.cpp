@@ -7,6 +7,79 @@
 #include "common.h"
 
 namespace khiin::win32 {
+
+namespace {
+
+bool TestPageKeyForCandidateUI(CandidateListUI *cand_ui, KeyEvent const &key_event) {
+    if (cand_ui->Selecting()) {
+        auto key = key_event.keyCode();
+        if (cand_ui->MultiColumn() && (key == VK_LEFT || key == VK_RIGHT)) {
+            return true;
+        }
+
+        if (cand_ui->PageCount() > 1 && (key == VK_NEXT || key == VK_PRIOR)) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+bool TestQuickSelectForCandidateUI(CandidateListUI *cand_ui, KeyEvent const &key_event) {
+    if (cand_ui->Selecting() && key_event.ascii()) {
+        auto qs = key_event.ascii() - '0';
+        auto qs_max = cand_ui->MaxQuickSelect();
+        return 1 <= qs && qs <= qs_max;
+    }
+
+    return false;
+}
+
+bool TestKeyForCandidateUI(CandidateListUI *cand_ui, KeyEvent const &key_event) {
+    return TestPageKeyForCandidateUI(cand_ui, key_event) || TestQuickSelectForCandidateUI(cand_ui, key_event);
+}
+
+bool HandleQuickSelect(TextService *service, ITfContext *context, CandidateListUI *cand_ui, KeyEvent const &key_event) {
+    auto id = cand_ui->QuickSelect(key_event.ascii() - '0' - 1);
+
+    if (id >= 0) {
+        auto command = service->engine()->SelectCandidate(id);
+        EditSession::HandleAction(service, context, std::move(command));
+        return true;
+    }
+
+    return false;
+}
+
+bool HandleCandidatePage(TextService *service, ITfContext *context, CandidateListUI *cand_ui,
+                         KeyEvent const &key_event) {
+
+    auto id = -1;
+
+    if (key_event.keyCode() == VK_NEXT) {
+        id = cand_ui->RotateNext();
+    } else if (key_event.keyCode() == VK_PRIOR) {
+        id = cand_ui->RotatePrev();
+    }
+
+    if (id >= 0) {
+        auto command = service->engine()->FocusCandidate(id);
+        EditSession::HandleAction(service, context, std::move(command));
+        return true;
+    }
+
+    // TODO: Handle left/right in multi-column grid
+
+    return false;
+}
+
+void HandleKeyBasic(TextService *service, ITfContext *context, KeyEvent const &key_event) {
+    auto command = service->engine()->OnKey(key_event);
+    EditSession::HandleAction(service, context, std::move(command));
+}
+
+} // namespace
+
 using namespace messages;
 
 enum class KeyEventSink::KeyAction { Test, Input };
@@ -41,6 +114,11 @@ void KeyEventSink::TestKey(ITfContext *pContext, KeyEvent keyEvent, BOOL *pfEate
     WINRT_ASSERT(pContext);
     WINRT_ASSERT(composition_mgr);
 
+    if (TestKeyForCandidateUI(service->candidate_ui(), keyEvent)) {
+        *pfEaten = TRUE;
+        return;
+    }
+
     if (!composition_mgr->composing()) {
         service->engine()->Reset();
     }
@@ -48,7 +126,7 @@ void KeyEventSink::TestKey(ITfContext *pContext, KeyEvent keyEvent, BOOL *pfEate
     auto command = service->engine()->TestKey(keyEvent);
 
     if (command.output().consumable()) {
-        *pfEaten = true;
+        *pfEaten = TRUE;
         return;
     }
 
@@ -56,19 +134,23 @@ void KeyEventSink::TestKey(ITfContext *pContext, KeyEvent keyEvent, BOOL *pfEate
 }
 
 void KeyEventSink::HandleKey(ITfContext *pContext, KeyEvent keyEvent, BOOL *pfEaten) {
+    if (TestQuickSelectForCandidateUI(service->candidate_ui(), keyEvent)) {
+        HandleQuickSelect(service.get(), pContext, service->candidate_ui(), keyEvent);
+        *pfEaten = TRUE;
+        return;
+    } else if (TestPageKeyForCandidateUI(service->candidate_ui(), keyEvent)) {
+        HandleCandidatePage(service.get(), pContext, service->candidate_ui(), keyEvent);
+        *pfEaten = TRUE;
+        return;
+    }
+
     TestKey(pContext, keyEvent, pfEaten);
 
     if (!*pfEaten) {
         return;
     }
 
-    auto command = service->engine()->OnKey(keyEvent);
-
-    if (command.output().consumable()) {
-        *pfEaten = true;
-    }
-
-    EditSession::HandleAction(service.get(), pContext, std::move(command));
+    HandleKeyBasic(service.get(), pContext, keyEvent);
 }
 
 //+---------------------------------------------------------------------------

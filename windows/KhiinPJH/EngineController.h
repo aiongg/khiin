@@ -17,6 +17,7 @@ struct EngineController : winrt::implements<EngineController, IUnknown> {
     virtual messages::Command TestKey(KeyEvent keyEvent) = 0;
     virtual messages::Command OnKey(KeyEvent keyEvent) = 0;
     virtual messages::Command SelectCandidate(int32_t candidate_id) = 0;
+    virtual messages::Command FocusCandidate(int32_t candidate_id) = 0;
     virtual void Reset() = 0;
 };
 

@@ -50,16 +50,18 @@ struct EditSessionImpl : winrt::implements<EditSessionImpl, ITfEditSession> {
         auto candidate_ui = cast_as<CandidateListUI>(service->candidate_ui());
         bool composing = composition_mgr->composing();
         bool Showing = candidate_ui->Showing();
+        auto cmd_type = command.type();
 
         if (command.output().error() == ErrorCode::FAIL) {
             composition_mgr->CommitComposition(ec, context.get());
-        } else if (command.type() == CommandType::COMMIT) {
+        } else if (cmd_type == CommandType::COMMIT) {
             if (command.output().preedit().segments().size() == 0) {
                 composition_mgr->CommitComposition(ec, context.get());
             } else {
                 composition_mgr->CommitComposition(ec, context.get(), command.output().preedit());
             }
-        } else if (command.type() == CommandType::SEND_KEY || command.type() == CommandType::SELECT_CANDIDATE) {
+        } else if (cmd_type == CommandType::SEND_KEY || cmd_type == CommandType::SELECT_CANDIDATE ||
+                   cmd_type == CommandType::FOCUS_CANDIDATE) {
             composition_mgr->DoComposition(ec, context.get(), command.output().preedit());
 
             if (command.output().candidate_list().candidates().size() > 0) {

@@ -3,16 +3,12 @@
 #include "BaseWindow.h"
 #include "common.h"
 
+#include "CandidatePager.h"
+
 namespace khiin::win32 {
 
 extern std::wstring kCandidateWindowClassName;
 extern GUID kCandidateWindowGuid;
-
-enum class DisplayMode {
-    ShortColumn,
-    LongColumn,
-    Grid,
-};
 
 enum class DisplaySize {
     S,
@@ -21,9 +17,6 @@ enum class DisplaySize {
     XL,
     XXL,
 };
-
-using CandidateColumn = std::vector<messages::Candidate const *>;
-using CandidateGrid = std::vector<CandidateColumn>;
 
 struct CandidateSelectListener {
     virtual void OnSelectCandidate(int32_t id) = 0;

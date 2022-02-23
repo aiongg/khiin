@@ -202,6 +202,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="BaseWindow.h" />
+    <ClInclude Include="CandidatePager.h" />
     <ClInclude Include="CandidateWindow.h" />
     <ClInclude Include="CandidateListUI.h" />
     <ClInclude Include="CompositionSink.h" />
@@ -234,6 +235,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="BaseWindow.cpp" />
+    <ClCompile Include="CandidatePager.cpp" />
     <ClCompile Include="CandidateWindow.cpp" />
     <ClCompile Include="CandidateListUI.cpp" />
     <ClCompile Include="CompositionSink.cpp" />

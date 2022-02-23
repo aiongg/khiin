@@ -40,21 +40,6 @@ class EngineImpl : public Engine {
             m_database = std::unique_ptr<Database>(Database::TestDb());
         }
 
-        // if (resource_dir.empty()) {
-        //    resource_dir = utils::findResourceDirectory();
-        //}
-
-        // if (!resource_dir.empty()) {
-        //    auto db_path = fs::path(resource_dir);
-        //    db_path /= kDatabaseFilename;
-
-        //    if (fs::exists(db_path)) {
-        //    }
-        //}
-
-        // if (!m_database) {
-        //}
-
         m_keyconfig = std::unique_ptr<KeyConfig>(KeyConfig::Create());
         m_syllable_parser = std::unique_ptr<SyllableParser>(SyllableParser::Create(m_keyconfig.get()));
         m_dictionary = std::unique_ptr<Dictionary>(Dictionary::Create(this));
@@ -64,6 +49,7 @@ class EngineImpl : public Engine {
         command_handlers[CommandType::TEST_SEND_KEY] = &EngineImpl::HandleTestSendKey;
         command_handlers[CommandType::SEND_KEY] = &EngineImpl::HandleSendKey;
         command_handlers[CommandType::SELECT_CANDIDATE] = &EngineImpl::HandleSelectCandidate;
+        command_handlers[CommandType::FOCUS_CANDIDATE] = &EngineImpl::HandleFocusCandidate;
 
         m_dictionary->Initialize();
     }
@@ -220,9 +206,13 @@ class EngineImpl : public Engine {
         m_buffer_mgr->SelectCandidate(command->input().candidate_id());
         AttachPreeditWithCandidates(command);
     }
+    
+    void HandleFocusCandidate(Command *command) {
+        m_buffer_mgr->FocusCandidate(command->input().candidate_id());
+        AttachPreeditWithCandidates(command);
+    }
 
     // void HandleRevert(Command *command, Output *output) {}
-    // void HandleFocusCandidate(Command *command, Output *output) {}
     // void HandlePlaceCursor(Command *command, Output *output) {}
 
     fs::path resource_dir = {};

@@ -14,8 +14,8 @@ class KeyEvent {
     KeyEvent(UINT message, WPARAM wParam, LPARAM lParam) noexcept;
     ~KeyEvent() = default;
 
-    char ascii();
-    int keyCode();
+    char ascii() const;
+    int keyCode() const;
 
   private:
     BYTE keyboardState[KEYBOARD_SIZE];

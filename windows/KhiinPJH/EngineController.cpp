@@ -6,10 +6,10 @@
 #include <unordered_map>
 
 #include "DllModule.h"
+#include "EditSession.h"
 #include "Utils.h"
 #include "common.h"
 #include "engine/engine.h"
-#include "EditSession.h"
 
 namespace {
 
@@ -109,6 +109,14 @@ struct EngineControllerImpl : winrt::implements<EngineControllerImpl, EngineCont
     virtual Command SelectCandidate(int32_t candidate_id) override {
         auto cmd = Command();
         cmd.set_type(CommandType::SELECT_CANDIDATE);
+        cmd.mutable_input()->set_candidate_id(candidate_id);
+        m_engine->SendCommand(&cmd);
+        return cmd;
+    }
+
+    virtual Command FocusCandidate(int32_t candidate_id) override {
+        auto cmd = Command();
+        cmd.set_type(CommandType::FOCUS_CANDIDATE);
         cmd.mutable_input()->set_candidate_id(candidate_id);
         m_engine->SendCommand(&cmd);
         return cmd;
