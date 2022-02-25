@@ -13,6 +13,7 @@
         <Feature Id="ProductFeature" Title="KhiinInstaller" Level="1">
             <ComponentGroupRef Id="Files_64" />
             <ComponentGroupRef Id="Files_32" />
+            <ComponentGroupRef Id="AppDataFiles"/>
             <ComponentGroupRef Id="DllRegistration"/>
         </Feature>
 
@@ -33,6 +34,9 @@
             <Directory Id="ProgramFilesFolder">
                 <Directory Id="INSTALLDIR32" Name="Khiin PJH" />
             </Directory>
+            <Directory Id="AppDataFolder">
+                <Directory Id="APPDATADIR" Name="Khiin PJH"/>
+            </Directory>
         </Directory>
     </Fragment>
 
@@ -40,6 +44,7 @@
         <ComponentGroup Id="Files_64" Directory="INSTALLDIR64">
             <Component Id="KhiinPJH_64" Guid="$(var.GUID_Dll64Component)" Win64="yes">
                 <File Id="KhiinDLL_64" Name="$(var.DLL_64_DEST_FILE)" DiskId="1" Source="$(var.DLL_64_SOURCE_PATH)" KeyPath="yes"/>
+                <File Id="KhiinDbFile2" Name="$(var.DB_DEST_FILE)" DiskId="1" Source="$(var.DB_SOURCE_PATH)" />
             </Component>
         </ComponentGroup>
     </Fragment>
@@ -48,6 +53,19 @@
         <ComponentGroup Id="Files_32" Directory="INSTALLDIR32">
             <Component Id="KhiinPJH_32" Guid="$(var.GUID_Dll32Component)" Win64="no">
                 <File Id="KhiinDLL_32" Name="$(var.DLL_32_DEST_FILE)" DiskId="1" Source="$(var.DLL_32_SOURCE_PATH)" KeyPath="yes"/>
+                <File Id="KhiinDbFile3" Name="$(var.DB_DEST_FILE)" DiskId="1" Source="$(var.DB_SOURCE_PATH)" />
+            </Component>
+        </ComponentGroup>
+    </Fragment>
+
+    <Fragment>
+        <ComponentGroup Id="AppDataFiles" Directory="APPDATADIR">
+            <Component Id="DatabaseFile" Guid="$(var.GUID_DatabaseFile)">
+                <RemoveFolder Id="APPDATADIR" On="uninstall"/>
+                <RegistryKey Root="HKCU" Key="Software\$(var.Manufacturer_EN)">
+                    <RegistryValue Name="KhiinAppData" Type="integer" Value="1" KeyPath="yes" />
+                </RegistryKey>
+                <File Id="KhiinDbFile1" Name="$(var.DB_DEST_FILE)" DiskId="1" Source="$(var.DB_SOURCE_PATH)" />
             </Component>
         </ComponentGroup>
     </Fragment>
