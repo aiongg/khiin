@@ -514,6 +514,42 @@ TEST_F(CandidatesTest, Goa_goa) {
     ExpectCandidate("Góa");
 }
 
+TEST_F(CandidatesTest, b) {
+    typing("b");
+    ExpectCandidateSize(1);
+    ExpectCandidate("b");
+}
+
+TEST_F(CandidatesTest, bo) {
+    typing("bo");
+    ExpectCandidateSize(2);
+    ExpectCandidate("無");
+    ExpectCandidate("bô");
+}
+
+TEST_F(CandidatesTest, boe) {
+    typing("boe");
+    ExpectCandidateSize(10);
+    curs_up(2);
+    enter();
+    curs_right(1);
+    curs_up(1);
+    curs_down(1);
+    curs_up(1);
+    ExpectCandidate("个");
+    ExpectCandidate("ê");
+}
+
+TEST_F(CandidatesTest, boe2) {
+    typing("boe");
+    ExpectCandidateSize(10);
+    curs_up(1);
+    enter();
+    // curs_down(1);
+    // ExpectCandidate("个");
+    // ExpectCandidate("ê");
+}
+
 //+---------------------------------------------------------------------------
 //
 // Conversions
@@ -563,9 +599,14 @@ TEST_F(BufferConversionTest, Convert_erase_insert) {
 TEST_F(BufferConversionTest, Convert_insert_middle) {
     typing("anne");
     spacebar(1);
+    ExpectSegment(1, 0, FOCUSED, "按呢", 2);
     curs_left(1);
+    ExpectSegment(1, 0, FOCUSED, "按呢", 1);
     typing("ho");
     ExpectBuffer("按 ho 呢", 4);
+    ExpectSegment(3, 0, CONVERTED, "按", 4);
+    ExpectSegment(3, 1, COMPOSING, " ho ", 4);
+    ExpectSegment(3, 2, CONVERTED, "呢", 4);
     spacebar(1);
     ExpectBuffer("按好呢", 2);
     ExpectSegment(3, 1, FOCUSED, "好", 2);
@@ -646,6 +687,14 @@ TEST_F(BufferConversionTest, Convert_boe4) {
     ExpectSegment(1, 0, FOCUSED, "未", 1);
 }
 
+TEST_F(BufferConversionTest, Convert_eee_remove_e) {
+    typing("eee");
+    key_bksp(1);
+    spacebar(1);
+    ExpectSegment(2, 0, FOCUSED, "个", 2);
+    ExpectSegment(2, 1, CONVERTED, "个", 2);
+}
+
 //+---------------------------------------------------------------------------
 //
 // Buffer navigation
@@ -663,7 +712,7 @@ TEST_F(BufferNavigationTest, Focus_element) {
     curs_right(1);
     ExpectSegment(2, 0, CONVERTED);
     ExpectSegment(2, 1, FOCUSED);
-    
+
     curs_left(1);
     ExpectSegment(2, 0, FOCUSED);
     ExpectSegment(2, 1, CONVERTED);

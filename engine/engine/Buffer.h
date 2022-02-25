@@ -82,6 +82,7 @@ class Buffer {
 
     void Join(Buffer *pre, Buffer *post);
     void AdjustVirtualSpacing();
+    void StripVirtualSpacing();
 
     // Append all elements of |rhs| to this Buffer
     void Append(Buffer &rhs);

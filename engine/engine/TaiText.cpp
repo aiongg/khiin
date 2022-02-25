@@ -323,9 +323,7 @@ TaiText TaiText::FromRawSyllable(SyllableParser *parser, std::string const &syll
 }
 
 TaiText TaiText::FromMatching(SyllableParser *parser, std::string const &input, TaiToken *match) {
-    auto ret = parser->AsTaiText(input, match->input);
-    ret.SetCandidate(match);
-    return ret;
+    return parser->AsTaiText(input, match->input);
 }
 
 } // namespace khiin::engine

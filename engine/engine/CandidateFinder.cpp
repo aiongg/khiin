@@ -110,7 +110,9 @@ Buffer WordsToBuffer(Engine *engine, std::vector<std::string> &words) {
     auto elems = BufferElementList();
     for (auto &word : words) {
         auto best_match = CandidateFinder::BestMatch(engine, nullptr, word);
-        auto elem = BufferElement(TaiText::FromMatching(engine->syllable_parser(), word, best_match));
+        auto tai_text = TaiText::FromMatching(engine->syllable_parser(), word, best_match);
+        tai_text.SetCandidate(best_match);
+        auto elem = BufferElement(std::move(tai_text));
         elem.is_converted = true;
         elems.push_back(std::move(elem));
     }

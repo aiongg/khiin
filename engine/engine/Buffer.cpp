@@ -87,6 +87,36 @@ void Buffer::AdjustVirtualSpacing(BufferElementList &elements) {
     }
 }
 
+// Not currently used
+void Buffer::StripVirtualSpacing() {
+    if (m_elements.empty()) {
+        return;
+    }
+
+    auto begin = Begin();
+    auto it = Begin();
+    auto end = End();
+    while (it != end && it->IsVirtualSpace()) {
+        ++it;
+    }
+    if (std::distance(begin, it) > 0) {
+        begin = m_elements.erase(begin, it);
+    }
+
+    if (m_elements.empty()) {
+        return;
+    }
+
+    end = End();
+    it = end;
+    while (it != begin && (it - 1)->IsVirtualSpace()) {
+        --it;
+    }
+    if (std::distance(it, end) > 0) {
+        m_elements.erase(it, end);
+    }
+}
+
 Buffer::Buffer(BufferElementList &&elements) : m_elements(elements) {}
 
 Buffer::Buffer(BufferElement &&element) {

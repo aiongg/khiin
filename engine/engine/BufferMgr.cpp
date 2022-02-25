@@ -199,7 +199,10 @@ class BufferMgrImpl : public BufferMgr {
     void MoveCaret(CursorDirection direction) {
         auto buffer_text = GetDisplayBuffer();
         m_caret = Lomaji::MoveCaret(buffer_text, m_caret, direction);
-        FocusElementAtCursor();
+        
+        if (m_edit_state != EditState::EDIT_COMPOSING) {
+            FocusElementAtCursor();
+        }
     }
 
     void FocusElementAtCursor() {
@@ -211,6 +214,12 @@ class BufferMgrImpl : public BufferMgr {
 
     void OnFocusElementChange(size_t new_focused_element_idx) {
         m_focused_element = new_focused_element_idx;
+
+        auto elem = m_composition.Begin() + m_focused_element;
+        while (elem != m_composition.End() && elem->IsVirtualSpace()) {
+            ++elem;
+            ++m_focused_element;
+        }
 
         if (m_edit_state == EditState::EDIT_CONVERTED) {
             UpdateCandidatesForFocusedElement();
@@ -279,10 +288,8 @@ class BufferMgrImpl : public BufferMgr {
 
         KhinHandler::AutokhinBuffer(m_engine->syllable_parser(), m_composition.get());
         raw_caret += m_precomp.RawTextSize();
-        OnFocusElementChange(m_precomp.Size());
-        m_composition.Join(&m_precomp, &m_postcomp);
-        m_composition.AdjustVirtualSpacing();
-        m_caret = m_composition.CaretFrom(raw_caret, m_engine->syllable_parser());
+
+        JoinBufferUpdateCaretAndFocus(raw_caret);
     }
 
     void SplitBufferForComposition() {
@@ -301,7 +308,27 @@ class BufferMgrImpl : public BufferMgr {
         }
     }
 
+    void JoinBufferUpdateCaretAndFocus(utf8_size_t raw_caret) {
+        // After joining, focus moves to the first element past m_precomp
+        // Save this position as a virtual raw caret, since its actual
+        // position may be affected by virtual spacing
+        auto focus_raw_caret = m_precomp.RawTextSize() + 1;
+        
+        // Join the elements and adjust spacing
+        m_composition.Join(&m_precomp, &m_postcomp);
+        m_composition.AdjustVirtualSpacing();
+
+        // Get the focused element using the virtual raw caret position
+        auto focus_elem_it = m_composition.IterRawCaret(focus_raw_caret);
+        OnFocusElementChange(std::distance(m_composition.Begin(), focus_elem_it));
+        m_caret = m_composition.CaretFrom(raw_caret, m_engine->syllable_parser());
+    }
+
     void FocusCandidate_(size_t index) {
+        if (index == 5) {
+            auto x = 3;
+        }
+
         auto raw_caret = m_composition.RawCaretFrom(m_caret, m_engine->syllable_parser());
         Buffer candidate = m_candidates.at(index);
         m_composition.SplitAtElement(m_focused_element, &m_precomp, nullptr);
@@ -316,12 +343,7 @@ class BufferMgrImpl : public BufferMgr {
 
         if (raw_buf_size > raw_cand_size) {
             auto raw_text = Buffer::RawText(replace_from, replace_to);
-            auto raw_it = raw_text.begin() + raw_buf_size - (raw_buf_size - raw_cand_size);
-            auto deconverted = std::string(raw_it, raw_text.end());
-
-            if (replace_to != m_composition.End()) {
-                ++replace_to;
-            }
+            auto deconverted = std::string(raw_text.begin() + raw_cand_size, raw_text.end());
 
             while (replace_to != m_composition.End() &&
                    (!CandidateFinder::HasExactMatch(m_engine, deconverted) || deconverted.empty())) {
@@ -340,9 +362,8 @@ class BufferMgrImpl : public BufferMgr {
 
         m_composition.Replace(replace_from, replace_to, candidate);
         m_focused_candidate = index;
-        m_composition.Join(&m_precomp, &m_postcomp);
-        m_composition.AdjustVirtualSpacing();
-        m_caret = m_composition.CaretFrom(raw_caret, m_engine->syllable_parser());
+
+        JoinBufferUpdateCaretAndFocus(raw_caret);
     }
 
     void SelectCandidate_(size_t index) {
@@ -412,7 +433,7 @@ class BufferMgrImpl : public BufferMgr {
 
         it->Erase(m_engine->syllable_parser(), remainder);
         if (it->size() == 0) {
-            m_composition.get().erase(it);
+            m_composition.Erase(it);
         }
 
         if (IsEmpty()) {
