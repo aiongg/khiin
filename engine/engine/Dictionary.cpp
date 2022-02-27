@@ -34,6 +34,7 @@ class DictionaryImpl : public Dictionary {
         BuildWordTrie();
         BuildSyllableTrie();
         BuildWordSplitter();
+        LoadPunctuation();
         m_engine->RegisterConfigChangedListener(this);
     }
 
@@ -109,6 +110,16 @@ class DictionaryImpl : public Dictionary {
         return ret;
     }
 
+    virtual std::vector<std::string> SearchPunctuation(std::string const& query) override {
+        auto ret = std::vector<std::string>();
+        for (auto &p : m_punctuation) {
+            if (query == p.input) {
+                ret.push_back(p.output);
+            }
+        }
+        return ret;
+    }
+
     virtual Splitter *word_splitter() override {
         return m_word_splitter.get();
     };
@@ -171,6 +182,11 @@ class DictionaryImpl : public Dictionary {
         m_word_splitter = std::make_unique<Splitter>(m_user_inputs);
     }
 
+    void LoadPunctuation() {
+        m_punctuation.clear();
+        m_engine->database()->LoadPunctuation(m_punctuation);
+    }
+
     void CacheId(std::string const &input, int input_id) {
         auto ids = m_input_ids.find(input);
         if (ids != m_input_ids.end()) {
@@ -230,6 +246,7 @@ class DictionaryImpl : public Dictionary {
     std::unordered_map<int, TaiToken> m_token_cache;
     std::unordered_map<int, std::vector<TaiToken *>> m_input_id_token_cache;
     std::vector<InputByFreq> m_inputs_by_freq;
+    std::vector<Punctuation> m_punctuation;
 };
 
 } // namespace

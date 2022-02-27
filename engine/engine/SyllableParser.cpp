@@ -289,6 +289,11 @@ Syllable AlignRawToComposed(KeyConfig *keyconfig, std::string::const_iterator &r
                 ++r_it;
             }
         }
+    } else if (r_it != r_end) {
+        auto r_maybe_tone = keyconfig->CheckToneKey(r_it[0]);
+        if (r_maybe_tone == Tone::T1 || r_maybe_tone == Tone::T4) {
+            ++r_it;
+        }
     }
 
     auto r_syl = std::string(r_begin, r_it);

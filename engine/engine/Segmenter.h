@@ -14,6 +14,7 @@ enum class SegmentType {
     WordPrefix,
     SyllablePrefix,
     Hyphens,
+    Punct,
 };
 
 struct SegmentOffset {

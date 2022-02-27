@@ -61,7 +61,7 @@ size_t CheckSplittableWithTrailingPrefix(Engine *engine, std::string_view str) {
     return 0;
 }
 
-size_t MaxSyllable(Engine* engine, std::string_view str) {
+size_t MaxSyllable(Engine *engine, std::string_view str) {
     auto dictionary = engine->dictionary();
 
     if (!dictionary->StartsWithSyllable(str)) {
@@ -80,7 +80,7 @@ size_t MaxSyllable(Engine* engine, std::string_view str) {
     return --i;
 }
 
-size_t MaxSplitSize(Engine* engine, std::string_view str) {
+size_t MaxSplitSize(Engine *engine, std::string_view str) {
     return engine->dictionary()->word_splitter()->MaxSplitSize(str);
 }
 
@@ -100,6 +100,10 @@ std::pair<size_t, SegmentType> CheckSyllableOrSplittable(Engine *engine, std::st
     }
 
     return ret;
+}
+
+size_t CheckAsciiPunctuation(std::string_view str) {
+    return unicode::start_glyph_type(str) == unicode::GlyphCategory::AsciiPunct ? 1 : 0;
 }
 
 std::vector<SegmentOffset> SegmentTextImpl(Engine *engine, std::string_view raw_buffer) {
@@ -126,6 +130,13 @@ std::vector<SegmentOffset> SegmentTextImpl(Engine *engine, std::string_view raw_
         if (auto size = CheckHyphens(engine, remainder); size > 0) {
             flush_plaintext();
             ret.push_back(SegmentOffset{SegmentType::Hyphens, index, size});
+            it += size;
+            continue;
+        }
+
+        if (auto size = CheckAsciiPunctuation(remainder); size > 0) {
+            flush_plaintext();
+            ret.push_back(SegmentOffset{SegmentType::Punct, index, size});
             it += size;
             continue;
         }

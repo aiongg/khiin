@@ -42,6 +42,7 @@ inline constexpr bool is_nasal(char32_t c) {
 enum class GlyphCategory {
     Other,
     Alnum,
+    AsciiPunct,
     Khin,
     Hanji,
 };
@@ -51,6 +52,10 @@ namespace {
 const inline GlyphCategory glyph_category_of_codepoint(char32_t cp) {
     if ((cp <= kMaxAscii && isalnum(cp)) || is_nasal(cp)) {
         return GlyphCategory::Alnum;
+    }
+
+    if (cp <= kMaxAscii && ispunct(cp)) {
+        return GlyphCategory::AsciiPunct;
     }
 
     if (cp == 0x00b7) {

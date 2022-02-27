@@ -17,8 +17,7 @@ void AllWordsByFreqImpl(SQLite::Database &db, std::vector<InputByFreq> &output) 
     }
 }
 
-void ConversionsByInputImpl(SQLite::Database &db, int input_id,
-                            std::vector<TaiToken> &conversions) {
+void ConversionsByInputImpl(SQLite::Database &db, int input_id, std::vector<TaiToken> &conversions) {
 
     auto q = SQLite::Statement(db, SQL::SELECT_ConversionsByInputId_One);
     q.bind(1, input_id);
@@ -102,6 +101,14 @@ TaiToken *HighestBigramCountImpl(SQLite::Database &db, std::string const &lgram,
     return nullptr;
 }
 
+void LoadPunctuationImpl(SQLite::Database &db, std::vector<Punctuation> &output) {
+    auto query = SQLite::Statement(db, "SELECT * FROM punctuation");
+    while (query.executeStep()) {
+        output.push_back(Punctuation{query.getColumn("id").getInt(), query.getColumn("input").getString(),
+                                     query.getColumn("output").getString(), query.getColumn("annotation").getString()});
+    }
+}
+
 class DatabaseImpl : public Database {
   public:
     DatabaseImpl(SQLite::Database *handle) {
@@ -133,9 +140,13 @@ class DatabaseImpl : public Database {
         ConversionsByInputImpl(*db_handle, input_id, output);
     }
 
-    //virtual void ConversionsByInput(std::vector<std::string> const &inputs, std::vector<TaiToken> &output) override {
+    // virtual void ConversionsByInput(std::vector<std::string> const &inputs, std::vector<TaiToken> &output) override {
     //    ConversionsByInputImpl(*db_handle, inputs, output);
     //}
+
+    virtual void LoadPunctuation(std::vector<Punctuation> &output) override {
+        LoadPunctuationImpl(*db_handle, output);
+    }
 
   private:
     std::unique_ptr<SQLite::Database> db_handle;

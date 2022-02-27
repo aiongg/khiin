@@ -62,6 +62,7 @@ TEST_F(SyllableParserTest, ParseRaw_an1) {
 
     parser->ParseRaw(input, syl);
 
+    EXPECT_EQ(syl.raw_input, "an1");
     EXPECT_EQ(syl.raw_body, "an");
     EXPECT_EQ(syl.tone, Tone::T1);
     EXPECT_EQ(syl.tone_key, '1');
@@ -75,6 +76,7 @@ TEST_F(SyllableParserTest, ParseRaw_bah4) {
 
     parser->ParseRaw(input, syl);
 
+    EXPECT_EQ(syl.raw_input, "bah4");
     EXPECT_EQ(syl.raw_body, "bah");
     EXPECT_EQ(syl.tone, Tone::T4);
     EXPECT_EQ(syl.tone_key, '4');
@@ -376,6 +378,14 @@ TEST_F(SyllableParserTest, TaiText_capitals) {
     auto result = parser->AsTaiText(input, target);
     EXPECT_EQ(result.RawText(), "Goa2");
     EXPECT_EQ(result.ComposedText(), "Góa");
+}
+
+TEST_F(SyllableParserTest, TaiText_an1) {
+    auto input = "an1";
+    auto target = "an";
+    auto result = parser->AsTaiText(input, target);
+    EXPECT_EQ(result.RawText(), "an1");
+    EXPECT_EQ(result.ComposedText(), "an");
 }
 
 } // namespace

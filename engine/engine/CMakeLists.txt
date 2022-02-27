@@ -43,7 +43,7 @@ add_library (khiin
     "unicode_utils.h"
     "unicode_utils.cpp"
     "utils.h"
- "Models.h"   "Config.h" "KhinHandler.h" "KhinHandler.cpp"   "Buffer.h" "Buffer.cpp" "utils.cpp")
+ "Models.h"   "Config.h" "KhinHandler.h" "KhinHandler.cpp"   "Buffer.h" "Buffer.cpp" "utils.cpp"  )
 
 # Debug
 target_link_options(khiin PRIVATE "/MAP")

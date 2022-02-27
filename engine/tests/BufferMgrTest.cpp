@@ -214,6 +214,10 @@ TEST_F(BufferInsertionTest, a) {
     ExpectSegment(1, 0, COMPOSING, "a", 1);
 }
 
+TEST_F(BufferInsertionTest, ta1) {
+    typing("ta1");
+    ExpectSegment(1, 0, COMPOSING, "ta", 2);
+}
 TEST_F(BufferInsertionTest, taichi) {
     typing("t");
     ExpectSegment(1, 0, COMPOSING, "t", 1);
@@ -836,6 +840,19 @@ TEST_F(CandidateSelectionTest, Select_goa21) {
     typing("goa21");
     key_bksp(1);
     spacebar(1);
+}
+
+//+---------------------------------------------------------------------------
+//
+// Punctuation candidates
+//
+//----------------------------------------------------------------------------
+
+struct PunctuationTest : public BufferMgrTest {};
+
+TEST_F(PunctuationTest, Input_period) {
+    typing(".");
+    ExpectCandidate("。");
 }
 
 } // namespace

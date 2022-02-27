@@ -9,7 +9,6 @@ namespace khiin::engine {
 
 class SyllableParser;
 struct TaiToken;
-class Punctuation {};
 
 class BufferElement {
   public:

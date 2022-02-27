@@ -20,4 +20,11 @@ struct TaiToken {
     std::string annotation;
 };
 
+struct Punctuation {
+    int id;
+    std::string input;
+    std::string output;
+    std::string annotation;
+};
+
 } // namespace khiin::engine

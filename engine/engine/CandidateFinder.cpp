@@ -69,38 +69,53 @@ std::vector<Buffer> GetCandidatesFromStartImpl(Engine *engine, TaiToken *lgram, 
     auto ret = std::vector<Buffer>();
 
     auto segments = Segmenter::SegmentText(engine, raw_query);
-    if (segments.at(0).type != SegmentType::Splittable) {
+
+    switch (segments.at(0).type) {
+    case SegmentType::Punct: {
+        auto query = raw_query.substr(0, segments.at(0).size);
+        auto options = engine->dictionary()->SearchPunctuation(query);
+
+        for (auto &p : options) {
+            ret.push_back(Buffer(p));
+            ret.back().SetConverted(true);
+        }
+        
+        break;
+    }
+    case SegmentType::Splittable: {
+        auto query = raw_query.substr(0, segments.at(0).size);
+        auto query_lc = unicode::copy_str_tolower(query);
+        auto options = engine->dictionary()->AllWordsFromStart(query_lc);
+
+        std::sort(options.begin(), options.end(), [](TaiToken *a, TaiToken *b) {
+            return unicode::letter_count(a->input) > unicode::letter_count(b->input);
+        });
+
+        auto parser = engine->syllable_parser();
+        auto seen = std::unordered_set<std::string>();
+
+        for (auto option : options) {
+            if (!seen.insert(option->output).second) {
+                continue;
+            }
+
+            auto tai_text = parser->AsTaiText(query, option->input);
+
+            if (!LeavesGoodRemainder(engine->dictionary(), tai_text, query)) {
+                continue;
+            }
+
+            tai_text.SetCandidate(option);
+            auto elem = BufferElement(std::move(tai_text));
+            elem.is_converted = true;
+            ret.push_back(std::vector<BufferElement>{std::move(elem)});
+        }
+        break;
+    }
+    default:
         ret.push_back(Buffer(raw_query.substr(0, segments.at(0).size)));
         ret.back().SetConverted(true);
-        return ret;
-    }
-
-    auto query = raw_query.substr(0, segments.at(0).size);
-    auto query_lc = unicode::copy_str_tolower(query);
-    auto options = engine->dictionary()->AllWordsFromStart(query_lc);
-
-    std::sort(options.begin(), options.end(), [](TaiToken *a, TaiToken *b) {
-        return unicode::letter_count(a->input) > unicode::letter_count(b->input);
-    });
-
-    auto parser = engine->syllable_parser();
-    auto seen = std::unordered_set<std::string>();
-
-    for (auto option : options) {
-        if (!seen.insert(option->output).second) {
-            continue;
-        }
-
-        auto tai_text = parser->AsTaiText(query, option->input);
-
-        if (!LeavesGoodRemainder(engine->dictionary(), tai_text, query)) {
-            continue;
-        }
-
-        tai_text.SetCandidate(option);
-        auto elem = BufferElement(std::move(tai_text));
-        elem.is_converted = true;
-        ret.push_back(std::vector<BufferElement>{std::move(elem)});
+        break;
     }
 
     return ret;
@@ -152,6 +167,14 @@ std::vector<Buffer> ContinuousCandidatesImpl(Engine *engine, TaiToken *lgram, st
     return ret;
 }
 
+std::string PunctuationBestMatchImpl(Engine *engine, std::string const &query) {
+    auto puncts = engine->dictionary()->SearchPunctuation(query);
+    if (!puncts.empty()) {
+        return puncts[0];
+    }
+    return query;
+}
+
 std::vector<Buffer> MultiSegmentCandidatesImpl(Engine *engine, TaiToken *lgram, std::string const &query) {
     auto candidates = std::vector<Buffer>{Buffer()};
     auto segments = Segmenter::SegmentText(engine, query);
@@ -170,6 +193,13 @@ std::vector<Buffer> MultiSegmentCandidatesImpl(Engine *engine, TaiToken *lgram, 
             break;
         case SegmentType::Hyphens:
             candidates[0].Append(std::string(seg.size, '-'));
+            break;
+        case SegmentType::Punct:
+            if (i == 0) {
+                candidates = GetCandidatesFromStartImpl(engine, nullptr, seg_raw_comp);
+            } else {
+                candidates[0].Append(PunctuationBestMatchImpl(engine, seg_raw_comp));
+            }
             break;
         case SegmentType::None:
             candidates[0].Append(std::move(seg_raw_comp));

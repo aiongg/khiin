@@ -109,7 +109,7 @@ class EngineImpl : public Engine {
         switch (key.special_key()) {
         case SpecialKey::SK_NONE: {
             auto key_code = input->key_event().key_code();
-            if (isalnum(key_code) || key_code == '-') {
+            if (isprint(key_code)) {
                 m_buffer_mgr->Insert(static_cast<char>(key_code));
             }
             break;
@@ -186,7 +186,7 @@ class EngineImpl : public Engine {
         auto output = command->mutable_output();
 
         auto key = input->key_event().key_code();
-        if (m_buffer_mgr->IsEmpty() && !isalnum(key) && !m_keyconfig->IsHyphen(key)) {
+        if (m_buffer_mgr->IsEmpty() && !isprint(key)) {
             output->set_consumable(false);
         } else {
             output->set_consumable(true);
