@@ -9,6 +9,7 @@ namespace khiin::engine {
 
 class SyllableParser;
 struct TaiToken;
+struct Punctuation;
 
 class BufferElement {
   public:
@@ -16,7 +17,11 @@ class BufferElement {
 
     BufferElement();
     BufferElement(TaiText const &elem);
+    BufferElement(TaiText &&elem);
+    BufferElement(Punctuation const &elem);
+    BufferElement(Punctuation &&elem);
     BufferElement(std::string const &elem);
+    BufferElement(std::string &&elem);
     BufferElement(VirtualSpace elem);
 
     bool operator==(BufferElement const &rhs) const;
@@ -45,7 +50,7 @@ class BufferElement {
     bool is_converted = false;
 
   private:
-    std::variant<std::monostate, std::string, TaiText, VirtualSpace> m_element;
+    std::variant<std::monostate, std::string, TaiText, Punctuation, VirtualSpace> m_element;
 };
 
 using BufferElementList = std::vector<BufferElement>;

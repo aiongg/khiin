@@ -27,11 +27,16 @@ TEST(UnicodeUtilsTest, glyph_category_other) {
     
 }
 
-TEST(UnicodeUtilsTest, SurrogatePair) {
+TEST(UnicodeUtilsTest, HighCodePoint) {
     auto test = std::string(u8"𫔘");
     EXPECT_EQ(unicode::u8_size(test), 1);
     auto cp = utf8::peek_next(test.begin(), test.end());
     EXPECT_EQ(cp, 0x2b518);
+}
+
+TEST(UnicodeUtilsTest, MultiCodepointEmoji) {
+    auto test = std::string(u8"👨‍👩‍👦");
+    EXPECT_EQ(unicode::u8_size(test), 5);
 }
 
 } // namespace

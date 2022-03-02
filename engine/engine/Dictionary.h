@@ -29,7 +29,7 @@ class Dictionary : public ConfigChangeListener {
     virtual bool IsSyllablePrefix(std::string_view query) const = 0;
     virtual bool IsWord(std::string_view query) const = 0;
 
-    virtual std::vector<std::string> SearchPunctuation(std::string const &query) = 0;
+    virtual std::vector<Punctuation> SearchPunctuation(std::string const &query) = 0;
 
     virtual Splitter *word_splitter() = 0;
     virtual Trie *word_trie() = 0;

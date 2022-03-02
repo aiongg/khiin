@@ -65,71 +65,78 @@ bool LeavesGoodRemainder(Dictionary *dict, TaiText const &prefix, std::string_vi
     return dict->word_splitter()->CanSplit(raw_query.substr(size, raw_query.size() - size));
 }
 
-std::vector<Buffer> GetCandidatesFromStartImpl(Engine *engine, TaiToken *lgram, std::string const &raw_query) {
+std::vector<Buffer> AllSplittableCandidatesFromStart(Engine *engine, TaiToken *lgram, std::string const &raw_query) {
     auto ret = std::vector<Buffer>();
+    auto query_lc = unicode::copy_str_tolower(raw_query);
+    auto options = engine->dictionary()->AllWordsFromStart(query_lc);
 
-    auto segments = Segmenter::SegmentText(engine, raw_query);
+    std::sort(options.begin(), options.end(), [](TaiToken *a, TaiToken *b) {
+        return unicode::letter_count(a->input) > unicode::letter_count(b->input);
+    });
 
-    switch (segments.at(0).type) {
-    case SegmentType::Punct: {
-        auto query = raw_query.substr(0, segments.at(0).size);
-        auto options = engine->dictionary()->SearchPunctuation(query);
+    auto parser = engine->syllable_parser();
+    auto seen = std::unordered_set<std::string>();
 
-        for (auto &p : options) {
-            ret.push_back(Buffer(p));
-            ret.back().SetConverted(true);
+    for (auto option : options) {
+        if (!seen.insert(option->output).second) {
+            continue;
         }
-        
-        break;
-    }
-    case SegmentType::Splittable: {
-        auto query = raw_query.substr(0, segments.at(0).size);
-        auto query_lc = unicode::copy_str_tolower(query);
-        auto options = engine->dictionary()->AllWordsFromStart(query_lc);
 
-        std::sort(options.begin(), options.end(), [](TaiToken *a, TaiToken *b) {
-            return unicode::letter_count(a->input) > unicode::letter_count(b->input);
-        });
+        auto tai_text = parser->AsTaiText(raw_query, option->input);
 
-        auto parser = engine->syllable_parser();
-        auto seen = std::unordered_set<std::string>();
-
-        for (auto option : options) {
-            if (!seen.insert(option->output).second) {
-                continue;
-            }
-
-            auto tai_text = parser->AsTaiText(query, option->input);
-
-            if (!LeavesGoodRemainder(engine->dictionary(), tai_text, query)) {
-                continue;
-            }
-
-            tai_text.SetCandidate(option);
-            auto elem = BufferElement(std::move(tai_text));
-            elem.is_converted = true;
-            ret.push_back(std::vector<BufferElement>{std::move(elem)});
+        if (!LeavesGoodRemainder(engine->dictionary(), tai_text, raw_query)) {
+            continue;
         }
-        break;
-    }
-    default:
-        ret.push_back(Buffer(raw_query.substr(0, segments.at(0).size)));
-        ret.back().SetConverted(true);
-        break;
+
+        tai_text.SetCandidate(option);
+        auto elem = BufferElement(std::move(tai_text));
+        elem.is_converted = true;
+        ret.push_back(std::vector<BufferElement>{std::move(elem)});
     }
 
     return ret;
 }
 
+std::vector<Buffer> AllPunctuationsImpl(Engine *engine, TaiToken *lgram, std::string const &query) {
+    auto ret = std::vector<Buffer>();
+    auto options = engine->dictionary()->SearchPunctuation(query);
+    for (auto &p : options) {
+        ret.push_back(Buffer(p));
+        ret.back().SetConverted(true);
+    }
+    return ret;
+}
+
+std::vector<Buffer> GetCandidatesFromStartImpl(Engine *engine, TaiToken *lgram, std::string const &raw_query) {
+
+    auto segments = Segmenter::SegmentText(engine, raw_query);
+    auto &first_seg = segments.at(0);
+    auto query = raw_query.substr(0, first_seg.size);
+
+    if (first_seg.type == SegmentType::Splittable) {
+        return AllSplittableCandidatesFromStart(engine, lgram, query);
+    }
+
+    if (first_seg.type == SegmentType::Punct) {
+        return AllPunctuationsImpl(engine, lgram, query);
+    }
+
+    auto ret = std::vector<Buffer>{Buffer(query)};
+    ret.back().SetConverted(true);
+    return ret;
+}
+
 Buffer WordsToBuffer(Engine *engine, std::vector<std::string> &words) {
     auto elems = BufferElementList();
+    TaiToken *prev_best_match = nullptr;
     for (auto &word : words) {
-        auto best_match = CandidateFinder::BestMatch(engine, nullptr, word);
+        auto best_match = CandidateFinder::BestMatch(engine, prev_best_match, word);
         auto tai_text = TaiText::FromMatching(engine->syllable_parser(), word, best_match);
         tai_text.SetCandidate(best_match);
         auto elem = BufferElement(std::move(tai_text));
         elem.is_converted = true;
         elems.push_back(std::move(elem));
+        prev_best_match = best_match;
     }
     return Buffer(std::move(elems));
 }
@@ -167,12 +174,12 @@ std::vector<Buffer> ContinuousCandidatesImpl(Engine *engine, TaiToken *lgram, st
     return ret;
 }
 
-std::string PunctuationBestMatchImpl(Engine *engine, std::string const &query) {
+Punctuation BestPunctuationImpl(Engine *engine, TaiToken *lgram, std::string const &query) {
     auto puncts = engine->dictionary()->SearchPunctuation(query);
     if (!puncts.empty()) {
         return puncts[0];
     }
-    return query;
+    return Punctuation{0, query, query, std::string()};
 }
 
 std::vector<Buffer> MultiSegmentCandidatesImpl(Engine *engine, TaiToken *lgram, std::string const &query) {
@@ -183,12 +190,14 @@ std::vector<Buffer> MultiSegmentCandidatesImpl(Engine *engine, TaiToken *lgram, 
         auto &seg = segments[i];
         auto seg_raw_comp = query.substr(seg.start, seg.size);
 
+        auto lgram = candidates.at(0).Empty() ? nullptr : candidates.at(0).Back().candidate();
+
         switch (seg.type) {
         case SegmentType::Splittable:
             if (i == 0) {
-                candidates = ContinuousCandidatesImpl(engine, nullptr, seg_raw_comp);
+                candidates = ContinuousCandidatesImpl(engine, lgram, seg_raw_comp);
             } else {
-                candidates[0].Append(ContinuousBestMatchImpl(engine, nullptr, seg_raw_comp));
+                candidates[0].Append(ContinuousBestMatchImpl(engine, lgram, seg_raw_comp));
             }
             break;
         case SegmentType::Hyphens:
@@ -196,9 +205,9 @@ std::vector<Buffer> MultiSegmentCandidatesImpl(Engine *engine, TaiToken *lgram, 
             break;
         case SegmentType::Punct:
             if (i == 0) {
-                candidates = GetCandidatesFromStartImpl(engine, nullptr, seg_raw_comp);
+                candidates = AllPunctuationsImpl(engine, lgram, seg_raw_comp);
             } else {
-                candidates[0].Append(PunctuationBestMatchImpl(engine, seg_raw_comp));
+                candidates[0].Append(BestPunctuationImpl(engine, lgram, seg_raw_comp));
             }
             break;
         case SegmentType::None:
@@ -236,7 +245,6 @@ TaiToken *CandidateFinder::BestAutocomplete(Engine *engine, TaiToken *lgram, std
 }
 
 std::vector<Buffer> CandidateFinder::GetCandidatesFromStart(Engine *engine, TaiToken *lgram, std::string const &query) {
-    // TODO - add dictionary method for finding candidates
     return GetCandidatesFromStartImpl(engine, lgram, query);
 }
 

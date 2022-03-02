@@ -135,6 +135,10 @@ BufferElement &Buffer::At(size_t index) {
     return m_elements.at(index);
 }
 
+BufferElement &Buffer::Back() {
+    return m_elements.back();
+}
+
 size_t Buffer::Size() {
     return m_elements.size();
 }
@@ -143,12 +147,16 @@ void Buffer::Append(Buffer &rhs) {
     m_elements.insert(m_elements.end(), rhs.Begin(), rhs.End());
 }
 
-void Buffer::Append(std::string &&str) {
-    m_elements.push_back(BufferElement(std::move(str)));
+void Buffer::Append(std::string &&elem) {
+    m_elements.push_back(BufferElement(std::move(elem)));
 }
 
-void Buffer::Append(TaiText &&taitext) {
-    m_elements.push_back(BufferElement(taitext));
+void Buffer::Append(TaiText &&elem) {
+    m_elements.push_back(BufferElement(std::move(elem)));
+}
+
+void Buffer::Append(Punctuation &&elem) {
+    m_elements.push_back(BufferElement(std::move(elem)));
 }
 
 iterator Buffer::Erase(iterator it) {

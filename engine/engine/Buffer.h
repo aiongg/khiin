@@ -36,7 +36,8 @@ class Buffer {
     iterator End();
     const_iterator CBegin();
     const_iterator CEnd();
-    BufferElement& At(size_t index);
+    BufferElement &At(size_t index);
+    BufferElement &Back();
     size_t Size();
     iterator Erase(iterator it);
 
@@ -92,6 +93,9 @@ class Buffer {
 
     // Append a TaiText as a new buffer element
     void Append(TaiText &&taitext);
+
+    // Append a Punctuation as a new buffer element
+    void Append(Punctuation &&punct);
 
     // Replace element at |index| in this Buffer with all elements from |replace|
     void Replace(iterator first, iterator last, Buffer &other);

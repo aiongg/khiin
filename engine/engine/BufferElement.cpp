@@ -19,8 +19,24 @@ BufferElement::BufferElement(TaiText const &elem) {
     m_element.emplace<TaiText>(elem);
 }
 
+BufferElement::BufferElement(TaiText &&elem) {
+    m_element.emplace<TaiText>(std::move(elem));
+}
+
+BufferElement::BufferElement(Punctuation const &elem) {
+    m_element.emplace<Punctuation>(elem);
+}
+
+BufferElement::BufferElement(Punctuation &&elem) {
+    m_element.emplace<Punctuation>(std::move(elem));
+}
+
 BufferElement::BufferElement(std::string const &elem) {
     m_element.emplace<std::string>(elem);
+}
+
+BufferElement::BufferElement(std::string &&elem) {
+    m_element.emplace<std::string>(std::move(elem));
 }
 
 BufferElement::BufferElement(VirtualSpace elem) {
@@ -52,6 +68,8 @@ utf8_size_t BufferElement::size() const {
         } else {
             return elem->ComposedSize();
         }
+    } else if (auto elem = std::get_if<Punctuation>(&m_element)) {
+        u8_size(elem->output);
     } else if (auto elem = std::get_if<VirtualSpace>(&m_element)) {
         return utf8_size_t(1);
     } else { // std::monostate
@@ -64,6 +82,8 @@ std::string BufferElement::raw() const {
         return *elem;
     } else if (auto elem = std::get_if<TaiText>(&m_element)) {
         return elem->RawText();
+    } else if (auto elem = std::get_if<Punctuation>(&m_element)) {
+        return elem->input;
     } else { // VirtualSpace && std::Monostate
         return std::string();
     }
@@ -86,6 +106,8 @@ utf8_size_t BufferElement::RawToComposedCaret(SyllableParser *parser, size_t raw
         } else {
             return elem->RawToComposedCaret(parser, raw_caret);
         }
+    } else if (auto elem = std::get_if<Punctuation>(&m_element)) {
+        return u8_size(elem->output);
     } else if (auto elem = std::get_if<VirtualSpace>(&m_element)) {
         return utf8_size_t(1);
     }
@@ -105,6 +127,8 @@ size_t BufferElement::ComposedToRawCaret(SyllableParser *parser, utf8_size_t car
         } else {
             return elem->ComposedToRawCaret(parser, caret);
         }
+    } else if (auto elem = std::get_if<Punctuation>(&m_element)) {
+        return u8_size(elem->input);
     }
 
     return 0; // VirtualSpace && std::monostate
@@ -115,6 +139,8 @@ std::string BufferElement::composed() const {
         return *elem;
     } else if (auto elem = std::get_if<TaiText>(&m_element)) {
         return elem->ComposedText();
+    } else if (auto elem = std::get_if<Punctuation>(&m_element)) {
+        return elem->output;
     } else if (auto elem = std::get_if<VirtualSpace>(&m_element)) {
         return std::string(1, ' ');
     }
@@ -127,6 +153,8 @@ std::string BufferElement::converted() const {
         return *elem;
     } else if (auto elem = std::get_if<TaiText>(&m_element)) {
         return elem->ConvertedText();
+    } else if (auto elem = std::get_if<Punctuation>(&m_element)) {
+        return elem->output;
     } else if (auto elem = std::get_if<VirtualSpace>(&m_element)) {
         return std::string(1, ' ');
     }
@@ -147,6 +175,8 @@ void BufferElement::Erase(SyllableParser *parser, utf8_size_t index) {
         safe_erase(*elem, index, 1);
     } else if (auto elem = std::get_if<TaiText>(&m_element)) {
         elem->Erase(parser, index);
+    } else if (auto elem = std::get_if<Punctuation>(&m_element)) {
+        Replace(std::string());
     } else if (auto elem = std::get_if<VirtualSpace>(&m_element)) {
         elem->erased = true;
     }

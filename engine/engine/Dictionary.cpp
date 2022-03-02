@@ -110,11 +110,11 @@ class DictionaryImpl : public Dictionary {
         return ret;
     }
 
-    virtual std::vector<std::string> SearchPunctuation(std::string const& query) override {
-        auto ret = std::vector<std::string>();
+    virtual std::vector<Punctuation> SearchPunctuation(std::string const& query) override {
+        auto ret = std::vector<Punctuation>();
         for (auto &p : m_punctuation) {
             if (query == p.input) {
-                ret.push_back(p.output);
+                ret.push_back(p);
             }
         }
         return ret;
