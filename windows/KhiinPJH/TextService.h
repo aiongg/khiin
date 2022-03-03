@@ -2,12 +2,15 @@
 
 #include "pch.h"
 
+#include "common.h"
+
 #include "KeyEvent.h"
 
 namespace khiin::win32 {
 
 struct EngineController;
 struct CandidateListUI;
+struct ConfigChangeListener;
 
 struct TextService : winrt::implements<TextService, IUnknown> {
     TextService() = default;
@@ -23,6 +26,7 @@ struct TextService : winrt::implements<TextService, IUnknown> {
     virtual IEnumTfDisplayAttributeInfo *displayAttrInfoEnum() = 0;
     virtual EngineController *engine() = 0;
     virtual CandidateListUI *candidate_ui() = 0;
+    virtual messages::AppConfig *config() = 0;
 
     virtual winrt::com_ptr<ITfCategoryMgr> categoryMgr() = 0;
     virtual winrt::com_ptr<ITfContext> GetTopContext() = 0;
@@ -33,6 +37,8 @@ struct TextService : winrt::implements<TextService, IUnknown> {
     virtual TfGuidAtom input_attribute() = 0;
     virtual TfGuidAtom converted_attribute() = 0;
     virtual TfGuidAtom focused_attribute() = 0;
+
+    virtual void RegisterConfigChangeListener(ConfigChangeListener *config_listener) = 0;
 };
 
 struct TextServiceFactory {

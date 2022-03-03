@@ -257,6 +257,10 @@ class CandidateWindowImpl : public CandidateWindow {
         DiscardGraphicsResources();
     }
 
+    virtual void SetAppearance(ColorScheme const &colors) override {
+        m_colors = colors;
+    }
+
   private:
     void OnCreate() {
         D(__FUNCTIONW__);
@@ -605,7 +609,7 @@ class CandidateWindowImpl : public CandidateWindow {
     CandidateGrid *m_candidate_grid = nullptr;
     RECT m_text_rect;
     CWndMetrics m_metrics = GetMetricsForSize(DisplaySize::S);
-    Colors m_colors = kLightColorScheme;
+    ColorScheme m_colors;
     DisplayMode m_display_mode = DisplayMode::ShortColumn;
     int m_focused_id = -1;
     size_t m_quickselect_col = 0;

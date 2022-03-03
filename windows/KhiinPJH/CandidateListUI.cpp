@@ -4,6 +4,8 @@
 
 #include "CandidatePager.h"
 #include "CandidateWindow.h"
+#include "Colors.h"
+#include "Config.h"
 #include "EditSession.h"
 #include "TextService.h"
 #include "Utils.h"
@@ -21,9 +23,11 @@ bool IsArrowKey(int key_code) {
 struct CandidateListUIImpl :
     public winrt::implements<CandidateListUIImpl, ITfCandidateListUIElementBehavior,
                              ITfIntegratableCandidateListUIElement, CandidateListUI>,
-    CandidateSelectListener {
+    CandidateSelectListener,
+    ConfigChangeListener {
     virtual void Initialize(TextService *pTextService) override {
         m_service.copy_from(pTextService);
+        m_service->RegisterConfigChangeListener(this);
         m_pager = std::unique_ptr<CandidatePager>(CandidatePager::Create());
     }
 
@@ -138,6 +142,19 @@ struct CandidateListUIImpl :
 
     virtual void OnSelectCandidate(int32_t id) override {
         m_service->OnCandidateSelected(id);
+    }
+
+    //+---------------------------------------------------------------------------
+    //
+    // ConfigChangeListener
+    //
+    //----------------------------------------------------------------------------
+
+    virtual void OnConfigChanged(messages::AppConfig *config) override {
+        D(__FUNCTIONW__);
+        if (m_candidate_window) {
+            m_candidate_window->SetAppearance(Colors::GetScheme(config));
+        }
     }
 
     //+---------------------------------------------------------------------------
@@ -281,6 +298,7 @@ struct CandidateListUIImpl :
         }
 
         m_candidate_window = std::unique_ptr<CandidateWindow>(CandidateWindow::Create(parentWnd));
+        OnConfigChanged(m_service->config());
         m_candidate_window->RegisterCandidateSelectListener(this);
     }
 

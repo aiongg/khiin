@@ -2,6 +2,8 @@
 
 #include "common.h"
 
+#include <filesystem>
+
 namespace khiin::win32 {
 
 struct WidePreedit {

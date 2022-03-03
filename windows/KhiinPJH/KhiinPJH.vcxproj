@@ -206,6 +206,7 @@
     <ClInclude Include="CandidateWindow.h" />
     <ClInclude Include="CandidateListUI.h" />
     <ClInclude Include="CompositionSink.h" />
+    <ClInclude Include="Config.h" />
     <ClInclude Include="DisplayAttributeInfo.h" />
     <ClInclude Include="EditSession.h" />
     <ClInclude Include="common.h" />
@@ -213,6 +214,7 @@
     <ClInclude Include="CompositionMgr.h" />
     <ClInclude Include="DllModule.h" />
     <ClInclude Include="DisplayAttributeInfoEnum.h" />
+    <ClInclude Include="Files.h" />
     <ClInclude Include="Geometry.h" />
     <ClInclude Include="Graphics.h" />
     <ClInclude Include="GridLayout.h" />
@@ -234,16 +236,25 @@
     <ClInclude Include="Utils.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\proto\proto\config.pb.cc">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\..\proto\proto\messages.pb.cc">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
     <ClCompile Include="BaseWindow.cpp" />
     <ClCompile Include="CandidatePager.cpp" />
     <ClCompile Include="CandidateWindow.cpp" />
     <ClCompile Include="CandidateListUI.cpp" />
+    <ClCompile Include="Colors.cpp" />
     <ClCompile Include="CompositionSink.cpp" />
+    <ClCompile Include="Config.cpp" />
     <ClCompile Include="DisplayAttributeInfo.cpp" />
     <ClCompile Include="EditSession.cpp" />
     <ClCompile Include="Compartment.cpp" />
     <ClCompile Include="CompositionMgr.cpp" />
     <ClCompile Include="DisplayAttributeInfoEnum.cpp" />
+    <ClCompile Include="Files.cpp" />
     <ClCompile Include="Graphics.cpp" />
     <ClCompile Include="KeyEvent.cpp" />
     <ClCompile Include="KeyEventSink.cpp" />

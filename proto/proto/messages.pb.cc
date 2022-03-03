@@ -8,7 +8,10 @@
 #include <google/protobuf/io/coded_stream.h>
 #include <google/protobuf/extension_set.h>
 #include <google/protobuf/wire_format_lite.h>
-#include <google/protobuf/io/zero_copy_stream_impl_lite.h>
+#include <google/protobuf/descriptor.h>
+#include <google/protobuf/generated_message_reflection.h>
+#include <google/protobuf/reflection_ops.h>
+#include <google/protobuf/wire_format.h>
 // @@protoc_insertion_point(includes)
 #include <google/protobuf/port_def.inc>
 
@@ -137,8 +140,171 @@ struct CommandDefaultTypeInternal {
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT CommandDefaultTypeInternal _Command_default_instance_;
 }  // namespace messages
 }  // namespace khiin
+static ::PROTOBUF_NAMESPACE_ID::Metadata file_level_metadata_messages_2eproto[8];
+static const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor* file_level_enum_descriptors_messages_2eproto[7];
+static constexpr ::PROTOBUF_NAMESPACE_ID::ServiceDescriptor const** file_level_service_descriptors_messages_2eproto = nullptr;
+
+const ::PROTOBUF_NAMESPACE_ID::uint32 TableStruct_messages_2eproto::offsets[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) = {
+  ~0u,  // no _has_bits_
+  PROTOBUF_FIELD_OFFSET(::khiin::messages::KeyEvent, _internal_metadata_),
+  ~0u,  // no _extensions_
+  ~0u,  // no _oneof_case_
+  ~0u,  // no _weak_field_map_
+  ~0u,  // no _inlined_string_donated_
+  PROTOBUF_FIELD_OFFSET(::khiin::messages::KeyEvent, key_code_),
+  PROTOBUF_FIELD_OFFSET(::khiin::messages::KeyEvent, special_key_),
+  PROTOBUF_FIELD_OFFSET(::khiin::messages::KeyEvent, modifier_keys_),
+  ~0u,  // no _has_bits_
+  PROTOBUF_FIELD_OFFSET(::khiin::messages::Input, _internal_metadata_),
+  ~0u,  // no _extensions_
+  ~0u,  // no _oneof_case_
+  ~0u,  // no _weak_field_map_
+  ~0u,  // no _inlined_string_donated_
+  PROTOBUF_FIELD_OFFSET(::khiin::messages::Input, key_event_),
+  PROTOBUF_FIELD_OFFSET(::khiin::messages::Input, candidate_id_),
+  PROTOBUF_FIELD_OFFSET(::khiin::messages::Input, cursor_position_),
+  ~0u,  // no _has_bits_
+  PROTOBUF_FIELD_OFFSET(::khiin::messages::Preedit_Segment, _internal_metadata_),
+  ~0u,  // no _extensions_
+  ~0u,  // no _oneof_case_
+  ~0u,  // no _weak_field_map_
+  ~0u,  // no _inlined_string_donated_
+  PROTOBUF_FIELD_OFFSET(::khiin::messages::Preedit_Segment, status_),
+  PROTOBUF_FIELD_OFFSET(::khiin::messages::Preedit_Segment, value_),
+  ~0u,  // no _has_bits_
+  PROTOBUF_FIELD_OFFSET(::khiin::messages::Preedit, _internal_metadata_),
+  ~0u,  // no _extensions_
+  ~0u,  // no _oneof_case_
+  ~0u,  // no _weak_field_map_
+  ~0u,  // no _inlined_string_donated_
+  PROTOBUF_FIELD_OFFSET(::khiin::messages::Preedit, segments_),
+  PROTOBUF_FIELD_OFFSET(::khiin::messages::Preedit, cursor_position_),
+  ~0u,  // no _has_bits_
+  PROTOBUF_FIELD_OFFSET(::khiin::messages::Candidate, _internal_metadata_),
+  ~0u,  // no _extensions_
+  ~0u,  // no _oneof_case_
+  ~0u,  // no _weak_field_map_
+  ~0u,  // no _inlined_string_donated_
+  PROTOBUF_FIELD_OFFSET(::khiin::messages::Candidate, id_),
+  PROTOBUF_FIELD_OFFSET(::khiin::messages::Candidate, value_),
+  PROTOBUF_FIELD_OFFSET(::khiin::messages::Candidate, key_),
+  PROTOBUF_FIELD_OFFSET(::khiin::messages::Candidate, annotation_),
+  PROTOBUF_FIELD_OFFSET(::khiin::messages::Candidate, category_),
+  ~0u,  // no _has_bits_
+  PROTOBUF_FIELD_OFFSET(::khiin::messages::CandidateList, _internal_metadata_),
+  ~0u,  // no _extensions_
+  ~0u,  // no _oneof_case_
+  ~0u,  // no _weak_field_map_
+  ~0u,  // no _inlined_string_donated_
+  PROTOBUF_FIELD_OFFSET(::khiin::messages::CandidateList, candidates_),
+  PROTOBUF_FIELD_OFFSET(::khiin::messages::CandidateList, focused_),
+  ~0u,  // no _has_bits_
+  PROTOBUF_FIELD_OFFSET(::khiin::messages::Output, _internal_metadata_),
+  ~0u,  // no _extensions_
+  ~0u,  // no _oneof_case_
+  ~0u,  // no _weak_field_map_
+  ~0u,  // no _inlined_string_donated_
+  PROTOBUF_FIELD_OFFSET(::khiin::messages::Output, error_),
+  PROTOBUF_FIELD_OFFSET(::khiin::messages::Output, preedit_),
+  PROTOBUF_FIELD_OFFSET(::khiin::messages::Output, candidate_list_),
+  PROTOBUF_FIELD_OFFSET(::khiin::messages::Output, edit_state_),
+  PROTOBUF_FIELD_OFFSET(::khiin::messages::Output, consumable_),
+  ~0u,  // no _has_bits_
+  PROTOBUF_FIELD_OFFSET(::khiin::messages::Command, _internal_metadata_),
+  ~0u,  // no _extensions_
+  ~0u,  // no _oneof_case_
+  ~0u,  // no _weak_field_map_
+  ~0u,  // no _inlined_string_donated_
+  PROTOBUF_FIELD_OFFSET(::khiin::messages::Command, type_),
+  PROTOBUF_FIELD_OFFSET(::khiin::messages::Command, input_),
+  PROTOBUF_FIELD_OFFSET(::khiin::messages::Command, output_),
+};
+static const ::PROTOBUF_NAMESPACE_ID::internal::MigrationSchema schemas[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) = {
+  { 0, -1, -1, sizeof(::khiin::messages::KeyEvent)},
+  { 9, -1, -1, sizeof(::khiin::messages::Input)},
+  { 18, -1, -1, sizeof(::khiin::messages::Preedit_Segment)},
+  { 26, -1, -1, sizeof(::khiin::messages::Preedit)},
+  { 34, -1, -1, sizeof(::khiin::messages::Candidate)},
+  { 45, -1, -1, sizeof(::khiin::messages::CandidateList)},
+  { 53, -1, -1, sizeof(::khiin::messages::Output)},
+  { 64, -1, -1, sizeof(::khiin::messages::Command)},
+};
+
+static ::PROTOBUF_NAMESPACE_ID::Message const * const file_default_instances[] = {
+  reinterpret_cast<const ::PROTOBUF_NAMESPACE_ID::Message*>(&::khiin::messages::_KeyEvent_default_instance_),
+  reinterpret_cast<const ::PROTOBUF_NAMESPACE_ID::Message*>(&::khiin::messages::_Input_default_instance_),
+  reinterpret_cast<const ::PROTOBUF_NAMESPACE_ID::Message*>(&::khiin::messages::_Preedit_Segment_default_instance_),
+  reinterpret_cast<const ::PROTOBUF_NAMESPACE_ID::Message*>(&::khiin::messages::_Preedit_default_instance_),
+  reinterpret_cast<const ::PROTOBUF_NAMESPACE_ID::Message*>(&::khiin::messages::_Candidate_default_instance_),
+  reinterpret_cast<const ::PROTOBUF_NAMESPACE_ID::Message*>(&::khiin::messages::_CandidateList_default_instance_),
+  reinterpret_cast<const ::PROTOBUF_NAMESPACE_ID::Message*>(&::khiin::messages::_Output_default_instance_),
+  reinterpret_cast<const ::PROTOBUF_NAMESPACE_ID::Message*>(&::khiin::messages::_Command_default_instance_),
+};
+
+const char descriptor_table_protodef_messages_2eproto[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) =
+  "\n\016messages.proto\022\016khiin.messages\"\201\001\n\010Key"
+  "Event\022\020\n\010key_code\030\001 \001(\005\022/\n\013special_key\030\002"
+  " \001(\0162\032.khiin.messages.SpecialKey\0222\n\rmodi"
+  "fier_keys\030\003 \003(\0162\033.khiin.messages.Modifie"
+  "rKey\"c\n\005Input\022+\n\tkey_event\030\001 \001(\0132\030.khiin"
+  ".messages.KeyEvent\022\024\n\014candidate_id\030\002 \001(\005"
+  "\022\027\n\017cursor_position\030\003 \001(\005\"\236\001\n\007Preedit\0221\n"
+  "\010segments\030\001 \003(\0132\037.khiin.messages.Preedit"
+  ".Segment\022\027\n\017cursor_position\030\002 \001(\005\032G\n\007Seg"
+  "ment\022-\n\006status\030\001 \001(\0162\035.khiin.messages.Se"
+  "gmentStatus\022\r\n\005value\030\002 \001(\t\"\260\001\n\tCandidate"
+  "\022\n\n\002id\030\001 \001(\005\022\r\n\005value\030\002 \001(\t\022\013\n\003key\030\003 \001(\t"
+  "\022\022\n\nannotation\030\004 \001(\t\0224\n\010category\030\005 \001(\0162\""
+  ".khiin.messages.Candidate.Category\"1\n\010Ca"
+  "tegory\022\t\n\005BASIC\020\000\022\014\n\010EXTENDED\020\001\022\014\n\010FALLB"
+  "ACK\020\002\"O\n\rCandidateList\022-\n\ncandidates\030\001 \003"
+  "(\0132\031.khiin.messages.Candidate\022\017\n\007focused"
+  "\030\002 \001(\005\"\326\001\n\006Output\022(\n\005error\030\001 \001(\0162\031.khiin"
+  ".messages.ErrorCode\022(\n\007preedit\030\002 \001(\0132\027.k"
+  "hiin.messages.Preedit\0225\n\016candidate_list\030"
+  "\003 \001(\0132\035.khiin.messages.CandidateList\022-\n\n"
+  "edit_state\030\004 \001(\0162\031.khiin.messages.EditSt"
+  "ate\022\022\n\nconsumable\030\005 \001(\010\"\202\001\n\007Command\022)\n\004t"
+  "ype\030\001 \001(\0162\033.khiin.messages.CommandType\022$"
+  "\n\005input\030\002 \001(\0132\025.khiin.messages.Input\022&\n\006"
+  "output\030\003 \001(\0132\026.khiin.messages.Output*\321\001\n"
+  "\nSpecialKey\022\013\n\007SK_NONE\020\000\022\014\n\010SK_SPACE\020\001\022\014"
+  "\n\010SK_ENTER\020\002\022\n\n\006SK_ESC\020\003\022\020\n\014SK_BACKSPACE"
+  "\020\004\022\n\n\006SK_TAB\020\005\022\013\n\007SK_LEFT\020\006\022\t\n\005SK_UP\020\007\022\014"
+  "\n\010SK_RIGHT\020\010\022\013\n\007SK_DOWN\020\t\022\013\n\007SK_PGUP\020\n\022\013"
+  "\n\007SK_PGDN\020\013\022\013\n\007SK_HOME\020\014\022\n\n\006SK_END\020\r\022\n\n\006"
+  "SK_DEL\020\016*+\n\013ModifierKey\022\010\n\004CTRL\020\000\022\007\n\003ALT"
+  "\020\001\022\t\n\005SHIFT\020\002*H\n\rSegmentStatus\022\014\n\010UNMARK"
+  "ED\020\000\022\r\n\tCOMPOSING\020\001\022\r\n\tCONVERTED\020\002\022\013\n\007FO"
+  "CUSED\020\003*\035\n\tErrorCode\022\006\n\002OK\020\000\022\010\n\004FAIL\020\001*W"
+  "\n\tEditState\022\016\n\nEDIT_EMPTY\020\000\022\022\n\016EDIT_COMP"
+  "OSING\020\001\022\022\n\016EDIT_CONVERTED\020\002\022\022\n\016EDIT_SELE"
+  "CTING\020\003*\316\001\n\013CommandType\022\014\n\010SEND_KEY\020\000\022\n\n"
+  "\006REVERT\020\001\022\t\n\005RESET\020\002\022\n\n\006COMMIT\020\003\022\024\n\020SELE"
+  "CT_CANDIDATE\020\004\022\023\n\017FOCUS_CANDIDATE\020\005\022\025\n\021S"
+  "WITCH_INPUT_MODE\020\006\022\020\n\014PLACE_CURSOR\020\007\022\013\n\007"
+  "DISABLE\020\010\022\n\n\006ENABLE\020\t\022\016\n\nSET_CONFIG\020\n\022\021\n"
+  "\rTEST_SEND_KEY\020\013b\006proto3"
+  ;
+static ::PROTOBUF_NAMESPACE_ID::internal::once_flag descriptor_table_messages_2eproto_once;
+const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable descriptor_table_messages_2eproto = {
+  false, false, 1704, descriptor_table_protodef_messages_2eproto, "messages.proto", 
+  &descriptor_table_messages_2eproto_once, nullptr, 0, 8,
+  schemas, file_default_instances, TableStruct_messages_2eproto::offsets,
+  file_level_metadata_messages_2eproto, file_level_enum_descriptors_messages_2eproto, file_level_service_descriptors_messages_2eproto,
+};
+PROTOBUF_ATTRIBUTE_WEAK const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable* descriptor_table_messages_2eproto_getter() {
+  return &descriptor_table_messages_2eproto;
+}
+
+// Force running AddDescriptors() at dynamic initialization time.
+PROTOBUF_ATTRIBUTE_INIT_PRIORITY static ::PROTOBUF_NAMESPACE_ID::internal::AddDescriptorsRunner dynamic_init_dummy_messages_2eproto(&descriptor_table_messages_2eproto);
 namespace khiin {
 namespace messages {
+const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor* Candidate_Category_descriptor() {
+  ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&descriptor_table_messages_2eproto);
+  return file_level_enum_descriptors_messages_2eproto[0];
+}
 bool Candidate_Category_IsValid(int value) {
   switch (value) {
     case 0:
@@ -150,50 +316,6 @@ bool Candidate_Category_IsValid(int value) {
   }
 }
 
-static ::PROTOBUF_NAMESPACE_ID::internal::ExplicitlyConstructed<std::string> Candidate_Category_strings[3] = {};
-
-static const char Candidate_Category_names[] =
-  "BASIC"
-  "EXTENDED"
-  "FALLBACK";
-
-static const ::PROTOBUF_NAMESPACE_ID::internal::EnumEntry Candidate_Category_entries[] = {
-  { {Candidate_Category_names + 0, 5}, 0 },
-  { {Candidate_Category_names + 5, 8}, 1 },
-  { {Candidate_Category_names + 13, 8}, 2 },
-};
-
-static const int Candidate_Category_entries_by_number[] = {
-  0, // 0 -> BASIC
-  1, // 1 -> EXTENDED
-  2, // 2 -> FALLBACK
-};
-
-const std::string& Candidate_Category_Name(
-    Candidate_Category value) {
-  static const bool dummy =
-      ::PROTOBUF_NAMESPACE_ID::internal::InitializeEnumStrings(
-          Candidate_Category_entries,
-          Candidate_Category_entries_by_number,
-          3, Candidate_Category_strings);
-  (void) dummy;
-  int idx = ::PROTOBUF_NAMESPACE_ID::internal::LookUpEnumName(
-      Candidate_Category_entries,
-      Candidate_Category_entries_by_number,
-      3, value);
-  return idx == -1 ? ::PROTOBUF_NAMESPACE_ID::internal::GetEmptyString() :
-                     Candidate_Category_strings[idx].get();
-}
-bool Candidate_Category_Parse(
-    ::PROTOBUF_NAMESPACE_ID::ConstStringParam name, Candidate_Category* value) {
-  int int_value;
-  bool success = ::PROTOBUF_NAMESPACE_ID::internal::LookUpEnumValue(
-      Candidate_Category_entries, 3, name, &int_value);
-  if (success) {
-    *value = static_cast<Candidate_Category>(int_value);
-  }
-  return success;
-}
 #if (__cplusplus < 201703) && (!defined(_MSC_VER) || _MSC_VER >= 1900)
 constexpr Candidate_Category Candidate::BASIC;
 constexpr Candidate_Category Candidate::EXTENDED;
@@ -202,6 +324,10 @@ constexpr Candidate_Category Candidate::Category_MIN;
 constexpr Candidate_Category Candidate::Category_MAX;
 constexpr int Candidate::Category_ARRAYSIZE;
 #endif  // (__cplusplus < 201703) && (!defined(_MSC_VER) || _MSC_VER >= 1900)
+const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor* SpecialKey_descriptor() {
+  ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&descriptor_table_messages_2eproto);
+  return file_level_enum_descriptors_messages_2eproto[1];
+}
 bool SpecialKey_IsValid(int value) {
   switch (value) {
     case 0:
@@ -225,85 +351,9 @@ bool SpecialKey_IsValid(int value) {
   }
 }
 
-static ::PROTOBUF_NAMESPACE_ID::internal::ExplicitlyConstructed<std::string> SpecialKey_strings[15] = {};
-
-static const char SpecialKey_names[] =
-  "SK_BACKSPACE"
-  "SK_DEL"
-  "SK_DOWN"
-  "SK_END"
-  "SK_ENTER"
-  "SK_ESC"
-  "SK_HOME"
-  "SK_LEFT"
-  "SK_NONE"
-  "SK_PGDN"
-  "SK_PGUP"
-  "SK_RIGHT"
-  "SK_SPACE"
-  "SK_TAB"
-  "SK_UP";
-
-static const ::PROTOBUF_NAMESPACE_ID::internal::EnumEntry SpecialKey_entries[] = {
-  { {SpecialKey_names + 0, 12}, 4 },
-  { {SpecialKey_names + 12, 6}, 14 },
-  { {SpecialKey_names + 18, 7}, 9 },
-  { {SpecialKey_names + 25, 6}, 13 },
-  { {SpecialKey_names + 31, 8}, 2 },
-  { {SpecialKey_names + 39, 6}, 3 },
-  { {SpecialKey_names + 45, 7}, 12 },
-  { {SpecialKey_names + 52, 7}, 6 },
-  { {SpecialKey_names + 59, 7}, 0 },
-  { {SpecialKey_names + 66, 7}, 11 },
-  { {SpecialKey_names + 73, 7}, 10 },
-  { {SpecialKey_names + 80, 8}, 8 },
-  { {SpecialKey_names + 88, 8}, 1 },
-  { {SpecialKey_names + 96, 6}, 5 },
-  { {SpecialKey_names + 102, 5}, 7 },
-};
-
-static const int SpecialKey_entries_by_number[] = {
-  8, // 0 -> SK_NONE
-  12, // 1 -> SK_SPACE
-  4, // 2 -> SK_ENTER
-  5, // 3 -> SK_ESC
-  0, // 4 -> SK_BACKSPACE
-  13, // 5 -> SK_TAB
-  7, // 6 -> SK_LEFT
-  14, // 7 -> SK_UP
-  11, // 8 -> SK_RIGHT
-  2, // 9 -> SK_DOWN
-  10, // 10 -> SK_PGUP
-  9, // 11 -> SK_PGDN
-  6, // 12 -> SK_HOME
-  3, // 13 -> SK_END
-  1, // 14 -> SK_DEL
-};
-
-const std::string& SpecialKey_Name(
-    SpecialKey value) {
-  static const bool dummy =
-      ::PROTOBUF_NAMESPACE_ID::internal::InitializeEnumStrings(
-          SpecialKey_entries,
-          SpecialKey_entries_by_number,
-          15, SpecialKey_strings);
-  (void) dummy;
-  int idx = ::PROTOBUF_NAMESPACE_ID::internal::LookUpEnumName(
-      SpecialKey_entries,
-      SpecialKey_entries_by_number,
-      15, value);
-  return idx == -1 ? ::PROTOBUF_NAMESPACE_ID::internal::GetEmptyString() :
-                     SpecialKey_strings[idx].get();
-}
-bool SpecialKey_Parse(
-    ::PROTOBUF_NAMESPACE_ID::ConstStringParam name, SpecialKey* value) {
-  int int_value;
-  bool success = ::PROTOBUF_NAMESPACE_ID::internal::LookUpEnumValue(
-      SpecialKey_entries, 15, name, &int_value);
-  if (success) {
-    *value = static_cast<SpecialKey>(int_value);
-  }
-  return success;
+const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor* ModifierKey_descriptor() {
+  ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&descriptor_table_messages_2eproto);
+  return file_level_enum_descriptors_messages_2eproto[2];
 }
 bool ModifierKey_IsValid(int value) {
   switch (value) {
@@ -316,49 +366,9 @@ bool ModifierKey_IsValid(int value) {
   }
 }
 
-static ::PROTOBUF_NAMESPACE_ID::internal::ExplicitlyConstructed<std::string> ModifierKey_strings[3] = {};
-
-static const char ModifierKey_names[] =
-  "ALT"
-  "CTRL"
-  "SHIFT";
-
-static const ::PROTOBUF_NAMESPACE_ID::internal::EnumEntry ModifierKey_entries[] = {
-  { {ModifierKey_names + 0, 3}, 1 },
-  { {ModifierKey_names + 3, 4}, 0 },
-  { {ModifierKey_names + 7, 5}, 2 },
-};
-
-static const int ModifierKey_entries_by_number[] = {
-  1, // 0 -> CTRL
-  0, // 1 -> ALT
-  2, // 2 -> SHIFT
-};
-
-const std::string& ModifierKey_Name(
-    ModifierKey value) {
-  static const bool dummy =
-      ::PROTOBUF_NAMESPACE_ID::internal::InitializeEnumStrings(
-          ModifierKey_entries,
-          ModifierKey_entries_by_number,
-          3, ModifierKey_strings);
-  (void) dummy;
-  int idx = ::PROTOBUF_NAMESPACE_ID::internal::LookUpEnumName(
-      ModifierKey_entries,
-      ModifierKey_entries_by_number,
-      3, value);
-  return idx == -1 ? ::PROTOBUF_NAMESPACE_ID::internal::GetEmptyString() :
-                     ModifierKey_strings[idx].get();
-}
-bool ModifierKey_Parse(
-    ::PROTOBUF_NAMESPACE_ID::ConstStringParam name, ModifierKey* value) {
-  int int_value;
-  bool success = ::PROTOBUF_NAMESPACE_ID::internal::LookUpEnumValue(
-      ModifierKey_entries, 3, name, &int_value);
-  if (success) {
-    *value = static_cast<ModifierKey>(int_value);
-  }
-  return success;
+const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor* SegmentStatus_descriptor() {
+  ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&descriptor_table_messages_2eproto);
+  return file_level_enum_descriptors_messages_2eproto[3];
 }
 bool SegmentStatus_IsValid(int value) {
   switch (value) {
@@ -372,52 +382,9 @@ bool SegmentStatus_IsValid(int value) {
   }
 }
 
-static ::PROTOBUF_NAMESPACE_ID::internal::ExplicitlyConstructed<std::string> SegmentStatus_strings[4] = {};
-
-static const char SegmentStatus_names[] =
-  "COMPOSING"
-  "CONVERTED"
-  "FOCUSED"
-  "UNMARKED";
-
-static const ::PROTOBUF_NAMESPACE_ID::internal::EnumEntry SegmentStatus_entries[] = {
-  { {SegmentStatus_names + 0, 9}, 1 },
-  { {SegmentStatus_names + 9, 9}, 2 },
-  { {SegmentStatus_names + 18, 7}, 3 },
-  { {SegmentStatus_names + 25, 8}, 0 },
-};
-
-static const int SegmentStatus_entries_by_number[] = {
-  3, // 0 -> UNMARKED
-  0, // 1 -> COMPOSING
-  1, // 2 -> CONVERTED
-  2, // 3 -> FOCUSED
-};
-
-const std::string& SegmentStatus_Name(
-    SegmentStatus value) {
-  static const bool dummy =
-      ::PROTOBUF_NAMESPACE_ID::internal::InitializeEnumStrings(
-          SegmentStatus_entries,
-          SegmentStatus_entries_by_number,
-          4, SegmentStatus_strings);
-  (void) dummy;
-  int idx = ::PROTOBUF_NAMESPACE_ID::internal::LookUpEnumName(
-      SegmentStatus_entries,
-      SegmentStatus_entries_by_number,
-      4, value);
-  return idx == -1 ? ::PROTOBUF_NAMESPACE_ID::internal::GetEmptyString() :
-                     SegmentStatus_strings[idx].get();
-}
-bool SegmentStatus_Parse(
-    ::PROTOBUF_NAMESPACE_ID::ConstStringParam name, SegmentStatus* value) {
-  int int_value;
-  bool success = ::PROTOBUF_NAMESPACE_ID::internal::LookUpEnumValue(
-      SegmentStatus_entries, 4, name, &int_value);
-  if (success) {
-    *value = static_cast<SegmentStatus>(int_value);
-  }
-  return success;
+const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor* ErrorCode_descriptor() {
+  ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&descriptor_table_messages_2eproto);
+  return file_level_enum_descriptors_messages_2eproto[4];
 }
 bool ErrorCode_IsValid(int value) {
   switch (value) {
@@ -429,46 +396,9 @@ bool ErrorCode_IsValid(int value) {
   }
 }
 
-static ::PROTOBUF_NAMESPACE_ID::internal::ExplicitlyConstructed<std::string> ErrorCode_strings[2] = {};
-
-static const char ErrorCode_names[] =
-  "FAIL"
-  "OK";
-
-static const ::PROTOBUF_NAMESPACE_ID::internal::EnumEntry ErrorCode_entries[] = {
-  { {ErrorCode_names + 0, 4}, 1 },
-  { {ErrorCode_names + 4, 2}, 0 },
-};
-
-static const int ErrorCode_entries_by_number[] = {
-  1, // 0 -> OK
-  0, // 1 -> FAIL
-};
-
-const std::string& ErrorCode_Name(
-    ErrorCode value) {
-  static const bool dummy =
-      ::PROTOBUF_NAMESPACE_ID::internal::InitializeEnumStrings(
-          ErrorCode_entries,
-          ErrorCode_entries_by_number,
-          2, ErrorCode_strings);
-  (void) dummy;
-  int idx = ::PROTOBUF_NAMESPACE_ID::internal::LookUpEnumName(
-      ErrorCode_entries,
-      ErrorCode_entries_by_number,
-      2, value);
-  return idx == -1 ? ::PROTOBUF_NAMESPACE_ID::internal::GetEmptyString() :
-                     ErrorCode_strings[idx].get();
-}
-bool ErrorCode_Parse(
-    ::PROTOBUF_NAMESPACE_ID::ConstStringParam name, ErrorCode* value) {
-  int int_value;
-  bool success = ::PROTOBUF_NAMESPACE_ID::internal::LookUpEnumValue(
-      ErrorCode_entries, 2, name, &int_value);
-  if (success) {
-    *value = static_cast<ErrorCode>(int_value);
-  }
-  return success;
+const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor* EditState_descriptor() {
+  ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&descriptor_table_messages_2eproto);
+  return file_level_enum_descriptors_messages_2eproto[5];
 }
 bool EditState_IsValid(int value) {
   switch (value) {
@@ -482,52 +412,9 @@ bool EditState_IsValid(int value) {
   }
 }
 
-static ::PROTOBUF_NAMESPACE_ID::internal::ExplicitlyConstructed<std::string> EditState_strings[4] = {};
-
-static const char EditState_names[] =
-  "EDIT_COMPOSING"
-  "EDIT_CONVERTED"
-  "EDIT_EMPTY"
-  "EDIT_SELECTING";
-
-static const ::PROTOBUF_NAMESPACE_ID::internal::EnumEntry EditState_entries[] = {
-  { {EditState_names + 0, 14}, 1 },
-  { {EditState_names + 14, 14}, 2 },
-  { {EditState_names + 28, 10}, 0 },
-  { {EditState_names + 38, 14}, 3 },
-};
-
-static const int EditState_entries_by_number[] = {
-  2, // 0 -> EDIT_EMPTY
-  0, // 1 -> EDIT_COMPOSING
-  1, // 2 -> EDIT_CONVERTED
-  3, // 3 -> EDIT_SELECTING
-};
-
-const std::string& EditState_Name(
-    EditState value) {
-  static const bool dummy =
-      ::PROTOBUF_NAMESPACE_ID::internal::InitializeEnumStrings(
-          EditState_entries,
-          EditState_entries_by_number,
-          4, EditState_strings);
-  (void) dummy;
-  int idx = ::PROTOBUF_NAMESPACE_ID::internal::LookUpEnumName(
-      EditState_entries,
-      EditState_entries_by_number,
-      4, value);
-  return idx == -1 ? ::PROTOBUF_NAMESPACE_ID::internal::GetEmptyString() :
-                     EditState_strings[idx].get();
-}
-bool EditState_Parse(
-    ::PROTOBUF_NAMESPACE_ID::ConstStringParam name, EditState* value) {
-  int int_value;
-  bool success = ::PROTOBUF_NAMESPACE_ID::internal::LookUpEnumValue(
-      EditState_entries, 4, name, &int_value);
-  if (success) {
-    *value = static_cast<EditState>(int_value);
-  }
-  return success;
+const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor* CommandType_descriptor() {
+  ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&descriptor_table_messages_2eproto);
+  return file_level_enum_descriptors_messages_2eproto[6];
 }
 bool CommandType_IsValid(int value) {
   switch (value) {
@@ -549,77 +436,6 @@ bool CommandType_IsValid(int value) {
   }
 }
 
-static ::PROTOBUF_NAMESPACE_ID::internal::ExplicitlyConstructed<std::string> CommandType_strings[12] = {};
-
-static const char CommandType_names[] =
-  "COMMIT"
-  "DISABLE"
-  "ENABLE"
-  "FOCUS_CANDIDATE"
-  "PLACE_CURSOR"
-  "RESET"
-  "REVERT"
-  "SELECT_CANDIDATE"
-  "SEND_KEY"
-  "SET_CONFIG"
-  "SWITCH_INPUT_MODE"
-  "TEST_SEND_KEY";
-
-static const ::PROTOBUF_NAMESPACE_ID::internal::EnumEntry CommandType_entries[] = {
-  { {CommandType_names + 0, 6}, 3 },
-  { {CommandType_names + 6, 7}, 8 },
-  { {CommandType_names + 13, 6}, 9 },
-  { {CommandType_names + 19, 15}, 5 },
-  { {CommandType_names + 34, 12}, 7 },
-  { {CommandType_names + 46, 5}, 2 },
-  { {CommandType_names + 51, 6}, 1 },
-  { {CommandType_names + 57, 16}, 4 },
-  { {CommandType_names + 73, 8}, 0 },
-  { {CommandType_names + 81, 10}, 10 },
-  { {CommandType_names + 91, 17}, 6 },
-  { {CommandType_names + 108, 13}, 11 },
-};
-
-static const int CommandType_entries_by_number[] = {
-  8, // 0 -> SEND_KEY
-  6, // 1 -> REVERT
-  5, // 2 -> RESET
-  0, // 3 -> COMMIT
-  7, // 4 -> SELECT_CANDIDATE
-  3, // 5 -> FOCUS_CANDIDATE
-  10, // 6 -> SWITCH_INPUT_MODE
-  4, // 7 -> PLACE_CURSOR
-  1, // 8 -> DISABLE
-  2, // 9 -> ENABLE
-  9, // 10 -> SET_CONFIG
-  11, // 11 -> TEST_SEND_KEY
-};
-
-const std::string& CommandType_Name(
-    CommandType value) {
-  static const bool dummy =
-      ::PROTOBUF_NAMESPACE_ID::internal::InitializeEnumStrings(
-          CommandType_entries,
-          CommandType_entries_by_number,
-          12, CommandType_strings);
-  (void) dummy;
-  int idx = ::PROTOBUF_NAMESPACE_ID::internal::LookUpEnumName(
-      CommandType_entries,
-      CommandType_entries_by_number,
-      12, value);
-  return idx == -1 ? ::PROTOBUF_NAMESPACE_ID::internal::GetEmptyString() :
-                     CommandType_strings[idx].get();
-}
-bool CommandType_Parse(
-    ::PROTOBUF_NAMESPACE_ID::ConstStringParam name, CommandType* value) {
-  int int_value;
-  bool success = ::PROTOBUF_NAMESPACE_ID::internal::LookUpEnumValue(
-      CommandType_entries, 12, name, &int_value);
-  if (success) {
-    *value = static_cast<CommandType>(int_value);
-  }
-  return success;
-}
 
 // ===================================================================
 
@@ -629,7 +445,7 @@ class KeyEvent::_Internal {
 
 KeyEvent::KeyEvent(::PROTOBUF_NAMESPACE_ID::Arena* arena,
                          bool is_message_owned)
-  : ::PROTOBUF_NAMESPACE_ID::MessageLite(arena, is_message_owned),
+  : ::PROTOBUF_NAMESPACE_ID::Message(arena, is_message_owned),
   modifier_keys_(arena) {
   SharedCtor();
   if (!is_message_owned) {
@@ -638,9 +454,9 @@ KeyEvent::KeyEvent(::PROTOBUF_NAMESPACE_ID::Arena* arena,
   // @@protoc_insertion_point(arena_constructor:khiin.messages.KeyEvent)
 }
 KeyEvent::KeyEvent(const KeyEvent& from)
-  : ::PROTOBUF_NAMESPACE_ID::MessageLite(),
+  : ::PROTOBUF_NAMESPACE_ID::Message(),
       modifier_keys_(from.modifier_keys_) {
-  _internal_metadata_.MergeFrom<std::string>(from._internal_metadata_);
+  _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
   ::memcpy(&key_code_, &from.key_code_,
     static_cast<size_t>(reinterpret_cast<char*>(&special_key_) -
     reinterpret_cast<char*>(&key_code_)) + sizeof(special_key_));
@@ -658,7 +474,7 @@ KeyEvent::~KeyEvent() {
   // @@protoc_insertion_point(destructor:khiin.messages.KeyEvent)
   if (GetArenaForAllocation() != nullptr) return;
   SharedDtor();
-  _internal_metadata_.Delete<std::string>();
+  _internal_metadata_.Delete<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
 
 inline void KeyEvent::SharedDtor() {
@@ -685,7 +501,7 @@ void KeyEvent::Clear() {
   ::memset(&key_code_, 0, static_cast<size_t>(
       reinterpret_cast<char*>(&special_key_) -
       reinterpret_cast<char*>(&key_code_)) + sizeof(special_key_));
-  _internal_metadata_.Clear<std::string>();
+  _internal_metadata_.Clear<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
 
 const char* KeyEvent::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
@@ -734,7 +550,7 @@ const char* KeyEvent::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::i
     }
     ptr = UnknownFieldParse(
         tag,
-        _internal_metadata_.mutable_unknown_fields<std::string>(),
+        _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(),
         ptr, ctx);
     CHK_(ptr != nullptr);
   }  // while
@@ -775,8 +591,8 @@ failure:
   }
 
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
-    target = stream->WriteRaw(_internal_metadata_.unknown_fields<std::string>(::PROTOBUF_NAMESPACE_ID::internal::GetEmptyString).data(),
-        static_cast<int>(_internal_metadata_.unknown_fields<std::string>(::PROTOBUF_NAMESPACE_ID::internal::GetEmptyString).size()), target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::InternalSerializeUnknownFieldsToArray(
+        _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
   }
   // @@protoc_insertion_point(serialize_to_array_end:khiin.messages.KeyEvent)
   return target;
@@ -819,19 +635,21 @@ size_t KeyEvent::ByteSizeLong() const {
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::EnumSize(this->_internal_special_key());
   }
 
-  if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
-    total_size += _internal_metadata_.unknown_fields<std::string>(::PROTOBUF_NAMESPACE_ID::internal::GetEmptyString).size();
-  }
-  int cached_size = ::PROTOBUF_NAMESPACE_ID::internal::ToCachedSize(total_size);
-  SetCachedSize(cached_size);
-  return total_size;
+  return MaybeComputeUnknownFieldsSize(total_size, &_cached_size_);
 }
 
-void KeyEvent::CheckTypeAndMergeFrom(
-    const ::PROTOBUF_NAMESPACE_ID::MessageLite& from) {
-  MergeFrom(*::PROTOBUF_NAMESPACE_ID::internal::DownCast<const KeyEvent*>(
-      &from));
+const ::PROTOBUF_NAMESPACE_ID::Message::ClassData KeyEvent::_class_data_ = {
+    ::PROTOBUF_NAMESPACE_ID::Message::CopyWithSizeCheck,
+    KeyEvent::MergeImpl
+};
+const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*KeyEvent::GetClassData() const { return &_class_data_; }
+
+void KeyEvent::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to,
+                      const ::PROTOBUF_NAMESPACE_ID::Message& from) {
+  static_cast<KeyEvent *>(to)->MergeFrom(
+      static_cast<const KeyEvent &>(from));
 }
+
 
 void KeyEvent::MergeFrom(const KeyEvent& from) {
 // @@protoc_insertion_point(class_specific_merge_from_start:khiin.messages.KeyEvent)
@@ -846,7 +664,7 @@ void KeyEvent::MergeFrom(const KeyEvent& from) {
   if (from._internal_special_key() != 0) {
     _internal_set_special_key(from._internal_special_key());
   }
-  _internal_metadata_.MergeFrom<std::string>(from._internal_metadata_);
+  _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
 }
 
 void KeyEvent::CopyFrom(const KeyEvent& from) {
@@ -872,10 +690,11 @@ void KeyEvent::InternalSwap(KeyEvent* other) {
           reinterpret_cast<char*>(&other->key_code_));
 }
 
-std::string KeyEvent::GetTypeName() const {
-  return "khiin.messages.KeyEvent";
+::PROTOBUF_NAMESPACE_ID::Metadata KeyEvent::GetMetadata() const {
+  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(
+      &descriptor_table_messages_2eproto_getter, &descriptor_table_messages_2eproto_once,
+      file_level_metadata_messages_2eproto[0]);
 }
-
 
 // ===================================================================
 
@@ -890,7 +709,7 @@ Input::_Internal::key_event(const Input* msg) {
 }
 Input::Input(::PROTOBUF_NAMESPACE_ID::Arena* arena,
                          bool is_message_owned)
-  : ::PROTOBUF_NAMESPACE_ID::MessageLite(arena, is_message_owned) {
+  : ::PROTOBUF_NAMESPACE_ID::Message(arena, is_message_owned) {
   SharedCtor();
   if (!is_message_owned) {
     RegisterArenaDtor(arena);
@@ -898,8 +717,8 @@ Input::Input(::PROTOBUF_NAMESPACE_ID::Arena* arena,
   // @@protoc_insertion_point(arena_constructor:khiin.messages.Input)
 }
 Input::Input(const Input& from)
-  : ::PROTOBUF_NAMESPACE_ID::MessageLite() {
-  _internal_metadata_.MergeFrom<std::string>(from._internal_metadata_);
+  : ::PROTOBUF_NAMESPACE_ID::Message() {
+  _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
   if (from._internal_has_key_event()) {
     key_event_ = new ::khiin::messages::KeyEvent(*from.key_event_);
   } else {
@@ -922,7 +741,7 @@ Input::~Input() {
   // @@protoc_insertion_point(destructor:khiin.messages.Input)
   if (GetArenaForAllocation() != nullptr) return;
   SharedDtor();
-  _internal_metadata_.Delete<std::string>();
+  _internal_metadata_.Delete<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
 
 inline void Input::SharedDtor() {
@@ -953,7 +772,7 @@ void Input::Clear() {
   ::memset(&candidate_id_, 0, static_cast<size_t>(
       reinterpret_cast<char*>(&cursor_position_) -
       reinterpret_cast<char*>(&candidate_id_)) + sizeof(cursor_position_));
-  _internal_metadata_.Clear<std::string>();
+  _internal_metadata_.Clear<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
 
 const char* Input::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
@@ -997,7 +816,7 @@ const char* Input::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::inte
     }
     ptr = UnknownFieldParse(
         tag,
-        _internal_metadata_.mutable_unknown_fields<std::string>(),
+        _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(),
         ptr, ctx);
     CHK_(ptr != nullptr);
   }  // while
@@ -1036,8 +855,8 @@ failure:
   }
 
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
-    target = stream->WriteRaw(_internal_metadata_.unknown_fields<std::string>(::PROTOBUF_NAMESPACE_ID::internal::GetEmptyString).data(),
-        static_cast<int>(_internal_metadata_.unknown_fields<std::string>(::PROTOBUF_NAMESPACE_ID::internal::GetEmptyString).size()), target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::InternalSerializeUnknownFieldsToArray(
+        _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
   }
   // @@protoc_insertion_point(serialize_to_array_end:khiin.messages.Input)
   return target;
@@ -1068,19 +887,21 @@ size_t Input::ByteSizeLong() const {
     total_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32SizePlusOne(this->_internal_cursor_position());
   }
 
-  if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
-    total_size += _internal_metadata_.unknown_fields<std::string>(::PROTOBUF_NAMESPACE_ID::internal::GetEmptyString).size();
-  }
-  int cached_size = ::PROTOBUF_NAMESPACE_ID::internal::ToCachedSize(total_size);
-  SetCachedSize(cached_size);
-  return total_size;
+  return MaybeComputeUnknownFieldsSize(total_size, &_cached_size_);
 }
 
-void Input::CheckTypeAndMergeFrom(
-    const ::PROTOBUF_NAMESPACE_ID::MessageLite& from) {
-  MergeFrom(*::PROTOBUF_NAMESPACE_ID::internal::DownCast<const Input*>(
-      &from));
+const ::PROTOBUF_NAMESPACE_ID::Message::ClassData Input::_class_data_ = {
+    ::PROTOBUF_NAMESPACE_ID::Message::CopyWithSizeCheck,
+    Input::MergeImpl
+};
+const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*Input::GetClassData() const { return &_class_data_; }
+
+void Input::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to,
+                      const ::PROTOBUF_NAMESPACE_ID::Message& from) {
+  static_cast<Input *>(to)->MergeFrom(
+      static_cast<const Input &>(from));
 }
+
 
 void Input::MergeFrom(const Input& from) {
 // @@protoc_insertion_point(class_specific_merge_from_start:khiin.messages.Input)
@@ -1097,7 +918,7 @@ void Input::MergeFrom(const Input& from) {
   if (from._internal_cursor_position() != 0) {
     _internal_set_cursor_position(from._internal_cursor_position());
   }
-  _internal_metadata_.MergeFrom<std::string>(from._internal_metadata_);
+  _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
 }
 
 void Input::CopyFrom(const Input& from) {
@@ -1122,10 +943,11 @@ void Input::InternalSwap(Input* other) {
           reinterpret_cast<char*>(&other->key_event_));
 }
 
-std::string Input::GetTypeName() const {
-  return "khiin.messages.Input";
+::PROTOBUF_NAMESPACE_ID::Metadata Input::GetMetadata() const {
+  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(
+      &descriptor_table_messages_2eproto_getter, &descriptor_table_messages_2eproto_once,
+      file_level_metadata_messages_2eproto[1]);
 }
-
 
 // ===================================================================
 
@@ -1135,7 +957,7 @@ class Preedit_Segment::_Internal {
 
 Preedit_Segment::Preedit_Segment(::PROTOBUF_NAMESPACE_ID::Arena* arena,
                          bool is_message_owned)
-  : ::PROTOBUF_NAMESPACE_ID::MessageLite(arena, is_message_owned) {
+  : ::PROTOBUF_NAMESPACE_ID::Message(arena, is_message_owned) {
   SharedCtor();
   if (!is_message_owned) {
     RegisterArenaDtor(arena);
@@ -1143,8 +965,8 @@ Preedit_Segment::Preedit_Segment(::PROTOBUF_NAMESPACE_ID::Arena* arena,
   // @@protoc_insertion_point(arena_constructor:khiin.messages.Preedit.Segment)
 }
 Preedit_Segment::Preedit_Segment(const Preedit_Segment& from)
-  : ::PROTOBUF_NAMESPACE_ID::MessageLite() {
-  _internal_metadata_.MergeFrom<std::string>(from._internal_metadata_);
+  : ::PROTOBUF_NAMESPACE_ID::Message() {
+  _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
   value_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
   if (!from._internal_value().empty()) {
     value_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, from._internal_value(), 
@@ -1163,7 +985,7 @@ Preedit_Segment::~Preedit_Segment() {
   // @@protoc_insertion_point(destructor:khiin.messages.Preedit.Segment)
   if (GetArenaForAllocation() != nullptr) return;
   SharedDtor();
-  _internal_metadata_.Delete<std::string>();
+  _internal_metadata_.Delete<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
 
 inline void Preedit_Segment::SharedDtor() {
@@ -1189,7 +1011,7 @@ void Preedit_Segment::Clear() {
 
   value_.ClearToEmpty();
   status_ = 0;
-  _internal_metadata_.Clear<std::string>();
+  _internal_metadata_.Clear<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
 
 const char* Preedit_Segment::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
@@ -1212,7 +1034,7 @@ const char* Preedit_Segment::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPAC
         if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 18)) {
           auto str = _internal_mutable_value();
           ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParser(str, ptr, ctx);
-          CHK_(::PROTOBUF_NAMESPACE_ID::internal::VerifyUTF8(str, nullptr));
+          CHK_(::PROTOBUF_NAMESPACE_ID::internal::VerifyUTF8(str, "khiin.messages.Preedit.Segment.value"));
           CHK_(ptr);
         } else
           goto handle_unusual;
@@ -1228,7 +1050,7 @@ const char* Preedit_Segment::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPAC
     }
     ptr = UnknownFieldParse(
         tag,
-        _internal_metadata_.mutable_unknown_fields<std::string>(),
+        _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(),
         ptr, ctx);
     CHK_(ptr != nullptr);
   }  // while
@@ -1264,8 +1086,8 @@ failure:
   }
 
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
-    target = stream->WriteRaw(_internal_metadata_.unknown_fields<std::string>(::PROTOBUF_NAMESPACE_ID::internal::GetEmptyString).data(),
-        static_cast<int>(_internal_metadata_.unknown_fields<std::string>(::PROTOBUF_NAMESPACE_ID::internal::GetEmptyString).size()), target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::InternalSerializeUnknownFieldsToArray(
+        _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
   }
   // @@protoc_insertion_point(serialize_to_array_end:khiin.messages.Preedit.Segment)
   return target;
@@ -1292,19 +1114,21 @@ size_t Preedit_Segment::ByteSizeLong() const {
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::EnumSize(this->_internal_status());
   }
 
-  if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
-    total_size += _internal_metadata_.unknown_fields<std::string>(::PROTOBUF_NAMESPACE_ID::internal::GetEmptyString).size();
-  }
-  int cached_size = ::PROTOBUF_NAMESPACE_ID::internal::ToCachedSize(total_size);
-  SetCachedSize(cached_size);
-  return total_size;
+  return MaybeComputeUnknownFieldsSize(total_size, &_cached_size_);
 }
 
-void Preedit_Segment::CheckTypeAndMergeFrom(
-    const ::PROTOBUF_NAMESPACE_ID::MessageLite& from) {
-  MergeFrom(*::PROTOBUF_NAMESPACE_ID::internal::DownCast<const Preedit_Segment*>(
-      &from));
+const ::PROTOBUF_NAMESPACE_ID::Message::ClassData Preedit_Segment::_class_data_ = {
+    ::PROTOBUF_NAMESPACE_ID::Message::CopyWithSizeCheck,
+    Preedit_Segment::MergeImpl
+};
+const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*Preedit_Segment::GetClassData() const { return &_class_data_; }
+
+void Preedit_Segment::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to,
+                      const ::PROTOBUF_NAMESPACE_ID::Message& from) {
+  static_cast<Preedit_Segment *>(to)->MergeFrom(
+      static_cast<const Preedit_Segment &>(from));
 }
+
 
 void Preedit_Segment::MergeFrom(const Preedit_Segment& from) {
 // @@protoc_insertion_point(class_specific_merge_from_start:khiin.messages.Preedit.Segment)
@@ -1318,7 +1142,7 @@ void Preedit_Segment::MergeFrom(const Preedit_Segment& from) {
   if (from._internal_status() != 0) {
     _internal_set_status(from._internal_status());
   }
-  _internal_metadata_.MergeFrom<std::string>(from._internal_metadata_);
+  _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
 }
 
 void Preedit_Segment::CopyFrom(const Preedit_Segment& from) {
@@ -1345,10 +1169,11 @@ void Preedit_Segment::InternalSwap(Preedit_Segment* other) {
   swap(status_, other->status_);
 }
 
-std::string Preedit_Segment::GetTypeName() const {
-  return "khiin.messages.Preedit.Segment";
+::PROTOBUF_NAMESPACE_ID::Metadata Preedit_Segment::GetMetadata() const {
+  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(
+      &descriptor_table_messages_2eproto_getter, &descriptor_table_messages_2eproto_once,
+      file_level_metadata_messages_2eproto[2]);
 }
-
 
 // ===================================================================
 
@@ -1358,7 +1183,7 @@ class Preedit::_Internal {
 
 Preedit::Preedit(::PROTOBUF_NAMESPACE_ID::Arena* arena,
                          bool is_message_owned)
-  : ::PROTOBUF_NAMESPACE_ID::MessageLite(arena, is_message_owned),
+  : ::PROTOBUF_NAMESPACE_ID::Message(arena, is_message_owned),
   segments_(arena) {
   SharedCtor();
   if (!is_message_owned) {
@@ -1367,9 +1192,9 @@ Preedit::Preedit(::PROTOBUF_NAMESPACE_ID::Arena* arena,
   // @@protoc_insertion_point(arena_constructor:khiin.messages.Preedit)
 }
 Preedit::Preedit(const Preedit& from)
-  : ::PROTOBUF_NAMESPACE_ID::MessageLite(),
+  : ::PROTOBUF_NAMESPACE_ID::Message(),
       segments_(from.segments_) {
-  _internal_metadata_.MergeFrom<std::string>(from._internal_metadata_);
+  _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
   cursor_position_ = from.cursor_position_;
   // @@protoc_insertion_point(copy_constructor:khiin.messages.Preedit)
 }
@@ -1382,7 +1207,7 @@ Preedit::~Preedit() {
   // @@protoc_insertion_point(destructor:khiin.messages.Preedit)
   if (GetArenaForAllocation() != nullptr) return;
   SharedDtor();
-  _internal_metadata_.Delete<std::string>();
+  _internal_metadata_.Delete<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
 
 inline void Preedit::SharedDtor() {
@@ -1407,7 +1232,7 @@ void Preedit::Clear() {
 
   segments_.Clear();
   cursor_position_ = 0;
-  _internal_metadata_.Clear<std::string>();
+  _internal_metadata_.Clear<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
 
 const char* Preedit::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
@@ -1448,7 +1273,7 @@ const char* Preedit::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::in
     }
     ptr = UnknownFieldParse(
         tag,
-        _internal_metadata_.mutable_unknown_fields<std::string>(),
+        _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(),
         ptr, ctx);
     CHK_(ptr != nullptr);
   }  // while
@@ -1481,8 +1306,8 @@ failure:
   }
 
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
-    target = stream->WriteRaw(_internal_metadata_.unknown_fields<std::string>(::PROTOBUF_NAMESPACE_ID::internal::GetEmptyString).data(),
-        static_cast<int>(_internal_metadata_.unknown_fields<std::string>(::PROTOBUF_NAMESPACE_ID::internal::GetEmptyString).size()), target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::InternalSerializeUnknownFieldsToArray(
+        _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
   }
   // @@protoc_insertion_point(serialize_to_array_end:khiin.messages.Preedit)
   return target;
@@ -1508,19 +1333,21 @@ size_t Preedit::ByteSizeLong() const {
     total_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32SizePlusOne(this->_internal_cursor_position());
   }
 
-  if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
-    total_size += _internal_metadata_.unknown_fields<std::string>(::PROTOBUF_NAMESPACE_ID::internal::GetEmptyString).size();
-  }
-  int cached_size = ::PROTOBUF_NAMESPACE_ID::internal::ToCachedSize(total_size);
-  SetCachedSize(cached_size);
-  return total_size;
+  return MaybeComputeUnknownFieldsSize(total_size, &_cached_size_);
 }
 
-void Preedit::CheckTypeAndMergeFrom(
-    const ::PROTOBUF_NAMESPACE_ID::MessageLite& from) {
-  MergeFrom(*::PROTOBUF_NAMESPACE_ID::internal::DownCast<const Preedit*>(
-      &from));
+const ::PROTOBUF_NAMESPACE_ID::Message::ClassData Preedit::_class_data_ = {
+    ::PROTOBUF_NAMESPACE_ID::Message::CopyWithSizeCheck,
+    Preedit::MergeImpl
+};
+const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*Preedit::GetClassData() const { return &_class_data_; }
+
+void Preedit::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to,
+                      const ::PROTOBUF_NAMESPACE_ID::Message& from) {
+  static_cast<Preedit *>(to)->MergeFrom(
+      static_cast<const Preedit &>(from));
 }
+
 
 void Preedit::MergeFrom(const Preedit& from) {
 // @@protoc_insertion_point(class_specific_merge_from_start:khiin.messages.Preedit)
@@ -1532,7 +1359,7 @@ void Preedit::MergeFrom(const Preedit& from) {
   if (from._internal_cursor_position() != 0) {
     _internal_set_cursor_position(from._internal_cursor_position());
   }
-  _internal_metadata_.MergeFrom<std::string>(from._internal_metadata_);
+  _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
 }
 
 void Preedit::CopyFrom(const Preedit& from) {
@@ -1553,10 +1380,11 @@ void Preedit::InternalSwap(Preedit* other) {
   swap(cursor_position_, other->cursor_position_);
 }
 
-std::string Preedit::GetTypeName() const {
-  return "khiin.messages.Preedit";
+::PROTOBUF_NAMESPACE_ID::Metadata Preedit::GetMetadata() const {
+  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(
+      &descriptor_table_messages_2eproto_getter, &descriptor_table_messages_2eproto_once,
+      file_level_metadata_messages_2eproto[3]);
 }
-
 
 // ===================================================================
 
@@ -1566,7 +1394,7 @@ class Candidate::_Internal {
 
 Candidate::Candidate(::PROTOBUF_NAMESPACE_ID::Arena* arena,
                          bool is_message_owned)
-  : ::PROTOBUF_NAMESPACE_ID::MessageLite(arena, is_message_owned) {
+  : ::PROTOBUF_NAMESPACE_ID::Message(arena, is_message_owned) {
   SharedCtor();
   if (!is_message_owned) {
     RegisterArenaDtor(arena);
@@ -1574,8 +1402,8 @@ Candidate::Candidate(::PROTOBUF_NAMESPACE_ID::Arena* arena,
   // @@protoc_insertion_point(arena_constructor:khiin.messages.Candidate)
 }
 Candidate::Candidate(const Candidate& from)
-  : ::PROTOBUF_NAMESPACE_ID::MessageLite() {
-  _internal_metadata_.MergeFrom<std::string>(from._internal_metadata_);
+  : ::PROTOBUF_NAMESPACE_ID::Message() {
+  _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
   value_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
   if (!from._internal_value().empty()) {
     value_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, from._internal_value(), 
@@ -1611,7 +1439,7 @@ Candidate::~Candidate() {
   // @@protoc_insertion_point(destructor:khiin.messages.Candidate)
   if (GetArenaForAllocation() != nullptr) return;
   SharedDtor();
-  _internal_metadata_.Delete<std::string>();
+  _internal_metadata_.Delete<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
 
 inline void Candidate::SharedDtor() {
@@ -1643,7 +1471,7 @@ void Candidate::Clear() {
   ::memset(&id_, 0, static_cast<size_t>(
       reinterpret_cast<char*>(&category_) -
       reinterpret_cast<char*>(&id_)) + sizeof(category_));
-  _internal_metadata_.Clear<std::string>();
+  _internal_metadata_.Clear<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
 
 const char* Candidate::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
@@ -1665,7 +1493,7 @@ const char* Candidate::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::
         if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 18)) {
           auto str = _internal_mutable_value();
           ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParser(str, ptr, ctx);
-          CHK_(::PROTOBUF_NAMESPACE_ID::internal::VerifyUTF8(str, nullptr));
+          CHK_(::PROTOBUF_NAMESPACE_ID::internal::VerifyUTF8(str, "khiin.messages.Candidate.value"));
           CHK_(ptr);
         } else
           goto handle_unusual;
@@ -1675,7 +1503,7 @@ const char* Candidate::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::
         if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 26)) {
           auto str = _internal_mutable_key();
           ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParser(str, ptr, ctx);
-          CHK_(::PROTOBUF_NAMESPACE_ID::internal::VerifyUTF8(str, nullptr));
+          CHK_(::PROTOBUF_NAMESPACE_ID::internal::VerifyUTF8(str, "khiin.messages.Candidate.key"));
           CHK_(ptr);
         } else
           goto handle_unusual;
@@ -1685,7 +1513,7 @@ const char* Candidate::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::
         if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 34)) {
           auto str = _internal_mutable_annotation();
           ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParser(str, ptr, ctx);
-          CHK_(::PROTOBUF_NAMESPACE_ID::internal::VerifyUTF8(str, nullptr));
+          CHK_(::PROTOBUF_NAMESPACE_ID::internal::VerifyUTF8(str, "khiin.messages.Candidate.annotation"));
           CHK_(ptr);
         } else
           goto handle_unusual;
@@ -1710,7 +1538,7 @@ const char* Candidate::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::
     }
     ptr = UnknownFieldParse(
         tag,
-        _internal_metadata_.mutable_unknown_fields<std::string>(),
+        _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(),
         ptr, ctx);
     CHK_(ptr != nullptr);
   }  // while
@@ -1772,8 +1600,8 @@ failure:
   }
 
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
-    target = stream->WriteRaw(_internal_metadata_.unknown_fields<std::string>(::PROTOBUF_NAMESPACE_ID::internal::GetEmptyString).data(),
-        static_cast<int>(_internal_metadata_.unknown_fields<std::string>(::PROTOBUF_NAMESPACE_ID::internal::GetEmptyString).size()), target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::InternalSerializeUnknownFieldsToArray(
+        _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
   }
   // @@protoc_insertion_point(serialize_to_array_end:khiin.messages.Candidate)
   return target;
@@ -1819,19 +1647,21 @@ size_t Candidate::ByteSizeLong() const {
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::EnumSize(this->_internal_category());
   }
 
-  if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
-    total_size += _internal_metadata_.unknown_fields<std::string>(::PROTOBUF_NAMESPACE_ID::internal::GetEmptyString).size();
-  }
-  int cached_size = ::PROTOBUF_NAMESPACE_ID::internal::ToCachedSize(total_size);
-  SetCachedSize(cached_size);
-  return total_size;
+  return MaybeComputeUnknownFieldsSize(total_size, &_cached_size_);
 }
 
-void Candidate::CheckTypeAndMergeFrom(
-    const ::PROTOBUF_NAMESPACE_ID::MessageLite& from) {
-  MergeFrom(*::PROTOBUF_NAMESPACE_ID::internal::DownCast<const Candidate*>(
-      &from));
+const ::PROTOBUF_NAMESPACE_ID::Message::ClassData Candidate::_class_data_ = {
+    ::PROTOBUF_NAMESPACE_ID::Message::CopyWithSizeCheck,
+    Candidate::MergeImpl
+};
+const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*Candidate::GetClassData() const { return &_class_data_; }
+
+void Candidate::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to,
+                      const ::PROTOBUF_NAMESPACE_ID::Message& from) {
+  static_cast<Candidate *>(to)->MergeFrom(
+      static_cast<const Candidate &>(from));
 }
+
 
 void Candidate::MergeFrom(const Candidate& from) {
 // @@protoc_insertion_point(class_specific_merge_from_start:khiin.messages.Candidate)
@@ -1854,7 +1684,7 @@ void Candidate::MergeFrom(const Candidate& from) {
   if (from._internal_category() != 0) {
     _internal_set_category(from._internal_category());
   }
-  _internal_metadata_.MergeFrom<std::string>(from._internal_metadata_);
+  _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
 }
 
 void Candidate::CopyFrom(const Candidate& from) {
@@ -1896,10 +1726,11 @@ void Candidate::InternalSwap(Candidate* other) {
           reinterpret_cast<char*>(&other->id_));
 }
 
-std::string Candidate::GetTypeName() const {
-  return "khiin.messages.Candidate";
+::PROTOBUF_NAMESPACE_ID::Metadata Candidate::GetMetadata() const {
+  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(
+      &descriptor_table_messages_2eproto_getter, &descriptor_table_messages_2eproto_once,
+      file_level_metadata_messages_2eproto[4]);
 }
-
 
 // ===================================================================
 
@@ -1909,7 +1740,7 @@ class CandidateList::_Internal {
 
 CandidateList::CandidateList(::PROTOBUF_NAMESPACE_ID::Arena* arena,
                          bool is_message_owned)
-  : ::PROTOBUF_NAMESPACE_ID::MessageLite(arena, is_message_owned),
+  : ::PROTOBUF_NAMESPACE_ID::Message(arena, is_message_owned),
   candidates_(arena) {
   SharedCtor();
   if (!is_message_owned) {
@@ -1918,9 +1749,9 @@ CandidateList::CandidateList(::PROTOBUF_NAMESPACE_ID::Arena* arena,
   // @@protoc_insertion_point(arena_constructor:khiin.messages.CandidateList)
 }
 CandidateList::CandidateList(const CandidateList& from)
-  : ::PROTOBUF_NAMESPACE_ID::MessageLite(),
+  : ::PROTOBUF_NAMESPACE_ID::Message(),
       candidates_(from.candidates_) {
-  _internal_metadata_.MergeFrom<std::string>(from._internal_metadata_);
+  _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
   focused_ = from.focused_;
   // @@protoc_insertion_point(copy_constructor:khiin.messages.CandidateList)
 }
@@ -1933,7 +1764,7 @@ CandidateList::~CandidateList() {
   // @@protoc_insertion_point(destructor:khiin.messages.CandidateList)
   if (GetArenaForAllocation() != nullptr) return;
   SharedDtor();
-  _internal_metadata_.Delete<std::string>();
+  _internal_metadata_.Delete<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
 
 inline void CandidateList::SharedDtor() {
@@ -1958,7 +1789,7 @@ void CandidateList::Clear() {
 
   candidates_.Clear();
   focused_ = 0;
-  _internal_metadata_.Clear<std::string>();
+  _internal_metadata_.Clear<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
 
 const char* CandidateList::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
@@ -1999,7 +1830,7 @@ const char* CandidateList::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_
     }
     ptr = UnknownFieldParse(
         tag,
-        _internal_metadata_.mutable_unknown_fields<std::string>(),
+        _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(),
         ptr, ctx);
     CHK_(ptr != nullptr);
   }  // while
@@ -2032,8 +1863,8 @@ failure:
   }
 
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
-    target = stream->WriteRaw(_internal_metadata_.unknown_fields<std::string>(::PROTOBUF_NAMESPACE_ID::internal::GetEmptyString).data(),
-        static_cast<int>(_internal_metadata_.unknown_fields<std::string>(::PROTOBUF_NAMESPACE_ID::internal::GetEmptyString).size()), target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::InternalSerializeUnknownFieldsToArray(
+        _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
   }
   // @@protoc_insertion_point(serialize_to_array_end:khiin.messages.CandidateList)
   return target;
@@ -2059,19 +1890,21 @@ size_t CandidateList::ByteSizeLong() const {
     total_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32SizePlusOne(this->_internal_focused());
   }
 
-  if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
-    total_size += _internal_metadata_.unknown_fields<std::string>(::PROTOBUF_NAMESPACE_ID::internal::GetEmptyString).size();
-  }
-  int cached_size = ::PROTOBUF_NAMESPACE_ID::internal::ToCachedSize(total_size);
-  SetCachedSize(cached_size);
-  return total_size;
+  return MaybeComputeUnknownFieldsSize(total_size, &_cached_size_);
 }
 
-void CandidateList::CheckTypeAndMergeFrom(
-    const ::PROTOBUF_NAMESPACE_ID::MessageLite& from) {
-  MergeFrom(*::PROTOBUF_NAMESPACE_ID::internal::DownCast<const CandidateList*>(
-      &from));
+const ::PROTOBUF_NAMESPACE_ID::Message::ClassData CandidateList::_class_data_ = {
+    ::PROTOBUF_NAMESPACE_ID::Message::CopyWithSizeCheck,
+    CandidateList::MergeImpl
+};
+const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*CandidateList::GetClassData() const { return &_class_data_; }
+
+void CandidateList::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to,
+                      const ::PROTOBUF_NAMESPACE_ID::Message& from) {
+  static_cast<CandidateList *>(to)->MergeFrom(
+      static_cast<const CandidateList &>(from));
 }
+
 
 void CandidateList::MergeFrom(const CandidateList& from) {
 // @@protoc_insertion_point(class_specific_merge_from_start:khiin.messages.CandidateList)
@@ -2083,7 +1916,7 @@ void CandidateList::MergeFrom(const CandidateList& from) {
   if (from._internal_focused() != 0) {
     _internal_set_focused(from._internal_focused());
   }
-  _internal_metadata_.MergeFrom<std::string>(from._internal_metadata_);
+  _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
 }
 
 void CandidateList::CopyFrom(const CandidateList& from) {
@@ -2104,10 +1937,11 @@ void CandidateList::InternalSwap(CandidateList* other) {
   swap(focused_, other->focused_);
 }
 
-std::string CandidateList::GetTypeName() const {
-  return "khiin.messages.CandidateList";
+::PROTOBUF_NAMESPACE_ID::Metadata CandidateList::GetMetadata() const {
+  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(
+      &descriptor_table_messages_2eproto_getter, &descriptor_table_messages_2eproto_once,
+      file_level_metadata_messages_2eproto[5]);
 }
-
 
 // ===================================================================
 
@@ -2127,7 +1961,7 @@ Output::_Internal::candidate_list(const Output* msg) {
 }
 Output::Output(::PROTOBUF_NAMESPACE_ID::Arena* arena,
                          bool is_message_owned)
-  : ::PROTOBUF_NAMESPACE_ID::MessageLite(arena, is_message_owned) {
+  : ::PROTOBUF_NAMESPACE_ID::Message(arena, is_message_owned) {
   SharedCtor();
   if (!is_message_owned) {
     RegisterArenaDtor(arena);
@@ -2135,8 +1969,8 @@ Output::Output(::PROTOBUF_NAMESPACE_ID::Arena* arena,
   // @@protoc_insertion_point(arena_constructor:khiin.messages.Output)
 }
 Output::Output(const Output& from)
-  : ::PROTOBUF_NAMESPACE_ID::MessageLite() {
-  _internal_metadata_.MergeFrom<std::string>(from._internal_metadata_);
+  : ::PROTOBUF_NAMESPACE_ID::Message() {
+  _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
   if (from._internal_has_preedit()) {
     preedit_ = new ::khiin::messages::Preedit(*from.preedit_);
   } else {
@@ -2164,7 +1998,7 @@ Output::~Output() {
   // @@protoc_insertion_point(destructor:khiin.messages.Output)
   if (GetArenaForAllocation() != nullptr) return;
   SharedDtor();
-  _internal_metadata_.Delete<std::string>();
+  _internal_metadata_.Delete<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
 
 inline void Output::SharedDtor() {
@@ -2200,7 +2034,7 @@ void Output::Clear() {
   ::memset(&error_, 0, static_cast<size_t>(
       reinterpret_cast<char*>(&consumable_) -
       reinterpret_cast<char*>(&error_)) + sizeof(consumable_));
-  _internal_metadata_.Clear<std::string>();
+  _internal_metadata_.Clear<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
 
 const char* Output::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
@@ -2262,7 +2096,7 @@ const char* Output::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::int
     }
     ptr = UnknownFieldParse(
         tag,
-        _internal_metadata_.mutable_unknown_fields<std::string>(),
+        _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(),
         ptr, ctx);
     CHK_(ptr != nullptr);
   }  // while
@@ -2317,8 +2151,8 @@ failure:
   }
 
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
-    target = stream->WriteRaw(_internal_metadata_.unknown_fields<std::string>(::PROTOBUF_NAMESPACE_ID::internal::GetEmptyString).data(),
-        static_cast<int>(_internal_metadata_.unknown_fields<std::string>(::PROTOBUF_NAMESPACE_ID::internal::GetEmptyString).size()), target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::InternalSerializeUnknownFieldsToArray(
+        _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
   }
   // @@protoc_insertion_point(serialize_to_array_end:khiin.messages.Output)
   return target;
@@ -2363,19 +2197,21 @@ size_t Output::ByteSizeLong() const {
     total_size += 1 + 1;
   }
 
-  if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
-    total_size += _internal_metadata_.unknown_fields<std::string>(::PROTOBUF_NAMESPACE_ID::internal::GetEmptyString).size();
-  }
-  int cached_size = ::PROTOBUF_NAMESPACE_ID::internal::ToCachedSize(total_size);
-  SetCachedSize(cached_size);
-  return total_size;
+  return MaybeComputeUnknownFieldsSize(total_size, &_cached_size_);
 }
 
-void Output::CheckTypeAndMergeFrom(
-    const ::PROTOBUF_NAMESPACE_ID::MessageLite& from) {
-  MergeFrom(*::PROTOBUF_NAMESPACE_ID::internal::DownCast<const Output*>(
-      &from));
+const ::PROTOBUF_NAMESPACE_ID::Message::ClassData Output::_class_data_ = {
+    ::PROTOBUF_NAMESPACE_ID::Message::CopyWithSizeCheck,
+    Output::MergeImpl
+};
+const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*Output::GetClassData() const { return &_class_data_; }
+
+void Output::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to,
+                      const ::PROTOBUF_NAMESPACE_ID::Message& from) {
+  static_cast<Output *>(to)->MergeFrom(
+      static_cast<const Output &>(from));
 }
+
 
 void Output::MergeFrom(const Output& from) {
 // @@protoc_insertion_point(class_specific_merge_from_start:khiin.messages.Output)
@@ -2398,7 +2234,7 @@ void Output::MergeFrom(const Output& from) {
   if (from._internal_consumable() != 0) {
     _internal_set_consumable(from._internal_consumable());
   }
-  _internal_metadata_.MergeFrom<std::string>(from._internal_metadata_);
+  _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
 }
 
 void Output::CopyFrom(const Output& from) {
@@ -2423,10 +2259,11 @@ void Output::InternalSwap(Output* other) {
           reinterpret_cast<char*>(&other->preedit_));
 }
 
-std::string Output::GetTypeName() const {
-  return "khiin.messages.Output";
+::PROTOBUF_NAMESPACE_ID::Metadata Output::GetMetadata() const {
+  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(
+      &descriptor_table_messages_2eproto_getter, &descriptor_table_messages_2eproto_once,
+      file_level_metadata_messages_2eproto[6]);
 }
-
 
 // ===================================================================
 
@@ -2446,7 +2283,7 @@ Command::_Internal::output(const Command* msg) {
 }
 Command::Command(::PROTOBUF_NAMESPACE_ID::Arena* arena,
                          bool is_message_owned)
-  : ::PROTOBUF_NAMESPACE_ID::MessageLite(arena, is_message_owned) {
+  : ::PROTOBUF_NAMESPACE_ID::Message(arena, is_message_owned) {
   SharedCtor();
   if (!is_message_owned) {
     RegisterArenaDtor(arena);
@@ -2454,8 +2291,8 @@ Command::Command(::PROTOBUF_NAMESPACE_ID::Arena* arena,
   // @@protoc_insertion_point(arena_constructor:khiin.messages.Command)
 }
 Command::Command(const Command& from)
-  : ::PROTOBUF_NAMESPACE_ID::MessageLite() {
-  _internal_metadata_.MergeFrom<std::string>(from._internal_metadata_);
+  : ::PROTOBUF_NAMESPACE_ID::Message() {
+  _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
   if (from._internal_has_input()) {
     input_ = new ::khiin::messages::Input(*from.input_);
   } else {
@@ -2481,7 +2318,7 @@ Command::~Command() {
   // @@protoc_insertion_point(destructor:khiin.messages.Command)
   if (GetArenaForAllocation() != nullptr) return;
   SharedDtor();
-  _internal_metadata_.Delete<std::string>();
+  _internal_metadata_.Delete<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
 
 inline void Command::SharedDtor() {
@@ -2515,7 +2352,7 @@ void Command::Clear() {
   }
   output_ = nullptr;
   type_ = 0;
-  _internal_metadata_.Clear<std::string>();
+  _internal_metadata_.Clear<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
 
 const char* Command::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
@@ -2560,7 +2397,7 @@ const char* Command::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::in
     }
     ptr = UnknownFieldParse(
         tag,
-        _internal_metadata_.mutable_unknown_fields<std::string>(),
+        _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(),
         ptr, ctx);
     CHK_(ptr != nullptr);
   }  // while
@@ -2602,8 +2439,8 @@ failure:
   }
 
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
-    target = stream->WriteRaw(_internal_metadata_.unknown_fields<std::string>(::PROTOBUF_NAMESPACE_ID::internal::GetEmptyString).data(),
-        static_cast<int>(_internal_metadata_.unknown_fields<std::string>(::PROTOBUF_NAMESPACE_ID::internal::GetEmptyString).size()), target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::InternalSerializeUnknownFieldsToArray(
+        _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
   }
   // @@protoc_insertion_point(serialize_to_array_end:khiin.messages.Command)
   return target;
@@ -2637,19 +2474,21 @@ size_t Command::ByteSizeLong() const {
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::EnumSize(this->_internal_type());
   }
 
-  if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
-    total_size += _internal_metadata_.unknown_fields<std::string>(::PROTOBUF_NAMESPACE_ID::internal::GetEmptyString).size();
-  }
-  int cached_size = ::PROTOBUF_NAMESPACE_ID::internal::ToCachedSize(total_size);
-  SetCachedSize(cached_size);
-  return total_size;
+  return MaybeComputeUnknownFieldsSize(total_size, &_cached_size_);
 }
 
-void Command::CheckTypeAndMergeFrom(
-    const ::PROTOBUF_NAMESPACE_ID::MessageLite& from) {
-  MergeFrom(*::PROTOBUF_NAMESPACE_ID::internal::DownCast<const Command*>(
-      &from));
+const ::PROTOBUF_NAMESPACE_ID::Message::ClassData Command::_class_data_ = {
+    ::PROTOBUF_NAMESPACE_ID::Message::CopyWithSizeCheck,
+    Command::MergeImpl
+};
+const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*Command::GetClassData() const { return &_class_data_; }
+
+void Command::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to,
+                      const ::PROTOBUF_NAMESPACE_ID::Message& from) {
+  static_cast<Command *>(to)->MergeFrom(
+      static_cast<const Command &>(from));
 }
+
 
 void Command::MergeFrom(const Command& from) {
 // @@protoc_insertion_point(class_specific_merge_from_start:khiin.messages.Command)
@@ -2666,7 +2505,7 @@ void Command::MergeFrom(const Command& from) {
   if (from._internal_type() != 0) {
     _internal_set_type(from._internal_type());
   }
-  _internal_metadata_.MergeFrom<std::string>(from._internal_metadata_);
+  _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
 }
 
 void Command::CopyFrom(const Command& from) {
@@ -2691,10 +2530,11 @@ void Command::InternalSwap(Command* other) {
           reinterpret_cast<char*>(&other->input_));
 }
 
-std::string Command::GetTypeName() const {
-  return "khiin.messages.Command";
+::PROTOBUF_NAMESPACE_ID::Metadata Command::GetMetadata() const {
+  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(
+      &descriptor_table_messages_2eproto_getter, &descriptor_table_messages_2eproto_once,
+      file_level_metadata_messages_2eproto[7]);
 }
-
 
 // @@protoc_insertion_point(namespace_scope)
 }  // namespace messages

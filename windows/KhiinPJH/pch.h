@@ -18,6 +18,7 @@
 // Windows Header Files
 #include <Unknwn.h>
 
+#include <ShlObj_core.h>
 #include <ctffunc.h>
 #include <d2d1_1.h>
 #include <dwmapi.h>
