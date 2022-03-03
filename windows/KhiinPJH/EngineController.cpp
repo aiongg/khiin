@@ -5,13 +5,13 @@
 #include <filesystem>
 #include <unordered_map>
 
+#include <engine/Engine.h>
+
 #include "DllModule.h"
 #include "EditSession.h"
+#include "Files.h"
 #include "Utils.h"
 #include "common.h"
-#include "engine/engine.h"
-
-#include <ShlObj_core.h>
 
 namespace {
 
@@ -20,7 +20,6 @@ using namespace khiin::messages;
 
 volatile HMODULE g_module = nullptr;
 
-constexpr std::string_view kAppDataFolder = "Khiin PJH";
 constexpr std::string_view kDbFilename = "khiin.db";
 
 static std::unordered_map<int, SpecialKey> kWindowsToKhiinKeyCode = {
@@ -59,35 +58,6 @@ void TranslateKeyEvent(win32::KeyEvent *e1, messages::KeyEvent *e2) {
     }
 }
 
-fs::path DbFilePath() {
-    WINRT_ASSERT(g_module);
-
-    // Try %APPDATA%
-    LPWSTR tmp;
-    if (::SHGetKnownFolderPath(FOLDERID_RoamingAppData, 0, NULL, &tmp) == S_OK) {
-        auto db_path = fs::path(Utils::Narrow(std::wstring(tmp)));
-        ::CoTaskMemFree(tmp);
-        db_path /= kAppDataFolder;
-        db_path /= kDbFilename;
-        if (fs::exists(db_path)) {
-            return db_path;
-        }
-    } else {
-        ::CoTaskMemFree(tmp);
-    }
-
-    // Try the DLL directory
-    auto dll_path = std::wstring(MAX_PATH, '?');
-    auto len = ::GetModuleFileName(g_module, &dll_path[0], MAX_PATH);
-    if (len == 0) {
-        throw winrt::hresult_error(::GetLastError());
-    }
-    auto path = fs::path(Utils::Narrow(dll_path));
-    path.replace_filename("resources");
-    path /= kDbFilename;
-    return path;
-}
-
 struct EngineControllerImpl : winrt::implements<EngineControllerImpl, EngineController> {
     EngineControllerImpl() = default;
     EngineControllerImpl(const EngineControllerImpl &) = delete;
@@ -95,7 +65,8 @@ struct EngineControllerImpl : winrt::implements<EngineControllerImpl, EngineCont
     ~EngineControllerImpl() = default;
 
     virtual void Initialize() override {
-        m_engine = std::unique_ptr<Engine>(Engine::Create(DbFilePath().string()));
+        auto dbfile = Files::GetFilePath(g_module, kDbFilename);
+        m_engine = std::unique_ptr<Engine>(Engine::Create(dbfile.string()));
     }
 
     virtual void Uninitialize() override {

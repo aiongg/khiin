@@ -1,7 +1,6 @@
 syntax = "proto3";
 
 package khiin.messages;
-option optimize_for = LITE_RUNTIME;
 
 message KeyConfiguration {
     string telex_t2 = 1;
@@ -22,10 +21,17 @@ message KeyConfiguration {
 
 enum InputMode {
     IM_CONTINUOUS = 0;
-    IM_SINGLE_WORD = 1;
+    IM_BASIC = 1;
     IM_PRO = 2;
+}
+
+message Appearance {
+    string theme = 1;
+    int32 candidate_font_size = 2;
 }
 
 message AppConfig {
     KeyConfiguration key_config = 1;
+    InputMode input_mode = 2;
+    Appearance appearance = 3;
 }

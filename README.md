@@ -54,6 +54,7 @@ and use the following command:
 
 ```
 protoc.exe -I=proto --cpp_out=proto/proto proto/messages.proto
+protoc.exe -I=proto --cpp_out=proto/proto proto/config.proto
 ```
 
 #### Engine

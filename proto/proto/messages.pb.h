@@ -26,10 +26,12 @@
 #include <google/protobuf/generated_message_table_driven.h>
 #include <google/protobuf/generated_message_util.h>
 #include <google/protobuf/metadata_lite.h>
-#include <google/protobuf/message_lite.h>
+#include <google/protobuf/generated_message_reflection.h>
+#include <google/protobuf/message.h>
 #include <google/protobuf/repeated_field.h>  // IWYU pragma: export
 #include <google/protobuf/extension_set.h>  // IWYU pragma: export
-#include <google/protobuf/generated_enum_util.h>
+#include <google/protobuf/generated_enum_reflection.h>
+#include <google/protobuf/unknown_field_set.h>
 // @@protoc_insertion_point(includes)
 #include <google/protobuf/port_def.inc>
 #define PROTOBUF_INTERNAL_EXPORT_messages_2eproto
@@ -51,6 +53,7 @@ struct TableStruct_messages_2eproto {
   static const ::PROTOBUF_NAMESPACE_ID::internal::SerializationTable serialization_table[];
   static const ::PROTOBUF_NAMESPACE_ID::uint32 offsets[];
 };
+extern const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable descriptor_table_messages_2eproto;
 namespace khiin {
 namespace messages {
 class Candidate;
@@ -104,16 +107,20 @@ constexpr Candidate_Category Candidate_Category_Category_MIN = Candidate_Categor
 constexpr Candidate_Category Candidate_Category_Category_MAX = Candidate_Category_FALLBACK;
 constexpr int Candidate_Category_Category_ARRAYSIZE = Candidate_Category_Category_MAX + 1;
 
-const std::string& Candidate_Category_Name(Candidate_Category value);
+const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor* Candidate_Category_descriptor();
 template<typename T>
 inline const std::string& Candidate_Category_Name(T enum_t_value) {
   static_assert(::std::is_same<T, Candidate_Category>::value ||
     ::std::is_integral<T>::value,
     "Incorrect type passed to function Candidate_Category_Name.");
-  return Candidate_Category_Name(static_cast<Candidate_Category>(enum_t_value));
+  return ::PROTOBUF_NAMESPACE_ID::internal::NameOfEnum(
+    Candidate_Category_descriptor(), enum_t_value);
 }
-bool Candidate_Category_Parse(
-    ::PROTOBUF_NAMESPACE_ID::ConstStringParam name, Candidate_Category* value);
+inline bool Candidate_Category_Parse(
+    ::PROTOBUF_NAMESPACE_ID::ConstStringParam name, Candidate_Category* value) {
+  return ::PROTOBUF_NAMESPACE_ID::internal::ParseNamedEnum<Candidate_Category>(
+    Candidate_Category_descriptor(), name, value);
+}
 enum SpecialKey : int {
   SK_NONE = 0,
   SK_SPACE = 1,
@@ -138,16 +145,20 @@ constexpr SpecialKey SpecialKey_MIN = SK_NONE;
 constexpr SpecialKey SpecialKey_MAX = SK_DEL;
 constexpr int SpecialKey_ARRAYSIZE = SpecialKey_MAX + 1;
 
-const std::string& SpecialKey_Name(SpecialKey value);
+const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor* SpecialKey_descriptor();
 template<typename T>
 inline const std::string& SpecialKey_Name(T enum_t_value) {
   static_assert(::std::is_same<T, SpecialKey>::value ||
     ::std::is_integral<T>::value,
     "Incorrect type passed to function SpecialKey_Name.");
-  return SpecialKey_Name(static_cast<SpecialKey>(enum_t_value));
+  return ::PROTOBUF_NAMESPACE_ID::internal::NameOfEnum(
+    SpecialKey_descriptor(), enum_t_value);
 }
-bool SpecialKey_Parse(
-    ::PROTOBUF_NAMESPACE_ID::ConstStringParam name, SpecialKey* value);
+inline bool SpecialKey_Parse(
+    ::PROTOBUF_NAMESPACE_ID::ConstStringParam name, SpecialKey* value) {
+  return ::PROTOBUF_NAMESPACE_ID::internal::ParseNamedEnum<SpecialKey>(
+    SpecialKey_descriptor(), name, value);
+}
 enum ModifierKey : int {
   CTRL = 0,
   ALT = 1,
@@ -160,16 +171,20 @@ constexpr ModifierKey ModifierKey_MIN = CTRL;
 constexpr ModifierKey ModifierKey_MAX = SHIFT;
 constexpr int ModifierKey_ARRAYSIZE = ModifierKey_MAX + 1;
 
-const std::string& ModifierKey_Name(ModifierKey value);
+const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor* ModifierKey_descriptor();
 template<typename T>
 inline const std::string& ModifierKey_Name(T enum_t_value) {
   static_assert(::std::is_same<T, ModifierKey>::value ||
     ::std::is_integral<T>::value,
     "Incorrect type passed to function ModifierKey_Name.");
-  return ModifierKey_Name(static_cast<ModifierKey>(enum_t_value));
+  return ::PROTOBUF_NAMESPACE_ID::internal::NameOfEnum(
+    ModifierKey_descriptor(), enum_t_value);
 }
-bool ModifierKey_Parse(
-    ::PROTOBUF_NAMESPACE_ID::ConstStringParam name, ModifierKey* value);
+inline bool ModifierKey_Parse(
+    ::PROTOBUF_NAMESPACE_ID::ConstStringParam name, ModifierKey* value) {
+  return ::PROTOBUF_NAMESPACE_ID::internal::ParseNamedEnum<ModifierKey>(
+    ModifierKey_descriptor(), name, value);
+}
 enum SegmentStatus : int {
   UNMARKED = 0,
   COMPOSING = 1,
@@ -183,16 +198,20 @@ constexpr SegmentStatus SegmentStatus_MIN = UNMARKED;
 constexpr SegmentStatus SegmentStatus_MAX = FOCUSED;
 constexpr int SegmentStatus_ARRAYSIZE = SegmentStatus_MAX + 1;
 
-const std::string& SegmentStatus_Name(SegmentStatus value);
+const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor* SegmentStatus_descriptor();
 template<typename T>
 inline const std::string& SegmentStatus_Name(T enum_t_value) {
   static_assert(::std::is_same<T, SegmentStatus>::value ||
     ::std::is_integral<T>::value,
     "Incorrect type passed to function SegmentStatus_Name.");
-  return SegmentStatus_Name(static_cast<SegmentStatus>(enum_t_value));
+  return ::PROTOBUF_NAMESPACE_ID::internal::NameOfEnum(
+    SegmentStatus_descriptor(), enum_t_value);
 }
-bool SegmentStatus_Parse(
-    ::PROTOBUF_NAMESPACE_ID::ConstStringParam name, SegmentStatus* value);
+inline bool SegmentStatus_Parse(
+    ::PROTOBUF_NAMESPACE_ID::ConstStringParam name, SegmentStatus* value) {
+  return ::PROTOBUF_NAMESPACE_ID::internal::ParseNamedEnum<SegmentStatus>(
+    SegmentStatus_descriptor(), name, value);
+}
 enum ErrorCode : int {
   OK = 0,
   FAIL = 1,
@@ -204,16 +223,20 @@ constexpr ErrorCode ErrorCode_MIN = OK;
 constexpr ErrorCode ErrorCode_MAX = FAIL;
 constexpr int ErrorCode_ARRAYSIZE = ErrorCode_MAX + 1;
 
-const std::string& ErrorCode_Name(ErrorCode value);
+const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor* ErrorCode_descriptor();
 template<typename T>
 inline const std::string& ErrorCode_Name(T enum_t_value) {
   static_assert(::std::is_same<T, ErrorCode>::value ||
     ::std::is_integral<T>::value,
     "Incorrect type passed to function ErrorCode_Name.");
-  return ErrorCode_Name(static_cast<ErrorCode>(enum_t_value));
+  return ::PROTOBUF_NAMESPACE_ID::internal::NameOfEnum(
+    ErrorCode_descriptor(), enum_t_value);
 }
-bool ErrorCode_Parse(
-    ::PROTOBUF_NAMESPACE_ID::ConstStringParam name, ErrorCode* value);
+inline bool ErrorCode_Parse(
+    ::PROTOBUF_NAMESPACE_ID::ConstStringParam name, ErrorCode* value) {
+  return ::PROTOBUF_NAMESPACE_ID::internal::ParseNamedEnum<ErrorCode>(
+    ErrorCode_descriptor(), name, value);
+}
 enum EditState : int {
   EDIT_EMPTY = 0,
   EDIT_COMPOSING = 1,
@@ -227,16 +250,20 @@ constexpr EditState EditState_MIN = EDIT_EMPTY;
 constexpr EditState EditState_MAX = EDIT_SELECTING;
 constexpr int EditState_ARRAYSIZE = EditState_MAX + 1;
 
-const std::string& EditState_Name(EditState value);
+const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor* EditState_descriptor();
 template<typename T>
 inline const std::string& EditState_Name(T enum_t_value) {
   static_assert(::std::is_same<T, EditState>::value ||
     ::std::is_integral<T>::value,
     "Incorrect type passed to function EditState_Name.");
-  return EditState_Name(static_cast<EditState>(enum_t_value));
+  return ::PROTOBUF_NAMESPACE_ID::internal::NameOfEnum(
+    EditState_descriptor(), enum_t_value);
 }
-bool EditState_Parse(
-    ::PROTOBUF_NAMESPACE_ID::ConstStringParam name, EditState* value);
+inline bool EditState_Parse(
+    ::PROTOBUF_NAMESPACE_ID::ConstStringParam name, EditState* value) {
+  return ::PROTOBUF_NAMESPACE_ID::internal::ParseNamedEnum<EditState>(
+    EditState_descriptor(), name, value);
+}
 enum CommandType : int {
   SEND_KEY = 0,
   REVERT = 1,
@@ -258,20 +285,24 @@ constexpr CommandType CommandType_MIN = SEND_KEY;
 constexpr CommandType CommandType_MAX = TEST_SEND_KEY;
 constexpr int CommandType_ARRAYSIZE = CommandType_MAX + 1;
 
-const std::string& CommandType_Name(CommandType value);
+const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor* CommandType_descriptor();
 template<typename T>
 inline const std::string& CommandType_Name(T enum_t_value) {
   static_assert(::std::is_same<T, CommandType>::value ||
     ::std::is_integral<T>::value,
     "Incorrect type passed to function CommandType_Name.");
-  return CommandType_Name(static_cast<CommandType>(enum_t_value));
+  return ::PROTOBUF_NAMESPACE_ID::internal::NameOfEnum(
+    CommandType_descriptor(), enum_t_value);
 }
-bool CommandType_Parse(
-    ::PROTOBUF_NAMESPACE_ID::ConstStringParam name, CommandType* value);
+inline bool CommandType_Parse(
+    ::PROTOBUF_NAMESPACE_ID::ConstStringParam name, CommandType* value) {
+  return ::PROTOBUF_NAMESPACE_ID::internal::ParseNamedEnum<CommandType>(
+    CommandType_descriptor(), name, value);
+}
 // ===================================================================
 
 class KeyEvent final :
-    public ::PROTOBUF_NAMESPACE_ID::MessageLite /* @@protoc_insertion_point(class_definition:khiin.messages.KeyEvent) */ {
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:khiin.messages.KeyEvent) */ {
  public:
   inline KeyEvent() : KeyEvent(nullptr) {}
   ~KeyEvent() override;
@@ -301,6 +332,15 @@ class KeyEvent final :
     return *this;
   }
 
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
+    return default_instance().GetMetadata().descriptor;
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
+    return default_instance().GetMetadata().reflection;
+  }
   static const KeyEvent& default_instance() {
     return *internal_default_instance();
   }
@@ -337,9 +377,13 @@ class KeyEvent final :
   KeyEvent* New(::PROTOBUF_NAMESPACE_ID::Arena* arena) const final {
     return CreateMaybeMessage<KeyEvent>(arena);
   }
-  void CheckTypeAndMergeFrom(const ::PROTOBUF_NAMESPACE_ID::MessageLite& from)  final;
+  using ::PROTOBUF_NAMESPACE_ID::Message::CopyFrom;
   void CopyFrom(const KeyEvent& from);
+  using ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom;
   void MergeFrom(const KeyEvent& from);
+  private:
+  static void MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to, const ::PROTOBUF_NAMESPACE_ID::Message& from);
+  public:
   PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
   bool IsInitialized() const final;
 
@@ -347,13 +391,12 @@ class KeyEvent final :
   const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
   ::PROTOBUF_NAMESPACE_ID::uint8* _InternalSerialize(
       ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
-  void DiscardUnknownFields();
   int GetCachedSize() const final { return _cached_size_.Get(); }
 
   private:
   void SharedCtor();
   void SharedDtor();
-  void SetCachedSize(int size) const;
+  void SetCachedSize(int size) const final;
   void InternalSwap(KeyEvent* other);
   friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
   static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
@@ -367,7 +410,10 @@ class KeyEvent final :
   inline void RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   public:
 
-  std::string GetTypeName() const final;
+  static const ClassData _class_data_;
+  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*GetClassData() const final;
+
+  ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
 
   // nested types ----------------------------------------------------
 
@@ -430,7 +476,7 @@ class KeyEvent final :
 // -------------------------------------------------------------------
 
 class Input final :
-    public ::PROTOBUF_NAMESPACE_ID::MessageLite /* @@protoc_insertion_point(class_definition:khiin.messages.Input) */ {
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:khiin.messages.Input) */ {
  public:
   inline Input() : Input(nullptr) {}
   ~Input() override;
@@ -460,6 +506,15 @@ class Input final :
     return *this;
   }
 
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
+    return default_instance().GetMetadata().descriptor;
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
+    return default_instance().GetMetadata().reflection;
+  }
   static const Input& default_instance() {
     return *internal_default_instance();
   }
@@ -496,9 +551,13 @@ class Input final :
   Input* New(::PROTOBUF_NAMESPACE_ID::Arena* arena) const final {
     return CreateMaybeMessage<Input>(arena);
   }
-  void CheckTypeAndMergeFrom(const ::PROTOBUF_NAMESPACE_ID::MessageLite& from)  final;
+  using ::PROTOBUF_NAMESPACE_ID::Message::CopyFrom;
   void CopyFrom(const Input& from);
+  using ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom;
   void MergeFrom(const Input& from);
+  private:
+  static void MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to, const ::PROTOBUF_NAMESPACE_ID::Message& from);
+  public:
   PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
   bool IsInitialized() const final;
 
@@ -506,13 +565,12 @@ class Input final :
   const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
   ::PROTOBUF_NAMESPACE_ID::uint8* _InternalSerialize(
       ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
-  void DiscardUnknownFields();
   int GetCachedSize() const final { return _cached_size_.Get(); }
 
   private:
   void SharedCtor();
   void SharedDtor();
-  void SetCachedSize(int size) const;
+  void SetCachedSize(int size) const final;
   void InternalSwap(Input* other);
   friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
   static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
@@ -526,7 +584,10 @@ class Input final :
   inline void RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   public:
 
-  std::string GetTypeName() const final;
+  static const ClassData _class_data_;
+  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*GetClassData() const final;
+
+  ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
 
   // nested types ----------------------------------------------------
 
@@ -589,7 +650,7 @@ class Input final :
 // -------------------------------------------------------------------
 
 class Preedit_Segment final :
-    public ::PROTOBUF_NAMESPACE_ID::MessageLite /* @@protoc_insertion_point(class_definition:khiin.messages.Preedit.Segment) */ {
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:khiin.messages.Preedit.Segment) */ {
  public:
   inline Preedit_Segment() : Preedit_Segment(nullptr) {}
   ~Preedit_Segment() override;
@@ -619,6 +680,15 @@ class Preedit_Segment final :
     return *this;
   }
 
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
+    return default_instance().GetMetadata().descriptor;
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
+    return default_instance().GetMetadata().reflection;
+  }
   static const Preedit_Segment& default_instance() {
     return *internal_default_instance();
   }
@@ -655,9 +725,13 @@ class Preedit_Segment final :
   Preedit_Segment* New(::PROTOBUF_NAMESPACE_ID::Arena* arena) const final {
     return CreateMaybeMessage<Preedit_Segment>(arena);
   }
-  void CheckTypeAndMergeFrom(const ::PROTOBUF_NAMESPACE_ID::MessageLite& from)  final;
+  using ::PROTOBUF_NAMESPACE_ID::Message::CopyFrom;
   void CopyFrom(const Preedit_Segment& from);
+  using ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom;
   void MergeFrom(const Preedit_Segment& from);
+  private:
+  static void MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to, const ::PROTOBUF_NAMESPACE_ID::Message& from);
+  public:
   PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
   bool IsInitialized() const final;
 
@@ -665,13 +739,12 @@ class Preedit_Segment final :
   const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
   ::PROTOBUF_NAMESPACE_ID::uint8* _InternalSerialize(
       ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
-  void DiscardUnknownFields();
   int GetCachedSize() const final { return _cached_size_.Get(); }
 
   private:
   void SharedCtor();
   void SharedDtor();
-  void SetCachedSize(int size) const;
+  void SetCachedSize(int size) const final;
   void InternalSwap(Preedit_Segment* other);
   friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
   static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
@@ -685,7 +758,10 @@ class Preedit_Segment final :
   inline void RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   public:
 
-  std::string GetTypeName() const final;
+  static const ClassData _class_data_;
+  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*GetClassData() const final;
+
+  ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
 
   // nested types ----------------------------------------------------
 
@@ -733,7 +809,7 @@ class Preedit_Segment final :
 // -------------------------------------------------------------------
 
 class Preedit final :
-    public ::PROTOBUF_NAMESPACE_ID::MessageLite /* @@protoc_insertion_point(class_definition:khiin.messages.Preedit) */ {
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:khiin.messages.Preedit) */ {
  public:
   inline Preedit() : Preedit(nullptr) {}
   ~Preedit() override;
@@ -763,6 +839,15 @@ class Preedit final :
     return *this;
   }
 
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
+    return default_instance().GetMetadata().descriptor;
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
+    return default_instance().GetMetadata().reflection;
+  }
   static const Preedit& default_instance() {
     return *internal_default_instance();
   }
@@ -799,9 +884,13 @@ class Preedit final :
   Preedit* New(::PROTOBUF_NAMESPACE_ID::Arena* arena) const final {
     return CreateMaybeMessage<Preedit>(arena);
   }
-  void CheckTypeAndMergeFrom(const ::PROTOBUF_NAMESPACE_ID::MessageLite& from)  final;
+  using ::PROTOBUF_NAMESPACE_ID::Message::CopyFrom;
   void CopyFrom(const Preedit& from);
+  using ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom;
   void MergeFrom(const Preedit& from);
+  private:
+  static void MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to, const ::PROTOBUF_NAMESPACE_ID::Message& from);
+  public:
   PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
   bool IsInitialized() const final;
 
@@ -809,13 +898,12 @@ class Preedit final :
   const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
   ::PROTOBUF_NAMESPACE_ID::uint8* _InternalSerialize(
       ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
-  void DiscardUnknownFields();
   int GetCachedSize() const final { return _cached_size_.Get(); }
 
   private:
   void SharedCtor();
   void SharedDtor();
-  void SetCachedSize(int size) const;
+  void SetCachedSize(int size) const final;
   void InternalSwap(Preedit* other);
   friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
   static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
@@ -829,7 +917,10 @@ class Preedit final :
   inline void RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   public:
 
-  std::string GetTypeName() const final;
+  static const ClassData _class_data_;
+  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*GetClassData() const final;
+
+  ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
 
   // nested types ----------------------------------------------------
 
@@ -883,7 +974,7 @@ class Preedit final :
 // -------------------------------------------------------------------
 
 class Candidate final :
-    public ::PROTOBUF_NAMESPACE_ID::MessageLite /* @@protoc_insertion_point(class_definition:khiin.messages.Candidate) */ {
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:khiin.messages.Candidate) */ {
  public:
   inline Candidate() : Candidate(nullptr) {}
   ~Candidate() override;
@@ -913,6 +1004,15 @@ class Candidate final :
     return *this;
   }
 
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
+    return default_instance().GetMetadata().descriptor;
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
+    return default_instance().GetMetadata().reflection;
+  }
   static const Candidate& default_instance() {
     return *internal_default_instance();
   }
@@ -949,9 +1049,13 @@ class Candidate final :
   Candidate* New(::PROTOBUF_NAMESPACE_ID::Arena* arena) const final {
     return CreateMaybeMessage<Candidate>(arena);
   }
-  void CheckTypeAndMergeFrom(const ::PROTOBUF_NAMESPACE_ID::MessageLite& from)  final;
+  using ::PROTOBUF_NAMESPACE_ID::Message::CopyFrom;
   void CopyFrom(const Candidate& from);
+  using ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom;
   void MergeFrom(const Candidate& from);
+  private:
+  static void MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to, const ::PROTOBUF_NAMESPACE_ID::Message& from);
+  public:
   PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
   bool IsInitialized() const final;
 
@@ -959,13 +1063,12 @@ class Candidate final :
   const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
   ::PROTOBUF_NAMESPACE_ID::uint8* _InternalSerialize(
       ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
-  void DiscardUnknownFields();
   int GetCachedSize() const final { return _cached_size_.Get(); }
 
   private:
   void SharedCtor();
   void SharedDtor();
-  void SetCachedSize(int size) const;
+  void SetCachedSize(int size) const final;
   void InternalSwap(Candidate* other);
   friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
   static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
@@ -979,7 +1082,10 @@ class Candidate final :
   inline void RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   public:
 
-  std::string GetTypeName() const final;
+  static const ClassData _class_data_;
+  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*GetClassData() const final;
+
+  ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
 
   // nested types ----------------------------------------------------
 
@@ -999,6 +1105,10 @@ class Candidate final :
     Candidate_Category_Category_MAX;
   static constexpr int Category_ARRAYSIZE =
     Candidate_Category_Category_ARRAYSIZE;
+  static inline const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor*
+  Category_descriptor() {
+    return Candidate_Category_descriptor();
+  }
   template<typename T>
   static inline const std::string& Category_Name(T enum_t_value) {
     static_assert(::std::is_same<T, Category>::value ||
@@ -1098,7 +1208,7 @@ class Candidate final :
 // -------------------------------------------------------------------
 
 class CandidateList final :
-    public ::PROTOBUF_NAMESPACE_ID::MessageLite /* @@protoc_insertion_point(class_definition:khiin.messages.CandidateList) */ {
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:khiin.messages.CandidateList) */ {
  public:
   inline CandidateList() : CandidateList(nullptr) {}
   ~CandidateList() override;
@@ -1128,6 +1238,15 @@ class CandidateList final :
     return *this;
   }
 
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
+    return default_instance().GetMetadata().descriptor;
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
+    return default_instance().GetMetadata().reflection;
+  }
   static const CandidateList& default_instance() {
     return *internal_default_instance();
   }
@@ -1164,9 +1283,13 @@ class CandidateList final :
   CandidateList* New(::PROTOBUF_NAMESPACE_ID::Arena* arena) const final {
     return CreateMaybeMessage<CandidateList>(arena);
   }
-  void CheckTypeAndMergeFrom(const ::PROTOBUF_NAMESPACE_ID::MessageLite& from)  final;
+  using ::PROTOBUF_NAMESPACE_ID::Message::CopyFrom;
   void CopyFrom(const CandidateList& from);
+  using ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom;
   void MergeFrom(const CandidateList& from);
+  private:
+  static void MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to, const ::PROTOBUF_NAMESPACE_ID::Message& from);
+  public:
   PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
   bool IsInitialized() const final;
 
@@ -1174,13 +1297,12 @@ class CandidateList final :
   const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
   ::PROTOBUF_NAMESPACE_ID::uint8* _InternalSerialize(
       ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
-  void DiscardUnknownFields();
   int GetCachedSize() const final { return _cached_size_.Get(); }
 
   private:
   void SharedCtor();
   void SharedDtor();
-  void SetCachedSize(int size) const;
+  void SetCachedSize(int size) const final;
   void InternalSwap(CandidateList* other);
   friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
   static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
@@ -1194,7 +1316,10 @@ class CandidateList final :
   inline void RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   public:
 
-  std::string GetTypeName() const final;
+  static const ClassData _class_data_;
+  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*GetClassData() const final;
+
+  ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
 
   // nested types ----------------------------------------------------
 
@@ -1246,7 +1371,7 @@ class CandidateList final :
 // -------------------------------------------------------------------
 
 class Output final :
-    public ::PROTOBUF_NAMESPACE_ID::MessageLite /* @@protoc_insertion_point(class_definition:khiin.messages.Output) */ {
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:khiin.messages.Output) */ {
  public:
   inline Output() : Output(nullptr) {}
   ~Output() override;
@@ -1276,6 +1401,15 @@ class Output final :
     return *this;
   }
 
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
+    return default_instance().GetMetadata().descriptor;
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
+    return default_instance().GetMetadata().reflection;
+  }
   static const Output& default_instance() {
     return *internal_default_instance();
   }
@@ -1312,9 +1446,13 @@ class Output final :
   Output* New(::PROTOBUF_NAMESPACE_ID::Arena* arena) const final {
     return CreateMaybeMessage<Output>(arena);
   }
-  void CheckTypeAndMergeFrom(const ::PROTOBUF_NAMESPACE_ID::MessageLite& from)  final;
+  using ::PROTOBUF_NAMESPACE_ID::Message::CopyFrom;
   void CopyFrom(const Output& from);
+  using ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom;
   void MergeFrom(const Output& from);
+  private:
+  static void MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to, const ::PROTOBUF_NAMESPACE_ID::Message& from);
+  public:
   PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
   bool IsInitialized() const final;
 
@@ -1322,13 +1460,12 @@ class Output final :
   const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
   ::PROTOBUF_NAMESPACE_ID::uint8* _InternalSerialize(
       ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
-  void DiscardUnknownFields();
   int GetCachedSize() const final { return _cached_size_.Get(); }
 
   private:
   void SharedCtor();
   void SharedDtor();
-  void SetCachedSize(int size) const;
+  void SetCachedSize(int size) const final;
   void InternalSwap(Output* other);
   friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
   static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
@@ -1342,7 +1479,10 @@ class Output final :
   inline void RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   public:
 
-  std::string GetTypeName() const final;
+  static const ClassData _class_data_;
+  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*GetClassData() const final;
+
+  ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
 
   // nested types ----------------------------------------------------
 
@@ -1436,7 +1576,7 @@ class Output final :
 // -------------------------------------------------------------------
 
 class Command final :
-    public ::PROTOBUF_NAMESPACE_ID::MessageLite /* @@protoc_insertion_point(class_definition:khiin.messages.Command) */ {
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:khiin.messages.Command) */ {
  public:
   inline Command() : Command(nullptr) {}
   ~Command() override;
@@ -1466,6 +1606,15 @@ class Command final :
     return *this;
   }
 
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
+    return default_instance().GetMetadata().descriptor;
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
+    return default_instance().GetMetadata().reflection;
+  }
   static const Command& default_instance() {
     return *internal_default_instance();
   }
@@ -1502,9 +1651,13 @@ class Command final :
   Command* New(::PROTOBUF_NAMESPACE_ID::Arena* arena) const final {
     return CreateMaybeMessage<Command>(arena);
   }
-  void CheckTypeAndMergeFrom(const ::PROTOBUF_NAMESPACE_ID::MessageLite& from)  final;
+  using ::PROTOBUF_NAMESPACE_ID::Message::CopyFrom;
   void CopyFrom(const Command& from);
+  using ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom;
   void MergeFrom(const Command& from);
+  private:
+  static void MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to, const ::PROTOBUF_NAMESPACE_ID::Message& from);
+  public:
   PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
   bool IsInitialized() const final;
 
@@ -1512,13 +1665,12 @@ class Command final :
   const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
   ::PROTOBUF_NAMESPACE_ID::uint8* _InternalSerialize(
       ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
-  void DiscardUnknownFields();
   int GetCachedSize() const final { return _cached_size_.Get(); }
 
   private:
   void SharedCtor();
   void SharedDtor();
-  void SetCachedSize(int size) const;
+  void SetCachedSize(int size) const final;
   void InternalSwap(Command* other);
   friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
   static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
@@ -1532,7 +1684,10 @@ class Command final :
   inline void RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   public:
 
-  std::string GetTypeName() const final;
+  static const ClassData _class_data_;
+  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*GetClassData() const final;
+
+  ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
 
   // nested types ----------------------------------------------------
 
@@ -2683,12 +2838,40 @@ inline void Command::set_allocated_output(::khiin::messages::Output* output) {
 PROTOBUF_NAMESPACE_OPEN
 
 template <> struct is_proto_enum< ::khiin::messages::Candidate_Category> : ::std::true_type {};
+template <>
+inline const EnumDescriptor* GetEnumDescriptor< ::khiin::messages::Candidate_Category>() {
+  return ::khiin::messages::Candidate_Category_descriptor();
+}
 template <> struct is_proto_enum< ::khiin::messages::SpecialKey> : ::std::true_type {};
+template <>
+inline const EnumDescriptor* GetEnumDescriptor< ::khiin::messages::SpecialKey>() {
+  return ::khiin::messages::SpecialKey_descriptor();
+}
 template <> struct is_proto_enum< ::khiin::messages::ModifierKey> : ::std::true_type {};
+template <>
+inline const EnumDescriptor* GetEnumDescriptor< ::khiin::messages::ModifierKey>() {
+  return ::khiin::messages::ModifierKey_descriptor();
+}
 template <> struct is_proto_enum< ::khiin::messages::SegmentStatus> : ::std::true_type {};
+template <>
+inline const EnumDescriptor* GetEnumDescriptor< ::khiin::messages::SegmentStatus>() {
+  return ::khiin::messages::SegmentStatus_descriptor();
+}
 template <> struct is_proto_enum< ::khiin::messages::ErrorCode> : ::std::true_type {};
+template <>
+inline const EnumDescriptor* GetEnumDescriptor< ::khiin::messages::ErrorCode>() {
+  return ::khiin::messages::ErrorCode_descriptor();
+}
 template <> struct is_proto_enum< ::khiin::messages::EditState> : ::std::true_type {};
+template <>
+inline const EnumDescriptor* GetEnumDescriptor< ::khiin::messages::EditState>() {
+  return ::khiin::messages::EditState_descriptor();
+}
 template <> struct is_proto_enum< ::khiin::messages::CommandType> : ::std::true_type {};
+template <>
+inline const EnumDescriptor* GetEnumDescriptor< ::khiin::messages::CommandType>() {
+  return ::khiin::messages::CommandType_descriptor();
+}
 
 PROTOBUF_NAMESPACE_CLOSE
 

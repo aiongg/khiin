@@ -24,7 +24,7 @@ char KeyEvent::ascii() const {
 }
 
 int KeyEvent::keyCode() const {
-    return wParam;
+    return static_cast<int>(wParam);
 }
 
 } // namespace khiin::win32

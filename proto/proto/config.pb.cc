@@ -8,7 +8,10 @@
 #include <google/protobuf/io/coded_stream.h>
 #include <google/protobuf/extension_set.h>
 #include <google/protobuf/wire_format_lite.h>
-#include <google/protobuf/io/zero_copy_stream_impl_lite.h>
+#include <google/protobuf/descriptor.h>
+#include <google/protobuf/generated_message_reflection.h>
+#include <google/protobuf/reflection_ops.h>
+#include <google/protobuf/wire_format.h>
 // @@protoc_insertion_point(includes)
 #include <google/protobuf/port_def.inc>
 
@@ -40,9 +43,25 @@ struct KeyConfigurationDefaultTypeInternal {
   };
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT KeyConfigurationDefaultTypeInternal _KeyConfiguration_default_instance_;
+constexpr Appearance::Appearance(
+  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
+  : theme_(&::PROTOBUF_NAMESPACE_ID::internal::fixed_address_empty_string)
+  , candidate_font_size_(0){}
+struct AppearanceDefaultTypeInternal {
+  constexpr AppearanceDefaultTypeInternal()
+    : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
+  ~AppearanceDefaultTypeInternal() {}
+  union {
+    Appearance _instance;
+  };
+};
+PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT AppearanceDefaultTypeInternal _Appearance_default_instance_;
 constexpr AppConfig::AppConfig(
   ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
-  : key_config_(nullptr){}
+  : key_config_(nullptr)
+  , appearance_(nullptr)
+  , input_mode_(0)
+{}
 struct AppConfigDefaultTypeInternal {
   constexpr AppConfigDefaultTypeInternal()
     : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
@@ -54,8 +73,98 @@ struct AppConfigDefaultTypeInternal {
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT AppConfigDefaultTypeInternal _AppConfig_default_instance_;
 }  // namespace messages
 }  // namespace khiin
+static ::PROTOBUF_NAMESPACE_ID::Metadata file_level_metadata_config_2eproto[3];
+static const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor* file_level_enum_descriptors_config_2eproto[1];
+static constexpr ::PROTOBUF_NAMESPACE_ID::ServiceDescriptor const** file_level_service_descriptors_config_2eproto = nullptr;
+
+const ::PROTOBUF_NAMESPACE_ID::uint32 TableStruct_config_2eproto::offsets[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) = {
+  ~0u,  // no _has_bits_
+  PROTOBUF_FIELD_OFFSET(::khiin::messages::KeyConfiguration, _internal_metadata_),
+  ~0u,  // no _extensions_
+  ~0u,  // no _oneof_case_
+  ~0u,  // no _weak_field_map_
+  ~0u,  // no _inlined_string_donated_
+  PROTOBUF_FIELD_OFFSET(::khiin::messages::KeyConfiguration, telex_t2_),
+  PROTOBUF_FIELD_OFFSET(::khiin::messages::KeyConfiguration, telex_t3_),
+  PROTOBUF_FIELD_OFFSET(::khiin::messages::KeyConfiguration, telex_t5_),
+  PROTOBUF_FIELD_OFFSET(::khiin::messages::KeyConfiguration, telex_t6_),
+  PROTOBUF_FIELD_OFFSET(::khiin::messages::KeyConfiguration, telex_t7_),
+  PROTOBUF_FIELD_OFFSET(::khiin::messages::KeyConfiguration, telex_t8_),
+  PROTOBUF_FIELD_OFFSET(::khiin::messages::KeyConfiguration, telex_t9_),
+  PROTOBUF_FIELD_OFFSET(::khiin::messages::KeyConfiguration, telex_khin_),
+  PROTOBUF_FIELD_OFFSET(::khiin::messages::KeyConfiguration, alt_hyphen_),
+  PROTOBUF_FIELD_OFFSET(::khiin::messages::KeyConfiguration, nasal_),
+  PROTOBUF_FIELD_OFFSET(::khiin::messages::KeyConfiguration, dot_above_right_),
+  PROTOBUF_FIELD_OFFSET(::khiin::messages::KeyConfiguration, dots_below_),
+  PROTOBUF_FIELD_OFFSET(::khiin::messages::KeyConfiguration, enable_uppercase_nasal_),
+  PROTOBUF_FIELD_OFFSET(::khiin::messages::KeyConfiguration, use_digits_as_fallback_),
+  ~0u,  // no _has_bits_
+  PROTOBUF_FIELD_OFFSET(::khiin::messages::Appearance, _internal_metadata_),
+  ~0u,  // no _extensions_
+  ~0u,  // no _oneof_case_
+  ~0u,  // no _weak_field_map_
+  ~0u,  // no _inlined_string_donated_
+  PROTOBUF_FIELD_OFFSET(::khiin::messages::Appearance, theme_),
+  PROTOBUF_FIELD_OFFSET(::khiin::messages::Appearance, candidate_font_size_),
+  ~0u,  // no _has_bits_
+  PROTOBUF_FIELD_OFFSET(::khiin::messages::AppConfig, _internal_metadata_),
+  ~0u,  // no _extensions_
+  ~0u,  // no _oneof_case_
+  ~0u,  // no _weak_field_map_
+  ~0u,  // no _inlined_string_donated_
+  PROTOBUF_FIELD_OFFSET(::khiin::messages::AppConfig, key_config_),
+  PROTOBUF_FIELD_OFFSET(::khiin::messages::AppConfig, input_mode_),
+  PROTOBUF_FIELD_OFFSET(::khiin::messages::AppConfig, appearance_),
+};
+static const ::PROTOBUF_NAMESPACE_ID::internal::MigrationSchema schemas[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) = {
+  { 0, -1, -1, sizeof(::khiin::messages::KeyConfiguration)},
+  { 20, -1, -1, sizeof(::khiin::messages::Appearance)},
+  { 28, -1, -1, sizeof(::khiin::messages::AppConfig)},
+};
+
+static ::PROTOBUF_NAMESPACE_ID::Message const * const file_default_instances[] = {
+  reinterpret_cast<const ::PROTOBUF_NAMESPACE_ID::Message*>(&::khiin::messages::_KeyConfiguration_default_instance_),
+  reinterpret_cast<const ::PROTOBUF_NAMESPACE_ID::Message*>(&::khiin::messages::_Appearance_default_instance_),
+  reinterpret_cast<const ::PROTOBUF_NAMESPACE_ID::Message*>(&::khiin::messages::_AppConfig_default_instance_),
+};
+
+const char descriptor_table_protodef_config_2eproto[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) =
+  "\n\014config.proto\022\016khiin.messages\"\264\002\n\020KeyCo"
+  "nfiguration\022\020\n\010telex_t2\030\001 \001(\t\022\020\n\010telex_t"
+  "3\030\002 \001(\t\022\020\n\010telex_t5\030\003 \001(\t\022\020\n\010telex_t6\030\004 "
+  "\001(\t\022\020\n\010telex_t7\030\005 \001(\t\022\020\n\010telex_t8\030\006 \001(\t\022"
+  "\020\n\010telex_t9\030\007 \001(\t\022\022\n\ntelex_khin\030\010 \001(\t\022\022\n"
+  "\nalt_hyphen\030\t \001(\t\022\r\n\005nasal\030\n \001(\t\022\027\n\017dot_"
+  "above_right\030\013 \001(\t\022\022\n\ndots_below\030\014 \001(\t\022\036\n"
+  "\026enable_uppercase_nasal\030\r \001(\010\022\036\n\026use_dig"
+  "its_as_fallback\030\016 \001(\010\"8\n\nAppearance\022\r\n\005t"
+  "heme\030\001 \001(\t\022\033\n\023candidate_font_size\030\002 \001(\005\""
+  "\240\001\n\tAppConfig\0224\n\nkey_config\030\001 \001(\0132 .khii"
+  "n.messages.KeyConfiguration\022-\n\ninput_mod"
+  "e\030\002 \001(\0162\031.khiin.messages.InputMode\022.\n\nap"
+  "pearance\030\003 \001(\0132\032.khiin.messages.Appearan"
+  "ce*8\n\tInputMode\022\021\n\rIM_CONTINUOUS\020\000\022\014\n\010IM"
+  "_BASIC\020\001\022\n\n\006IM_PRO\020\002b\006proto3"
+  ;
+static ::PROTOBUF_NAMESPACE_ID::internal::once_flag descriptor_table_config_2eproto_once;
+const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable descriptor_table_config_2eproto = {
+  false, false, 628, descriptor_table_protodef_config_2eproto, "config.proto", 
+  &descriptor_table_config_2eproto_once, nullptr, 0, 3,
+  schemas, file_default_instances, TableStruct_config_2eproto::offsets,
+  file_level_metadata_config_2eproto, file_level_enum_descriptors_config_2eproto, file_level_service_descriptors_config_2eproto,
+};
+PROTOBUF_ATTRIBUTE_WEAK const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable* descriptor_table_config_2eproto_getter() {
+  return &descriptor_table_config_2eproto;
+}
+
+// Force running AddDescriptors() at dynamic initialization time.
+PROTOBUF_ATTRIBUTE_INIT_PRIORITY static ::PROTOBUF_NAMESPACE_ID::internal::AddDescriptorsRunner dynamic_init_dummy_config_2eproto(&descriptor_table_config_2eproto);
 namespace khiin {
 namespace messages {
+const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor* InputMode_descriptor() {
+  ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&descriptor_table_config_2eproto);
+  return file_level_enum_descriptors_config_2eproto[0];
+}
 bool InputMode_IsValid(int value) {
   switch (value) {
     case 0:
@@ -67,50 +176,6 @@ bool InputMode_IsValid(int value) {
   }
 }
 
-static ::PROTOBUF_NAMESPACE_ID::internal::ExplicitlyConstructed<std::string> InputMode_strings[3] = {};
-
-static const char InputMode_names[] =
-  "IM_CONTINUOUS"
-  "IM_PRO"
-  "IM_SINGLE_WORD";
-
-static const ::PROTOBUF_NAMESPACE_ID::internal::EnumEntry InputMode_entries[] = {
-  { {InputMode_names + 0, 13}, 0 },
-  { {InputMode_names + 13, 6}, 2 },
-  { {InputMode_names + 19, 14}, 1 },
-};
-
-static const int InputMode_entries_by_number[] = {
-  0, // 0 -> IM_CONTINUOUS
-  2, // 1 -> IM_SINGLE_WORD
-  1, // 2 -> IM_PRO
-};
-
-const std::string& InputMode_Name(
-    InputMode value) {
-  static const bool dummy =
-      ::PROTOBUF_NAMESPACE_ID::internal::InitializeEnumStrings(
-          InputMode_entries,
-          InputMode_entries_by_number,
-          3, InputMode_strings);
-  (void) dummy;
-  int idx = ::PROTOBUF_NAMESPACE_ID::internal::LookUpEnumName(
-      InputMode_entries,
-      InputMode_entries_by_number,
-      3, value);
-  return idx == -1 ? ::PROTOBUF_NAMESPACE_ID::internal::GetEmptyString() :
-                     InputMode_strings[idx].get();
-}
-bool InputMode_Parse(
-    ::PROTOBUF_NAMESPACE_ID::ConstStringParam name, InputMode* value) {
-  int int_value;
-  bool success = ::PROTOBUF_NAMESPACE_ID::internal::LookUpEnumValue(
-      InputMode_entries, 3, name, &int_value);
-  if (success) {
-    *value = static_cast<InputMode>(int_value);
-  }
-  return success;
-}
 
 // ===================================================================
 
@@ -120,7 +185,7 @@ class KeyConfiguration::_Internal {
 
 KeyConfiguration::KeyConfiguration(::PROTOBUF_NAMESPACE_ID::Arena* arena,
                          bool is_message_owned)
-  : ::PROTOBUF_NAMESPACE_ID::MessageLite(arena, is_message_owned) {
+  : ::PROTOBUF_NAMESPACE_ID::Message(arena, is_message_owned) {
   SharedCtor();
   if (!is_message_owned) {
     RegisterArenaDtor(arena);
@@ -128,8 +193,8 @@ KeyConfiguration::KeyConfiguration(::PROTOBUF_NAMESPACE_ID::Arena* arena,
   // @@protoc_insertion_point(arena_constructor:khiin.messages.KeyConfiguration)
 }
 KeyConfiguration::KeyConfiguration(const KeyConfiguration& from)
-  : ::PROTOBUF_NAMESPACE_ID::MessageLite() {
-  _internal_metadata_.MergeFrom<std::string>(from._internal_metadata_);
+  : ::PROTOBUF_NAMESPACE_ID::Message() {
+  _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
   telex_t2_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
   if (!from._internal_telex_t2().empty()) {
     telex_t2_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, from._internal_telex_t2(), 
@@ -219,7 +284,7 @@ KeyConfiguration::~KeyConfiguration() {
   // @@protoc_insertion_point(destructor:khiin.messages.KeyConfiguration)
   if (GetArenaForAllocation() != nullptr) return;
   SharedDtor();
-  _internal_metadata_.Delete<std::string>();
+  _internal_metadata_.Delete<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
 
 inline void KeyConfiguration::SharedDtor() {
@@ -269,7 +334,7 @@ void KeyConfiguration::Clear() {
   ::memset(&enable_uppercase_nasal_, 0, static_cast<size_t>(
       reinterpret_cast<char*>(&use_digits_as_fallback_) -
       reinterpret_cast<char*>(&enable_uppercase_nasal_)) + sizeof(use_digits_as_fallback_));
-  _internal_metadata_.Clear<std::string>();
+  _internal_metadata_.Clear<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
 
 const char* KeyConfiguration::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
@@ -283,7 +348,7 @@ const char* KeyConfiguration::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPA
         if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 10)) {
           auto str = _internal_mutable_telex_t2();
           ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParser(str, ptr, ctx);
-          CHK_(::PROTOBUF_NAMESPACE_ID::internal::VerifyUTF8(str, nullptr));
+          CHK_(::PROTOBUF_NAMESPACE_ID::internal::VerifyUTF8(str, "khiin.messages.KeyConfiguration.telex_t2"));
           CHK_(ptr);
         } else
           goto handle_unusual;
@@ -293,7 +358,7 @@ const char* KeyConfiguration::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPA
         if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 18)) {
           auto str = _internal_mutable_telex_t3();
           ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParser(str, ptr, ctx);
-          CHK_(::PROTOBUF_NAMESPACE_ID::internal::VerifyUTF8(str, nullptr));
+          CHK_(::PROTOBUF_NAMESPACE_ID::internal::VerifyUTF8(str, "khiin.messages.KeyConfiguration.telex_t3"));
           CHK_(ptr);
         } else
           goto handle_unusual;
@@ -303,7 +368,7 @@ const char* KeyConfiguration::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPA
         if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 26)) {
           auto str = _internal_mutable_telex_t5();
           ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParser(str, ptr, ctx);
-          CHK_(::PROTOBUF_NAMESPACE_ID::internal::VerifyUTF8(str, nullptr));
+          CHK_(::PROTOBUF_NAMESPACE_ID::internal::VerifyUTF8(str, "khiin.messages.KeyConfiguration.telex_t5"));
           CHK_(ptr);
         } else
           goto handle_unusual;
@@ -313,7 +378,7 @@ const char* KeyConfiguration::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPA
         if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 34)) {
           auto str = _internal_mutable_telex_t6();
           ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParser(str, ptr, ctx);
-          CHK_(::PROTOBUF_NAMESPACE_ID::internal::VerifyUTF8(str, nullptr));
+          CHK_(::PROTOBUF_NAMESPACE_ID::internal::VerifyUTF8(str, "khiin.messages.KeyConfiguration.telex_t6"));
           CHK_(ptr);
         } else
           goto handle_unusual;
@@ -323,7 +388,7 @@ const char* KeyConfiguration::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPA
         if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 42)) {
           auto str = _internal_mutable_telex_t7();
           ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParser(str, ptr, ctx);
-          CHK_(::PROTOBUF_NAMESPACE_ID::internal::VerifyUTF8(str, nullptr));
+          CHK_(::PROTOBUF_NAMESPACE_ID::internal::VerifyUTF8(str, "khiin.messages.KeyConfiguration.telex_t7"));
           CHK_(ptr);
         } else
           goto handle_unusual;
@@ -333,7 +398,7 @@ const char* KeyConfiguration::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPA
         if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 50)) {
           auto str = _internal_mutable_telex_t8();
           ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParser(str, ptr, ctx);
-          CHK_(::PROTOBUF_NAMESPACE_ID::internal::VerifyUTF8(str, nullptr));
+          CHK_(::PROTOBUF_NAMESPACE_ID::internal::VerifyUTF8(str, "khiin.messages.KeyConfiguration.telex_t8"));
           CHK_(ptr);
         } else
           goto handle_unusual;
@@ -343,7 +408,7 @@ const char* KeyConfiguration::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPA
         if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 58)) {
           auto str = _internal_mutable_telex_t9();
           ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParser(str, ptr, ctx);
-          CHK_(::PROTOBUF_NAMESPACE_ID::internal::VerifyUTF8(str, nullptr));
+          CHK_(::PROTOBUF_NAMESPACE_ID::internal::VerifyUTF8(str, "khiin.messages.KeyConfiguration.telex_t9"));
           CHK_(ptr);
         } else
           goto handle_unusual;
@@ -353,7 +418,7 @@ const char* KeyConfiguration::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPA
         if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 66)) {
           auto str = _internal_mutable_telex_khin();
           ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParser(str, ptr, ctx);
-          CHK_(::PROTOBUF_NAMESPACE_ID::internal::VerifyUTF8(str, nullptr));
+          CHK_(::PROTOBUF_NAMESPACE_ID::internal::VerifyUTF8(str, "khiin.messages.KeyConfiguration.telex_khin"));
           CHK_(ptr);
         } else
           goto handle_unusual;
@@ -363,7 +428,7 @@ const char* KeyConfiguration::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPA
         if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 74)) {
           auto str = _internal_mutable_alt_hyphen();
           ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParser(str, ptr, ctx);
-          CHK_(::PROTOBUF_NAMESPACE_ID::internal::VerifyUTF8(str, nullptr));
+          CHK_(::PROTOBUF_NAMESPACE_ID::internal::VerifyUTF8(str, "khiin.messages.KeyConfiguration.alt_hyphen"));
           CHK_(ptr);
         } else
           goto handle_unusual;
@@ -373,7 +438,7 @@ const char* KeyConfiguration::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPA
         if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 82)) {
           auto str = _internal_mutable_nasal();
           ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParser(str, ptr, ctx);
-          CHK_(::PROTOBUF_NAMESPACE_ID::internal::VerifyUTF8(str, nullptr));
+          CHK_(::PROTOBUF_NAMESPACE_ID::internal::VerifyUTF8(str, "khiin.messages.KeyConfiguration.nasal"));
           CHK_(ptr);
         } else
           goto handle_unusual;
@@ -383,7 +448,7 @@ const char* KeyConfiguration::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPA
         if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 90)) {
           auto str = _internal_mutable_dot_above_right();
           ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParser(str, ptr, ctx);
-          CHK_(::PROTOBUF_NAMESPACE_ID::internal::VerifyUTF8(str, nullptr));
+          CHK_(::PROTOBUF_NAMESPACE_ID::internal::VerifyUTF8(str, "khiin.messages.KeyConfiguration.dot_above_right"));
           CHK_(ptr);
         } else
           goto handle_unusual;
@@ -393,7 +458,7 @@ const char* KeyConfiguration::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPA
         if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 98)) {
           auto str = _internal_mutable_dots_below();
           ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParser(str, ptr, ctx);
-          CHK_(::PROTOBUF_NAMESPACE_ID::internal::VerifyUTF8(str, nullptr));
+          CHK_(::PROTOBUF_NAMESPACE_ID::internal::VerifyUTF8(str, "khiin.messages.KeyConfiguration.dots_below"));
           CHK_(ptr);
         } else
           goto handle_unusual;
@@ -425,7 +490,7 @@ const char* KeyConfiguration::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPA
     }
     ptr = UnknownFieldParse(
         tag,
-        _internal_metadata_.mutable_unknown_fields<std::string>(),
+        _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(),
         ptr, ctx);
     CHK_(ptr != nullptr);
   }  // while
@@ -576,8 +641,8 @@ failure:
   }
 
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
-    target = stream->WriteRaw(_internal_metadata_.unknown_fields<std::string>(::PROTOBUF_NAMESPACE_ID::internal::GetEmptyString).data(),
-        static_cast<int>(_internal_metadata_.unknown_fields<std::string>(::PROTOBUF_NAMESPACE_ID::internal::GetEmptyString).size()), target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::InternalSerializeUnknownFieldsToArray(
+        _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
   }
   // @@protoc_insertion_point(serialize_to_array_end:khiin.messages.KeyConfiguration)
   return target;
@@ -685,19 +750,21 @@ size_t KeyConfiguration::ByteSizeLong() const {
     total_size += 1 + 1;
   }
 
-  if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
-    total_size += _internal_metadata_.unknown_fields<std::string>(::PROTOBUF_NAMESPACE_ID::internal::GetEmptyString).size();
-  }
-  int cached_size = ::PROTOBUF_NAMESPACE_ID::internal::ToCachedSize(total_size);
-  SetCachedSize(cached_size);
-  return total_size;
+  return MaybeComputeUnknownFieldsSize(total_size, &_cached_size_);
 }
 
-void KeyConfiguration::CheckTypeAndMergeFrom(
-    const ::PROTOBUF_NAMESPACE_ID::MessageLite& from) {
-  MergeFrom(*::PROTOBUF_NAMESPACE_ID::internal::DownCast<const KeyConfiguration*>(
-      &from));
+const ::PROTOBUF_NAMESPACE_ID::Message::ClassData KeyConfiguration::_class_data_ = {
+    ::PROTOBUF_NAMESPACE_ID::Message::CopyWithSizeCheck,
+    KeyConfiguration::MergeImpl
+};
+const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*KeyConfiguration::GetClassData() const { return &_class_data_; }
+
+void KeyConfiguration::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to,
+                      const ::PROTOBUF_NAMESPACE_ID::Message& from) {
+  static_cast<KeyConfiguration *>(to)->MergeFrom(
+      static_cast<const KeyConfiguration &>(from));
 }
+
 
 void KeyConfiguration::MergeFrom(const KeyConfiguration& from) {
 // @@protoc_insertion_point(class_specific_merge_from_start:khiin.messages.KeyConfiguration)
@@ -747,7 +814,7 @@ void KeyConfiguration::MergeFrom(const KeyConfiguration& from) {
   if (from._internal_use_digits_as_fallback() != 0) {
     _internal_set_use_digits_as_fallback(from._internal_use_digits_as_fallback());
   }
-  _internal_metadata_.MergeFrom<std::string>(from._internal_metadata_);
+  _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
 }
 
 void KeyConfiguration::CopyFrom(const KeyConfiguration& from) {
@@ -834,25 +901,254 @@ void KeyConfiguration::InternalSwap(KeyConfiguration* other) {
           reinterpret_cast<char*>(&other->enable_uppercase_nasal_));
 }
 
-std::string KeyConfiguration::GetTypeName() const {
-  return "khiin.messages.KeyConfiguration";
+::PROTOBUF_NAMESPACE_ID::Metadata KeyConfiguration::GetMetadata() const {
+  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(
+      &descriptor_table_config_2eproto_getter, &descriptor_table_config_2eproto_once,
+      file_level_metadata_config_2eproto[0]);
 }
 
+// ===================================================================
+
+class Appearance::_Internal {
+ public:
+};
+
+Appearance::Appearance(::PROTOBUF_NAMESPACE_ID::Arena* arena,
+                         bool is_message_owned)
+  : ::PROTOBUF_NAMESPACE_ID::Message(arena, is_message_owned) {
+  SharedCtor();
+  if (!is_message_owned) {
+    RegisterArenaDtor(arena);
+  }
+  // @@protoc_insertion_point(arena_constructor:khiin.messages.Appearance)
+}
+Appearance::Appearance(const Appearance& from)
+  : ::PROTOBUF_NAMESPACE_ID::Message() {
+  _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
+  theme_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  if (!from._internal_theme().empty()) {
+    theme_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, from._internal_theme(), 
+      GetArenaForAllocation());
+  }
+  candidate_font_size_ = from.candidate_font_size_;
+  // @@protoc_insertion_point(copy_constructor:khiin.messages.Appearance)
+}
+
+void Appearance::SharedCtor() {
+theme_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+candidate_font_size_ = 0;
+}
+
+Appearance::~Appearance() {
+  // @@protoc_insertion_point(destructor:khiin.messages.Appearance)
+  if (GetArenaForAllocation() != nullptr) return;
+  SharedDtor();
+  _internal_metadata_.Delete<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
+}
+
+inline void Appearance::SharedDtor() {
+  GOOGLE_DCHECK(GetArenaForAllocation() == nullptr);
+  theme_.DestroyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+}
+
+void Appearance::ArenaDtor(void* object) {
+  Appearance* _this = reinterpret_cast< Appearance* >(object);
+  (void)_this;
+}
+void Appearance::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {
+}
+void Appearance::SetCachedSize(int size) const {
+  _cached_size_.Set(size);
+}
+
+void Appearance::Clear() {
+// @@protoc_insertion_point(message_clear_start:khiin.messages.Appearance)
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void) cached_has_bits;
+
+  theme_.ClearToEmpty();
+  candidate_font_size_ = 0;
+  _internal_metadata_.Clear<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
+}
+
+const char* Appearance::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
+#define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
+  while (!ctx->Done(&ptr)) {
+    ::PROTOBUF_NAMESPACE_ID::uint32 tag;
+    ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
+    switch (tag >> 3) {
+      // string theme = 1;
+      case 1:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 10)) {
+          auto str = _internal_mutable_theme();
+          ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParser(str, ptr, ctx);
+          CHK_(::PROTOBUF_NAMESPACE_ID::internal::VerifyUTF8(str, "khiin.messages.Appearance.theme"));
+          CHK_(ptr);
+        } else
+          goto handle_unusual;
+        continue;
+      // int32 candidate_font_size = 2;
+      case 2:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 16)) {
+          candidate_font_size_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
+          CHK_(ptr);
+        } else
+          goto handle_unusual;
+        continue;
+      default:
+        goto handle_unusual;
+    }  // switch
+  handle_unusual:
+    if ((tag == 0) || ((tag & 7) == 4)) {
+      CHK_(ptr);
+      ctx->SetLastTag(tag);
+      goto message_done;
+    }
+    ptr = UnknownFieldParse(
+        tag,
+        _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(),
+        ptr, ctx);
+    CHK_(ptr != nullptr);
+  }  // while
+message_done:
+  return ptr;
+failure:
+  ptr = nullptr;
+  goto message_done;
+#undef CHK_
+}
+
+::PROTOBUF_NAMESPACE_ID::uint8* Appearance::_InternalSerialize(
+    ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const {
+  // @@protoc_insertion_point(serialize_to_array_start:khiin.messages.Appearance)
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+  (void) cached_has_bits;
+
+  // string theme = 1;
+  if (!this->_internal_theme().empty()) {
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
+      this->_internal_theme().data(), static_cast<int>(this->_internal_theme().length()),
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
+      "khiin.messages.Appearance.theme");
+    target = stream->WriteStringMaybeAliased(
+        1, this->_internal_theme(), target);
+  }
+
+  // int32 candidate_font_size = 2;
+  if (this->_internal_candidate_font_size() != 0) {
+    target = stream->EnsureSpace(target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteInt32ToArray(2, this->_internal_candidate_font_size(), target);
+  }
+
+  if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::InternalSerializeUnknownFieldsToArray(
+        _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
+  }
+  // @@protoc_insertion_point(serialize_to_array_end:khiin.messages.Appearance)
+  return target;
+}
+
+size_t Appearance::ByteSizeLong() const {
+// @@protoc_insertion_point(message_byte_size_start:khiin.messages.Appearance)
+  size_t total_size = 0;
+
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void) cached_has_bits;
+
+  // string theme = 1;
+  if (!this->_internal_theme().empty()) {
+    total_size += 1 +
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
+        this->_internal_theme());
+  }
+
+  // int32 candidate_font_size = 2;
+  if (this->_internal_candidate_font_size() != 0) {
+    total_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32SizePlusOne(this->_internal_candidate_font_size());
+  }
+
+  return MaybeComputeUnknownFieldsSize(total_size, &_cached_size_);
+}
+
+const ::PROTOBUF_NAMESPACE_ID::Message::ClassData Appearance::_class_data_ = {
+    ::PROTOBUF_NAMESPACE_ID::Message::CopyWithSizeCheck,
+    Appearance::MergeImpl
+};
+const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*Appearance::GetClassData() const { return &_class_data_; }
+
+void Appearance::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to,
+                      const ::PROTOBUF_NAMESPACE_ID::Message& from) {
+  static_cast<Appearance *>(to)->MergeFrom(
+      static_cast<const Appearance &>(from));
+}
+
+
+void Appearance::MergeFrom(const Appearance& from) {
+// @@protoc_insertion_point(class_specific_merge_from_start:khiin.messages.Appearance)
+  GOOGLE_DCHECK_NE(&from, this);
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+  (void) cached_has_bits;
+
+  if (!from._internal_theme().empty()) {
+    _internal_set_theme(from._internal_theme());
+  }
+  if (from._internal_candidate_font_size() != 0) {
+    _internal_set_candidate_font_size(from._internal_candidate_font_size());
+  }
+  _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
+}
+
+void Appearance::CopyFrom(const Appearance& from) {
+// @@protoc_insertion_point(class_specific_copy_from_start:khiin.messages.Appearance)
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+bool Appearance::IsInitialized() const {
+  return true;
+}
+
+void Appearance::InternalSwap(Appearance* other) {
+  using std::swap;
+  auto* lhs_arena = GetArenaForAllocation();
+  auto* rhs_arena = other->GetArenaForAllocation();
+  _internal_metadata_.InternalSwap(&other->_internal_metadata_);
+  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(
+      &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
+      &theme_, lhs_arena,
+      &other->theme_, rhs_arena
+  );
+  swap(candidate_font_size_, other->candidate_font_size_);
+}
+
+::PROTOBUF_NAMESPACE_ID::Metadata Appearance::GetMetadata() const {
+  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(
+      &descriptor_table_config_2eproto_getter, &descriptor_table_config_2eproto_once,
+      file_level_metadata_config_2eproto[1]);
+}
 
 // ===================================================================
 
 class AppConfig::_Internal {
  public:
   static const ::khiin::messages::KeyConfiguration& key_config(const AppConfig* msg);
+  static const ::khiin::messages::Appearance& appearance(const AppConfig* msg);
 };
 
 const ::khiin::messages::KeyConfiguration&
 AppConfig::_Internal::key_config(const AppConfig* msg) {
   return *msg->key_config_;
 }
+const ::khiin::messages::Appearance&
+AppConfig::_Internal::appearance(const AppConfig* msg) {
+  return *msg->appearance_;
+}
 AppConfig::AppConfig(::PROTOBUF_NAMESPACE_ID::Arena* arena,
                          bool is_message_owned)
-  : ::PROTOBUF_NAMESPACE_ID::MessageLite(arena, is_message_owned) {
+  : ::PROTOBUF_NAMESPACE_ID::Message(arena, is_message_owned) {
   SharedCtor();
   if (!is_message_owned) {
     RegisterArenaDtor(arena);
@@ -860,30 +1156,40 @@ AppConfig::AppConfig(::PROTOBUF_NAMESPACE_ID::Arena* arena,
   // @@protoc_insertion_point(arena_constructor:khiin.messages.AppConfig)
 }
 AppConfig::AppConfig(const AppConfig& from)
-  : ::PROTOBUF_NAMESPACE_ID::MessageLite() {
-  _internal_metadata_.MergeFrom<std::string>(from._internal_metadata_);
+  : ::PROTOBUF_NAMESPACE_ID::Message() {
+  _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
   if (from._internal_has_key_config()) {
     key_config_ = new ::khiin::messages::KeyConfiguration(*from.key_config_);
   } else {
     key_config_ = nullptr;
   }
+  if (from._internal_has_appearance()) {
+    appearance_ = new ::khiin::messages::Appearance(*from.appearance_);
+  } else {
+    appearance_ = nullptr;
+  }
+  input_mode_ = from.input_mode_;
   // @@protoc_insertion_point(copy_constructor:khiin.messages.AppConfig)
 }
 
 void AppConfig::SharedCtor() {
-key_config_ = nullptr;
+::memset(reinterpret_cast<char*>(this) + static_cast<size_t>(
+    reinterpret_cast<char*>(&key_config_) - reinterpret_cast<char*>(this)),
+    0, static_cast<size_t>(reinterpret_cast<char*>(&input_mode_) -
+    reinterpret_cast<char*>(&key_config_)) + sizeof(input_mode_));
 }
 
 AppConfig::~AppConfig() {
   // @@protoc_insertion_point(destructor:khiin.messages.AppConfig)
   if (GetArenaForAllocation() != nullptr) return;
   SharedDtor();
-  _internal_metadata_.Delete<std::string>();
+  _internal_metadata_.Delete<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
 
 inline void AppConfig::SharedDtor() {
   GOOGLE_DCHECK(GetArenaForAllocation() == nullptr);
   if (this != internal_default_instance()) delete key_config_;
+  if (this != internal_default_instance()) delete appearance_;
 }
 
 void AppConfig::ArenaDtor(void* object) {
@@ -906,7 +1212,12 @@ void AppConfig::Clear() {
     delete key_config_;
   }
   key_config_ = nullptr;
-  _internal_metadata_.Clear<std::string>();
+  if (GetArenaForAllocation() == nullptr && appearance_ != nullptr) {
+    delete appearance_;
+  }
+  appearance_ = nullptr;
+  input_mode_ = 0;
+  _internal_metadata_.Clear<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
 
 const char* AppConfig::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
@@ -923,6 +1234,23 @@ const char* AppConfig::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::
         } else
           goto handle_unusual;
         continue;
+      // .khiin.messages.InputMode input_mode = 2;
+      case 2:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 16)) {
+          ::PROTOBUF_NAMESPACE_ID::uint64 val = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
+          CHK_(ptr);
+          _internal_set_input_mode(static_cast<::khiin::messages::InputMode>(val));
+        } else
+          goto handle_unusual;
+        continue;
+      // .khiin.messages.Appearance appearance = 3;
+      case 3:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 26)) {
+          ptr = ctx->ParseMessage(_internal_mutable_appearance(), ptr);
+          CHK_(ptr);
+        } else
+          goto handle_unusual;
+        continue;
       default:
         goto handle_unusual;
     }  // switch
@@ -934,7 +1262,7 @@ const char* AppConfig::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::
     }
     ptr = UnknownFieldParse(
         tag,
-        _internal_metadata_.mutable_unknown_fields<std::string>(),
+        _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(),
         ptr, ctx);
     CHK_(ptr != nullptr);
   }  // while
@@ -960,9 +1288,24 @@ failure:
         1, _Internal::key_config(this), target, stream);
   }
 
+  // .khiin.messages.InputMode input_mode = 2;
+  if (this->_internal_input_mode() != 0) {
+    target = stream->EnsureSpace(target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteEnumToArray(
+      2, this->_internal_input_mode(), target);
+  }
+
+  // .khiin.messages.Appearance appearance = 3;
+  if (this->_internal_has_appearance()) {
+    target = stream->EnsureSpace(target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
+      InternalWriteMessage(
+        3, _Internal::appearance(this), target, stream);
+  }
+
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
-    target = stream->WriteRaw(_internal_metadata_.unknown_fields<std::string>(::PROTOBUF_NAMESPACE_ID::internal::GetEmptyString).data(),
-        static_cast<int>(_internal_metadata_.unknown_fields<std::string>(::PROTOBUF_NAMESPACE_ID::internal::GetEmptyString).size()), target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::InternalSerializeUnknownFieldsToArray(
+        _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
   }
   // @@protoc_insertion_point(serialize_to_array_end:khiin.messages.AppConfig)
   return target;
@@ -983,19 +1326,34 @@ size_t AppConfig::ByteSizeLong() const {
         *key_config_);
   }
 
-  if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
-    total_size += _internal_metadata_.unknown_fields<std::string>(::PROTOBUF_NAMESPACE_ID::internal::GetEmptyString).size();
+  // .khiin.messages.Appearance appearance = 3;
+  if (this->_internal_has_appearance()) {
+    total_size += 1 +
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
+        *appearance_);
   }
-  int cached_size = ::PROTOBUF_NAMESPACE_ID::internal::ToCachedSize(total_size);
-  SetCachedSize(cached_size);
-  return total_size;
+
+  // .khiin.messages.InputMode input_mode = 2;
+  if (this->_internal_input_mode() != 0) {
+    total_size += 1 +
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::EnumSize(this->_internal_input_mode());
+  }
+
+  return MaybeComputeUnknownFieldsSize(total_size, &_cached_size_);
 }
 
-void AppConfig::CheckTypeAndMergeFrom(
-    const ::PROTOBUF_NAMESPACE_ID::MessageLite& from) {
-  MergeFrom(*::PROTOBUF_NAMESPACE_ID::internal::DownCast<const AppConfig*>(
-      &from));
+const ::PROTOBUF_NAMESPACE_ID::Message::ClassData AppConfig::_class_data_ = {
+    ::PROTOBUF_NAMESPACE_ID::Message::CopyWithSizeCheck,
+    AppConfig::MergeImpl
+};
+const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*AppConfig::GetClassData() const { return &_class_data_; }
+
+void AppConfig::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to,
+                      const ::PROTOBUF_NAMESPACE_ID::Message& from) {
+  static_cast<AppConfig *>(to)->MergeFrom(
+      static_cast<const AppConfig &>(from));
 }
+
 
 void AppConfig::MergeFrom(const AppConfig& from) {
 // @@protoc_insertion_point(class_specific_merge_from_start:khiin.messages.AppConfig)
@@ -1006,7 +1364,13 @@ void AppConfig::MergeFrom(const AppConfig& from) {
   if (from._internal_has_key_config()) {
     _internal_mutable_key_config()->::khiin::messages::KeyConfiguration::MergeFrom(from._internal_key_config());
   }
-  _internal_metadata_.MergeFrom<std::string>(from._internal_metadata_);
+  if (from._internal_has_appearance()) {
+    _internal_mutable_appearance()->::khiin::messages::Appearance::MergeFrom(from._internal_appearance());
+  }
+  if (from._internal_input_mode() != 0) {
+    _internal_set_input_mode(from._internal_input_mode());
+  }
+  _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
 }
 
 void AppConfig::CopyFrom(const AppConfig& from) {
@@ -1023,13 +1387,19 @@ bool AppConfig::IsInitialized() const {
 void AppConfig::InternalSwap(AppConfig* other) {
   using std::swap;
   _internal_metadata_.InternalSwap(&other->_internal_metadata_);
-  swap(key_config_, other->key_config_);
+  ::PROTOBUF_NAMESPACE_ID::internal::memswap<
+      PROTOBUF_FIELD_OFFSET(AppConfig, input_mode_)
+      + sizeof(AppConfig::input_mode_)
+      - PROTOBUF_FIELD_OFFSET(AppConfig, key_config_)>(
+          reinterpret_cast<char*>(&key_config_),
+          reinterpret_cast<char*>(&other->key_config_));
 }
 
-std::string AppConfig::GetTypeName() const {
-  return "khiin.messages.AppConfig";
+::PROTOBUF_NAMESPACE_ID::Metadata AppConfig::GetMetadata() const {
+  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(
+      &descriptor_table_config_2eproto_getter, &descriptor_table_config_2eproto_once,
+      file_level_metadata_config_2eproto[2]);
 }
-
 
 // @@protoc_insertion_point(namespace_scope)
 }  // namespace messages
@@ -1037,6 +1407,9 @@ std::string AppConfig::GetTypeName() const {
 PROTOBUF_NAMESPACE_OPEN
 template<> PROTOBUF_NOINLINE ::khiin::messages::KeyConfiguration* Arena::CreateMaybeMessage< ::khiin::messages::KeyConfiguration >(Arena* arena) {
   return Arena::CreateMessageInternal< ::khiin::messages::KeyConfiguration >(arena);
+}
+template<> PROTOBUF_NOINLINE ::khiin::messages::Appearance* Arena::CreateMaybeMessage< ::khiin::messages::Appearance >(Arena* arena) {
+  return Arena::CreateMessageInternal< ::khiin::messages::Appearance >(arena);
 }
 template<> PROTOBUF_NOINLINE ::khiin::messages::AppConfig* Arena::CreateMaybeMessage< ::khiin::messages::AppConfig >(Arena* arena) {
   return Arena::CreateMessageInternal< ::khiin::messages::AppConfig >(arena);

@@ -1,7 +1,6 @@
 syntax = "proto3";
 
 package khiin.messages;
-option optimize_for = LITE_RUNTIME;
 
 enum SpecialKey {
     SK_NONE = 0;
