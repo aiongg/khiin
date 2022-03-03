@@ -332,7 +332,7 @@ struct CandidateListUIImpl :
     EditState m_edit_state = EditState::EDIT_EMPTY;
     CandidateGrid m_candidate_grid = CandidateGrid();
     size_t m_focused_col = 0;
-    RECT m_text_rect;
+    RECT m_text_rect = {};
 };
 
 } // namespace

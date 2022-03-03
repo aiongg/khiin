@@ -15,6 +15,7 @@
             <ComponentGroupRef Id="Files_32" />
             <ComponentGroupRef Id="AppDataFiles"/>
             <ComponentGroupRef Id="DllRegistration"/>
+            <ComponentGroupRef Id="StartMenuShortcut"/>
         </Feature>
 
         <UI>
@@ -37,6 +38,9 @@
             <Directory Id="AppDataFolder">
                 <Directory Id="APPDATADIR" Name="Khiin PJH"/>
             </Directory>
+            <Directory Id="ProgramMenuFolder">
+                <Directory Id="ApplicationProgramsFolder" Name="Khiin PJH"/>
+            </Directory>
         </Directory>
     </Fragment>
 
@@ -44,6 +48,7 @@
         <ComponentGroup Id="Files_64" Directory="INSTALLDIR64">
             <Component Id="KhiinPJH_64" Guid="$(var.GUID_Dll64Component)" Win64="yes">
                 <File Id="KhiinDLL_64" Name="$(var.DLL_64_DEST_FILE)" DiskId="1" Source="$(var.DLL_64_SOURCE_PATH)" KeyPath="yes"/>
+                <File Id="KhiinSettingsExe" Name="$(var.SETTINGS_DEST)" DiskId="1" Source="$(var.SETTINGS_SOURCE)" />
                 <File Id="KhiinDbFile2" Name="$(var.DB_DEST_FILE)" DiskId="1" Source="$(var.DB_SOURCE_PATH)" />
             </Component>
         </ComponentGroup>
@@ -66,6 +71,23 @@
                     <RegistryValue Name="KhiinAppData" Type="integer" Value="1" KeyPath="yes" />
                 </RegistryKey>
                 <File Id="KhiinDbFile1" Name="$(var.DB_DEST_FILE)" DiskId="1" Source="$(var.DB_SOURCE_PATH)" />
+                <File Id="KhiinConfFile1" Name="$(var.CONF_FILE_DEST)" DiskId="1" Source="$(var.CONF_FILE_SRC)" />
+            </Component>
+        </ComponentGroup>
+    </Fragment>
+
+    <Fragment>
+        <ComponentGroup Id="StartMenuShortcut" Directory="ApplicationProgramsFolder">
+            <Component Id="ApplicationShortcut" Guid="$(var.GUID_StartMenuShortcut)">
+                <Shortcut Id="ApplicationStartMenuShortcut"
+                          Name="Khiin PJH"
+                          Description="Khiin Phah Ji Hoat"
+                          Target="[#KhiinSettingsExe]"
+                          WorkingDirectory="INSTALLDIR64"/>
+                <RemoveFolder Id="ApplicationProgramsFolder" On="uninstall"/>
+                <RegistryKey Root="HKCU" Key="Software\$(var.Manufacturer_EN)\KhiinSettings">
+                    <RegistryValue Name="installed" Type="integer" Value="1" KeyPath="yes"/>
+                </RegistryKey>
             </Component>
         </ComponentGroup>
     </Fragment>

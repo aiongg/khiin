@@ -6,6 +6,7 @@
     <?define GUID_UpgradeCode = "82989401-728d-11ec-8c6e-e0d46491b35a" ?>
     <?define GUID_Dll64Component = "82989402-728d-11ec-8c6e-e0d46491b35a" ?>
     <?define GUID_Dll32Component = "82989403-728d-11ec-8c6e-e0d46491b35a" ?>
+    <?define GUID_StartMenuShortcut = "82989406-728d-11ec-8c6e-e0d46491b35a" ?>
     
     <?if $(var.Platform) = x64 ?>
     <?define Bitness = "(64 bit)" ?>
@@ -22,17 +23,25 @@
     <?define DLL_32_DEST_FILE = "Khiin PJH (32 bit - Debug).dll" ?>
     <?define DLL_64_SOURCE_PATH = "../x64/Debug/KhiinPJH.dll" ?>
     <?define DLL_32_SOURCE_PATH = "../x86/Debug/KhiinPJH.dll" ?>
+    <?define SETTINGS_SOURCE = "../x64/Debug/KhiinSettings.exe" ?>
+    <?define SETTINGS_DEST = "KhiinSettings.exe" ?>
     <?else ?>
     <?define DLL_64_DEST_FILE = "Khiin PJH (64 bit).dll" ?>
     <?define DLL_32_DEST_FILE = "Khiin PJH (32 bit).dll" ?>
     <?define DLL_64_SOURCE_PATH = "../x64/Release/KhiinPJH.dll" ?>
     <?define DLL_32_SOURCE_PATH = "../x86/Release/KhiinPJH.dll" ?>
+    <?define SETTINGS_SOURCE = "../x64/Release/KhiinSettings.exe" ?>
+    <?define SETTINGS_DEST = "KhiinSettings.exe" ?>
     <?endif ?>
     
     <?define KhiinDll64InstalledPath = "[ProgramFiles64Folder]Khiin PJH\$(var.DLL_64_DEST_FILE)" ?>
     <?define KhiinDll32InstalledPath = "[ProgramFilesFolder]Khiin PJH\$(var.DLL_32_DEST_FILE)" ?>
+    <?define KhiinSettingsInstalledPath = "[ProgramFiles64Folder]Khiin PJH\$(var.SETTINGS_DEST)" ?>
     
     <?define GUID_DatabaseFile = "82989405-728d-11ec-8c6e-e0d46491b35a" ?>
     <?define DB_SOURCE_PATH = "../../resources/khiin.db" ?>
     <?define DB_DEST_FILE = "khiin.db" ?>
+
+    <?define CONF_FILE_SRC = "../../resources/khiin_config.json" ?>
+    <?define CONF_FILE_DEST = "khiin_config.json" ?>
 </Include>

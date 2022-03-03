@@ -97,7 +97,7 @@ class CandidatePagerImpl : public CandidatePager {
         grid.push_back(std::move(col));
     }
 
-    virtual size_t PageCount() override {
+    virtual int PageCount() override {
         return divide_ceil(CandidatesSize(), MaxPageSize());
     }
 

@@ -25,7 +25,7 @@ class CandidatePager {
     virtual void GetPage(CandidateGrid &grid) = 0;
     virtual int GetFocusedCandidateId() = 0;
     virtual size_t GetFocusedColumnIndex() = 0;
-    virtual size_t PageCount() = 0;
+    virtual int PageCount() = 0;
 
     virtual int NextPageCandidateId() = 0;
     virtual int PrevPageCandidateId() = 0;
