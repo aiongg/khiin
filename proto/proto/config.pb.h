@@ -568,30 +568,25 @@ class Appearance final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kThemeFieldNumber = 1,
-    kCandidateFontSizeFieldNumber = 2,
+    kColorsFieldNumber = 1,
+    kSizeFieldNumber = 2,
   };
-  // string theme = 1;
-  void clear_theme();
-  const std::string& theme() const;
-  template <typename ArgT0 = const std::string&, typename... ArgT>
-  void set_theme(ArgT0&& arg0, ArgT... args);
-  std::string* mutable_theme();
-  PROTOBUF_MUST_USE_RESULT std::string* release_theme();
-  void set_allocated_theme(std::string* theme);
+  // int32 colors = 1;
+  void clear_colors();
+  ::PROTOBUF_NAMESPACE_ID::int32 colors() const;
+  void set_colors(::PROTOBUF_NAMESPACE_ID::int32 value);
   private:
-  const std::string& _internal_theme() const;
-  inline PROTOBUF_ALWAYS_INLINE void _internal_set_theme(const std::string& value);
-  std::string* _internal_mutable_theme();
+  ::PROTOBUF_NAMESPACE_ID::int32 _internal_colors() const;
+  void _internal_set_colors(::PROTOBUF_NAMESPACE_ID::int32 value);
   public:
 
-  // int32 candidate_font_size = 2;
-  void clear_candidate_font_size();
-  ::PROTOBUF_NAMESPACE_ID::int32 candidate_font_size() const;
-  void set_candidate_font_size(::PROTOBUF_NAMESPACE_ID::int32 value);
+  // int32 size = 2;
+  void clear_size();
+  ::PROTOBUF_NAMESPACE_ID::int32 size() const;
+  void set_size(::PROTOBUF_NAMESPACE_ID::int32 value);
   private:
-  ::PROTOBUF_NAMESPACE_ID::int32 _internal_candidate_font_size() const;
-  void _internal_set_candidate_font_size(::PROTOBUF_NAMESPACE_ID::int32 value);
+  ::PROTOBUF_NAMESPACE_ID::int32 _internal_size() const;
+  void _internal_set_size(::PROTOBUF_NAMESPACE_ID::int32 value);
   public:
 
   // @@protoc_insertion_point(class_scope:khiin.messages.Appearance)
@@ -601,8 +596,8 @@ class Appearance final :
   template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
   typedef void InternalArenaConstructable_;
   typedef void DestructorSkippable_;
-  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr theme_;
-  ::PROTOBUF_NAMESPACE_ID::int32 candidate_font_size_;
+  ::PROTOBUF_NAMESPACE_ID::int32 colors_;
+  ::PROTOBUF_NAMESPACE_ID::int32 size_;
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   friend struct ::TableStruct_config_2eproto;
 };
@@ -1396,70 +1391,44 @@ inline void KeyConfiguration::set_use_digits_as_fallback(bool value) {
 
 // Appearance
 
-// string theme = 1;
-inline void Appearance::clear_theme() {
-  theme_.ClearToEmpty();
+// int32 colors = 1;
+inline void Appearance::clear_colors() {
+  colors_ = 0;
 }
-inline const std::string& Appearance::theme() const {
-  // @@protoc_insertion_point(field_get:khiin.messages.Appearance.theme)
-  return _internal_theme();
+inline ::PROTOBUF_NAMESPACE_ID::int32 Appearance::_internal_colors() const {
+  return colors_;
 }
-template <typename ArgT0, typename... ArgT>
-inline PROTOBUF_ALWAYS_INLINE
-void Appearance::set_theme(ArgT0&& arg0, ArgT... args) {
- 
- theme_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, static_cast<ArgT0 &&>(arg0), args..., GetArenaForAllocation());
-  // @@protoc_insertion_point(field_set:khiin.messages.Appearance.theme)
+inline ::PROTOBUF_NAMESPACE_ID::int32 Appearance::colors() const {
+  // @@protoc_insertion_point(field_get:khiin.messages.Appearance.colors)
+  return _internal_colors();
 }
-inline std::string* Appearance::mutable_theme() {
-  std::string* _s = _internal_mutable_theme();
-  // @@protoc_insertion_point(field_mutable:khiin.messages.Appearance.theme)
-  return _s;
-}
-inline const std::string& Appearance::_internal_theme() const {
-  return theme_.Get();
-}
-inline void Appearance::_internal_set_theme(const std::string& value) {
+inline void Appearance::_internal_set_colors(::PROTOBUF_NAMESPACE_ID::int32 value) {
   
-  theme_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, value, GetArenaForAllocation());
+  colors_ = value;
 }
-inline std::string* Appearance::_internal_mutable_theme() {
-  
-  return theme_.Mutable(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArenaForAllocation());
-}
-inline std::string* Appearance::release_theme() {
-  // @@protoc_insertion_point(field_release:khiin.messages.Appearance.theme)
-  return theme_.Release(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArenaForAllocation());
-}
-inline void Appearance::set_allocated_theme(std::string* theme) {
-  if (theme != nullptr) {
-    
-  } else {
-    
-  }
-  theme_.SetAllocated(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), theme,
-      GetArenaForAllocation());
-  // @@protoc_insertion_point(field_set_allocated:khiin.messages.Appearance.theme)
+inline void Appearance::set_colors(::PROTOBUF_NAMESPACE_ID::int32 value) {
+  _internal_set_colors(value);
+  // @@protoc_insertion_point(field_set:khiin.messages.Appearance.colors)
 }
 
-// int32 candidate_font_size = 2;
-inline void Appearance::clear_candidate_font_size() {
-  candidate_font_size_ = 0;
+// int32 size = 2;
+inline void Appearance::clear_size() {
+  size_ = 0;
 }
-inline ::PROTOBUF_NAMESPACE_ID::int32 Appearance::_internal_candidate_font_size() const {
-  return candidate_font_size_;
+inline ::PROTOBUF_NAMESPACE_ID::int32 Appearance::_internal_size() const {
+  return size_;
 }
-inline ::PROTOBUF_NAMESPACE_ID::int32 Appearance::candidate_font_size() const {
-  // @@protoc_insertion_point(field_get:khiin.messages.Appearance.candidate_font_size)
-  return _internal_candidate_font_size();
+inline ::PROTOBUF_NAMESPACE_ID::int32 Appearance::size() const {
+  // @@protoc_insertion_point(field_get:khiin.messages.Appearance.size)
+  return _internal_size();
 }
-inline void Appearance::_internal_set_candidate_font_size(::PROTOBUF_NAMESPACE_ID::int32 value) {
+inline void Appearance::_internal_set_size(::PROTOBUF_NAMESPACE_ID::int32 value) {
   
-  candidate_font_size_ = value;
+  size_ = value;
 }
-inline void Appearance::set_candidate_font_size(::PROTOBUF_NAMESPACE_ID::int32 value) {
-  _internal_set_candidate_font_size(value);
-  // @@protoc_insertion_point(field_set:khiin.messages.Appearance.candidate_font_size)
+inline void Appearance::set_size(::PROTOBUF_NAMESPACE_ID::int32 value) {
+  _internal_set_size(value);
+  // @@protoc_insertion_point(field_set:khiin.messages.Appearance.size)
 }
 
 // -------------------------------------------------------------------

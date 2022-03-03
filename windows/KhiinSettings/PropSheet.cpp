@@ -3,9 +3,9 @@
 #include "PropSheet.h"
 
 namespace khiin::win32::settings {
-namespace {
+namespace {} // namespace
 
-} // namespace
+using namespace messages;
 
 LRESULT CALLBACK PropSheet::StaticDlgProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
     PropSheetPage *psp = NULL;
@@ -27,16 +27,21 @@ LRESULT CALLBACK PropSheet::StaticDlgProc(HWND hwnd, UINT uMsg, WPARAM wParam, L
     }
 }
 
-PropSheet::PropSheet(HMODULE h_module, int template_id) : m_module(h_module), m_template_id(template_id) {
+HPROPSHEETPAGE hpsp = NULL;
+
+HPROPSHEETPAGE PropSheet::psp(HMODULE hmod, int template_id, messages::AppConfig *config) {
+    m_module = hmod;
+    m_template_id = template_id;
+    m_config = config;
+
     m_psp.dwSize = sizeof(PropSheetPage);
     m_psp.hInstance = m_module;
     m_psp.pszTemplate = MAKEINTRESOURCE(m_template_id);
     m_psp.pfnDlgProc = &StaticDlgProc;
     m_psp.self = reinterpret_cast<intptr_t>(this);
-}
 
-PropSheetPage *PropSheet::psp() {
-    return &m_psp;
+    m_hpsp = ::CreatePropertySheetPage(&m_psp);
+    return m_hpsp;
 }
 
 void PropSheet::SetHwnd(HWND hwnd) {
@@ -68,6 +73,9 @@ INT_PTR PropSheet::DlgProc(UINT msg, WPARAM wParam, LPARAM lParam) {
         case CBN_SELCHANGE:
             OnChange();
         }
+        break;
+    case WM_HSCROLL:
+        OnChange();
         break;
     }
 

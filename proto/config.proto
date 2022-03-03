@@ -26,8 +26,8 @@ enum InputMode {
 }
 
 message Appearance {
-    string theme = 1;
-    int32 candidate_font_size = 2;
+    int32 colors = 1;
+    int32 size = 2;
 }
 
 message AppConfig {

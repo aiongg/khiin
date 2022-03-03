@@ -11,6 +11,7 @@
 #include <KhiinPJH/Config.h>
 
 #include "AppearanceProps.h"
+#include "InputProps.h"
 
 namespace khiin::win32::settings {
 namespace {
@@ -72,19 +73,24 @@ void LoadConfig() {
 int ShowDialog(HMODULE hmodule) {
     g_module = hmodule;
     LoadConfig();
-    auto appearance_props = AppearanceProps(g_config, g_module, IDD_APPEARANCE_PROPS);
-    auto pages = std::vector<PropSheetPage *>();
-    pages.push_back(appearance_props.psp());
+
+    auto pages = std::vector<HPROPSHEETPAGE>();
+
+    auto appearance_props = AppearanceProps();
+    auto input_props = InputProps();
+
+    pages.push_back(appearance_props.psp(g_module, IDD_APPEARANCE_PROPS, g_config));
+    pages.push_back(input_props.psp(g_module, IDD_INPUT_PROPS, g_config));
 
     PROPSHEETHEADER psh = {};
     psh.dwSize = sizeof(PROPSHEETHEADER);
-    psh.dwFlags = PSH_PROPSHEETPAGE | PSH_NOCONTEXTHELP | PSH_USECALLBACK;
+    psh.dwFlags = PSH_NOCONTEXTHELP | PSH_USECALLBACK;
     psh.hwndParent = HWND_DESKTOP;
     psh.hInstance = g_module;
-    psh.nPages = 1;
+    psh.nPages = pages.size();
     psh.nStartPage = 0;
     psh.pfnCallback = PropsheetCallback;
-    psh.ppsp = pages[0];
+    psh.phpage = pages.data();
     psh.pszCaption = L"起引設定 Khíín Siat-tēng";
 
     return ::PropertySheet(&psh);

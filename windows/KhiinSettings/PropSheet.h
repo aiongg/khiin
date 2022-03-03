@@ -9,8 +9,7 @@ struct PropSheetPage : PROPSHEETPAGE {
 class PropSheet {
   public:
     static LRESULT CALLBACK StaticDlgProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
-    PropSheet(HINSTANCE instance, int template_id);
-    PropSheetPage *psp();
+    HPROPSHEETPAGE psp(HMODULE hmod, int template_id, messages::AppConfig *config);
 
   protected:
     virtual INT_PTR DlgProc(UINT msg, WPARAM wParam, LPARAM lParam);
@@ -22,9 +21,11 @@ class PropSheet {
     void SetHwnd(HWND hwnd);
 
     PropSheetPage m_psp = {};
-    HINSTANCE m_module = NULL;
+    HPROPSHEETPAGE m_hpsp = NULL;
+    HMODULE m_module = NULL;
     HWND m_hwnd = NULL;
     int m_template_id = 0;
+    messages::AppConfig *m_config = nullptr;
 };
 
 } // namespace khiin::win32::settings

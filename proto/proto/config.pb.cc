@@ -45,8 +45,8 @@ struct KeyConfigurationDefaultTypeInternal {
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT KeyConfigurationDefaultTypeInternal _KeyConfiguration_default_instance_;
 constexpr Appearance::Appearance(
   ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
-  : theme_(&::PROTOBUF_NAMESPACE_ID::internal::fixed_address_empty_string)
-  , candidate_font_size_(0){}
+  : colors_(0)
+  , size_(0){}
 struct AppearanceDefaultTypeInternal {
   constexpr AppearanceDefaultTypeInternal()
     : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
@@ -104,8 +104,8 @@ const ::PROTOBUF_NAMESPACE_ID::uint32 TableStruct_config_2eproto::offsets[] PROT
   ~0u,  // no _oneof_case_
   ~0u,  // no _weak_field_map_
   ~0u,  // no _inlined_string_donated_
-  PROTOBUF_FIELD_OFFSET(::khiin::messages::Appearance, theme_),
-  PROTOBUF_FIELD_OFFSET(::khiin::messages::Appearance, candidate_font_size_),
+  PROTOBUF_FIELD_OFFSET(::khiin::messages::Appearance, colors_),
+  PROTOBUF_FIELD_OFFSET(::khiin::messages::Appearance, size_),
   ~0u,  // no _has_bits_
   PROTOBUF_FIELD_OFFSET(::khiin::messages::AppConfig, _internal_metadata_),
   ~0u,  // no _extensions_
@@ -137,18 +137,18 @@ const char descriptor_table_protodef_config_2eproto[] PROTOBUF_SECTION_VARIABLE(
   "\nalt_hyphen\030\t \001(\t\022\r\n\005nasal\030\n \001(\t\022\027\n\017dot_"
   "above_right\030\013 \001(\t\022\022\n\ndots_below\030\014 \001(\t\022\036\n"
   "\026enable_uppercase_nasal\030\r \001(\010\022\036\n\026use_dig"
-  "its_as_fallback\030\016 \001(\010\"8\n\nAppearance\022\r\n\005t"
-  "heme\030\001 \001(\t\022\033\n\023candidate_font_size\030\002 \001(\005\""
-  "\240\001\n\tAppConfig\0224\n\nkey_config\030\001 \001(\0132 .khii"
-  "n.messages.KeyConfiguration\022-\n\ninput_mod"
-  "e\030\002 \001(\0162\031.khiin.messages.InputMode\022.\n\nap"
-  "pearance\030\003 \001(\0132\032.khiin.messages.Appearan"
-  "ce*8\n\tInputMode\022\021\n\rIM_CONTINUOUS\020\000\022\014\n\010IM"
-  "_BASIC\020\001\022\n\n\006IM_PRO\020\002b\006proto3"
+  "its_as_fallback\030\016 \001(\010\"*\n\nAppearance\022\016\n\006c"
+  "olors\030\001 \001(\005\022\014\n\004size\030\002 \001(\005\"\240\001\n\tAppConfig\022"
+  "4\n\nkey_config\030\001 \001(\0132 .khiin.messages.Key"
+  "Configuration\022-\n\ninput_mode\030\002 \001(\0162\031.khii"
+  "n.messages.InputMode\022.\n\nappearance\030\003 \001(\013"
+  "2\032.khiin.messages.Appearance*8\n\tInputMod"
+  "e\022\021\n\rIM_CONTINUOUS\020\000\022\014\n\010IM_BASIC\020\001\022\n\n\006IM"
+  "_PRO\020\002b\006proto3"
   ;
 static ::PROTOBUF_NAMESPACE_ID::internal::once_flag descriptor_table_config_2eproto_once;
 const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable descriptor_table_config_2eproto = {
-  false, false, 628, descriptor_table_protodef_config_2eproto, "config.proto", 
+  false, false, 614, descriptor_table_protodef_config_2eproto, "config.proto", 
   &descriptor_table_config_2eproto_once, nullptr, 0, 3,
   schemas, file_default_instances, TableStruct_config_2eproto::offsets,
   file_level_metadata_config_2eproto, file_level_enum_descriptors_config_2eproto, file_level_service_descriptors_config_2eproto,
@@ -925,18 +925,17 @@ Appearance::Appearance(::PROTOBUF_NAMESPACE_ID::Arena* arena,
 Appearance::Appearance(const Appearance& from)
   : ::PROTOBUF_NAMESPACE_ID::Message() {
   _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
-  theme_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
-  if (!from._internal_theme().empty()) {
-    theme_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, from._internal_theme(), 
-      GetArenaForAllocation());
-  }
-  candidate_font_size_ = from.candidate_font_size_;
+  ::memcpy(&colors_, &from.colors_,
+    static_cast<size_t>(reinterpret_cast<char*>(&size_) -
+    reinterpret_cast<char*>(&colors_)) + sizeof(size_));
   // @@protoc_insertion_point(copy_constructor:khiin.messages.Appearance)
 }
 
 void Appearance::SharedCtor() {
-theme_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
-candidate_font_size_ = 0;
+::memset(reinterpret_cast<char*>(this) + static_cast<size_t>(
+    reinterpret_cast<char*>(&colors_) - reinterpret_cast<char*>(this)),
+    0, static_cast<size_t>(reinterpret_cast<char*>(&size_) -
+    reinterpret_cast<char*>(&colors_)) + sizeof(size_));
 }
 
 Appearance::~Appearance() {
@@ -948,7 +947,6 @@ Appearance::~Appearance() {
 
 inline void Appearance::SharedDtor() {
   GOOGLE_DCHECK(GetArenaForAllocation() == nullptr);
-  theme_.DestroyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
 }
 
 void Appearance::ArenaDtor(void* object) {
@@ -967,8 +965,9 @@ void Appearance::Clear() {
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
-  theme_.ClearToEmpty();
-  candidate_font_size_ = 0;
+  ::memset(&colors_, 0, static_cast<size_t>(
+      reinterpret_cast<char*>(&size_) -
+      reinterpret_cast<char*>(&colors_)) + sizeof(size_));
   _internal_metadata_.Clear<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
 
@@ -978,20 +977,18 @@ const char* Appearance::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID:
     ::PROTOBUF_NAMESPACE_ID::uint32 tag;
     ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
     switch (tag >> 3) {
-      // string theme = 1;
+      // int32 colors = 1;
       case 1:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 10)) {
-          auto str = _internal_mutable_theme();
-          ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParser(str, ptr, ctx);
-          CHK_(::PROTOBUF_NAMESPACE_ID::internal::VerifyUTF8(str, "khiin.messages.Appearance.theme"));
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 8)) {
+          colors_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
           CHK_(ptr);
         } else
           goto handle_unusual;
         continue;
-      // int32 candidate_font_size = 2;
+      // int32 size = 2;
       case 2:
         if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 16)) {
-          candidate_font_size_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
+          size_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
           CHK_(ptr);
         } else
           goto handle_unusual;
@@ -1025,20 +1022,16 @@ failure:
   ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   (void) cached_has_bits;
 
-  // string theme = 1;
-  if (!this->_internal_theme().empty()) {
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
-      this->_internal_theme().data(), static_cast<int>(this->_internal_theme().length()),
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
-      "khiin.messages.Appearance.theme");
-    target = stream->WriteStringMaybeAliased(
-        1, this->_internal_theme(), target);
+  // int32 colors = 1;
+  if (this->_internal_colors() != 0) {
+    target = stream->EnsureSpace(target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteInt32ToArray(1, this->_internal_colors(), target);
   }
 
-  // int32 candidate_font_size = 2;
-  if (this->_internal_candidate_font_size() != 0) {
+  // int32 size = 2;
+  if (this->_internal_size() != 0) {
     target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteInt32ToArray(2, this->_internal_candidate_font_size(), target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteInt32ToArray(2, this->_internal_size(), target);
   }
 
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
@@ -1057,16 +1050,14 @@ size_t Appearance::ByteSizeLong() const {
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
-  // string theme = 1;
-  if (!this->_internal_theme().empty()) {
-    total_size += 1 +
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
-        this->_internal_theme());
+  // int32 colors = 1;
+  if (this->_internal_colors() != 0) {
+    total_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32SizePlusOne(this->_internal_colors());
   }
 
-  // int32 candidate_font_size = 2;
-  if (this->_internal_candidate_font_size() != 0) {
-    total_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32SizePlusOne(this->_internal_candidate_font_size());
+  // int32 size = 2;
+  if (this->_internal_size() != 0) {
+    total_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32SizePlusOne(this->_internal_size());
   }
 
   return MaybeComputeUnknownFieldsSize(total_size, &_cached_size_);
@@ -1091,11 +1082,11 @@ void Appearance::MergeFrom(const Appearance& from) {
   ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   (void) cached_has_bits;
 
-  if (!from._internal_theme().empty()) {
-    _internal_set_theme(from._internal_theme());
+  if (from._internal_colors() != 0) {
+    _internal_set_colors(from._internal_colors());
   }
-  if (from._internal_candidate_font_size() != 0) {
-    _internal_set_candidate_font_size(from._internal_candidate_font_size());
+  if (from._internal_size() != 0) {
+    _internal_set_size(from._internal_size());
   }
   _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
 }
@@ -1113,15 +1104,13 @@ bool Appearance::IsInitialized() const {
 
 void Appearance::InternalSwap(Appearance* other) {
   using std::swap;
-  auto* lhs_arena = GetArenaForAllocation();
-  auto* rhs_arena = other->GetArenaForAllocation();
   _internal_metadata_.InternalSwap(&other->_internal_metadata_);
-  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(
-      &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
-      &theme_, lhs_arena,
-      &other->theme_, rhs_arena
-  );
-  swap(candidate_font_size_, other->candidate_font_size_);
+  ::PROTOBUF_NAMESPACE_ID::internal::memswap<
+      PROTOBUF_FIELD_OFFSET(Appearance, size_)
+      + sizeof(Appearance::size_)
+      - PROTOBUF_FIELD_OFFSET(Appearance, colors_)>(
+          reinterpret_cast<char*>(&colors_),
+          reinterpret_cast<char*>(&other->colors_));
 }
 
 ::PROTOBUF_NAMESPACE_ID::Metadata Appearance::GetMetadata() const {

@@ -4,7 +4,7 @@
 
 namespace khiin::win32::settings {
 
-class AppearanceProps : public PropSheet {
+class InputProps : public PropSheet {
   public:
     virtual void Initialize() override;
     virtual void Finalize() override;

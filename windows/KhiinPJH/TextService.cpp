@@ -70,6 +70,7 @@ struct TextServiceImpl :
         m_openclose_compartment.SetValue(false);
         m_kbd_disabled_compartment.Uninitialize();
         m_openclose_compartment.Uninitialize();
+        m_config_compartment.Uninitialize();
         m_candidate_list_ui->Uninitialize();
         m_keyevent_sink->Deactivate();
         m_threadmgr_sink->Uninitialize();
