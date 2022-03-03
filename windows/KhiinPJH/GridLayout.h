@@ -35,6 +35,14 @@ struct GridLayout {
         return cols_;
     }
 
+    inline int row_height() {
+        return row_height_ + row_pad_;
+    }
+
+    inline int row_pad() {
+        return row_pad_;
+    }
+
     inline Rect GetCellRect(int row, int col) {
         assert(row <= rows_);
         assert(col <= cols_);

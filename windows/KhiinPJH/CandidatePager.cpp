@@ -101,6 +101,14 @@ class CandidatePagerImpl : public CandidatePager {
         return divide_ceil(CandidatesSize(), MaxPageSize());
     }
 
+    virtual int MaxPageSize() override {
+        return MaxColsPerPage() * MaxColSize();
+    }
+
+    virtual int CurrentPageIndex() override {
+        return std::div(static_cast<int>(m_focused_index), MaxPageSize()).quot;
+    }
+
     virtual int NextPageCandidateId() override {
         auto size = CandidatesSize();
         auto col_size = MaxColSize();
@@ -131,7 +139,7 @@ class CandidatePagerImpl : public CandidatePager {
 
         auto size = CandidatesSize();
         prev_idx = TotalColumnCount() * col_size - (col_size - curr_idx);
-        
+
         if (prev_idx < size) {
             return CandidateIdAtIndex(prev_idx);
         }
@@ -160,10 +168,6 @@ class CandidatePagerImpl : public CandidatePager {
 
     inline int MaxColSize() {
         return m_display_mode == DisplayMode::ShortColumn ? kShortColSize : kLongColSize;
-    }
-
-    inline int MaxPageSize() {
-        return MaxColsPerPage() * MaxColSize();
     }
 
     inline int CurrentPage() {

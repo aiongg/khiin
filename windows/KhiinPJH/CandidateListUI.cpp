@@ -154,6 +154,7 @@ struct CandidateListUIImpl :
         D(__FUNCTIONW__);
         if (m_candidate_window) {
             m_candidate_window->SetAppearance(Colors::GetScheme(config));
+            m_candidate_window->SetDisplaySize(config->appearance().size());
         }
     }
 
@@ -210,27 +211,67 @@ struct CandidateListUIImpl :
     //----------------------------------------------------------------------------
 
     virtual STDMETHODIMP GetUpdatedFlags(DWORD *pdwFlags) override {
-        return E_NOTIMPL;
+        *pdwFlags = TF_CLUIE_STRING | TF_CLUIE_COUNT | TF_CLUIE_CURRENTPAGE | TF_CLUIE_PAGEINDEX | TF_CLUIE_SELECTION;
+        return S_OK;
     }
 
     virtual STDMETHODIMP GetDocumentMgr(ITfDocumentMgr **ppdim) override {
-        return E_NOTIMPL;
+        if (ppdim == nullptr) {
+            return E_INVALIDARG;
+        }
+        m_context->GetDocumentMgr(ppdim);
+        return S_OK;
     }
 
     virtual STDMETHODIMP GetCount(UINT *puCount) override {
-        return E_NOTIMPL;
+        if (puCount == nullptr) {
+            return E_INVALIDARG;
+        }
+        *puCount = m_candidate_list.candidates_size();
+        return S_OK;
     }
 
     virtual STDMETHODIMP GetSelection(UINT *puIndex) override {
-        return E_NOTIMPL;
+        if (puIndex == nullptr) {
+            return E_INVALIDARG;
+        }
+        *puIndex = m_candidate_list.focused();
+        return S_OK;
     }
 
     virtual STDMETHODIMP GetString(UINT uIndex, BSTR *pstr) override {
-        return E_NOTIMPL;
+        if (pstr == nullptr) {
+            return E_INVALIDARG;
+        }
+        if (uIndex >= m_candidate_list.candidates_size()) {
+            return E_FAIL;
+        }
+        auto cand_str = m_candidate_list.candidates().at(uIndex).value();
+        auto cand_wstr = Utils::Widen(cand_str);
+        BSTR cand_bstr = ::SysAllocStringLen(cand_wstr.data(), cand_wstr.size());
+        *pstr = cand_bstr;
+        return S_OK;
     }
 
     virtual STDMETHODIMP GetPageIndex(UINT *pIndex, UINT uSize, UINT *puPageCnt) override {
-        return E_NOTIMPL;
+        if (puPageCnt == nullptr) {
+            return E_INVALIDARG;
+        }
+        *puPageCnt = m_pager->PageCount();
+
+        if (pIndex == nullptr) {
+            return S_OK;
+        }
+
+        if (uSize < *puPageCnt) {
+            return E_NOT_SUFFICIENT_BUFFER;
+        }
+
+        for (size_t i = 0; i < *puPageCnt; ++i) {
+            pIndex[i] = i * m_pager->MaxPageSize();
+        }
+
+        return S_OK;
     }
 
     virtual STDMETHODIMP SetPageIndex(UINT *pIndex, UINT uPageCnt) override {
@@ -238,7 +279,11 @@ struct CandidateListUIImpl :
     }
 
     virtual STDMETHODIMP GetCurrentPage(UINT *puPage) override {
-        return E_NOTIMPL;
+        if (puPage == nullptr) {
+            return E_INVALIDARG;
+        }
+        *puPage = m_pager->CurrentPageIndex();
+        return S_OK;
     }
 
     //+---------------------------------------------------------------------------
@@ -248,7 +293,12 @@ struct CandidateListUIImpl :
     //----------------------------------------------------------------------------
 
     virtual STDMETHODIMP SetSelection(UINT nIndex) override {
-        return E_NOTIMPL;
+        if (nIndex >= m_candidate_list.candidates_size()) {
+            return E_INVALIDARG;
+        }
+
+        OnSelectCandidate(nIndex);
+        return S_OK;
     }
 
     virtual STDMETHODIMP Finalize(void) override {

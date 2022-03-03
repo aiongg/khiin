@@ -49,21 +49,25 @@ CWndMetrics GetMetricsForSize(DisplaySize size) {
         metrics.padding = 10.0f;
         metrics.padding_sm = 5.0f;
         metrics.font_size = 20.0f;
+        metrics.marker_h = 20.0f;
         break;
     case DisplaySize::L:
         metrics.padding = 12.0f;
         metrics.padding_sm = 6.0f;
         metrics.font_size = 24.0f;
+        metrics.marker_h = 24.0f;
         break;
     case DisplaySize::XL:
         metrics.padding = 14.0f;
         metrics.padding_sm = 7.0f;
         metrics.font_size = 28.0f;
+        metrics.marker_h = 24.0f;
         break;
     case DisplaySize::XXL:
         metrics.padding = 16.0f;
         metrics.padding_sm = 8.0f;
         metrics.font_size = 32.0f;
+        metrics.marker_h = 24.0f;
         break;
     }
     return metrics;
@@ -252,8 +256,8 @@ class CandidateWindowImpl : public CandidateWindow {
         CalculateLayout();
     }
 
-    virtual void SetDisplaySize(DisplaySize display_size) override {
-        m_metrics = GetMetricsForSize(display_size);
+    virtual void SetDisplaySize(int size) override {
+        m_metrics = GetMetricsForSize(static_cast<DisplaySize>(size));
         DiscardGraphicsResources();
     }
 
@@ -431,7 +435,7 @@ class CandidateWindowImpl : public CandidateWindow {
         auto layout = com_ptr<IDWriteTextLayout>();
         check_hresult(m_dwrite->CreateTextLayout(value.c_str(), static_cast<UINT32>(value.size() + 1),
                                                  m_textformat.get(), static_cast<float>(m_max_width),
-                                                 m_metrics.row_height, layout.put()));
+                                                 static_cast<float>(m_max_height), layout.put()));
 
         DWRITE_TEXT_METRICS dwtm;
         check_hresult(layout->GetMetrics(&dwtm));
@@ -463,6 +467,7 @@ class CandidateWindowImpl : public CandidateWindow {
             }
         }
 
+        m_metrics.row_height = m_layout_grid.row_height();
         auto grid_size = m_layout_grid.GetGridSize();
         auto left = m_text_rect.left - m_metrics.qs_col_w * m_scale;
         auto top = m_text_rect.bottom * 1.0f;
@@ -512,8 +517,8 @@ class CandidateWindowImpl : public CandidateWindow {
     void DrawQuickSelect(std::wstring label, float left, float top) {
         auto layout = com_ptr<IDWriteTextLayout>();
         check_hresult(m_dwrite->CreateTextLayout(label.c_str(), static_cast<UINT32>(label.size() + 1),
-                                                 m_textformat_sm.get(), static_cast<float>(m_metrics.qs_col_w), m_metrics.row_height,
-                                                 layout.put()));
+                                                 m_textformat_sm.get(), static_cast<float>(m_metrics.qs_col_w),
+                                                 m_metrics.row_height, layout.put()));
         auto x = left + m_metrics.marker_w * 2 + m_metrics.padding;
         auto y = top + CenterTextLayoutY(layout.get(), m_metrics.row_height);
         if (m_quickselect_active) {
@@ -546,21 +551,31 @@ class CandidateWindowImpl : public CandidateWindow {
                 if (!value.candidate || !value.layout) {
                     continue;
                 }
-
+                
                 auto cell = m_layout_grid.GetCellRect(row_idx, col_idx);
+                auto left = cell.leftf();
+                auto top = cell.topf();
+                auto right = cell.rightf();
+                auto bottom = cell.bottomf();
+                auto width = cell.widthf();
+
+                // Note: Uncomment to draw boxes around the candidates,
+                // useful for debugging
+                // auto rct = D2D1::RectF(left, top, right, bottom);
+                // m_target->DrawRectangle(rct, m_brush.get());
 
                 if (value.candidate->id() == m_focused_id) {
-                    DrawFocused(cell.leftf(), cell.topf(), cell.widthf());
+                    DrawFocused(left, top, width);
                 } else if (value.candidate->id() == m_mouse_focused_id) {
-                    DrawFocusedBackground(cell.leftf(), cell.topf(), cell.widthf());
+                    DrawFocusedBackground(left, top, width);
                 }
 
                 if (col_idx == m_quickselect_col) {
-                    DrawQuickSelect(std::to_wstring(qs_label), cell.leftf(), cell.topf());
+                    DrawQuickSelect(std::to_wstring(qs_label), left, top);
                     ++qs_label;
                 }
 
-                DrawCandidate(value, cell.leftf(), cell.topf());
+                DrawCandidate(value, left, top);
             }
         }
     }
