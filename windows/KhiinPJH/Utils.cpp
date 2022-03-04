@@ -24,15 +24,16 @@ WidePreedit const Utils::WidenPreedit(const Preedit &preedit) {
     auto start_idx = 0;
     for (auto &segment : segments) {
         auto w = Widen(segment.value());
-        KHIIN_INFO(L"Segment: {}, Start: {}, Size: {}", w, start_idx, w.size());
+        auto wsize = static_cast<int>(w.size());
+        KHIIN_INFO(L"Segment: {}, Start: {}, Size: {}", w, start_idx, wsize);
         ret.preedit_display += w;
-        ret.segment_start_and_size.push_back(std::make_pair(start_idx, w.size()));
+        ret.segment_start_and_size.push_back(std::make_pair(start_idx, wsize));
         ret.segment_status.push_back(segment.status());
-        start_idx += w.size();
+        start_idx += static_cast<int>(w.size());
     }
 
     ret.cursor = preedit.cursor_position();
-    ret.display_size = ret.preedit_display.size();
+    ret.display_size = static_cast<int>(ret.preedit_display.size());
     return ret;
 }
 

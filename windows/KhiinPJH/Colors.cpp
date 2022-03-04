@@ -41,7 +41,7 @@ std::vector<std::string> const &Colors::ColorSchemeNames() {
 ColorScheme const &Colors::GetScheme(messages::AppConfig *config) {
     auto colors = config->appearance().colors();
     
-    if (colors < kColorSchemeMap.size()) {
+    if (colors < static_cast<int32_t>(kColorSchemeMap.size())) {
         return kColorSchemeMap.at(colors);
     }
 

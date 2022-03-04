@@ -31,6 +31,7 @@
 #pragma comment(lib, "windowsapp")
 #pragma comment(lib, "d2d1")
 
+#include "hresult.h"
 #include "log.h"
 #include "resource.h"
 
@@ -49,15 +50,6 @@ inline bool is_guid_of<ITfCandidateListUIElementBehavior>(guid const &id) noexce
 }
 
 } // namespace winrt
-
-#define TRY_FOR_HRESULT try {
-
-#define CATCH_FOR_HRESULT                    \
-    }                                        \
-    catch (winrt::hresult_error const &ex) { \
-        CHECK_RETURN_HRESULT(ex.code());     \
-    }                                        \
-    return S_OK;
 
 // Windows 11 polyfill
 

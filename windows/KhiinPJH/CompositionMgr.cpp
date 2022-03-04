@@ -76,7 +76,7 @@ void CompositionMgr::DoComposition(TfEditCookie cookie, ITfContext *pContext, Pr
     auto display_attribute = winrt::com_ptr<ITfProperty>();
     winrt::check_hresult(pContext->GetProperty(GUID_PROP_ATTRIBUTE, display_attribute.put()));
     auto n_segments = w_preedit.segment_start_and_size.size();
-    for (auto i = 0; i < n_segments; ++i) {
+    for (size_t i = 0; i < n_segments; ++i) {
         auto &status = w_preedit.segment_status[i];
         TfGuidAtom attribute_atom = TF_INVALID_GUIDATOM;
 

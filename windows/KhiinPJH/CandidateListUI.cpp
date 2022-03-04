@@ -292,13 +292,13 @@ struct CandidateListUIImpl :
         if (pstr == nullptr) {
             return E_INVALIDARG;
         }
-        if (uIndex >= m_candidate_list.candidates_size()) {
+        if (uIndex >= static_cast<uint32_t>(m_candidate_list.candidates_size())) {
             KHIIN_ERROR("index too big for candidate list");
             return E_FAIL;
         }
         auto cand_str = m_candidate_list.candidates().at(uIndex).value();
         auto cand_wstr = Utils::Widen(cand_str);
-        BSTR cand_bstr = ::SysAllocStringLen(cand_wstr.data(), cand_wstr.size());
+        BSTR cand_bstr = ::SysAllocStringLen(cand_wstr.data(), static_cast<uint32_t>(cand_wstr.size()));
         *pstr = cand_bstr;
         CATCH_FOR_HRESULT;
     }
@@ -319,7 +319,7 @@ struct CandidateListUIImpl :
             return E_NOT_SUFFICIENT_BUFFER;
         }
 
-        for (size_t i = 0; i < *puPageCnt; ++i) {
+        for (uint32_t i = 0; i < *puPageCnt; ++i) {
             pIndex[i] = i * m_pager->MaxPageSize();
         }
 
@@ -350,7 +350,7 @@ struct CandidateListUIImpl :
     virtual STDMETHODIMP SetSelection(UINT nIndex) override {
         TRY_FOR_HRESULT;
         KHIIN_TRACE("");
-        if (nIndex >= m_candidate_list.candidates_size()) {
+        if (nIndex >= static_cast<uint32_t>(m_candidate_list.candidates_size())) {
             return E_INVALIDARG;
         }
 

@@ -7,10 +7,10 @@
 namespace khiin::win32 {
 
 struct WidePreedit {
-    long cursor = 0;
-    long display_size = 0;
+    int cursor = 0;
+    int display_size = 0;
     std::wstring preedit_display;
-    std::vector<std::pair<long, long>> segment_start_and_size;
+    std::vector<std::pair<int, int>> segment_start_and_size;
     std::vector<messages::SegmentStatus> segment_status;
 };
 

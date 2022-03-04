@@ -1,7 +1,5 @@
 #pragma once
 
-#include <comdef.h>
-
 #ifdef _DEBUG
 #define SPDLOG_ACTIVE_LEVEL SPDLOG_LEVEL_TRACE
 #else
@@ -21,23 +19,3 @@
 #define KHIIN_WARN(...) SPDLOG_WARN(__VA_ARGS__)
 #define KHIIN_ERROR(...) SPDLOG_ERROR(__VA_ARGS__)
 #define KHIIN_CRITICAL(...) SPDLOG_CRITICAL(__VA_ARGS__)
-
-#ifdef _DEBUG
-
-#define CHECK_HRESULT(hr)                        \
-    if (FAILED(hr)) {                            \
-        auto msg = std::wstring(_com_error(hr).ErrorMessage()); \
-        KHIIN_ERROR(L"[hresult 0x{:x}] {}", (uint32_t)hr, msg); \
-    }
-
-#define CHECK_RETURN_HRESULT(hr)                                \
-    if (FAILED(hr)) {                                           \
-        auto msg = std::wstring(_com_error(hr).ErrorMessage()); \
-        KHIIN_ERROR(L"[hresult 0x{:x}] {}", (uint32_t)hr, msg); \
-        return hr;                                              \
-    }
-
-#else
-#define D(...)
-#define CHECK_RETURN_HRESULT(hr)
-#endif

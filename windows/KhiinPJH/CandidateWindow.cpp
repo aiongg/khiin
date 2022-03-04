@@ -448,13 +448,13 @@ class CandidateWindowImpl : public CandidateWindow {
 
         for (auto col_idx = 0; col_idx < n_cols; ++col_idx) {
             auto &candidates = m_candidate_grid->at(col_idx);
-            for (auto row_idx = 0; row_idx < candidates.size(); ++row_idx) {
+            for (size_t row_idx = 0; row_idx < candidates.size(); ++row_idx) {
                 auto candidate = candidates[row_idx];
-                AddLayoutToGrid(row_idx, col_idx, candidate);
+                AddLayoutToGrid(static_cast<int>(row_idx), col_idx, candidate);
             }
         }
 
-        m_metrics.row_height = m_layout_grid.row_height();
+        m_metrics.row_height = static_cast<float>(m_layout_grid.row_height());
         auto grid_size = m_layout_grid.GetGridSize();
         auto left = m_text_rect.left - m_metrics.qs_col_w * m_scale;
         auto top = m_text_rect.bottom * 1.0f;
@@ -521,7 +521,7 @@ class CandidateWindowImpl : public CandidateWindow {
         auto y = top + CenterTextLayoutY(candidate.layout.get(), m_metrics.row_height);
         m_brush->SetColor(m_colors.text);
         m_dctarget->DrawTextLayout(D2D1::Point2F(x, y), candidate.layout.get(), m_brush.get(),
-                                 D2D1_DRAW_TEXT_OPTIONS_ENABLE_COLOR_FONT);
+                                   D2D1_DRAW_TEXT_OPTIONS_ENABLE_COLOR_FONT);
     }
 
     void Draw() {
@@ -532,7 +532,7 @@ class CandidateWindowImpl : public CandidateWindow {
         auto qs_label = 1;
         for (auto col_idx = 0; col_idx < m_layout_grid.cols(); ++col_idx) {
             auto &col = m_layout_grid.items[col_idx];
-            for (auto row_idx = 0; row_idx < col.size(); ++row_idx) {
+            for (auto row_idx = 0; static_cast<size_t>(row_idx) < col.size(); ++row_idx) {
                 auto &value = m_layout_grid.GetItem(row_idx, col_idx);
 
                 if (!value.candidate || !value.layout) {

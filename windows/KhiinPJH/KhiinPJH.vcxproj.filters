@@ -1,14 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <Filter Include="Source Files">
-      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
-      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
-    </Filter>
-    <Filter Include="Header Files">
-      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
-      <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
-    </Filter>
     <Filter Include="Resource Files">
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
@@ -16,201 +8,212 @@
     <Filter Include="Common">
       <UniqueIdentifier>{bad95efc-e61d-4606-a86b-4e32ce8c9d69}</UniqueIdentifier>
     </Filter>
+    <Filter Include="TextService">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
+    </Filter>
+    <Filter Include="Renderer">
+      <UniqueIdentifier>{e6f43124-42c9-4cc7-89e1-a56c8a78c1b1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="App">
+      <UniqueIdentifier>{aee0f168-3106-47c3-9e2a-421b14c06ce4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Common\proto">
+      <UniqueIdentifier>{0e50944d-9091-4cd9-b47d-38b13032c198}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="pch.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="TextService.h">
-      <Filter>Header Files</Filter>
+      <Filter>TextService</Filter>
     </ClInclude>
     <ClInclude Include="KhiinClassFactory.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Registrar.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="DllModule.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Profile.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="resource.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="log.h">
-      <Filter>Header Files</Filter>
+      <Filter>TextService</Filter>
     </ClInclude>
     <ClInclude Include="KeyEventSink.h">
-      <Filter>Header Files</Filter>
+      <Filter>TextService</Filter>
     </ClInclude>
     <ClInclude Include="SinkManager.h">
-      <Filter>Header Files</Filter>
+      <Filter>TextService</Filter>
     </ClInclude>
     <ClInclude Include="ThreadMgrEventSink.h">
-      <Filter>Header Files</Filter>
+      <Filter>TextService</Filter>
     </ClInclude>
     <ClInclude Include="TextEditSink.h">
-      <Filter>Header Files</Filter>
+      <Filter>TextService</Filter>
     </ClInclude>
     <ClInclude Include="CompositionMgr.h">
-      <Filter>Header Files</Filter>
+      <Filter>TextService</Filter>
     </ClInclude>
     <ClInclude Include="EditSession.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="common.h">
-      <Filter>Header Files</Filter>
+      <Filter>TextService</Filter>
     </ClInclude>
     <ClInclude Include="Compartment.h">
-      <Filter>Header Files</Filter>
+      <Filter>TextService</Filter>
     </ClInclude>
     <ClInclude Include="DisplayAttributeInfo.h">
-      <Filter>Header Files</Filter>
+      <Filter>TextService</Filter>
     </ClInclude>
     <ClInclude Include="DisplayAttributeInfoEnum.h">
-      <Filter>Header Files</Filter>
+      <Filter>TextService</Filter>
     </ClInclude>
     <ClInclude Include="EngineController.h">
-      <Filter>Header Files</Filter>
+      <Filter>TextService</Filter>
     </ClInclude>
     <ClInclude Include="CandidateListUI.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="CandidateWindow.h">
-      <Filter>Header Files</Filter>
+      <Filter>TextService</Filter>
     </ClInclude>
     <ClInclude Include="KeyEvent.h">
-      <Filter>Header Files</Filter>
+      <Filter>TextService</Filter>
     </ClInclude>
     <ClInclude Include="CompositionSink.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="BaseWindow.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Utils.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="resource1.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="GridLayout.h">
-      <Filter>Header Files</Filter>
+      <Filter>TextService</Filter>
     </ClInclude>
     <ClInclude Include="Geometry.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Colors.h">
-      <Filter>Header Files</Filter>
+      <Filter>Renderer</Filter>
     </ClInclude>
     <ClInclude Include="Graphics.h">
-      <Filter>Header Files</Filter>
+      <Filter>Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="GridLayout.h">
+      <Filter>Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="BaseWindow.h">
+      <Filter>Renderer</Filter>
     </ClInclude>
     <ClInclude Include="CandidatePager.h">
-      <Filter>Header Files</Filter>
+      <Filter>Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="CandidateWindow.h">
+      <Filter>Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="Colors.h">
+      <Filter>Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="common.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="Utils.h">
+      <Filter>Common</Filter>
     </ClInclude>
     <ClInclude Include="Config.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Files.h">
-      <Filter>Header Files</Filter>
+      <Filter>Common</Filter>
     </ClInclude>
     <ClInclude Include="Logger.h">
-      <Filter>Header Files</Filter>
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="log.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="DllModule.h">
+      <Filter>App</Filter>
+    </ClInclude>
+    <ClInclude Include="Registrar.h">
+      <Filter>App</Filter>
+    </ClInclude>
+    <ClInclude Include="pch.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="Files.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="Profile.h">
+      <Filter>App</Filter>
+    </ClInclude>
+    <ClInclude Include="resource.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="resource1.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="hresult.h">
+      <Filter>Common</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="pch.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="TextService.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="DllModule.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="KhiinClassFactory.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Registrar.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="KeyEventSink.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="ThreadMgrEventSink.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="TextEditSink.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="CompositionMgr.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="EditSession.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Compartment.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="DisplayAttributeInfo.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="DisplayAttributeInfoEnum.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="EngineController.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="CandidateListUI.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="CandidateWindow.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="KeyEvent.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="CompositionSink.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="BaseWindow.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Utils.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Graphics.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Renderer</Filter>
     </ClCompile>
     <ClCompile Include="CandidatePager.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="BaseWindow.cpp">
+      <Filter>Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="CandidateWindow.cpp">
+      <Filter>Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="Colors.cpp">
+      <Filter>Renderer</Filter>
     </ClCompile>
     <ClCompile Include="Config.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Common</Filter>
+    </ClCompile>
+    <ClCompile Include="DllModule.cpp">
+      <Filter>App</Filter>
+    </ClCompile>
+    <ClCompile Include="Registrar.cpp">
+      <Filter>App</Filter>
+    </ClCompile>
+    <ClCompile Include="CandidateListUI.cpp">
+      <Filter>TextService</Filter>
+    </ClCompile>
+    <ClCompile Include="Compartment.cpp">
+      <Filter>TextService</Filter>
+    </ClCompile>
+    <ClCompile Include="CompositionMgr.cpp">
+      <Filter>TextService</Filter>
+    </ClCompile>
+    <ClCompile Include="CompositionSink.cpp">
+      <Filter>TextService</Filter>
+    </ClCompile>
+    <ClCompile Include="DisplayAttributeInfo.cpp">
+      <Filter>TextService</Filter>
+    </ClCompile>
+    <ClCompile Include="DisplayAttributeInfoEnum.cpp">
+      <Filter>TextService</Filter>
+    </ClCompile>
+    <ClCompile Include="EditSession.cpp">
+      <Filter>TextService</Filter>
     </ClCompile>
     <ClCompile Include="Files.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Common</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\proto\proto\config.pb.cc">
+    <ClCompile Include="Logger.cpp">
+      <Filter>Common</Filter>
+    </ClCompile>
+    <ClCompile Include="EngineController.cpp">
+      <Filter>TextService</Filter>
+    </ClCompile>
+    <ClCompile Include="KeyEvent.cpp">
+      <Filter>TextService</Filter>
+    </ClCompile>
+    <ClCompile Include="KeyEventSink.cpp">
+      <Filter>TextService</Filter>
+    </ClCompile>
+    <ClCompile Include="KhiinClassFactory.cpp">
+      <Filter>TextService</Filter>
+    </ClCompile>
+    <ClCompile Include="TextEditSink.cpp">
+      <Filter>TextService</Filter>
+    </ClCompile>
+    <ClCompile Include="TextService.cpp">
+      <Filter>TextService</Filter>
+    </ClCompile>
+    <ClCompile Include="ThreadMgrEventSink.cpp">
+      <Filter>TextService</Filter>
+    </ClCompile>
+    <ClCompile Include="Utils.cpp">
+      <Filter>Common</Filter>
+    </ClCompile>
+    <ClCompile Include="pch.cpp">
       <Filter>Common</Filter>
     </ClCompile>
     <ClCompile Include="..\..\proto\proto\messages.pb.cc">
-      <Filter>Common</Filter>
+      <Filter>Common\proto</Filter>
     </ClCompile>
-    <ClCompile Include="Colors.cpp">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="..\..\proto\proto\config.pb.cc">
+      <Filter>Common\proto</Filter>
     </ClCompile>
-    <ClCompile Include="Logger.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="DllModule.def">
-      <Filter>Source Files</Filter>
-    </None>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="KhiinPJH.rc">
@@ -221,5 +224,10 @@
     <Image Include="..\..\design\icon-48.ico">
       <Filter>Resource Files</Filter>
     </Image>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="DllModule.def">
+      <Filter>App</Filter>
+    </None>
   </ItemGroup>
 </Project>
