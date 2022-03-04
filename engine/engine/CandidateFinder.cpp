@@ -109,7 +109,19 @@ std::vector<Buffer> AllPunctuationsImpl(Engine *engine, TaiToken *lgram, std::st
 
 std::vector<Buffer> GetCandidatesFromStartImpl(Engine *engine, TaiToken *lgram, std::string const &raw_query) {
 
+    auto ret = std::vector<Buffer>();
+    if (raw_query.empty()) {
+        return ret;
+    }
+
     auto segments = Segmenter::SegmentText(engine, raw_query);
+
+    if (segments.empty()) {
+        ret.push_back(Buffer(raw_query));
+        ret.back().SetConverted(true);
+        return ret;
+    }
+
     auto &first_seg = segments.at(0);
     auto query = raw_query.substr(0, first_seg.size);
 
@@ -121,8 +133,9 @@ std::vector<Buffer> GetCandidatesFromStartImpl(Engine *engine, TaiToken *lgram, 
         return AllPunctuationsImpl(engine, lgram, query);
     }
 
-    auto ret = std::vector<Buffer>{Buffer(query)};
+    ret.push_back(Buffer(query));
     ret.back().SetConverted(true);
+
     return ret;
 }
 

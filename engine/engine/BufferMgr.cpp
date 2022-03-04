@@ -156,7 +156,7 @@ class BufferMgrImpl : public BufferMgr {
             FocusCandidate(0);
         } else {
             m_edit_state = EditState::EDIT_SELECTING;
-            if (m_focused_candidate == m_candidates.size() - 1) {
+            if (m_focused_candidate >= m_candidates.size() - 1) {
                 FocusCandidate(0);
             } else {
                 FocusCandidate((m_focused_candidate + 1));

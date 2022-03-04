@@ -19,7 +19,7 @@ add_executable(test_khiin_engine
     "TestEnv.h"
  "UnicodeTest.cpp" "UtilsTest.cpp" )
 
-target_link_libraries(test_khiin_engine khiin SQLiteCpp ${Boost_LIBRARIES} ${Protobuf_LITE_LIBRARY} GTest::gmock GTest::gtest GTest::gmock_main GTest::gtest_main)
+target_link_libraries(test_khiin_engine khiin SQLiteCpp ${Boost_LIBRARIES} ${Protobuf_LIBRARY} GTest::gmock GTest::gtest GTest::gmock_main GTest::gtest_main)
 
 add_test(NAME test_khiin_engine COMMAND test_khiin_engine)
 
