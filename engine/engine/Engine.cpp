@@ -185,11 +185,17 @@ class EngineImpl : public Engine {
         auto input = command->mutable_input();
         auto output = command->mutable_output();
 
+        output->set_consumable(true);
+
         auto key = input->key_event().key_code();
-        if (m_buffer_mgr->IsEmpty() && !isprint(key)) {
+        auto &mods = input->key_event().modifier_keys();
+
+        if (!mods.empty()) {
+            if (mods.size() > 1 || mods.at(0) != ModifierKey::SHIFT) {
+                output->set_consumable(false);
+            }
+        } else if (m_buffer_mgr->IsEmpty() && !isgraph(key)) {
             output->set_consumable(false);
-        } else {
-            output->set_consumable(true);
         }
     }
 
@@ -206,7 +212,7 @@ class EngineImpl : public Engine {
         m_buffer_mgr->SelectCandidate(command->input().candidate_id());
         AttachPreeditWithCandidates(command);
     }
-    
+
     void HandleFocusCandidate(Command *command) {
         m_buffer_mgr->FocusCandidate(command->input().candidate_id());
         AttachPreeditWithCandidates(command);
