@@ -32,7 +32,6 @@ struct CandidateListUIImpl :
     }
 
     virtual void Uninitialize() override {
-        D(__FUNCTIONW__);
         m_service = nullptr;
         m_context = nullptr;
         DestroyCandidateWindow();
@@ -41,7 +40,6 @@ struct CandidateListUIImpl :
     }
 
     virtual void DestroyCandidateWindow() override {
-        D(__FUNCTIONW__);
         if (m_candidate_window && m_candidate_window->hwnd()) {
             ::DestroyWindow(m_candidate_window->hwnd());
         }
@@ -49,7 +47,6 @@ struct CandidateListUIImpl :
 
     virtual void Update(ITfContext *pContext, EditState edit_state, const messages::CandidateList &candidate_list,
                         RECT text_rect) override {
-        D(__FUNCTIONW__);
         m_context.copy_from(pContext);
         m_candidate_list.CopyFrom(candidate_list);
         m_edit_state = edit_state;
@@ -151,7 +148,6 @@ struct CandidateListUIImpl :
     //----------------------------------------------------------------------------
 
     virtual void OnConfigChanged(messages::AppConfig *config) override {
-        D(__FUNCTIONW__);
         if (m_candidate_window) {
             m_candidate_window->SetAppearance(Colors::GetScheme(config));
             m_candidate_window->SetDisplaySize(config->appearance().size());
@@ -193,7 +189,6 @@ struct CandidateListUIImpl :
     }
 
     virtual STDMETHODIMP IsShown(BOOL *pbShow) override {
-        D(__FUNCTIONW__);
         TRY_FOR_HRESULT;
         if (!m_candidate_window) {
             *pbShow = FALSE;

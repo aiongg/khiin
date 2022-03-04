@@ -4,7 +4,9 @@
 
 #include "BaseWindow.h"
 #include "EngineController.h"
+#include "Files.h"
 #include "KhiinClassFactory.h"
+#include "Logger.h"
 #include "Registrar.h"
 #include "TextService.h"
 
@@ -27,11 +29,12 @@ class ModuleImpl {
     }
 
     static bool CanUnload() {
-        D("__FUNCTIONW__", " Count: ", count);
+        KHIIN_TRACE("Count: {}", count);
         return count <= 0;
     }
 
     static BOOL OnDllProcessAttach(HINSTANCE instance, bool static_loading) {
+        khiin::Logger::Initialize(khiin::win32::Files::GetFolder(instance));
         khiin::win32::TextServiceFactory::OnDllProcessAttach(instance);
         khiin::win32::WindowSetup::OnDllProcessAttach(instance);
         khiin::win32::EngineControllerFactory::OnDllProcessAttach(instance);
@@ -43,6 +46,7 @@ class ModuleImpl {
         khiin::win32::TextServiceFactory::OnDllProcessDetach(instance);
         khiin::win32::WindowSetup::OnDllProcessDetach(instance);
         khiin::win32::EngineControllerFactory::OnDllProcessDetach(instance);
+        khiin::Logger::Uninitialize();
         moduleHandle = nullptr;
         unloaded = true;
         return TRUE;
@@ -71,7 +75,7 @@ __control_entrypoint(DllExport) STDAPI DllCanUnloadNow(void) {
 }
 
 _Check_return_ STDAPI DllGetClassObject(_In_ REFCLSID rclsid, _In_ REFIID riid, _Outptr_ LPVOID FAR *ppv) {
-    D("DllGetClassObject");
+    KHIIN_TRACE("");
     try {
         *ppv = nullptr;
 

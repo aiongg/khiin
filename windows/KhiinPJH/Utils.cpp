@@ -24,7 +24,7 @@ WidePreedit const Utils::WidenPreedit(const Preedit &preedit) {
     auto start_idx = 0;
     for (auto &segment : segments) {
         auto w = Widen(segment.value());
-        D(__FUNCTIONW__, " Segment: \"", w, "\", Start: ", start_idx, ", Size: ", w.size());
+        KHIIN_INFO(L"Segment: {}, Start: {}, Size: {}", w, start_idx, w.size());
         ret.preedit_display += w;
         ret.segment_start_and_size.push_back(std::make_pair(start_idx, w.size()));
         ret.segment_status.push_back(segment.status());

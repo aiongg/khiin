@@ -27,7 +27,7 @@ CompositionMgr::~CompositionMgr() {
 }
 
 void CompositionMgr::Initialize(TextService *pTextService) {
-    D(__FUNCTIONW__);
+    KHIIN_TRACE("");
     service.copy_from(pTextService);
 }
 
@@ -36,7 +36,7 @@ void CompositionMgr::ClearComposition() {
 }
 
 void CompositionMgr::Uninitialize() {
-    D(__FUNCTIONW__);
+    KHIIN_TRACE("");
     service = nullptr;
     composition = nullptr;
 }
@@ -46,7 +46,7 @@ bool CompositionMgr::composing() {
 }
 
 void CompositionMgr::DoComposition(TfEditCookie cookie, ITfContext *pContext, Preedit preedit) {
-    D(__FUNCTIONW__);
+    KHIIN_TRACE("");
 
     auto w_preedit = Utils::WidenPreedit(preedit);
 
@@ -137,7 +137,7 @@ void CompositionMgr::CommitComposition(TfEditCookie cookie, ITfContext *pContext
 }
 
 void CompositionMgr::CommitComposition(TfEditCookie cookie, ITfContext *pContext, Preedit preedit) try {
-    D(__FUNCTIONW__);
+    KHIIN_TRACE("");
 
     if (!composition) {
         StartComposition(cookie, pContext);

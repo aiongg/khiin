@@ -167,6 +167,7 @@
     </ClCompile>
     <ClCompile Include="..\KhiinPJH\Colors.cpp" />
     <ClCompile Include="..\KhiinPJH\Config.cpp" />
+    <ClCompile Include="..\KhiinPJH\Files.cpp" />
     <ClCompile Include="..\KhiinPJH\Utils.cpp" />
     <ClCompile Include="AppearanceProps.cpp" />
     <ClCompile Include="InputProps.cpp" />

@@ -18,7 +18,6 @@ class BaseWindow {
         DerivedWindow *self = NULL;
 
         if (uMsg == WM_NCCREATE) {
-            D("WM_NCCREATE");
             LPCREATESTRUCT lpcs = reinterpret_cast<LPCREATESTRUCT>(lParam);
             self = static_cast<DerivedWindow *>(lpcs->lpCreateParams);
             self->m_hwnd = hwnd;
@@ -79,7 +78,7 @@ class BaseWindow {
         ::SetThreadDpiAwarenessContext(previous_dpi_awareness);
 
         if (!m_hwnd) {
-            D("CreateWindowEx(...) Failed: ", ::GetLastError());
+            KHIIN_ERROR("CreateWindowEx(...) Failed: {}", ::GetLastError());
             return false;
         }
 
@@ -114,7 +113,7 @@ class BaseWindow {
         wc.hbrBackground = (HBRUSH)::GetStockObject(NULL_BRUSH);
 
         if (!::RegisterClassEx(&wc)) {
-            D("RegisterClassEx(&wc) Failed: ", ::GetLastError());
+            KHIIN_ERROR("RegisterClassEx(&wc) Failed: {}", ::GetLastError());
             return false;
         }
 

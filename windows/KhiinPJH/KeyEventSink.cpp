@@ -98,7 +98,7 @@ void KeyEventSink::Activate(TextService *pTextService) {
 }
 
 void KeyEventSink::Deactivate() {
-    D(__FUNCTIONW__);
+    KHIIN_TRACE("");
     if (keystrokeMgr) {
         winrt::check_hresult(keystrokeMgr->UnadviseKeyEventSink(service->clientId()));
     }
@@ -110,7 +110,7 @@ void KeyEventSink::Deactivate() {
 }
 
 void KeyEventSink::TestKey(ITfContext *pContext, KeyEvent keyEvent, BOOL *pfEaten) {
-    D(__FUNCTIONW__);
+    KHIIN_TRACE("");
     WINRT_ASSERT(pContext);
     WINRT_ASSERT(composition_mgr);
 
@@ -171,7 +171,7 @@ STDMETHODIMP KeyEventSink::OnSetFocus(BOOL fForeground) {
 
 STDMETHODIMP KeyEventSink::OnTestKeyDown(ITfContext *pContext, WPARAM wParam, LPARAM lParam, BOOL *pfEaten) {
     TRY_FOR_HRESULT;
-    D(__FUNCTIONW__);
+    KHIIN_TRACE("");
 
     *pfEaten = false;
     auto keyEvent = KeyEvent(WM_KEYDOWN, wParam, lParam);
@@ -192,7 +192,7 @@ STDMETHODIMP KeyEventSink::OnTestKeyUp(ITfContext *pContext, WPARAM wParam, LPAR
 
 STDMETHODIMP KeyEventSink::OnKeyDown(ITfContext *pContext, WPARAM wParam, LPARAM lParam, BOOL *pfEaten) {
     TRY_FOR_HRESULT;
-    D(__FUNCTIONW__, " (W=", wParam, ")");
+    KHIIN_TRACE("");
 
     *pfEaten = false;
     auto keyEvent = KeyEvent(WM_KEYDOWN, wParam, lParam);

@@ -9,14 +9,14 @@ ThreadMgrEventSink::~ThreadMgrEventSink() {
 }
 
 void ThreadMgrEventSink::Initialize(TextService *pTextService) {
-    D(__FUNCTIONW__);
+    KHIIN_TRACE("");
     auto hr = E_FAIL;
     service.copy_from(pTextService);
     threadMgrSinkMgr.Advise(service->thread_mgr(), this);
 }
 
 void ThreadMgrEventSink::Uninitialize() {
-    D(__FUNCTIONW__);
+    KHIIN_TRACE("");
     auto hr = E_FAIL;
     threadMgrSinkMgr.Unadvise();
     service = nullptr;
@@ -29,27 +29,27 @@ void ThreadMgrEventSink::Uninitialize() {
 //----------------------------------------------------------------------------
 
 STDMETHODIMP ThreadMgrEventSink::OnInitDocumentMgr(ITfDocumentMgr *pdim) {
-    D(__FUNCTIONW__);
+    KHIIN_TRACE("");
     return S_OK;
 }
 
 STDMETHODIMP ThreadMgrEventSink::OnUninitDocumentMgr(ITfDocumentMgr *pdim) {
-    D(__FUNCTIONW__);
+    KHIIN_TRACE("");
     return S_OK;
 }
 
 STDMETHODIMP ThreadMgrEventSink::OnSetFocus(ITfDocumentMgr *pdimFocus, ITfDocumentMgr *pdimPrevFocus) {
-    D(__FUNCTIONW__);
+    KHIIN_TRACE("");
     return S_OK;
 }
 
 STDMETHODIMP ThreadMgrEventSink::OnPushContext(ITfContext *pic) {
-    D(__FUNCTIONW__);
+    KHIIN_TRACE("");
     return S_OK;
 }
 
 STDMETHODIMP ThreadMgrEventSink::OnPopContext(ITfContext *pic) {
-    D(__FUNCTIONW__);
+    KHIIN_TRACE("");
     return S_OK;
 }
 

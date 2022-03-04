@@ -30,7 +30,7 @@ constexpr auto kAsyncRWFlag = TF_ES_ASYNCDONTCARE | TF_ES_READWRITE;
 
 struct EditSessionImpl : winrt::implements<EditSessionImpl, ITfEditSession> {
     EditSessionImpl(TextService *pService, ITfContext *pContext, Command &&command) {
-        D(__FUNCTIONW__);
+        KHIIN_TRACE("");
         service.copy_from(pService);
         context.copy_from(pContext);
         this->command = std::move(command);
@@ -44,7 +44,7 @@ struct EditSessionImpl : winrt::implements<EditSessionImpl, ITfEditSession> {
     //----------------------------------------------------------------------------
 
     virtual STDMETHODIMP DoEditSession(TfEditCookie ec) override {
-        D(__FUNCTIONW__);
+        KHIIN_TRACE("");
         TRY_FOR_HRESULT;
         auto composition_mgr = cast_as<CompositionMgr>(service->composition_mgr());
         auto candidate_ui = cast_as<CandidateListUI>(service->candidate_ui());
@@ -86,7 +86,7 @@ struct EditSessionImpl : winrt::implements<EditSessionImpl, ITfEditSession> {
 };
 
 void EditSession::HandleAction(TextService *pService, ITfContext *pContext, Command &&command) {
-    D(__FUNCTIONW__);
+    KHIIN_TRACE("");
     auto session = winrt::make_self<EditSessionImpl>(pService, pContext, std::move(command));
     auto sessionHr = E_FAIL;
     winrt::check_hresult(pContext->RequestEditSession(pService->clientId(), session.get(), kAsyncRWFlag, &sessionHr));

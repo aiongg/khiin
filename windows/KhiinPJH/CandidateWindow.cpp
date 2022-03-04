@@ -101,7 +101,6 @@ class CandidateWindowImpl : public CandidateWindow {
     void Create(HWND parent) {
         m_hwnd_parent = parent;
 
-        D(__FUNCTIONW__);
         Create_(NULL, // clang-format off
             kDwStyle,
             kDwExStyle,
@@ -113,7 +112,7 @@ class CandidateWindowImpl : public CandidateWindow {
     virtual LRESULT CALLBACK WndProc(UINT uMsg, WPARAM wParam, LPARAM lParam) override {
         switch (uMsg) {
         case WM_NCCREATE:
-            D("WM_NCCREATE");
+            KHIIN_TRACE("WM_NCCREATE");
 #pragma warning(push)
 #pragma warning(disable : 26812)
             ::DwmSetWindowAttribute(m_hwnd, DWMWA_WINDOW_CORNER_PREFERENCE, &m_border_radius,
@@ -121,7 +120,7 @@ class CandidateWindowImpl : public CandidateWindow {
 #pragma warning(pop)
             break;
         case WM_CREATE:
-            D("WM_CREATE");
+            KHIIN_TRACE("WM_CREATE");
             try {
                 OnCreate();
                 return 0;
@@ -129,22 +128,21 @@ class CandidateWindowImpl : public CandidateWindow {
                 return -1;
             }
         case WM_DISPLAYCHANGE:
-            D("WM_DISPLAYCHANGE");
+            KHIIN_TRACE("WM_DISPLAYCHANGE");
             OnMonitorSizeChange();
             break;
         case WM_DPICHANGED:
-            D("WM_DPICHANGED");
+            KHIIN_TRACE("WM_DPICHANGED");
             OnDpiChanged(HIWORD(wParam), (RECT *)lParam);
             return 0;
         case WM_MOUSEACTIVATE:
-            D("WM_MOUSEACTIVATE");
+            KHIIN_TRACE("WM_MOUSEACTIVATE");
             break;
-            // return MA_NOACTIVATE;
         case WM_MOUSEMOVE:
             OnMouseMove(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
             break;
         case WM_MOUSELEAVE:
-            D("WM_MOUSELEAVE");
+            KHIIN_TRACE("WM_MOUSELEAVE");
             OnMouseLeave();
             break;
         case WM_LBUTTONDOWN:
@@ -153,49 +151,49 @@ class CandidateWindowImpl : public CandidateWindow {
             }
             break;
         case WM_PAINT:
-            D("WM_PAINT");
+            KHIIN_TRACE("WM_PAINT");
             Render();
             return 0;
         case WM_SIZE:
-            D("WM_SIZE");
+            KHIIN_TRACE("WM_SIZE");
             OnResize(LOWORD(lParam), HIWORD(lParam));
             break;
         case WM_WINDOWPOSCHANGING:
-            D("WM_WINDOWPOSCHANGING");
+            KHIIN_TRACE("WM_WINDOWPOSCHANGING");
             OnMonitorSizeChange();
             break;
         case WM_NCCALCSIZE:
-            D("WM_NCCALCSIZE");
+            KHIIN_TRACE("WM_NCCALCSIZE");
             break;
         case WM_NCPAINT:
-            D("WM_NCPAINT");
+            KHIIN_TRACE("WM_NCPAINT");
             break;
         case WM_NCACTIVATE:
-            D("WM_NCACTIVATE");
+            KHIIN_TRACE("WM_NCACTIVATE");
             break;
         case WM_ACTIVATE:
-            D("WM_ACTIVATE");
+            KHIIN_TRACE("WM_ACTIVATE");
             break;
         case WM_DESTROY:
-            D("WM_DESTROY");
+            KHIIN_TRACE("WM_DESTROY");
             break;
         case WM_NCDESTROY:
-            D("WM_NCDESTROY");
+            KHIIN_TRACE("WM_NCDESTROY");
             break;
         case WM_MOVE:
-            D("WM_MOVE");
+            KHIIN_TRACE("WM_MOVE");
             break;
         case WM_WINDOWPOSCHANGED:
-            D("WM_WINDOWPOSCHANGED");
+            KHIIN_TRACE("WM_WINDOWPOSCHANGED");
             break;
         case WM_SHOWWINDOW:
-            D("WM_SHOWWINDOW");
+            KHIIN_TRACE("WM_SHOWWINDOW");
             break;
         case WM_ERASEBKGND:
-            D("WM_ERASEBKGND");
+            KHIIN_TRACE("WM_ERASEBKGND");
             break;
         default:
-            D(__FUNCTIONW__, " (", uMsg, ")");
+            KHIIN_TRACE("Unknown WM ({})", uMsg);
             break;
         }
 
@@ -246,7 +244,6 @@ class CandidateWindowImpl : public CandidateWindow {
 
     virtual void SetCandidates(DisplayMode display_mode, CandidateGrid *candidate_grid, int focused_id, size_t qs_col,
                                bool qs_active, RECT text_position) override {
-        D(__FUNCTIONW__);
         m_candidate_grid = candidate_grid;
         m_display_mode = display_mode;
         m_focused_id = focused_id;
@@ -267,7 +264,6 @@ class CandidateWindowImpl : public CandidateWindow {
 
   private:
     void OnCreate() {
-        D(__FUNCTIONW__);
         m_d2d1 = Graphics::CreateD2D1Factory();
         m_dwrite = Graphics::CreateDwriteFactory();
         m_dpi = ::GetDpiForWindow(m_hwnd);
@@ -277,7 +273,6 @@ class CandidateWindowImpl : public CandidateWindow {
     }
 
     void OnDpiChanged(WORD dpi, RECT *pNewSize) {
-        D(__FUNCTIONW__);
         if (m_target) {
             m_target->SetDpi(dpi, dpi);
         }
@@ -286,12 +281,11 @@ class CandidateWindowImpl : public CandidateWindow {
         m_scale = static_cast<float>(m_dpi_parent) / USER_DEFAULT_SCREEN_DPI;
         auto width = pNewSize->right - pNewSize->left;
         auto height = pNewSize->bottom - pNewSize->top;
-        D("W", width, "H", height);
+        KHIIN_INFO("width {}, height {}", width, height);
         ::SetWindowPos(m_hwnd, NULL, pNewSize->left, pNewSize->top, width, height, SWP_NOZORDER | SWP_NOACTIVATE);
     }
 
     void OnResize(unsigned int width, unsigned int height) {
-        D(__FUNCTIONW__);
         EnsureRenderTarget();
         m_target->Resize(D2D1_SIZE_U{width, height});
     }
@@ -361,7 +355,6 @@ class CandidateWindowImpl : public CandidateWindow {
     }
 
     void EnsureRenderTarget() {
-        D(__FUNCTIONW__);
         if (m_d2d1 && m_hwnd && !m_target) {
             m_target = Graphics::CreateRenderTarget(m_d2d1, m_hwnd);
             m_target->SetDpi(static_cast<float>(m_dpi), static_cast<float>(m_dpi));
@@ -369,7 +362,6 @@ class CandidateWindowImpl : public CandidateWindow {
     }
 
     void EnsureTextFormat() {
-        D(__FUNCTIONW__);
         if (!m_textformat) {
             check_hresult(m_dwrite->CreateTextFormat(L"Arial", NULL, DWRITE_FONT_WEIGHT_REGULAR,
                                                      DWRITE_FONT_STYLE_NORMAL, DWRITE_FONT_STRETCH_NORMAL,
@@ -388,14 +380,12 @@ class CandidateWindowImpl : public CandidateWindow {
     }
 
     void EnsureBrush() {
-        D(__FUNCTIONW__);
         if (!m_brush) {
             check_hresult(m_target->CreateSolidColorBrush(m_colors.text, m_brush.put()));
         }
     }
 
     void CreateGraphicsResources() {
-        D(__FUNCTIONW__);
         if (!m_textformat) {
             check_hresult(m_dwrite->CreateTextFormat(L"Arial", NULL, DWRITE_FONT_WEIGHT_REGULAR,
                                                      DWRITE_FONT_STYLE_NORMAL, DWRITE_FONT_STRETCH_NORMAL,
@@ -410,7 +400,6 @@ class CandidateWindowImpl : public CandidateWindow {
     }
 
     void DiscardGraphicsResources() {
-        D(__FUNCTIONW__);
         m_target = nullptr;
         m_brush = nullptr;
         m_textformat = nullptr;
@@ -446,7 +435,6 @@ class CandidateWindowImpl : public CandidateWindow {
     }
 
     void CalculateLayout() {
-        D(__FUNCTIONW__);
         if (!m_dwrite || !m_candidate_grid) {
             return;
         }
@@ -538,7 +526,6 @@ class CandidateWindowImpl : public CandidateWindow {
     }
 
     void Draw() {
-        D(__FUNCTIONW__);
         m_target->Clear(m_colors.bg);
         EnsureBrush();
 
@@ -551,7 +538,7 @@ class CandidateWindowImpl : public CandidateWindow {
                 if (!value.candidate || !value.layout) {
                     continue;
                 }
-                
+
                 auto cell = m_layout_grid.GetCellRect(row_idx, col_idx);
                 auto left = cell.leftf();
                 auto top = cell.topf();
@@ -581,7 +568,6 @@ class CandidateWindowImpl : public CandidateWindow {
     }
 
     void Render() {
-        D(__FUNCTIONW__);
         EnsureRenderTarget();
 
         PAINTSTRUCT ps;

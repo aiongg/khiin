@@ -1,47 +1,40 @@
 #pragma once
 
-#ifdef _DEBUG
 #include <comdef.h>
-#include <iomanip>
-#include <sstream>
 
-#define D(...) LogDebugStringTmp(__LINE__, __FILE__, __VA_ARGS__)
+#ifdef _DEBUG
+#define SPDLOG_ACTIVE_LEVEL SPDLOG_LEVEL_TRACE
+#else
+#define SPDLOG_ACTIVE_LEVEL SPDLOG_LEVEL_OFF
+#endif
 
-template <typename... Args>
-void LogDebugStringTmp(int line, const char *fileName, Args &&...args) {
-    auto fname = std::string(fileName);
-    auto wfname = std::wstring(fname.cbegin(), fname.cend());
-    std::wostringstream stream;
-    stream << wfname << L"(" << line << L") : ";
-    (stream << ... << std::forward<Args>(args)) << std::endl;
-    auto str = stream.str();
-    auto wstr = std::wstring(str.cbegin(), str.cend());
+#define SPDLOG_WCHAR_TO_UTF8_SUPPORT
 
-    ::OutputDebugString(wstr.c_str());
-}
+#include <spdlog/spdlog.h>
 
-template <typename... Args>
-void LogHresultError(HRESULT hr, int line, const char *filename) {
-    auto e = _com_error(hr);
-    auto fname = std::string(filename);
-    auto wfname = std::wstring(fname.cbegin(), fname.cend());
-    std::wostringstream stream;
-    stream << wfname << L"(" << line << L") : 0x" << std::hex << hr << " (" << e.ErrorMessage() << ")" << std::endl;
-    auto str = stream.str();
-    auto wstr = std::wstring(str.cbegin(), str.cend());
+#include <spdlog/fmt/ostr.h>
 
-    ::OutputDebugString(wstr.c_str());
-}
+#define KHIIN_DEFAULT_LOGGER_NAME "khiin_logger"
+#define KHIIN_TRACE(...) SPDLOG_TRACE(__VA_ARGS__)
+#define KHIIN_DEBUG(...) SPDLOG_DEBUG(__VA_ARGS__)
+#define KHIIN_INFO(...) SPDLOG_INFO(__VA_ARGS__)
+#define KHIIN_WARN(...) SPDLOG_WARN(__VA_ARGS__)
+#define KHIIN_ERROR(...) SPDLOG_ERROR(__VA_ARGS__)
+#define KHIIN_CRITICAL(...) SPDLOG_CRITICAL(__VA_ARGS__)
+
+#ifdef _DEBUG
 
 #define CHECK_HRESULT(hr)                        \
     if (FAILED(hr)) {                            \
-        LogHresultError(hr, __LINE__, __FILE__); \
+        auto msg = std::wstring(_com_error(hr).ErrorMessage()); \
+        KHIIN_ERROR(L"[hresult 0x{:x}] {}", (uint32_t)hr, msg); \
     }
 
-#define CHECK_RETURN_HRESULT(hr)                 \
-    if (FAILED(hr)) {                            \
-        LogHresultError(hr, __LINE__, __FILE__); \
-        return hr;                               \
+#define CHECK_RETURN_HRESULT(hr)                                \
+    if (FAILED(hr)) {                                           \
+        auto msg = std::wstring(_com_error(hr).ErrorMessage()); \
+        KHIIN_ERROR(L"[hresult 0x{:x}] {}", (uint32_t)hr, msg); \
+        return hr;                                              \
     }
 
 #else

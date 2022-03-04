@@ -45,6 +45,7 @@ struct TextServiceImpl :
     HRESULT OnActivate() {
         auto hr = E_FAIL;
         auto pTextService = cast_as<TextService>(this);
+
         InitConfig();
         DisplayAttributeInfoEnum::load(m_displayattrs.put());
         m_compositionmgr->Initialize(pTextService);
@@ -133,7 +134,6 @@ struct TextServiceImpl :
     TfGuidAtom m_converted_attr = TF_INVALID_GUIDATOM;
     TfGuidAtom m_focused_attr = TF_INVALID_GUIDATOM;
 
-
   public:
     //+---------------------------------------------------------------------------
     //
@@ -142,39 +142,32 @@ struct TextServiceImpl :
     //----------------------------------------------------------------------------
 
     virtual TfClientId clientId() override {
-        D(__FUNCTIONW__);
         return m_clientid;
     }
 
     virtual DWORD activateFlags() override {
-        D(__FUNCTIONW__);
         return m_activate_flags;
     }
 
     virtual ITfThreadMgr *thread_mgr() override {
-        D(__FUNCTIONW__);
         return m_threadmgr.get();
     }
 
     virtual IUnknown *composition_mgr() override {
-        D(__FUNCTIONW__);
         return m_compositionmgr.as<IUnknown>().get();
     }
 
     virtual IEnumTfDisplayAttributeInfo *displayAttrInfoEnum() override {
-        D(__FUNCTIONW__);
         IEnumTfDisplayAttributeInfo *tmp = nullptr;
         EnumDisplayAttributeInfo(&tmp);
         return tmp;
     }
 
     virtual EngineController *engine() override {
-        D(__FUNCTIONW__);
         return m_engine.get();
     }
 
     virtual CandidateListUI *candidate_ui() override {
-        D(__FUNCTIONW__);
         return m_candidate_list_ui.get();
     }
 
@@ -183,7 +176,7 @@ struct TextServiceImpl :
     }
 
     virtual winrt::com_ptr<ITfContext> GetTopContext() override {
-        D(__FUNCTIONW__);
+        KHIIN_TRACE("");
         auto documentMgr = winrt::com_ptr<ITfDocumentMgr>();
         auto context = winrt::com_ptr<ITfContext>();
         check_hresult(m_threadmgr->GetFocus(documentMgr.put()));
@@ -192,18 +185,18 @@ struct TextServiceImpl :
     }
 
     virtual winrt::com_ptr<ITfCategoryMgr> categoryMgr() override {
-        D(__FUNCTIONW__);
+        KHIIN_TRACE("");
         return m_categorymgr;
     }
 
     virtual winrt::com_ptr<ITfCompositionSink> CreateCompositionSink(ITfContext *context) override {
-        D(__FUNCTIONW__);
+        KHIIN_TRACE("");
         return winrt::make<CompositionSink>(this, context);
     }
 
     virtual void OnCompositionTerminated(TfEditCookie ecWrite, ITfContext *context,
                                          ITfComposition *pComposition) override {
-        D(__FUNCTIONW__);
+        KHIIN_TRACE("");
         m_compositionmgr->ClearComposition();
         m_candidate_list_ui->Hide();
     }
@@ -240,12 +233,12 @@ struct TextServiceImpl :
     //----------------------------------------------------------------------------
 
     virtual STDMETHODIMP Activate(ITfThreadMgr *ptim, TfClientId tid) override {
-        D(__FUNCTIONW__);
+        KHIIN_TRACE("");
         return ActivateEx(ptim, tid, 0);
     }
 
     virtual STDMETHODIMP Deactivate(void) override {
-        D(__FUNCTIONW__);
+        KHIIN_TRACE("");
         TRY_FOR_HRESULT;
 
         OnDeactivate();
@@ -258,7 +251,7 @@ struct TextServiceImpl :
     }
 
     virtual STDMETHODIMP ActivateEx(ITfThreadMgr *pThreadMgr, TfClientId tid, DWORD dwFlags) override {
-        D(__FUNCTIONW__, L" clientId: ", tid);
+        KHIIN_INFO("Activating Text Service, client_id {}", tid);
         TRY_FOR_HRESULT;
 
         m_threadmgr.copy_from(pThreadMgr);
@@ -276,12 +269,12 @@ struct TextServiceImpl :
     //----------------------------------------------------------------------------
 
     virtual STDMETHODIMP OnSetThreadFocus(void) override {
-        D(__FUNCTIONW__);
+        KHIIN_TRACE("");
         return E_NOTIMPL;
     }
 
     virtual STDMETHODIMP OnKillThreadFocus(void) override {
-        D(__FUNCTIONW__);
+        KHIIN_TRACE("");
         return E_NOTIMPL;
     }
 
@@ -292,7 +285,7 @@ struct TextServiceImpl :
     //----------------------------------------------------------------------------
 
     virtual STDMETHODIMP OnLayoutChange(ITfContext *pContext, TfLayoutCode lcode, ITfContextView *pView) {
-        D(__FUNCTIONW__);
+        KHIIN_TRACE("");
         return E_NOTIMPL;
     }
 
@@ -321,7 +314,7 @@ struct TextServiceImpl :
     //----------------------------------------------------------------------------
 
     virtual STDMETHODIMP OnChange(REFGUID rguid) override {
-        D(__FUNCTIONW__);
+        KHIIN_TRACE("");
         TRY_FOR_HRESULT;
         auto hr = E_FAIL;
 
@@ -360,7 +353,7 @@ void TextServiceFactory::OnDllProcessDetach(HMODULE module) {
 }
 
 void TextServiceFactory::Create(TextService **ppService) {
-    D(__FUNCTIONW__);
+    KHIIN_TRACE("");
     as_self<TextService>(winrt::make_self<TextServiceImpl>()).copy_to(ppService);
 }
 
