@@ -126,6 +126,11 @@ LONG WINAPI TopLevelExceptionFilter(LPEXCEPTION_POINTERS e) {
     // that enters the foreground after the previous one crashed.
     // Here we unregister the IME entirely to prevent that from happening.
     // You must re-register after a crash.
+    try {
+        KHIIN_CRITICAL("Crashing... ({})", e->ExceptionRecord->ExceptionCode);
+    } catch (...) {
+        // Do nothing
+    }
     DllUnregisterServer();
     return EXCEPTION_EXECUTE_HANDLER;
 }

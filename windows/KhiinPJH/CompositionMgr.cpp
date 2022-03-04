@@ -118,6 +118,7 @@ void CompositionMgr::DoComposition(TfEditCookie cookie, ITfContext *pContext, Pr
 }
 
 void CompositionMgr::CommitComposition(TfEditCookie cookie, ITfContext *pContext) {
+    KHIIN_TRACE("");
     if (!composition) {
         return;
     }
@@ -168,9 +169,12 @@ void CompositionMgr::CommitComposition(TfEditCookie cookie, ITfContext *pContext
     return;
 }
 
-void CompositionMgr::CancelComposition(TfEditCookie cookie) {}
+void CompositionMgr::CancelComposition(TfEditCookie cookie) {
+    KHIIN_TRACE("");
+}
 
 void CompositionMgr::GetTextRange(TfEditCookie cookie, ITfRange **ppRange) {
+    KHIIN_TRACE("");
     if (!composing()) {
         return;
     }
@@ -187,6 +191,7 @@ void CompositionMgr::GetTextRange(TfEditCookie cookie, ITfRange **ppRange) {
 //----------------------------------------------------------------------------
 
 void CompositionMgr::StartComposition(TfEditCookie cookie, ITfContext *pContext) {
+    KHIIN_TRACE("");
     auto context = winrt::com_ptr<ITfContext>();
     context.copy_from(pContext);
     auto insert_selection = context.as<ITfInsertAtSelection>();
@@ -199,9 +204,12 @@ void CompositionMgr::StartComposition(TfEditCookie cookie, ITfContext *pContext)
 }
 
 void CompositionMgr::ApplyDisplayAttribute(TfEditCookie cookie, ITfContext *pContext, ITfRange *pRange,
-                                           AttrInfoKey index) {}
+                                           AttrInfoKey index) {
+    KHIIN_TRACE("");
+}
 
 void CompositionMgr::SetSelection(TfEditCookie cookie, ITfContext *pContext, ITfRange *pRange, TfActiveSelEnd ase) {
+    KHIIN_TRACE("");
     TF_SELECTION sel{};
     sel.range = pRange;
     sel.style.ase = ase;

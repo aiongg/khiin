@@ -17,7 +17,7 @@ struct ThreadMgrEventSink : winrt::implements<ThreadMgrEventSink, ITfThreadMgrEv
     // Inherited via implements
     virtual STDMETHODIMP OnInitDocumentMgr(ITfDocumentMgr *pdim) override;
     virtual STDMETHODIMP OnUninitDocumentMgr(ITfDocumentMgr *pdim) override;
-    virtual STDMETHODIMP OnSetFocus(ITfDocumentMgr *pdimFocus, ITfDocumentMgr *pdimPrevFocus) override;
+    virtual STDMETHODIMP OnSetFocus(ITfDocumentMgr *docmgr_focus, ITfDocumentMgr *prev_docmgr_focus) override;
     virtual STDMETHODIMP OnPushContext(ITfContext *pic) override;
     virtual STDMETHODIMP OnPopContext(ITfContext *pic) override;
 

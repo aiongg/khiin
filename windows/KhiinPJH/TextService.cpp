@@ -251,7 +251,7 @@ struct TextServiceImpl :
     }
 
     virtual STDMETHODIMP ActivateEx(ITfThreadMgr *pThreadMgr, TfClientId tid, DWORD dwFlags) override {
-        KHIIN_INFO("Activating Text Service, client_id {}", tid);
+        KHIIN_INFO("Activating Text Service, client_id {}, flags {:x}", tid, dwFlags);
         TRY_FOR_HRESULT;
 
         m_threadmgr.copy_from(pThreadMgr);

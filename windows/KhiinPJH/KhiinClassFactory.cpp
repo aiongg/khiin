@@ -29,7 +29,7 @@ STDMETHODIMP KhiinClassFactory::CreateInstance(IUnknown *pUnkOuter, REFIID riid,
 #pragma warning(disable: 6031)
     ::StringFromGUID2(riid, &riidStr[0], 39);
 #pragma warning(pop)
-    KHIIN_TRACE(L"QI: {}", riidStr.c_str());
+    KHIIN_DEBUG(L"QI: {}", riidStr.c_str());
 
     auto textService = winrt::com_ptr<TextService>();
     TextServiceFactory::Create(textService.put());

@@ -38,6 +38,10 @@ struct CandidateListUI : winrt::implements<CandidateListUI, IUnknown> {
 
     virtual void Show() = 0;
     virtual void Hide() = 0;
+
+    virtual void OnSetThreadFocus() = 0;
+    virtual void OnKillThreadFocus() = 0;
+    virtual ITfContext *context() = 0;
 };
 
 struct CandidateListUIFactory {

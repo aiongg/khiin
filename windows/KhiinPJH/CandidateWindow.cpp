@@ -273,8 +273,8 @@ class CandidateWindowImpl : public CandidateWindow {
     }
 
     void OnDpiChanged(WORD dpi, RECT *pNewSize) {
-        if (m_target) {
-            m_target->SetDpi(dpi, dpi);
+        if (m_dctarget) {
+            m_dctarget->SetDpi(dpi, dpi);
         }
         m_dpi = dpi;
         m_dpi_parent = ::GetDpiForWindow(m_hwnd_parent);
@@ -286,8 +286,11 @@ class CandidateWindowImpl : public CandidateWindow {
     }
 
     void OnResize(unsigned int width, unsigned int height) {
+        KHIIN_TRACE("");
         EnsureRenderTarget();
-        m_target->Resize(D2D1_SIZE_U{width, height});
+        if (m_target) {
+            m_target->Resize(D2D1_SIZE_U{width, height});
+        }
     }
 
     bool GetPointInClientDp(UINT x, UINT y, Point &pt) {
@@ -355,9 +358,17 @@ class CandidateWindowImpl : public CandidateWindow {
     }
 
     void EnsureRenderTarget() {
-        if (m_d2d1 && m_hwnd && !m_target) {
+        KHIIN_TRACE("");
+
+        if (m_d2d1 && m_hwnd && !m_target && !m_dctarget) {
             m_target = Graphics::CreateRenderTarget(m_d2d1, m_hwnd);
-            m_target->SetDpi(static_cast<float>(m_dpi), static_cast<float>(m_dpi));
+            m_dctarget = Graphics::CreateDCRenderTarget(m_d2d1);
+            if (m_target) {
+                m_target->SetDpi(static_cast<float>(m_dpi), static_cast<float>(m_dpi));
+            }
+            if (m_dctarget) {
+                m_dctarget->SetDpi(static_cast<float>(m_dpi), static_cast<float>(m_dpi));
+            }
         }
     }
 
@@ -381,25 +392,12 @@ class CandidateWindowImpl : public CandidateWindow {
 
     void EnsureBrush() {
         if (!m_brush) {
-            check_hresult(m_target->CreateSolidColorBrush(m_colors.text, m_brush.put()));
-        }
-    }
-
-    void CreateGraphicsResources() {
-        if (!m_textformat) {
-            check_hresult(m_dwrite->CreateTextFormat(L"Arial", NULL, DWRITE_FONT_WEIGHT_REGULAR,
-                                                     DWRITE_FONT_STYLE_NORMAL, DWRITE_FONT_STRETCH_NORMAL,
-                                                     m_metrics.font_size, L"en-us", m_textformat.put()));
-            check_hresult(m_textformat->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_LEADING));
-            check_hresult(m_textformat->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_FAR));
-        }
-
-        if (!m_brush) {
-            check_hresult(m_target->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::Black), m_brush.put()));
+            check_hresult(m_dctarget->CreateSolidColorBrush(m_colors.text, m_brush.put()));
         }
     }
 
     void DiscardGraphicsResources() {
+        m_dctarget = nullptr;
         m_target = nullptr;
         m_brush = nullptr;
         m_textformat = nullptr;
@@ -435,6 +433,7 @@ class CandidateWindowImpl : public CandidateWindow {
     }
 
     void CalculateLayout() {
+        KHIIN_TRACE("");
         if (!m_dwrite || !m_candidate_grid) {
             return;
         }
@@ -480,7 +479,7 @@ class CandidateWindowImpl : public CandidateWindow {
 
     void DrawFocusedBackground(float left, float top, float col_width) {
         m_brush->SetColor(m_colors.bg_selected);
-        m_target->FillRoundedRectangle(
+        m_dctarget->FillRoundedRectangle(
             D2D1::RoundedRect(D2D1::RectF(left, top, col_width - m_metrics.padding, top + m_metrics.row_height),
                               m_metrics.padding_sm, m_metrics.padding_sm),
             m_brush.get());
@@ -488,7 +487,7 @@ class CandidateWindowImpl : public CandidateWindow {
 
     void DrawFocusedMarker(float left, float top) {
         m_brush->SetColor(m_colors.accent);
-        m_target->FillRoundedRectangle(
+        m_dctarget->FillRoundedRectangle(
             D2D1::RoundedRect(D2D1::RectF(left + m_metrics.marker_w,
                                           top + (m_metrics.row_height - m_metrics.marker_h) / 2,
                                           left + m_metrics.marker_w * 2,
@@ -514,19 +513,20 @@ class CandidateWindowImpl : public CandidateWindow {
         } else {
             m_brush->SetColor(m_colors.text_disabled);
         }
-        m_target->DrawTextLayout(D2D1::Point2F(x, y), layout.get(), m_brush.get());
+        m_dctarget->DrawTextLayout(D2D1::Point2F(x, y), layout.get(), m_brush.get());
     }
 
     void DrawCandidate(CandidateLayout &candidate, float left, float top) {
         auto x = left + m_metrics.qs_col_w;
         auto y = top + CenterTextLayoutY(candidate.layout.get(), m_metrics.row_height);
         m_brush->SetColor(m_colors.text);
-        m_target->DrawTextLayout(D2D1::Point2F(x, y), candidate.layout.get(), m_brush.get(),
+        m_dctarget->DrawTextLayout(D2D1::Point2F(x, y), candidate.layout.get(), m_brush.get(),
                                  D2D1_DRAW_TEXT_OPTIONS_ENABLE_COLOR_FONT);
     }
 
     void Draw() {
-        m_target->Clear(m_colors.bg);
+        KHIIN_TRACE("");
+        m_dctarget->Clear(m_colors.bg);
         EnsureBrush();
 
         auto qs_label = 1;
@@ -568,18 +568,26 @@ class CandidateWindowImpl : public CandidateWindow {
     }
 
     void Render() {
-        EnsureRenderTarget();
+        KHIIN_TRACE("");
+        try {
+            EnsureRenderTarget();
 
-        PAINTSTRUCT ps;
-        ::BeginPaint(m_hwnd, &ps);
+            PAINTSTRUCT ps;
+            RECT rc;
+            ::GetClientRect(m_hwnd, &rc);
+            ::BeginPaint(m_hwnd, &ps);
 
-        m_target->BeginDraw();
-        Draw();
-        auto hr = m_target->EndDraw();
-        if (FAILED(hr) || hr == D2DERR_RECREATE_TARGET) {
+            m_dctarget->BindDC(ps.hdc, &rc);
+            m_dctarget->BeginDraw();
+            Draw();
+            auto hr = m_dctarget->EndDraw();
+            if (FAILED(hr) || hr == D2DERR_RECREATE_TARGET) {
+                DiscardGraphicsResources();
+            }
+            ::EndPaint(m_hwnd, &ps);
+        } catch (...) {
             DiscardGraphicsResources();
         }
-        ::EndPaint(m_hwnd, &ps);
     }
 
     bool m_showing = false;
@@ -589,6 +597,7 @@ class CandidateWindowImpl : public CandidateWindow {
     com_ptr<ID2D1Factory1> m_d2d1 = nullptr;
     com_ptr<IDWriteFactory3> m_dwrite = nullptr;
     com_ptr<ID2D1HwndRenderTarget> m_target = nullptr;
+    com_ptr<ID2D1DCRenderTarget> m_dctarget = nullptr;
     com_ptr<ID2D1SolidColorBrush> m_brush = nullptr;
     com_ptr<IDWriteTextFormat> m_textformat = nullptr;
     com_ptr<IDWriteTextFormat> m_textformat_sm = nullptr;

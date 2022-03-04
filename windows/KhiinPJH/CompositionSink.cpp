@@ -17,6 +17,7 @@ CompositionSink::CompositionSink(TextService *pService, ITfContext *pContext) {
 
 STDMETHODIMP CompositionSink::OnCompositionTerminated(TfEditCookie ecWrite, ITfComposition *pComposition) {
     TRY_FOR_HRESULT;
+    KHIIN_TRACE("");
     service->OnCompositionTerminated(ecWrite, context.get(), pComposition);
     CATCH_FOR_HRESULT;
 }
