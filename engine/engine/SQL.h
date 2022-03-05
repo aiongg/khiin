@@ -239,6 +239,7 @@ const std::string CREATE_DummyDatabase() {
     DROP TABLE IF EXISTS "bigram_freq";
     DROP TABLE IF EXISTS "conversions";
     DROP TABLE IF EXISTS "frequency";
+    DROP TABLE IF EXISTS "punctuation";
     CREATE TABLE IF NOT EXISTS "version" ("key" TEXT, "value" INTEGER);
     CREATE TABLE "syllables" ("id" INTEGER PRIMARY KEY, "input" TEXT NOT NULL, UNIQUE("input"));
     CREATE TABLE IF NOT EXISTS "unigram_freq" ("id" INTEGER, "gram" TEXT NOT NULL UNIQUE, "n" INTEGER NOT NULL, PRIMARY KEY("id"));
@@ -269,6 +270,13 @@ const std::string CREATE_DummyDatabase() {
     CREATE INDEX IF NOT EXISTS "bigram_freq_gram_index" ON "bigram_freq" (
      "lgram",
      "rgram"
+    );
+    CREATE TABLE "punctuation" (
+	    "id"           INTEGER PRIMARY KEY,
+	    "input"        TEXT NOT NULL,
+	    "output"       TEXT NOT NULL,
+	    "annotation"   TEXT,
+	    UNIQUE("input","output")
     );
     COMMIT;
     )");
