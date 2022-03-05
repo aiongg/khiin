@@ -11,12 +11,20 @@ inline constexpr std::string_view kModuleFolderDataFolder = "resources";
 
 }
 
-fs::path Files::GetFolder(HMODULE hmodule) {
+fs::path Files::GetTempFolder() {
+    wchar_t tmp[MAX_PATH];
+    ::GetTempPath(MAX_PATH, tmp);
+    auto path = fs::path(Utils::Narrow(std::wstring(tmp)));
+    return path;
+}
+
+fs::path Files::GetFilePath(HMODULE hmodule, std::string_view filename) {
     wchar_t *tmp;
     if (::SHGetKnownFolderPath(FOLDERID_RoamingAppData, 0, NULL, &tmp) == S_OK) {
         auto path = fs::path(Utils::Narrow(std::wstring(tmp)));
         ::CoTaskMemFree(tmp);
         path /= kAppDataFolder;
+        path /= filename;
         if (fs::exists(path)) {
             return path;
         }
@@ -29,16 +37,11 @@ fs::path Files::GetFolder(HMODULE hmodule) {
         auto len = ::GetModuleFileName(hmodule, &module_path[0], MAX_PATH);
         auto path = fs::path(module_path);
         path.replace_filename(kModuleFolderDataFolder);
+        path /= filename;
         return path;
     }
 
-    return fs::path();
-}
-
-fs::path Files::GetFilePath(HMODULE hmodule, std::string_view filename) {
-    auto file_path = Files::GetFolder(hmodule);
-    file_path /= filename;
-    return file_path;
+    return fs::path(filename);
 };
 
 } // namespace khiin::win32

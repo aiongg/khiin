@@ -34,7 +34,7 @@ class ModuleImpl {
     }
 
     static BOOL OnDllProcessAttach(HINSTANCE instance, bool static_loading) {
-        khiin::Logger::Initialize(khiin::win32::Files::GetFolder(instance));
+        khiin::Logger::Initialize(khiin::win32::Files::GetTempFolder());
         khiin::win32::TextServiceFactory::OnDllProcessAttach(instance);
         khiin::win32::WindowSetup::OnDllProcessAttach(instance);
         khiin::win32::EngineControllerFactory::OnDllProcessAttach(instance);

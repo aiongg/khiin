@@ -84,7 +84,7 @@ int ShowDialog(HMODULE hmodule) {
 
     PROPSHEETHEADER psh = {};
     psh.dwSize = sizeof(PROPSHEETHEADER);
-    psh.dwFlags = PSH_NOCONTEXTHELP | PSH_USECALLBACK;
+    psh.dwFlags = PSH_NOCONTEXTHELP | PSH_USECALLBACK | PSH_USEICONID;
     psh.hwndParent = HWND_DESKTOP;
     psh.hInstance = g_module;
     psh.nPages = pages.size();
@@ -92,6 +92,7 @@ int ShowDialog(HMODULE hmodule) {
     psh.pfnCallback = PropsheetCallback;
     psh.phpage = pages.data();
     psh.pszCaption = L"起引設定 Khíín Siat-tēng";
+    psh.pszIcon = MAKEINTRESOURCE(IDI_KHIINSETTINGS);
 
     return ::PropertySheet(&psh);
 }
