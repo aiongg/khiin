@@ -18,6 +18,7 @@ struct TextService : winrt::implements<TextService, IUnknown> {
     TextService &operator=(const TextService &) = delete;
     ~TextService() = default;
 
+    virtual HMODULE hmodule() = 0;
     virtual TfClientId clientId() = 0;
     virtual DWORD activateFlags() = 0;
 

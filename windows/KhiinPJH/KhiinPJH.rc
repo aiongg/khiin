@@ -61,7 +61,7 @@ IDI_MODE_CONTINUOUS     ICON                    "mode-cont.ico"
 
 IDI_MODE_PRO            ICON                    "mode-pro.ico"
 
-IDI_MODE_SINGLE         ICON                    "mode-single.ico"
+IDI_MODE_SINGLE         ICON                    "mode-basic.ico"
 
 
 /////////////////////////////////////////////////////////////////////////////

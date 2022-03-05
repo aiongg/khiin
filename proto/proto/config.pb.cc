@@ -142,13 +142,13 @@ const char descriptor_table_protodef_config_2eproto[] PROTOBUF_SECTION_VARIABLE(
   "4\n\nkey_config\030\001 \001(\0132 .khiin.messages.Key"
   "Configuration\022-\n\ninput_mode\030\002 \001(\0162\031.khii"
   "n.messages.InputMode\022.\n\nappearance\030\003 \001(\013"
-  "2\032.khiin.messages.Appearance*8\n\tInputMod"
-  "e\022\021\n\rIM_CONTINUOUS\020\000\022\014\n\010IM_BASIC\020\001\022\n\n\006IM"
-  "_PRO\020\002b\006proto3"
+  "2\032.khiin.messages.Appearance*F\n\tInputMod"
+  "e\022\014\n\010IM_ALPHA\020\000\022\021\n\rIM_CONTINUOUS\020\001\022\014\n\010IM"
+  "_BASIC\020\002\022\n\n\006IM_PRO\020\003b\006proto3"
   ;
 static ::PROTOBUF_NAMESPACE_ID::internal::once_flag descriptor_table_config_2eproto_once;
 const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable descriptor_table_config_2eproto = {
-  false, false, 614, descriptor_table_protodef_config_2eproto, "config.proto", 
+  false, false, 628, descriptor_table_protodef_config_2eproto, "config.proto", 
   &descriptor_table_config_2eproto_once, nullptr, 0, 3,
   schemas, file_default_instances, TableStruct_config_2eproto::offsets,
   file_level_metadata_config_2eproto, file_level_enum_descriptors_config_2eproto, file_level_service_descriptors_config_2eproto,
@@ -170,6 +170,7 @@ bool InputMode_IsValid(int value) {
     case 0:
     case 1:
     case 2:
+    case 3:
       return true;
     default:
       return false;

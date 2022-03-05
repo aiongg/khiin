@@ -12,6 +12,7 @@
 #include "EditSession.h"
 #include "EngineController.h"
 #include "KeyEventSink.h"
+#include "LangBarIndicator.h"
 #include "TextEditSink.h"
 #include "ThreadMgrEventSink.h"
 #include "common.h"
@@ -39,6 +40,7 @@ struct TextServiceImpl :
         m_threadmgr_sink = make_self<ThreadMgrEventSink>();
         CandidateListUIFactory::Create(m_candidate_list_ui.put());
         m_keyevent_sink = make_self<KeyEventSink>();
+        LangBarIndicatorFactory::Create(m_indicator.put());
     }
 
   private:
@@ -48,6 +50,7 @@ struct TextServiceImpl :
 
         InitConfig();
         DisplayAttributeInfoEnum::load(m_displayattrs.put());
+        m_indicator->Initialize(pTextService);
         m_compositionmgr->Initialize(pTextService);
         m_threadmgr_sink->Initialize(pTextService);
         m_candidate_list_ui->Initialize(pTextService);
@@ -76,6 +79,7 @@ struct TextServiceImpl :
         m_keyevent_sink->Deactivate();
         m_threadmgr_sink->Uninitialize();
         m_compositionmgr->Uninitialize();
+        m_indicator->Shutdown();
         m_displayattrs = nullptr;
         m_categorymgr = nullptr;
         m_config = nullptr;
@@ -129,6 +133,7 @@ struct TextServiceImpl :
     com_ptr<ThreadMgrEventSink> m_threadmgr_sink = nullptr;
     com_ptr<KeyEventSink> m_keyevent_sink = nullptr;
     com_ptr<EngineController> m_engine = nullptr;
+    com_ptr<LangBarIndicator> m_indicator = nullptr;
 
     TfGuidAtom m_input_attr = TF_INVALID_GUIDATOM;
     TfGuidAtom m_converted_attr = TF_INVALID_GUIDATOM;
@@ -140,6 +145,10 @@ struct TextServiceImpl :
     // TextService
     //
     //----------------------------------------------------------------------------
+
+    virtual HMODULE hmodule() override {
+        return g_module;
+    }
 
     virtual TfClientId clientId() override {
         return m_clientid;

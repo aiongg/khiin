@@ -20,9 +20,10 @@ message KeyConfiguration {
 }
 
 enum InputMode {
-    IM_CONTINUOUS = 0;
-    IM_BASIC = 1;
-    IM_PRO = 2;
+    IM_ALPHA = 0;
+    IM_CONTINUOUS = 1;
+    IM_BASIC = 2;
+    IM_PRO = 3;
 }
 
 message Appearance {

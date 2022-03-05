@@ -125,7 +125,7 @@
     <ClInclude Include="hresult.h">
       <Filter>Common</Filter>
     </ClInclude>
-    <ClInclude Include="LangBarItem.h">
+    <ClInclude Include="LangBarIndicator.h">
       <Filter>TextService</Filter>
     </ClInclude>
   </ItemGroup>
@@ -214,7 +214,7 @@
     <ClCompile Include="..\..\proto\proto\config.pb.cc">
       <Filter>Common\proto</Filter>
     </ClCompile>
-    <ClCompile Include="LangBarItem.cpp">
+    <ClCompile Include="LangBarIndicator.cpp">
       <Filter>TextService</Filter>
     </ClCompile>
   </ItemGroup>
@@ -241,7 +241,7 @@
     <Image Include="mode-pro.ico">
       <Filter>Resource Files</Filter>
     </Image>
-    <Image Include="mode-single.ico">
+    <Image Include="mode-basic.ico">
       <Filter>Resource Files</Filter>
     </Image>
   </ItemGroup>

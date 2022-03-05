@@ -235,7 +235,7 @@
     <ClInclude Include="KeyEventSink.h" />
     <ClInclude Include="KhiinClassFactory.h" />
     <ClInclude Include="EngineController.h" />
-    <ClInclude Include="LangBarItem.h" />
+    <ClInclude Include="LangBarIndicator.h" />
     <ClInclude Include="Logger.h" />
     <ClInclude Include="Colors.h" />
     <ClInclude Include="TextService.h" />
@@ -281,7 +281,7 @@
     <ClCompile Include="KhiinClassFactory.cpp" />
     <ClCompile Include="DllModule.cpp" />
     <ClCompile Include="EngineController.cpp" />
-    <ClCompile Include="LangBarItem.cpp" />
+    <ClCompile Include="LangBarIndicator.cpp" />
     <ClCompile Include="Logger.cpp" />
     <ClCompile Include="TextService.cpp" />
     <ClCompile Include="pch.cpp">
@@ -306,7 +306,7 @@
     <Image Include="mode-alpha.ico" />
     <Image Include="mode-cont.ico" />
     <Image Include="mode-pro.ico" />
-    <Image Include="mode-single.ico" />
+    <Image Include="mode-basic.ico" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

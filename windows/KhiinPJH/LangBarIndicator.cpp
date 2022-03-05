@@ -4,11 +4,43 @@
 
 #include <unordered_map>
 
+#include "DllModule.h"
+#include "Profile.h"
+#include "TextService.h"
+#include "common.h"
+
 namespace khiin::win32 {
 namespace {
 using namespace winrt;
 
+volatile HMODULE g_module;
+
 struct LangBarIndicatorImpl : implements<LangBarIndicatorImpl, ITfSource, ITfLangBarItemButton, LangBarIndicator> {
+    LangBarIndicatorImpl() {
+        m_info.clsidService = Profile::textServiceGuid;
+        m_info.guidItem = GUID_LBI_INPUTMODE;
+        m_info.dwStyle = TF_LBI_STYLE_BTN_BUTTON;
+        m_info.ulSort = 0;
+    }
+
+    virtual void Initialize(TextService *pService) override {
+        m_service.copy_from(pService);
+        auto langbarmgr = langbar_item_mgr();
+        check_hresult(langbarmgr->AddItem(this));
+    }
+
+    virtual void Shutdown() override {
+        auto langbarmgr = langbar_item_mgr();
+        check_hresult(langbarmgr->RemoveItem(this));
+        m_service = nullptr;
+    }
+
+    com_ptr<ITfLangBarItemMgr> langbar_item_mgr() {
+        auto threadmgr = m_service->thread_mgr();
+        auto langbarmgr = com_ptr<ITfLangBarItemMgr>();
+        check_hresult(threadmgr->QueryInterface(IID_ITfLangBarItemMgr, langbarmgr.put_void()));
+        return langbarmgr;
+    }
 
     //+---------------------------------------------------------------------------
     //
@@ -48,11 +80,13 @@ struct LangBarIndicatorImpl : implements<LangBarIndicatorImpl, ITfSource, ITfLan
     //----------------------------------------------------------------------------
 
     virtual STDMETHODIMP GetInfo(TF_LANGBARITEMINFO *pInfo) override {
-        return E_NOTIMPL;
+        *pInfo = m_info;
+        return S_OK;
     }
 
     virtual STDMETHODIMP GetStatus(DWORD *pdwStatus) override {
-        return E_NOTIMPL;
+        *pdwStatus = m_status;
+        return S_OK;
     }
 
     virtual STDMETHODIMP Show(BOOL fShow) override {
@@ -76,16 +110,52 @@ struct LangBarIndicatorImpl : implements<LangBarIndicatorImpl, ITfSource, ITfLan
     }
 
     virtual STDMETHODIMP GetIcon(HICON *phIcon) override {
-        return E_NOTIMPL;
+        TRY_FOR_HRESULT
+        using namespace messages;
+
+        auto icon_resource = 0;
+
+        switch (m_service->config()->input_mode()) {
+        case IM_CONTINUOUS:
+            icon_resource = IDI_MODE_CONTINUOUS;
+            break;
+        case IM_BASIC:
+            icon_resource = IDI_MODE_BASIC;
+            break;
+        case IM_PRO:
+            icon_resource = IDI_MODE_PRO;
+            break;
+        case IM_ALPHA:
+            icon_resource = IDI_MODE_ALPHA;
+            break;
+        default:
+            return E_INVALIDARG;
+        }
+
+        auto icon =
+            ::LoadImage(m_service->hmodule(), MAKEINTRESOURCE(icon_resource), IMAGE_ICON, 0, 0, LR_DEFAULTCOLOR);
+
+        *phIcon = static_cast<HICON>(icon);
+
+        CATCH_FOR_HRESULT;
     }
+
     virtual STDMETHODIMP GetText(BSTR *pbstrText) override {
         return E_NOTIMPL;
     }
 
   private:
+    com_ptr<TextService> m_service = nullptr;
     std::unordered_map<DWORD, com_ptr<ITfLangBarItemSink>> m_sinks;
+
+    TF_LANGBARITEMINFO m_info;
+    DWORD m_status = 0;
 };
 
 } // namespace
+
+void LangBarIndicatorFactory::Create(LangBarIndicator **indicator) {
+    as_self<LangBarIndicator>(make_self<LangBarIndicatorImpl>()).copy_to(indicator);
+}
 
 } // namespace khiin::win32

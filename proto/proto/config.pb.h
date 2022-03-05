@@ -76,14 +76,15 @@ namespace khiin {
 namespace messages {
 
 enum InputMode : int {
-  IM_CONTINUOUS = 0,
-  IM_BASIC = 1,
-  IM_PRO = 2,
+  IM_ALPHA = 0,
+  IM_CONTINUOUS = 1,
+  IM_BASIC = 2,
+  IM_PRO = 3,
   InputMode_INT_MIN_SENTINEL_DO_NOT_USE_ = std::numeric_limits<::PROTOBUF_NAMESPACE_ID::int32>::min(),
   InputMode_INT_MAX_SENTINEL_DO_NOT_USE_ = std::numeric_limits<::PROTOBUF_NAMESPACE_ID::int32>::max()
 };
 bool InputMode_IsValid(int value);
-constexpr InputMode InputMode_MIN = IM_CONTINUOUS;
+constexpr InputMode InputMode_MIN = IM_ALPHA;
 constexpr InputMode InputMode_MAX = IM_PRO;
 constexpr int InputMode_ARRAYSIZE = InputMode_MAX + 1;
 
