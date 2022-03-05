@@ -15,11 +15,11 @@
     <Filter Include="Renderer">
       <UniqueIdentifier>{e6f43124-42c9-4cc7-89e1-a56c8a78c1b1}</UniqueIdentifier>
     </Filter>
-    <Filter Include="App">
-      <UniqueIdentifier>{aee0f168-3106-47c3-9e2a-421b14c06ce4}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Common\proto">
       <UniqueIdentifier>{0e50944d-9091-4cd9-b47d-38b13032c198}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Module">
+      <UniqueIdentifier>{aee0f168-3106-47c3-9e2a-421b14c06ce4}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -105,10 +105,10 @@
       <Filter>Common</Filter>
     </ClInclude>
     <ClInclude Include="DllModule.h">
-      <Filter>App</Filter>
+      <Filter>Module</Filter>
     </ClInclude>
     <ClInclude Include="Registrar.h">
-      <Filter>App</Filter>
+      <Filter>Module</Filter>
     </ClInclude>
     <ClInclude Include="pch.h">
       <Filter>Common</Filter>
@@ -117,16 +117,16 @@
       <Filter>Common</Filter>
     </ClInclude>
     <ClInclude Include="Profile.h">
-      <Filter>App</Filter>
+      <Filter>Module</Filter>
     </ClInclude>
     <ClInclude Include="resource.h">
       <Filter>Common</Filter>
     </ClInclude>
-    <ClInclude Include="resource1.h">
-      <Filter>Common</Filter>
-    </ClInclude>
     <ClInclude Include="hresult.h">
       <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="LangBarItem.h">
+      <Filter>TextService</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -149,10 +149,10 @@
       <Filter>Common</Filter>
     </ClCompile>
     <ClCompile Include="DllModule.cpp">
-      <Filter>App</Filter>
+      <Filter>Module</Filter>
     </ClCompile>
     <ClCompile Include="Registrar.cpp">
-      <Filter>App</Filter>
+      <Filter>Module</Filter>
     </ClCompile>
     <ClCompile Include="CandidateListUI.cpp">
       <Filter>TextService</Filter>
@@ -214,6 +214,9 @@
     <ClCompile Include="..\..\proto\proto\config.pb.cc">
       <Filter>Common\proto</Filter>
     </ClCompile>
+    <ClCompile Include="LangBarItem.cpp">
+      <Filter>TextService</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="KhiinPJH.rc">
@@ -221,13 +224,25 @@
     </ResourceCompile>
   </ItemGroup>
   <ItemGroup>
-    <Image Include="..\..\design\icon-48.ico">
-      <Filter>Resource Files</Filter>
-    </Image>
+    <None Include="DllModule.def">
+      <Filter>Module</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
-    <None Include="DllModule.def">
-      <Filter>App</Filter>
-    </None>
+    <Image Include="mainicon.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="mode-alpha.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="mode-cont.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="mode-pro.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="mode-single.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
   </ItemGroup>
 </Project>

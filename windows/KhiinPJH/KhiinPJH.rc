@@ -2,7 +2,7 @@
 //
 #pragma code_page(65001)
 
-#include "resource1.h"
+#include "resource.h"
 
 #define APSTUDIO_READONLY_SYMBOLS
 /////////////////////////////////////////////////////////////////////////////
@@ -28,7 +28,7 @@ LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
 
 1 TEXTINCLUDE 
 BEGIN
-    "resource1.h\0"
+    "resource.h\0"
 END
 
 2 TEXTINCLUDE 
@@ -53,7 +53,15 @@ END
 
 // Icon with lowest ID value placed first to ensure application icon
 // remains consistent on all systems.
-IDI_ICON1               ICON                    "mainicon.ico"
+IDI_MAINICON            ICON                    "mainicon.ico"
+
+IDI_MODE_ALPHA          ICON                    "mode-alpha.ico"
+
+IDI_MODE_CONTINUOUS     ICON                    "mode-cont.ico"
+
+IDI_MODE_PRO            ICON                    "mode-pro.ico"
+
+IDI_MODE_SINGLE         ICON                    "mode-single.ico"
 
 
 /////////////////////////////////////////////////////////////////////////////
