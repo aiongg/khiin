@@ -102,6 +102,32 @@ inline bool InputMode_Parse(
   return ::PROTOBUF_NAMESPACE_ID::internal::ParseNamedEnum<InputMode>(
     InputMode_descriptor(), name, value);
 }
+enum UiLanguage : int {
+  UIL_ENGLISH = 0,
+  UIL_TAI_HANLO = 1,
+  UIL_TAI_LOJI = 2,
+  UiLanguage_INT_MIN_SENTINEL_DO_NOT_USE_ = std::numeric_limits<::PROTOBUF_NAMESPACE_ID::int32>::min(),
+  UiLanguage_INT_MAX_SENTINEL_DO_NOT_USE_ = std::numeric_limits<::PROTOBUF_NAMESPACE_ID::int32>::max()
+};
+bool UiLanguage_IsValid(int value);
+constexpr UiLanguage UiLanguage_MIN = UIL_ENGLISH;
+constexpr UiLanguage UiLanguage_MAX = UIL_TAI_LOJI;
+constexpr int UiLanguage_ARRAYSIZE = UiLanguage_MAX + 1;
+
+const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor* UiLanguage_descriptor();
+template<typename T>
+inline const std::string& UiLanguage_Name(T enum_t_value) {
+  static_assert(::std::is_same<T, UiLanguage>::value ||
+    ::std::is_integral<T>::value,
+    "Incorrect type passed to function UiLanguage_Name.");
+  return ::PROTOBUF_NAMESPACE_ID::internal::NameOfEnum(
+    UiLanguage_descriptor(), enum_t_value);
+}
+inline bool UiLanguage_Parse(
+    ::PROTOBUF_NAMESPACE_ID::ConstStringParam name, UiLanguage* value) {
+  return ::PROTOBUF_NAMESPACE_ID::internal::ParseNamedEnum<UiLanguage>(
+    UiLanguage_descriptor(), name, value);
+}
 // ===================================================================
 
 class KeyConfiguration final :
@@ -571,6 +597,7 @@ class Appearance final :
   enum : int {
     kColorsFieldNumber = 1,
     kSizeFieldNumber = 2,
+    kUiLanguageFieldNumber = 3,
   };
   // int32 colors = 1;
   void clear_colors();
@@ -590,6 +617,15 @@ class Appearance final :
   void _internal_set_size(::PROTOBUF_NAMESPACE_ID::int32 value);
   public:
 
+  // .khiin.messages.UiLanguage ui_language = 3;
+  void clear_ui_language();
+  ::khiin::messages::UiLanguage ui_language() const;
+  void set_ui_language(::khiin::messages::UiLanguage value);
+  private:
+  ::khiin::messages::UiLanguage _internal_ui_language() const;
+  void _internal_set_ui_language(::khiin::messages::UiLanguage value);
+  public:
+
   // @@protoc_insertion_point(class_scope:khiin.messages.Appearance)
  private:
   class _Internal;
@@ -599,6 +635,7 @@ class Appearance final :
   typedef void DestructorSkippable_;
   ::PROTOBUF_NAMESPACE_ID::int32 colors_;
   ::PROTOBUF_NAMESPACE_ID::int32 size_;
+  int ui_language_;
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   friend struct ::TableStruct_config_2eproto;
 };
@@ -1432,6 +1469,26 @@ inline void Appearance::set_size(::PROTOBUF_NAMESPACE_ID::int32 value) {
   // @@protoc_insertion_point(field_set:khiin.messages.Appearance.size)
 }
 
+// .khiin.messages.UiLanguage ui_language = 3;
+inline void Appearance::clear_ui_language() {
+  ui_language_ = 0;
+}
+inline ::khiin::messages::UiLanguage Appearance::_internal_ui_language() const {
+  return static_cast< ::khiin::messages::UiLanguage >(ui_language_);
+}
+inline ::khiin::messages::UiLanguage Appearance::ui_language() const {
+  // @@protoc_insertion_point(field_get:khiin.messages.Appearance.ui_language)
+  return _internal_ui_language();
+}
+inline void Appearance::_internal_set_ui_language(::khiin::messages::UiLanguage value) {
+  
+  ui_language_ = value;
+}
+inline void Appearance::set_ui_language(::khiin::messages::UiLanguage value) {
+  _internal_set_ui_language(value);
+  // @@protoc_insertion_point(field_set:khiin.messages.Appearance.ui_language)
+}
+
 // -------------------------------------------------------------------
 
 // AppConfig
@@ -1655,6 +1712,11 @@ template <> struct is_proto_enum< ::khiin::messages::InputMode> : ::std::true_ty
 template <>
 inline const EnumDescriptor* GetEnumDescriptor< ::khiin::messages::InputMode>() {
   return ::khiin::messages::InputMode_descriptor();
+}
+template <> struct is_proto_enum< ::khiin::messages::UiLanguage> : ::std::true_type {};
+template <>
+inline const EnumDescriptor* GetEnumDescriptor< ::khiin::messages::UiLanguage>() {
+  return ::khiin::messages::UiLanguage_descriptor();
 }
 
 PROTOBUF_NAMESPACE_CLOSE

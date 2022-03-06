@@ -32,8 +32,28 @@
   <ImportGroup Label="Shared" />
   <ImportGroup Label="PropertySheets" />
   <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <TargetName>KhiinTipTest</TargetName>
+    <OutDir>$(SolutionDir)\out\build\$(PlatformShortName)-$(Configuration)\</OutDir>
+    <IntDir>$(SolutionDir)\out\obj\$(ProjectName)-$(PlatformShortName)-$(Configuration)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <TargetName>KhiinTipTest</TargetName>
+    <OutDir>$(SolutionDir)\out\build\$(PlatformShortName)-$(Configuration)\</OutDir>
+    <IntDir>$(SolutionDir)\out\obj\$(ProjectName)-$(PlatformShortName)-$(Configuration)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <TargetName>KhiinTipTest</TargetName>
+    <OutDir>$(SolutionDir)\out\build\$(PlatformShortName)-$(Configuration)\</OutDir>
+    <IntDir>$(SolutionDir)\out\obj\$(ProjectName)-$(PlatformShortName)-$(Configuration)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <TargetName>KhiinTipTest</TargetName>
+    <OutDir>$(SolutionDir)\out\build\$(PlatformShortName)-$(Configuration)\</OutDir>
+    <IntDir>$(SolutionDir)\out\obj\$(ProjectName)-$(PlatformShortName)-$(Configuration)\</IntDir>
+  </PropertyGroup>
   <ItemGroup>
-    <ClCompile Include="test.cpp" />
+    <ClCompile Include="KhiinTipTest.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\tip\tip.vcxproj">
@@ -73,7 +93,7 @@
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <WarningLevel>Level3</WarningLevel>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <AdditionalIncludeDirectories>$(SolutionDir)tip;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)tip;$(SolutionDir)..\third_party;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>

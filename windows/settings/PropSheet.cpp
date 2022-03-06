@@ -7,6 +7,7 @@
 
 namespace khiin::win32::settings {
 namespace {
+using namespace messages;
 
 void SetTitle(HWND page_hwnd, uint32_t page_rid, UiLanguage lang) {
     auto title = Strings::T(page_rid, lang);

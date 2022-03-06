@@ -187,8 +187,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="..\tip\Config.h" />
-    <ClInclude Include="..\tip\Files.h" />
     <ClInclude Include="AppearanceProps.h" />
     <ClInclude Include="InputProps.h" />
     <ClInclude Include="pch.h" />

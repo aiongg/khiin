@@ -46,7 +46,9 @@ PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT KeyConfigurationDefaultTypeInte
 constexpr Appearance::Appearance(
   ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
   : colors_(0)
-  , size_(0){}
+  , size_(0)
+  , ui_language_(0)
+{}
 struct AppearanceDefaultTypeInternal {
   constexpr AppearanceDefaultTypeInternal()
     : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
@@ -74,7 +76,7 @@ PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT AppConfigDefaultTypeInternal _A
 }  // namespace messages
 }  // namespace khiin
 static ::PROTOBUF_NAMESPACE_ID::Metadata file_level_metadata_config_2eproto[3];
-static const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor* file_level_enum_descriptors_config_2eproto[1];
+static const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor* file_level_enum_descriptors_config_2eproto[2];
 static constexpr ::PROTOBUF_NAMESPACE_ID::ServiceDescriptor const** file_level_service_descriptors_config_2eproto = nullptr;
 
 const ::PROTOBUF_NAMESPACE_ID::uint32 TableStruct_config_2eproto::offsets[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) = {
@@ -106,6 +108,7 @@ const ::PROTOBUF_NAMESPACE_ID::uint32 TableStruct_config_2eproto::offsets[] PROT
   ~0u,  // no _inlined_string_donated_
   PROTOBUF_FIELD_OFFSET(::khiin::messages::Appearance, colors_),
   PROTOBUF_FIELD_OFFSET(::khiin::messages::Appearance, size_),
+  PROTOBUF_FIELD_OFFSET(::khiin::messages::Appearance, ui_language_),
   ~0u,  // no _has_bits_
   PROTOBUF_FIELD_OFFSET(::khiin::messages::AppConfig, _internal_metadata_),
   ~0u,  // no _extensions_
@@ -119,7 +122,7 @@ const ::PROTOBUF_NAMESPACE_ID::uint32 TableStruct_config_2eproto::offsets[] PROT
 static const ::PROTOBUF_NAMESPACE_ID::internal::MigrationSchema schemas[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) = {
   { 0, -1, -1, sizeof(::khiin::messages::KeyConfiguration)},
   { 20, -1, -1, sizeof(::khiin::messages::Appearance)},
-  { 28, -1, -1, sizeof(::khiin::messages::AppConfig)},
+  { 29, -1, -1, sizeof(::khiin::messages::AppConfig)},
 };
 
 static ::PROTOBUF_NAMESPACE_ID::Message const * const file_default_instances[] = {
@@ -137,18 +140,21 @@ const char descriptor_table_protodef_config_2eproto[] PROTOBUF_SECTION_VARIABLE(
   "\nalt_hyphen\030\t \001(\t\022\r\n\005nasal\030\n \001(\t\022\027\n\017dot_"
   "above_right\030\013 \001(\t\022\022\n\ndots_below\030\014 \001(\t\022\036\n"
   "\026enable_uppercase_nasal\030\r \001(\010\022\036\n\026use_dig"
-  "its_as_fallback\030\016 \001(\010\"*\n\nAppearance\022\016\n\006c"
-  "olors\030\001 \001(\005\022\014\n\004size\030\002 \001(\005\"\240\001\n\tAppConfig\022"
-  "4\n\nkey_config\030\001 \001(\0132 .khiin.messages.Key"
-  "Configuration\022-\n\ninput_mode\030\002 \001(\0162\031.khii"
-  "n.messages.InputMode\022.\n\nappearance\030\003 \001(\013"
-  "2\032.khiin.messages.Appearance*F\n\tInputMod"
-  "e\022\014\n\010IM_ALPHA\020\000\022\021\n\rIM_CONTINUOUS\020\001\022\014\n\010IM"
-  "_BASIC\020\002\022\n\n\006IM_PRO\020\003b\006proto3"
+  "its_as_fallback\030\016 \001(\010\"[\n\nAppearance\022\016\n\006c"
+  "olors\030\001 \001(\005\022\014\n\004size\030\002 \001(\005\022/\n\013ui_language"
+  "\030\003 \001(\0162\032.khiin.messages.UiLanguage\"\240\001\n\tA"
+  "ppConfig\0224\n\nkey_config\030\001 \001(\0132 .khiin.mes"
+  "sages.KeyConfiguration\022-\n\ninput_mode\030\002 \001"
+  "(\0162\031.khiin.messages.InputMode\022.\n\nappeara"
+  "nce\030\003 \001(\0132\032.khiin.messages.Appearance*F\n"
+  "\tInputMode\022\014\n\010IM_ALPHA\020\000\022\021\n\rIM_CONTINUOU"
+  "S\020\001\022\014\n\010IM_BASIC\020\002\022\n\n\006IM_PRO\020\003*B\n\nUiLangu"
+  "age\022\017\n\013UIL_ENGLISH\020\000\022\021\n\rUIL_TAI_HANLO\020\001\022"
+  "\020\n\014UIL_TAI_LOJI\020\002b\006proto3"
   ;
 static ::PROTOBUF_NAMESPACE_ID::internal::once_flag descriptor_table_config_2eproto_once;
 const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable descriptor_table_config_2eproto = {
-  false, false, 628, descriptor_table_protodef_config_2eproto, "config.proto", 
+  false, false, 745, descriptor_table_protodef_config_2eproto, "config.proto", 
   &descriptor_table_config_2eproto_once, nullptr, 0, 3,
   schemas, file_default_instances, TableStruct_config_2eproto::offsets,
   file_level_metadata_config_2eproto, file_level_enum_descriptors_config_2eproto, file_level_service_descriptors_config_2eproto,
@@ -171,6 +177,21 @@ bool InputMode_IsValid(int value) {
     case 1:
     case 2:
     case 3:
+      return true;
+    default:
+      return false;
+  }
+}
+
+const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor* UiLanguage_descriptor() {
+  ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&descriptor_table_config_2eproto);
+  return file_level_enum_descriptors_config_2eproto[1];
+}
+bool UiLanguage_IsValid(int value) {
+  switch (value) {
+    case 0:
+    case 1:
+    case 2:
       return true;
     default:
       return false;
@@ -927,16 +948,16 @@ Appearance::Appearance(const Appearance& from)
   : ::PROTOBUF_NAMESPACE_ID::Message() {
   _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
   ::memcpy(&colors_, &from.colors_,
-    static_cast<size_t>(reinterpret_cast<char*>(&size_) -
-    reinterpret_cast<char*>(&colors_)) + sizeof(size_));
+    static_cast<size_t>(reinterpret_cast<char*>(&ui_language_) -
+    reinterpret_cast<char*>(&colors_)) + sizeof(ui_language_));
   // @@protoc_insertion_point(copy_constructor:khiin.messages.Appearance)
 }
 
 void Appearance::SharedCtor() {
 ::memset(reinterpret_cast<char*>(this) + static_cast<size_t>(
     reinterpret_cast<char*>(&colors_) - reinterpret_cast<char*>(this)),
-    0, static_cast<size_t>(reinterpret_cast<char*>(&size_) -
-    reinterpret_cast<char*>(&colors_)) + sizeof(size_));
+    0, static_cast<size_t>(reinterpret_cast<char*>(&ui_language_) -
+    reinterpret_cast<char*>(&colors_)) + sizeof(ui_language_));
 }
 
 Appearance::~Appearance() {
@@ -967,8 +988,8 @@ void Appearance::Clear() {
   (void) cached_has_bits;
 
   ::memset(&colors_, 0, static_cast<size_t>(
-      reinterpret_cast<char*>(&size_) -
-      reinterpret_cast<char*>(&colors_)) + sizeof(size_));
+      reinterpret_cast<char*>(&ui_language_) -
+      reinterpret_cast<char*>(&colors_)) + sizeof(ui_language_));
   _internal_metadata_.Clear<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
 
@@ -991,6 +1012,15 @@ const char* Appearance::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID:
         if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 16)) {
           size_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
           CHK_(ptr);
+        } else
+          goto handle_unusual;
+        continue;
+      // .khiin.messages.UiLanguage ui_language = 3;
+      case 3:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 24)) {
+          ::PROTOBUF_NAMESPACE_ID::uint64 val = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
+          CHK_(ptr);
+          _internal_set_ui_language(static_cast<::khiin::messages::UiLanguage>(val));
         } else
           goto handle_unusual;
         continue;
@@ -1035,6 +1065,13 @@ failure:
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteInt32ToArray(2, this->_internal_size(), target);
   }
 
+  // .khiin.messages.UiLanguage ui_language = 3;
+  if (this->_internal_ui_language() != 0) {
+    target = stream->EnsureSpace(target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteEnumToArray(
+      3, this->_internal_ui_language(), target);
+  }
+
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::InternalSerializeUnknownFieldsToArray(
         _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
@@ -1059,6 +1096,12 @@ size_t Appearance::ByteSizeLong() const {
   // int32 size = 2;
   if (this->_internal_size() != 0) {
     total_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32SizePlusOne(this->_internal_size());
+  }
+
+  // .khiin.messages.UiLanguage ui_language = 3;
+  if (this->_internal_ui_language() != 0) {
+    total_size += 1 +
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::EnumSize(this->_internal_ui_language());
   }
 
   return MaybeComputeUnknownFieldsSize(total_size, &_cached_size_);
@@ -1089,6 +1132,9 @@ void Appearance::MergeFrom(const Appearance& from) {
   if (from._internal_size() != 0) {
     _internal_set_size(from._internal_size());
   }
+  if (from._internal_ui_language() != 0) {
+    _internal_set_ui_language(from._internal_ui_language());
+  }
   _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
 }
 
@@ -1107,8 +1153,8 @@ void Appearance::InternalSwap(Appearance* other) {
   using std::swap;
   _internal_metadata_.InternalSwap(&other->_internal_metadata_);
   ::PROTOBUF_NAMESPACE_ID::internal::memswap<
-      PROTOBUF_FIELD_OFFSET(Appearance, size_)
-      + sizeof(Appearance::size_)
+      PROTOBUF_FIELD_OFFSET(Appearance, ui_language_)
+      + sizeof(Appearance::ui_language_)
       - PROTOBUF_FIELD_OFFSET(Appearance, colors_)>(
           reinterpret_cast<char*>(&colors_),
           reinterpret_cast<char*>(&other->colors_));

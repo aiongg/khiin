@@ -35,12 +35,6 @@
     <ClInclude Include="Strings.h">
       <Filter>Source Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\tip\Config.h">
-      <Filter>Common</Filter>
-    </ClInclude>
-    <ClInclude Include="..\tip\Files.h">
-      <Filter>Common</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">

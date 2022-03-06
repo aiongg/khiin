@@ -26,9 +26,16 @@ enum InputMode {
     IM_PRO = 3;
 }
 
+enum UiLanguage {
+    UIL_ENGLISH = 0;
+    UIL_TAI_HANLO = 1;
+    UIL_TAI_LOJI = 2;
+}
+
 message Appearance {
     int32 colors = 1;
     int32 size = 2;
+    UiLanguage ui_language = 3;
 }
 
 message AppConfig {

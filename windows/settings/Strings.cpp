@@ -6,6 +6,7 @@
 
 namespace khiin::win32::settings {
 namespace {
+using namespace messages;
 
 using StrMap = std::unordered_map<uint32_t, std::wstring>;
 
@@ -19,7 +20,6 @@ StrMap kStringsEn = {
     {IDL_CANDIDATE_SIZE_S,       L"Smaller"},
     {IDL_CANDIDATE_SIZE_L,       L"Larger"},
     {IDL_DISPLAY_LANGUAGE,       L"Display language (介面語言):"},
-    {IDS_DISPLAY_LANGUAGE_SYS,   L"(System Default)"},
     {IDS_DISPLAY_LANGUAGE_EN,    L"English"},
     {IDS_DISPLAY_LANGUAGE_HANLO, L"漢羅台 (Hanlo Taiwanese)"},
     {IDS_DISPLAY_LANGUAGE_LO,    L"Lô-jī Tâi (Romanized Taiwanese)"},
@@ -36,7 +36,6 @@ StrMap kStringsHanlo = {
     {IDL_CANDIDATE_SIZE_L,       L"Khah 大"},
     {IDL_EDIT_TRY,               L"打看覓仔："},
     {IDL_DISPLAY_LANGUAGE,       L"介面語言 (Display Language)："},
-    {IDS_DISPLAY_LANGUAGE_SYS,   L"(係統)"},
     {IDS_DISPLAY_LANGUAGE_EN,    L"英語 (English)"},
     {IDS_DISPLAY_LANGUAGE_HANLO, L"漢羅台"},
     {IDS_DISPLAY_LANGUAGE_LO,    L"Lô-jī Tâi"},
@@ -47,7 +46,7 @@ StrMap kStringsHanlo = {
 
 std::wstring Strings::T(uint32_t rid, UiLanguage lang) {
     auto ret = std::wstring(L"???");
-    StrMap *strs = lang == UiLanguage::HL ? &kStringsHanlo : &kStringsEn;
+    StrMap *strs = lang == UIL_TAI_HANLO ? &kStringsHanlo : &kStringsEn;
 
     if (auto it = strs->find(rid); it != strs->end()) {
         ret = it->second;

@@ -20,7 +20,6 @@ auto kThemeNameStringRids = std::vector<uint32_t>{
 };
 
 auto kDisplayLanguageStringRids = std::vector<uint32_t>{
-    IDS_DISPLAY_LANGUAGE_SYS,
     IDS_DISPLAY_LANGUAGE_EN,
     IDS_DISPLAY_LANGUAGE_HANLO,
     IDS_DISPLAY_LANGUAGE_LO,

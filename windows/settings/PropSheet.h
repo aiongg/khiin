@@ -6,7 +6,6 @@ struct PropSheetPage : PROPSHEETPAGE {
     intptr_t self;
 };
 
-enum class UiLanguage;
 class Application;
 
 class PropSheet {
@@ -34,7 +33,7 @@ class PropSheet {
     messages::AppConfig *m_config = nullptr;
 
     std::vector<uint32_t> m_string_ids;
-    std::unordered_map<UiLanguage, std::vector<uint32_t>> m_translations;
+    std::unordered_map<messages::UiLanguage, std::vector<uint32_t>> m_translations;
     Application *m_app = nullptr;
 };
 

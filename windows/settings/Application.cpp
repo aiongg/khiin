@@ -73,9 +73,9 @@ void LoadConfig() {
 UiLanguage GetSystemLang() {
     if (auto lang = PRIMARYLANGID(::GetUserDefaultUILanguage());
         lang == LANG_CHINESE || lang == LANG_CHINESE_TRADITIONAL) {
-        return UiLanguage::HL;
+        return UIL_TAI_HANLO;
     } else {
-        return UiLanguage::EN;
+        return UIL_ENGLISH;
     }
 }
 
@@ -88,7 +88,7 @@ class ApplicationImpl : Application {
 
     virtual UiLanguage uilang() override {
         if (uilang_set) {
-            return m_lang;
+            return g_config->appearance().ui_language();
         }
 
         return GetSystemLang();
@@ -96,12 +96,8 @@ class ApplicationImpl : Application {
 
     virtual void set_uilang(UiLanguage lang) override {
         uilang_set = true;
-        m_lang = lang;
+        g_config->mutable_appearance()->set_ui_language(lang);
         m_display.Reload();
-    }
-
-    virtual messages::AppConfig *config() override {
-        return m_config;
     }
 
     int ShowDialog() {
@@ -130,8 +126,7 @@ class ApplicationImpl : Application {
 
   private:
     bool uilang_set = false;
-    AppConfig *m_config = nullptr;
-    UiLanguage m_lang = UiLanguage::HL;
+    UiLanguage m_lang = UIL_TAI_HANLO;
     AppearanceProps m_display;
     InputProps m_input;
     PropSheet m_about;

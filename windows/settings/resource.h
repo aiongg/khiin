@@ -6,7 +6,6 @@
 #define IDD_ABOUTTAB                    103
 #define IDS_LIGHT_THEME                 500
 #define IDS_DARK_THEME                  501
-#define IDS_DISPLAY_LANGUAGE_SYS        503
 #define IDS_DISPLAY_LANGUAGE_EN         504
 #define IDS_DISPLAY_LANGUAGE_HANLO      505
 #define IDS_DISPLAY_LANGUAGE_LO         506
