@@ -8,18 +8,18 @@
         <SchemaVersion>2.0</SchemaVersion>
         <OutputType>Package</OutputType>
         <OutputName>Khiin PJH</OutputName>
-        <Name>KhiinSetup</Name>
+        <Name>installer</Name>
     </PropertyGroup>
     <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x64' ">
         <OutputPath>$(SolutionDir)\out\build\$(Platform)-$(Configuration)\</OutputPath>
-        <IntermediateOutputPath>$(SolutionDir)\out\obj\KhiinSetup-$(Platform)-$(Configuration)\</IntermediateOutputPath>
+        <IntermediateOutputPath>$(SolutionDir)\out\obj\installer-$(Platform)-$(Configuration)\</IntermediateOutputPath>
         <DefineConstants>Debug</DefineConstants>
         <OutputName>Khiin PJH (64 bit - Debug)</OutputName>
         <LinkerAdditionalOptions>-ext WixUIExtension</LinkerAdditionalOptions>
     </PropertyGroup>
     <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x64' ">
         <OutputPath>$(SolutionDir)\out\build\$(Platform)-$(Configuration)\</OutputPath>
-        <IntermediateOutputPath>$(SolutionDir)\out\obj\KhiinSetup-$(Platform)-$(Configuration)\</IntermediateOutputPath>
+        <IntermediateOutputPath>$(SolutionDir)\out\obj\installer-$(Platform)-$(Configuration)\</IntermediateOutputPath>
         <OutputName>Khiin PJH (64 bit)</OutputName>
         <LinkerAdditionalOptions>-ext WixUIExtension</LinkerAdditionalOptions>
     </PropertyGroup>

@@ -4,7 +4,7 @@
 
 namespace khiin::win32::settings {
 
-InputProps::InputProps(KhiinSettings *app) : PropSheet(app) {}
+InputProps::InputProps(Application *app) : PropSheet(app) {}
 
 void InputProps::Initialize() {}
 

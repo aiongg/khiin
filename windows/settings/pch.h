@@ -31,9 +31,6 @@
 #pragma warning(pop)
 #endif
 
-#include "KhiinPJH/log.h"
-#include "KhiinPJH/Utils.h"
-
 
 #define ID_APPLY_NOW 0x3021
 #define PCSB_INITIALIZED 1

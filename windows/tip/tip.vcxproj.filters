@@ -219,7 +219,7 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="KhiinPJH.rc">
+    <ResourceCompile Include="tip.rc">
       <Filter>Resource Files</Filter>
     </ResourceCompile>
   </ItemGroup>

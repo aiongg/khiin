@@ -4,11 +4,11 @@
 
 namespace khiin::win32::settings {
 
-class KhiinSettings;
+class Application;
 
 class InputProps : public PropSheet {
   public:
-    InputProps(KhiinSettings *app);
+    InputProps(Application *app);
     virtual void Initialize() override;
     virtual void Finalize() override;
 };

@@ -3,17 +3,17 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.31919.166
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "KhiinPJH", "KhiinPJH\KhiinPJH.vcxproj", "{BDBB7FC7-9D1D-485F-A5E1-5605F41BD015}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "tip", "tip\tip.vcxproj", "{BDBB7FC7-9D1D-485F-A5E1-5605F41BD015}"
 EndProject
-Project("{930C7802-8A8C-48F9-8165-68863BCCD9DD}") = "KhiinSetup", "KhiinSetup\KhiinSetup.wixproj", "{B56815E1-1FC1-48B2-A8CD-CC08886DD26D}"
+Project("{930C7802-8A8C-48F9-8165-68863BCCD9DD}") = "installer", "installer\installer.wixproj", "{B56815E1-1FC1-48B2-A8CD-CC08886DD26D}"
 	ProjectSection(ProjectDependencies) = postProject
 		{C93D7CB4-DAD2-4DCE-B5DA-0822FA803448} = {C93D7CB4-DAD2-4DCE-B5DA-0822FA803448}
 		{BDBB7FC7-9D1D-485F-A5E1-5605F41BD015} = {BDBB7FC7-9D1D-485F-A5E1-5605F41BD015}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "KhiinTest", "KhiinTest\KhiinTest.vcxproj", "{78FFACE8-F5EC-46A8-B203-17AD910B815C}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "test", "test\test.vcxproj", "{78FFACE8-F5EC-46A8-B203-17AD910B815C}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "KhiinSettings", "KhiinSettings\KhiinSettings.vcxproj", "{C93D7CB4-DAD2-4DCE-B5DA-0822FA803448}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "settings", "settings\settings.vcxproj", "{C93D7CB4-DAD2-4DCE-B5DA-0822FA803448}"
 	ProjectSection(ProjectDependencies) = postProject
 		{BDBB7FC7-9D1D-485F-A5E1-5605F41BD015} = {BDBB7FC7-9D1D-485F-A5E1-5605F41BD015}
 	EndProjectSection

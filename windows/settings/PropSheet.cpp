@@ -2,25 +2,37 @@
 
 #include "PropSheet.h"
 
-#include "KhiinSettings.h"
+#include "Application.h"
+#include "Strings.h"
 
 namespace khiin::win32::settings {
 namespace {
 
-std::wstring GetString(uint32_t rid) {
-    const wchar_t *buf = nullptr;
-    int len = ::LoadString(nullptr, rid, reinterpret_cast<LPWSTR>(&buf), 0);
-    if (len > 0) {
-        return std::wstring{buf, static_cast<size_t>(len)};
+void SetTitle(HWND page_hwnd, uint32_t page_rid, UiLanguage lang) {
+    auto title = Strings::T(page_rid, lang);
+    if (!title.empty()) {
+        TCITEM tci;
+        tci.mask = TCIF_TEXT;
+        tci.pszText = &title[0];
+        auto parent = ::GetParent(page_hwnd);
+        auto tab_hwnd = PropSheet_GetTabControl(parent);
+        auto pageidx = PropSheet_HwndToIndex(page_hwnd, parent);
+        TabCtrl_SetItem(tab_hwnd, pageidx, &tci);
     }
-    return std::wstring{};
+}
+
+void SetText(HWND hwnd, uint32_t rid, UiLanguage lang) {
+    auto str = Strings::T(rid, lang);
+    if (!str.empty()) {
+        ::SetWindowText(hwnd, str.c_str());
+    }
 }
 
 } // namespace
 
 using namespace messages;
 
-PropSheet::PropSheet(KhiinSettings *app) : m_app(app) {}
+PropSheet::PropSheet(Application *app) : m_app(app) {}
 
 LRESULT CALLBACK PropSheet::StaticDlgProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
     PropSheetPage *psp = NULL;
@@ -63,6 +75,19 @@ void PropSheet::SetHwnd(HWND hwnd) {
     m_hwnd = hwnd;
 }
 
+void PropSheet::InitComboBox(uint32_t control_rid, std::vector<uint32_t> const &option_rids, int selected_index) {
+    HWND cb_hwnd = ::GetDlgItem(m_hwnd, control_rid);
+    ComboBox_ResetContent(cb_hwnd);
+    auto lang = m_app->uilang();
+    for (auto rid : option_rids) {
+        auto str = Strings::T(rid, lang);
+        if (!str.empty()) {
+            ComboBox_AddString(cb_hwnd, str.c_str());
+        }
+    }
+    ComboBox_SetCurSel(cb_hwnd, selected_index);
+}
+
 INT_PTR PropSheet::DlgProc(UINT msg, WPARAM wParam, LPARAM lParam) {
     switch (msg) {
     case WM_INITDIALOG:
@@ -97,21 +122,20 @@ INT_PTR PropSheet::DlgProc(UINT msg, WPARAM wParam, LPARAM lParam) {
     return FALSE;
 }
 
-void PropSheet::_T(uint32_t control_rid, uint32_t string_rid) {
-    HWND hwnd_item = ::GetDlgItem(m_hwnd, control_rid);
-    if (hwnd_item) {
-        ::SetWindowText(hwnd_item, GetString(string_rid).c_str());
-    }
+void PropSheet::Reload() {
+    Initialize();
 }
 
 void PropSheet::Initialize() {
     auto lang = m_app->uilang();
 
-    auto it = m_translations.find(lang);
-    auto &strs = it == m_translations.end() ? m_translations.at(UiLanguage::HL) : it->second;
+    SetTitle(m_hwnd, m_template_id, lang);
 
-    for (auto i = 0; i < m_res_ids.size(); ++i) {
-        _T(m_res_ids.at(i), strs.at(i));
+    for (auto rid : m_string_ids) {
+        HWND hcontrol = ::GetDlgItem(m_hwnd, rid);
+        if (hcontrol) {
+            SetText(hcontrol, rid, lang);
+        }
     }
 }
 

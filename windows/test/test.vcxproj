@@ -36,7 +36,7 @@
     <ClCompile Include="test.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\KhiinPJH\KhiinPJH.vcxproj">
+    <ProjectReference Include="..\tip\tip.vcxproj">
       <Project>{bdbb7fc7-9d1d-485f-a5e1-5605f41bd015}</Project>
     </ProjectReference>
   </ItemGroup>
@@ -73,7 +73,7 @@
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <WarningLevel>Level3</WarningLevel>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <AdditionalIncludeDirectories>$(SolutionDir)KhiinPJH;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)tip;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>

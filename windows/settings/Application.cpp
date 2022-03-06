@@ -1,6 +1,6 @@
 #include "pch.h"
 
-#include "KhiinSettings.h"
+#include "Application.h"
 
 #include <filesystem>
 #include <fstream>
@@ -8,7 +8,7 @@
 #include <sstream>
 #include <string>
 
-#include <KhiinPJH/Config.h>
+#include "tip/Config.h"
 
 #include "AppearanceProps.h"
 #include "InputProps.h"
@@ -70,18 +70,34 @@ void LoadConfig() {
     Config::LoadFromFile(g_module, g_config);
 }
 
-class KhiinSettingsImpl : KhiinSettings {
+UiLanguage GetSystemLang() {
+    if (auto lang = PRIMARYLANGID(::GetUserDefaultUILanguage());
+        lang == LANG_CHINESE || lang == LANG_CHINESE_TRADITIONAL) {
+        return UiLanguage::HL;
+    } else {
+        return UiLanguage::EN;
+    }
+}
+
+class ApplicationImpl : Application {
   public:
-    KhiinSettingsImpl(HMODULE hmod) {
+    ApplicationImpl(HMODULE hmod) :
+        m_display(AppearanceProps(this)), m_input(InputProps(this)), m_about(PropSheet(this)) {
         g_module = hmod;
     }
 
     virtual UiLanguage uilang() override {
-        return m_lang;
+        if (uilang_set) {
+            return m_lang;
+        }
+
+        return GetSystemLang();
     }
 
     virtual void set_uilang(UiLanguage lang) override {
+        uilang_set = true;
         m_lang = lang;
+        m_display.Reload();
     }
 
     virtual messages::AppConfig *config() override {
@@ -93,13 +109,9 @@ class KhiinSettingsImpl : KhiinSettings {
 
         auto pages = std::vector<HPROPSHEETPAGE>();
 
-        auto appearance_props = AppearanceProps(this);
-        auto input_props = InputProps(this);
-        auto about = PropSheet(this);
-
-        pages.push_back(appearance_props.psp(g_module, IDD_APPEARANCETAB, g_config));
-        pages.push_back(input_props.psp(g_module, IDD_INPUTTAB, g_config));
-        pages.push_back(about.psp(g_module, IDD_ABOUTTAB, g_config));
+        pages.push_back(m_display.psp(g_module, IDD_APPEARANCETAB, g_config));
+        pages.push_back(m_input.psp(g_module, IDD_INPUTTAB, g_config));
+        pages.push_back(m_about.psp(g_module, IDD_ABOUTTAB, g_config));
 
         PROPSHEETHEADER psh = {};
         psh.dwSize = sizeof(PROPSHEETHEADER);
@@ -117,8 +129,12 @@ class KhiinSettingsImpl : KhiinSettings {
     }
 
   private:
-    AppConfig *m_config;
-    UiLanguage m_lang = UiLanguage::NotSet;
+    bool uilang_set = false;
+    AppConfig *m_config = nullptr;
+    UiLanguage m_lang = UiLanguage::HL;
+    AppearanceProps m_display;
+    InputProps m_input;
+    PropSheet m_about;
 };
 
 } // namespace
@@ -132,6 +148,6 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
                       _In_ int nCmdShow) {
     UNREFERENCED_PARAMETER(hPrevInstance);
     UNREFERENCED_PARAMETER(lpCmdLine);
-    auto app = khiin::win32::settings::KhiinSettingsImpl(hInstance);
+    auto app = khiin::win32::settings::ApplicationImpl(hInstance);
     return app.ShowDialog();
 }

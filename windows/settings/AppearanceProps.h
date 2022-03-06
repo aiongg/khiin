@@ -4,11 +4,11 @@
 
 namespace khiin::win32::settings {
 
-class KhiinSettings;
+class Application;
 
 class AppearanceProps : public PropSheet {
   public:
-    AppearanceProps(KhiinSettings *app);
+    AppearanceProps(Application *app);
     virtual void Initialize() override;
     virtual void Finalize() override;
 };

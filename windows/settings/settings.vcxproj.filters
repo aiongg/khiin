@@ -20,7 +20,7 @@
     <ClInclude Include="InputProps.h">
       <Filter>Source Files</Filter>
     </ClInclude>
-    <ClInclude Include="KhiinSettings.h">
+    <ClInclude Include="Application.h">
       <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="pch.h">
@@ -32,11 +32,17 @@
     <ClInclude Include="Resource.h">
       <Filter>Source Files</Filter>
     </ClInclude>
+    <ClInclude Include="Strings.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\tip\Config.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\tip\Files.h">
+      <Filter>Common</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="KhiinSettings.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="pch.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -46,27 +52,30 @@
     <ClCompile Include="AppearanceProps.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\KhiinPJH\Utils.cpp">
-      <Filter>Common</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\proto\proto\config.pb.cc">
       <Filter>Common</Filter>
     </ClCompile>
-    <ClCompile Include="..\KhiinPJH\Config.cpp">
-      <Filter>Common</Filter>
-    </ClCompile>
-    <ClCompile Include="..\KhiinPJH\Colors.cpp">
+    <ClCompile Include="..\tip\Config.cpp">
       <Filter>Common</Filter>
     </ClCompile>
     <ClCompile Include="InputProps.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\KhiinPJH\Files.cpp">
+    <ClCompile Include="..\tip\Files.cpp">
+      <Filter>Common</Filter>
+    </ClCompile>
+    <ClCompile Include="Strings.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Application.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\tip\Utils.cpp">
       <Filter>Common</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="KhiinSettings.rc">
+    <ResourceCompile Include="settings.rc">
       <Filter>Resource Files</Filter>
     </ResourceCompile>
   </ItemGroup>
@@ -74,11 +83,11 @@
     <Image Include="small.ico">
       <Filter>Resource Files</Filter>
     </Image>
-    <Image Include="KhiinSettings.ico">
+    <Image Include="mainicon.ico">
       <Filter>Resource Files</Filter>
     </Image>
   </ItemGroup>
   <ItemGroup>
-    <Manifest Include="KhiinSettings.exe.manifest" />
+    <Manifest Include="settings.exe.manifest" />
   </ItemGroup>
 </Project>

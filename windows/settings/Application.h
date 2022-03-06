@@ -3,13 +3,12 @@
 namespace khiin::win32::settings {
 
 enum class UiLanguage {
-    NotSet,
-    EN,
-    HL,
-    LO,
+    EN = 1,
+    HL = 2,
+    LO = 3,
 };
 
-class KhiinSettings {
+class Application {
   public:
     virtual UiLanguage uilang() = 0;
     virtual void set_uilang(UiLanguage lang) = 0;

@@ -7,13 +7,14 @@ struct PropSheetPage : PROPSHEETPAGE {
 };
 
 enum class UiLanguage;
-class KhiinSettings;
+class Application;
 
 class PropSheet {
   public:
-    PropSheet(KhiinSettings *app);
+    PropSheet(Application *app);
     static LRESULT CALLBACK StaticDlgProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
     HPROPSHEETPAGE psp(HMODULE hmod, int template_id, messages::AppConfig *config);
+    void Reload();
 
   protected:
     virtual INT_PTR DlgProc(UINT msg, WPARAM wParam, LPARAM lParam);
@@ -22,19 +23,19 @@ class PropSheet {
     virtual void Finalize();
     virtual void OnChange();
 
+    void InitComboBox(uint32_t control_rid, std::vector<uint32_t> const &option_rids, int selected_index);
     void SetHwnd(HWND hwnd);
-    void _T(uint32_t control_rid, uint32_t string_rid);
 
     PropSheetPage m_psp = {};
     HPROPSHEETPAGE m_hpsp = NULL;
     HMODULE m_module = NULL;
     HWND m_hwnd = NULL;
-    int m_template_id = 0;
+    uint32_t m_template_id = 0;
     messages::AppConfig *m_config = nullptr;
 
-    std::vector<uint32_t> m_res_ids;
+    std::vector<uint32_t> m_string_ids;
     std::unordered_map<UiLanguage, std::vector<uint32_t>> m_translations;
-    KhiinSettings *m_app = nullptr;
+    Application *m_app = nullptr;
 };
 
 } // namespace khiin::win32::settings
