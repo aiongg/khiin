@@ -70,32 +70,56 @@ void LoadConfig() {
     Config::LoadFromFile(g_module, g_config);
 }
 
-int ShowDialog(HMODULE hmodule) {
-    g_module = hmodule;
-    LoadConfig();
+class KhiinSettingsImpl : KhiinSettings {
+  public:
+    KhiinSettingsImpl(HMODULE hmod) {
+        g_module = hmod;
+    }
 
-    auto pages = std::vector<HPROPSHEETPAGE>();
+    virtual UiLanguage uilang() override {
+        return m_lang;
+    }
 
-    auto appearance_props = AppearanceProps();
-    auto input_props = InputProps();
+    virtual void set_uilang(UiLanguage lang) override {
+        m_lang = lang;
+    }
 
-    pages.push_back(appearance_props.psp(g_module, IDD_APPEARANCE_PROPS, g_config));
-    pages.push_back(input_props.psp(g_module, IDD_INPUT_PROPS, g_config));
+    virtual messages::AppConfig *config() override {
+        return m_config;
+    }
 
-    PROPSHEETHEADER psh = {};
-    psh.dwSize = sizeof(PROPSHEETHEADER);
-    psh.dwFlags = PSH_NOCONTEXTHELP | PSH_USECALLBACK | PSH_USEICONID;
-    psh.hwndParent = HWND_DESKTOP;
-    psh.hInstance = g_module;
-    psh.nPages = pages.size();
-    psh.nStartPage = 0;
-    psh.pfnCallback = PropsheetCallback;
-    psh.phpage = pages.data();
-    psh.pszCaption = L"起引設定 Khíín Siat-tēng";
-    psh.pszIcon = MAKEINTRESOURCE(IDI_KHIINSETTINGS);
+    int ShowDialog() {
+        LoadConfig();
 
-    return ::PropertySheet(&psh);
-}
+        auto pages = std::vector<HPROPSHEETPAGE>();
+
+        auto appearance_props = AppearanceProps(this);
+        auto input_props = InputProps(this);
+        auto about = PropSheet(this);
+
+        pages.push_back(appearance_props.psp(g_module, IDD_APPEARANCETAB, g_config));
+        pages.push_back(input_props.psp(g_module, IDD_INPUTTAB, g_config));
+        pages.push_back(about.psp(g_module, IDD_ABOUTTAB, g_config));
+
+        PROPSHEETHEADER psh = {};
+        psh.dwSize = sizeof(PROPSHEETHEADER);
+        psh.dwFlags = PSH_NOCONTEXTHELP | PSH_USECALLBACK | PSH_USEICONID;
+        psh.hwndParent = HWND_DESKTOP;
+        psh.hInstance = g_module;
+        psh.nPages = pages.size();
+        psh.nStartPage = 0;
+        psh.pfnCallback = PropsheetCallback;
+        psh.phpage = pages.data();
+        psh.pszCaption = L"起引設定 Khíín Siat-tēng";
+        psh.pszIcon = MAKEINTRESOURCE(IDI_KHIINSETTINGS);
+
+        return ::PropertySheet(&psh);
+    }
+
+  private:
+    AppConfig *m_config;
+    UiLanguage m_lang = UiLanguage::NotSet;
+};
 
 } // namespace
 } // namespace khiin::win32::settings
@@ -108,5 +132,6 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
                       _In_ int nCmdShow) {
     UNREFERENCED_PARAMETER(hPrevInstance);
     UNREFERENCED_PARAMETER(lpCmdLine);
-    return khiin::win32::settings::ShowDialog(hInstance);
+    auto app = khiin::win32::settings::KhiinSettingsImpl(hInstance);
+    return app.ShowDialog();
 }

@@ -2,10 +2,25 @@
 
 #include "PropSheet.h"
 
+#include "KhiinSettings.h"
+
 namespace khiin::win32::settings {
-namespace {} // namespace
+namespace {
+
+std::wstring GetString(uint32_t rid) {
+    const wchar_t *buf = nullptr;
+    int len = ::LoadString(nullptr, rid, reinterpret_cast<LPWSTR>(&buf), 0);
+    if (len > 0) {
+        return std::wstring{buf, static_cast<size_t>(len)};
+    }
+    return std::wstring{};
+}
+
+} // namespace
 
 using namespace messages;
+
+PropSheet::PropSheet(KhiinSettings *app) : m_app(app) {}
 
 LRESULT CALLBACK PropSheet::StaticDlgProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
     PropSheetPage *psp = NULL;
@@ -82,9 +97,24 @@ INT_PTR PropSheet::DlgProc(UINT msg, WPARAM wParam, LPARAM lParam) {
     return FALSE;
 }
 
-void PropSheet::Initialize() {
-    // do nothing
+void PropSheet::_T(uint32_t control_rid, uint32_t string_rid) {
+    HWND hwnd_item = ::GetDlgItem(m_hwnd, control_rid);
+    if (hwnd_item) {
+        ::SetWindowText(hwnd_item, GetString(string_rid).c_str());
+    }
 }
+
+void PropSheet::Initialize() {
+    auto lang = m_app->uilang();
+
+    auto it = m_translations.find(lang);
+    auto &strs = it == m_translations.end() ? m_translations.at(UiLanguage::HL) : it->second;
+
+    for (auto i = 0; i < m_res_ids.size(); ++i) {
+        _T(m_res_ids.at(i), strs.at(i));
+    }
+}
+
 void PropSheet::Cancel() {
     // do nothing
 }
