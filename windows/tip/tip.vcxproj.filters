@@ -128,6 +128,9 @@
     <ClInclude Include="LangBarIndicator.h">
       <Filter>TextService</Filter>
     </ClInclude>
+    <ClInclude Include="PopupMenu.h">
+      <Filter>Renderer</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Graphics.cpp">
@@ -216,6 +219,9 @@
     </ClCompile>
     <ClCompile Include="LangBarIndicator.cpp">
       <Filter>TextService</Filter>
+    </ClCompile>
+    <ClCompile Include="PopupMenu.cpp">
+      <Filter>Renderer</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

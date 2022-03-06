@@ -45,18 +45,18 @@ class BaseWindow {
     }
 
   protected:
-    virtual std::wstring &class_name() const = 0;
+    virtual std::wstring const &ClassName() const = 0;
     virtual LRESULT CALLBACK WndProc(UINT uMsg, WPARAM wParam, LPARAM lParam) = 0;
     HWND m_hwnd = NULL;
 
-    bool Create_(PCWSTR lpWindowName, // clang-format off
+    virtual bool Create(PCWSTR lpWindowName, // clang-format off
                  DWORD dwStyle,
                  DWORD dwExStyle = 0,
                  int x = CW_USEDEFAULT,
                  int y = CW_USEDEFAULT,
                  int nWidth = CW_USEDEFAULT,
                  int nHeight = CW_USEDEFAULT,
-                 HWND hWndParent = 0,
+                 HWND hWndParent = HWND_DESKTOP,
                  HMENU hMenu = 0) { // clang-format on
         WINRT_ASSERT(WindowSetup::hmodule());
         auto registered = RegisterIfNotExists();
@@ -67,7 +67,7 @@ class BaseWindow {
 
         auto previous_dpi_awareness = ::SetThreadDpiAwarenessContext(DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2);
         m_hwnd = ::CreateWindowEx(dwExStyle, // clang-format off
-                                 class_name().data(),
+                                 ClassName().data(),
                                  lpWindowName,
                                  dwStyle,
                                  x, y, nWidth, nHeight,
@@ -95,7 +95,7 @@ class BaseWindow {
     bool RegisterIfNotExists() {
         WNDCLASSEX wc = {0};
 
-        if (::GetClassInfoEx(WindowSetup::hmodule(), class_name().data(), &wc)) {
+        if (::GetClassInfoEx(WindowSetup::hmodule(), ClassName().data(), &wc)) {
             return TRUE;
         }
 
@@ -105,7 +105,7 @@ class BaseWindow {
         wc.lpfnWndProc = DerivedWindow::StaticWndProc;
         wc.cbClsExtra = 0;
         wc.hInstance = WindowSetup::hmodule();
-        wc.lpszClassName = class_name().data();
+        wc.lpszClassName = ClassName().data();
         wc.hIcon = NULL;
         wc.hIconSm = NULL;
         wc.hCursor = NULL;

@@ -101,7 +101,7 @@ class CandidateWindowImpl : public CandidateWindow {
     void Create(HWND parent) {
         m_hwnd_parent = parent;
 
-        Create_(NULL, // clang-format off
+        BaseWindow::Create(NULL, // clang-format off
             kDwStyle,
             kDwExStyle,
             0, 0, 100, 100,
@@ -200,7 +200,7 @@ class CandidateWindowImpl : public CandidateWindow {
         return ::DefWindowProc(m_hwnd, uMsg, wParam, lParam);
     }
 
-    virtual std::wstring &class_name() const override {
+    virtual std::wstring const &ClassName() const override {
         return kCandidateWindowClassName;
     }
 
@@ -631,7 +631,7 @@ class CandidateWindowImpl : public CandidateWindow {
 
 } // namespace
 
-std::wstring kCandidateWindowClassName = L"CandidateWindow";
+const std::wstring kCandidateWindowClassName = L"CandidateWindow";
 
 GUID kCandidateWindowGuid // 829893fa-728d-11ec-8c6e-e0d46491b35a
     = {0x829893fa, 0x728d, 0x11ec, {0x8c, 0x6e, 0xe0, 0xd4, 0x64, 0x91, 0xb3, 0x5a}};

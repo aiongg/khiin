@@ -4,7 +4,9 @@
 
 #include <unordered_map>
 
+#include "BaseWindow.h"
 #include "DllModule.h"
+#include "PopupMenu.h"
 #include "Profile.h"
 #include "TextService.h"
 #include "common.h"
@@ -99,27 +101,9 @@ struct LangBarIndicatorImpl : implements<LangBarIndicatorImpl, ITfSource, ITfLan
 
     virtual STDMETHODIMP OnClick(TfLBIClick click, POINT pt, const RECT *prcArea) override {
         KHIIN_DEBUG("Clicked");
-        HWND dummyHWND = ::CreateWindowA("STATIC", "dummy", 0, 0, 0, 100, 100, NULL, NULL, NULL, NULL);
-        auto menu = ::CreatePopupMenu();
+        auto popup = PopupMenu::Create(m_service.get());
+        popup->Show(pt);
 
-        MENUITEMINFO info;
-        info.cbSize = sizeof(MENUITEMINFO);
-        info.fMask = MIIM_FTYPE | MIIM_STRING | MIIM_STATE;
-        info.fType = MFT_RADIOCHECK;
-        info.fState = MFS_CHECKED;
-        std::wstring text = L"Test";
-        info.dwTypeData = &text[0];
-
-        auto ret = ::InsertMenuItem(menu, 0, TRUE, &info);
-        KHIIN_DEBUG("Insert menu item: {}", ret);
-
-        if (ret == 0) {
-            auto err = ::GetLastError();
-            KHIIN_DEBUG("Error code: {:x}", err);
-        }
-
-        ::TrackPopupMenuEx(menu, TPM_RIGHTALIGN | TPM_BOTTOMALIGN | TPM_LEFTBUTTON, pt.x, pt.y,
-                         dummyHWND, NULL);
         return S_OK;
     }
 

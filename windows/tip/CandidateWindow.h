@@ -7,7 +7,7 @@
 
 namespace khiin::win32 {
 
-extern std::wstring kCandidateWindowClassName;
+extern const std::wstring kCandidateWindowClassName;
 extern GUID kCandidateWindowGuid;
 
 struct ColorScheme;
@@ -30,7 +30,7 @@ class CandidateWindow : public BaseWindow<CandidateWindow> {
 
     // BaseWindow
     virtual LRESULT CALLBACK WndProc(UINT uMsg, WPARAM wParam, LPARAM lParam) override = 0;
-    virtual std::wstring &class_name() const override = 0;
+    virtual std::wstring const &ClassName() const override = 0;
 
     virtual void Show() = 0;
     virtual void Hide() = 0;
