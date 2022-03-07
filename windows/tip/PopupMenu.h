@@ -10,7 +10,7 @@ struct TextService;
 class PopupMenu : public GuiWindow {
   public:
     static PopupMenu *Create(TextService *pservice);
-    //virtual void Show(POINT pt) = 0;
+    virtual void Show(POINT pt) = 0;
     //virtual void Hide() = 0;
 
     //+---------------------------------------------------------------------------

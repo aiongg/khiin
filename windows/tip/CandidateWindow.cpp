@@ -5,8 +5,10 @@
 #include <algorithm>
 
 #include "Colors.h"
-#include "Graphics.h"
+#include "Geometry.h"
 #include "GridLayout.h"
+#include "Metrics.h"
+#include "RenderFactory.h"
 #include "Utils.h"
 
 namespace khiin::win32 {
@@ -18,61 +20,6 @@ using namespace D2D1;
 using namespace messages;
 using namespace geometry;
 
-constexpr float kPadding = 8.0f;
-constexpr float kPaddingSmall = 4.0f;
-constexpr float kMarkerWidth = 4.0f;
-constexpr float kMarkerHeight = 16.0f;
-constexpr float kFontSize = 16.0f;
-constexpr float kFontSizeSmall = 16.0f;
-constexpr float kRowHeight = kFontSize + kPadding * 2;
-constexpr uint32_t min_col_width_single = 160;
-constexpr uint32_t min_col_width_expanded = 80;
-constexpr uint32_t kQsColWidth = static_cast<uint32_t>(kPaddingSmall * 2 + kMarkerWidth + kPadding * 2 + kFontSize);
-
-struct CWndMetrics {
-    float padding = kPadding;
-    float padding_sm = kPaddingSmall;
-    float marker_w = kMarkerWidth;
-    float marker_h = kMarkerHeight;
-    float font_size = kFontSize;
-    float font_size_sm = kFontSizeSmall;
-    float row_height = kRowHeight;
-    uint32_t min_col_w_single = 160;
-    uint32_t min_col_w_multi = 80;
-    uint32_t qs_col_w = kQsColWidth;
-};
-
-CWndMetrics GetMetricsForSize(DisplaySize size) {
-    auto metrics = CWndMetrics();
-    switch (size) {
-    case DisplaySize::M:
-        metrics.padding = 10.0f;
-        metrics.padding_sm = 5.0f;
-        metrics.font_size = 20.0f;
-        metrics.marker_h = 20.0f;
-        break;
-    case DisplaySize::L:
-        metrics.padding = 12.0f;
-        metrics.padding_sm = 6.0f;
-        metrics.font_size = 24.0f;
-        metrics.marker_h = 24.0f;
-        break;
-    case DisplaySize::XL:
-        metrics.padding = 14.0f;
-        metrics.padding_sm = 7.0f;
-        metrics.font_size = 28.0f;
-        metrics.marker_h = 24.0f;
-        break;
-    case DisplaySize::XXL:
-        metrics.padding = 16.0f;
-        metrics.padding_sm = 8.0f;
-        metrics.font_size = 32.0f;
-        metrics.marker_h = 24.0f;
-        break;
-    }
-    return metrics;
-}
-
 static inline auto divide_ceil(unsigned int x, unsigned int y) {
     return x / y + (x % y != 0);
 }
@@ -80,7 +27,6 @@ static inline auto divide_ceil(unsigned int x, unsigned int y) {
 static inline constexpr int kCornerRadius = 4;
 
 static const DWORD kDwStyle = WS_BORDER | WS_POPUP;
-
 static const DWORD kDwExStyle = WS_EX_TOPMOST | WS_EX_TOOLWINDOW | WS_EX_NOACTIVATE;
 
 float CenterTextLayoutY(IDWriteTextLayout *layout, float available_height) {
@@ -89,13 +35,6 @@ float CenterTextLayoutY(IDWriteTextLayout *layout, float available_height) {
     return (available_height - dwt_metrics.height) / 2;
 }
 
-#pragma warning(push)
-#pragma warning(disable : 26812)
-void SetRoundedCorners(HWND hwnd, DWM_WINDOW_CORNER_PREFERENCE pref) {
-    ::DwmSetWindowAttribute(hwnd, DWMWA_WINDOW_CORNER_PREFERENCE, &pref, sizeof(DWM_WINDOW_CORNER_PREFERENCE));
-}
-#pragma warning(pop)
-
 struct CandidateLayout {
     Candidate const *candidate = nullptr;
     com_ptr<IDWriteTextLayout> layout = com_ptr<IDWriteTextLayout>();
@@ -103,7 +42,7 @@ struct CandidateLayout {
 
 using CandidateLayoutGrid = GridLayoutContainer<CandidateLayout>;
 
-class CandidateWindow2Impl : public CandidateWindow2 {
+class CandidateWindow2Impl : public CandidateWindow {
   public:
     void Create(HWND parent) {
         BaseWindow::Create(NULL, // clang-format off
@@ -129,13 +68,10 @@ class CandidateWindow2Impl : public CandidateWindow2 {
         CalculateLayout();
     }
 
-    virtual void SetDisplaySize(int size) override {
-        m_metrics = GetMetricsForSize(static_cast<DisplaySize>(size));
+    virtual void OnConfigChanged(AppConfig* config) override {
+        GuiWindow::OnConfigChanged(config);
+        m_metrics = GetMetricsForSize(static_cast<DisplaySize>(config->appearance().size()));
         DiscardGraphicsResources();
-    }
-
-    virtual void SetAppearance(ColorScheme const &colors) override {
-        m_colors = colors;
     }
 
     virtual void RegisterCandidateSelectListener(CandidateSelectListener *listener) override {
@@ -144,30 +80,12 @@ class CandidateWindow2Impl : public CandidateWindow2 {
         }
     }
 
-    bool GetPointInClientDp(UINT x, UINT y, Point &pt) {
-        auto rect = RECT{};
-        ::GetClientRect(m_hwnd, &rect);
-        POINT pt_px{static_cast<LONG>(x), static_cast<LONG>(y)};
-
-        pt.x = static_cast<int>(x / m_scale);
-        pt.y = static_cast<int>(y / m_scale);
-
-        if (!::PtInRect(&rect, pt_px)) {
-            return false;
-        } else {
-            return true;
-        }
-    }
-
-    virtual void OnMouseMove(UINT x, UINT y) override {
-        auto pt = Point();
-        auto in_window = GetPointInClientDp(x, y, pt);
-
-        if (!in_window) {
+    virtual void OnMouseMove(Point pt) override {
+        if (!ClientHitTest(pt)) {
             m_mouse_focused_id = -1;
             return;
         }
-
+        ClientDp(pt);
         auto item = m_layout_grid.GetItemByHit(pt);
         auto hover_candidate_id = -1;
         if (item) {
@@ -179,20 +97,13 @@ class CandidateWindow2Impl : public CandidateWindow2 {
         }
     }
 
-    virtual void OnMouseLeave() override {
-        m_tracking_mouse = false;
-        m_mouse_focused_id = -1;
-    }
-
-    virtual bool OnClick(uint32_t x, uint32_t y) override {
-        auto pt = Point();
-        auto in_window = GetPointInClientDp(x, y, pt);
-
-        if (!in_window) {
+    virtual bool OnClick(Point pt) override {
+        if (!ClientHitTest(pt)) {
             Hide();
             return false;
         }
 
+        ClientDp(pt);
         auto item = m_layout_grid.GetItemByHit(pt);
         if (item) {
             NotifyCandidateSelectListeners(item->candidate);
@@ -208,34 +119,6 @@ class CandidateWindow2Impl : public CandidateWindow2 {
         }
     }
 
-    virtual void Show() override {
-        if (m_showing) {
-            return;
-        }
-
-        ::ShowWindow(m_hwnd, SW_SHOWNA);
-        m_showing = true;
-
-        if (!m_tracking_mouse) {
-            ::SetCapture(m_hwnd);
-            m_tracking_mouse = true;
-        }
-    }
-
-    virtual void Hide() override {
-        if (!m_showing) {
-            return;
-        }
-
-        ::ShowWindow(m_hwnd, SW_HIDE);
-        m_showing = false;
-
-        if (m_tracking_mouse) {
-            ::ReleaseCapture();
-            m_tracking_mouse = false;
-        }
-    }
-
   private:
     void DiscardGraphicsResources() {
         m_target = nullptr;
@@ -246,19 +129,11 @@ class CandidateWindow2Impl : public CandidateWindow2 {
 
     void EnsureTextFormat() {
         if (!m_textformat) {
-            check_hresult(m_dwrite->CreateTextFormat(L"Arial", NULL, DWRITE_FONT_WEIGHT_REGULAR,
-                                                     DWRITE_FONT_STYLE_NORMAL, DWRITE_FONT_STRETCH_NORMAL,
-                                                     m_metrics.font_size, L"en-us", m_textformat.put()));
-            check_hresult(m_textformat->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_LEADING));
-            check_hresult(m_textformat->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_NEAR));
+            m_textformat = m_factory->CreateTextFormat("Arial", m_metrics.font_size);
         }
 
         if (!m_textformat_sm) {
-            check_hresult(m_dwrite->CreateTextFormat(L"Arial", NULL, DWRITE_FONT_WEIGHT_REGULAR,
-                                                     DWRITE_FONT_STYLE_NORMAL, DWRITE_FONT_STRETCH_NORMAL,
-                                                     m_metrics.font_size_sm, L"en-us", m_textformat_sm.put()));
-            check_hresult(m_textformat_sm->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_LEADING));
-            check_hresult(m_textformat_sm->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_NEAR));
+            m_textformat_sm = m_factory->CreateTextFormat("Arial", m_metrics.font_size_sm);
         }
     }
 
@@ -274,10 +149,7 @@ class CandidateWindow2Impl : public CandidateWindow2 {
 
     void AddLayoutToGrid(int row, int col, Candidate const *candidate) {
         auto &value = Utils::Widen(candidate->value());
-        auto layout = com_ptr<IDWriteTextLayout>();
-        check_hresult(m_dwrite->CreateTextLayout(value.c_str(), static_cast<UINT32>(value.size() + 1),
-                                                 m_textformat.get(), static_cast<float>(m_max_width),
-                                                 static_cast<float>(m_max_height), layout.put()));
+        auto layout = m_factory->CreateTextLayout(candidate->value(), m_textformat, m_max_width, m_max_height);
 
         DWRITE_TEXT_METRICS dwtm;
         check_hresult(layout->GetMetrics(&dwtm));
@@ -289,7 +161,7 @@ class CandidateWindow2Impl : public CandidateWindow2 {
 
     void CalculateLayout() {
         KHIIN_TRACE("");
-        if (!m_dwrite || !m_candidate_grid) {
+        if (!m_factory || !m_candidate_grid) {
             return;
         }
 
@@ -356,11 +228,8 @@ class CandidateWindow2Impl : public CandidateWindow2 {
         DrawFocusedMarker(left, top);
     }
 
-    void DrawQuickSelect(std::wstring label, float left, float top) {
-        auto layout = com_ptr<IDWriteTextLayout>();
-        check_hresult(m_dwrite->CreateTextLayout(label.c_str(), static_cast<UINT32>(label.size() + 1),
-                                                 m_textformat_sm.get(), static_cast<float>(m_metrics.qs_col_w),
-                                                 m_metrics.row_height, layout.put()));
+    void DrawQuickSelect(std::string label, float left, float top) {
+        auto layout = m_factory->CreateTextLayout(label, m_textformat_sm, m_metrics.qs_col_w, m_metrics.row_height);
         auto x = left + m_metrics.marker_w * 2 + m_metrics.padding;
         auto y = top + CenterTextLayoutY(layout.get(), m_metrics.row_height);
         if (m_quickselect_active) {
@@ -413,7 +282,7 @@ class CandidateWindow2Impl : public CandidateWindow2 {
                 }
 
                 if (col_idx == m_quickselect_col) {
-                    DrawQuickSelect(std::to_wstring(qs_label), left, top);
+                    DrawQuickSelect(std::to_string(qs_label), left, top);
                     ++qs_label;
                 }
 
@@ -452,8 +321,7 @@ class CandidateWindow2Impl : public CandidateWindow2 {
     CandidateLayoutGrid m_layout_grid;
     CandidateGrid *m_candidate_grid = nullptr;
     RECT m_text_rect = {};
-    CWndMetrics m_metrics = GetMetricsForSize(DisplaySize::S);
-    ColorScheme m_colors;
+    Metrics m_metrics = GetMetricsForSize(DisplaySize::S);
     DisplayMode m_display_mode = DisplayMode::ShortColumn;
     int m_focused_id = -1;
     size_t m_quickselect_col = 0;
@@ -471,7 +339,7 @@ const std::wstring kCandidateWindowClassName = L"CandidateWindow";
 GUID kCandidateWindowGuid // 829893fa-728d-11ec-8c6e-e0d46491b35a
     = {0x829893fa, 0x728d, 0x11ec, {0x8c, 0x6e, 0xe0, 0xd4, 0x64, 0x91, 0xb3, 0x5a}};
 
-CandidateWindow2 *CandidateWindow2::Create(HWND parent) {
+CandidateWindow *CandidateWindow::Create(HWND parent) {
     auto impl = new CandidateWindow2Impl();
     impl->Create(parent);
     return impl;

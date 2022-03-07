@@ -2,9 +2,11 @@
 
 #include "GuiWindow.h"
 
-#include "Graphics.h"
+#include "RenderFactory.h"
 
 namespace khiin::win32 {
+using namespace geometry;
+using namespace messages;
 
 #pragma warning(push)
 #pragma warning(disable : 26812)
@@ -12,6 +14,10 @@ void SetRoundedCorners(HWND hwnd, DWM_WINDOW_CORNER_PREFERENCE pref) {
     ::DwmSetWindowAttribute(hwnd, DWMWA_WINDOW_CORNER_PREFERENCE, &pref, sizeof(DWM_WINDOW_CORNER_PREFERENCE));
 }
 #pragma warning(pop)
+
+GuiWindow::GuiWindow() = default;
+
+GuiWindow::~GuiWindow() = default;
 
 LRESULT GuiWindow::WndProc(UINT uMsg, WPARAM wParam, LPARAM lParam) {
     switch (uMsg) {
@@ -39,15 +45,15 @@ LRESULT GuiWindow::WndProc(UINT uMsg, WPARAM wParam, LPARAM lParam) {
         KHIIN_TRACE("WM_MOUSEACTIVATE");
         break;
     case WM_MOUSEMOVE:
-        OnMouseMove(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+        OnMouseMove(Point{GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam)});
         break;
     case WM_MOUSELEAVE:
         KHIIN_TRACE("WM_MOUSELEAVE");
-        OnMouseLeave();
+        // OnMouseLeave();
         break;
     case WM_LBUTTONDOWN:
         KHIIN_DEBUG("LBUTTONDOWN");
-        if (OnClick(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam))) {
+        if (OnClick(Point{GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam)})) {
             return 0;
         }
         break;
@@ -71,10 +77,8 @@ LRESULT GuiWindow::WndProc(UINT uMsg, WPARAM wParam, LPARAM lParam) {
     return ::DefWindowProc(m_hwnd, uMsg, wParam, lParam);
 }
 
-
 void GuiWindow::OnCreate() {
-    m_d2d1 = Graphics::CreateD2D1Factory();
-    m_dwrite = Graphics::CreateDwriteFactory();
+    m_factory = RenderFactory::Create();
     m_dpi = ::GetDpiForWindow(m_hwnd);
     m_dpi_parent = ::GetDpiForWindow(::GetParent(m_hwnd));
     m_scale = static_cast<float>(m_dpi / USER_DEFAULT_SCREEN_DPI);
@@ -94,6 +98,7 @@ void GuiWindow::OnDpiChanged(WORD dpi, RECT *pNewSize) {
     if (m_target) {
         m_target->SetDpi(dpi, dpi);
     }
+
     m_dpi = dpi;
     m_dpi_parent = ::GetDpiForWindow(::GetParent(m_hwnd));
     m_scale = static_cast<float>(m_dpi_parent) / USER_DEFAULT_SCREEN_DPI;
@@ -106,7 +111,35 @@ void GuiWindow::OnResize(uint32_t width, uint32_t height) {
     KHIIN_TRACE("");
     EnsureRenderTarget();
     if (m_target) {
-        //m_target->Resize(D2D1_SIZE_U{width, height});
+        // m_target->Resize(D2D1_SIZE_U{width, height});
+    }
+}
+
+void GuiWindow::Show() {
+    if (m_showing) {
+        return;
+    }
+
+    ::ShowWindow(m_hwnd, SW_SHOWNA);
+    m_showing = true;
+
+    if (!m_tracking_mouse) {
+        ::SetCapture(m_hwnd);
+        m_tracking_mouse = true;
+    }
+}
+
+void GuiWindow::Hide() {
+    if (!m_showing) {
+        return;
+    }
+
+    ::ShowWindow(m_hwnd, SW_HIDE);
+    m_showing = false;
+
+    if (m_tracking_mouse) {
+        ::ReleaseCapture();
+        m_tracking_mouse = false;
     }
 }
 
@@ -115,23 +148,38 @@ bool GuiWindow::Showing() {
 }
 
 void GuiWindow::EnsureRenderTarget() {
-    if (m_d2d1 && m_hwnd && !m_target) {
-        m_target = Graphics::CreateDCRenderTarget(m_d2d1);
+    if (m_factory && m_hwnd && !m_target) {
+        m_target = m_factory->CreateDCRenderTarget();
         if (m_target) {
             m_target->SetDpi(static_cast<float>(m_dpi), static_cast<float>(m_dpi));
         }
     }
 }
 
-void GuiWindow::OnMouseMove(uint32_t x, uint32_t y) {
+void GuiWindow::OnConfigChanged(AppConfig *config) {
+    m_config = config;
+    m_colors = Colors::GetScheme(config);
+    m_language = config->appearance().ui_language();
+}
+
+bool GuiWindow::ClientHitTest(Point const &pt) {
+    auto rect = RECT{};
+    ::GetClientRect(m_hwnd, &rect);
+    POINT pt_px{static_cast<long>(pt.x), static_cast<long>(pt.y)};
+
+    return ::PtInRect(&rect, pt_px);
+}
+
+void GuiWindow::ClientDp(Point &pt) {
+    pt.x = static_cast<int>(pt.x / m_scale);
+    pt.y = static_cast<int>(pt.y / m_scale);
+}
+
+void GuiWindow::OnMouseMove(Point pt) {
     // override
 }
 
-void GuiWindow::OnMouseLeave() {
-    // override
-}
-
-bool GuiWindow::OnClick(uint32_t x, uint32_t y) {
+bool GuiWindow::OnClick(Point pt) {
     // override
     return false;
 }

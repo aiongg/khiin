@@ -5,6 +5,7 @@
 #include <unordered_map>
 
 #include "BaseWindow.h"
+#include "Config.h"
 #include "DllModule.h"
 #include "PopupMenu.h"
 #include "Profile.h"
@@ -14,10 +15,13 @@
 namespace khiin::win32 {
 namespace {
 using namespace winrt;
+using namespace messages;
 
 volatile HMODULE g_module;
 
-struct LangBarIndicatorImpl : implements<LangBarIndicatorImpl, ITfSource, ITfLangBarItemButton, LangBarIndicator> {
+struct LangBarIndicatorImpl :
+    implements<LangBarIndicatorImpl, ITfSource, ITfLangBarItemButton, LangBarIndicator>,
+    ConfigChangeListener {
     LangBarIndicatorImpl() {
         m_info.clsidService = Profile::textServiceGuid;
         m_info.guidItem = GUID_LBI_INPUTMODE;
@@ -30,6 +34,8 @@ struct LangBarIndicatorImpl : implements<LangBarIndicatorImpl, ITfSource, ITfLan
         auto langbarmgr = langbar_item_mgr();
         check_hresult(langbarmgr->AddItem(this));
         m_popup = std::unique_ptr<PopupMenu>(PopupMenu::Create(m_service.get()));
+        OnConfigChanged(m_service->config());
+        m_service->RegisterConfigChangeListener(this);
     }
 
     virtual void Shutdown() override {
@@ -47,6 +53,18 @@ struct LangBarIndicatorImpl : implements<LangBarIndicatorImpl, ITfSource, ITfLan
         auto langbarmgr = com_ptr<ITfLangBarItemMgr>();
         check_hresult(threadmgr->QueryInterface(IID_ITfLangBarItemMgr, langbarmgr.put_void()));
         return langbarmgr;
+    }
+
+    //+---------------------------------------------------------------------------
+    //
+    // ConfigChangeListener
+    //
+    //----------------------------------------------------------------------------
+
+    virtual void OnConfigChanged(AppConfig *config) override {
+        if (m_popup) {
+            m_popup->OnConfigChanged(config);
+        }
     }
 
     //+---------------------------------------------------------------------------
@@ -107,7 +125,7 @@ struct LangBarIndicatorImpl : implements<LangBarIndicatorImpl, ITfSource, ITfLan
     virtual STDMETHODIMP OnClick(TfLBIClick click, POINT pt, const RECT *prcArea) override {
         KHIIN_DEBUG("Clicked");
         auto popup = PopupMenu::Create(m_service.get());
-        popup->Show();
+        popup->Show(pt);
 
         return S_OK;
     }

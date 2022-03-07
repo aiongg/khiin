@@ -241,7 +241,7 @@
     <ClInclude Include="DisplayAttributeInfoEnum.h" />
     <ClInclude Include="Files.h" />
     <ClInclude Include="Geometry.h" />
-    <ClInclude Include="Graphics.h" />
+    <ClInclude Include="RenderFactory.h" />
     <ClInclude Include="GridLayout.h" />
     <ClInclude Include="GuiWindow.h" />
     <ClInclude Include="hresult.h" />
@@ -252,6 +252,7 @@
     <ClInclude Include="LangBarIndicator.h" />
     <ClInclude Include="Logger.h" />
     <ClInclude Include="Colors.h" />
+    <ClInclude Include="Metrics.h" />
     <ClInclude Include="PopupMenu.h" />
     <ClInclude Include="TextService.h" />
     <ClInclude Include="log.h" />
@@ -262,6 +263,7 @@
     <ClInclude Include="SinkManager.h" />
     <ClInclude Include="TextEditSink.h" />
     <ClInclude Include="ThreadMgrEventSink.h" />
+    <ClInclude Include="UiStrings.h" />
     <ClInclude Include="Utils.h" />
   </ItemGroup>
   <ItemGroup>
@@ -290,7 +292,7 @@
     <ClCompile Include="CompositionMgr.cpp" />
     <ClCompile Include="DisplayAttributeInfoEnum.cpp" />
     <ClCompile Include="Files.cpp" />
-    <ClCompile Include="Graphics.cpp" />
+    <ClCompile Include="RenderFactory.cpp" />
     <ClCompile Include="GuiWindow.cpp" />
     <ClCompile Include="KeyEvent.cpp" />
     <ClCompile Include="KeyEventSink.cpp" />
@@ -299,6 +301,7 @@
     <ClCompile Include="EngineController.cpp" />
     <ClCompile Include="LangBarIndicator.cpp" />
     <ClCompile Include="Logger.cpp" />
+    <ClCompile Include="Metrics.cpp" />
     <ClCompile Include="PopupMenu.cpp" />
     <ClCompile Include="TextService.cpp" />
     <ClCompile Include="pch.cpp">
@@ -310,6 +313,7 @@
     <ClCompile Include="Registrar.cpp" />
     <ClCompile Include="TextEditSink.cpp" />
     <ClCompile Include="ThreadMgrEventSink.cpp" />
+    <ClCompile Include="UiStrings.cpp" />
     <ClCompile Include="Utils.cpp" />
   </ItemGroup>
   <ItemGroup>

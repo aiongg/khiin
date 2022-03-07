@@ -10,8 +10,11 @@
 #define IDI_MODE_BASIC                  106
 #define IDI_MODE_SINGLE                 107
 #define IDR_POPUP_MENU                  108
-#define ID_TEST1                        1000
-#define ID_TEST2                        1001
+#define IDS_CONTINUOUS_MODE             2000
+#define IDS_BASIC_MODE                  2001
+#define IDS_MANUAL_MODE                 2002
+#define IDS_DIRECT_MODE                 2003
+#define IDS_OPEN_SETTINGS               2004
 
 // Next default values for new objects
 // 
@@ -19,7 +22,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        109
 #define _APS_NEXT_COMMAND_VALUE         40001
-#define _APS_NEXT_CONTROL_VALUE         1002
+#define _APS_NEXT_CONTROL_VALUE         1001
 #define _APS_NEXT_SYMED_VALUE           128
 #endif
 #endif

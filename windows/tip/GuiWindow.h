@@ -1,24 +1,36 @@
 #pragma once
 
 #include "BaseWindow.h"
+#include "Colors.h"
+#include "Geometry.h"
+#include "common.h"
 
 namespace khiin::win32 {
 
+class RenderFactory;
+
 class GuiWindow : public BaseWindow<GuiWindow> {
   public:
+    using Point = geometry::Point;
+    GuiWindow();
+    ~GuiWindow();
     virtual LRESULT WndProc(UINT uMsg, WPARAM wParam, LPARAM lParam) override;
 
-    // Subclasses should implement to use the mouse
-    virtual void OnMouseMove(uint32_t x, uint32_t y);
-    virtual void OnMouseLeave();
-    virtual bool OnClick(uint32_t x, uint32_t y);
-    
-    // Required
-    virtual void Show() = 0;
-    virtual void Hide() = 0;
-    virtual void Render() = 0;
-    virtual bool Showing();
+    // To enable mouse tracking & click handling, subclasses must
+    // implement |OnMouseMove| and |OnClick|, as well as call |::SetCapture|
+    // before the mouse will be usable, e.g. in |Show|.
+    // (Don't forget to call |::ReleaseCapture| in |Hide|.)
+    virtual void OnMouseMove(Point pt);
+    virtual bool OnClick(Point pt);
 
+    virtual void Show();
+    virtual void Hide();
+    virtual bool Showing();
+    virtual void OnConfigChanged(messages::AppConfig *config);
+
+    // Required
+    virtual void Render() = 0;
+     
     // Load graphics resources
     void OnCreate();
     void OnMonitorSizeChanged();
@@ -27,16 +39,21 @@ class GuiWindow : public BaseWindow<GuiWindow> {
     void EnsureRenderTarget();
 
   protected:
-    bool m_showing = false;
-    winrt::com_ptr<ID2D1Factory1> m_d2d1 = nullptr;
-    winrt::com_ptr<IDWriteFactory3> m_dwrite = nullptr;
-    winrt::com_ptr<ID2D1DCRenderTarget> m_target = nullptr;
+    bool ClientHitTest(Point const &pt);
+    void ClientDp(Point &pt);
 
+    bool m_showing = false;
+    bool m_tracking_mouse = false;
     uint32_t m_max_width = 0;
     uint32_t m_max_height = 0;
     uint32_t m_dpi_parent = USER_DEFAULT_SCREEN_DPI;
     uint32_t m_dpi = USER_DEFAULT_SCREEN_DPI;
     float m_scale = 1.0f;
+    std::unique_ptr<RenderFactory> m_factory = nullptr;
+    winrt::com_ptr<ID2D1DCRenderTarget> m_target = nullptr;
+    messages::AppConfig *m_config = nullptr;
+    ColorScheme m_colors;
+    messages::UiLanguage m_language = messages::UIL_TAI_HANLO;
 };
 
 } // namespace khiin::win32

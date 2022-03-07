@@ -71,7 +71,7 @@
     <ClInclude Include="Geometry.h">
       <Filter>Renderer</Filter>
     </ClInclude>
-    <ClInclude Include="Graphics.h">
+    <ClInclude Include="RenderFactory.h">
       <Filter>Renderer</Filter>
     </ClInclude>
     <ClInclude Include="GridLayout.h">
@@ -134,9 +134,15 @@
     <ClInclude Include="GuiWindow.h">
       <Filter>Renderer</Filter>
     </ClInclude>
+    <ClInclude Include="Metrics.h">
+      <Filter>Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="UiStrings.h">
+      <Filter>Common</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Graphics.cpp">
+    <ClCompile Include="RenderFactory.cpp">
       <Filter>Renderer</Filter>
     </ClCompile>
     <ClCompile Include="CandidatePager.cpp">
@@ -228,6 +234,12 @@
     </ClCompile>
     <ClCompile Include="GuiWindow.cpp">
       <Filter>Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="Metrics.cpp">
+      <Filter>Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="UiStrings.cpp">
+      <Filter>Common</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

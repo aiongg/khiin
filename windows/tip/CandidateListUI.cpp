@@ -180,11 +180,10 @@ struct CandidateListUIImpl :
     //
     //----------------------------------------------------------------------------
 
-    virtual void OnConfigChanged(messages::AppConfig *config) override {
+    virtual void OnConfigChanged(AppConfig *config) override {
         KHIIN_TRACE("");
         if (m_candidate_window) {
-            m_candidate_window->SetAppearance(Colors::GetScheme(config));
-            m_candidate_window->SetDisplaySize(config->appearance().size());
+            m_candidate_window->OnConfigChanged(config);
         }
     }
 
@@ -411,7 +410,7 @@ struct CandidateListUIImpl :
             parentWnd = ::GetFocus();
         }
 
-        m_candidate_window = std::unique_ptr<CandidateWindow2>(CandidateWindow2::Create(parentWnd));
+        m_candidate_window = std::unique_ptr<CandidateWindow>(CandidateWindow::Create(parentWnd));
         OnConfigChanged(m_service->config());
         m_candidate_window->RegisterCandidateSelectListener(this);
     }
@@ -503,7 +502,7 @@ struct CandidateListUIImpl :
     com_ptr<ITfContext> m_context = nullptr;
     CandidateList m_candidate_list = {};
     CandidateList m_prev_candidate_list = {};
-    std::unique_ptr<CandidateWindow2> m_candidate_window = nullptr;
+    std::unique_ptr<CandidateWindow> m_candidate_window = nullptr;
     std::unique_ptr<CandidatePager> m_pager = nullptr;
     EditState m_edit_state = EditState::EDIT_EMPTY;
     CandidateGrid m_candidate_grid = CandidateGrid();
