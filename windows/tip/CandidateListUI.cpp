@@ -411,7 +411,7 @@ struct CandidateListUIImpl :
             parentWnd = ::GetFocus();
         }
 
-        m_candidate_window = std::unique_ptr<CandidateWindow>(CandidateWindow::Create(parentWnd));
+        m_candidate_window = std::unique_ptr<CandidateWindow2>(CandidateWindow2::Create(parentWnd));
         OnConfigChanged(m_service->config());
         m_candidate_window->RegisterCandidateSelectListener(this);
     }
@@ -460,6 +460,8 @@ struct CandidateListUIImpl :
         auto focused_col = m_pager->GetFocusedColumnIndex();
         auto display_mode = m_pager->GetDisplayMode();
 
+        KHIIN_DEBUG("m_text_rect: {} {}", m_text_rect.left, m_text_rect.top);
+
         m_candidate_window->SetCandidates(display_mode, &m_candidate_grid, focused_cand_id, focused_col, qs_active,
                                           m_text_rect);
         UpdateUIElement();
@@ -501,7 +503,7 @@ struct CandidateListUIImpl :
     com_ptr<ITfContext> m_context = nullptr;
     CandidateList m_candidate_list = {};
     CandidateList m_prev_candidate_list = {};
-    std::unique_ptr<CandidateWindow> m_candidate_window = nullptr;
+    std::unique_ptr<CandidateWindow2> m_candidate_window = nullptr;
     std::unique_ptr<CandidatePager> m_pager = nullptr;
     EditState m_edit_state = EditState::EDIT_EMPTY;
     CandidateGrid m_candidate_grid = CandidateGrid();

@@ -131,6 +131,9 @@
     <ClInclude Include="PopupMenu.h">
       <Filter>Renderer</Filter>
     </ClInclude>
+    <ClInclude Include="GuiWindow.h">
+      <Filter>Renderer</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Graphics.cpp">
@@ -221,6 +224,9 @@
       <Filter>TextService</Filter>
     </ClCompile>
     <ClCompile Include="PopupMenu.cpp">
+      <Filter>Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="GuiWindow.cpp">
       <Filter>Renderer</Filter>
     </ClCompile>
   </ItemGroup>

@@ -29,12 +29,17 @@ struct LangBarIndicatorImpl : implements<LangBarIndicatorImpl, ITfSource, ITfLan
         m_service.copy_from(pService);
         auto langbarmgr = langbar_item_mgr();
         check_hresult(langbarmgr->AddItem(this));
+        m_popup = std::unique_ptr<PopupMenu>(PopupMenu::Create(m_service.get()));
     }
 
     virtual void Shutdown() override {
         auto langbarmgr = langbar_item_mgr();
         check_hresult(langbarmgr->RemoveItem(this));
         m_service = nullptr;
+        if (m_popup && m_popup->hwnd()) {
+            ::DestroyWindow(m_popup->hwnd());
+        }
+        m_popup.reset();
     }
 
     com_ptr<ITfLangBarItemMgr> langbar_item_mgr() {
@@ -102,7 +107,7 @@ struct LangBarIndicatorImpl : implements<LangBarIndicatorImpl, ITfSource, ITfLan
     virtual STDMETHODIMP OnClick(TfLBIClick click, POINT pt, const RECT *prcArea) override {
         KHIIN_DEBUG("Clicked");
         auto popup = PopupMenu::Create(m_service.get());
-        popup->Show(pt);
+        popup->Show();
 
         return S_OK;
     }
@@ -153,6 +158,7 @@ struct LangBarIndicatorImpl : implements<LangBarIndicatorImpl, ITfSource, ITfLan
   private:
     com_ptr<TextService> m_service = nullptr;
     std::unordered_map<DWORD, com_ptr<ITfLangBarItemSink>> m_sinks;
+    std::unique_ptr<PopupMenu> m_popup = nullptr;
 
     TF_LANGBARITEMINFO m_info;
     DWORD m_status = 0;

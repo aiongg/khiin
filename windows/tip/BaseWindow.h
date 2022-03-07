@@ -33,13 +33,6 @@ class BaseWindow {
         }
     }
 
-    //BaseWindow() = default;
-    //~BaseWindow() {
-    //    if (m_hwnd != NULL) {
-    //        ::DestroyWindow(m_hwnd);
-    //    }
-    //}
-
     HWND hwnd() const {
         return m_hwnd;
     }
@@ -57,7 +50,7 @@ class BaseWindow {
                  int nWidth = CW_USEDEFAULT,
                  int nHeight = CW_USEDEFAULT,
                  HWND hWndParent = HWND_DESKTOP,
-                 HMENU hMenu = 0) { // clang-format on
+                 HMENU hMenu = NULL) { // clang-format on
         WINRT_ASSERT(WindowSetup::hmodule());
         auto registered = RegisterIfNotExists();
 
@@ -85,7 +78,7 @@ class BaseWindow {
         return true;
     }
 
-    //void Destroy_() {
+    // void Destroy_() {
     //    if (m_hwnd) {
     //        ::DestroyWindow(m_hwnd);
     //    }

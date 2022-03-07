@@ -89,6 +89,13 @@ float CenterTextLayoutY(IDWriteTextLayout *layout, float available_height) {
     return (available_height - dwt_metrics.height) / 2;
 }
 
+#pragma warning(push)
+#pragma warning(disable : 26812)
+void SetRoundedCorners(HWND hwnd, DWM_WINDOW_CORNER_PREFERENCE pref) {
+    ::DwmSetWindowAttribute(hwnd, DWMWA_WINDOW_CORNER_PREFERENCE, &pref, sizeof(DWM_WINDOW_CORNER_PREFERENCE));
+}
+#pragma warning(pop)
+
 struct CandidateLayout {
     Candidate const *candidate = nullptr;
     com_ptr<IDWriteTextLayout> layout = com_ptr<IDWriteTextLayout>();
@@ -96,117 +103,108 @@ struct CandidateLayout {
 
 using CandidateLayoutGrid = GridLayoutContainer<CandidateLayout>;
 
-class CandidateWindowImpl : public CandidateWindow {
+class CandidateWindow2Impl : public CandidateWindow2 {
   public:
     void Create(HWND parent) {
-        m_hwnd_parent = parent;
-
         BaseWindow::Create(NULL, // clang-format off
             kDwStyle,
             kDwExStyle,
             0, 0, 100, 100,
-            m_hwnd_parent,
+            parent,
             NULL); // clang-format on
-    }
-
-    virtual LRESULT CALLBACK WndProc(UINT uMsg, WPARAM wParam, LPARAM lParam) override {
-        switch (uMsg) {
-        case WM_NCCREATE:
-            KHIIN_TRACE("WM_NCCREATE");
-#pragma warning(push)
-#pragma warning(disable : 26812)
-            ::DwmSetWindowAttribute(m_hwnd, DWMWA_WINDOW_CORNER_PREFERENCE, &m_border_radius,
-                                    sizeof(DWM_WINDOW_CORNER_PREFERENCE));
-#pragma warning(pop)
-            break;
-        case WM_CREATE:
-            KHIIN_TRACE("WM_CREATE");
-            try {
-                OnCreate();
-                return 0;
-            } catch (...) {
-                return -1;
-            }
-        case WM_DISPLAYCHANGE:
-            KHIIN_TRACE("WM_DISPLAYCHANGE");
-            OnMonitorSizeChange();
-            break;
-        case WM_DPICHANGED:
-            KHIIN_TRACE("WM_DPICHANGED");
-            OnDpiChanged(HIWORD(wParam), (RECT *)lParam);
-            return 0;
-        case WM_MOUSEACTIVATE:
-            KHIIN_TRACE("WM_MOUSEACTIVATE");
-            break;
-        case WM_MOUSEMOVE:
-            OnMouseMove(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
-            break;
-        case WM_MOUSELEAVE:
-            KHIIN_TRACE("WM_MOUSELEAVE");
-            OnMouseLeave();
-            break;
-        case WM_LBUTTONDOWN:
-            if (HandleClick(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam))) {
-                return 0;
-            }
-            break;
-        case WM_PAINT:
-            KHIIN_TRACE("WM_PAINT");
-            Render();
-            return 0;
-        case WM_SIZE:
-            KHIIN_TRACE("WM_SIZE");
-            OnResize(LOWORD(lParam), HIWORD(lParam));
-            break;
-        case WM_WINDOWPOSCHANGING:
-            KHIIN_TRACE("WM_WINDOWPOSCHANGING");
-            OnMonitorSizeChange();
-            break;
-        case WM_NCCALCSIZE:
-            KHIIN_TRACE("WM_NCCALCSIZE");
-            break;
-        case WM_NCPAINT:
-            KHIIN_TRACE("WM_NCPAINT");
-            break;
-        case WM_NCACTIVATE:
-            KHIIN_TRACE("WM_NCACTIVATE");
-            break;
-        case WM_ACTIVATE:
-            KHIIN_TRACE("WM_ACTIVATE");
-            break;
-        case WM_DESTROY:
-            KHIIN_TRACE("WM_DESTROY");
-            break;
-        case WM_NCDESTROY:
-            KHIIN_TRACE("WM_NCDESTROY");
-            break;
-        case WM_MOVE:
-            KHIIN_TRACE("WM_MOVE");
-            break;
-        case WM_WINDOWPOSCHANGED:
-            KHIIN_TRACE("WM_WINDOWPOSCHANGED");
-            break;
-        case WM_SHOWWINDOW:
-            KHIIN_TRACE("WM_SHOWWINDOW");
-            break;
-        case WM_ERASEBKGND:
-            KHIIN_TRACE("WM_ERASEBKGND");
-            break;
-        default:
-            KHIIN_TRACE("Unknown WM ({})", uMsg);
-            break;
-        }
-
-        return ::DefWindowProc(m_hwnd, uMsg, wParam, lParam);
     }
 
     virtual std::wstring const &ClassName() const override {
         return kCandidateWindowClassName;
     }
 
+    virtual void SetCandidates(DisplayMode display_mode, CandidateGrid *candidate_grid, int focused_id, size_t qs_col,
+                               bool qs_active, RECT text_position) override {
+        m_candidate_grid = candidate_grid;
+        m_display_mode = display_mode;
+        m_focused_id = focused_id;
+        m_quickselect_col = qs_col;
+        m_quickselect_active = qs_active;
+        m_text_rect = text_position;
+        CalculateLayout();
+    }
+
+    virtual void SetDisplaySize(int size) override {
+        m_metrics = GetMetricsForSize(static_cast<DisplaySize>(size));
+        DiscardGraphicsResources();
+    }
+
+    virtual void SetAppearance(ColorScheme const &colors) override {
+        m_colors = colors;
+    }
+
     virtual void RegisterCandidateSelectListener(CandidateSelectListener *listener) override {
         if (std::find(m_focus_listeners.begin(), m_focus_listeners.end(), listener) == m_focus_listeners.end()) {
             m_focus_listeners.push_back(listener);
+        }
+    }
+
+    bool GetPointInClientDp(UINT x, UINT y, Point &pt) {
+        auto rect = RECT{};
+        ::GetClientRect(m_hwnd, &rect);
+        POINT pt_px{static_cast<LONG>(x), static_cast<LONG>(y)};
+
+        pt.x = static_cast<int>(x / m_scale);
+        pt.y = static_cast<int>(y / m_scale);
+
+        if (!::PtInRect(&rect, pt_px)) {
+            return false;
+        } else {
+            return true;
+        }
+    }
+
+    virtual void OnMouseMove(UINT x, UINT y) override {
+        auto pt = Point();
+        auto in_window = GetPointInClientDp(x, y, pt);
+
+        if (!in_window) {
+            m_mouse_focused_id = -1;
+            return;
+        }
+
+        auto item = m_layout_grid.GetItemByHit(pt);
+        auto hover_candidate_id = -1;
+        if (item) {
+            hover_candidate_id = item->candidate->id();
+        }
+        if (m_mouse_focused_id != hover_candidate_id) {
+            m_mouse_focused_id = hover_candidate_id;
+            ::RedrawWindow(m_hwnd, NULL, NULL, RDW_INVALIDATE | RDW_UPDATENOW);
+        }
+    }
+
+    virtual void OnMouseLeave() override {
+        m_tracking_mouse = false;
+        m_mouse_focused_id = -1;
+    }
+
+    virtual bool OnClick(uint32_t x, uint32_t y) override {
+        auto pt = Point();
+        auto in_window = GetPointInClientDp(x, y, pt);
+
+        if (!in_window) {
+            Hide();
+            return false;
+        }
+
+        auto item = m_layout_grid.GetItemByHit(pt);
+        if (item) {
+            NotifyCandidateSelectListeners(item->candidate);
+        }
+        return true;
+    }
+
+    void NotifyCandidateSelectListeners(Candidate const *candidate) {
+        for (auto listener : m_focus_listeners) {
+            if (listener) {
+                listener->OnSelectCandidate(candidate->id());
+            }
         }
     }
 
@@ -238,138 +236,12 @@ class CandidateWindowImpl : public CandidateWindow {
         }
     }
 
-    virtual bool Showing() override {
-        return m_showing;
-    }
-
-    virtual void SetCandidates(DisplayMode display_mode, CandidateGrid *candidate_grid, int focused_id, size_t qs_col,
-                               bool qs_active, RECT text_position) override {
-        m_candidate_grid = candidate_grid;
-        m_display_mode = display_mode;
-        m_focused_id = focused_id;
-        m_quickselect_col = qs_col;
-        m_quickselect_active = qs_active;
-        m_text_rect = text_position;
-        CalculateLayout();
-    }
-
-    virtual void SetDisplaySize(int size) override {
-        m_metrics = GetMetricsForSize(static_cast<DisplaySize>(size));
-        DiscardGraphicsResources();
-    }
-
-    virtual void SetAppearance(ColorScheme const &colors) override {
-        m_colors = colors;
-    }
-
   private:
-    void OnCreate() {
-        m_d2d1 = Graphics::CreateD2D1Factory();
-        m_dwrite = Graphics::CreateDwriteFactory();
-        m_dpi = ::GetDpiForWindow(m_hwnd);
-        m_dpi_parent = ::GetDpiForWindow(m_hwnd_parent);
-        m_scale = static_cast<float>(m_dpi / USER_DEFAULT_SCREEN_DPI);
-        OnMonitorSizeChange();
-    }
-
-    void OnDpiChanged(WORD dpi, RECT *pNewSize) {
-        if (m_dctarget) {
-            m_dctarget->SetDpi(dpi, dpi);
-        }
-        m_dpi = dpi;
-        m_dpi_parent = ::GetDpiForWindow(m_hwnd_parent);
-        m_scale = static_cast<float>(m_dpi_parent) / USER_DEFAULT_SCREEN_DPI;
-        auto width = pNewSize->right - pNewSize->left;
-        auto height = pNewSize->bottom - pNewSize->top;
-        KHIIN_INFO("width {}, height {}", width, height);
-        ::SetWindowPos(m_hwnd, NULL, pNewSize->left, pNewSize->top, width, height, SWP_NOZORDER | SWP_NOACTIVATE);
-    }
-
-    void OnResize(unsigned int width, unsigned int height) {
-        KHIIN_TRACE("");
-        EnsureRenderTarget();
-        if (m_target) {
-            m_target->Resize(D2D1_SIZE_U{width, height});
-        }
-    }
-
-    bool GetPointInClientDp(UINT x, UINT y, Point &pt) {
-        auto rect = RECT{};
-        ::GetClientRect(m_hwnd, &rect);
-        POINT pt_px{static_cast<LONG>(x), static_cast<LONG>(y)};
-
-        pt.x = static_cast<int>(x / m_scale);
-        pt.y = static_cast<int>(y / m_scale);
-
-        if (!::PtInRect(&rect, pt_px)) {
-            return false;
-        } else {
-            return true;
-        }
-    }
-
-    void OnMouseMove(UINT x, UINT y) {
-        auto pt = Point();
-        auto in_window = GetPointInClientDp(x, y, pt);
-
-        if (!in_window) {
-            m_mouse_focused_id = -1;
-            return;
-        }
-
-        auto item = m_layout_grid.GetItemByHit(pt);
-        auto hover_candidate_id = -1;
-        if (item) {
-            hover_candidate_id = item->candidate->id();
-        }
-        if (m_mouse_focused_id != hover_candidate_id) {
-            m_mouse_focused_id = hover_candidate_id;
-            ::RedrawWindow(m_hwnd, NULL, NULL, RDW_INVALIDATE | RDW_UPDATENOW);
-        }
-    }
-
-    void OnMouseLeave() {
-        m_tracking_mouse = false;
-        m_mouse_focused_id = -1;
-    }
-
-    bool HandleClick(UINT x, UINT y) {
-        auto pt = Point();
-        auto in_window = GetPointInClientDp(x, y, pt);
-
-        if (!in_window) {
-            Hide();
-            return false;
-        }
-
-        auto item = m_layout_grid.GetItemByHit(pt);
-        if (item) {
-            NotifyCandidateSelectListeners(item->candidate);
-        }
-        return true;
-    }
-
-    void NotifyCandidateSelectListeners(Candidate const *candidate) {
-        for (auto listener : m_focus_listeners) {
-            if (listener) {
-                listener->OnSelectCandidate(candidate->id());
-            }
-        }
-    }
-
-    void EnsureRenderTarget() {
-        KHIIN_TRACE("");
-
-        if (m_d2d1 && m_hwnd && !m_target && !m_dctarget) {
-            m_target = Graphics::CreateRenderTarget(m_d2d1, m_hwnd);
-            m_dctarget = Graphics::CreateDCRenderTarget(m_d2d1);
-            if (m_target) {
-                m_target->SetDpi(static_cast<float>(m_dpi), static_cast<float>(m_dpi));
-            }
-            if (m_dctarget) {
-                m_dctarget->SetDpi(static_cast<float>(m_dpi), static_cast<float>(m_dpi));
-            }
-        }
+    void DiscardGraphicsResources() {
+        m_target = nullptr;
+        m_brush = nullptr;
+        m_textformat = nullptr;
+        m_textformat_sm = nullptr;
     }
 
     void EnsureTextFormat() {
@@ -392,25 +264,8 @@ class CandidateWindowImpl : public CandidateWindow {
 
     void EnsureBrush() {
         if (!m_brush) {
-            check_hresult(m_dctarget->CreateSolidColorBrush(m_colors.text, m_brush.put()));
+            check_hresult(m_target->CreateSolidColorBrush(m_colors.text, m_brush.put()));
         }
-    }
-
-    void DiscardGraphicsResources() {
-        m_dctarget = nullptr;
-        m_target = nullptr;
-        m_brush = nullptr;
-        m_textformat = nullptr;
-        m_textformat_sm = nullptr;
-    }
-
-    void OnMonitorSizeChange() {
-        auto hmon = ::MonitorFromWindow(m_hwnd_parent, MONITOR_DEFAULTTONEAREST);
-        auto info = MONITORINFO();
-        info.cbSize = sizeof(MONITORINFO);
-        ::GetMonitorInfo(hmon, &info);
-        m_max_width = info.rcMonitor.right;
-        m_max_height = info.rcMonitor.bottom;
     }
 
     uint32_t MinColWidth() {
@@ -479,7 +334,7 @@ class CandidateWindowImpl : public CandidateWindow {
 
     void DrawFocusedBackground(float left, float top, float col_width) {
         m_brush->SetColor(m_colors.bg_selected);
-        m_dctarget->FillRoundedRectangle(
+        m_target->FillRoundedRectangle(
             D2D1::RoundedRect(D2D1::RectF(left, top, col_width - m_metrics.padding, top + m_metrics.row_height),
                               m_metrics.padding_sm, m_metrics.padding_sm),
             m_brush.get());
@@ -487,7 +342,7 @@ class CandidateWindowImpl : public CandidateWindow {
 
     void DrawFocusedMarker(float left, float top) {
         m_brush->SetColor(m_colors.accent);
-        m_dctarget->FillRoundedRectangle(
+        m_target->FillRoundedRectangle(
             D2D1::RoundedRect(D2D1::RectF(left + m_metrics.marker_w,
                                           top + (m_metrics.row_height - m_metrics.marker_h) / 2,
                                           left + m_metrics.marker_w * 2,
@@ -513,20 +368,20 @@ class CandidateWindowImpl : public CandidateWindow {
         } else {
             m_brush->SetColor(m_colors.text_disabled);
         }
-        m_dctarget->DrawTextLayout(D2D1::Point2F(x, y), layout.get(), m_brush.get());
+        m_target->DrawTextLayout(D2D1::Point2F(x, y), layout.get(), m_brush.get());
     }
 
     void DrawCandidate(CandidateLayout &candidate, float left, float top) {
         auto x = left + m_metrics.qs_col_w;
         auto y = top + CenterTextLayoutY(candidate.layout.get(), m_metrics.row_height);
         m_brush->SetColor(m_colors.text);
-        m_dctarget->DrawTextLayout(D2D1::Point2F(x, y), candidate.layout.get(), m_brush.get(),
-                                   D2D1_DRAW_TEXT_OPTIONS_ENABLE_COLOR_FONT);
+        m_target->DrawTextLayout(D2D1::Point2F(x, y), candidate.layout.get(), m_brush.get(),
+                                 D2D1_DRAW_TEXT_OPTIONS_ENABLE_COLOR_FONT);
     }
 
     void Draw() {
         KHIIN_TRACE("");
-        m_dctarget->Clear(m_colors.bg);
+        m_target->Clear(m_colors.bg);
         EnsureBrush();
 
         auto qs_label = 1;
@@ -567,7 +422,7 @@ class CandidateWindowImpl : public CandidateWindow {
         }
     }
 
-    void Render() {
+    virtual void Render() override {
         KHIIN_TRACE("");
         try {
             EnsureRenderTarget();
@@ -577,10 +432,10 @@ class CandidateWindowImpl : public CandidateWindow {
             ::GetClientRect(m_hwnd, &rc);
             ::BeginPaint(m_hwnd, &ps);
 
-            m_dctarget->BindDC(ps.hdc, &rc);
-            m_dctarget->BeginDraw();
+            m_target->BindDC(ps.hdc, &rc);
+            m_target->BeginDraw();
             Draw();
-            auto hr = m_dctarget->EndDraw();
+            auto hr = m_target->EndDraw();
             if (FAILED(hr) || hr == D2DERR_RECREATE_TARGET) {
                 DiscardGraphicsResources();
             }
@@ -590,34 +445,13 @@ class CandidateWindowImpl : public CandidateWindow {
         }
     }
 
-    bool m_showing = false;
-    HWND m_hwnd_parent = nullptr;
-    bool m_tracking_mouse = false;
-
-    com_ptr<ID2D1Factory1> m_d2d1 = nullptr;
-    com_ptr<IDWriteFactory3> m_dwrite = nullptr;
-    com_ptr<ID2D1HwndRenderTarget> m_target = nullptr;
-    com_ptr<ID2D1DCRenderTarget> m_dctarget = nullptr;
     com_ptr<ID2D1SolidColorBrush> m_brush = nullptr;
     com_ptr<IDWriteTextFormat> m_textformat = nullptr;
     com_ptr<IDWriteTextFormat> m_textformat_sm = nullptr;
 
-#pragma warning(push)
-#pragma warning(disable : 26812)
-    DWM_WINDOW_CORNER_PREFERENCE m_border_radius = DWMWCP_ROUND;
-#pragma warning(pop)
-    RECT m_border_thickness{};
-
-    uint32_t m_max_width = 0;
-    uint32_t m_max_height = 0;
-    uint32_t m_dpi_parent = USER_DEFAULT_SCREEN_DPI;
-    uint32_t m_dpi = USER_DEFAULT_SCREEN_DPI;
-    float m_scale = 1.0f;
-
-    // Candidate rendering
     CandidateLayoutGrid m_layout_grid;
     CandidateGrid *m_candidate_grid = nullptr;
-    RECT m_text_rect;
+    RECT m_text_rect = {};
     CWndMetrics m_metrics = GetMetricsForSize(DisplaySize::S);
     ColorScheme m_colors;
     DisplayMode m_display_mode = DisplayMode::ShortColumn;
@@ -625,6 +459,7 @@ class CandidateWindowImpl : public CandidateWindow {
     size_t m_quickselect_col = 0;
     bool m_quickselect_active = false;
     int m_mouse_focused_id = -1;
+    bool m_tracking_mouse = false;
 
     std::vector<CandidateSelectListener *> m_focus_listeners;
 };
@@ -636,8 +471,8 @@ const std::wstring kCandidateWindowClassName = L"CandidateWindow";
 GUID kCandidateWindowGuid // 829893fa-728d-11ec-8c6e-e0d46491b35a
     = {0x829893fa, 0x728d, 0x11ec, {0x8c, 0x6e, 0xe0, 0xd4, 0x64, 0x91, 0xb3, 0x5a}};
 
-CandidateWindow *CandidateWindow::Create(HWND parent) {
-    auto impl = new CandidateWindowImpl();
+CandidateWindow2 *CandidateWindow2::Create(HWND parent) {
+    auto impl = new CandidateWindow2Impl();
     impl->Create(parent);
     return impl;
 }

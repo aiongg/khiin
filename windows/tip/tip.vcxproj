@@ -243,6 +243,7 @@
     <ClInclude Include="Geometry.h" />
     <ClInclude Include="Graphics.h" />
     <ClInclude Include="GridLayout.h" />
+    <ClInclude Include="GuiWindow.h" />
     <ClInclude Include="hresult.h" />
     <ClInclude Include="KeyEvent.h" />
     <ClInclude Include="KeyEventSink.h" />
@@ -290,6 +291,7 @@
     <ClCompile Include="DisplayAttributeInfoEnum.cpp" />
     <ClCompile Include="Files.cpp" />
     <ClCompile Include="Graphics.cpp" />
+    <ClCompile Include="GuiWindow.cpp" />
     <ClCompile Include="KeyEvent.cpp" />
     <ClCompile Include="KeyEventSink.cpp" />
     <ClCompile Include="KhiinClassFactory.cpp" />
