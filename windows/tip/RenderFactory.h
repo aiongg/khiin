@@ -11,6 +11,7 @@ class RenderFactory {
     virtual winrt::com_ptr<IDWriteTextLayout> CreateTextLayout(std::string const &value,
                                                                winrt::com_ptr<IDWriteTextFormat> const &format,
                                                                uint32_t max_width, uint32_t max_height) = 0;
+    virtual winrt::com_ptr<ID2D1Bitmap> CreateBitmap(winrt::com_ptr<ID2D1DCRenderTarget> const &target, HICON hicon) = 0;
 };
 
 } // namespace khiin::win32

@@ -124,8 +124,7 @@ struct LangBarIndicatorImpl :
 
     virtual STDMETHODIMP OnClick(TfLBIClick click, POINT pt, const RECT *prcArea) override {
         KHIIN_DEBUG("Clicked");
-        auto popup = PopupMenu::Create(m_service.get());
-        popup->Show(pt);
+        m_popup->Show(pt);
 
         return S_OK;
     }

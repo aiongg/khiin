@@ -47,7 +47,7 @@ constexpr int kPadding = 8;
 constexpr int kSepWidth = 1;
 constexpr int kFontSize = 18;
 constexpr int kRowHeight = 32;
-const std::string kFontName = "Arial";
+const std::string kFontName = "Microsoft JhengHei UI Regular";
 
 int TaskbarHeight() {
     RECT rcWork{};
@@ -126,9 +126,11 @@ class PopupMenuImpl : public PopupMenu {
         auto width = 0;
         auto row_height = 0;
         auto n_text_items = 0;
+        auto n_separators = 0;
 
         for (auto &itemv : m_items) {
             if (std::holds_alternative<Separator>(itemv)) {
+                ++n_separators;
                 continue;
             }
             auto &item = std::get<TextItem>(itemv);
@@ -143,9 +145,11 @@ class PopupMenuImpl : public PopupMenu {
 
         row_height = std::max(row_height, kRowHeight);
         width += kPadding * 2 + kBulletColWidth + kIconColWidth;
+
         auto x = m_origin.x - width;
         auto y = m_origin.y - row_height - 40;
-        auto height = row_height * n_text_items + kPadding * 2;
+
+        auto height = row_height * n_text_items + n_separators * kPadding + kPadding * 2;
         m_row_height = static_cast<float>(row_height);
 
         if (x < 0) {
@@ -156,7 +160,7 @@ class PopupMenuImpl : public PopupMenu {
             y = 40;
         }
 
-        ::SetWindowPos(m_hwnd, 0, m_origin.x - width, m_origin.y - height - 40, width, height,
+        ::SetWindowPos(m_hwnd, 0, m_origin.x - width / 2, m_origin.y - height - 40, width, height,
                        SWP_NOACTIVATE | SWP_NOZORDER);
         ::RedrawWindow(m_hwnd, NULL, NULL, RDW_INVALIDATE | RDW_UPDATENOW);
     }
@@ -170,21 +174,31 @@ class PopupMenuImpl : public PopupMenu {
     }
 
     void Draw() {
-        KHIIN_DEBUG("Colors: {} {} {}", m_colors.bg.r, m_colors.bg.g, m_colors.bg.b);
         m_target->Clear(m_colors.bg);
         auto origin = Point2F(kPadding, kPadding);
 
         for (auto &itemv : m_items) {
             if (std::holds_alternative<Separator>(itemv)) {
-                DrawSeparator(origin.y);
+                DrawSeparator(origin.y + kPadding / 2);
+                origin.y += kPadding;
                 continue;
             }
             auto &item = std::get<TextItem>(itemv);
-            auto o = origin;
-            o.x += kBulletColWidth + kIconColWidth;
-            o.y += CenterTextLayoutY(item.layout.get(), m_row_height);
-            m_brush->SetColor(m_colors.text);
-            m_target->DrawTextLayout(o, item.layout.get(), m_brush.get());
+
+            if (item.icon_rid) {
+                auto hicon = ::LoadIcon(m_service->hmodule(), MAKEINTRESOURCE(item.icon_rid));
+                auto bmp = m_factory->CreateBitmap(m_target, hicon);
+                auto x = origin.x + kBulletColWidth + (kIconColWidth - 16) / 2;
+                auto y = origin.y + (m_row_height - 16) / 2;
+                m_target->DrawBitmap(bmp.get(), D2D1::RectF(x, y, x + 16, y + 16));
+            }
+            {
+                auto o = origin;
+                o.x += kBulletColWidth + kIconColWidth;
+                o.y += CenterTextLayoutY(item.layout.get(), m_row_height);
+                m_brush->SetColor(m_colors.text);
+                m_target->DrawTextLayout(o, item.layout.get(), m_brush.get());
+            }
             origin.y += m_row_height;
         }
     }

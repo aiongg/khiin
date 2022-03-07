@@ -24,6 +24,7 @@
 #include <dwmapi.h>
 #include <dwrite_3.h>
 #include <msctf.h>
+#include <wincodec.h>
 #include <windows.h>
 #include <windowsx.h>
 #include <winrt/base.h>

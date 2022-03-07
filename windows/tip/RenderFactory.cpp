@@ -12,6 +12,7 @@ class RenderFactoryImpl : public RenderFactory {
     void Initialize() {
         CreateD2D1Factory();
         CreateDwriteFactory();
+        CreateWicFactory();
     }
 
     virtual com_ptr<ID2D1DCRenderTarget> CreateDCRenderTarget() override {
@@ -44,6 +45,18 @@ class RenderFactoryImpl : public RenderFactory {
         return ret;
     }
 
+    virtual winrt::com_ptr<ID2D1Bitmap> CreateBitmap(com_ptr<ID2D1DCRenderTarget> const &target, HICON hicon) override {
+        auto wic_bmp = com_ptr<IWICBitmap>();
+        check_hresult(m_wic->CreateBitmapFromHICON(hicon, wic_bmp.put()));
+        auto converter = com_ptr<IWICFormatConverter>();
+        m_wic->CreateFormatConverter(converter.put());
+        converter->Initialize(wic_bmp.get(), GUID_WICPixelFormat32bppPBGRA, WICBitmapDitherTypeNone, NULL, 0,
+                         WICBitmapPaletteTypeMedianCut);
+        auto d2d1_bmp = com_ptr<ID2D1Bitmap>();
+        target->CreateBitmapFromWicBitmap(converter.get(), d2d1_bmp.put());
+        return d2d1_bmp;
+    }
+
   private:
     void CreateD2D1Factory() {
         auto hr = ::D2D1CreateFactory(D2D1_FACTORY_TYPE_SINGLE_THREADED, m_d2d1.put());
@@ -56,8 +69,14 @@ class RenderFactoryImpl : public RenderFactory {
         CHECK_HRESULT(hr);
     }
 
+    void CreateWicFactory() {
+        check_hresult(
+            ::CoCreateInstance(CLSID_WICImagingFactory, NULL, CLSCTX_INPROC_SERVER, IID_PPV_ARGS(m_wic.put())));
+    }
+
     com_ptr<ID2D1Factory1> m_d2d1 = nullptr;
     com_ptr<IDWriteFactory3> m_dwrite = nullptr;
+    com_ptr<IWICImagingFactory> m_wic = nullptr;
 };
 
 } // namespace
