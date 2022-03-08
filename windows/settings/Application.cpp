@@ -57,10 +57,14 @@ LRESULT CALLBACK PropsheetWndProcOverride(HWND hdlg, UINT msg, WPARAM wParam, LP
 
 int PropsheetCallback(HWND hdlg, UINT msg, LPARAM lParam) {
     switch (msg) {
-    case PCSB_INITIALIZED:
+    case PCSB_INITIALIZED: {
+        ::SetWindowLong(hdlg, GWL_STYLE, ::GetWindowLong(hdlg, GWL_STYLE) | WS_MINIMIZEBOX);
+        auto hmenu = GetSystemMenu(hdlg, FALSE);
+        ::InsertMenu(hmenu, -1, MF_BYPOSITION | MF_STRING, SC_ICON, L"Minimize");
         g_propsheet_original_wndproc =
             (WNDPROC)::SetWindowLongPtr(hdlg, GWLP_WNDPROC, (LONG_PTR)PropsheetWndProcOverride);
         break;
+    }
     case PCSB_PRECREATE:
         InitCommonControls();
         break;
@@ -144,6 +148,7 @@ class ApplicationImpl : Application {
     InputProps m_input;
     PropSheet m_about;
     std::wstring m_title;
+    HWND m_hwnd = NULL;
 };
 
 } // namespace
