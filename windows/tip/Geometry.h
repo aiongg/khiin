@@ -62,7 +62,7 @@ struct Rect {
         return Point{o.x + w / 2, o.y + h / 2};
     }
     inline bool Hit(Point const &pt) const {
-        return pt.x >= left() && pt.x <= right() && pt.x >= top() && pt.x <= bottom();
+        return pt.x >= left() && pt.x <= right() && pt.y >= top() && pt.y <= bottom();
     }
 
   private:

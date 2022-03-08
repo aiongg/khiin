@@ -62,28 +62,52 @@ uint32_t CheckDarkModeIcon(uint32_t icon_rid, ColorScheme const &colors) {
     return icon_rid;
 }
 
-static const DWORD kDwStyle = WS_BORDER | WS_POPUP;
+static const DWORD kDwStyle = WS_POPUP;
 static const DWORD kDwExStyle = WS_EX_TOPMOST | WS_EX_TOOLWINDOW | WS_EX_NOACTIVATE;
 
 std::vector<MenuItem> GetMenuItems() {
     auto ret = std::vector<MenuItem>();
     ret.push_back(TextItem(IDS_CONTINUOUS_MODE, IDI_MODE_CONTINUOUS, true));
     ret.push_back(TextItem(IDS_BASIC_MODE, IDI_MODE_BASIC));
-    ret.push_back(Separator());
     ret.push_back(TextItem(IDS_MANUAL_MODE, IDI_MODE_PRO));
     ret.push_back(TextItem(IDS_DIRECT_MODE, IDI_MODE_ALPHA));
+    ret.push_back(Separator());
+    ret.push_back(TextItem(IDS_OPEN_SETTINGS, IDI_SETTINGS));
     return ret;
 }
 
+constexpr int kTaskbarHeight = 48;
 constexpr int kBulletColWidth = 24;
 constexpr int kIconColWidth = 32;
 constexpr int kVPad = 8;
 constexpr int kHPad = 16;
 constexpr int kSepWidth = 1;
 constexpr int kFontSize = 18;
-constexpr int kRowHeight = 32;
+constexpr int kRowHeight = 34;
 constexpr int kIconSize = 16;
 const std::string kFontName = "Microsoft JhengHei UI Regular";
+
+struct MenuMetrics {
+    float y_adjust = 50.0f;
+    float bullet_col = 24.0f;
+    float icon_col = 32.0f;
+    float vpad = 8.0f;
+    float hpad = 16.0f;
+    float sep_thickness = 1.0f;
+    float font_size = 18.0f;
+    float row_height = 32.0f;
+    float icon_size = 16.0f;
+};
+
+MenuMetrics ScaledMetrics(float scale) {
+    auto m = MenuMetrics();
+    m.y_adjust *= scale;
+    m.bullet_col *= scale;
+    m.icon_col *= scale;
+    m.vpad *= scale;
+    m.hpad *= scale;
+    m.row_height *= scale;
+}
 
 int TaskbarHeight() {
     RECT rcWork{};
@@ -112,7 +136,11 @@ class PopupMenuImpl : public PopupMenu {
     }
 
     virtual void Show(POINT pt) override {
-        m_origin = pt;
+        if (!DpiAware()) {
+            m_origin = Point{ToDp(pt.x), ToDp(pt.y)};
+        } else {
+            m_origin = Point{pt.x, pt.y};
+        }
         EnsureGraphicsResources();
         CalculateLayout();
         GuiWindow::Show();
@@ -123,15 +151,46 @@ class PopupMenuImpl : public PopupMenu {
     }
 
   private:
+    bool ItemHitTest(Point pt) {
+        for (auto it = m_items.begin(); it != m_items.end(); ++it) {
+            // KHIIN_DEBUG("Move point: {},{}", pt.x, pt.y);
+            // KHIIN_DEBUG("Item rect: {}, {}, {}, {}", item.rc.left(), item.rc.top(), item.rc.right(),
+            // item.rc.bottom());
+            if (it->rc.Hit(pt)) {
+                m_highlighted_index = std::distance(m_items.begin(), it);
+                return true;
+            }
+        }
+        return false;
+    }
+
     virtual void OnConfigChanged(AppConfig *config) override {
         GuiWindow::OnConfigChanged(config);
         ::RedrawWindow(m_hwnd, NULL, NULL, RDW_INVALIDATE | RDW_UPDATENOW);
     }
 
+    virtual void OnMouseMove(Point pt) override {
+        pt.x = ToDp(pt.x);
+        pt.y = ToDp(pt.y);
+        if (ItemHitTest(pt)) {
+            ::RedrawWindow(m_hwnd, NULL, NULL, RDW_INVALIDATE | RDW_UPDATENOW);
+        }
+    }
+
     virtual bool OnClick(Point pt) override {
+        KHIIN_DEBUG("Clicked ({},{})", pt.x, pt.y);
+
         if (!ClientHitTest(pt)) {
             Hide();
             return false;
+        }
+
+        auto id = 0;
+        for (auto &item : m_items) {
+            if (item.rc.Hit(pt)) {
+                KHIIN_DEBUG("Clicked: {}", id);
+            }
+            ++id;
         }
 
         // ClientDp(pt);
@@ -158,6 +217,12 @@ class PopupMenuImpl : public PopupMenu {
         }
     }
 
+    int WorkAreaBottom() {
+        auto rc = RECT{};
+        ::SystemParametersInfo(SPI_GETWORKAREA, 0, &rc, 0);
+        return rc.bottom;
+    }
+
     void CalculateLayout() {
         auto max_item_width = 0;
         auto max_row_height = 0;
@@ -181,26 +246,45 @@ class PopupMenuImpl : public PopupMenu {
         auto total_width = width + kHPad * 2;
         auto total_height = kVPad;
 
-        for (auto &item : m_items) {
+        for (auto it = m_items.begin(); it != m_items.end(); ++it) {
+            auto &item = *it;
+
             if (item.separator) {
                 item.rc = Rect{Point{0, total_height}, total_width, kVPad};
                 total_height += kVPad;
+                continue;
             } else {
-                item.rc = Rect{Point{kHPad, total_height}, width, row_height};
+                item.rc = Rect{Point{0, total_height}, total_width, row_height};
                 total_height += row_height;
             }
         }
 
         total_height += kVPad;
 
-        auto x = std::max(static_cast<int>(m_origin.x) - total_width / 2, 0);
-        auto y = std::max(static_cast<int>(m_origin.y) - total_height - 40, 0);
+        int w = total_width;
+        int h = total_height;
+        int x = m_origin.x;
+        int y = WorkAreaBottom() - kHPad;
 
-        ::SetWindowPos(m_hwnd, 0, x, y, total_width, total_height, SWP_NOACTIVATE | SWP_NOZORDER);
+        if (DpiAware()) {
+            w = ToPx(w);
+            h = ToPx(h);
+            y = WorkAreaBottom() - ToPx(kHPad);
+        }
+
+        x = x - w / 2.0f;
+        y = y - h;
+
+        if (x + w > m_max_width) {
+            x -= (x + w - m_max_width);
+        }
+
+        KHIIN_TRACE("PopupMenu: dpi={}, x={}, y={}, w={}, h={}", m_dpi, x, y, w, h);
+        ::SetWindowPos(m_hwnd, 0, x, y, w, h, SWP_NOACTIVATE | SWP_NOZORDER);
         ::RedrawWindow(m_hwnd, NULL, NULL, RDW_INVALIDATE | RDW_UPDATENOW);
     }
 
-    void DrawSeparator(MenuItem &item, float stroke_width) {
+    void DrawSeparator(MenuItem const &item, float stroke_width) {
         auto top = item.rc.topf() + item.rc.heightf() / 2;
         auto width = item.rc.widthf();
         m_target->DrawLine(Point2F(0, top), Point2F(width, top), m_brush.get(), stroke_width);
@@ -222,8 +306,9 @@ class PopupMenuImpl : public PopupMenu {
         m_target->DrawBitmap(bmp.get(), D2D1::RectF(x, y, x + size, y + size));
     }
 
-    void DrawTextItem(MenuItem &item) {
+    void DrawTextItem(MenuItem const &item) {
         auto origin = item.rc.origin();
+        origin.x += kHPad;
         auto h = item.rc.height();
 
         if (item.checked) {
@@ -246,20 +331,35 @@ class PopupMenuImpl : public PopupMenu {
         }
     }
 
+    void DrawHighlight(Rect const &rc) {
+        m_target->FillRectangle(RectF(rc.leftf(), rc.topf(), rc.rightf(), rc.bottomf()), m_brush.get());
+    }
+
     void Draw() {
         m_target->Clear(m_colors.bg);
 
-        for (auto &item : m_items) {
-            if (item.separator) {
-                m_brush->SetColor(m_colors.accent);
-                DrawSeparator(item, 1.0f);
-            } else {
+        auto i = 0;
+        auto begin = m_items.cbegin();
+        auto end = m_items.cend();
+        for (auto it = begin; it != end; ++it) {
+            auto i = std::distance(begin, it);
+            auto &item = *it;
+
+            if (!item.separator) {
+                if (m_highlighted_index == i) {
+                    m_brush->SetColor(m_colors.bg_selected);
+                    DrawHighlight(item.rc);
+                }
+
                 m_brush->SetColor(m_colors.text);
                 DrawTextItem(item);
+            } else {
+                m_brush->SetColor(m_colors.accent);
+                DrawSeparator(item, 1.0f);
             }
         }
     }
-
+    
     virtual void Render() override {
         try {
             EnsureGraphicsResources();
@@ -286,8 +386,9 @@ class PopupMenuImpl : public PopupMenu {
     com_ptr<ID2D1SolidColorBrush> m_brush = nullptr;
     com_ptr<IDWriteTextFormat> m_textformat = nullptr;
     com_ptr<IDWriteTextLayout> m_bullet = nullptr;
-    POINT m_origin{};
+    Point m_origin{};
     std::vector<MenuItem> m_items;
+    int m_highlighted_index = -1;
 };
 } // namespace
 

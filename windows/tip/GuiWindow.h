@@ -9,6 +9,14 @@ namespace khiin::win32 {
 
 class RenderFactory;
 
+enum class DpiAwarenessContext {
+    Gdiscaled,
+    Unaware,
+    System,
+    PerMonitor,
+    PerMonitorV2,
+};
+
 class GuiWindow : public BaseWindow<GuiWindow> {
   public:
     using Point = geometry::Point;
@@ -30,7 +38,7 @@ class GuiWindow : public BaseWindow<GuiWindow> {
 
     // Required
     virtual void Render() = 0;
-     
+
     // Load graphics resources
     void OnCreate();
     void OnMonitorSizeChanged();
@@ -41,6 +49,11 @@ class GuiWindow : public BaseWindow<GuiWindow> {
   protected:
     bool ClientHitTest(Point const &pt);
     void ClientDp(Point &pt);
+    uint32_t EffectiveDpi();
+    DpiAwarenessContext DpiAwareness();
+    bool DpiAware();
+    int ToPx(int value);
+    int ToDp(int value);
 
     bool m_showing = false;
     bool m_tracking_mouse = false;

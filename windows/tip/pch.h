@@ -25,6 +25,8 @@
 #include <dwmapi.h>
 #include <dwrite_3.h>
 #include <msctf.h>
+#include <shellapi.h>
+#include <shellscalingapi.h>
 #include <wincodec.h>
 #include <windows.h>
 #include <windowsx.h>
@@ -33,6 +35,8 @@
 #pragma comment(lib, "windowsapp")
 #pragma comment(lib, "d2d1")
 #pragma comment(lib, "dxguid")
+#pragma comment(lib, "dxguid")
+#pragma comment(lib, "shcore")
 
 #include "hresult.h"
 #include "log.h"

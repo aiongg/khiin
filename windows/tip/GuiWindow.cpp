@@ -175,6 +175,57 @@ void GuiWindow::ClientDp(Point &pt) {
     pt.y = static_cast<int>(pt.y / m_scale);
 }
 
+uint32_t GuiWindow::EffectiveDpi() {
+    HMONITOR hmon = ::MonitorFromWindow(m_hwnd, MONITOR_DEFAULTTOPRIMARY);
+    UINT dpi = 0;
+    UINT x = 0;
+    ::GetDpiForMonitor(hmon, MDT_EFFECTIVE_DPI, &dpi, &x);
+    return dpi;
+}
+
+DpiAwarenessContext GuiWindow::DpiAwareness() {
+    auto ctx = ::GetThreadDpiAwarenessContext();
+    if (AreDpiAwarenessContextsEqual(ctx, DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE)) {
+        KHIIN_DEBUG("DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE");
+        return DpiAwarenessContext::PerMonitor;
+    } else if (AreDpiAwarenessContextsEqual(ctx, DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2)) {
+        KHIIN_DEBUG("DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2");
+        return DpiAwarenessContext::PerMonitorV2;
+    } else if (AreDpiAwarenessContextsEqual(ctx, DPI_AWARENESS_CONTEXT_SYSTEM_AWARE)) {
+        KHIIN_DEBUG("DPI_AWARENESS_CONTEXT_SYSTEM_AWARE");
+        return DpiAwarenessContext::System;
+    } else if (AreDpiAwarenessContextsEqual(ctx, DPI_AWARENESS_CONTEXT_UNAWARE)) {
+        KHIIN_DEBUG("DPI_AWARENESS_CONTEXT_UNAWARE");
+        return DpiAwarenessContext::Unaware;
+    } else if (AreDpiAwarenessContextsEqual(ctx, DPI_AWARENESS_CONTEXT_UNAWARE_GDISCALED)) {
+        KHIIN_DEBUG("DPI_AWARENESS_CONTEXT_UNAWARE_GDISCALED");
+        return DpiAwarenessContext::Gdiscaled;
+    } else {
+        KHIIN_DEBUG("Unknown DPI awareness context");
+        return DpiAwarenessContext::Unaware;
+    }
+}
+
+bool GuiWindow::DpiAware() {
+    auto ctx = DpiAwareness();
+    switch (ctx) {
+    case DpiAwarenessContext::PerMonitorV2:
+        [[fallthrough]];
+    case DpiAwarenessContext::PerMonitor:
+        return true;
+    default:
+        return false;
+    }
+}
+
+int GuiWindow::ToPx(int value) {
+    return ::MulDiv(value, m_dpi, USER_DEFAULT_SCREEN_DPI);
+}
+
+int GuiWindow::ToDp(int value) {
+    return ::MulDiv(value, USER_DEFAULT_SCREEN_DPI, m_dpi);
+}
+
 void GuiWindow::OnMouseMove(Point pt) {
     // override
 }

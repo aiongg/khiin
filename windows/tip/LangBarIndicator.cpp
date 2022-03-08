@@ -123,7 +123,7 @@ struct LangBarIndicatorImpl :
     }
 
     virtual STDMETHODIMP OnClick(TfLBIClick click, POINT pt, const RECT *prcArea) override {
-        KHIIN_DEBUG("Clicked");
+        KHIIN_DEBUG("Clicked: ({},{})", pt.x, pt.y);
         m_popup->Show(pt);
 
         return S_OK;

@@ -11,8 +11,8 @@ ColorScheme const kLightScheme = ColorScheme{
     ColorF(ColorF::Gray),           // text disabled
     ColorF(ColorF::DarkGray),       // text extended
     ColorF(ColorF::ForestGreen),    // text hint
-    ColorF(0.97f, 0.97f, 0.97f),    // background
-    ColorF(0.90f, 0.90f, 0.90f),    // background selected
+    ColorF(0.98f, 0.98f, 0.98f),    // background
+    ColorF(0.92f, 0.92f, 0.92f),    // background selected
     ColorF(ColorF::CornflowerBlue), // accent
 };
 
