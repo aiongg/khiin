@@ -4,6 +4,7 @@
 
 #include <variant>
 
+#include "Geometry.h"
 #include "RenderFactory.h"
 #include "TextService.h"
 #include "UiStrings.h"
@@ -14,39 +15,74 @@ using namespace messages;
 using namespace winrt;
 using namespace strings;
 using namespace D2D1;
+using namespace geometry;
 
 const std::wstring kMenuWindowClassName = L"PopupMenuWindow";
 
-struct Separator {};
-
-struct TextItem {
-    bool checked = 0;
+struct MenuItem {
+    bool separator = false;
+    bool checked = false;
     uint32_t icon_rid = 0;
     uint32_t text_rid = 0;
+    Rect rc;
     com_ptr<IDWriteTextLayout> layout = nullptr;
 };
 
-using MenuItem = std::variant<Separator, TextItem>;
+MenuItem TextItem(uint32_t text_rid, uint32_t icon_rid = 0, bool checked = false) {
+    auto item = MenuItem();
+    item.text_rid = text_rid;
+    item.icon_rid = icon_rid;
+    item.checked = checked;
+    return item;
+}
+
+MenuItem Separator() {
+    auto item = MenuItem();
+    item.separator = true;
+    return item;
+}
+
+uint32_t CheckDarkModeIcon(uint32_t icon_rid, ColorScheme const &colors) {
+    auto avg = (colors.text.r + colors.text.g + colors.text.b) / 3;
+    if (avg >= 0.5) {
+        switch (icon_rid) {
+        case IDI_MODE_CONTINUOUS:
+            return IDI_MODE_CONTINUOUS_W;
+        case IDI_MODE_BASIC:
+            return IDI_MODE_BASIC_W;
+        case IDI_MODE_PRO:
+            return IDI_MODE_PRO_W;
+        case IDI_MODE_ALPHA:
+            return IDI_MODE_ALPHA_W;
+        case IDI_SETTINGS:
+            return IDI_SETTINGS_W;
+        }
+    }
+
+    return icon_rid;
+}
 
 static const DWORD kDwStyle = WS_BORDER | WS_POPUP;
 static const DWORD kDwExStyle = WS_EX_TOPMOST | WS_EX_TOOLWINDOW | WS_EX_NOACTIVATE;
 
 std::vector<MenuItem> GetMenuItems() {
     auto ret = std::vector<MenuItem>();
-    ret.push_back(MenuItem(TextItem{true, IDI_MAINICON, IDS_CONTINUOUS_MODE}));
-    ret.push_back(MenuItem(TextItem{false, 0, IDS_BASIC_MODE}));
-    ret.push_back(MenuItem(Separator{}));
-    ret.push_back(MenuItem(TextItem{false, 0, IDS_MANUAL_MODE}));
-    ret.push_back(MenuItem(TextItem{false, 0, IDS_DIRECT_MODE}));
+    ret.push_back(TextItem(IDS_CONTINUOUS_MODE, IDI_MODE_CONTINUOUS, true));
+    ret.push_back(TextItem(IDS_BASIC_MODE, IDI_MODE_BASIC));
+    ret.push_back(Separator());
+    ret.push_back(TextItem(IDS_MANUAL_MODE, IDI_MODE_PRO));
+    ret.push_back(TextItem(IDS_DIRECT_MODE, IDI_MODE_ALPHA));
     return ret;
 }
 
 constexpr int kBulletColWidth = 24;
 constexpr int kIconColWidth = 32;
-constexpr int kPadding = 8;
+constexpr int kVPad = 8;
+constexpr int kHPad = 16;
 constexpr int kSepWidth = 1;
 constexpr int kFontSize = 18;
 constexpr int kRowHeight = 32;
+constexpr int kIconSize = 16;
 const std::string kFontName = "Microsoft JhengHei UI Regular";
 
 int TaskbarHeight() {
@@ -123,83 +159,104 @@ class PopupMenuImpl : public PopupMenu {
     }
 
     void CalculateLayout() {
-        auto width = 0;
-        auto row_height = 0;
-        auto n_text_items = 0;
-        auto n_separators = 0;
+        auto max_item_width = 0;
+        auto max_row_height = 0;
 
-        for (auto &itemv : m_items) {
-            if (std::holds_alternative<Separator>(itemv)) {
-                ++n_separators;
+        for (auto &item : m_items) {
+            if (item.separator) {
                 continue;
             }
-            auto &item = std::get<TextItem>(itemv);
+
             item.layout =
                 m_factory->CreateTextLayout(T(item.text_rid, m_language), m_textformat, m_max_width, m_max_height);
             DWRITE_TEXT_METRICS metrics{};
             check_hresult(item.layout->GetMetrics(&metrics));
-            width = std::max(width, static_cast<int>(metrics.width));
-            row_height = std::max(row_height, static_cast<int>(metrics.height));
-            ++n_text_items;
+            max_item_width = std::max(max_item_width, static_cast<int>(metrics.width));
+            max_row_height = std::max(max_row_height, static_cast<int>(metrics.height));
         }
 
-        row_height = std::max(row_height, kRowHeight);
-        width += kPadding * 2 + kBulletColWidth + kIconColWidth;
+        auto width = kBulletColWidth + kIconColWidth + max_item_width;
+        auto row_height = std::max(kRowHeight, max_row_height + kVPad);
 
-        auto x = m_origin.x - width;
-        auto y = m_origin.y - row_height - 40;
+        auto total_width = width + kHPad * 2;
+        auto total_height = kVPad;
 
-        auto height = row_height * n_text_items + n_separators * kPadding + kPadding * 2;
-        m_row_height = static_cast<float>(row_height);
-
-        if (x < 0) {
-            x = 40;
+        for (auto &item : m_items) {
+            if (item.separator) {
+                item.rc = Rect{Point{0, total_height}, total_width, kVPad};
+                total_height += kVPad;
+            } else {
+                item.rc = Rect{Point{kHPad, total_height}, width, row_height};
+                total_height += row_height;
+            }
         }
 
-        if (y < 0) {
-            y = 40;
-        }
+        total_height += kVPad;
 
-        ::SetWindowPos(m_hwnd, 0, m_origin.x - width / 2, m_origin.y - height - 40, width, height,
-                       SWP_NOACTIVATE | SWP_NOZORDER);
+        auto x = std::max(static_cast<int>(m_origin.x) - total_width / 2, 0);
+        auto y = std::max(static_cast<int>(m_origin.y) - total_height - 40, 0);
+
+        ::SetWindowPos(m_hwnd, 0, x, y, total_width, total_height, SWP_NOACTIVATE | SWP_NOZORDER);
         ::RedrawWindow(m_hwnd, NULL, NULL, RDW_INVALIDATE | RDW_UPDATENOW);
     }
 
-    void DrawSeparator(float top, float stroke_width = 1.0f) {
-        RECT rc{};
-        ::GetClientRect(m_hwnd, &rc);
-        auto width = static_cast<float>(rc.right) - static_cast<float>(rc.left);
-        m_brush->SetColor(m_colors.bg_selected);
+    void DrawSeparator(MenuItem &item, float stroke_width) {
+        auto top = item.rc.topf() + item.rc.heightf() / 2;
+        auto width = item.rc.widthf();
         m_target->DrawLine(Point2F(0, top), Point2F(width, top), m_brush.get(), stroke_width);
+    }
+
+    void DrawBullet(Rect const &rc) {
+        auto center = rc.center();
+        auto centerf = Point2F(static_cast<float>(center.x), static_cast<float>(center.y));
+        m_target->FillEllipse(Ellipse(centerf, 2.0f, 2.0f), m_brush.get());
+    }
+
+    void DrawIcon(Rect const &rc, uint32_t icon_rid) {
+        auto size = kIconSize;
+        auto rid = CheckDarkModeIcon(icon_rid, m_colors);
+        auto hicon = ::LoadIcon(m_service->hmodule(), MAKEINTRESOURCE(rid));
+        auto bmp = m_factory->CreateBitmap(m_target, hicon);
+        auto x = rc.left() + (rc.widthf() - size) / 2;
+        auto y = rc.topf() + (rc.heightf() - size) / 2;
+        m_target->DrawBitmap(bmp.get(), D2D1::RectF(x, y, x + size, y + size));
+    }
+
+    void DrawTextItem(MenuItem &item) {
+        auto origin = item.rc.origin();
+        auto h = item.rc.height();
+
+        if (item.checked) {
+            auto rc = Rect{origin, kBulletColWidth, h};
+            DrawBullet(rc);
+        }
+
+        if (item.icon_rid) {
+            auto o = origin;
+            o.x += kBulletColWidth;
+            auto rc = Rect{o, kIconColWidth, h};
+            DrawIcon(rc, item.icon_rid);
+        }
+
+        if (item.layout) {
+            auto o = Point2F(static_cast<float>(origin.x), static_cast<float>(origin.y));
+            o.x += kBulletColWidth + kIconColWidth;
+            o.y += CenterTextLayoutY(item.layout.get(), h);
+            m_target->DrawTextLayout(o, item.layout.get(), m_brush.get());
+        }
     }
 
     void Draw() {
         m_target->Clear(m_colors.bg);
-        auto origin = Point2F(kPadding, kPadding);
 
-        for (auto &itemv : m_items) {
-            if (std::holds_alternative<Separator>(itemv)) {
-                DrawSeparator(origin.y + kPadding / 2);
-                origin.y += kPadding;
-                continue;
-            }
-            auto &item = std::get<TextItem>(itemv);
-
-            if (item.icon_rid) {
-                auto hicon = ::LoadIcon(m_service->hmodule(), MAKEINTRESOURCE(item.icon_rid));
-                auto bmp = m_factory->CreateBitmap(m_target, hicon);
-                auto x = origin.x + kBulletColWidth + (kIconColWidth - 16) / 2;
-                auto y = origin.y + (m_row_height - 16) / 2;
-                m_target->DrawBitmap(bmp.get(), D2D1::RectF(x, y, x + 16, y + 16));
-            }
-            {
-                auto o = origin;
-                o.x += kBulletColWidth + kIconColWidth;
-                o.y += CenterTextLayoutY(item.layout.get(), m_row_height);
+        for (auto &item : m_items) {
+            if (item.separator) {
+                m_brush->SetColor(m_colors.accent);
+                DrawSeparator(item, 1.0f);
+            } else {
                 m_brush->SetColor(m_colors.text);
-                m_target->DrawTextLayout(o, item.layout.get(), m_brush.get());
+                DrawTextItem(item);
             }
-            origin.y += m_row_height;
         }
     }
 
@@ -228,10 +285,9 @@ class PopupMenuImpl : public PopupMenu {
     com_ptr<TextService> m_service = nullptr;
     com_ptr<ID2D1SolidColorBrush> m_brush = nullptr;
     com_ptr<IDWriteTextFormat> m_textformat = nullptr;
-    com_ptr<IDWriteTextLayout> m_layout = nullptr;
+    com_ptr<IDWriteTextLayout> m_bullet = nullptr;
     POINT m_origin{};
     std::vector<MenuItem> m_items;
-    float m_row_height = kRowHeight;
 };
 } // namespace
 

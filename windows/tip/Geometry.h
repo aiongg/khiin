@@ -14,58 +14,61 @@ struct Size {
 
 struct Rect {
     Rect() = default;
-    Rect(Point origin, int width, int height) : origin_(origin), width_(width), height_(height){};
+    Rect(Point origin, int width, int height) : o(origin), w(width), h(height){};
 
-    inline int left() {
-        return origin_.x;
+    inline int left() const {
+        return o.x;
     }
-    inline int right() {
-        return origin_.x + width_;
+    inline int right() const {
+        return o.x + w;
     }
-    inline int top() {
-        return origin_.y;
+    inline int top() const {
+        return o.y;
     }
-    inline int bottom() {
-        return origin_.y + height_;
+    inline int bottom() const {
+        return o.y + h;
     }
-    inline int width() {
-        return width_;
+    inline int width() const {
+        return w;
     }
-    inline int height() {
-        return height_;
+    inline int height() const {
+        return h;
     }
-    inline float leftf() {
-        return static_cast<float>(origin_.x);
+    inline float leftf() const {
+        return static_cast<float>(o.x);
     }
-    inline float rightf() {
-        return static_cast<float>(origin_.x + width_);
+    inline float rightf() const {
+        return static_cast<float>(o.x + w);
     }
-    inline float topf() {
-        return static_cast<float>(origin_.y);
+    inline float topf() const {
+        return static_cast<float>(o.y);
     }
-    inline float bottomf() {
-        return static_cast<float>(origin_.y + height_);
+    inline float bottomf() const {
+        return static_cast<float>(o.y + h);
     }
-    inline float widthf() {
-        return static_cast<float>(width_);
+    inline float widthf() const {
+        return static_cast<float>(w);
     }
-    inline float heightf() {
-        return static_cast<float>(height_);
+    inline float heightf() const {
+        return static_cast<float>(h);
     }
-    inline Size size() {
-        return Size{width_, height_};
+    inline Size size() const {
+        return Size{w, h};
     }
-    inline bool Hit(Point const &p) {
-        return p.x >= left() && p.x <= right() && p.x >= top() && p.x <= bottom();
+    inline Point origin() const {
+        return o;
     }
-    inline Point origin() {
-        return origin_;
+    inline Point center() const {
+        return Point{o.x + w / 2, o.y + h / 2};
+    }
+    inline bool Hit(Point const &pt) const {
+        return pt.x >= left() && pt.x <= right() && pt.x >= top() && pt.x <= bottom();
     }
 
   private:
-    Point origin_; // Top-left
-    int width_;
-    int height_;
+    Point o; // Top-left
+    int w;
+    int h;
 };
 
 } // namespace khiin::geometry

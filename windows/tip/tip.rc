@@ -54,14 +54,16 @@ END
 // Icon with lowest ID value placed first to ensure application icon
 // remains consistent on all systems.
 IDI_MAINICON            ICON                    "mainicon.ico"
-
 IDI_MODE_ALPHA          ICON                    "mode-alpha.ico"
-
+IDI_MODE_ALPHA_W        ICON                    "mode-alpha-white.ico"
 IDI_MODE_CONTINUOUS     ICON                    "mode-cont.ico"
-
+IDI_MODE_CONTINUOUS_W   ICON                    "mode-cont-white.ico"
 IDI_MODE_PRO            ICON                    "mode-pro.ico"
-
-IDI_MODE_SINGLE         ICON                    "mode-basic.ico"
+IDI_MODE_PRO_W          ICON                    "mode-pro-white.ico"
+IDI_MODE_BASIC          ICON                    "mode-basic.ico"
+IDI_MODE_BASIC_W        ICON                    "mode-basic-white.ico"
+IDI_SETTINGS            ICON                    "cog.ico"
+IDI_SETTINGS_W          ICON                    "cog-white.ico"
 
 
 /////////////////////////////////////////////////////////////////////////////

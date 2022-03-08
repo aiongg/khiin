@@ -21,6 +21,7 @@
 #include <ShlObj_core.h>
 #include <ctffunc.h>
 #include <d2d1_1.h>
+#include <d2d1effects.h>
 #include <dwmapi.h>
 #include <dwrite_3.h>
 #include <msctf.h>
@@ -31,6 +32,7 @@
 
 #pragma comment(lib, "windowsapp")
 #pragma comment(lib, "d2d1")
+#pragma comment(lib, "dxguid")
 
 #include "hresult.h"
 #include "log.h"
