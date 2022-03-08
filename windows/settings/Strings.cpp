@@ -12,6 +12,7 @@ using StrMap = std::unordered_map<uint32_t, std::wstring>;
 
 // clang-format off
 StrMap kStringsEn = {
+    {IDS_WINDOW_CAPTION,         L"Khíín Taiwanese IME Settings"},
     {IDD_APPEARANCETAB,          L"Display"},
     {IDL_COLOR,                  L"Colors:"},
     {IDS_LIGHT_THEME,            L"Light"},
@@ -27,6 +28,7 @@ StrMap kStringsEn = {
 };
 
 StrMap kStringsHanlo = {
+    {IDS_WINDOW_CAPTION,         L"起引台語打字法設置"},
     {IDD_APPEARANCETAB,          L"外皮"},
     {IDL_COLOR,                  L"色水："},
     {IDS_LIGHT_THEME,            L"白底"},

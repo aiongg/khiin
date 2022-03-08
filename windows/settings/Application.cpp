@@ -12,6 +12,7 @@
 
 #include "AppearanceProps.h"
 #include "InputProps.h"
+#include "Strings.h"
 
 namespace khiin::win32::settings {
 namespace {
@@ -21,6 +22,8 @@ using namespace khiin::messages;
 HMODULE g_module = NULL;
 AppConfig *g_config = nullptr;
 WNDPROC g_propsheet_original_wndproc = NULL;
+
+const std::wstring kWindowCaption = L"起引設定 Khíín Siat-tēng";
 
 void InitCommonCtrls() {
     auto icc = INITCOMMONCONTROLSEX{};
@@ -87,7 +90,7 @@ class ApplicationImpl : Application {
     }
 
     virtual UiLanguage uilang() override {
-        if (uilang_set) {
+        if (g_config->has_appearance() || uilang_set) {
             return g_config->appearance().ui_language();
         }
 
@@ -98,10 +101,12 @@ class ApplicationImpl : Application {
         uilang_set = true;
         g_config->mutable_appearance()->set_ui_language(lang);
         m_display.Reload();
+        UpdateTitle();
     }
 
     int ShowDialog() {
         LoadConfig();
+        UpdateTitle();
 
         auto pages = std::vector<HPROPSHEETPAGE>();
 
@@ -118,18 +123,27 @@ class ApplicationImpl : Application {
         psh.nStartPage = 0;
         psh.pfnCallback = PropsheetCallback;
         psh.phpage = pages.data();
-        psh.pszCaption = L"起引設定 Khíín Siat-tēng";
+        psh.pszCaption = m_title.data();
         psh.pszIcon = MAKEINTRESOURCE(IDI_KHIINSETTINGS);
 
         return ::PropertySheet(&psh);
     }
 
   private:
+    void UpdateTitle() {
+        m_title = Strings::T(IDS_WINDOW_CAPTION, uilang());
+        auto hwnd = ::GetParent(m_display.hwnd());
+        if (hwnd) {
+            ::SetWindowText(hwnd, m_title.data());
+        }
+    }
+
     bool uilang_set = false;
     UiLanguage m_lang = UIL_TAI_HANLO;
     AppearanceProps m_display;
     InputProps m_input;
     PropSheet m_about;
+    std::wstring m_title;
 };
 
 } // namespace
@@ -139,10 +153,46 @@ INT_PTR DialogProc(HWND handle, UINT msg, WPARAM wParam, LPARAM lParam) {
     return FALSE;
 }
 
+bool BringExistingDialogToFront() {
+    using namespace khiin::win32::settings;
+    auto ret = false;
+    auto titles = std::vector<std::wstring>();
+    titles.push_back(Strings::T(IDS_WINDOW_CAPTION, UIL_ENGLISH));
+    titles.push_back(Strings::T(IDS_WINDOW_CAPTION, UIL_TAI_HANLO));
+
+    for (auto &title : titles) {
+        HWND hwnd = ::FindWindow(NULL, title.data());
+        if (hwnd != NULL) {
+            HWND cur = ::GetForegroundWindow();
+            DWORD tid = ::GetCurrentThreadId();
+            DWORD pid = ::GetWindowThreadProcessId(cur, NULL);
+            ::AttachThreadInput(pid, tid, TRUE);
+            ::SetWindowPos(hwnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE);
+            ::SetWindowPos(hwnd, HWND_NOTOPMOST, 0, 0, 0, 0, SWP_SHOWWINDOW | SWP_NOSIZE | SWP_NOMOVE);
+            ::SetForegroundWindow(hwnd);
+            ::SetFocus(hwnd);
+            ::SetActiveWindow(hwnd);
+            ::AttachThreadInput(pid, tid, FALSE);
+            ::ShowWindow(hwnd, SW_RESTORE);
+
+            //::BringWindowToTop(hwnd);
+            ret = true;
+            break;
+        }
+    }
+
+    return ret;
+}
+
 int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ LPWSTR lpCmdLine,
                       _In_ int nCmdShow) {
     UNREFERENCED_PARAMETER(hPrevInstance);
     UNREFERENCED_PARAMETER(lpCmdLine);
+
+    if (BringExistingDialogToFront()) {
+        return 1;
+    }
+
     auto app = khiin::win32::settings::ApplicationImpl(hInstance);
     return app.ShowDialog();
 }

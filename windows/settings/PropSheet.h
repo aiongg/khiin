@@ -14,6 +14,7 @@ class PropSheet {
     static LRESULT CALLBACK StaticDlgProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
     HPROPSHEETPAGE psp(HMODULE hmod, int template_id, messages::AppConfig *config);
     void Reload();
+    HWND hwnd();
 
   protected:
     virtual INT_PTR DlgProc(UINT msg, WPARAM wParam, LPARAM lParam);

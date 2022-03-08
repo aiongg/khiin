@@ -55,8 +55,6 @@ LRESULT CALLBACK PropSheet::StaticDlgProc(HWND hwnd, UINT uMsg, WPARAM wParam, L
     }
 }
 
-HPROPSHEETPAGE hpsp = NULL;
-
 HPROPSHEETPAGE PropSheet::psp(HMODULE hmod, int template_id, messages::AppConfig *config) {
     m_module = hmod;
     m_template_id = template_id;
@@ -70,6 +68,10 @@ HPROPSHEETPAGE PropSheet::psp(HMODULE hmod, int template_id, messages::AppConfig
 
     m_hpsp = ::CreatePropertySheetPage(&m_psp);
     return m_hpsp;
+}
+
+HWND PropSheet::hwnd() {
+    return m_hwnd;
 }
 
 void PropSheet::SetHwnd(HWND hwnd) {
