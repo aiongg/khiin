@@ -19,7 +19,7 @@ GuiWindow::GuiWindow() = default;
 
 GuiWindow::~GuiWindow() = default;
 
-LRESULT GuiWindow::WndProc(UINT uMsg, WPARAM wParam, LPARAM lParam) {
+LRESULT CALLBACK GuiWindow::WndProc(UINT uMsg, WPARAM wParam, LPARAM lParam) {
     switch (uMsg) {
     case WM_NCCREATE:
         KHIIN_TRACE("WM_NCCREATE");

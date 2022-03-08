@@ -13,6 +13,7 @@
 #include "EngineController.h"
 #include "KeyEventSink.h"
 #include "LangBarIndicator.h"
+#include "SettingsApp.h"
 #include "TextEditSink.h"
 #include "ThreadMgrEventSink.h"
 #include "common.h"
@@ -226,6 +227,12 @@ struct TextServiceImpl :
         auto command = m_engine->SelectCandidate(candidate_id);
         auto context = GetTopContext();
         EditSession::HandleAction(this, context.get(), std::move(command));
+    }
+
+    virtual void OnInputModeSelected(messages::InputMode mode) override {}
+
+    virtual void OpenSettingsApplication() override {
+        SettingsApp::Launch(g_module);
     }
 
     virtual void RegisterConfigChangeListener(ConfigChangeListener *config_listener) override {

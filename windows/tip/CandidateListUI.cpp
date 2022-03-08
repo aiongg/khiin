@@ -105,7 +105,7 @@ struct CandidateListUIImpl :
 
         if (focused_col < m_candidate_grid.size()) {
             auto &col = m_candidate_grid.at(focused_col);
-            if (index < col.size()) {
+            if (index < static_cast<int>(col.size())) {
                 auto cand = col.at(index);
                 return cand->id();
             }
@@ -471,7 +471,7 @@ struct CandidateListUIImpl :
         KHIIN_TRACE("");
         auto key_int = key_char - '0';
         auto available_qs = m_candidate_grid.at(m_focused_col).size();
-        if (key_int > 0 && key_int <= available_qs) {
+        if (key_int > 0 && key_int <= static_cast<int>(available_qs)) {
             return true;
         }
         return false;

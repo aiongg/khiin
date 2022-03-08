@@ -254,6 +254,7 @@
     <ClInclude Include="Colors.h" />
     <ClInclude Include="Metrics.h" />
     <ClInclude Include="PopupMenu.h" />
+    <ClInclude Include="SettingsApp.h" />
     <ClInclude Include="TextService.h" />
     <ClInclude Include="log.h" />
     <ClInclude Include="pch.h" />
@@ -303,6 +304,7 @@
     <ClCompile Include="Logger.cpp" />
     <ClCompile Include="Metrics.cpp" />
     <ClCompile Include="PopupMenu.cpp" />
+    <ClCompile Include="SettingsApp.cpp" />
     <ClCompile Include="TextService.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>

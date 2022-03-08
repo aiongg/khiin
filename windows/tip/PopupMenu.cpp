@@ -121,10 +121,11 @@ int TaskbarHeight() {
     return 40;
 }
 
-float CenterTextLayoutY(IDWriteTextLayout *layout, float available_height) {
+int CenterTextLayoutY(IDWriteTextLayout *layout, int available_height) {
+    auto h = static_cast<float>(available_height);
     DWRITE_TEXT_METRICS dwt_metrics;
     check_hresult(layout->GetMetrics(&dwt_metrics));
-    return (available_height - dwt_metrics.height) / 2;
+    return static_cast<int>((h - dwt_metrics.height) / 2.0f);
 }
 
 class PopupMenuImpl : public PopupMenu {
@@ -151,53 +152,82 @@ class PopupMenuImpl : public PopupMenu {
     }
 
   private:
-    bool ItemHitTest(Point pt) {
-        for (auto it = m_items.begin(); it != m_items.end(); ++it) {
+    void Redraw() {
+        ::RedrawWindow(m_hwnd, NULL, NULL, RDW_INVALIDATE | RDW_UPDATENOW);
+    }
+
+    int ItemHitTest(Point pt) {
+        auto ret = -1;
+
+        if (!ClientHitTest(pt)) {
+            return ret;
+        }
+
+        pt.x = ToDp(pt.x);
+        pt.y = ToDp(pt.y);
+
+        auto begin = m_items.cbegin();
+        auto end = m_items.cend();
+        for (auto it = begin; it != end; ++it) {
             // KHIIN_DEBUG("Move point: {},{}", pt.x, pt.y);
             // KHIIN_DEBUG("Item rect: {}, {}, {}, {}", item.rc.left(), item.rc.top(), item.rc.right(),
             // item.rc.bottom());
             if (it->rc.Hit(pt)) {
-                m_highlighted_index = std::distance(m_items.begin(), it);
-                return true;
+                ret = std::distance(begin, it);
+                break;
             }
         }
-        return false;
+
+        return ret;
     }
 
     virtual void OnConfigChanged(AppConfig *config) override {
         GuiWindow::OnConfigChanged(config);
-        ::RedrawWindow(m_hwnd, NULL, NULL, RDW_INVALIDATE | RDW_UPDATENOW);
+        Redraw();
     }
 
     virtual void OnMouseMove(Point pt) override {
-        pt.x = ToDp(pt.x);
-        pt.y = ToDp(pt.y);
-        if (ItemHitTest(pt)) {
-            ::RedrawWindow(m_hwnd, NULL, NULL, RDW_INVALIDATE | RDW_UPDATENOW);
+        auto idx = ItemHitTest(pt);
+        auto redraw = idx != m_highlighted_index;
+        m_highlighted_index = idx;
+
+        if (redraw) {
+            Redraw();
         }
     }
 
     virtual bool OnClick(Point pt) override {
-        KHIIN_DEBUG("Clicked ({},{})", pt.x, pt.y);
+        auto idx = ItemHitTest(pt);
+        Hide();
 
-        if (!ClientHitTest(pt)) {
-            Hide();
+        if (idx < 0 || idx >= static_cast<int>(m_items.size())) {
             return false;
         }
 
-        auto id = 0;
-        for (auto &item : m_items) {
-            if (item.rc.Hit(pt)) {
-                KHIIN_DEBUG("Clicked: {}", id);
-            }
-            ++id;
+        auto &item = m_items.at(idx);
+
+        if (item.checked) {
+            return true;
         }
 
-        // ClientDp(pt);
-        // auto item = m_layout_grid.GetItemByHit(pt);
-        // if (item) {
-        //    NotifyCandidateSelectListeners(item->candidate);
-        //}
+        switch (item.text_rid) {
+        case IDS_CONTINUOUS_MODE:
+            m_service->OnInputModeSelected(InputMode::IM_CONTINUOUS);
+            break;
+        case IDS_BASIC_MODE:
+            m_service->OnInputModeSelected(InputMode::IM_BASIC);
+            break;
+        case IDS_MANUAL_MODE:
+            m_service->OnInputModeSelected(InputMode::IM_PRO);
+            break;
+        case IDS_DIRECT_MODE:
+            m_service->OnInputModeSelected(InputMode::IM_ALPHA);
+            break;
+        case IDS_OPEN_SETTINGS:
+            m_service->OpenSettingsApplication();
+            break;
+        }
+
         return true;
     }
 
@@ -272,16 +302,17 @@ class PopupMenuImpl : public PopupMenu {
             y = WorkAreaBottom() - ToPx(kHPad);
         }
 
-        x = x - w / 2.0f;
+        x = x - w / 2;
         y = y - h;
 
-        if (x + w > m_max_width) {
-            x -= (x + w - m_max_width);
+        auto max_width = static_cast<int>(m_max_width);
+        if (x + w > max_width) {
+            x -= (x + w - max_width);
         }
 
         KHIIN_TRACE("PopupMenu: dpi={}, x={}, y={}, w={}, h={}", m_dpi, x, y, w, h);
         ::SetWindowPos(m_hwnd, 0, x, y, w, h, SWP_NOACTIVATE | SWP_NOZORDER);
-        ::RedrawWindow(m_hwnd, NULL, NULL, RDW_INVALIDATE | RDW_UPDATENOW);
+        Redraw();
     }
 
     void DrawSeparator(MenuItem const &item, float stroke_width) {
@@ -359,7 +390,7 @@ class PopupMenuImpl : public PopupMenu {
             }
         }
     }
-    
+
     virtual void Render() override {
         try {
             EnsureGraphicsResources();

@@ -85,8 +85,9 @@
                           Target="[#KhiinSettingsExe]"
                           WorkingDirectory="INSTALLDIR64"/>
                 <RemoveFolder Id="ApplicationProgramsFolder" On="uninstall"/>
-                <RegistryKey Root="HKCU" Key="Software\$(var.Manufacturer_EN)\KhiinSettings">
+                <RegistryKey Root="HKCU" Key="Software\$(var.Manufacturer_EN)">
                     <RegistryValue Name="installed" Type="integer" Value="1" KeyPath="yes"/>
+                    <RegistryValue Name="KhiinSettings.exe" Type="string" Value="[INSTALLDIR64]$(var.SETTINGS_DEST)" />
                 </RegistryKey>
             </Component>
         </ComponentGroup>

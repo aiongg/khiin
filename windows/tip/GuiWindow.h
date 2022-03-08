@@ -22,7 +22,7 @@ class GuiWindow : public BaseWindow<GuiWindow> {
     using Point = geometry::Point;
     GuiWindow();
     ~GuiWindow();
-    virtual LRESULT WndProc(UINT uMsg, WPARAM wParam, LPARAM lParam) override;
+    virtual LRESULT CALLBACK WndProc(UINT uMsg, WPARAM wParam, LPARAM lParam) override;
 
     // To enable mouse tracking & click handling, subclasses must
     // implement |OnMouseMove| and |OnClick|, as well as call |::SetCapture|

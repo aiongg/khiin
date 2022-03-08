@@ -19,7 +19,7 @@ std::unordered_map<uint32_t, std::string> kEnglish = {
 std::unordered_map<uint32_t, std::string> kHanlo = {
     {IDS_CONTINUOUS_MODE,           "連續打字"},
     {IDS_BASIC_MODE,                "隋个隋个打"},
-    {IDS_MANUAL_MODE,               "手打"},
+    {IDS_MANUAL_MODE,               "加忌打"},
     {IDS_DIRECT_MODE,               "干焦打 ABC (無台語符号)"},
     {IDS_OPEN_SETTINGS,             "起引打字法設置"},
 };

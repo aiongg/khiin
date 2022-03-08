@@ -140,6 +140,9 @@
     <ClInclude Include="UiStrings.h">
       <Filter>Common</Filter>
     </ClInclude>
+    <ClInclude Include="SettingsApp.h">
+      <Filter>TextService</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="RenderFactory.cpp">
@@ -240,6 +243,9 @@
     </ClCompile>
     <ClCompile Include="UiStrings.cpp">
       <Filter>Common</Filter>
+    </ClCompile>
+    <ClCompile Include="SettingsApp.cpp">
+      <Filter>TextService</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
