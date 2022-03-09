@@ -76,7 +76,7 @@ struct EngineControllerImpl : winrt::implements<EngineControllerImpl, EngineCont
     virtual Command *TestKey(KeyEvent win_key_event) override {
         auto cmd = NewCommand();
         auto request = cmd->mutable_request();
-        request->set_type(CommandType::TEST_SEND_KEY);
+        request->set_type(CMD_TEST_SEND_KEY);
         auto key_event = request->mutable_key_event();
         TranslateKeyEvent(&win_key_event, key_event);
         m_engine->SendCommand(cmd);
@@ -91,7 +91,7 @@ struct EngineControllerImpl : winrt::implements<EngineControllerImpl, EngineCont
     virtual Command *OnKey(KeyEvent win_key_event) override {
         auto cmd = NewCommand();
         auto request = cmd->mutable_request();
-        request->set_type(CommandType::SEND_KEY);
+        request->set_type(CMD_SEND_KEY);
         auto key_event = request->mutable_key_event();
         TranslateKeyEvent(&win_key_event, key_event);
         m_engine->SendCommand(cmd);
@@ -101,7 +101,7 @@ struct EngineControllerImpl : winrt::implements<EngineControllerImpl, EngineCont
     virtual Command *SelectCandidate(int32_t candidate_id) override {
         auto cmd = NewCommand();
         auto request = cmd->mutable_request();
-        request->set_type(CommandType::SELECT_CANDIDATE);
+        request->set_type(CMD_SELECT_CANDIDATE);
         request->set_candidate_id(candidate_id);
         m_engine->SendCommand(cmd);
         return cmd;
@@ -110,7 +110,7 @@ struct EngineControllerImpl : winrt::implements<EngineControllerImpl, EngineCont
     virtual Command *FocusCandidate(int32_t candidate_id) override {
         auto cmd = NewCommand();
         auto request = cmd->mutable_request();
-        request->set_type(CommandType::FOCUS_CANDIDATE);
+        request->set_type(CMD_FOCUS_CANDIDATE);
         request->set_candidate_id(candidate_id);
         m_engine->SendCommand(cmd);
         return cmd;
@@ -119,7 +119,7 @@ struct EngineControllerImpl : winrt::implements<EngineControllerImpl, EngineCont
     virtual void Reset() {
         auto cmd = NewCommand();
         auto request = cmd->mutable_request();
-        request->set_type(CommandType::RESET);
+        request->set_type(CMD_RESET);
         m_engine->SendCommand(cmd);
     }
 

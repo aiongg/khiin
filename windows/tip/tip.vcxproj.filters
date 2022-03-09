@@ -5,68 +5,62 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="Common">
-      <UniqueIdentifier>{bad95efc-e61d-4606-a86b-4e32ce8c9d69}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="TextService">
-      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
-      <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
-    </Filter>
     <Filter Include="Renderer">
       <UniqueIdentifier>{e6f43124-42c9-4cc7-89e1-a56c8a78c1b1}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Module">
-      <UniqueIdentifier>{aee0f168-3106-47c3-9e2a-421b14c06ce4}</UniqueIdentifier>
+    <Filter Include="win32">
+      <UniqueIdentifier>{bad95efc-e61d-4606-a86b-4e32ce8c9d69}</UniqueIdentifier>
     </Filter>
-    <Filter Include="proto">
-      <UniqueIdentifier>{0e50944d-9091-4cd9-b47d-38b13032c198}</UniqueIdentifier>
+    <Filter Include="win32::tip">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
     </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="TextService.h">
-      <Filter>TextService</Filter>
+      <Filter>win32::tip</Filter>
     </ClInclude>
     <ClInclude Include="KhiinClassFactory.h">
-      <Filter>TextService</Filter>
+      <Filter>win32::tip</Filter>
     </ClInclude>
     <ClInclude Include="KeyEventSink.h">
-      <Filter>TextService</Filter>
+      <Filter>win32::tip</Filter>
     </ClInclude>
     <ClInclude Include="SinkManager.h">
-      <Filter>TextService</Filter>
+      <Filter>win32::tip</Filter>
     </ClInclude>
     <ClInclude Include="ThreadMgrEventSink.h">
-      <Filter>TextService</Filter>
+      <Filter>win32::tip</Filter>
     </ClInclude>
     <ClInclude Include="TextEditSink.h">
-      <Filter>TextService</Filter>
+      <Filter>win32::tip</Filter>
     </ClInclude>
     <ClInclude Include="CompositionMgr.h">
-      <Filter>TextService</Filter>
+      <Filter>win32::tip</Filter>
     </ClInclude>
     <ClInclude Include="EditSession.h">
-      <Filter>TextService</Filter>
+      <Filter>win32::tip</Filter>
     </ClInclude>
     <ClInclude Include="Compartment.h">
-      <Filter>TextService</Filter>
+      <Filter>win32::tip</Filter>
     </ClInclude>
     <ClInclude Include="DisplayAttributeInfo.h">
-      <Filter>TextService</Filter>
+      <Filter>win32::tip</Filter>
     </ClInclude>
     <ClInclude Include="DisplayAttributeInfoEnum.h">
-      <Filter>TextService</Filter>
+      <Filter>win32::tip</Filter>
     </ClInclude>
     <ClInclude Include="EngineController.h">
-      <Filter>TextService</Filter>
+      <Filter>win32::tip</Filter>
     </ClInclude>
     <ClInclude Include="CandidateListUI.h">
-      <Filter>TextService</Filter>
+      <Filter>win32::tip</Filter>
     </ClInclude>
     <ClInclude Include="KeyEvent.h">
-      <Filter>TextService</Filter>
+      <Filter>win32::tip</Filter>
     </ClInclude>
     <ClInclude Include="CompositionSink.h">
-      <Filter>TextService</Filter>
+      <Filter>win32::tip</Filter>
     </ClInclude>
     <ClInclude Include="Geometry.h">
       <Filter>Renderer</Filter>
@@ -90,43 +84,31 @@
       <Filter>Renderer</Filter>
     </ClInclude>
     <ClInclude Include="common.h">
-      <Filter>Common</Filter>
+      <Filter>win32</Filter>
     </ClInclude>
     <ClInclude Include="Utils.h">
-      <Filter>Common</Filter>
-    </ClInclude>
-    <ClInclude Include="Config.h">
-      <Filter>Common</Filter>
+      <Filter>win32</Filter>
     </ClInclude>
     <ClInclude Include="Logger.h">
-      <Filter>Common</Filter>
+      <Filter>win32</Filter>
     </ClInclude>
     <ClInclude Include="log.h">
-      <Filter>Common</Filter>
-    </ClInclude>
-    <ClInclude Include="DllModule.h">
-      <Filter>Module</Filter>
-    </ClInclude>
-    <ClInclude Include="Registrar.h">
-      <Filter>Module</Filter>
+      <Filter>win32</Filter>
     </ClInclude>
     <ClInclude Include="pch.h">
-      <Filter>Common</Filter>
+      <Filter>win32</Filter>
     </ClInclude>
     <ClInclude Include="Files.h">
-      <Filter>Common</Filter>
-    </ClInclude>
-    <ClInclude Include="Profile.h">
-      <Filter>Module</Filter>
+      <Filter>win32</Filter>
     </ClInclude>
     <ClInclude Include="resource.h">
-      <Filter>Common</Filter>
+      <Filter>win32</Filter>
     </ClInclude>
     <ClInclude Include="hresult.h">
-      <Filter>Common</Filter>
+      <Filter>win32</Filter>
     </ClInclude>
     <ClInclude Include="LangBarIndicator.h">
-      <Filter>TextService</Filter>
+      <Filter>win32::tip</Filter>
     </ClInclude>
     <ClInclude Include="PopupMenu.h">
       <Filter>Renderer</Filter>
@@ -138,13 +120,22 @@
       <Filter>Renderer</Filter>
     </ClInclude>
     <ClInclude Include="UiStrings.h">
-      <Filter>Common</Filter>
+      <Filter>win32</Filter>
     </ClInclude>
     <ClInclude Include="SettingsApp.h">
-      <Filter>TextService</Filter>
+      <Filter>win32::tip</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\proto\proto\proto.h">
-      <Filter>proto</Filter>
+    <ClInclude Include="DllModule.h">
+      <Filter>win32::tip</Filter>
+    </ClInclude>
+    <ClInclude Include="Profile.h">
+      <Filter>win32::tip</Filter>
+    </ClInclude>
+    <ClInclude Include="Registrar.h">
+      <Filter>win32::tip</Filter>
+    </ClInclude>
+    <ClInclude Include="Config.h">
+      <Filter>win32::tip</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -163,74 +154,62 @@
     <ClCompile Include="Colors.cpp">
       <Filter>Renderer</Filter>
     </ClCompile>
-    <ClCompile Include="Config.cpp">
-      <Filter>Common</Filter>
-    </ClCompile>
-    <ClCompile Include="DllModule.cpp">
-      <Filter>Module</Filter>
-    </ClCompile>
-    <ClCompile Include="Registrar.cpp">
-      <Filter>Module</Filter>
-    </ClCompile>
     <ClCompile Include="CandidateListUI.cpp">
-      <Filter>TextService</Filter>
+      <Filter>win32::tip</Filter>
     </ClCompile>
     <ClCompile Include="Compartment.cpp">
-      <Filter>TextService</Filter>
+      <Filter>win32::tip</Filter>
     </ClCompile>
     <ClCompile Include="CompositionMgr.cpp">
-      <Filter>TextService</Filter>
+      <Filter>win32::tip</Filter>
     </ClCompile>
     <ClCompile Include="CompositionSink.cpp">
-      <Filter>TextService</Filter>
+      <Filter>win32::tip</Filter>
     </ClCompile>
     <ClCompile Include="DisplayAttributeInfo.cpp">
-      <Filter>TextService</Filter>
+      <Filter>win32::tip</Filter>
     </ClCompile>
     <ClCompile Include="DisplayAttributeInfoEnum.cpp">
-      <Filter>TextService</Filter>
+      <Filter>win32::tip</Filter>
     </ClCompile>
     <ClCompile Include="EditSession.cpp">
-      <Filter>TextService</Filter>
+      <Filter>win32::tip</Filter>
     </ClCompile>
     <ClCompile Include="Files.cpp">
-      <Filter>Common</Filter>
+      <Filter>win32</Filter>
     </ClCompile>
     <ClCompile Include="Logger.cpp">
-      <Filter>Common</Filter>
+      <Filter>win32</Filter>
     </ClCompile>
     <ClCompile Include="EngineController.cpp">
-      <Filter>TextService</Filter>
+      <Filter>win32::tip</Filter>
     </ClCompile>
     <ClCompile Include="KeyEvent.cpp">
-      <Filter>TextService</Filter>
+      <Filter>win32::tip</Filter>
     </ClCompile>
     <ClCompile Include="KeyEventSink.cpp">
-      <Filter>TextService</Filter>
+      <Filter>win32::tip</Filter>
     </ClCompile>
     <ClCompile Include="KhiinClassFactory.cpp">
-      <Filter>TextService</Filter>
+      <Filter>win32::tip</Filter>
     </ClCompile>
     <ClCompile Include="TextEditSink.cpp">
-      <Filter>TextService</Filter>
+      <Filter>win32::tip</Filter>
     </ClCompile>
     <ClCompile Include="TextService.cpp">
-      <Filter>TextService</Filter>
+      <Filter>win32::tip</Filter>
     </ClCompile>
     <ClCompile Include="ThreadMgrEventSink.cpp">
-      <Filter>TextService</Filter>
+      <Filter>win32::tip</Filter>
     </ClCompile>
     <ClCompile Include="Utils.cpp">
-      <Filter>Common</Filter>
+      <Filter>win32</Filter>
     </ClCompile>
     <ClCompile Include="pch.cpp">
-      <Filter>Common</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\proto\proto\config.pb.cc">
-      <Filter>proto</Filter>
+      <Filter>win32</Filter>
     </ClCompile>
     <ClCompile Include="LangBarIndicator.cpp">
-      <Filter>TextService</Filter>
+      <Filter>win32::tip</Filter>
     </ClCompile>
     <ClCompile Include="PopupMenu.cpp">
       <Filter>Renderer</Filter>
@@ -242,14 +221,20 @@
       <Filter>Renderer</Filter>
     </ClCompile>
     <ClCompile Include="UiStrings.cpp">
-      <Filter>Common</Filter>
+      <Filter>win32</Filter>
     </ClCompile>
     <ClCompile Include="SettingsApp.cpp">
-      <Filter>TextService</Filter>
+      <Filter>win32::tip</Filter>
     </ClCompile>
     <ClCompile Include="..\..\proto\proto\messages.pb.cc" />
-    <ClCompile Include="..\..\proto\proto\command.pb.cc">
-      <Filter>proto</Filter>
+    <ClCompile Include="DllModule.cpp">
+      <Filter>win32::tip</Filter>
+    </ClCompile>
+    <ClCompile Include="Registrar.cpp">
+      <Filter>win32::tip</Filter>
+    </ClCompile>
+    <ClCompile Include="Config.cpp">
+      <Filter>win32::tip</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -259,13 +244,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="DllModule.def">
-      <Filter>Module</Filter>
-    </None>
-    <None Include="..\..\proto\config.proto">
-      <Filter>proto</Filter>
-    </None>
-    <None Include="..\..\proto\command.proto">
-      <Filter>proto</Filter>
+      <Filter>win32::tip</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>

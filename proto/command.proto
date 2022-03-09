@@ -43,18 +43,18 @@ message KeyEvent {
 }
 
 enum CommandType {
-    SEND_KEY = 0;
-    REVERT = 1;
-    RESET = 2;
-    COMMIT = 3;
-    SELECT_CANDIDATE = 4;
-    FOCUS_CANDIDATE = 5;
-    SWITCH_INPUT_MODE = 6;
-    PLACE_CURSOR = 7;
-    DISABLE = 8;
-    ENABLE = 9;
-    SET_CONFIG = 10;
-    TEST_SEND_KEY = 11;
+    CMD_SEND_KEY = 0;
+    CMD_REVERT = 1;
+    CMD_RESET = 2;
+    CMD_COMMIT = 3;
+    CMD_SELECT_CANDIDATE = 4;
+    CMD_FOCUS_CANDIDATE = 5;
+    CMD_SWITCH_INPUT_MODE = 6;
+    CMD_PLACE_CURSOR = 7;
+    CMD_DISABLE = 8;
+    CMD_ENABLE = 9;
+    CMD_SET_CONFIG = 10;
+    CMD_TEST_SEND_KEY = 11;
 }
 
 // Message sent from app to engine
@@ -74,10 +74,10 @@ message Request {
 }
 
 enum SegmentStatus {
-    UNMARKED = 0;       // No underline
-    COMPOSING = 1;  // Dots or squiggle underline
-    CONVERTED = 2;  // Solid underline
-    FOCUSED = 3;    // Thick, solid underline
+    SS_UNMARKED = 0;       // No underline
+    SS_COMPOSING = 1;  // Dots or squiggle underline
+    SS_CONVERTED = 2;  // Solid underline
+    SS_FOCUSED = 3;    // Thick, solid underline
 }
 
 // The display buffer text and cursor position
@@ -134,10 +134,10 @@ enum ErrorCode {
 }
 
 enum EditState {
-    EDIT_EMPTY = 0;
-    EDIT_COMPOSING = 1;
-    EDIT_CONVERTED = 2;
-    EDIT_SELECTING = 3;
+    ES_EMPTY = 0;
+    ES_COMPOSING = 1;
+    ES_CONVERTED = 2;
+    ES_SELECTING = 3;
 }
 
 // The response portion of the message, from engine back to app

@@ -212,85 +212,85 @@ struct BufferInsertionTest : public BufferMgrTest {};
 
 TEST_F(BufferInsertionTest, a) {
     typing("a");
-    ExpectSegment(1, 0, COMPOSING, "a", 1);
+    ExpectSegment(1, 0, SS_COMPOSING, "a", 1);
 }
 
 TEST_F(BufferInsertionTest, ta1) {
     typing("ta1");
-    ExpectSegment(1, 0, COMPOSING, "ta", 2);
+    ExpectSegment(1, 0, SS_COMPOSING, "ta", 2);
 }
 TEST_F(BufferInsertionTest, taichi) {
     typing("t");
-    ExpectSegment(1, 0, COMPOSING, "t", 1);
+    ExpectSegment(1, 0, SS_COMPOSING, "t", 1);
     typing("a");
-    ExpectSegment(1, 0, COMPOSING, "ta", 2);
+    ExpectSegment(1, 0, SS_COMPOSING, "ta", 2);
     typing("i");
-    ExpectSegment(1, 0, COMPOSING, "ta i", 4);
+    ExpectSegment(1, 0, SS_COMPOSING, "ta i", 4);
     typing("c");
-    ExpectSegment(1, 0, COMPOSING, "tai c", 5);
+    ExpectSegment(1, 0, SS_COMPOSING, "tai c", 5);
     typing("h");
-    ExpectSegment(1, 0, COMPOSING, "tai ch", 6);
+    ExpectSegment(1, 0, SS_COMPOSING, "tai ch", 6);
     typing("i");
-    ExpectSegment(1, 0, COMPOSING, "tai chi", 7);
+    ExpectSegment(1, 0, SS_COMPOSING, "tai chi", 7);
 }
 
 TEST_F(BufferInsertionTest, to7si7) {
     typing("t");
-    ExpectSegment(1, 0, COMPOSING, "t", 1);
+    ExpectSegment(1, 0, SS_COMPOSING, "t", 1);
     typing("o");
-    ExpectSegment(1, 0, COMPOSING, "to", 2);
+    ExpectSegment(1, 0, SS_COMPOSING, "to", 2);
     typing("7");
-    ExpectSegment(1, 0, COMPOSING, "tō", 2);
+    ExpectSegment(1, 0, SS_COMPOSING, "tō", 2);
     typing("s");
-    ExpectSegment(1, 0, COMPOSING, "tō s", 4);
+    ExpectSegment(1, 0, SS_COMPOSING, "tō s", 4);
     typing("i");
-    ExpectSegment(1, 0, COMPOSING, "tō si", 5);
+    ExpectSegment(1, 0, SS_COMPOSING, "tō si", 5);
     typing("7");
-    ExpectSegment(1, 0, COMPOSING, "tō sī", 5);
+    ExpectSegment(1, 0, SS_COMPOSING, "tō sī", 5);
 }
 
 TEST_F(BufferInsertionTest, tai7chi) {
     typing("tai7chi");
-    ExpectSegment(1, 0, COMPOSING, "tāi chi", 7);
+    ExpectSegment(1, 0, SS_COMPOSING, "tāi chi", 7);
 }
 
 TEST_F(BufferInsertionTest, ian9jin2) {
     typing("ian9");
-    ExpectSegment(1, 0, COMPOSING, "iăn", 3);
+    ExpectSegment(1, 0, SS_COMPOSING, "iăn", 3);
     typing("j");
-    ExpectSegment(1, 0, COMPOSING, "iăn j", 5);
+    ExpectSegment(1, 0, SS_COMPOSING, "iăn j", 5);
     typing("i");
-    ExpectSegment(1, 0, COMPOSING, "iăn ji", 6);
+    ExpectSegment(1, 0, SS_COMPOSING, "iăn ji", 6);
     typing("n");
-    ExpectSegment(1, 0, COMPOSING, "iăn jin", 7);
+    ExpectSegment(1, 0, SS_COMPOSING, "iăn jin", 7);
     typing("2");
-    ExpectSegment(1, 0, COMPOSING, "iăn jín", 7);
+    ExpectSegment(1, 0, SS_COMPOSING, "iăn jín", 7);
 }
 
 TEST_F(BufferInsertionTest, aan2) {
     typing("aan2");
-    ExpectSegment(1, 0, COMPOSING, "a án", 4);
+    ExpectSegment(1, 0, SS_COMPOSING, "a án", 4);
 }
 
 TEST_F(BufferInsertionTest, len) {
     typing("len");
-    ExpectSegment(1, 0, COMPOSING, "len", 3);
+    ExpectSegment(1, 0, SS_COMPOSING, "len", 3);
 }
 
 TEST_F(BufferInsertionTest, mng7) {
     typing("m");
-    ExpectSegment(1, 0, COMPOSING, "m", 1);
+    ExpectSegment(1, 0, SS_COMPOSING, "m", 1);
     typing("n");
-    ExpectSegment(1, 0, COMPOSING, "mn", 2);
+    ExpectSegment(1, 0, SS_COMPOSING, "mn", 2);
     typing("g");
-    ExpectSegment(1, 0, COMPOSING, "mng", 3);
+    ExpectSegment(1, 0, SS_COMPOSING, "mng", 3);
     typing("7");
-    ExpectSegment(1, 0, COMPOSING, "mn\u0304g", 4);
+    ExpectSegment(1, 0, SS_COMPOSING, "mn\u0304g", 4);
 }
 
 TEST_F(BufferInsertionTest, Goa) {
     typing("Goa");
-    ExpectSegment(1, 0, COMPOSING, "Goa", 3);
+    ExpectSegment(1, 0, SS_COMPOSING, "Goa", 3);
 }
 
 //+---------------------------------------------------------------------------
@@ -303,24 +303,24 @@ struct BufferCaretTest : public BufferMgrTest {};
 
 TEST_F(BufferCaretTest, Move_a) {
     typing("a");
-    ExpectSegment(1, 0, COMPOSING, "a", 1);
+    ExpectSegment(1, 0, SS_COMPOSING, "a", 1);
 
     curs_left(1);
-    ExpectSegment(1, 0, COMPOSING, "a", 0);
+    ExpectSegment(1, 0, SS_COMPOSING, "a", 0);
 
     curs_left(1);
-    ExpectSegment(1, 0, COMPOSING, "a", 0);
+    ExpectSegment(1, 0, SS_COMPOSING, "a", 0);
 
     curs_right(1);
-    ExpectSegment(1, 0, COMPOSING, "a", 1);
+    ExpectSegment(1, 0, SS_COMPOSING, "a", 1);
 
     curs_right(1);
-    ExpectSegment(1, 0, COMPOSING, "a", 1);
+    ExpectSegment(1, 0, SS_COMPOSING, "a", 1);
 }
 
 TEST_F(BufferCaretTest, Move_ah8) {
     typing("ah8");
-    ExpectSegment(1, 0, COMPOSING, "a\u030dh", 3);
+    ExpectSegment(1, 0, SS_COMPOSING, "a\u030dh", 3);
 
     curs_left(1);
     ExpectCaret(2);
@@ -332,12 +332,12 @@ TEST_F(BufferCaretTest, Move_ah8) {
     ExpectCaret(2);
 
     curs_right(1);
-    ExpectSegment(1, 0, COMPOSING, "a\u030dh", 3);
+    ExpectSegment(1, 0, SS_COMPOSING, "a\u030dh", 3);
 }
 
 TEST_F(BufferCaretTest, Move_sou2i2) {
     typing("sou2i2");
-    ExpectSegment(1, 0, COMPOSING, "só\u0358 í", 5);
+    ExpectSegment(1, 0, SS_COMPOSING, "só\u0358 í", 5);
 
     curs_left(1);
     ExpectCaret(4);
@@ -361,7 +361,7 @@ TEST_F(BufferCaretTest, Move_sou2i2) {
     ExpectCaret(4);
 
     curs_right(1);
-    ExpectSegment(1, 0, COMPOSING, "só\u0358 í", 5);
+    ExpectSegment(1, 0, SS_COMPOSING, "só\u0358 í", 5);
 }
 
 TEST_F(BufferCaretTest, MoveType_siongho) {
@@ -566,13 +566,13 @@ struct BufferConversionTest : public BufferMgrTest {};
 TEST_F(BufferConversionTest, Convert_gina) {
     typing("gina");
     spacebar(1);
-    ExpectSegment(1, 0, FOCUSED, "囝仔", 2);
+    ExpectSegment(1, 0, SS_FOCUSED, "囝仔", 2);
 }
 
 TEST_F(BufferConversionTest, Convert_erase_ho2) {
     typing("ho2");
     spacebar(1);
-    ExpectSegment(1, 0, FOCUSED, "好", 1);
+    ExpectSegment(1, 0, SS_FOCUSED, "好", 1);
     key_bksp(1);
     ExpectEmpty();
 }
@@ -604,17 +604,17 @@ TEST_F(BufferConversionTest, Convert_erase_insert) {
 TEST_F(BufferConversionTest, Convert_insert_middle) {
     typing("anne");
     spacebar(1);
-    ExpectSegment(1, 0, FOCUSED, "按呢", 2);
+    ExpectSegment(1, 0, SS_FOCUSED, "按呢", 2);
     curs_left(1);
-    ExpectSegment(1, 0, FOCUSED, "按呢", 1);
+    ExpectSegment(1, 0, SS_FOCUSED, "按呢", 1);
     typing("ho");
     ExpectBuffer("按 ho 呢", 4);
-    ExpectSegment(3, 0, CONVERTED, "按", 4);
-    ExpectSegment(3, 1, COMPOSING, " ho ", 4);
-    ExpectSegment(3, 2, CONVERTED, "呢", 4);
+    ExpectSegment(3, 0, SS_CONVERTED, "按", 4);
+    ExpectSegment(3, 1, SS_COMPOSING, " ho ", 4);
+    ExpectSegment(3, 2, SS_CONVERTED, "呢", 4);
     spacebar(1);
     ExpectBuffer("按好呢", 2);
-    ExpectSegment(3, 1, FOCUSED, "好", 2);
+    ExpectSegment(3, 1, SS_FOCUSED, "好", 2);
 }
 
 TEST_F(BufferConversionTest, Convert_insert_erase) {
@@ -623,7 +623,7 @@ TEST_F(BufferConversionTest, Convert_insert_erase) {
     curs_left(1);
     typing("ho");
     key_bksp(2);
-    ExpectSegment(1, 0, COMPOSING, "按呢", 1);
+    ExpectSegment(1, 0, SS_COMPOSING, "按呢", 1);
 }
 
 TEST_F(BufferConversionTest, Convert_e5) {
@@ -631,29 +631,29 @@ TEST_F(BufferConversionTest, Convert_e5) {
     ExpectCandidateSize(4);
     auto cand = CandidateAt(0);
 
-    ExpectSegment(1, 0, COMPOSING, "ê", 1);
+    ExpectSegment(1, 0, SS_COMPOSING, "ê", 1);
     spacebar(1);
-    ExpectSegment(1, 0, FOCUSED, cand, 1);
+    ExpectSegment(1, 0, SS_FOCUSED, cand, 1);
 }
 
 TEST_F(BufferConversionTest, Convert_ebe1) {
     typing("ebe");
     ExpectCandidateSize(9);
-    ExpectSegment(1, 0, COMPOSING, "e be", 4);
+    ExpectSegment(1, 0, SS_COMPOSING, "e be", 4);
 }
 
 TEST_F(BufferConversionTest, Convert_ebe2) {
     typing("ebe");
     spacebar(1);
-    ExpectSegment(2, 0, FOCUSED, "个", 2);
-    ExpectSegment(2, 1, CONVERTED, "未", 2);
+    ExpectSegment(2, 0, SS_FOCUSED, "个", 2);
+    ExpectSegment(2, 1, SS_CONVERTED, "未", 2);
 }
 
 TEST_F(BufferConversionTest, Convert_ebe3) {
     typing("ebe");
     spacebar(2);
-    ExpectSegment(2, 0, FOCUSED, "兮", 2);
-    ExpectSegment(2, 1, CONVERTED, "未", 2);
+    ExpectSegment(2, 0, SS_FOCUSED, "兮", 2);
+    ExpectSegment(2, 1, SS_CONVERTED, "未", 2);
 }
 
 TEST_F(BufferConversionTest, Convert_ebe4) {
@@ -661,43 +661,43 @@ TEST_F(BufferConversionTest, Convert_ebe4) {
     spacebar(1);
     curs_right(1);
     spacebar(1);
-    ExpectSegment(2, 0, CONVERTED, "个", 2);
-    ExpectSegment(2, 1, FOCUSED, "袂", 2);
+    ExpectSegment(2, 0, SS_CONVERTED, "个", 2);
+    ExpectSegment(2, 1, SS_FOCUSED, "袂", 2);
 }
 
 TEST_F(BufferConversionTest, Convert_boe1) {
     typing("boe");
     spacebar(1);
     ExpectCandidatesHidden();
-    ExpectSegment(1, 0, FOCUSED, "未", 1);
+    ExpectSegment(1, 0, SS_FOCUSED, "未", 1);
 }
 
 TEST_F(BufferConversionTest, Convert_boe2) {
     typing("boe");
     spacebar(8);
-    ExpectSegment(2, 0, FOCUSED, "無", 3);
-    ExpectSegment(2, 1, COMPOSING, " e", 3);
+    ExpectSegment(2, 0, SS_FOCUSED, "無", 3);
+    ExpectSegment(2, 1, SS_COMPOSING, " e", 3);
 }
 
 TEST_F(BufferConversionTest, Convert_boe3) {
     typing("boe");
     spacebar(9);
-    ExpectSegment(2, 0, FOCUSED, "bô", 4);
-    ExpectSegment(2, 1, COMPOSING, " e", 4);
+    ExpectSegment(2, 0, SS_FOCUSED, "bô", 4);
+    ExpectSegment(2, 1, SS_COMPOSING, " e", 4);
 }
 
 TEST_F(BufferConversionTest, Convert_boe4) {
     typing("boe");
     spacebar(10);
-    ExpectSegment(1, 0, FOCUSED, "未", 1);
+    ExpectSegment(1, 0, SS_FOCUSED, "未", 1);
 }
 
 TEST_F(BufferConversionTest, Convert_eee_remove_e) {
     typing("eee");
     key_bksp(1);
     spacebar(1);
-    ExpectSegment(2, 0, FOCUSED, "个", 2);
-    ExpectSegment(2, 1, CONVERTED, "个", 2);
+    ExpectSegment(2, 0, SS_FOCUSED, "个", 2);
+    ExpectSegment(2, 1, SS_CONVERTED, "个", 2);
 }
 
 //+---------------------------------------------------------------------------
@@ -711,16 +711,16 @@ struct BufferNavigationTest : public BufferMgrTest {};
 TEST_F(BufferNavigationTest, Focus_element) {
     typing("kamanne");
     spacebar(1);
-    ExpectSegment(2, 0, FOCUSED);
-    ExpectSegment(2, 1, CONVERTED);
+    ExpectSegment(2, 0, SS_FOCUSED);
+    ExpectSegment(2, 1, SS_CONVERTED);
 
     curs_right(1);
-    ExpectSegment(2, 0, CONVERTED);
-    ExpectSegment(2, 1, FOCUSED);
+    ExpectSegment(2, 0, SS_CONVERTED);
+    ExpectSegment(2, 1, SS_FOCUSED);
 
     curs_left(1);
-    ExpectSegment(2, 0, FOCUSED);
-    ExpectSegment(2, 1, CONVERTED);
+    ExpectSegment(2, 0, SS_FOCUSED);
+    ExpectSegment(2, 1, SS_CONVERTED);
 }
 
 TEST_F(BufferMgrTest, DISABLED_TmpTest) {
@@ -739,14 +739,14 @@ struct CandidateNavigationTest : public BufferMgrTest {};
 TEST_F(CandidateNavigationTest, Focus_boe) {
     typing("boe");
     curs_down(1);
-    ExpectSegment(1, 0, FOCUSED, "未", 1);
+    ExpectSegment(1, 0, SS_FOCUSED, "未", 1);
     ExpectCandidateSize(10);
 }
 
 TEST_F(CandidateNavigationTest, Focus_taichi) {
     typing("taichi");
     curs_down(1);
-    ExpectSegment(1, 0, FOCUSED, "事志", 2);
+    ExpectSegment(1, 0, SS_FOCUSED, "事志", 2);
     ExpectCandidateSize(3);
 }
 
@@ -761,17 +761,17 @@ TEST_F(CandidateNavigationTest, Focus_prev_e) {
     typing("ex");
     spacebar(1);
     curs_up(1);
-    ExpectSegment(3, 0, FOCUSED, "ē", 3);
-    ExpectSegment(3, 1, CONVERTED, " ", 3);
-    ExpectSegment(3, 2, CONVERTED, "x", 3);
+    ExpectSegment(3, 0, SS_FOCUSED, "ē", 3);
+    ExpectSegment(3, 1, SS_CONVERTED, " ", 3);
+    ExpectSegment(3, 2, SS_CONVERTED, "x", 3);
 }
 
 TEST_F(CandidateNavigationTest, Focus_xyz) {
     typing("boxyz");
     spacebar(1);
-    ExpectSegment(3, 0, FOCUSED, "無", 5);
-    ExpectSegment(3, 1, CONVERTED, " ", 5);
-    ExpectSegment(3, 2, CONVERTED, "xyz", 5);
+    ExpectSegment(3, 0, SS_FOCUSED, "無", 5);
+    ExpectSegment(3, 1, SS_CONVERTED, " ", 5);
+    ExpectSegment(3, 2, SS_CONVERTED, "xyz", 5);
 
     curs_right(1);
     curs_down(1);
@@ -795,7 +795,7 @@ TEST_F(CandidateSelectionTest, Select_e) {
     typing("e");
     curs_down(2);
     enter();
-    ExpectSegment(1, 0, FOCUSED, "兮", 1);
+    ExpectSegment(1, 0, SS_FOCUSED, "兮", 1);
     ExpectCandidatesHidden();
 }
 
@@ -804,35 +804,35 @@ TEST_F(CandidateSelectionTest, Select_ebe1) {
     auto i = CandidateIndexOf("會");
     spacebar(i);
     enter();
-    ExpectSegment(2, 0, CONVERTED, "會", 2);
-    ExpectSegment(2, 1, FOCUSED, "未", 2);
+    ExpectSegment(2, 0, SS_CONVERTED, "會", 2);
+    ExpectSegment(2, 1, SS_FOCUSED, "未", 2);
 }
 
 TEST_F(CandidateSelectionTest, Select_ebe2) {
     typing("ebe");
     spacebar(2);
-    ExpectSegment(2, 0, FOCUSED, "兮", 2);
-    ExpectSegment(2, 1, CONVERTED, "未", 2);
+    ExpectSegment(2, 0, SS_FOCUSED, "兮", 2);
+    ExpectSegment(2, 1, SS_CONVERTED, "未", 2);
     enter();
-    ExpectSegment(2, 0, CONVERTED, "兮", 2);
-    ExpectSegment(2, 1, FOCUSED, "未", 2);
+    ExpectSegment(2, 0, SS_CONVERTED, "兮", 2);
+    ExpectSegment(2, 1, SS_FOCUSED, "未", 2);
     ExpectCandidatesHidden();
     curs_right(1);
     spacebar(1);
-    ExpectSegment(2, 0, CONVERTED, "兮", 2);
-    ExpectSegment(2, 1, FOCUSED, "袂", 2);
+    ExpectSegment(2, 0, SS_CONVERTED, "兮", 2);
+    ExpectSegment(2, 1, SS_FOCUSED, "袂", 2);
 }
 
 TEST_F(CandidateSelectionTest, Select_ex) {
     typing("ex");
     spacebar(1);
-    ExpectSegment(3, 0, FOCUSED, "个", 3);
-    ExpectSegment(3, 1, CONVERTED, " ", 3);
-    ExpectSegment(3, 2, CONVERTED, "x", 3);
+    ExpectSegment(3, 0, SS_FOCUSED, "个", 3);
+    ExpectSegment(3, 1, SS_CONVERTED, " ", 3);
+    ExpectSegment(3, 2, SS_CONVERTED, "x", 3);
     curs_down(1);
-    ExpectSegment(3, 0, FOCUSED, "兮", 3);
+    ExpectSegment(3, 0, SS_FOCUSED, "兮", 3);
     enter();
-    ExpectSegment(3, 0, CONVERTED, "兮", 3);
+    ExpectSegment(3, 0, SS_CONVERTED, "兮", 3);
     curs_right(2);
     curs_down(1);
 }

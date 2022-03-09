@@ -59,7 +59,7 @@ class EngineTest : public ::testing::Test {
             req = command->mutable_request();
             res = command->mutable_response();
 
-            req->set_type(CommandType::SEND_KEY);
+            req->set_type(CMD_SEND_KEY);
             req->mutable_key_event()->set_key_code(c);
             engine->SendCommand(command);
         }

@@ -4,20 +4,21 @@
 
 #include <variant>
 
+#include "proto/proto.h"
+
 #include "Geometry.h"
 #include "RenderFactory.h"
 #include "TextService.h"
 #include "UiStrings.h"
-#include "proto/proto.h"
 
 namespace khiin::win32 {
 namespace {
-using namespace proto;
 using namespace winrt;
-using namespace strings;
 using namespace D2D1;
-using namespace geometry;
-using namespace tip;
+using namespace khiin::geometry;
+using namespace khiin::proto;
+using namespace khiin::win32::tip;
+using namespace khiin::win32::strings;
 
 const std::wstring kMenuWindowClassName = L"PopupMenuWindow";
 

@@ -31,16 +31,16 @@ class BufferMgrImpl : public BufferMgr {
                         ++it;
                     }
                     auto segment = preedit->add_segments();
-                    segment->set_status(SegmentStatus::COMPOSING);
+                    segment->set_status(SS_COMPOSING);
                     segment->set_value(composing_text);
                     continue;
                 } else if (it->is_converted) {
                     auto segment = preedit->add_segments();
                     segment->set_value(it->converted());
                     if (std::distance(m_composition.CBegin(), it) == m_focused_element) {
-                        segment->set_status(SegmentStatus::FOCUSED);
+                        segment->set_status(SS_FOCUSED);
                     } else {
-                        segment->set_status(SegmentStatus::CONVERTED);
+                        segment->set_status(SS_CONVERTED);
                     }
                 }
                 ++it;
@@ -51,7 +51,7 @@ class BufferMgrImpl : public BufferMgr {
     }
 
     virtual void GetCandidates(CandidateList *candidate_list) override {
-        if (m_edit_state == EditState::EDIT_CONVERTED) {
+        if (m_edit_state == ES_CONVERTED) {
             return;
         }
 
@@ -74,19 +74,19 @@ class BufferMgrImpl : public BufferMgr {
         m_composition.Clear();
         m_candidates.clear();
         m_caret = 0;
-        m_edit_state = EditState::EDIT_EMPTY;
+        m_edit_state = ES_EMPTY;
         NavMode m_nav_mode = NavMode::ByCharacter;
         m_focused_candidate = 0;
         m_focused_element = 0;
     }
 
     virtual void Insert(char ch) override {
-        if (m_edit_state != EditState::EDIT_COMPOSING) {
-            m_edit_state = EditState::EDIT_COMPOSING;
+        if (m_edit_state != ES_COMPOSING) {
+            m_edit_state = ES_COMPOSING;
         }
 
         switch (m_input_mode) {
-        case InputMode::Continuous:
+        case IM_CONTINUOUS:
             InsertContinuous(ch);
             break;
         default:
@@ -119,15 +119,15 @@ class BufferMgrImpl : public BufferMgr {
     }
 
     virtual void HandleLeftRight(CursorDirection direction) override {
-        if (m_edit_state == EditState::EDIT_COMPOSING) {
+        if (m_edit_state == ES_COMPOSING) {
             MoveCaret(direction);
-        } else if (m_edit_state == EditState::EDIT_CONVERTED) {
+        } else if (m_edit_state == ES_CONVERTED) {
             MoveFocusOrCaret(direction);
         }
     }
 
     virtual bool HandleSelectOrCommit() override {
-        if (m_edit_state == EditState::EDIT_SELECTING) {
+        if (m_edit_state == ES_SELECTING) {
             SelectCandidate(m_focused_candidate);
             return false;
         }
@@ -136,13 +136,13 @@ class BufferMgrImpl : public BufferMgr {
     }
 
     virtual void HandleSelectOrFocus() override {
-        if (m_input_mode == InputMode::Continuous && m_edit_state == EditState::EDIT_COMPOSING) {
-            m_edit_state = EditState::EDIT_CONVERTED;
+        if (m_input_mode == IM_CONTINUOUS && m_edit_state == ES_COMPOSING) {
+            m_edit_state = ES_CONVERTED;
             SelectCandidate(0);
-        } else if (m_edit_state == EDIT_CONVERTED) {
-            m_edit_state = EditState::EDIT_SELECTING;
+        } else if (m_edit_state == ES_CONVERTED) {
+            m_edit_state = ES_SELECTING;
             FocusNextCandidate();
-        } else if (m_edit_state == EditState::EDIT_SELECTING) {
+        } else if (m_edit_state == ES_SELECTING) {
             FocusNextCandidate();
         }
     }
@@ -152,11 +152,11 @@ class BufferMgrImpl : public BufferMgr {
     }
 
     virtual void FocusNextCandidate() override {
-        if (m_edit_state == EditState::EDIT_COMPOSING) {
-            m_edit_state = EditState::EDIT_SELECTING;
+        if (m_edit_state == ES_COMPOSING) {
+            m_edit_state = ES_SELECTING;
             FocusCandidate(0);
         } else {
-            m_edit_state = EditState::EDIT_SELECTING;
+            m_edit_state = ES_SELECTING;
             if (m_focused_candidate >= m_candidates.size() - 1) {
                 FocusCandidate(0);
             } else {
@@ -166,7 +166,7 @@ class BufferMgrImpl : public BufferMgr {
     }
 
     virtual void FocusPrevCandidate() override {
-        m_edit_state = EditState::EDIT_SELECTING;
+        m_edit_state = EditState::ES_SELECTING;
 
         if (m_focused_candidate == 0) {
             FocusCandidate(m_candidates.size() - 1);
@@ -177,7 +177,7 @@ class BufferMgrImpl : public BufferMgr {
 
     virtual void FocusCandidate(size_t index) override {
         if (m_candidates.empty()) {
-            m_edit_state = EditState::EDIT_CONVERTED;
+            m_edit_state = ES_CONVERTED;
             return;
         }
 
@@ -189,7 +189,7 @@ class BufferMgrImpl : public BufferMgr {
     virtual void SelectCandidate(size_t index) {
         SelectCandidate_(index);
         m_nav_mode = NavMode::BySegment;
-        m_edit_state = EditState::EDIT_CONVERTED;
+        m_edit_state = ES_CONVERTED;
     }
 
     virtual EditState edit_state() {
@@ -201,7 +201,7 @@ class BufferMgrImpl : public BufferMgr {
         auto buffer_text = GetDisplayBuffer();
         m_caret = Lomaji::MoveCaret(buffer_text, m_caret, direction);
 
-        if (m_edit_state != EditState::EDIT_COMPOSING) {
+        if (m_edit_state != ES_COMPOSING) {
             FocusElementAtCursor();
         }
     }
@@ -222,7 +222,7 @@ class BufferMgrImpl : public BufferMgr {
             ++m_focused_element;
         }
 
-        if (m_edit_state == EditState::EDIT_CONVERTED) {
+        if (m_edit_state == ES_CONVERTED) {
             UpdateCandidatesForFocusedElement();
         }
     }
@@ -375,7 +375,7 @@ class BufferMgrImpl : public BufferMgr {
         size_t n_elems_added = m_candidates.at(index).Size();
         size_t n_elems_remaining = std::distance(m_composition.Begin() + m_focused_element, m_composition.End());
 
-        if (n_elems_remaining > n_elems_added && m_edit_state == EditState::EDIT_SELECTING) {
+        if (n_elems_remaining > n_elems_added && m_edit_state == EditState::ES_SELECTING) {
             m_focused_element += n_elems_added;
         }
 
@@ -475,8 +475,8 @@ class BufferMgrImpl : public BufferMgr {
     std::vector<Buffer> m_candidates;
     size_t m_focused_candidate = 0;
     size_t m_focused_element = 0;
-    EditState m_edit_state = EditState::EDIT_EMPTY;
-    InputMode m_input_mode = InputMode::Continuous;
+    EditState m_edit_state = EditState::ES_EMPTY;
+    InputMode m_input_mode = InputMode::IM_CONTINUOUS;
     NavMode m_nav_mode = NavMode::ByCharacter;
 };
 

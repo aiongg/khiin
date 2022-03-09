@@ -54,14 +54,14 @@ struct EditSessionImpl : winrt::implements<EditSessionImpl, ITfEditSession> {
 
         if (response.error() == ErrorCode::FAIL) {
             composition_mgr->CommitComposition(ec, context.get());
-        } else if (cmd_type == CommandType::COMMIT) {
+        } else if (cmd_type == CMD_COMMIT) {
             if (response.preedit().segments().size() == 0) {
                 composition_mgr->CommitComposition(ec, context.get());
             } else {
                 composition_mgr->CommitComposition(ec, context.get(), response.preedit());
             }
-        } else if (cmd_type == CommandType::SEND_KEY || cmd_type == CommandType::SELECT_CANDIDATE ||
-                   cmd_type == CommandType::FOCUS_CANDIDATE) {
+        } else if (cmd_type == CMD_SEND_KEY || cmd_type == CMD_SELECT_CANDIDATE ||
+                   cmd_type == CMD_FOCUS_CANDIDATE) {
             composition_mgr->DoComposition(ec, context.get(), response.preedit());
 
             if (response.candidate_list().candidates().size() > 0) {

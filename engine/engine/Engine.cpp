@@ -46,12 +46,12 @@ class EngineImpl : public Engine {
         m_dictionary = std::unique_ptr<Dictionary>(Dictionary::Create(this));
         m_buffer_mgr = std::unique_ptr<BufferMgr>(BufferMgr::Create(this));
 
-        m_cmd_handlers[CommandType::COMMIT] = &EngineImpl::HandleCommit;
-        m_cmd_handlers[CommandType::TEST_SEND_KEY] = &EngineImpl::HandleTestSendKey;
-        m_cmd_handlers[CommandType::SEND_KEY] = &EngineImpl::HandleSendKey;
-        m_cmd_handlers[CommandType::SELECT_CANDIDATE] = &EngineImpl::HandleSelectCandidate;
-        m_cmd_handlers[CommandType::FOCUS_CANDIDATE] = &EngineImpl::HandleFocusCandidate;
-        m_cmd_handlers[CommandType::SET_CONFIG] = &EngineImpl::HandleSetConfig;
+        m_cmd_handlers[CMD_COMMIT] = &EngineImpl::HandleCommit;
+        m_cmd_handlers[CMD_TEST_SEND_KEY] = &EngineImpl::HandleTestSendKey;
+        m_cmd_handlers[CMD_SEND_KEY] = &EngineImpl::HandleSendKey;
+        m_cmd_handlers[CMD_SELECT_CANDIDATE] = &EngineImpl::HandleSelectCandidate;
+        m_cmd_handlers[CMD_FOCUS_CANDIDATE] = &EngineImpl::HandleFocusCandidate;
+        m_cmd_handlers[CMD_SET_CONFIG] = &EngineImpl::HandleSetConfig;
 
         m_dictionary->Initialize();
     }
@@ -113,37 +113,37 @@ class EngineImpl : public Engine {
         auto &key = req->key_event();
 
         switch (key.special_key()) {
-        case SpecialKey::SK_NONE: {
+        case SK_NONE: {
             auto key_code = req->key_event().key_code();
             if (isprint(key_code)) {
                 m_buffer_mgr->Insert(static_cast<char>(key_code));
             }
             break;
         }
-        case SpecialKey::SK_RIGHT: {
+        case SK_RIGHT: {
             m_buffer_mgr->HandleLeftRight(CursorDirection::R);
             break;
         }
-        case SpecialKey::SK_LEFT: {
+        case SK_LEFT: {
             m_buffer_mgr->HandleLeftRight(CursorDirection::L);
             break;
         }
-        case SpecialKey::SK_DOWN: {
+        case SK_DOWN: {
             m_buffer_mgr->FocusNextCandidate();
             break;
         }
-        case SpecialKey::SK_UP: {
+        case SK_UP: {
             m_buffer_mgr->FocusPrevCandidate();
             break;
         }
-        case SpecialKey::SK_ENTER: {
+        case SK_ENTER: {
             if (m_buffer_mgr->HandleSelectOrCommit()) {
                 HandleCommit(command);
                 return;
             }
             break;
         }
-        case SpecialKey::SK_BACKSPACE: {
+        case SK_BACKSPACE: {
             if (m_buffer_mgr->IsEmpty()) {
                 res->set_consumable(false);
             } else {
@@ -151,7 +151,7 @@ class EngineImpl : public Engine {
             }
             break;
         }
-        case SpecialKey::SK_DEL: {
+        case SK_DEL: {
             if (m_buffer_mgr->IsEmpty()) {
                 res->set_consumable(false);
             } else {
@@ -159,7 +159,7 @@ class EngineImpl : public Engine {
             }
             break;
         }
-        case SpecialKey::SK_SPACE: {
+        case SK_SPACE: {
             if (m_buffer_mgr->IsEmpty()) {
                 res->set_consumable(false);
             } else {
@@ -178,7 +178,7 @@ class EngineImpl : public Engine {
     void HandleCommit(Command *command) {
         // command->input().set_type(CommandType::COMMIT);
         auto req = command->mutable_request();
-        req->set_type(CommandType::COMMIT);
+        req->set_type(CMD_COMMIT);
         auto res = command->mutable_response();
         auto preedit = res->mutable_preedit();
         // preedit->set_cursor_position(buffer_mgr->caret_position());
@@ -191,6 +191,12 @@ class EngineImpl : public Engine {
     void HandleTestSendKey(Command *command) {
         auto &request = command->request();
         auto res = command->mutable_response();
+
+        if (m_config->input_mode() == InputMode::IM_ALPHA) {
+            // Direct input mode, skip all processing
+            res->set_consumable(false);
+            return;
+        }
 
         res->set_consumable(true);
 
@@ -229,6 +235,7 @@ class EngineImpl : public Engine {
     void HandleSetConfig(Command *command) {
         if (command->request().has_config()) {
             m_config->CopyFrom(command->request().config());
+            NotifyConfigChangeListeners();
         }
     }
 

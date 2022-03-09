@@ -62,9 +62,9 @@ struct CandidateListUIImpl :
             RegisterCandidateWindow();
         }
 
-        if (m_edit_state == EditState::EDIT_COMPOSING) {
+        if (m_edit_state == ES_COMPOSING) {
             m_pager->SetCandidateList(&m_candidate_list);
-        } else if (m_edit_state == EditState::EDIT_SELECTING) {
+        } else if (m_edit_state == ES_SELECTING) {
             m_pager->SetFocus(m_candidate_list.focused());
         }
 
@@ -78,7 +78,7 @@ struct CandidateListUIImpl :
 
     virtual bool Selecting() override {
         KHIIN_TRACE("");
-        return m_edit_state == EditState::EDIT_SELECTING;
+        return m_edit_state == ES_SELECTING;
     }
 
     virtual bool MultiColumn() override {
@@ -362,7 +362,7 @@ struct CandidateListUIImpl :
         TRY_FOR_HRESULT;
         KHIIN_TRACE("");
         auto cmd = Command::default_instance().New();
-        cmd->mutable_request()->set_type(CommandType::COMMIT);
+        cmd->mutable_request()->set_type(CMD_COMMIT);
         EditSession::HandleAction(m_service.get(), m_context.get(), cmd);
         CATCH_FOR_HRESULT;
     }
@@ -371,7 +371,7 @@ struct CandidateListUIImpl :
         TRY_FOR_HRESULT;
         KHIIN_TRACE("");
         auto cmd = Command::default_instance().New();
-        cmd->mutable_request()->set_type(CommandType::RESET);
+        cmd->mutable_request()->set_type(CMD_RESET);
         EditSession::HandleAction(m_service.get(), m_context.get(), cmd);
         return S_OK;
         CATCH_FOR_HRESULT;
@@ -455,7 +455,7 @@ struct CandidateListUIImpl :
         KHIIN_TRACE("");
         m_candidate_grid.clear();
         m_pager->GetPage(m_candidate_grid);
-        bool qs_active = m_edit_state == EditState::EDIT_SELECTING;
+        bool qs_active = m_edit_state == ES_SELECTING;
         auto focused_cand_id = m_pager->GetFocusedCandidateId();
         auto focused_col = m_pager->GetFocusedColumnIndex();
         auto display_mode = m_pager->GetDisplayMode();
@@ -505,7 +505,7 @@ struct CandidateListUIImpl :
     CandidateList m_prev_candidate_list = {};
     std::unique_ptr<CandidateWindow> m_candidate_window = nullptr;
     std::unique_ptr<CandidatePager> m_pager = nullptr;
-    EditState m_edit_state = EditState::EDIT_EMPTY;
+    EditState m_edit_state = ES_EMPTY;
     CandidateGrid m_candidate_grid = CandidateGrid();
     size_t m_focused_col = 0;
     RECT m_text_rect = {};

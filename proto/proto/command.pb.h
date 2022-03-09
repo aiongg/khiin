@@ -187,24 +187,24 @@ inline bool ModifierKey_Parse(
     ModifierKey_descriptor(), name, value);
 }
 enum CommandType : int {
-  SEND_KEY = 0,
-  REVERT = 1,
-  RESET = 2,
-  COMMIT = 3,
-  SELECT_CANDIDATE = 4,
-  FOCUS_CANDIDATE = 5,
-  SWITCH_INPUT_MODE = 6,
-  PLACE_CURSOR = 7,
-  DISABLE = 8,
-  ENABLE = 9,
-  SET_CONFIG = 10,
-  TEST_SEND_KEY = 11,
+  CMD_SEND_KEY = 0,
+  CMD_REVERT = 1,
+  CMD_RESET = 2,
+  CMD_COMMIT = 3,
+  CMD_SELECT_CANDIDATE = 4,
+  CMD_FOCUS_CANDIDATE = 5,
+  CMD_SWITCH_INPUT_MODE = 6,
+  CMD_PLACE_CURSOR = 7,
+  CMD_DISABLE = 8,
+  CMD_ENABLE = 9,
+  CMD_SET_CONFIG = 10,
+  CMD_TEST_SEND_KEY = 11,
   CommandType_INT_MIN_SENTINEL_DO_NOT_USE_ = std::numeric_limits<::PROTOBUF_NAMESPACE_ID::int32>::min(),
   CommandType_INT_MAX_SENTINEL_DO_NOT_USE_ = std::numeric_limits<::PROTOBUF_NAMESPACE_ID::int32>::max()
 };
 bool CommandType_IsValid(int value);
-constexpr CommandType CommandType_MIN = SEND_KEY;
-constexpr CommandType CommandType_MAX = TEST_SEND_KEY;
+constexpr CommandType CommandType_MIN = CMD_SEND_KEY;
+constexpr CommandType CommandType_MAX = CMD_TEST_SEND_KEY;
 constexpr int CommandType_ARRAYSIZE = CommandType_MAX + 1;
 
 const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor* CommandType_descriptor();
@@ -222,16 +222,16 @@ inline bool CommandType_Parse(
     CommandType_descriptor(), name, value);
 }
 enum SegmentStatus : int {
-  UNMARKED = 0,
-  COMPOSING = 1,
-  CONVERTED = 2,
-  FOCUSED = 3,
+  SS_UNMARKED = 0,
+  SS_COMPOSING = 1,
+  SS_CONVERTED = 2,
+  SS_FOCUSED = 3,
   SegmentStatus_INT_MIN_SENTINEL_DO_NOT_USE_ = std::numeric_limits<::PROTOBUF_NAMESPACE_ID::int32>::min(),
   SegmentStatus_INT_MAX_SENTINEL_DO_NOT_USE_ = std::numeric_limits<::PROTOBUF_NAMESPACE_ID::int32>::max()
 };
 bool SegmentStatus_IsValid(int value);
-constexpr SegmentStatus SegmentStatus_MIN = UNMARKED;
-constexpr SegmentStatus SegmentStatus_MAX = FOCUSED;
+constexpr SegmentStatus SegmentStatus_MIN = SS_UNMARKED;
+constexpr SegmentStatus SegmentStatus_MAX = SS_FOCUSED;
 constexpr int SegmentStatus_ARRAYSIZE = SegmentStatus_MAX + 1;
 
 const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor* SegmentStatus_descriptor();
@@ -274,16 +274,16 @@ inline bool ErrorCode_Parse(
     ErrorCode_descriptor(), name, value);
 }
 enum EditState : int {
-  EDIT_EMPTY = 0,
-  EDIT_COMPOSING = 1,
-  EDIT_CONVERTED = 2,
-  EDIT_SELECTING = 3,
+  ES_EMPTY = 0,
+  ES_COMPOSING = 1,
+  ES_CONVERTED = 2,
+  ES_SELECTING = 3,
   EditState_INT_MIN_SENTINEL_DO_NOT_USE_ = std::numeric_limits<::PROTOBUF_NAMESPACE_ID::int32>::min(),
   EditState_INT_MAX_SENTINEL_DO_NOT_USE_ = std::numeric_limits<::PROTOBUF_NAMESPACE_ID::int32>::max()
 };
 bool EditState_IsValid(int value);
-constexpr EditState EditState_MIN = EDIT_EMPTY;
-constexpr EditState EditState_MAX = EDIT_SELECTING;
+constexpr EditState EditState_MIN = ES_EMPTY;
+constexpr EditState EditState_MAX = ES_SELECTING;
 constexpr int EditState_ARRAYSIZE = EditState_MAX + 1;
 
 const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor* EditState_descriptor();

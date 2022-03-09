@@ -70,7 +70,10 @@ void Config::NotifyChanged() {
     VARIANT var;
     ::VariantInit(&var);
     var.vt = VT_I4;
+#pragma warning(push)
+#pragma warning(disable : 28159)
     var.lVal = ::GetTickCount();
+#pragma warning(pop)
     check_hresult(compartment->SetValue(client_id, &var));
 }
 

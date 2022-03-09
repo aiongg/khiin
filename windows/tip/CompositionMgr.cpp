@@ -79,11 +79,11 @@ void CompositionMgr::DoComposition(TfEditCookie cookie, ITfContext *pContext, Pr
         auto &status = w_preedit.segment_status[i];
         TfGuidAtom attribute_atom = TF_INVALID_GUIDATOM;
 
-        if (status == SegmentStatus::COMPOSING) {
+        if (status == SS_COMPOSING) {
             attribute_atom = service->input_attribute();
-        } else if (status == SegmentStatus::CONVERTED) {
+        } else if (status == SS_CONVERTED) {
             attribute_atom = service->converted_attribute();
-        } else if (status == SegmentStatus::FOCUSED) {
+        } else if (status == SS_FOCUSED) {
             attribute_atom = service->focused_attribute();
         } else {
             continue;

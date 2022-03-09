@@ -2,20 +2,14 @@
 
 #include "common.h"
 
-namespace khiin {
-namespace proto {
+namespace khiin::proto {
 class Preedit;
 class CandidateList;
 enum EditState : int;
-} // namespace proto
+enum InputMode : int;
+} // namespace khiin::proto
 
-namespace engine {
-
-enum class InputMode {
-    Continuous,
-    SingleToken,
-    Manual,
-};
+namespace khiin::engine {
 
 class Engine;
 
@@ -140,8 +134,7 @@ class BufferMgr {
      */
     virtual void SelectCandidate(size_t id) = 0;
 
-    virtual void SetInputMode(InputMode new_mode) = 0;
+    virtual void SetInputMode(proto::InputMode new_mode) = 0;
 };
 
-} // namespace engine
-} // namespace khiin
+} // namespace khiin::engine

@@ -18,6 +18,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "settings", "settings\settin
 		{BDBB7FC7-9D1D-485F-A5E1-5605F41BD015} = {BDBB7FC7-9D1D-485F-A5E1-5605F41BD015}
 	EndProjectSection
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "proto", "proto\proto.vcxproj", "{F5F24512-9FA2-4977-9340-BB67DCFE8DF7}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -52,6 +54,14 @@ Global
 		{C93D7CB4-DAD2-4DCE-B5DA-0822FA803448}.Release|x64.ActiveCfg = Release|x64
 		{C93D7CB4-DAD2-4DCE-B5DA-0822FA803448}.Release|x64.Build.0 = Release|x64
 		{C93D7CB4-DAD2-4DCE-B5DA-0822FA803448}.Release|x86.ActiveCfg = Release|Win32
+		{F5F24512-9FA2-4977-9340-BB67DCFE8DF7}.Debug|x64.ActiveCfg = Debug|x64
+		{F5F24512-9FA2-4977-9340-BB67DCFE8DF7}.Debug|x64.Build.0 = Debug|x64
+		{F5F24512-9FA2-4977-9340-BB67DCFE8DF7}.Debug|x86.ActiveCfg = Debug|Win32
+		{F5F24512-9FA2-4977-9340-BB67DCFE8DF7}.Debug|x86.Build.0 = Debug|Win32
+		{F5F24512-9FA2-4977-9340-BB67DCFE8DF7}.Release|x64.ActiveCfg = Release|x64
+		{F5F24512-9FA2-4977-9340-BB67DCFE8DF7}.Release|x64.Build.0 = Release|x64
+		{F5F24512-9FA2-4977-9340-BB67DCFE8DF7}.Release|x86.ActiveCfg = Release|Win32
+		{F5F24512-9FA2-4977-9340-BB67DCFE8DF7}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
