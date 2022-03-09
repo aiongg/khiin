@@ -8,7 +8,7 @@ namespace khiin::proto {
 class Preedit;
 }
 
-namespace khiin::win32 {
+namespace khiin::win32::tip {
 
 struct CompositionMgr : winrt::implements<CompositionMgr, IUnknown> {
     CompositionMgr() = default;

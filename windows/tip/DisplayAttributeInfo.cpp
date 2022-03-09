@@ -2,7 +2,7 @@
 
 #include "DisplayAttributeInfo.h"
 
-namespace khiin::win32 {
+namespace khiin::win32::tip {
 
 // 829893f8-728d-11ec-8c6e-e0d46491b35a
 const DisplayAttributeBundle DisplayAttribute_Input =

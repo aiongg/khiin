@@ -2,13 +2,13 @@
 
 #include "common.h"
 
-namespace khiin {
-namespace proto {
+namespace khiin::proto {
 enum EditState : int;
 class CandidateList;
-}
 
-namespace win32 {
+} // namespace khiin::proto
+
+namespace khiin::win32::tip {
 
 class KeyEvent;
 struct TextService;
@@ -54,5 +54,4 @@ struct CandidateListUIFactory {
     static HRESULT Create(CandidateListUI **ppCandidateListUI);
 };
 
-} // namespace win32
-} // namespace khiin
+} // namespace khiin::win32

@@ -6,11 +6,10 @@
 #include "EngineController.h"
 #include "proto/proto.h"
 
-namespace khiin::win32 {
-
+namespace khiin::win32::tip {
 namespace {
 
-bool TestPageKeyForCandidateUI(CandidateListUI *cand_ui, KeyEvent const &key_event) {
+bool TestPageKeyForCandidateUI(CandidateListUI *cand_ui, win32::KeyEvent const &key_event) {
     if (cand_ui->Selecting()) {
         auto key = key_event.keyCode();
         if (cand_ui->MultiColumn() && (key == VK_LEFT || key == VK_RIGHT)) {
@@ -25,7 +24,7 @@ bool TestPageKeyForCandidateUI(CandidateListUI *cand_ui, KeyEvent const &key_eve
     return false;
 }
 
-bool TestQuickSelectForCandidateUI(CandidateListUI *cand_ui, KeyEvent const &key_event) {
+bool TestQuickSelectForCandidateUI(CandidateListUI *cand_ui, win32::KeyEvent const &key_event) {
     if (cand_ui->Selecting() && key_event.ascii()) {
         auto qs = key_event.ascii() - '0';
         auto qs_max = cand_ui->MaxQuickSelect();
@@ -35,11 +34,12 @@ bool TestQuickSelectForCandidateUI(CandidateListUI *cand_ui, KeyEvent const &key
     return false;
 }
 
-bool TestKeyForCandidateUI(CandidateListUI *cand_ui, KeyEvent const &key_event) {
+bool TestKeyForCandidateUI(CandidateListUI *cand_ui, win32::KeyEvent const &key_event) {
     return TestPageKeyForCandidateUI(cand_ui, key_event) || TestQuickSelectForCandidateUI(cand_ui, key_event);
 }
 
-bool HandleQuickSelect(TextService *service, ITfContext *context, CandidateListUI *cand_ui, KeyEvent const &key_event) {
+bool HandleQuickSelect(TextService *service, ITfContext *context, CandidateListUI *cand_ui,
+                       win32::KeyEvent const &key_event) {
     auto id = cand_ui->QuickSelect(key_event.ascii() - '0' - 1);
 
     if (id >= 0) {
@@ -52,7 +52,7 @@ bool HandleQuickSelect(TextService *service, ITfContext *context, CandidateListU
 }
 
 bool HandleCandidatePage(TextService *service, ITfContext *context, CandidateListUI *cand_ui,
-                         KeyEvent const &key_event) {
+                         win32::KeyEvent const &key_event) {
 
     auto id = -1;
 
@@ -73,7 +73,7 @@ bool HandleCandidatePage(TextService *service, ITfContext *context, CandidateLis
     return false;
 }
 
-void HandleKeyBasic(TextService *service, ITfContext *context, KeyEvent const &key_event) {
+void HandleKeyBasic(TextService *service, ITfContext *context, win32::KeyEvent const &key_event) {
     auto command = service->engine()->OnKey(key_event);
     EditSession::HandleAction(service, context, std::move(command));
 }
@@ -109,7 +109,7 @@ void KeyEventSink::Deactivate() {
     service = nullptr;
 }
 
-void KeyEventSink::TestKey(ITfContext *pContext, KeyEvent keyEvent, BOOL *pfEaten) {
+void KeyEventSink::TestKey(ITfContext *pContext, win32::KeyEvent keyEvent, BOOL *pfEaten) {
     KHIIN_TRACE("");
     WINRT_ASSERT(pContext);
     WINRT_ASSERT(composition_mgr);
@@ -133,7 +133,7 @@ void KeyEventSink::TestKey(ITfContext *pContext, KeyEvent keyEvent, BOOL *pfEate
     EditSession::HandleAction(service.get(), pContext, std::move(command));
 }
 
-void KeyEventSink::HandleKey(ITfContext *pContext, KeyEvent keyEvent, BOOL *pfEaten) {
+void KeyEventSink::HandleKey(ITfContext *pContext, win32::KeyEvent keyEvent, BOOL *pfEaten) {
     if (TestQuickSelectForCandidateUI(service->candidate_ui(), keyEvent)) {
         HandleQuickSelect(service.get(), pContext, service->candidate_ui(), keyEvent);
         *pfEaten = TRUE;
@@ -174,7 +174,7 @@ STDMETHODIMP KeyEventSink::OnTestKeyDown(ITfContext *pContext, WPARAM wParam, LP
     KHIIN_TRACE("");
 
     *pfEaten = false;
-    auto keyEvent = KeyEvent(WM_KEYDOWN, wParam, lParam);
+    auto keyEvent = win32::KeyEvent(WM_KEYDOWN, wParam, lParam);
     TestKey(pContext, keyEvent, pfEaten);
 
     return S_OK;
@@ -184,7 +184,7 @@ STDMETHODIMP KeyEventSink::OnTestKeyDown(ITfContext *pContext, WPARAM wParam, LP
 STDMETHODIMP KeyEventSink::OnTestKeyUp(ITfContext *pContext, WPARAM wParam, LPARAM lParam, BOOL *pfEaten) {
     TRY_FOR_HRESULT;
 
-    auto keyEvent = KeyEvent(WM_KEYUP, wParam, lParam);
+    auto keyEvent = win32::KeyEvent(WM_KEYUP, wParam, lParam);
 
     return E_NOTIMPL;
     CATCH_FOR_HRESULT;
@@ -195,7 +195,7 @@ STDMETHODIMP KeyEventSink::OnKeyDown(ITfContext *pContext, WPARAM wParam, LPARAM
     KHIIN_TRACE("");
 
     *pfEaten = false;
-    auto keyEvent = KeyEvent(WM_KEYDOWN, wParam, lParam);
+    auto keyEvent = win32::KeyEvent(WM_KEYDOWN, wParam, lParam);
     HandleKey(pContext, keyEvent, pfEaten);
 
     return S_OK;
@@ -204,7 +204,7 @@ STDMETHODIMP KeyEventSink::OnKeyDown(ITfContext *pContext, WPARAM wParam, LPARAM
 
 STDMETHODIMP KeyEventSink::OnKeyUp(ITfContext *pic, WPARAM wParam, LPARAM lParam, BOOL *pfEaten) {
     TRY_FOR_HRESULT;
-    auto keyEvent = KeyEvent(WM_KEYUP, wParam, lParam);
+    auto keyEvent = win32::KeyEvent(WM_KEYUP, wParam, lParam);
 
     return E_NOTIMPL;
     CATCH_FOR_HRESULT;
@@ -216,4 +216,4 @@ STDMETHODIMP KeyEventSink::OnPreservedKey(ITfContext *pic, REFGUID rguid, BOOL *
     CATCH_FOR_HRESULT;
 }
 
-} // namespace khiin::win32
+} // namespace khiin::win32::tip

@@ -2,7 +2,7 @@
 
 #include "Compartment.h"
 
-namespace khiin::win32 {
+namespace khiin::win32::tip {
 
 using namespace winrt;
 

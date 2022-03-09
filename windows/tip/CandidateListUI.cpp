@@ -12,7 +12,7 @@
 #include "TextService.h"
 #include "Utils.h"
 
-namespace khiin::win32 {
+namespace khiin::win32::tip {
 namespace {
 using namespace winrt;
 using namespace proto;

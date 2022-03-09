@@ -2,7 +2,7 @@
 
 #include "CompositionSink.h"
 
-namespace khiin::win32 {
+namespace khiin::win32::tip {
 
 CompositionSink::CompositionSink(TextService *pService, ITfContext *pContext) {
     service.copy_from(pService);

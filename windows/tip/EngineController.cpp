@@ -143,13 +143,13 @@ struct EngineControllerImpl : winrt::implements<EngineControllerImpl, EngineCont
 //----------------------------------------------------------------------------
 
 void EngineControllerFactory::OnDllProcessAttach(HMODULE module) {
-    DllModule::AddRef();
+    tip::DllModule::AddRef();
     g_module = module;
 }
 
 void EngineControllerFactory::OnDllProcessDetach(HMODULE module) {
     g_module = nullptr;
-    DllModule::Release();
+    tip::DllModule::Release();
 }
 
 void EngineControllerFactory::Create(EngineController **ppEngineCtrl) {

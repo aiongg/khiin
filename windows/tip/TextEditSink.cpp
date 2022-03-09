@@ -2,7 +2,7 @@
 
 #include "TextEditSink.h"
 
-namespace khiin::win32 {
+namespace khiin::win32::tip {
 
 HRESULT TextEditSink::Initialize(ITfDocumentMgr *pDocumentMgr) {
     WINRT_ASSERT(pDocumentMgr != nullptr);

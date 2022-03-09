@@ -1,6 +1,6 @@
 #pragma once
 
-namespace khiin::win32 {
+namespace khiin::win32::tip {
 
 struct __declspec(uuid("829893f6-728d-11ec-8c6e-e0d46491b35a")) KhiinClassFactory
     : winrt::implements<KhiinClassFactory, IClassFactory> {

@@ -6,7 +6,7 @@ namespace khiin::proto {
 class Command;
 }
 
-namespace khiin::win32 {
+namespace khiin::win32::tip {
 
 struct TextService;
 

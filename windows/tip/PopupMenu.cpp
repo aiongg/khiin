@@ -17,6 +17,7 @@ using namespace winrt;
 using namespace strings;
 using namespace D2D1;
 using namespace geometry;
+using namespace tip;
 
 const std::wstring kMenuWindowClassName = L"PopupMenuWindow";
 

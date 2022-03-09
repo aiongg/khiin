@@ -2,7 +2,7 @@
 
 #include "TextService.h"
 
-namespace khiin::win32 {
+namespace khiin::win32::tip {
 
 struct CompositionSink : winrt::implements<CompositionSink, ITfCompositionSink> {
     CompositionSink(TextService *pService, ITfContext *pContext);

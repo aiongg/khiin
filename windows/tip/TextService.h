@@ -9,11 +9,14 @@
 namespace khiin::proto {
 enum InputMode : int;
 class AppConfig;
-}
+} // namespace khiin::proto
 
 namespace khiin::win32 {
-
 struct EngineController;
+}
+
+namespace khiin::win32::tip {
+
 struct CandidateListUI;
 struct ConfigChangeListener;
 
@@ -56,4 +59,4 @@ struct TextServiceFactory {
     static void Create(TextService **ppService);
 };
 
-} // namespace khiin::win32
+} // namespace khiin::win32::tip

@@ -7,7 +7,7 @@
 #include "Utils.h"
 #include "proto/proto.h"
 
-namespace khiin::win32 {
+namespace khiin::win32::tip {
 namespace {
 using namespace proto;
 

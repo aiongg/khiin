@@ -1,6 +1,6 @@
 #pragma once
 
-namespace khiin::win32 {
+namespace khiin::win32::tip {
 
 struct TextService;
 

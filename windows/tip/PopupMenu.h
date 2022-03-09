@@ -5,11 +5,13 @@
 
 namespace khiin::win32 {
 
+namespace tip {
 struct TextService;
+}
 
 class PopupMenu : public GuiWindow {
   public:
-    static PopupMenu *Create(TextService *pservice);
+    static PopupMenu *Create(tip::TextService *pservice);
     virtual void Show(POINT pt) = 0;
 };
 

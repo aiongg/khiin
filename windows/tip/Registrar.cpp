@@ -5,7 +5,7 @@
 #include "Profile.h"
 #include "common.h"
 
-namespace khiin::win32 {
+namespace khiin::win32::tip {
 
 const static auto supportedCategories = std::vector<GUID>{
     GUID_TFCAT_DISPLAYATTRIBUTEPROVIDER,    // It supports inline input.

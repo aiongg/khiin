@@ -4,7 +4,7 @@
 
 #include "CandidateListUI.h"
 
-namespace khiin::win32 {
+namespace khiin::win32::tip {
 using namespace winrt;
 
 ThreadMgrEventSink::~ThreadMgrEventSink() {

@@ -5,7 +5,7 @@
 #include "TextService.h"
 #include "KeyEvent.h"
 
-namespace khiin::win32 {
+namespace khiin::win32::tip {
 
 struct KeyEventSink : winrt::implements<KeyEventSink, ITfKeyEventSink> {
   private:
@@ -19,8 +19,8 @@ struct KeyEventSink : winrt::implements<KeyEventSink, ITfKeyEventSink> {
     void Activate(TextService *pTextService);
     void Deactivate();
 
-    void TestKey(ITfContext *pContext, KeyEvent keyEvent, BOOL *pfEaten);
-    void HandleKey(ITfContext *pContext, KeyEvent keyEvent, BOOL *pfEaten);
+    void TestKey(ITfContext *pContext, win32::KeyEvent keyEvent, BOOL *pfEaten);
+    void HandleKey(ITfContext *pContext, win32::KeyEvent keyEvent, BOOL *pfEaten);
 
     // ITfKeyEventSink
     virtual STDMETHODIMP OnSetFocus(BOOL fForeground) override;

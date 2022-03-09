@@ -2,7 +2,7 @@
 
 #include "DisplayAttributeInfo.h"
 
-namespace khiin::win32 {
+namespace khiin::win32::tip {
 
 enum class AttrInfoKey {
     Input = 0,

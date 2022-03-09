@@ -7,14 +7,14 @@
 #include "KhiinClassFactory.h"
 #include "Profile.h"
 
-namespace khiin::win32 {
+namespace khiin::win32::tip {
 using namespace winrt;
 TEST(KhiinTipTest, Activate) {
     check_hresult(CoInitialize(nullptr));
     HMODULE hmod = LoadLibraryEx(L"KhiinPJH.dll", NULL, 0);
     if (hmod) {
         typedef HRESULT (*getcls)(REFCLSID, REFIID, LPVOID);
-        
+
         auto threadmgr = com_ptr<ITfThreadMgr>();
         auto clientid = com_ptr<ITfClientId>();
         auto docmgr = com_ptr<ITfDocumentMgr>();
@@ -39,4 +39,4 @@ TEST(KhiinTipTest, Activate) {
     EXPECT_TRUE(true);
 }
 
-} // namespace khiin::win32
+} // namespace khiin::win32::tip

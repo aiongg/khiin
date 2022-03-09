@@ -10,17 +10,17 @@ volatile HMODULE g_module_handle = nullptr;
 namespace khiin::win32 {
 
 void WindowSetup::OnDllProcessAttach(HMODULE module) {
-    DllModule::AddRef();
+    tip::DllModule::AddRef();
     g_module_handle = module;
 }
 
 void WindowSetup::OnDllProcessDetach(HMODULE module) {
     g_module_handle = nullptr;
-    DllModule::Release();
+    tip::DllModule::Release();
 }
 
 HMODULE WindowSetup::hmodule() {
     return g_module_handle;
 }
 
-} // namespace khiin::win32
+} // namespace khiin::win32::tip

@@ -5,7 +5,7 @@
 #include "TextService.h"
 #include "DllModule.h"
 
-namespace khiin::win32 {
+namespace khiin::win32::tip {
 
 //+---------------------------------------------------------------------------
 //

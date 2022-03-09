@@ -3,7 +3,7 @@
 #include "SinkManager.h"
 #include "TextService.h"
 
-namespace khiin::win32 {
+namespace khiin::win32::tip {
 
 struct ThreadMgrEventSink : winrt::implements<ThreadMgrEventSink, ITfThreadMgrEventSink> {
     ThreadMgrEventSink() = default;

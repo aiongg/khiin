@@ -18,6 +18,7 @@ namespace {
 using namespace winrt;
 using namespace proto;
 namespace fs = std::filesystem;
+using namespace khiin::win32::tip;
 
 inline constexpr std::string_view kConfigFilename = "khiin_config.json";
 
