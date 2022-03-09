@@ -17,7 +17,7 @@ namespace {
 
 using namespace winrt;
 using namespace D2D1;
-using namespace messages;
+using namespace proto;
 using namespace geometry;
 
 static inline auto divide_ceil(unsigned int x, unsigned int y) {

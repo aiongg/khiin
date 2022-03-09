@@ -15,14 +15,14 @@ namespace khiin::win32 {
 
 namespace {
 using namespace winrt;
-using namespace messages;
+using namespace proto;
 namespace fs = std::filesystem;
 
 inline constexpr std::string_view kConfigFilename = "khiin_config.json";
 
 } // namespace
 
-void Config::LoadFromFile(HMODULE hmodule, messages::AppConfig *config) {
+void Config::LoadFromFile(HMODULE hmodule, AppConfig *config) {
     auto conf_file = Files::GetFilePath(hmodule, kConfigFilename);
     if (fs::exists(conf_file)) {
         auto f = std::ifstream(conf_file.string());
@@ -34,7 +34,7 @@ void Config::LoadFromFile(HMODULE hmodule, messages::AppConfig *config) {
     }
 }
 
-void Config::SaveToFile(HMODULE hmodule, messages::AppConfig *config) {
+void Config::SaveToFile(HMODULE hmodule, AppConfig *config) {
     auto conf_file = Files::GetFilePath(hmodule, kConfigFilename);
     auto options = google::protobuf::util::JsonPrintOptions();
     options.add_whitespace = true;

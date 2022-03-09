@@ -10,7 +10,7 @@
 namespace khiin::win32 {
 namespace {
 
-using namespace messages;
+using namespace proto;
 
 inline static int kMaxBufSize = 512;
 

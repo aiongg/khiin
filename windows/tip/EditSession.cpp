@@ -8,6 +8,7 @@
 
 namespace khiin::win32 {
 namespace {
+using namespace khiin::proto;
 
 RECT GetEditRect(TfEditCookie ec, CompositionMgr *composition_mgr, ITfContext *context) {
     auto range = winrt::com_ptr<ITfRange>();
@@ -23,8 +24,6 @@ RECT GetEditRect(TfEditCookie ec, CompositionMgr *composition_mgr, ITfContext *c
 }
 
 } // namespace
-
-using namespace khiin::messages;
 
 constexpr auto kAsyncRWFlag = TF_ES_ASYNCDONTCARE | TF_ES_READWRITE;
 
@@ -50,22 +49,24 @@ struct EditSessionImpl : winrt::implements<EditSessionImpl, ITfEditSession> {
         auto candidate_ui = cast_as<CandidateListUI>(service->candidate_ui());
         bool composing = composition_mgr->composing();
         bool Showing = candidate_ui->Showing();
-        auto cmd_type = command.type();
+        auto cmd_type = command.request().type();
+        auto &response = command.response();
 
-        if (command.output().error() == ErrorCode::FAIL) {
+        if (response.error() == ErrorCode::FAIL) {
             composition_mgr->CommitComposition(ec, context.get());
         } else if (cmd_type == CommandType::COMMIT) {
-            if (command.output().preedit().segments().size() == 0) {
+            if (response.preedit().segments().size() == 0) {
                 composition_mgr->CommitComposition(ec, context.get());
             } else {
-                composition_mgr->CommitComposition(ec, context.get(), command.output().preedit());
+                composition_mgr->CommitComposition(ec, context.get(), response.preedit());
             }
         } else if (cmd_type == CommandType::SEND_KEY || cmd_type == CommandType::SELECT_CANDIDATE ||
                    cmd_type == CommandType::FOCUS_CANDIDATE) {
-            composition_mgr->DoComposition(ec, context.get(), command.output().preedit());
+            composition_mgr->DoComposition(ec, context.get(), response.preedit());
 
-            if (command.output().candidate_list().candidates().size() > 0) {
-                candidate_ui->Update(context.get(), command.output().edit_state(), command.output().candidate_list(),
+            if (response.candidate_list().candidates().size() > 0) {
+                candidate_ui->Update(context.get(), response.edit_state(),
+                                     response.candidate_list(),
                                      GetEditRect(ec, composition_mgr, context.get()));
                 if (!Showing) {
                     candidate_ui->Show();

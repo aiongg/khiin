@@ -9,7 +9,7 @@
 
 namespace khiin::win32::settings {
 namespace {
-using namespace messages;
+using namespace proto;
 
 constexpr int kSizeTrackbarMin = 0;
 constexpr int kSizeTrackbarMax = 4;

@@ -17,6 +17,7 @@
 namespace khiin::engine {
 
 namespace {
+using namespace proto;
 
 template <typename T>
 void SortAndDedupe(std::vector<T> &vec) {
@@ -110,7 +111,7 @@ class DictionaryImpl : public Dictionary {
         return ret;
     }
 
-    virtual std::vector<Punctuation> SearchPunctuation(std::string const& query) override {
+    virtual std::vector<Punctuation> SearchPunctuation(std::string const &query) override {
         auto ret = std::vector<Punctuation>();
         for (auto &p : m_punctuation) {
             if (query == p.input) {
@@ -128,7 +129,7 @@ class DictionaryImpl : public Dictionary {
         return m_word_trie.get();
     };
 
-    virtual void OnConfigChanged(messages::AppConfig config) override {
+    virtual void OnConfigChanged(AppConfig *config) override {
         // Reload with new KeyConfig
     }
 

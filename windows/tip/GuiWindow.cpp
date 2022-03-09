@@ -6,7 +6,7 @@
 
 namespace khiin::win32 {
 using namespace geometry;
-using namespace messages;
+using namespace proto;
 
 #pragma warning(push)
 #pragma warning(disable : 26812)

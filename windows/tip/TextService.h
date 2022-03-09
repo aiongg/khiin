@@ -27,7 +27,7 @@ struct TextService : winrt::implements<TextService, IUnknown> {
     virtual IEnumTfDisplayAttributeInfo *displayAttrInfoEnum() = 0;
     virtual EngineController *engine() = 0;
     virtual CandidateListUI *candidate_ui() = 0;
-    virtual messages::AppConfig *config() = 0;
+    virtual proto::AppConfig *config() = 0;
 
     virtual winrt::com_ptr<ITfCategoryMgr> categoryMgr() = 0;
     virtual winrt::com_ptr<ITfContext> GetTopContext() = 0;
@@ -35,7 +35,7 @@ struct TextService : winrt::implements<TextService, IUnknown> {
     virtual void OnCompositionTerminated(TfEditCookie ecWrite, ITfContext *context, ITfComposition *pComposition) = 0;
     virtual void OnCandidateSelected(int32_t candidate_id) = 0;
 
-    virtual void OnInputModeSelected(messages::InputMode mode) = 0;
+    virtual void OnInputModeSelected(proto::InputMode mode) = 0;
     virtual void OpenSettingsApplication() = 0;
 
     virtual TfGuidAtom input_attribute() = 0;

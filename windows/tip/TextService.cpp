@@ -23,7 +23,7 @@
 namespace khiin::win32 {
 namespace {
 using namespace winrt;
-using namespace messages;
+using namespace proto;
 
 volatile HMODULE g_module = nullptr;
 
@@ -107,7 +107,7 @@ struct TextServiceImpl :
         Config::LoadFromFile(g_module, m_config);
     }
 
-    void OnConfigChanged() {
+    void NotifyConfigChangeListeners() {
         InitConfig();
         for (auto &listener : m_config_listeners) {
             if (listener) {
@@ -229,7 +229,10 @@ struct TextServiceImpl :
         EditSession::HandleAction(this, context.get(), std::move(command));
     }
 
-    virtual void OnInputModeSelected(messages::InputMode mode) override {}
+    virtual void OnInputModeSelected(InputMode mode) override {
+        m_config->set_input_mode(mode);
+        NotifyConfigChangeListeners();
+    }
 
     virtual void OpenSettingsApplication() override {
         SettingsApp::Launch(g_module);
@@ -343,7 +346,7 @@ struct TextServiceImpl :
                 m_candidate_list_ui->DestroyCandidateWindow();
             }
         } else if (rguid == kConfigChangedCompartmentGuid) {
-            OnConfigChanged();
+            NotifyConfigChangeListeners();
         }
 
         CATCH_FOR_HRESULT;

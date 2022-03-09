@@ -80,7 +80,7 @@ void HandleKeyBasic(TextService *service, ITfContext *context, KeyEvent const &k
 
 } // namespace
 
-using namespace messages;
+using namespace proto;
 
 enum class KeyEventSink::KeyAction { Test, Input };
 
@@ -125,7 +125,7 @@ void KeyEventSink::TestKey(ITfContext *pContext, KeyEvent keyEvent, BOOL *pfEate
 
     auto command = service->engine()->TestKey(keyEvent);
 
-    if (command.output().consumable()) {
+    if (command.response().consumable()) {
         *pfEaten = TRUE;
         return;
     }

@@ -11,7 +11,7 @@
 
 namespace khiin::engine {
 namespace {
-using namespace messages;
+using namespace proto;
 using namespace unicode;
 
 class BufferMgrImpl : public BufferMgr {
@@ -49,7 +49,7 @@ class BufferMgrImpl : public BufferMgr {
         preedit->set_cursor_position(static_cast<int32_t>(m_caret));
     }
 
-    virtual void GetCandidates(messages::CandidateList *candidate_list) override {
+    virtual void GetCandidates(CandidateList *candidate_list) override {
         if (m_edit_state == EditState::EDIT_CONVERTED) {
             return;
         }

@@ -6,8 +6,8 @@
 add_library (khiin
     "${PROTOBUF_DIR}/config.pb.h"
     "${PROTOBUF_DIR}/config.pb.cc"
-    "${PROTOBUF_DIR}/messages.pb.h"
-    "${PROTOBUF_DIR}/messages.pb.cc"
+    "${PROTOBUF_DIR}/command.pb.h"
+    "${PROTOBUF_DIR}/command.pb.cc"
     "CandidateFinder.h"
     "CandidateFinder.cpp"
     "BufferElement.h"

@@ -223,9 +223,6 @@
     <ClCompile Include="pch.cpp">
       <Filter>Common</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\proto\proto\messages.pb.cc">
-      <Filter>Common\proto</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\proto\proto\config.pb.cc">
       <Filter>Common\proto</Filter>
     </ClCompile>
@@ -246,6 +243,10 @@
     </ClCompile>
     <ClCompile Include="SettingsApp.cpp">
       <Filter>TextService</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\proto\proto\messages.pb.cc" />
+    <ClCompile Include="..\..\proto\proto\command.pb.cc">
+      <Filter>Common\proto</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

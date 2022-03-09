@@ -34,7 +34,7 @@ class GuiWindow : public BaseWindow<GuiWindow> {
     virtual void Show();
     virtual void Hide();
     virtual bool Showing();
-    virtual void OnConfigChanged(messages::AppConfig *config);
+    virtual void OnConfigChanged(proto::AppConfig *config);
 
     // Required
     virtual void Render() = 0;
@@ -64,9 +64,9 @@ class GuiWindow : public BaseWindow<GuiWindow> {
     float m_scale = 1.0f;
     std::unique_ptr<RenderFactory> m_factory = nullptr;
     winrt::com_ptr<ID2D1DCRenderTarget> m_target = nullptr;
-    messages::AppConfig *m_config = nullptr;
+    proto::AppConfig *m_config = nullptr;
     ColorScheme m_colors;
-    messages::UiLanguage m_language = messages::UIL_TAI_HANLO;
+    proto::UiLanguage m_language = proto::UIL_TAI_HANLO;
 };
 
 } // namespace khiin::win32

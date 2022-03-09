@@ -14,7 +14,7 @@
 namespace khiin::engine {
 namespace {
 
-using namespace khiin::messages;
+using namespace khiin::proto;
 namespace fs = std::filesystem;
 
 #ifdef _WIN32
@@ -49,17 +49,17 @@ class EngineTest : public ::testing::Test {
 
     Engine *engine = nullptr;
     Command *command = nullptr;
-    Input *input = nullptr;
-    Output *output = nullptr;
+    Request *req = nullptr;
+    Response *res = nullptr;
 
     void feedText(const char *keys) {
         for (auto c : std::string(keys)) {
             command = Command::default_instance().New();
-            input = command->mutable_input();
-            output = command->mutable_output();
+            req = command->mutable_request();
+            res = command->mutable_response();
 
-            command->set_type(CommandType::SEND_KEY);
-            input->mutable_key_event()->set_key_code(c);
+            req->set_type(CommandType::SEND_KEY);
+            req->mutable_key_event()->set_key_code(c);
             engine->SendCommand(command);
         }
     }

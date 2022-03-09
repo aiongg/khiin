@@ -5,6 +5,7 @@
 namespace khiin::win32 {
 namespace {
 using namespace D2D1;
+using namespace khiin::proto;
 
 ColorScheme const kLightScheme = ColorScheme{
     ColorF(ColorF::Black),          // text
@@ -30,7 +31,7 @@ const std::vector<ColorScheme> kColorSchemeMap = {kLightScheme, kDarkScheme};
 
 } // namespace
 
-ColorScheme const &Colors::GetScheme(messages::AppConfig *config) {
+ColorScheme const &Colors::GetScheme(AppConfig *config) {
     if (config->has_appearance()) {
         auto colors = config->appearance().colors();
     

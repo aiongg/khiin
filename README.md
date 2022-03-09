@@ -53,8 +53,7 @@ To re-build protobuf generated files after modification, install `protoc`
 and use the following command:
 
 ```
-protoc.exe -I=proto --cpp_out=proto/proto proto/messages.proto
-protoc.exe -I=proto --cpp_out=proto/proto proto/config.proto
+protoc.exe --cpp_out=proto proto/*.proto
 ```
 
 #### Engine

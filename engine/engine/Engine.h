@@ -25,7 +25,7 @@ class Engine {
     static Engine *Create();
     static Engine *Create(std::string dbfile);
 
-    virtual void SendCommand(messages::Command *command) = 0;
+    virtual void SendCommand(proto::Command *command) = 0;
 
     virtual void RegisterConfigChangedListener(ConfigChangeListener *listener) = 0;
 

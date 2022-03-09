@@ -8,7 +8,6 @@ add_executable(test_khiin_engine
     "test_buffer.cpp"
     "LomajiTest.cpp"
     "test_db.cpp"
-    
     "SyllableTest.cpp"
     "KeyConfigTest.cpp"
     "SyllableParserTest.cpp"
@@ -17,7 +16,8 @@ add_executable(test_khiin_engine
     "SegmenterTest.cpp"
     "SplitterTest.cpp"
     "TestEnv.h"
- "UnicodeTest.cpp" "UtilsTest.cpp" )
+    "UnicodeTest.cpp"
+    "UtilsTest.cpp" )
 
 target_link_libraries(test_khiin_engine khiin SQLiteCpp ${Boost_LIBRARIES} ${Protobuf_LIBRARY} GTest::gmock GTest::gtest GTest::gmock_main GTest::gtest_main)
 

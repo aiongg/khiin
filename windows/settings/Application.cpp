@@ -17,7 +17,7 @@
 namespace khiin::win32::settings {
 namespace {
 using namespace winrt;
-using namespace khiin::messages;
+using namespace khiin::proto;
 
 HMODULE g_module = NULL;
 AppConfig *g_config = nullptr;

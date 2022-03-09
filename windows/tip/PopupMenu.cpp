@@ -11,7 +11,7 @@
 
 namespace khiin::win32 {
 namespace {
-using namespace messages;
+using namespace proto;
 using namespace winrt;
 using namespace strings;
 using namespace D2D1;

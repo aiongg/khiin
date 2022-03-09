@@ -10,14 +10,14 @@ enum class DisplayMode {
     Grid,
 };
 
-using CandidateColumn = std::vector<messages::Candidate const *>;
+using CandidateColumn = std::vector<proto::Candidate const *>;
 using CandidateGrid = std::vector<CandidateColumn>;
 
 class CandidatePager {
   public:
     static CandidatePager *Create();
 
-    virtual void SetCandidateList(messages::CandidateList *candidate_list) = 0;
+    virtual void SetCandidateList(proto::CandidateList *candidate_list) = 0;
     virtual void SetDisplayMode(DisplayMode display_mode) = 0;
     virtual void SetFocus(int candidate_id) = 0;
 

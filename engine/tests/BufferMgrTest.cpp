@@ -6,7 +6,7 @@
 
 namespace khiin::engine {
 namespace {
-using namespace messages;
+using namespace proto;
 using ::testing::Contains;
 
 bool OrEqual(std::string test, std::string v1, std::string v2) {
@@ -92,7 +92,7 @@ struct BufferMgrTest : ::testing::Test {
     }
 
     std::string display() {
-        auto preedit = messages::Preedit::default_instance().New();
+        auto preedit = Preedit::default_instance().New();
         bufmgr->BuildPreedit(preedit);
         auto ret = std::string();
         for (auto &segment : preedit->segments()) {
@@ -102,7 +102,7 @@ struct BufferMgrTest : ::testing::Test {
     }
 
     size_t caret() {
-        auto preedit = messages::Preedit::default_instance().New();
+        auto preedit = Preedit::default_instance().New();
         bufmgr->BuildPreedit(preedit);
         return preedit->cursor_position();
     }

@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-package khiin.messages;
+package khiin.proto;
 
 message KeyConfiguration {
     string telex_t2 = 1;

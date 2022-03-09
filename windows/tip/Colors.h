@@ -19,7 +19,7 @@ struct ColorScheme {
 class Colors {
   public:
     static std::vector<std::string> const &ColorSchemeNames();
-    static ColorScheme const &GetScheme(messages::AppConfig *config);
+    static ColorScheme const &GetScheme(proto::AppConfig *config);
 };
 
 } // namespace khiin::win32

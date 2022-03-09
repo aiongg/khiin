@@ -8,7 +8,7 @@ namespace khiin::win32 {
 struct TextService;
 
 struct EditSession {
-    static void HandleAction(TextService *pService, ITfContext *pContext, messages::Command &&command);
+    static void HandleAction(TextService *pService, ITfContext *pContext, proto::Command &&command);
 };
 
 } // namespace khiin::win32

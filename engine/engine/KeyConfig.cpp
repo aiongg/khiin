@@ -5,7 +5,7 @@
 namespace khiin::engine {
 namespace {
 
-using namespace khiin::messages;
+using namespace khiin::proto;
 
 constexpr char kDisallowedTelexKeys[] = {'a', 'e', 'h', 'i', 'k', 'm', 'n', 'o', 'p', 't', 'u'};
 constexpr char kAllowedTelexKeys[] = {'b', 'c', 'd', 'f', 'g', 'j', 'l', 'q', 'r', 's', 'v', 'w', 'x', 'y', 'z'};

@@ -30,7 +30,7 @@ class BufferMgr {
      * the end user application. Preedit contains all of the information
      * necessary to render the composition window.
      */
-    virtual void BuildPreedit(messages::Preedit *preedit) = 0;
+    virtual void BuildPreedit(proto::Preedit *preedit) = 0;
 
     /**
      * Builds a CandidateList protobuf message for the end user application.
@@ -39,12 +39,12 @@ class BufferMgr {
      * conversin choices, the application must relay the focused or
      * selected candidate's ID back to the Engine.
      */
-    virtual void GetCandidates(messages::CandidateList *candidate_list) = 0;
+    virtual void GetCandidates(proto::CandidateList *candidate_list) = 0;
 
     /**
      * Returns the current EditState
      */
-    virtual messages::EditState edit_state() = 0;
+    virtual proto::EditState edit_state() = 0;
 
     /**
      * Returns |true| if the buffer is empty, e.g. when:

@@ -13,10 +13,11 @@
 #include "Utils.h"
 #include "common.h"
 
-namespace {
+namespace khiin::win32 {
 
+namespace {
 using namespace khiin::engine;
-using namespace khiin::messages;
+using namespace khiin::proto;
 
 volatile HMODULE g_module = nullptr;
 
@@ -41,13 +42,11 @@ static std::unordered_map<int, SpecialKey> kWindowsToKhiinKeyCode = {
 
 } // namespace
 
-namespace khiin::win32 {
-
 using namespace engine;
-using namespace messages;
+using namespace proto;
 namespace fs = std::filesystem;
 
-void TranslateKeyEvent(win32::KeyEvent *e1, messages::KeyEvent *e2) {
+void TranslateKeyEvent(win32::KeyEvent *e1, proto::KeyEvent *e2) {
     if (e1->ascii()) {
         e2->set_key_code(e1->ascii());
         e2->set_special_key(SpecialKey::SK_NONE);
@@ -75,12 +74,13 @@ struct EngineControllerImpl : winrt::implements<EngineControllerImpl, EngineCont
 
     virtual Command TestKey(KeyEvent win_key_event) override {
         auto cmd = Command();
-        cmd.set_type(CommandType::TEST_SEND_KEY);
-        auto key_event = cmd.mutable_input()->mutable_key_event();
+        auto request = cmd.mutable_request();
+        request->set_type(CommandType::TEST_SEND_KEY);
+        auto key_event = request->mutable_key_event();
         TranslateKeyEvent(&win_key_event, key_event);
         m_engine->SendCommand(&cmd);
 
-        if (!cmd.output().consumable()) {
+        if (!cmd.response().consumable()) {
             Reset();
         }
 
@@ -89,8 +89,9 @@ struct EngineControllerImpl : winrt::implements<EngineControllerImpl, EngineCont
 
     virtual Command OnKey(KeyEvent win_key_event) override {
         auto cmd = Command();
-        cmd.set_type(CommandType::SEND_KEY);
-        auto key_event = cmd.mutable_input()->mutable_key_event();
+        auto request = cmd.mutable_request();
+        request->set_type(CommandType::SEND_KEY);
+        auto key_event = request->mutable_key_event();
         TranslateKeyEvent(&win_key_event, key_event);
         m_engine->SendCommand(&cmd);
         return cmd;
@@ -98,23 +99,26 @@ struct EngineControllerImpl : winrt::implements<EngineControllerImpl, EngineCont
 
     virtual Command SelectCandidate(int32_t candidate_id) override {
         auto cmd = Command();
-        cmd.set_type(CommandType::SELECT_CANDIDATE);
-        cmd.mutable_input()->set_candidate_id(candidate_id);
+        auto request = cmd.mutable_request();
+        request->set_type(CommandType::SELECT_CANDIDATE);
+        request->set_candidate_id(candidate_id);
         m_engine->SendCommand(&cmd);
         return cmd;
     }
 
     virtual Command FocusCandidate(int32_t candidate_id) override {
         auto cmd = Command();
-        cmd.set_type(CommandType::FOCUS_CANDIDATE);
-        cmd.mutable_input()->set_candidate_id(candidate_id);
+        auto request = cmd.mutable_request();
+        request->set_type(CommandType::FOCUS_CANDIDATE);
+        request->set_candidate_id(candidate_id);
         m_engine->SendCommand(&cmd);
         return cmd;
     }
 
     virtual void Reset() {
         auto cmd = Command();
-        cmd.set_type(CommandType::RESET);
+        auto request = cmd.mutable_request();
+        request->set_type(CommandType::RESET);
         m_engine->SendCommand(&cmd);
     }
 

@@ -12,7 +12,7 @@ class PropSheet {
   public:
     PropSheet(Application *app);
     static LRESULT CALLBACK StaticDlgProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
-    HPROPSHEETPAGE psp(HMODULE hmod, int template_id, messages::AppConfig *config);
+    HPROPSHEETPAGE psp(HMODULE hmod, int template_id, proto::AppConfig *config);
     void Reload();
     HWND hwnd();
 
@@ -31,10 +31,10 @@ class PropSheet {
     HMODULE m_module = NULL;
     HWND m_hwnd = NULL;
     uint32_t m_template_id = 0;
-    messages::AppConfig *m_config = nullptr;
+    proto::AppConfig *m_config = nullptr;
 
     std::vector<uint32_t> m_string_ids;
-    std::unordered_map<messages::UiLanguage, std::vector<uint32_t>> m_translations;
+    std::unordered_map<proto::UiLanguage, std::vector<uint32_t>> m_translations;
     Application *m_app = nullptr;
 };
 

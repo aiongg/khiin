@@ -7,7 +7,7 @@
 
 namespace khiin::win32::settings {
 namespace {
-using namespace messages;
+using namespace proto;
 
 void SetTitle(HWND page_hwnd, uint32_t page_rid, UiLanguage lang) {
     auto title = Strings::T(page_rid, lang);
@@ -31,7 +31,7 @@ void SetText(HWND hwnd, uint32_t rid, UiLanguage lang) {
 
 } // namespace
 
-using namespace messages;
+using namespace proto;
 
 PropSheet::PropSheet(Application *app) : m_app(app) {}
 
@@ -55,7 +55,7 @@ LRESULT CALLBACK PropSheet::StaticDlgProc(HWND hwnd, UINT uMsg, WPARAM wParam, L
     }
 }
 
-HPROPSHEETPAGE PropSheet::psp(HMODULE hmod, int template_id, messages::AppConfig *config) {
+HPROPSHEETPAGE PropSheet::psp(HMODULE hmod, int template_id, AppConfig *config) {
     m_module = hmod;
     m_template_id = template_id;
     m_config = config;

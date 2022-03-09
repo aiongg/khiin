@@ -11,13 +11,13 @@ struct WidePreedit {
     int display_size = 0;
     std::wstring preedit_display;
     std::vector<std::pair<int, int>> segment_start_and_size;
-    std::vector<messages::SegmentStatus> segment_status;
+    std::vector<proto::SegmentStatus> segment_status;
 };
 
 struct Utils {
     static const std::wstring Widen(const std::string &str);
     static const std::string Narrow(const std::wstring &wstr);
-    static WidePreedit const WidenPreedit(const messages::Preedit &preedit);
+    static WidePreedit const WidenPreedit(const proto::Preedit &preedit);
 };
 
 } // namespace khiin::win32

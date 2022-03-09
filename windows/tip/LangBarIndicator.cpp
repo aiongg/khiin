@@ -15,7 +15,7 @@
 namespace khiin::win32 {
 namespace {
 using namespace winrt;
-using namespace messages;
+using namespace proto;
 
 volatile HMODULE g_module;
 
@@ -62,6 +62,9 @@ struct LangBarIndicatorImpl :
     //----------------------------------------------------------------------------
 
     virtual void OnConfigChanged(AppConfig *config) override {
+        for (auto &sink : m_sinks) {
+            sink.second->OnUpdate(TF_LBI_ICON);
+        }
         if (m_popup) {
             m_popup->OnConfigChanged(config);
         }
@@ -139,7 +142,7 @@ struct LangBarIndicatorImpl :
 
     virtual STDMETHODIMP GetIcon(HICON *phIcon) override {
         TRY_FOR_HRESULT
-        using namespace messages;
+        using namespace proto;
 
         auto icon_resource = 0;
 

@@ -6,7 +6,7 @@
 
 namespace khiin::win32 {
 namespace {
-using namespace messages;
+using namespace proto;
 
 static inline auto divide_ceil(unsigned int x, unsigned int y) {
     return x / y + (x % y != 0);

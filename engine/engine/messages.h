@@ -6,7 +6,7 @@
 #endif
 
 #include "proto/config.pb.h"
-#include "proto/messages.pb.h"
+#include "proto/command.pb.h"
 
 #ifdef _WIN32
 #pragma warning(pop)

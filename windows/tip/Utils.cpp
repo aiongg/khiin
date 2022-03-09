@@ -6,7 +6,7 @@
 
 namespace khiin::win32 {
 
-using namespace messages;
+using namespace proto;
 
 std::wstring const Utils::Widen(const std::string &str) {
     auto tmp = utf8::utf8to16(str);

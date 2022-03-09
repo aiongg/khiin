@@ -20,9 +20,9 @@ struct CompositionMgr : winrt::implements<CompositionMgr, IUnknown> {
 
     bool composing();
 
-    void DoComposition(TfEditCookie cookie, ITfContext *pContext, messages::Preedit comp_data);
+    void DoComposition(TfEditCookie cookie, ITfContext *pContext, proto::Preedit comp_data);
     void CommitComposition(TfEditCookie cookie, ITfContext *pContext);
-    void CommitComposition(TfEditCookie cookie, ITfContext *pContext, messages::Preedit comp_data);
+    void CommitComposition(TfEditCookie cookie, ITfContext *pContext, proto::Preedit comp_data);
     void CancelComposition(TfEditCookie cookie);
     void GetTextRange(TfEditCookie cookie, ITfRange **ppRange);
 
@@ -34,7 +34,7 @@ struct CompositionMgr : winrt::implements<CompositionMgr, IUnknown> {
 
     winrt::com_ptr<TextService> service = nullptr;
     winrt::com_ptr<ITfComposition> composition = nullptr;
-    messages::Preedit composition_data;
+    proto::Preedit composition_data;
 };
 
 } // namespace khiin::win32

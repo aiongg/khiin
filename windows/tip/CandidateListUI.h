@@ -16,8 +16,8 @@ struct CandidateListUI : winrt::implements<CandidateListUI, IUnknown> {
     virtual void Initialize(TextService *pTextService) = 0;
     virtual void Uninitialize() = 0;
     virtual void DestroyCandidateWindow() = 0;
-    virtual void Update(ITfContext *pContext, messages::EditState edit_state,
-                        const messages::CandidateList &candidate_list, RECT text_rect) = 0;
+    virtual void Update(ITfContext *pContext, proto::EditState edit_state,
+                        const proto::CandidateList &candidate_list, RECT text_rect) = 0;
 
     virtual bool Showing() = 0;
     virtual bool Selecting() = 0;

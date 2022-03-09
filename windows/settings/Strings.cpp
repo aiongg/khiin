@@ -6,7 +6,7 @@
 
 namespace khiin::win32::settings {
 namespace {
-using namespace messages;
+using namespace proto;
 
 using StrMap = std::unordered_map<uint32_t, std::wstring>;
 

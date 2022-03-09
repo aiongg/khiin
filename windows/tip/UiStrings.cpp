@@ -5,7 +5,7 @@
 #include "common.h"
 
 namespace khiin::win32::strings {
-using namespace messages;
+using namespace proto;
 
 // clang-format off
 std::unordered_map<uint32_t, std::string> kEnglish = {

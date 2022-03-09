@@ -14,7 +14,7 @@
 namespace khiin::win32 {
 namespace {
 using namespace winrt;
-using namespace messages;
+using namespace proto;
 
 bool IsArrowKey(int key_code) {
     return key_code == VK_LEFT || key_code == VK_UP || key_code == VK_RIGHT || key_code == VK_DOWN;
@@ -49,7 +49,7 @@ struct CandidateListUIImpl :
         }
     }
 
-    virtual void Update(ITfContext *pContext, EditState edit_state, const messages::CandidateList &candidate_list,
+    virtual void Update(ITfContext *pContext, EditState edit_state, const CandidateList &candidate_list,
                         RECT text_rect) override {
         KHIIN_TRACE("");
         m_context.copy_from(pContext);
@@ -361,7 +361,7 @@ struct CandidateListUIImpl :
         TRY_FOR_HRESULT;
         KHIIN_TRACE("");
         auto cmd = Command();
-        cmd.set_type(CommandType::COMMIT);
+        cmd.mutable_request()->set_type(CommandType::COMMIT);
         EditSession::HandleAction(m_service.get(), m_context.get(), std::move(cmd));
         CATCH_FOR_HRESULT;
     }
@@ -370,7 +370,7 @@ struct CandidateListUIImpl :
         TRY_FOR_HRESULT;
         KHIIN_TRACE("");
         auto cmd = Command();
-        cmd.set_type(CommandType::RESET);
+        cmd.mutable_request()->set_type(CommandType::RESET);
         EditSession::HandleAction(m_service.get(), m_context.get(), std::move(cmd));
         return S_OK;
         CATCH_FOR_HRESULT;

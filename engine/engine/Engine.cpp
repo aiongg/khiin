@@ -23,7 +23,7 @@
 namespace khiin::engine {
 namespace {
 
-using namespace khiin::messages;
+using namespace khiin::proto;
 namespace fs = std::filesystem;
 
 class EngineImpl : public Engine {
@@ -55,11 +55,11 @@ class EngineImpl : public Engine {
     }
 
     virtual void SendCommand(Command *pCommand) override {
-        auto input = pCommand->mutable_input();
-        auto output = pCommand->mutable_output();
+        auto req = pCommand->mutable_request();
+        auto res = pCommand->mutable_response();
         decltype(&EngineImpl::HandleNone) handler;
 
-        if (auto it = command_handlers.find(pCommand->type()); it != command_handlers.end()) {
+        if (auto it = command_handlers.find(req->type()); it != command_handlers.end()) {
             handler = it->second;
         } else {
             handler = &EngineImpl::HandleNone;
@@ -102,13 +102,13 @@ class EngineImpl : public Engine {
     void HandleNone(Command *command) {}
 
     void HandleSendKey(Command *command) {
-        auto input = command->mutable_input();
-        auto output = command->mutable_output();
-        auto &key = input->key_event();
+        auto req = command->mutable_request();
+        auto res = command->mutable_response();
+        auto &key = req->key_event();
 
         switch (key.special_key()) {
         case SpecialKey::SK_NONE: {
-            auto key_code = input->key_event().key_code();
+            auto key_code = req->key_event().key_code();
             if (isprint(key_code)) {
                 m_buffer_mgr->Insert(static_cast<char>(key_code));
             }
@@ -139,7 +139,7 @@ class EngineImpl : public Engine {
         }
         case SpecialKey::SK_BACKSPACE: {
             if (m_buffer_mgr->IsEmpty()) {
-                output->set_consumable(false);
+                res->set_consumable(false);
             } else {
                 m_buffer_mgr->Erase(CursorDirection::L);
             }
@@ -147,7 +147,7 @@ class EngineImpl : public Engine {
         }
         case SpecialKey::SK_DEL: {
             if (m_buffer_mgr->IsEmpty()) {
-                output->set_consumable(false);
+                res->set_consumable(false);
             } else {
                 m_buffer_mgr->Erase(CursorDirection::R);
             }
@@ -155,7 +155,7 @@ class EngineImpl : public Engine {
         }
         case SpecialKey::SK_SPACE: {
             if (m_buffer_mgr->IsEmpty()) {
-                output->set_consumable(false);
+                res->set_consumable(false);
             } else {
                 m_buffer_mgr->HandleSelectOrFocus();
             }
@@ -170,10 +170,11 @@ class EngineImpl : public Engine {
     }
 
     void HandleCommit(Command *command) {
-        command->set_type(CommandType::COMMIT);
-        auto input = command->mutable_input();
-        auto output = command->mutable_output();
-        auto preedit = output->mutable_preedit();
+        //command->input().set_type(CommandType::COMMIT);
+        auto req = command->mutable_request();
+        req->set_type(CommandType::COMMIT);
+        auto res = command->mutable_response();
+        auto preedit = res->mutable_preedit();
         // preedit->set_cursor_position(buffer_mgr->caret_position());
         // auto segment = preedit->add_segments();
         // segment->set_status(SegmentStatus::UNMARKED);
@@ -182,39 +183,39 @@ class EngineImpl : public Engine {
     }
 
     void HandleTestSendKey(Command *command) {
-        auto input = command->mutable_input();
-        auto output = command->mutable_output();
+        auto req = command->mutable_request();
+        auto res = command->mutable_response();
 
-        output->set_consumable(true);
+        res->set_consumable(true);
 
-        auto key = input->key_event().key_code();
-        auto &mods = input->key_event().modifier_keys();
+        auto key = req->key_event().key_code();
+        auto &mods = req->key_event().modifier_keys();
 
         if (!mods.empty()) {
             if (mods.size() > 1 || mods.at(0) != ModifierKey::SHIFT) {
-                output->set_consumable(false);
+                res->set_consumable(false);
             }
         } else if (m_buffer_mgr->IsEmpty() && !isgraph(key)) {
-            output->set_consumable(false);
+            res->set_consumable(false);
         }
     }
 
     void AttachPreeditWithCandidates(Command *command) {
-        auto output = command->mutable_output();
-        auto preedit = output->mutable_preedit();
+        auto res = command->mutable_response();
+        auto preedit = res->mutable_preedit();
         m_buffer_mgr->BuildPreedit(preedit);
-        auto candidate_list = command->mutable_output()->mutable_candidate_list();
+        auto candidate_list = command->mutable_response()->mutable_candidate_list();
         m_buffer_mgr->GetCandidates(candidate_list);
-        output->set_edit_state(m_buffer_mgr->edit_state());
+        res->set_edit_state(m_buffer_mgr->edit_state());
     }
 
     void HandleSelectCandidate(Command *command) {
-        m_buffer_mgr->SelectCandidate(command->input().candidate_id());
+        m_buffer_mgr->SelectCandidate(command->request().candidate_id());
         AttachPreeditWithCandidates(command);
     }
 
     void HandleFocusCandidate(Command *command) {
-        m_buffer_mgr->FocusCandidate(command->input().candidate_id());
+        m_buffer_mgr->FocusCandidate(command->request().candidate_id());
         AttachPreeditWithCandidates(command);
     }
 
@@ -232,7 +233,7 @@ class EngineImpl : public Engine {
 
     std::vector<std::string> m_valid_syllables;
 
-    std::shared_ptr<Output> prev_output = nullptr;
+    std::shared_ptr<Response> prev_output = nullptr;
     std::unordered_map<CommandType, decltype(&HandleNone)> command_handlers = {};
     std::vector<ConfigChangeListener *> config_change_listeners;
 };

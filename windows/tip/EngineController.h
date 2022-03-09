@@ -14,10 +14,10 @@ struct EngineController : winrt::implements<EngineController, IUnknown> {
     virtual void Initialize() = 0;
     virtual void Uninitialize() = 0;
 
-    virtual messages::Command TestKey(KeyEvent keyEvent) = 0;
-    virtual messages::Command OnKey(KeyEvent keyEvent) = 0;
-    virtual messages::Command SelectCandidate(int32_t candidate_id) = 0;
-    virtual messages::Command FocusCandidate(int32_t candidate_id) = 0;
+    virtual proto::Command TestKey(KeyEvent keyEvent) = 0;
+    virtual proto::Command OnKey(KeyEvent keyEvent) = 0;
+    virtual proto::Command SelectCandidate(int32_t candidate_id) = 0;
+    virtual proto::Command FocusCandidate(int32_t candidate_id) = 0;
     virtual void Reset() = 0;
 };
 
