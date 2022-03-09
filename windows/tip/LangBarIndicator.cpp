@@ -7,6 +7,7 @@
 #include "BaseWindow.h"
 #include "Config.h"
 #include "DllModule.h"
+#include "Guids.h"
 #include "PopupMenu.h"
 #include "Profile.h"
 #include "TextService.h"
@@ -23,7 +24,7 @@ struct LangBarIndicatorImpl :
     implements<LangBarIndicatorImpl, ITfSource, ITfLangBarItemButton, LangBarIndicator>,
     ConfigChangeListener {
     LangBarIndicatorImpl() {
-        m_info.clsidService = Profile::textServiceGuid;
+        m_info.clsidService = guids::kTextService;
         m_info.guidItem = GUID_LBI_INPUTMODE;
         m_info.dwStyle = TF_LBI_STYLE_BTN_BUTTON;
         m_info.ulSort = 0;
@@ -126,8 +127,17 @@ struct LangBarIndicatorImpl :
     }
 
     virtual STDMETHODIMP OnClick(TfLBIClick click, POINT pt, const RECT *prcArea) override {
-        KHIIN_DEBUG("Clicked: ({},{})", pt.x, pt.y);
-        m_popup->Show(pt);
+        if (click == TF_LBI_CLK_LEFT) {
+            auto im = m_service->config()->input_mode();
+            if (im == IM_ALPHA) {
+                m_service->OnInputModeSelected(m_prev_input_mode);
+            } else {
+                m_service->OnInputModeSelected(IM_ALPHA);
+            }
+            m_prev_input_mode = im;
+        } else {
+            m_popup->Show(pt);
+        }
 
         return S_OK;
     }
@@ -182,6 +192,7 @@ struct LangBarIndicatorImpl :
 
     TF_LANGBARITEMINFO m_info;
     DWORD m_status = 0;
+    InputMode m_prev_input_mode = IM_UNSPECIFIED;
 };
 
 } // namespace
@@ -190,4 +201,4 @@ void LangBarIndicatorFactory::Create(LangBarIndicator **indicator) {
     as_self<LangBarIndicator>(make_self<LangBarIndicatorImpl>()).copy_to(indicator);
 }
 
-} // namespace khiin::win32
+} // namespace khiin::win32::tip

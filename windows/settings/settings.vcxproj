@@ -199,6 +199,7 @@
   <ItemGroup>
     <ClCompile Include="..\tip\Config.cpp" />
     <ClCompile Include="..\tip\Files.cpp" />
+    <ClCompile Include="..\tip\Registrar.cpp" />
     <ClCompile Include="..\tip\Utils.cpp" />
     <ClCompile Include="AppearanceProps.cpp" />
     <ClCompile Include="InputProps.cpp" />

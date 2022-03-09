@@ -93,9 +93,9 @@ _Check_return_ STDAPI DllGetClassObject(_In_ REFCLSID rclsid, _In_ REFIID riid, 
 }
 
 STDMETHODIMP DllUnregisterServer() {
-    Registrar::unregisterCategories();
-    Registrar::unregisterProfiles();
-    Registrar::unregisterComServer();
+    Registrar::UnregisterCategories();
+    Registrar::UnregisterProfiles();
+    Registrar::UnregisterComServer();
 
     return S_OK;
 }
@@ -112,9 +112,9 @@ STDMETHODIMP DllRegisterServer() {
     dllPath.resize(static_cast<size_t>(pathsize));
 
     try {
-        khiin::win32::tip::Registrar::registerComServer(dllPath);
-        khiin::win32::tip::Registrar::registerProfiles(dllPath);
-        khiin::win32::tip::Registrar::registerCategories();
+        khiin::win32::tip::Registrar::RegisterComServer(dllPath);
+        khiin::win32::tip::Registrar::RegisterProfiles(dllPath);
+        khiin::win32::tip::Registrar::RegisterCategories();
     } catch (...) {
         DllUnregisterServer();
         return winrt::to_hresult();

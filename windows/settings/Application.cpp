@@ -78,15 +78,6 @@ void LoadConfig() {
     Config::LoadFromFile(g_module, g_config);
 }
 
-UiLanguage GetSystemLang() {
-    if (auto lang = PRIMARYLANGID(::GetUserDefaultUILanguage());
-        lang == LANG_CHINESE || lang == LANG_CHINESE_TRADITIONAL) {
-        return UIL_TAI_HANLO;
-    } else {
-        return UIL_ENGLISH;
-    }
-}
-
 class ApplicationImpl : Application {
   public:
     ApplicationImpl(HMODULE hmod) :
@@ -95,15 +86,17 @@ class ApplicationImpl : Application {
     }
 
     virtual UiLanguage uilang() override {
-        if (g_config->has_appearance() || uilang_set) {
-            return g_config->appearance().ui_language();
+        if (g_config->has_appearance()) {
+            auto lang = g_config->appearance().ui_language();
+            if (lang != UIL_UNSPECIFIED) {
+                return lang;
+            }
         }
 
-        return GetSystemLang();
+        return Config::GetSystemLang();
     }
 
     virtual void set_uilang(UiLanguage lang) override {
-        uilang_set = true;
         g_config->mutable_appearance()->set_ui_language(lang);
         m_display.Reload();
         UpdateTitle();
@@ -143,8 +136,6 @@ class ApplicationImpl : Application {
         }
     }
 
-    bool uilang_set = false;
-    UiLanguage m_lang = UIL_TAI_HANLO;
     AppearanceProps m_display;
     InputProps m_input;
     PropSheet m_about;

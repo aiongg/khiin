@@ -2,11 +2,12 @@
 <Include>
     <?define Manufacturer_EN = "Khiin PJH" ?>
     
-    <?define GUID_ProductId = "82989400-728d-11ec-8c6e-e0d46491b35a" ?>
-    <?define GUID_UpgradeCode = "82989401-728d-11ec-8c6e-e0d46491b35a" ?>
-    <?define GUID_Dll64Component = "82989402-728d-11ec-8c6e-e0d46491b35a" ?>
-    <?define GUID_Dll32Component = "82989403-728d-11ec-8c6e-e0d46491b35a" ?>
-    <?define GUID_StartMenuShortcut = "82989406-728d-11ec-8c6e-e0d46491b35a" ?>
+    <?define GUID_ProductId = "82989410-728d-11ec-8c6e-e0d46491b35a" ?>
+    <?define GUID_UpgradeCode = "82989411-728d-11ec-8c6e-e0d46491b35a" ?>
+    <?define GUID_Dll64Component = "82989412-728d-11ec-8c6e-e0d46491b35a" ?>
+    <?define GUID_Dll32Component = "82989413-728d-11ec-8c6e-e0d46491b35a" ?>
+    <?define GUID_DatabaseFile = "82989414-728d-11ec-8c6e-e0d46491b35a" ?>
+    <?define GUID_StartMenuShortcut = "82989415-728d-11ec-8c6e-e0d46491b35a" ?>
     
     <?define BuildDir = "../out/build" ?>
     <?define ResourceDir = "../../resources" ?>
@@ -41,7 +42,6 @@
     <?define KhiinDll32InstalledPath = "[ProgramFilesFolder]Khiin PJH\$(var.DLL_32_DEST_FILE)" ?>
     <?define KhiinSettingsInstalledPath = "[ProgramFiles64Folder]Khiin PJH\$(var.SETTINGS_DEST)" ?>
     
-    <?define GUID_DatabaseFile = "82989405-728d-11ec-8c6e-e0d46491b35a" ?>
     <?define DB_SOURCE_PATH = "$(var.ResourceDir)/khiin.db" ?>
     <?define DB_DEST_FILE = "khiin.db" ?>
 

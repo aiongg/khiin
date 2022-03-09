@@ -97,15 +97,15 @@ namespace khiin {
 namespace proto {
 
 enum Candidate_Category : int {
-  Candidate_Category_BASIC = 0,
-  Candidate_Category_EXTENDED = 1,
-  Candidate_Category_FALLBACK = 2,
+  Candidate_Category_CCAT_BASIC = 0,
+  Candidate_Category_CCAT_EXTENDED = 1,
+  Candidate_Category_CCAT_FALLBACK = 2,
   Candidate_Category_Candidate_Category_INT_MIN_SENTINEL_DO_NOT_USE_ = std::numeric_limits<::PROTOBUF_NAMESPACE_ID::int32>::min(),
   Candidate_Category_Candidate_Category_INT_MAX_SENTINEL_DO_NOT_USE_ = std::numeric_limits<::PROTOBUF_NAMESPACE_ID::int32>::max()
 };
 bool Candidate_Category_IsValid(int value);
-constexpr Candidate_Category Candidate_Category_Category_MIN = Candidate_Category_BASIC;
-constexpr Candidate_Category Candidate_Category_Category_MAX = Candidate_Category_FALLBACK;
+constexpr Candidate_Category Candidate_Category_Category_MIN = Candidate_Category_CCAT_BASIC;
+constexpr Candidate_Category Candidate_Category_Category_MAX = Candidate_Category_CCAT_FALLBACK;
 constexpr int Candidate_Category_Category_ARRAYSIZE = Candidate_Category_Category_MAX + 1;
 
 const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor* Candidate_Category_descriptor();
@@ -161,15 +161,16 @@ inline bool SpecialKey_Parse(
     SpecialKey_descriptor(), name, value);
 }
 enum ModifierKey : int {
-  CTRL = 0,
-  ALT = 1,
-  SHIFT = 2,
+  MODK_NONE = 0,
+  MODK_CTRL = 1,
+  MODK_ALT = 2,
+  MODK_SHIFT = 3,
   ModifierKey_INT_MIN_SENTINEL_DO_NOT_USE_ = std::numeric_limits<::PROTOBUF_NAMESPACE_ID::int32>::min(),
   ModifierKey_INT_MAX_SENTINEL_DO_NOT_USE_ = std::numeric_limits<::PROTOBUF_NAMESPACE_ID::int32>::max()
 };
 bool ModifierKey_IsValid(int value);
-constexpr ModifierKey ModifierKey_MIN = CTRL;
-constexpr ModifierKey ModifierKey_MAX = SHIFT;
+constexpr ModifierKey ModifierKey_MIN = MODK_NONE;
+constexpr ModifierKey ModifierKey_MAX = MODK_SHIFT;
 constexpr int ModifierKey_ARRAYSIZE = ModifierKey_MAX + 1;
 
 const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor* ModifierKey_descriptor();
@@ -187,23 +188,24 @@ inline bool ModifierKey_Parse(
     ModifierKey_descriptor(), name, value);
 }
 enum CommandType : int {
-  CMD_SEND_KEY = 0,
-  CMD_REVERT = 1,
-  CMD_RESET = 2,
-  CMD_COMMIT = 3,
-  CMD_SELECT_CANDIDATE = 4,
-  CMD_FOCUS_CANDIDATE = 5,
-  CMD_SWITCH_INPUT_MODE = 6,
-  CMD_PLACE_CURSOR = 7,
-  CMD_DISABLE = 8,
-  CMD_ENABLE = 9,
-  CMD_SET_CONFIG = 10,
-  CMD_TEST_SEND_KEY = 11,
+  CMD_UNSPECIFIED = 0,
+  CMD_SEND_KEY = 1,
+  CMD_REVERT = 2,
+  CMD_RESET = 3,
+  CMD_COMMIT = 4,
+  CMD_SELECT_CANDIDATE = 5,
+  CMD_FOCUS_CANDIDATE = 6,
+  CMD_SWITCH_INPUT_MODE = 7,
+  CMD_PLACE_CURSOR = 8,
+  CMD_DISABLE = 9,
+  CMD_ENABLE = 10,
+  CMD_SET_CONFIG = 11,
+  CMD_TEST_SEND_KEY = 12,
   CommandType_INT_MIN_SENTINEL_DO_NOT_USE_ = std::numeric_limits<::PROTOBUF_NAMESPACE_ID::int32>::min(),
   CommandType_INT_MAX_SENTINEL_DO_NOT_USE_ = std::numeric_limits<::PROTOBUF_NAMESPACE_ID::int32>::max()
 };
 bool CommandType_IsValid(int value);
-constexpr CommandType CommandType_MIN = CMD_SEND_KEY;
+constexpr CommandType CommandType_MIN = CMD_UNSPECIFIED;
 constexpr CommandType CommandType_MAX = CMD_TEST_SEND_KEY;
 constexpr int CommandType_ARRAYSIZE = CommandType_MAX + 1;
 
@@ -1122,12 +1124,12 @@ class Candidate final :
   // nested types ----------------------------------------------------
 
   typedef Candidate_Category Category;
-  static constexpr Category BASIC =
-    Candidate_Category_BASIC;
-  static constexpr Category EXTENDED =
-    Candidate_Category_EXTENDED;
-  static constexpr Category FALLBACK =
-    Candidate_Category_FALLBACK;
+  static constexpr Category CCAT_BASIC =
+    Candidate_Category_CCAT_BASIC;
+  static constexpr Category CCAT_EXTENDED =
+    Candidate_Category_CCAT_EXTENDED;
+  static constexpr Category CCAT_FALLBACK =
+    Candidate_Category_CCAT_FALLBACK;
   static inline bool Category_IsValid(int value) {
     return Candidate_Category_IsValid(value);
   }

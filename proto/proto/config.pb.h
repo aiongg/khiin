@@ -76,15 +76,16 @@ namespace khiin {
 namespace proto {
 
 enum InputMode : int {
-  IM_ALPHA = 0,
-  IM_CONTINUOUS = 1,
-  IM_BASIC = 2,
-  IM_PRO = 3,
+  IM_UNSPECIFIED = 0,
+  IM_ALPHA = 1,
+  IM_CONTINUOUS = 2,
+  IM_BASIC = 3,
+  IM_PRO = 4,
   InputMode_INT_MIN_SENTINEL_DO_NOT_USE_ = std::numeric_limits<::PROTOBUF_NAMESPACE_ID::int32>::min(),
   InputMode_INT_MAX_SENTINEL_DO_NOT_USE_ = std::numeric_limits<::PROTOBUF_NAMESPACE_ID::int32>::max()
 };
 bool InputMode_IsValid(int value);
-constexpr InputMode InputMode_MIN = IM_ALPHA;
+constexpr InputMode InputMode_MIN = IM_UNSPECIFIED;
 constexpr InputMode InputMode_MAX = IM_PRO;
 constexpr int InputMode_ARRAYSIZE = InputMode_MAX + 1;
 
@@ -103,14 +104,15 @@ inline bool InputMode_Parse(
     InputMode_descriptor(), name, value);
 }
 enum UiLanguage : int {
-  UIL_ENGLISH = 0,
-  UIL_TAI_HANLO = 1,
-  UIL_TAI_LOJI = 2,
+  UIL_UNSPECIFIED = 0,
+  UIL_ENGLISH = 1,
+  UIL_TAI_HANLO = 2,
+  UIL_TAI_LOJI = 3,
   UiLanguage_INT_MIN_SENTINEL_DO_NOT_USE_ = std::numeric_limits<::PROTOBUF_NAMESPACE_ID::int32>::min(),
   UiLanguage_INT_MAX_SENTINEL_DO_NOT_USE_ = std::numeric_limits<::PROTOBUF_NAMESPACE_ID::int32>::max()
 };
 bool UiLanguage_IsValid(int value);
-constexpr UiLanguage UiLanguage_MIN = UIL_ENGLISH;
+constexpr UiLanguage UiLanguage_MIN = UIL_UNSPECIFIED;
 constexpr UiLanguage UiLanguage_MAX = UIL_TAI_LOJI;
 constexpr int UiLanguage_ARRAYSIZE = UiLanguage_MAX + 1;
 

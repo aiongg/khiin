@@ -20,16 +20,18 @@ message KeyConfiguration {
 }
 
 enum InputMode {
-    IM_ALPHA = 0;
-    IM_CONTINUOUS = 1;
-    IM_BASIC = 2;
-    IM_PRO = 3;
+    IM_UNSPECIFIED = 0;
+    IM_ALPHA = 1;
+    IM_CONTINUOUS = 2;
+    IM_BASIC = 3;
+    IM_PRO = 4;
 }
 
 enum UiLanguage {
-    UIL_ENGLISH = 0;
-    UIL_TAI_HANLO = 1;
-    UIL_TAI_LOJI = 2;
+    UIL_UNSPECIFIED = 0;
+    UIL_ENGLISH = 1;
+    UIL_TAI_HANLO = 2;
+    UIL_TAI_LOJI = 3;
 }
 
 message Appearance {

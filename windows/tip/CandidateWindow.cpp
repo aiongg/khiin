@@ -14,13 +14,11 @@
 #include "Utils.h"
 
 namespace khiin::win32 {
-
 namespace {
-
 using namespace winrt;
 using namespace D2D1;
-using namespace proto;
-using namespace geometry;
+using namespace khiin::proto;
+using namespace khiin::geometry;
 
 static inline auto divide_ceil(unsigned int x, unsigned int y) {
     return x / y + (x % y != 0);
@@ -337,9 +335,6 @@ class CandidateWindow2Impl : public CandidateWindow {
 } // namespace
 
 const std::wstring kCandidateWindowClassName = L"CandidateWindow";
-
-GUID kCandidateWindowGuid // 829893fa-728d-11ec-8c6e-e0d46491b35a
-    = {0x829893fa, 0x728d, 0x11ec, {0x8c, 0x6e, 0xe0, 0xd4, 0x64, 0x91, 0xb3, 0x5a}};
 
 CandidateWindow *CandidateWindow::Create(HWND parent) {
     auto impl = new CandidateWindow2Impl();

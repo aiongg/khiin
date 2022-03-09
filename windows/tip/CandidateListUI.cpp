@@ -9,13 +9,14 @@
 #include "Colors.h"
 #include "Config.h"
 #include "EditSession.h"
+#include "Guids.h"
 #include "TextService.h"
 #include "Utils.h"
 
 namespace khiin::win32::tip {
 namespace {
 using namespace winrt;
-using namespace proto;
+using namespace khiin::proto;
 
 bool IsArrowKey(int key_code) {
     return key_code == VK_LEFT || key_code == VK_UP || key_code == VK_RIGHT || key_code == VK_DOWN;
@@ -205,7 +206,7 @@ struct CandidateListUIImpl :
     virtual STDMETHODIMP GetGUID(GUID *pguid) override {
         TRY_FOR_HRESULT;
         KHIIN_TRACE("");
-        *pguid = kCandidateWindowGuid;
+        *pguid = guids::kCandidateWindow;
         CATCH_FOR_HRESULT;
     }
 
@@ -520,4 +521,4 @@ HRESULT CandidateListUIFactory::Create(CandidateListUI **ppCandidateListUI) {
     return S_OK;
 }
 
-} // namespace khiin::win32
+} // namespace khiin::win32::tip

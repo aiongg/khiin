@@ -9,7 +9,7 @@
 
 namespace khiin::win32::tip {
 namespace {
-using namespace proto;
+using namespace khiin::proto;
 
 inline static int kMaxBufSize = 512;
 

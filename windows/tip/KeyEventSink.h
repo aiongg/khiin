@@ -5,7 +5,7 @@
 #include "TextService.h"
 #include "KeyEvent.h"
 
-namespace khiin::win32::tip {
+namespace khiin::win32::tip { 
 
 struct KeyEventSink : winrt::implements<KeyEventSink, ITfKeyEventSink> {
   private:

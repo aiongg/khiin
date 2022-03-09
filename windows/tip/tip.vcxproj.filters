@@ -137,6 +137,12 @@
     <ClInclude Include="Config.h">
       <Filter>win32::tip</Filter>
     </ClInclude>
+    <ClInclude Include="PreservedKeyMgr.h">
+      <Filter>win32::tip</Filter>
+    </ClInclude>
+    <ClInclude Include="Guids.h">
+      <Filter>win32::tip</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="RenderFactory.cpp">
@@ -226,7 +232,6 @@
     <ClCompile Include="SettingsApp.cpp">
       <Filter>win32::tip</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\proto\proto\messages.pb.cc" />
     <ClCompile Include="DllModule.cpp">
       <Filter>win32::tip</Filter>
     </ClCompile>
@@ -234,6 +239,9 @@
       <Filter>win32::tip</Filter>
     </ClCompile>
     <ClCompile Include="Config.cpp">
+      <Filter>win32::tip</Filter>
+    </ClCompile>
+    <ClCompile Include="PreservedKeyMgr.cpp">
       <Filter>win32::tip</Filter>
     </ClCompile>
   </ItemGroup>

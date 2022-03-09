@@ -76,7 +76,7 @@ struct BufferMgrTest : ::testing::Test {
     }
 
     Preedit *get_preedit() {
-        auto preedit = Preedit::default_instance().New();
+        auto preedit = new Preedit();
         bufmgr->BuildPreedit(preedit);
         return preedit;
     }
@@ -87,13 +87,13 @@ struct BufferMgrTest : ::testing::Test {
     }
 
     CandidateList *get_candidates() {
-        auto candlist = CandidateList::default_instance().New();
+        auto candlist = new CandidateList();
         bufmgr->GetCandidates(candlist);
         return candlist;
     }
 
     std::string display() {
-        auto preedit = Preedit::default_instance().New();
+        auto preedit = new Preedit();
         bufmgr->BuildPreedit(preedit);
         auto ret = std::string();
         for (auto &segment : preedit->segments()) {
@@ -103,7 +103,7 @@ struct BufferMgrTest : ::testing::Test {
     }
 
     size_t caret() {
-        auto preedit = Preedit::default_instance().New();
+        auto preedit = new Preedit();
         bufmgr->BuildPreedit(preedit);
         return preedit->cursor_position();
     }

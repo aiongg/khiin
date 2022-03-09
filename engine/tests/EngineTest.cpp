@@ -55,7 +55,7 @@ class EngineTest : public ::testing::Test {
 
     void feedText(const char *keys) {
         for (auto c : std::string(keys)) {
-            command = Command::default_instance().New();
+            command = new Command();
             req = command->mutable_request();
             res = command->mutable_response();
 

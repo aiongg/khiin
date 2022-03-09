@@ -8,13 +8,8 @@ struct DisplayAttributeBundle {
     TF_DISPLAYATTRIBUTE attribute;
 };
 
-// 829893f8-728d-11ec-8c6e-e0d46491b35a
 extern const DisplayAttributeBundle DisplayAttribute_Input;
-
-// 829893f9-728d-11ec-8c6e-e0d46491b35a
 extern const DisplayAttributeBundle DisplayAttribute_Converted;
-
-// 829893fb-728d-11ec-8c6e-e0d46491b35a
 extern const DisplayAttributeBundle DisplayAttribute_Focused;
 
 struct DisplayAttributeInfo : winrt::implements<DisplayAttributeInfo, ITfDisplayAttributeInfo> {

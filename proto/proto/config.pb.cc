@@ -146,15 +146,16 @@ const char descriptor_table_protodef_proto_2fconfig_2eproto[] PROTOBUF_SECTION_V
   "ppConfig\0221\n\nkey_config\030\001 \001(\0132\035.khiin.pro"
   "to.KeyConfiguration\022*\n\ninput_mode\030\002 \001(\0162"
   "\026.khiin.proto.InputMode\022+\n\nappearance\030\003 "
-  "\001(\0132\027.khiin.proto.Appearance*F\n\tInputMod"
-  "e\022\014\n\010IM_ALPHA\020\000\022\021\n\rIM_CONTINUOUS\020\001\022\014\n\010IM"
-  "_BASIC\020\002\022\n\n\006IM_PRO\020\003*B\n\nUiLanguage\022\017\n\013UI"
-  "L_ENGLISH\020\000\022\021\n\rUIL_TAI_HANLO\020\001\022\020\n\014UIL_TA"
-  "I_LOJI\020\002b\006proto3"
+  "\001(\0132\027.khiin.proto.Appearance*Z\n\tInputMod"
+  "e\022\022\n\016IM_UNSPECIFIED\020\000\022\014\n\010IM_ALPHA\020\001\022\021\n\rI"
+  "M_CONTINUOUS\020\002\022\014\n\010IM_BASIC\020\003\022\n\n\006IM_PRO\020\004"
+  "*W\n\nUiLanguage\022\023\n\017UIL_UNSPECIFIED\020\000\022\017\n\013U"
+  "IL_ENGLISH\020\001\022\021\n\rUIL_TAI_HANLO\020\002\022\020\n\014UIL_T"
+  "AI_LOJI\020\003b\006proto3"
   ;
 static ::PROTOBUF_NAMESPACE_ID::internal::once_flag descriptor_table_proto_2fconfig_2eproto_once;
 const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable descriptor_table_proto_2fconfig_2eproto = {
-  false, false, 736, descriptor_table_protodef_proto_2fconfig_2eproto, "proto/config.proto", 
+  false, false, 777, descriptor_table_protodef_proto_2fconfig_2eproto, "proto/config.proto", 
   &descriptor_table_proto_2fconfig_2eproto_once, nullptr, 0, 3,
   schemas, file_default_instances, TableStruct_proto_2fconfig_2eproto::offsets,
   file_level_metadata_proto_2fconfig_2eproto, file_level_enum_descriptors_proto_2fconfig_2eproto, file_level_service_descriptors_proto_2fconfig_2eproto,
@@ -177,6 +178,7 @@ bool InputMode_IsValid(int value) {
     case 1:
     case 2:
     case 3:
+    case 4:
       return true;
     default:
       return false;
@@ -192,6 +194,7 @@ bool UiLanguage_IsValid(int value) {
     case 0:
     case 1:
     case 2:
+    case 3:
       return true;
     default:
       return false;

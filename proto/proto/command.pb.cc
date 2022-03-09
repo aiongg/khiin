@@ -256,46 +256,48 @@ const char descriptor_table_protodef_proto_2fcommand_2eproto[] PROTOBUF_SECTION_
   "\"\230\001\n\007Preedit\022.\n\010segments\030\001 \003(\0132\034.khiin.p"
   "roto.Preedit.Segment\022\027\n\017cursor_position\030"
   "\002 \001(\005\032D\n\007Segment\022*\n\006status\030\001 \001(\0162\032.khiin"
-  ".proto.SegmentStatus\022\r\n\005value\030\002 \001(\t\"\255\001\n\t"
+  ".proto.SegmentStatus\022\r\n\005value\030\002 \001(\t\"\274\001\n\t"
   "Candidate\022\n\n\002id\030\001 \001(\005\022\r\n\005value\030\002 \001(\t\022\013\n\003"
   "key\030\003 \001(\t\022\022\n\nannotation\030\004 \001(\t\0221\n\010categor"
   "y\030\005 \001(\0162\037.khiin.proto.Candidate.Category"
-  "\"1\n\010Category\022\t\n\005BASIC\020\000\022\014\n\010EXTENDED\020\001\022\014\n"
-  "\010FALLBACK\020\002\"L\n\rCandidateList\022*\n\ncandidat"
-  "es\030\001 \003(\0132\026.khiin.proto.Candidate\022\017\n\007focu"
-  "sed\030\002 \001(\005\"\314\001\n\010Response\022%\n\005error\030\001 \001(\0162\026."
-  "khiin.proto.ErrorCode\022%\n\007preedit\030\002 \001(\0132\024"
-  ".khiin.proto.Preedit\0222\n\016candidate_list\030\003"
-  " \001(\0132\032.khiin.proto.CandidateList\022*\n\nedit"
-  "_state\030\004 \001(\0162\026.khiin.proto.EditState\022\022\n\n"
-  "consumable\030\005 \001(\010\"Y\n\007Command\022%\n\007request\030\001"
-  " \001(\0132\024.khiin.proto.Request\022\'\n\010response\030\002"
-  " \001(\0132\025.khiin.proto.Response*\321\001\n\nSpecialK"
-  "ey\022\013\n\007SK_NONE\020\000\022\014\n\010SK_SPACE\020\001\022\014\n\010SK_ENTE"
-  "R\020\002\022\n\n\006SK_ESC\020\003\022\020\n\014SK_BACKSPACE\020\004\022\n\n\006SK_"
-  "TAB\020\005\022\013\n\007SK_LEFT\020\006\022\t\n\005SK_UP\020\007\022\014\n\010SK_RIGH"
-  "T\020\010\022\013\n\007SK_DOWN\020\t\022\013\n\007SK_PGUP\020\n\022\013\n\007SK_PGDN"
-  "\020\013\022\013\n\007SK_HOME\020\014\022\n\n\006SK_END\020\r\022\n\n\006SK_DEL\020\016*"
-  "+\n\013ModifierKey\022\010\n\004CTRL\020\000\022\007\n\003ALT\020\001\022\t\n\005SHI"
-  "FT\020\002*\376\001\n\013CommandType\022\020\n\014CMD_SEND_KEY\020\000\022\016"
-  "\n\nCMD_REVERT\020\001\022\r\n\tCMD_RESET\020\002\022\016\n\nCMD_COM"
-  "MIT\020\003\022\030\n\024CMD_SELECT_CANDIDATE\020\004\022\027\n\023CMD_F"
-  "OCUS_CANDIDATE\020\005\022\031\n\025CMD_SWITCH_INPUT_MOD"
-  "E\020\006\022\024\n\020CMD_PLACE_CURSOR\020\007\022\017\n\013CMD_DISABLE"
-  "\020\010\022\016\n\nCMD_ENABLE\020\t\022\022\n\016CMD_SET_CONFIG\020\n\022\025"
-  "\n\021CMD_TEST_SEND_KEY\020\013*T\n\rSegmentStatus\022\017"
-  "\n\013SS_UNMARKED\020\000\022\020\n\014SS_COMPOSING\020\001\022\020\n\014SS_"
-  "CONVERTED\020\002\022\016\n\nSS_FOCUSED\020\003*\035\n\tErrorCode"
-  "\022\006\n\002OK\020\000\022\010\n\004FAIL\020\001*O\n\tEditState\022\014\n\010ES_EM"
-  "PTY\020\000\022\020\n\014ES_COMPOSING\020\001\022\020\n\014ES_CONVERTED\020"
-  "\002\022\020\n\014ES_SELECTING\020\003b\006proto3"
+  "\"@\n\010Category\022\016\n\nCCAT_BASIC\020\000\022\021\n\rCCAT_EXT"
+  "ENDED\020\001\022\021\n\rCCAT_FALLBACK\020\002\"L\n\rCandidateL"
+  "ist\022*\n\ncandidates\030\001 \003(\0132\026.khiin.proto.Ca"
+  "ndidate\022\017\n\007focused\030\002 \001(\005\"\314\001\n\010Response\022%\n"
+  "\005error\030\001 \001(\0162\026.khiin.proto.ErrorCode\022%\n\007"
+  "preedit\030\002 \001(\0132\024.khiin.proto.Preedit\0222\n\016c"
+  "andidate_list\030\003 \001(\0132\032.khiin.proto.Candid"
+  "ateList\022*\n\nedit_state\030\004 \001(\0162\026.khiin.prot"
+  "o.EditState\022\022\n\nconsumable\030\005 \001(\010\"Y\n\007Comma"
+  "nd\022%\n\007request\030\001 \001(\0132\024.khiin.proto.Reques"
+  "t\022\'\n\010response\030\002 \001(\0132\025.khiin.proto.Respon"
+  "se*\321\001\n\nSpecialKey\022\013\n\007SK_NONE\020\000\022\014\n\010SK_SPA"
+  "CE\020\001\022\014\n\010SK_ENTER\020\002\022\n\n\006SK_ESC\020\003\022\020\n\014SK_BAC"
+  "KSPACE\020\004\022\n\n\006SK_TAB\020\005\022\013\n\007SK_LEFT\020\006\022\t\n\005SK_"
+  "UP\020\007\022\014\n\010SK_RIGHT\020\010\022\013\n\007SK_DOWN\020\t\022\013\n\007SK_PG"
+  "UP\020\n\022\013\n\007SK_PGDN\020\013\022\013\n\007SK_HOME\020\014\022\n\n\006SK_END"
+  "\020\r\022\n\n\006SK_DEL\020\016*I\n\013ModifierKey\022\r\n\tMODK_NO"
+  "NE\020\000\022\r\n\tMODK_CTRL\020\001\022\014\n\010MODK_ALT\020\002\022\016\n\nMOD"
+  "K_SHIFT\020\003*\223\002\n\013CommandType\022\023\n\017CMD_UNSPECI"
+  "FIED\020\000\022\020\n\014CMD_SEND_KEY\020\001\022\016\n\nCMD_REVERT\020\002"
+  "\022\r\n\tCMD_RESET\020\003\022\016\n\nCMD_COMMIT\020\004\022\030\n\024CMD_S"
+  "ELECT_CANDIDATE\020\005\022\027\n\023CMD_FOCUS_CANDIDATE"
+  "\020\006\022\031\n\025CMD_SWITCH_INPUT_MODE\020\007\022\024\n\020CMD_PLA"
+  "CE_CURSOR\020\010\022\017\n\013CMD_DISABLE\020\t\022\016\n\nCMD_ENAB"
+  "LE\020\n\022\022\n\016CMD_SET_CONFIG\020\013\022\025\n\021CMD_TEST_SEN"
+  "D_KEY\020\014*T\n\rSegmentStatus\022\017\n\013SS_UNMARKED\020"
+  "\000\022\020\n\014SS_COMPOSING\020\001\022\020\n\014SS_CONVERTED\020\002\022\016\n"
+  "\nSS_FOCUSED\020\003*\035\n\tErrorCode\022\006\n\002OK\020\000\022\010\n\004FA"
+  "IL\020\001*O\n\tEditState\022\014\n\010ES_EMPTY\020\000\022\020\n\014ES_CO"
+  "MPOSING\020\001\022\020\n\014ES_CONVERTED\020\002\022\020\n\014ES_SELECT"
+  "ING\020\003b\006proto3"
   ;
 static const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable*const descriptor_table_proto_2fcommand_2eproto_deps[1] = {
   &::descriptor_table_proto_2fconfig_2eproto,
 };
 static ::PROTOBUF_NAMESPACE_ID::internal::once_flag descriptor_table_proto_2fcommand_2eproto_once;
 const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable descriptor_table_proto_2fcommand_2eproto = {
-  false, false, 1787, descriptor_table_protodef_proto_2fcommand_2eproto, "proto/command.proto", 
+  false, false, 1853, descriptor_table_protodef_proto_2fcommand_2eproto, "proto/command.proto", 
   &descriptor_table_proto_2fcommand_2eproto_once, descriptor_table_proto_2fcommand_2eproto_deps, 1, 8,
   schemas, file_default_instances, TableStruct_proto_2fcommand_2eproto::offsets,
   file_level_metadata_proto_2fcommand_2eproto, file_level_enum_descriptors_proto_2fcommand_2eproto, file_level_service_descriptors_proto_2fcommand_2eproto,
@@ -324,9 +326,9 @@ bool Candidate_Category_IsValid(int value) {
 }
 
 #if (__cplusplus < 201703) && (!defined(_MSC_VER) || _MSC_VER >= 1900)
-constexpr Candidate_Category Candidate::BASIC;
-constexpr Candidate_Category Candidate::EXTENDED;
-constexpr Candidate_Category Candidate::FALLBACK;
+constexpr Candidate_Category Candidate::CCAT_BASIC;
+constexpr Candidate_Category Candidate::CCAT_EXTENDED;
+constexpr Candidate_Category Candidate::CCAT_FALLBACK;
 constexpr Candidate_Category Candidate::Category_MIN;
 constexpr Candidate_Category Candidate::Category_MAX;
 constexpr int Candidate::Category_ARRAYSIZE;
@@ -367,6 +369,7 @@ bool ModifierKey_IsValid(int value) {
     case 0:
     case 1:
     case 2:
+    case 3:
       return true;
     default:
       return false;
@@ -391,6 +394,7 @@ bool CommandType_IsValid(int value) {
     case 9:
     case 10:
     case 11:
+    case 12:
       return true;
     default:
       return false;

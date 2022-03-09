@@ -4,6 +4,7 @@
 
 #include "EditSession.h"
 #include "EngineController.h"
+#include "KeyEvent.h"
 #include "proto/proto.h"
 
 namespace khiin::win32::tip {

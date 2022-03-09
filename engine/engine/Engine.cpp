@@ -54,6 +54,7 @@ class EngineImpl : public Engine {
         m_cmd_handlers[CMD_SET_CONFIG] = &EngineImpl::HandleSetConfig;
 
         m_dictionary->Initialize();
+        m_config = new AppConfig();
     }
 
     virtual void SendCommand(Command *pCommand) override {
@@ -205,7 +206,7 @@ class EngineImpl : public Engine {
         auto &mods = key_event.modifier_keys();
 
         if (!mods.empty()) {
-            if (mods.size() > 1 || mods.at(0) != ModifierKey::SHIFT) {
+            if (mods.size() > 1 || mods.at(0) != MODK_SHIFT) {
                 res->set_consumable(false);
             }
         } else if (m_buffer_mgr->IsEmpty() && !isgraph(key)) {

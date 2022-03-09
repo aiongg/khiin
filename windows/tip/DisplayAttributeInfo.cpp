@@ -2,12 +2,13 @@
 
 #include "DisplayAttributeInfo.h"
 
+#include "Guids.h"
+
 namespace khiin::win32::tip {
 
-// 829893f8-728d-11ec-8c6e-e0d46491b35a
 const DisplayAttributeBundle DisplayAttribute_Input =
     DisplayAttributeBundle{L"Input",
-                           {0x829893f8, 0x728d, 0x11ec, {0x8c, 0x6e, 0xe0, 0xd4, 0x64, 0x91, 0xb3, 0x5a}},
+                           guids::kDisplayAttrInput,
                            TF_DISPLAYATTRIBUTE{
                                {TF_CT_NONE, 0}, // text color
                                {TF_CT_NONE, 0}, // background color
@@ -17,10 +18,9 @@ const DisplayAttributeBundle DisplayAttribute_Input =
                                TF_ATTR_INPUT    // attribute info
                            }};
 
-// 829893f9-728d-11ec-8c6e-e0d46491b35a
 const DisplayAttributeBundle DisplayAttribute_Converted =
     DisplayAttributeBundle{L"Converted",
-                           {0x829893f9, 0x728d, 0x11ec, {0x8c, 0x6e, 0xe0, 0xd4, 0x64, 0x91, 0xb3, 0x5a}},
+                           guids::kDisplayAttrConverted,
                            TF_DISPLAYATTRIBUTE{
                                {TF_CT_NONE, 0},  // text color
                                {TF_CT_NONE, 0},  // background color
@@ -30,10 +30,9 @@ const DisplayAttributeBundle DisplayAttribute_Converted =
                                TF_ATTR_CONVERTED // attribute info
                            }};
 
-// 829893fb-728d-11ec-8c6e-e0d46491b35a
 const DisplayAttributeBundle DisplayAttribute_Focused =
     DisplayAttributeBundle{L"Focused",
-                           {0x829893fb, 0x728d, 0x11ec, {0x8c, 0x6e, 0xe0, 0xd4, 0x64, 0x91, 0xb3, 0x5a}},
+                           guids::kDisplayAttrFocused,
                            TF_DISPLAYATTRIBUTE{
                                {TF_CT_NONE, 0},         // text color
                                {TF_CT_NONE, 0},         // background color

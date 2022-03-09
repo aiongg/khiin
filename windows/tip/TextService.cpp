@@ -2,6 +2,8 @@
 
 #include "TextService.h"
 
+#include "proto/proto.h"
+
 #include "CandidateListUI.h"
 #include "Compartment.h"
 #include "CompositionMgr.h"
@@ -11,13 +13,13 @@
 #include "DllModule.h"
 #include "EditSession.h"
 #include "EngineController.h"
+#include "Guids.h"
 #include "KeyEventSink.h"
 #include "LangBarIndicator.h"
 #include "SettingsApp.h"
 #include "TextEditSink.h"
 #include "ThreadMgrEventSink.h"
 #include "Utils.h"
-#include "proto/proto.h"
 
 namespace khiin::win32::tip {
 namespace {
@@ -57,13 +59,14 @@ struct TextServiceImpl :
         m_keyevent_sink->Activate(pTextService);
         m_openclose_compartment.Initialize(m_clientid, m_threadmgr.get(), GUID_COMPARTMENT_KEYBOARD_OPENCLOSE);
         m_kbd_disabled_compartment.Initialize(m_clientid, m_threadmgr.get(), GUID_COMPARTMENT_KEYBOARD_DISABLED);
-        m_config_compartment.Initialize(m_clientid, m_threadmgr.get(), kConfigChangedCompartmentGuid, true);
+        m_config_compartment.Initialize(m_clientid, m_threadmgr.get(), guids::kConfigChangedCompartment, true);
         m_openclose_compartment.SetValue(true);
         m_openclose_sinkmgr.Advise(m_openclose_compartment.getCompartment(), this);
         m_config_sinkmgr.Advise(m_config_compartment.getCompartment(), this);
-        m_engine->Initialize();
+        m_engine->Initialize(pTextService);
         InitCategoryMgr();
         InitDisplayAttributes();
+        NotifyConfigChangeListeners();
         return S_OK;
     }
 
@@ -100,17 +103,15 @@ struct TextServiceImpl :
 
     void InitConfig() {
         if (!m_config) {
-            m_config = AppConfig::default_instance().New();
+            m_config = std::make_unique<AppConfig>();
+            Config::LoadFromFile(g_module, m_config.get());
         }
-
-        Config::LoadFromFile(g_module, m_config);
     }
 
     void NotifyConfigChangeListeners() {
-        InitConfig();
         for (auto &listener : m_config_listeners) {
             if (listener) {
-                listener->OnConfigChanged(m_config);
+                listener->OnConfigChanged(m_config.get());
             }
         }
     }
@@ -123,7 +124,7 @@ struct TextServiceImpl :
     Compartment m_config_compartment;
     SinkManager<ITfCompartmentEventSink> m_openclose_sinkmgr;
     SinkManager<ITfCompartmentEventSink> m_config_sinkmgr;
-    AppConfig *m_config = nullptr;
+    std::unique_ptr<AppConfig> m_config = nullptr;
     std::vector<ConfigChangeListener *> m_config_listeners;
 
     com_ptr<ITfCategoryMgr> m_categorymgr = nullptr;
@@ -181,7 +182,7 @@ struct TextServiceImpl :
     }
 
     virtual AppConfig *config() override {
-        return m_config;
+        return m_config.get();
     }
 
     virtual winrt::com_ptr<ITfContext> GetTopContext() override {
@@ -344,7 +345,9 @@ struct TextServiceImpl :
                 m_engine->Reset();
                 m_candidate_list_ui->DestroyCandidateWindow();
             }
-        } else if (rguid == kConfigChangedCompartmentGuid) {
+        }
+        
+        if (rguid == guids::kConfigChangedCompartment) {
             NotifyConfigChangeListeners();
         }
 
@@ -375,4 +378,4 @@ void TextServiceFactory::Create(TextService **ppService) {
     as_self<TextService>(winrt::make_self<TextServiceImpl>()).copy_to(ppService);
 }
 
-} // namespace khiin::win32
+} // namespace khiin::win32::tip

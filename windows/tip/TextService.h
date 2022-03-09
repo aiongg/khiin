@@ -4,21 +4,16 @@
 
 #include "common.h"
 
-#include "KeyEvent.h"
-
 namespace khiin::proto {
 enum InputMode : int;
 class AppConfig;
 } // namespace khiin::proto
 
-namespace khiin::win32 {
-struct EngineController;
-}
-
 namespace khiin::win32::tip {
 
 struct CandidateListUI;
 struct ConfigChangeListener;
+struct EngineController;
 
 struct TextService : winrt::implements<TextService, IUnknown> {
     TextService() = default;

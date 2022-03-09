@@ -10,6 +10,7 @@
 #include <google/protobuf/util/json_util.h>
 
 #include "Files.h"
+#include "Guids.h"
 #include "proto/proto.h"
 
 namespace khiin::win32 {
@@ -24,6 +25,15 @@ inline constexpr std::string_view kConfigFilename = "khiin_config.json";
 
 } // namespace
 
+UiLanguage Config::GetSystemLang() {
+    if (auto lang = PRIMARYLANGID(::GetUserDefaultUILanguage());
+        lang == LANG_CHINESE || lang == LANG_CHINESE_TRADITIONAL) {
+        return UIL_TAI_HANLO;
+    } else {
+        return UIL_ENGLISH;
+    }
+}
+
 void Config::LoadFromFile(HMODULE hmodule, AppConfig *config) {
     auto conf_file = Files::GetFilePath(hmodule, kConfigFilename);
     if (fs::exists(conf_file)) {
@@ -33,6 +43,14 @@ void Config::LoadFromFile(HMODULE hmodule, AppConfig *config) {
         auto json_str = buf.str();
         google::protobuf::util::JsonStringToMessage(json_str, config);
         f.close();
+    }
+
+    if (config->appearance().ui_language() == UIL_UNSPECIFIED) {
+        config->mutable_appearance()->set_ui_language(Config::GetSystemLang());
+    }
+
+    if (config->input_mode() == IM_UNSPECIFIED) {
+        config->set_input_mode(IM_CONTINUOUS);
     }
 }
 
@@ -65,7 +83,7 @@ void Config::NotifyChanged() {
     check_hresult(thread_mgr->GetGlobalCompartment(compartment_mgr.put()));
 
     auto compartment = com_ptr<ITfCompartment>();
-    check_hresult(compartment_mgr->GetCompartment(kConfigChangedCompartmentGuid, compartment.put()));
+    check_hresult(compartment_mgr->GetCompartment(guids::kConfigChangedCompartment, compartment.put()));
 
     VARIANT var;
     ::VariantInit(&var);

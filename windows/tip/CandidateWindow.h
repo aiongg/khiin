@@ -7,10 +7,8 @@
 namespace khiin::win32 {
 
 extern const std::wstring kCandidateWindowClassName;
-extern GUID kCandidateWindowGuid;
 
 struct ColorScheme;
-
 enum class DisplaySize;
 
 struct CandidateSelectListener {

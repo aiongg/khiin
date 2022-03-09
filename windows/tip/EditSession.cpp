@@ -1,11 +1,12 @@
 #include "pch.h"
 
+#include "proto/proto.h"
+
 #include "CandidateListUI.h"
 #include "CompositionMgr.h"
 #include "EditSession.h"
 #include "EngineController.h"
 #include "TextService.h"
-#include "proto/proto.h"
 
 namespace khiin::win32::tip {
 namespace {

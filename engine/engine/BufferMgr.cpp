@@ -166,7 +166,7 @@ class BufferMgrImpl : public BufferMgr {
     }
 
     virtual void FocusPrevCandidate() override {
-        m_edit_state = EditState::ES_SELECTING;
+        m_edit_state = ES_SELECTING;
 
         if (m_focused_candidate == 0) {
             FocusCandidate(m_candidates.size() - 1);

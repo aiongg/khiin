@@ -7,16 +7,19 @@
 
 #include <engine/Engine.h>
 
+#include "Config.h"
 #include "DllModule.h"
 #include "EditSession.h"
 #include "Files.h"
+#include "TextService.h"
 #include "Utils.h"
 #include "common.h"
 #include "proto/proto.h"
 
-namespace khiin::win32 {
-
+namespace khiin::win32::tip {
 namespace {
+namespace fs = std::filesystem;
+using namespace winrt;
 using namespace khiin::engine;
 using namespace khiin::proto;
 
@@ -43,10 +46,6 @@ static std::unordered_map<int, SpecialKey> kWindowsToKhiinKeyCode = {
 
 } // namespace
 
-using namespace engine;
-using namespace proto;
-namespace fs = std::filesystem;
-
 void TranslateKeyEvent(win32::KeyEvent *e1, proto::KeyEvent *e2) {
     if (e1->ascii()) {
         e2->set_key_code(e1->ascii());
@@ -58,23 +57,26 @@ void TranslateKeyEvent(win32::KeyEvent *e1, proto::KeyEvent *e2) {
     }
 }
 
-struct EngineControllerImpl : winrt::implements<EngineControllerImpl, EngineController> {
+struct EngineControllerImpl : winrt::implements<EngineControllerImpl, EngineController>, ConfigChangeListener {
     EngineControllerImpl() = default;
     EngineControllerImpl(const EngineControllerImpl &) = delete;
     EngineControllerImpl &operator=(const EngineControllerImpl &) = delete;
     ~EngineControllerImpl() = default;
 
-    virtual void Initialize() override {
+    virtual void Initialize(TextService *pService) override {
+        m_service.copy_from(pService);
         auto dbfile = Files::GetFilePath(g_module, kDbFilename);
         m_engine = std::unique_ptr<Engine>(Engine::Create(dbfile.string()));
+        m_service->RegisterConfigChangeListener(this);
     }
 
     virtual void Uninitialize() override {
         m_engine.reset(nullptr);
+        m_service = nullptr;
     }
 
     virtual Command *TestKey(KeyEvent win_key_event) override {
-        auto cmd = NewCommand();
+        auto cmd = new Command();
         auto request = cmd->mutable_request();
         request->set_type(CMD_TEST_SEND_KEY);
         auto key_event = request->mutable_key_event();
@@ -85,47 +87,58 @@ struct EngineControllerImpl : winrt::implements<EngineControllerImpl, EngineCont
             Reset();
         }
 
-        return cmd;
+        return SendCommand(cmd);
     }
 
     virtual Command *OnKey(KeyEvent win_key_event) override {
-        auto cmd = NewCommand();
+        auto cmd = new Command();
         auto request = cmd->mutable_request();
         request->set_type(CMD_SEND_KEY);
         auto key_event = request->mutable_key_event();
         TranslateKeyEvent(&win_key_event, key_event);
-        m_engine->SendCommand(cmd);
-        return cmd;
+        return SendCommand(cmd);
     }
 
     virtual Command *SelectCandidate(int32_t candidate_id) override {
-        auto cmd = NewCommand();
+        auto cmd = new Command();
         auto request = cmd->mutable_request();
         request->set_type(CMD_SELECT_CANDIDATE);
         request->set_candidate_id(candidate_id);
-        m_engine->SendCommand(cmd);
-        return cmd;
+        return SendCommand(cmd);
     }
 
     virtual Command *FocusCandidate(int32_t candidate_id) override {
-        auto cmd = NewCommand();
+        auto cmd = new Command();
         auto request = cmd->mutable_request();
         request->set_type(CMD_FOCUS_CANDIDATE);
         request->set_candidate_id(candidate_id);
-        m_engine->SendCommand(cmd);
-        return cmd;
+        return SendCommand(cmd);
     }
 
     virtual void Reset() {
-        auto cmd = NewCommand();
+        auto cmd = new Command();
         auto request = cmd->mutable_request();
         request->set_type(CMD_RESET);
-        m_engine->SendCommand(cmd);
+        SendCommand(cmd);
+    }
+
+    //+---------------------------------------------------------------------------
+    //
+    // ConfigChangeListener
+    //
+    //----------------------------------------------------------------------------
+
+    virtual void OnConfigChanged(proto::AppConfig *config) override {
+        auto cmd = new Command();
+        auto request = cmd->mutable_request();
+        request->set_type(CMD_SET_CONFIG);
+        request->mutable_config()->CopyFrom(*config);
+        SendCommand(cmd);
     }
 
   private:
-    Command *NewCommand() {
-        auto cmd = Command::default_instance().New();
+    Command *SendCommand(Command *cmd) {
+        m_engine->SendCommand(cmd);
         m_prev_command = std::unique_ptr<Command>(cmd);
         return m_prev_command.get();
     }
@@ -134,6 +147,7 @@ struct EngineControllerImpl : winrt::implements<EngineControllerImpl, EngineCont
     std::vector<std::string> candidates_;
     std::unique_ptr<Engine> m_engine = nullptr;
     std::unique_ptr<Command> m_prev_command = nullptr;
+    com_ptr<TextService> m_service = nullptr;
 };
 
 //+---------------------------------------------------------------------------
@@ -156,4 +170,4 @@ void EngineControllerFactory::Create(EngineController **ppEngineCtrl) {
     as_self<EngineController>(winrt::make_self<EngineControllerImpl>()).copy_to(ppEngineCtrl);
 }
 
-} // namespace khiin::win32
+} // namespace khiin::win32::tip

@@ -55,24 +55,4 @@ winrt::com_ptr<U> getComPtr(winrt::com_ptr<T> source, HRESULT (T::*fn)(Args... a
     return ptr;
 }
 
-//+---------------------------------------------------------------------------
-//
-// handlers
-//
-//----------------------------------------------------------------------------
-
-struct registry_traits {
-    using type = HKEY;
-
-    static void close(type value) noexcept {
-        WINRT_VERIFY_(ERROR_SUCCESS, ::RegCloseKey(value));
-    }
-
-    static constexpr type invalid() noexcept {
-        return nullptr;
-    }
-};
-
-using registry_key = winrt::handle_type<registry_traits>;
-
 } // namespace khiin::win32

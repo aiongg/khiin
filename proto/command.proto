@@ -23,9 +23,10 @@ enum SpecialKey {
 }
 
 enum ModifierKey {
-    CTRL = 0;
-    ALT = 1;
-    SHIFT = 2;
+    MODK_NONE = 0;
+    MODK_CTRL = 1;
+    MODK_ALT = 2;
+    MODK_SHIFT = 3;
 }
 
 // Each platform app should map from its own key set to this set.
@@ -43,18 +44,19 @@ message KeyEvent {
 }
 
 enum CommandType {
-    CMD_SEND_KEY = 0;
-    CMD_REVERT = 1;
-    CMD_RESET = 2;
-    CMD_COMMIT = 3;
-    CMD_SELECT_CANDIDATE = 4;
-    CMD_FOCUS_CANDIDATE = 5;
-    CMD_SWITCH_INPUT_MODE = 6;
-    CMD_PLACE_CURSOR = 7;
-    CMD_DISABLE = 8;
-    CMD_ENABLE = 9;
-    CMD_SET_CONFIG = 10;
-    CMD_TEST_SEND_KEY = 11;
+    CMD_UNSPECIFIED = 0;
+    CMD_SEND_KEY = 1;
+    CMD_REVERT = 2;
+    CMD_RESET = 3;
+    CMD_COMMIT = 4;
+    CMD_SELECT_CANDIDATE = 5;
+    CMD_FOCUS_CANDIDATE = 6;
+    CMD_SWITCH_INPUT_MODE = 7;
+    CMD_PLACE_CURSOR = 8;
+    CMD_DISABLE = 9;
+    CMD_ENABLE = 10;
+    CMD_SET_CONFIG = 11;
+    CMD_TEST_SEND_KEY = 12;
 }
 
 // Message sent from app to engine
@@ -74,7 +76,7 @@ message Request {
 }
 
 enum SegmentStatus {
-    SS_UNMARKED = 0;       // No underline
+    SS_UNMARKED = 0;   // No underline
     SS_COMPOSING = 1;  // Dots or squiggle underline
     SS_CONVERTED = 2;  // Solid underline
     SS_FOCUSED = 3;    // Thick, solid underline
@@ -102,9 +104,9 @@ message Candidate {
 
     // Used to style the text for providing a visual cue to the user
     enum Category {
-        BASIC = 0;  // Regular text color
-        EXTENDED = 1;    // Highlighted text color
-        FALLBACK = 2;    // De-emphasized text color
+        CCAT_BASIC = 0;  // Regular text color
+        CCAT_EXTENDED = 1;    // Highlighted text color
+        CCAT_FALLBACK = 2;    // De-emphasized text color
     }
 
     int32 id = 1;
