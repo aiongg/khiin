@@ -1,9 +1,15 @@
 #pragma once
 
 #include "common.h"
-#include "messages.h"
 
-namespace khiin::engine {
+namespace khiin {
+namespace proto {
+class Preedit;
+class CandidateList;
+enum EditState : int;
+} // namespace proto
+
+namespace engine {
 
 enum class InputMode {
     Continuous,
@@ -137,4 +143,5 @@ class BufferMgr {
     virtual void SetInputMode(InputMode new_mode) = 0;
 };
 
-} // namespace khiin::engine
+} // namespace engine
+} // namespace khiin

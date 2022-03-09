@@ -3,6 +3,7 @@
 #include "GuiWindow.h"
 
 #include "RenderFactory.h"
+#include "proto/proto.h"
 
 namespace khiin::win32 {
 using namespace geometry;
@@ -15,7 +16,7 @@ void SetRoundedCorners(HWND hwnd, DWM_WINDOW_CORNER_PREFERENCE pref) {
 }
 #pragma warning(pop)
 
-GuiWindow::GuiWindow() = default;
+GuiWindow::GuiWindow() : m_language(proto::UIL_TAI_HANLO){};
 
 GuiWindow::~GuiWindow() = default;
 

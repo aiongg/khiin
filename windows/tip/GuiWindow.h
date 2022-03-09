@@ -5,6 +5,11 @@
 #include "Geometry.h"
 #include "common.h"
 
+namespace khiin::proto {
+class AppConfig;
+enum UiLanguage : int;
+} // namespace khiin::proto
+
 namespace khiin::win32 {
 
 class RenderFactory;
@@ -66,7 +71,7 @@ class GuiWindow : public BaseWindow<GuiWindow> {
     winrt::com_ptr<ID2D1DCRenderTarget> m_target = nullptr;
     proto::AppConfig *m_config = nullptr;
     ColorScheme m_colors;
-    proto::UiLanguage m_language = proto::UIL_TAI_HANLO;
+    proto::UiLanguage m_language;
 };
 
 } // namespace khiin::win32

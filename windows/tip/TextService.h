@@ -6,6 +6,11 @@
 
 #include "KeyEvent.h"
 
+namespace khiin::proto {
+enum InputMode : int;
+class AppConfig;
+}
+
 namespace khiin::win32 {
 
 struct EngineController;

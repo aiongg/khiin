@@ -10,6 +10,7 @@
 
 #include "TestEnv.h"
 #include "common.h"
+#include "proto.h"
 
 namespace khiin::engine {
 namespace {

@@ -10,7 +10,7 @@
 #include "PopupMenu.h"
 #include "Profile.h"
 #include "TextService.h"
-#include "common.h"
+#include "proto/proto.h"
 
 namespace khiin::win32 {
 namespace {

@@ -12,6 +12,7 @@
 #include "Files.h"
 #include "Utils.h"
 #include "common.h"
+#include "proto/proto.h"
 
 namespace khiin::win32 {
 
@@ -72,60 +73,67 @@ struct EngineControllerImpl : winrt::implements<EngineControllerImpl, EngineCont
         m_engine.reset(nullptr);
     }
 
-    virtual Command TestKey(KeyEvent win_key_event) override {
-        auto cmd = Command();
-        auto request = cmd.mutable_request();
+    virtual Command *TestKey(KeyEvent win_key_event) override {
+        auto cmd = NewCommand();
+        auto request = cmd->mutable_request();
         request->set_type(CommandType::TEST_SEND_KEY);
         auto key_event = request->mutable_key_event();
         TranslateKeyEvent(&win_key_event, key_event);
-        m_engine->SendCommand(&cmd);
+        m_engine->SendCommand(cmd);
 
-        if (!cmd.response().consumable()) {
+        if (!cmd->response().consumable()) {
             Reset();
         }
 
         return cmd;
     }
 
-    virtual Command OnKey(KeyEvent win_key_event) override {
-        auto cmd = Command();
-        auto request = cmd.mutable_request();
+    virtual Command *OnKey(KeyEvent win_key_event) override {
+        auto cmd = NewCommand();
+        auto request = cmd->mutable_request();
         request->set_type(CommandType::SEND_KEY);
         auto key_event = request->mutable_key_event();
         TranslateKeyEvent(&win_key_event, key_event);
-        m_engine->SendCommand(&cmd);
+        m_engine->SendCommand(cmd);
         return cmd;
     }
 
-    virtual Command SelectCandidate(int32_t candidate_id) override {
-        auto cmd = Command();
-        auto request = cmd.mutable_request();
+    virtual Command *SelectCandidate(int32_t candidate_id) override {
+        auto cmd = NewCommand();
+        auto request = cmd->mutable_request();
         request->set_type(CommandType::SELECT_CANDIDATE);
         request->set_candidate_id(candidate_id);
-        m_engine->SendCommand(&cmd);
+        m_engine->SendCommand(cmd);
         return cmd;
     }
 
-    virtual Command FocusCandidate(int32_t candidate_id) override {
-        auto cmd = Command();
-        auto request = cmd.mutable_request();
+    virtual Command *FocusCandidate(int32_t candidate_id) override {
+        auto cmd = NewCommand();
+        auto request = cmd->mutable_request();
         request->set_type(CommandType::FOCUS_CANDIDATE);
         request->set_candidate_id(candidate_id);
-        m_engine->SendCommand(&cmd);
+        m_engine->SendCommand(cmd);
         return cmd;
     }
 
     virtual void Reset() {
-        auto cmd = Command();
-        auto request = cmd.mutable_request();
+        auto cmd = NewCommand();
+        auto request = cmd->mutable_request();
         request->set_type(CommandType::RESET);
-        m_engine->SendCommand(&cmd);
+        m_engine->SendCommand(cmd);
     }
 
   private:
+    Command *NewCommand() {
+        auto cmd = Command::default_instance().New();
+        m_prev_command = std::unique_ptr<Command>(cmd);
+        return m_prev_command.get();
+    }
+
     std::string buffer_{};
     std::vector<std::string> candidates_;
     std::unique_ptr<Engine> m_engine = nullptr;
+    std::unique_ptr<Command> m_prev_command = nullptr;
 };
 
 //+---------------------------------------------------------------------------

@@ -2,6 +2,8 @@
 
 #include "PropSheet.h"
 
+#include "proto/proto.h"
+
 #include "Application.h"
 #include "Strings.h"
 

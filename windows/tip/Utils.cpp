@@ -4,6 +4,8 @@
 
 #include <utf8cpp/utf8/cpp17.h>
 
+#include "proto/proto.h"
+
 namespace khiin::win32 {
 
 using namespace proto;

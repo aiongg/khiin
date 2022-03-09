@@ -10,6 +10,7 @@
 #include <google/protobuf/util/json_util.h>
 
 #include "Files.h"
+#include "proto/proto.h"
 
 namespace khiin::win32 {
 

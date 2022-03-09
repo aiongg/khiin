@@ -12,6 +12,9 @@
     <Filter Include="Common">
       <UniqueIdentifier>{9069c130-6e2c-4bcf-a019-003918dcc105}</UniqueIdentifier>
     </Filter>
+    <Filter Include="proto">
+      <UniqueIdentifier>{8c174b6d-7766-4777-a11b-efd5199c989b}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AppearanceProps.h">
@@ -35,6 +38,9 @@
     <ClInclude Include="Strings.h">
       <Filter>Source Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\proto\proto\proto.h">
+      <Filter>proto</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -45,9 +51,6 @@
     </ClCompile>
     <ClCompile Include="AppearanceProps.cpp">
       <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\proto\proto\config.pb.cc">
-      <Filter>Common</Filter>
     </ClCompile>
     <ClCompile Include="..\tip\Config.cpp">
       <Filter>Common</Filter>
@@ -67,8 +70,11 @@
     <ClCompile Include="..\tip\Utils.cpp">
       <Filter>Common</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\proto\proto\config.pb.cc">
+      <Filter>proto</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\proto\proto\command.pb.cc">
-      <Filter>Source Files</Filter>
+      <Filter>proto</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

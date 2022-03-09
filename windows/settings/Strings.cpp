@@ -2,6 +2,8 @@
 
 #include "Strings.h"
 
+#include "proto/proto.h"
+
 #include "Application.h"
 
 namespace khiin::win32::settings {

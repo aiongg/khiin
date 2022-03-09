@@ -8,6 +8,7 @@
 #include "RenderFactory.h"
 #include "TextService.h"
 #include "UiStrings.h"
+#include "proto/proto.h"
 
 namespace khiin::win32 {
 namespace {

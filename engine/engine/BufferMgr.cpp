@@ -7,6 +7,7 @@
 #include "KeyConfig.h"
 #include "KhinHandler.h"
 #include "Lomaji.h"
+#include "proto.h"
 #include "unicode_utils.h"
 
 namespace khiin::engine {
@@ -199,7 +200,7 @@ class BufferMgrImpl : public BufferMgr {
     void MoveCaret(CursorDirection direction) {
         auto buffer_text = GetDisplayBuffer();
         m_caret = Lomaji::MoveCaret(buffer_text, m_caret, direction);
-        
+
         if (m_edit_state != EditState::EDIT_COMPOSING) {
             FocusElementAtCursor();
         }
@@ -313,7 +314,7 @@ class BufferMgrImpl : public BufferMgr {
         // Save this position as a virtual raw caret, since its actual
         // position may be affected by virtual spacing
         auto focus_raw_caret = m_precomp.RawTextSize() + 1;
-        
+
         // Join the elements and adjust spacing
         m_composition.Join(&m_precomp, &m_postcomp);
         m_composition.AdjustVirtualSpacing();
@@ -357,7 +358,7 @@ class BufferMgrImpl : public BufferMgr {
 
             auto cand_raw_size = candidate.RawTextSize();
             auto pre_raw_size = m_precomp.RawTextSize();
-            raw_caret = max(raw_caret, cand_raw_size + pre_raw_size);
+            raw_caret = std::max(raw_caret, cand_raw_size + pre_raw_size);
         }
 
         m_composition.Replace(replace_from, replace_to, candidate);

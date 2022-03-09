@@ -3,7 +3,6 @@
 #include "BaseWindow.h"
 #include "CandidatePager.h"
 #include "GuiWindow.h"
-#include "common.h"
 
 namespace khiin::win32 {
 

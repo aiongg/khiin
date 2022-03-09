@@ -4,6 +4,8 @@
 
 #include <algorithm>
 
+#include "proto/proto.h"
+
 #include "Colors.h"
 #include "Geometry.h"
 #include "GridLayout.h"
@@ -68,7 +70,7 @@ class CandidateWindow2Impl : public CandidateWindow {
         CalculateLayout();
     }
 
-    virtual void OnConfigChanged(AppConfig* config) override {
+    virtual void OnConfigChanged(AppConfig *config) override {
         GuiWindow::OnConfigChanged(config);
         m_metrics = GetMetricsForSize(static_cast<DisplaySize>(config->appearance().size()));
         DiscardGraphicsResources();

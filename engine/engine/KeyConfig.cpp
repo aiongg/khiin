@@ -1,6 +1,7 @@
 #include "KeyConfig.h"
 
 #include <iterator>
+#include "proto.h"
 
 namespace khiin::engine {
 namespace {

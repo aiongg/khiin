@@ -1,5 +1,7 @@
 #pragma once
 
+#include <algorithm>
+
 #include <unilib/uninorms.h>
 #include <unilib/unistrip.h>
 #include <utf8cpp/utf8.h>

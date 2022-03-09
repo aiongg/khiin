@@ -18,6 +18,7 @@
 #include "Dictionary.h"
 #include "KeyConfig.h"
 #include "SyllableParser.h"
+#include "proto.h"
 #include "utils.h"
 
 namespace khiin::engine {
@@ -45,11 +46,12 @@ class EngineImpl : public Engine {
         m_dictionary = std::unique_ptr<Dictionary>(Dictionary::Create(this));
         m_buffer_mgr = std::unique_ptr<BufferMgr>(BufferMgr::Create(this));
 
-        command_handlers[CommandType::COMMIT] = &EngineImpl::HandleCommit;
-        command_handlers[CommandType::TEST_SEND_KEY] = &EngineImpl::HandleTestSendKey;
-        command_handlers[CommandType::SEND_KEY] = &EngineImpl::HandleSendKey;
-        command_handlers[CommandType::SELECT_CANDIDATE] = &EngineImpl::HandleSelectCandidate;
-        command_handlers[CommandType::FOCUS_CANDIDATE] = &EngineImpl::HandleFocusCandidate;
+        m_cmd_handlers[CommandType::COMMIT] = &EngineImpl::HandleCommit;
+        m_cmd_handlers[CommandType::TEST_SEND_KEY] = &EngineImpl::HandleTestSendKey;
+        m_cmd_handlers[CommandType::SEND_KEY] = &EngineImpl::HandleSendKey;
+        m_cmd_handlers[CommandType::SELECT_CANDIDATE] = &EngineImpl::HandleSelectCandidate;
+        m_cmd_handlers[CommandType::FOCUS_CANDIDATE] = &EngineImpl::HandleFocusCandidate;
+        m_cmd_handlers[CommandType::SET_CONFIG] = &EngineImpl::HandleSetConfig;
 
         m_dictionary->Initialize();
     }
@@ -59,7 +61,7 @@ class EngineImpl : public Engine {
         auto res = pCommand->mutable_response();
         decltype(&EngineImpl::HandleNone) handler;
 
-        if (auto it = command_handlers.find(req->type()); it != command_handlers.end()) {
+        if (auto it = m_cmd_handlers.find(req->type()); it != m_cmd_handlers.end()) {
             handler = it->second;
         } else {
             handler = &EngineImpl::HandleNone;
@@ -88,8 +90,12 @@ class EngineImpl : public Engine {
         return m_dictionary.get();
     }
 
+    virtual AppConfig *config() override {
+        return m_config;
+    }
+
     virtual void RegisterConfigChangedListener(ConfigChangeListener *listener) override {
-        config_change_listeners.push_back(listener);
+        m_config_change_listeners.push_back(listener);
     }
 
   private:
@@ -170,7 +176,7 @@ class EngineImpl : public Engine {
     }
 
     void HandleCommit(Command *command) {
-        //command->input().set_type(CommandType::COMMIT);
+        // command->input().set_type(CommandType::COMMIT);
         auto req = command->mutable_request();
         req->set_type(CommandType::COMMIT);
         auto res = command->mutable_response();
@@ -183,13 +189,14 @@ class EngineImpl : public Engine {
     }
 
     void HandleTestSendKey(Command *command) {
-        auto req = command->mutable_request();
+        auto &request = command->request();
         auto res = command->mutable_response();
 
         res->set_consumable(true);
 
-        auto key = req->key_event().key_code();
-        auto &mods = req->key_event().modifier_keys();
+        auto &key_event = request.key_event();
+        auto key = key_event.key_code();
+        auto &mods = key_event.modifier_keys();
 
         if (!mods.empty()) {
             if (mods.size() > 1 || mods.at(0) != ModifierKey::SHIFT) {
@@ -219,6 +226,20 @@ class EngineImpl : public Engine {
         AttachPreeditWithCandidates(command);
     }
 
+    void HandleSetConfig(Command *command) {
+        if (command->request().has_config()) {
+            m_config->CopyFrom(command->request().config());
+        }
+    }
+
+    void NotifyConfigChangeListeners() {
+        for (auto &listener : m_config_change_listeners) {
+            if (listener) {
+                listener->OnConfigChanged(m_config);
+            }
+        }
+    }
+
     // void HandleRevert(Command *command, Output *output) {}
     // void HandlePlaceCursor(Command *command, Output *output) {}
 
@@ -233,9 +254,9 @@ class EngineImpl : public Engine {
 
     std::vector<std::string> m_valid_syllables;
 
-    std::shared_ptr<Response> prev_output = nullptr;
-    std::unordered_map<CommandType, decltype(&HandleNone)> command_handlers = {};
-    std::vector<ConfigChangeListener *> config_change_listeners;
+    std::unordered_map<CommandType, decltype(&HandleNone)> m_cmd_handlers = {};
+    std::vector<ConfigChangeListener *> m_config_change_listeners;
+    AppConfig *m_config = nullptr;
 };
 
 } // namespace

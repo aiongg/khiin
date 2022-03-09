@@ -28,7 +28,7 @@ add_library (khiin
     "Engine.cpp"
     "KeyConfig.h"
     "KeyConfig.cpp"
-    "messages.h"
+    "proto.h"
     "Segmenter.h"
     "Segmenter.cpp"
     "SQL.h"

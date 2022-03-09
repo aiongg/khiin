@@ -1,6 +1,8 @@
 #pragma once
 
-#include "common.h"
+namespace khiin::proto {
+class AppConfig;
+}
 
 namespace khiin::win32 {
 

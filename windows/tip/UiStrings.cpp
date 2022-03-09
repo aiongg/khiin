@@ -2,7 +2,7 @@
 
 #include "UiStrings.h"
 
-#include "common.h"
+#include "proto/proto.h"
 
 namespace khiin::win32::strings {
 using namespace proto;

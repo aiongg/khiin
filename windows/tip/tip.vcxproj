@@ -226,6 +226,7 @@
     </Manifest>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\proto\proto\proto.h" />
     <ClInclude Include="BaseWindow.h" />
     <ClInclude Include="CandidatePager.h" />
     <ClInclude Include="CandidateWindow.h" />
@@ -319,6 +320,10 @@
     <ClCompile Include="Utils.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\..\proto\command.proto">
+      <FileType>Document</FileType>
+    </None>
+    <None Include="..\..\proto\config.proto" />
     <None Include="DllModule.def" />
   </ItemGroup>
   <ItemGroup>

@@ -8,6 +8,7 @@
 #include <sstream>
 #include <string>
 
+#include "proto/proto.h"
 #include "tip/Config.h"
 
 #include "AppearanceProps.h"

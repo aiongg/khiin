@@ -1,5 +1,10 @@
 #pragma once
 
+namespace khiin::proto {
+class AppConfig;
+enum UiLanguage : int;
+}
+
 namespace khiin::win32::settings {
 
 struct PropSheetPage : PROPSHEETPAGE {

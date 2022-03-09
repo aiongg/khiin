@@ -1,11 +1,12 @@
 #include "pch.h"
 
-#include "resource.h"
-
 #include "AppearanceProps.h"
+
+#include "proto/proto.h"
 
 #include "Application.h"
 #include "Strings.h"
+#include "resource.h"
 
 namespace khiin::win32::settings {
 namespace {

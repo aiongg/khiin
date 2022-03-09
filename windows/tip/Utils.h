@@ -1,8 +1,11 @@
 #pragma once
 
-#include "common.h"
-
 #include <filesystem>
+
+namespace khiin::proto {
+class Preedit;
+enum SegmentStatus : int;
+}
 
 namespace khiin::win32 {
 

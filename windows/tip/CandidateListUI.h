@@ -2,7 +2,13 @@
 
 #include "common.h"
 
-namespace khiin::win32 {
+namespace khiin {
+namespace proto {
+enum EditState : int;
+class CandidateList;
+}
+
+namespace win32 {
 
 class KeyEvent;
 struct TextService;
@@ -16,8 +22,8 @@ struct CandidateListUI : winrt::implements<CandidateListUI, IUnknown> {
     virtual void Initialize(TextService *pTextService) = 0;
     virtual void Uninitialize() = 0;
     virtual void DestroyCandidateWindow() = 0;
-    virtual void Update(ITfContext *pContext, proto::EditState edit_state,
-                        const proto::CandidateList &candidate_list, RECT text_rect) = 0;
+    virtual void Update(ITfContext *pContext, proto::EditState edit_state, const proto::CandidateList &candidate_list,
+                        RECT text_rect) = 0;
 
     virtual bool Showing() = 0;
     virtual bool Selecting() = 0;
@@ -48,4 +54,5 @@ struct CandidateListUIFactory {
     static HRESULT Create(CandidateListUI **ppCandidateListUI);
 };
 
-} // namespace khiin::win32
+} // namespace win32
+} // namespace khiin

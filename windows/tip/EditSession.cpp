@@ -5,6 +5,7 @@
 #include "EditSession.h"
 #include "EngineController.h"
 #include "TextService.h"
+#include "proto/proto.h"
 
 namespace khiin::win32 {
 namespace {
@@ -28,11 +29,10 @@ RECT GetEditRect(TfEditCookie ec, CompositionMgr *composition_mgr, ITfContext *c
 constexpr auto kAsyncRWFlag = TF_ES_ASYNCDONTCARE | TF_ES_READWRITE;
 
 struct EditSessionImpl : winrt::implements<EditSessionImpl, ITfEditSession> {
-    EditSessionImpl(TextService *pService, ITfContext *pContext, Command &&command) {
+    EditSessionImpl(TextService *pService, ITfContext *pContext, Command *command) : command(command) {
         KHIIN_TRACE("");
         service.copy_from(pService);
         context.copy_from(pContext);
-        this->command = std::move(command);
     }
     ~EditSessionImpl() = default;
 
@@ -49,8 +49,8 @@ struct EditSessionImpl : winrt::implements<EditSessionImpl, ITfEditSession> {
         auto candidate_ui = cast_as<CandidateListUI>(service->candidate_ui());
         bool composing = composition_mgr->composing();
         bool Showing = candidate_ui->Showing();
-        auto cmd_type = command.request().type();
-        auto &response = command.response();
+        auto cmd_type = command->request().type();
+        auto &response = command->response();
 
         if (response.error() == ErrorCode::FAIL) {
             composition_mgr->CommitComposition(ec, context.get());
@@ -65,8 +65,7 @@ struct EditSessionImpl : winrt::implements<EditSessionImpl, ITfEditSession> {
             composition_mgr->DoComposition(ec, context.get(), response.preedit());
 
             if (response.candidate_list().candidates().size() > 0) {
-                candidate_ui->Update(context.get(), response.edit_state(),
-                                     response.candidate_list(),
+                candidate_ui->Update(context.get(), response.edit_state(), response.candidate_list(),
                                      GetEditRect(ec, composition_mgr, context.get()));
                 if (!Showing) {
                     candidate_ui->Show();
@@ -83,12 +82,12 @@ struct EditSessionImpl : winrt::implements<EditSessionImpl, ITfEditSession> {
   private:
     winrt::com_ptr<TextService> service = nullptr;
     winrt::com_ptr<ITfContext> context = nullptr;
-    Command command;
+    Command *command;
 };
 
-void EditSession::HandleAction(TextService *pService, ITfContext *pContext, Command &&command) {
+void EditSession::HandleAction(TextService *pService, ITfContext *pContext, Command *command) {
     KHIIN_TRACE("");
-    auto session = winrt::make_self<EditSessionImpl>(pService, pContext, std::move(command));
+    auto session = winrt::make_self<EditSessionImpl>(pService, pContext, command);
     auto sessionHr = E_FAIL;
     winrt::check_hresult(pContext->RequestEditSession(pService->clientId(), session.get(), kAsyncRWFlag, &sessionHr));
     winrt::check_hresult(sessionHr);

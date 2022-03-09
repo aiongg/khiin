@@ -16,9 +16,8 @@
 #include "SettingsApp.h"
 #include "TextEditSink.h"
 #include "ThreadMgrEventSink.h"
-#include "common.h"
-
 #include "Utils.h"
+#include "proto/proto.h"
 
 namespace khiin::win32 {
 namespace {

@@ -2,6 +2,8 @@
 
 #include "CandidateListUI.h"
 
+#include "proto/proto.h"
+
 #include "CandidatePager.h"
 #include "CandidateWindow.h"
 #include "Colors.h"
@@ -9,7 +11,6 @@
 #include "EditSession.h"
 #include "TextService.h"
 #include "Utils.h"
-#include "common.h"
 
 namespace khiin::win32 {
 namespace {
@@ -360,18 +361,18 @@ struct CandidateListUIImpl :
     virtual STDMETHODIMP Finalize(void) override {
         TRY_FOR_HRESULT;
         KHIIN_TRACE("");
-        auto cmd = Command();
-        cmd.mutable_request()->set_type(CommandType::COMMIT);
-        EditSession::HandleAction(m_service.get(), m_context.get(), std::move(cmd));
+        auto cmd = Command::default_instance().New();
+        cmd->mutable_request()->set_type(CommandType::COMMIT);
+        EditSession::HandleAction(m_service.get(), m_context.get(), cmd);
         CATCH_FOR_HRESULT;
     }
 
     virtual STDMETHODIMP Abort(void) override {
         TRY_FOR_HRESULT;
         KHIIN_TRACE("");
-        auto cmd = Command();
-        cmd.mutable_request()->set_type(CommandType::RESET);
-        EditSession::HandleAction(m_service.get(), m_context.get(), std::move(cmd));
+        auto cmd = Command::default_instance().New();
+        cmd->mutable_request()->set_type(CommandType::RESET);
+        EditSession::HandleAction(m_service.get(), m_context.get(), cmd);
         return S_OK;
         CATCH_FOR_HRESULT;
     }

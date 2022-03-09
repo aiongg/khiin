@@ -3,6 +3,7 @@
 
 #include "BufferMgr.h"
 #include "TestEnv.h"
+#include "proto.h"
 
 namespace khiin::engine {
 namespace {

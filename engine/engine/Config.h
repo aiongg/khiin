@@ -1,11 +1,16 @@
 #pragma once
 
-#include "messages.h"
+namespace khiin {
+namespace proto {
+class AppConfig;
+}
 
-namespace khiin::engine {
+namespace engine {
 
 class ConfigChangeListener {
+  public:
     virtual void OnConfigChanged(proto::AppConfig *config) = 0;
 };
 
-} // namespace khiin::engine
+} // namespace engine
+} // namespace khiin

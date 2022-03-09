@@ -187,6 +187,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\proto\proto\proto.h" />
     <ClInclude Include="AppearanceProps.h" />
     <ClInclude Include="InputProps.h" />
     <ClInclude Include="pch.h" />

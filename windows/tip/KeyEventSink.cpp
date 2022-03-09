@@ -4,7 +4,7 @@
 
 #include "EditSession.h"
 #include "EngineController.h"
-#include "common.h"
+#include "proto/proto.h"
 
 namespace khiin::win32 {
 
@@ -44,7 +44,7 @@ bool HandleQuickSelect(TextService *service, ITfContext *context, CandidateListU
 
     if (id >= 0) {
         auto command = service->engine()->SelectCandidate(id);
-        EditSession::HandleAction(service, context, std::move(command));
+        EditSession::HandleAction(service, context, command);
         return true;
     }
 
@@ -125,7 +125,7 @@ void KeyEventSink::TestKey(ITfContext *pContext, KeyEvent keyEvent, BOOL *pfEate
 
     auto command = service->engine()->TestKey(keyEvent);
 
-    if (command.response().consumable()) {
+    if (command->response().consumable()) {
         *pfEaten = TRUE;
         return;
     }

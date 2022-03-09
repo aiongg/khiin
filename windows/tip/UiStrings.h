@@ -2,7 +2,9 @@
 
 #include <string>
 
-#include "common.h"
+namespace khiin::proto {
+enum UiLanguage : int;
+}
 
 namespace khiin::win32::strings {
 

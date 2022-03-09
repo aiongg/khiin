@@ -5,9 +5,13 @@
 #include <vector>
 
 #include "Lomaji.h"
-#include "messages.h"
 
-namespace khiin::engine {
+namespace khiin {
+namespace proto {
+class KeyConfiguration;
+}
+
+namespace engine {
 
 enum class VKey {
     None,
@@ -48,4 +52,5 @@ class KeyConfig {
     virtual void EnableToneDigitFallback(bool enabled) = 0;
 };
 
-} // namespace khiin::engine
+} // namespace engine
+} // namespace khiin

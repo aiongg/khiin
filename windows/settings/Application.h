@@ -1,5 +1,9 @@
 #pragma once
 
+namespace khiin::proto {
+enum UiLanguage : int;
+}
+
 namespace khiin::win32::settings {
 
 class Application {

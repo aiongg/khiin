@@ -3,7 +3,10 @@
 #include "DisplayAttributeInfo.h"
 #include "DisplayAttributeInfoEnum.h"
 #include "TextService.h"
-#include "common.h"
+
+namespace khiin::proto {
+class Preedit;
+}
 
 namespace khiin::win32 {
 
@@ -34,7 +37,6 @@ struct CompositionMgr : winrt::implements<CompositionMgr, IUnknown> {
 
     winrt::com_ptr<TextService> service = nullptr;
     winrt::com_ptr<ITfComposition> composition = nullptr;
-    proto::Preedit composition_data;
 };
 
 } // namespace khiin::win32

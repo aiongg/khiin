@@ -15,11 +15,11 @@
     <Filter Include="Renderer">
       <UniqueIdentifier>{e6f43124-42c9-4cc7-89e1-a56c8a78c1b1}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Common\proto">
-      <UniqueIdentifier>{0e50944d-9091-4cd9-b47d-38b13032c198}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Module">
       <UniqueIdentifier>{aee0f168-3106-47c3-9e2a-421b14c06ce4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="proto">
+      <UniqueIdentifier>{0e50944d-9091-4cd9-b47d-38b13032c198}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -143,6 +143,9 @@
     <ClInclude Include="SettingsApp.h">
       <Filter>TextService</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\proto\proto\proto.h">
+      <Filter>proto</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="RenderFactory.cpp">
@@ -224,7 +227,7 @@
       <Filter>Common</Filter>
     </ClCompile>
     <ClCompile Include="..\..\proto\proto\config.pb.cc">
-      <Filter>Common\proto</Filter>
+      <Filter>proto</Filter>
     </ClCompile>
     <ClCompile Include="LangBarIndicator.cpp">
       <Filter>TextService</Filter>
@@ -246,7 +249,7 @@
     </ClCompile>
     <ClCompile Include="..\..\proto\proto\messages.pb.cc" />
     <ClCompile Include="..\..\proto\proto\command.pb.cc">
-      <Filter>Common\proto</Filter>
+      <Filter>proto</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -257,6 +260,12 @@
   <ItemGroup>
     <None Include="DllModule.def">
       <Filter>Module</Filter>
+    </None>
+    <None Include="..\..\proto\config.proto">
+      <Filter>proto</Filter>
+    </None>
+    <None Include="..\..\proto\command.proto">
+      <Filter>proto</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>

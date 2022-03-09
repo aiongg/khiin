@@ -2,6 +2,8 @@
 
 #include "Colors.h"
 
+#include "proto/proto.h"
+
 namespace khiin::win32 {
 namespace {
 using namespace D2D1;

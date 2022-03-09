@@ -10,7 +10,7 @@
 #include "Splitter.h"
 #include "SyllableParser.h"
 #include "Trie.h"
-#include "messages.h"
+#include "proto.h"
 
 #include <mutex>
 

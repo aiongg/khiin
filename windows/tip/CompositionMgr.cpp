@@ -5,11 +5,10 @@
 #include "DisplayAttributeInfoEnum.h"
 #include "EditSession.h"
 #include "Utils.h"
-#include "common.h"
+#include "proto/proto.h"
 
 namespace khiin::win32 {
 namespace {
-
 using namespace proto;
 
 inline static int kMaxBufSize = 512;

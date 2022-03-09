@@ -1,6 +1,9 @@
 #pragma once
 
-#include "common.h"
+namespace khiin::proto {
+class Candidate;
+class CandidateList;
+}
 
 namespace khiin::win32 {
 

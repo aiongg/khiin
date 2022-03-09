@@ -2,6 +2,8 @@
 
 #include "CandidatePager.h"
 
+#include "proto/proto.h"
+
 #include "CandidateWindow.h"
 
 namespace khiin::win32 {

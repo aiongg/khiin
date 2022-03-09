@@ -1,6 +1,7 @@
 #include "pch.h"
 
 #include "Files.h"
+#include "common.h"
 
 namespace khiin::win32 {
 namespace {

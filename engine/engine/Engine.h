@@ -6,7 +6,10 @@
 #include <Windows.h>
 #endif
 
-#include "messages.h"
+namespace khiin::proto {
+class AppConfig;
+class Command;
+}
 
 namespace khiin::engine {
 
@@ -34,6 +37,7 @@ class Engine {
     virtual Dictionary *dictionary() = 0;
     virtual KeyConfig *key_configuration() = 0;
     virtual SyllableParser *syllable_parser() = 0;
+    virtual proto::AppConfig *config() = 0;
 };
 
 } // namespace khiin::engine
