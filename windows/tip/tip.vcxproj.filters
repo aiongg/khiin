@@ -5,15 +5,15 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="Renderer">
-      <UniqueIdentifier>{e6f43124-42c9-4cc7-89e1-a56c8a78c1b1}</UniqueIdentifier>
-    </Filter>
     <Filter Include="win32">
       <UniqueIdentifier>{bad95efc-e61d-4606-a86b-4e32ce8c9d69}</UniqueIdentifier>
     </Filter>
     <Filter Include="win32::tip">
       <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
       <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
+    </Filter>
+    <Filter Include="renderer">
+      <UniqueIdentifier>{e6f43124-42c9-4cc7-89e1-a56c8a78c1b1}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -63,25 +63,25 @@
       <Filter>win32::tip</Filter>
     </ClInclude>
     <ClInclude Include="Geometry.h">
-      <Filter>Renderer</Filter>
+      <Filter>renderer</Filter>
     </ClInclude>
     <ClInclude Include="RenderFactory.h">
-      <Filter>Renderer</Filter>
+      <Filter>renderer</Filter>
     </ClInclude>
     <ClInclude Include="GridLayout.h">
-      <Filter>Renderer</Filter>
+      <Filter>renderer</Filter>
     </ClInclude>
     <ClInclude Include="BaseWindow.h">
-      <Filter>Renderer</Filter>
+      <Filter>renderer</Filter>
     </ClInclude>
     <ClInclude Include="CandidatePager.h">
-      <Filter>Renderer</Filter>
+      <Filter>renderer</Filter>
     </ClInclude>
     <ClInclude Include="CandidateWindow.h">
-      <Filter>Renderer</Filter>
+      <Filter>renderer</Filter>
     </ClInclude>
     <ClInclude Include="Colors.h">
-      <Filter>Renderer</Filter>
+      <Filter>renderer</Filter>
     </ClInclude>
     <ClInclude Include="common.h">
       <Filter>win32</Filter>
@@ -111,13 +111,13 @@
       <Filter>win32::tip</Filter>
     </ClInclude>
     <ClInclude Include="PopupMenu.h">
-      <Filter>Renderer</Filter>
+      <Filter>renderer</Filter>
     </ClInclude>
     <ClInclude Include="GuiWindow.h">
-      <Filter>Renderer</Filter>
+      <Filter>renderer</Filter>
     </ClInclude>
     <ClInclude Include="Metrics.h">
-      <Filter>Renderer</Filter>
+      <Filter>renderer</Filter>
     </ClInclude>
     <ClInclude Include="UiStrings.h">
       <Filter>win32</Filter>
@@ -146,19 +146,19 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="RenderFactory.cpp">
-      <Filter>Renderer</Filter>
+      <Filter>renderer</Filter>
     </ClCompile>
     <ClCompile Include="CandidatePager.cpp">
-      <Filter>Renderer</Filter>
+      <Filter>renderer</Filter>
     </ClCompile>
     <ClCompile Include="BaseWindow.cpp">
-      <Filter>Renderer</Filter>
+      <Filter>renderer</Filter>
     </ClCompile>
     <ClCompile Include="CandidateWindow.cpp">
-      <Filter>Renderer</Filter>
+      <Filter>renderer</Filter>
     </ClCompile>
     <ClCompile Include="Colors.cpp">
-      <Filter>Renderer</Filter>
+      <Filter>renderer</Filter>
     </ClCompile>
     <ClCompile Include="CandidateListUI.cpp">
       <Filter>win32::tip</Filter>
@@ -218,13 +218,13 @@
       <Filter>win32::tip</Filter>
     </ClCompile>
     <ClCompile Include="PopupMenu.cpp">
-      <Filter>Renderer</Filter>
+      <Filter>renderer</Filter>
     </ClCompile>
     <ClCompile Include="GuiWindow.cpp">
-      <Filter>Renderer</Filter>
+      <Filter>renderer</Filter>
     </ClCompile>
     <ClCompile Include="Metrics.cpp">
-      <Filter>Renderer</Filter>
+      <Filter>renderer</Filter>
     </ClCompile>
     <ClCompile Include="UiStrings.cpp">
       <Filter>win32</Filter>

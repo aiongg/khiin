@@ -3,6 +3,7 @@
 #include "AppearanceProps.h"
 
 #include "proto/proto.h"
+#include "tip/Config.h"
 
 #include "Application.h"
 #include "Strings.h"
@@ -43,12 +44,12 @@ AppearanceProps::AppearanceProps(Application *app) : PropSheet(app) {
 }
 
 void AppearanceProps::Initialize() {
-    InitComboBox(IDC_COMBOBOX_THEME_COLOR, kThemeNameStringRids, m_config->appearance().colors());
-    InitComboBox(IDC_DISPLAY_LANGUAGE, kDisplayLanguageStringRids, static_cast<int>(m_app->uilang()));
+    InitComboBox(IDC_COMBOBOX_THEME_COLOR, kThemeNameStringRids, static_cast<int>(Config::GetUiColors()));
+    InitComboBox(IDC_DISPLAY_LANGUAGE, kDisplayLanguageStringRids, static_cast<int>(Config::GetUiLanguage()));
 
     HWND size_hwnd = ::GetDlgItem(m_hwnd, IDC_CANDIDATE_SIZE);
     ::SendMessage(size_hwnd, TBM_SETRANGE, TRUE, MAKELPARAM(kSizeTrackbarMin, kSizeTrackbarMax));
-    ::SendMessage(size_hwnd, TBM_SETPOS, TRUE, m_config->appearance().size());
+    ::SendMessage(size_hwnd, TBM_SETPOS, TRUE, Config::GetUiSize());
 
     PropSheet::Initialize();
 }
@@ -56,13 +57,16 @@ void AppearanceProps::Initialize() {
 void AppearanceProps::Finalize() {
     HWND theme_hwnd = ::GetDlgItem(m_hwnd, IDC_COMBOBOX_THEME_COLOR);
     HWND size_hwnd = ::GetDlgItem(m_hwnd, IDC_CANDIDATE_SIZE);
-
-    auto appearance = m_config->mutable_appearance();
-    appearance->set_colors(ComboBox_GetCurSel(theme_hwnd));
-    appearance->set_size(::SendMessage(size_hwnd, TBM_GETPOS, 0, 0));
-
     HWND lang_hwnd = ::GetDlgItem(m_hwnd, IDC_DISPLAY_LANGUAGE);
-    m_app->set_uilang(static_cast<UiLanguage>(ComboBox_GetCurSel(lang_hwnd)));
+
+    //auto appearance = m_config->mutable_appearance();
+    //appearance->set_colors();
+    //appearance->set_size(::SendMessage(size_hwnd, TBM_GETPOS, 0, 0));
+
+    Config::SetUiColors(static_cast<UiColors>(ComboBox_GetCurSel(theme_hwnd)));
+    Config::SetUiLanguage(static_cast<UiLanguage>(ComboBox_GetCurSel(lang_hwnd)));
+    Config::SetUiSize(::SendMessage(size_hwnd, TBM_GETPOS, 0, 0));
+    m_app->Reinitialize();
 }
 
 } // namespace khiin::win32::settings

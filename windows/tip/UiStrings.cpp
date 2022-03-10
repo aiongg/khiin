@@ -2,10 +2,9 @@
 
 #include "UiStrings.h"
 
-#include "proto/proto.h"
+#include "Config.h"
 
 namespace khiin::win32::strings {
-using namespace proto;
 
 // clang-format off
 std::unordered_map<uint32_t, std::string> kEnglish = {
@@ -28,7 +27,7 @@ std::unordered_map<uint32_t, std::string> kHanlo = {
 std::string T(uint32_t str_rid, UiLanguage lang) {
     auto map = &kEnglish;
     switch (lang) {
-    case UiLanguage::UIL_TAI_HANLO:
+    case UiLanguage::HanloTai:
         map = &kHanlo;
         break;
     }

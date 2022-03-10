@@ -3,6 +3,7 @@
 #include "Strings.h"
 
 #include "proto/proto.h"
+#include "tip/Config.h"
 
 #include "Application.h"
 
@@ -50,7 +51,7 @@ StrMap kStringsHanlo = {
 
 std::wstring Strings::T(uint32_t rid, UiLanguage lang) {
     auto ret = std::wstring(L"???");
-    StrMap *strs = lang == UIL_TAI_HANLO ? &kStringsHanlo : &kStringsEn;
+    StrMap *strs = lang == UiLanguage::HanloTai ? &kStringsHanlo : &kStringsEn;
 
     if (auto it = strs->find(rid); it != strs->end()) {
         ret = it->second;

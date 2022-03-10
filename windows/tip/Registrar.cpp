@@ -33,55 +33,113 @@ const auto supportedCategories = std::vector<GUID>{
     GUID_TFCAT_TIPCAP_SYSTRAYSUPPORT,       // It supports Win8 systray.
 };
 
-constexpr auto kClsidPrefix = std::wstring_view(L"CLSID\\");
-constexpr auto kInprocServer32 = std::wstring_view(L"InprocServer32");
-constexpr auto kThreadingModel = std::wstring_view(L"ThreadingModel");
-constexpr auto kApartmentModel = std::wstring_view(L"Apartment");
-constexpr auto kClsidDescription = std::wstring_view(L"Khiin Taiwanese IME");
-constexpr auto kSettingsPath = std::wstring_view(L"Software\\Khiin PJH");
+const std::wstring kClsidPrefix = L"CLSID\\";
+const std::wstring kInprocServer32 = L"InprocServer32";
+const std::wstring kThreadingModel = L"ThreadingModel";
+const std::wstring kApartmentModel = L"Apartment";
+const std::wstring kClsidDescription = L"Khiin Taiwanese IME";
+const std::wstring kHkcuAppPath = L"Software\\Khiin PJH";
+const std::wstring kSettingsPath = L"Software\\Khiin PJH\\Settings";
 
 constexpr auto wcharSize(std::wstring_view wstr) {
     return static_cast<uint32_t>((wstr.size() + 1) * sizeof(wchar_t));
 }
 
+registry_key CreateKey(registry_key const &hkey, std::wstring const &subkey) {
+    auto ret = registry_key();
+    check_win32(::RegCreateKeyEx(hkey.get(), subkey.c_str(), 0, nullptr, REG_OPTION_NON_VOLATILE, KEY_READ | KEY_WRITE,
+                                 nullptr, ret.put(), nullptr));
+    return ret;
+}
+
+void DeleteTree(registry_key const &hkey, std::wstring const &subkey) {
+    ::RegDeleteTree(hkey.get(), subkey.data());
+}
+
+void DeleteAllValues(registry_key const &hkey) {
+    ::RegDeleteValue(hkey.get(), nullptr);
+}
+
+int GetIntValue(registry_key const &key, std::wstring const &name) {
+    DWORD data{};
+    DWORD data_size = sizeof(data);
+    if (ERROR_SUCCESS != ::RegGetValue(key.get(), NULL, name.c_str(), RRF_RT_REG_DWORD, nullptr, &data, &data_size)) {
+        return 0;
+    }
+    return static_cast<int>(data);
+}
+
+std::wstring GetStringValue(registry_key const &key, std::wstring const &name) {
+    DWORD data_size{};
+    if (ERROR_SUCCESS != ::RegGetValue(key.get(), NULL, name.c_str(), RRF_RT_REG_SZ, nullptr, nullptr, &data_size)) {
+        return std::wstring();
+    }
+    std::wstring data;
+    data.resize(data_size / sizeof(wchar_t));
+    if (ERROR_SUCCESS != ::RegGetValue(key.get(), NULL, name.c_str(), RRF_RT_REG_SZ, nullptr, &data[0], &data_size)) {
+        return std::wstring();
+    }
+
+    data.resize(data_size / sizeof(wchar_t) - 1);
+    return data;
+}
+
+void SetIntValue(registry_key const &key, std::wstring const &name, int value) {
+    DWORD data = static_cast<DWORD>(value);
+    DWORD data_size = sizeof(DWORD);
+    check_win32(::RegSetValueEx(key.get(), name.data(), 0, REG_DWORD, (LPBYTE)&data, data_size));
+}
+
+void SetStringValue(registry_key const &hkey, std::wstring const &name, std::wstring const &value) {
+    auto data = reinterpret_cast<BYTE const *>(value.data());
+    auto data_size = wcharSize(value);
+    check_win32(::RegSetValueEx(hkey.get(), name.data(), 0, REG_SZ, data, data_size));
+}
+
+registry_key ClassesRoot() {
+    return registry_key(HKEY_CLASSES_ROOT);
+}
+
+registry_key CurrentUser() {
+    return registry_key(HKEY_CURRENT_USER);
+}
+
+registry_key SettingsRoot() {
+    auto hkcu = CurrentUser();
+    return CreateKey(hkcu, kSettingsPath.data());
+}
+
 } // namespace
 
 void Registrar::RegisterComServer(std::wstring modulePath) {
-    auto hkeypath = std::wstring(kClsidPrefix) + kTextServiceGuidString;
-    auto hkey = registry_key();
+    auto subkeypath = std::wstring(kClsidPrefix) + kTextServiceGuidString;
 
     // Add our CLSID to HKEY_CLASSES_ROOT/CLSID/
-    check_win32(::RegCreateKeyEx(HKEY_CLASSES_ROOT, hkeypath.c_str(), 0, nullptr, REG_OPTION_NON_VOLATILE, KEY_WRITE,
-                                 nullptr, hkey.put(), nullptr));
-
-    ::RegDeleteValue(hkey.get(), nullptr);
+    auto clsroot = registry_key(HKEY_CLASSES_ROOT);
+    auto clskey = CreateKey(clsroot, subkeypath);
+    DeleteAllValues(clskey);
 
     // Set the description
-    check_win32(::RegSetValueEx(hkey.get(), nullptr, 0, REG_SZ,
-                                reinterpret_cast<BYTE const *>(kClsidDescription.data()),
-                                wcharSize(kClsidDescription)));
-
-    auto inprocserver32key = registry_key();
+    SetStringValue(clskey, L"", kClsidDescription.data());
 
     // Add the InprocServer32 sub-key
-    check_win32(::RegCreateKeyEx(hkey.get(), kInprocServer32.data(), 0, nullptr, REG_OPTION_NON_VOLATILE, KEY_WRITE,
-                                 nullptr, inprocserver32key.put(), nullptr));
+    auto inprockey = CreateKey(clskey, kInprocServer32.data());
 
     // Set the DLL module path
-    check_win32(::RegSetValueEx(inprocserver32key.get(), nullptr, 0, REG_SZ,
-                                reinterpret_cast<BYTE const *>(modulePath.c_str()), wcharSize(modulePath)));
-
-    auto apartment = std::wstring(L"Apartment");
-    check_win32(::RegSetValueEx(inprocserver32key.get(), kThreadingModel.data(), 0, REG_SZ,
-                                reinterpret_cast<BYTE const *>(kApartmentModel.data()), wcharSize(kApartmentModel)));
-
-    inprocserver32key.close();
-    hkey.close();
+    SetStringValue(inprockey, L"", modulePath);
+    SetStringValue(inprockey, kThreadingModel.data(), kApartmentModel.data());
+    inprockey.close();
+    clskey.close();
+    clsroot.close();
 }
 
 void Registrar::UnregisterComServer() {
-    auto hkeypath = std::wstring(kClsidPrefix) + kTextServiceGuidString;
-    check_win32(::RegDeleteTreeW(HKEY_CLASSES_ROOT, hkeypath.c_str()));
+    auto clsroot = registry_key(HKEY_CLASSES_ROOT);
+    auto clskey = std::wstring(kClsidPrefix) + kTextServiceGuidString;
+    // check_win32(::RegDeleteTree(HKEY_CLASSES_ROOT, clskey.c_str()));
+    DeleteTree(clsroot, clskey);
+    auto hkcuroot = registry_key(HKEY_CURRENT_USER);
+    DeleteTree(hkcuroot, kHkcuAppPath.data());
     return;
 }
 
@@ -144,36 +202,24 @@ HRESULT Registrar::SetProfileEnabled(BOOL enable) {
     return E_NOTIMPL;
 }
 
-std::wstring Registrar::GetSettingsString(std::wstring_view name) {
-    auto rkey = registry_key();
-    check_win32(::RegOpenKeyEx(HKEY_CURRENT_USER, kSettingsPath.data(), 0, KEY_READ, rkey.put()));
-    DWORD data_size{};
-    check_win32(::RegGetValue(rkey.get(), NULL, name.data(), RRF_RT_REG_SZ, nullptr, nullptr, &data_size));
-    std::wstring data;
-    data.resize(data_size / sizeof(wchar_t));
-    check_win32(::RegGetValue(rkey.get(), NULL, name.data(), RRF_RT_REG_SZ, nullptr, &data[0], &data_size));
-    data.resize(data_size / sizeof(wchar_t) - 1);
-    rkey.close();
-    return data;
+std::wstring Registrar::GetSettingsString(std::wstring const &name) {
+    auto hkey = SettingsRoot();
+    return GetStringValue(hkey, name);
 }
 
-int Registrar::GetSettingsInt(std::wstring_view name) {
-    auto rkey = registry_key();
-    check_win32(::RegOpenKeyEx(HKEY_CURRENT_USER, kSettingsPath.data(), 0, KEY_READ, rkey.put()));
-    DWORD data{};
-    DWORD data_size = sizeof(DWORD);
-    check_win32(::RegGetValue(rkey.get(), NULL, name.data(), RRF_RT_REG_DWORD, nullptr, &data, &data_size));
-    rkey.close();
-    return static_cast<int>(data);
+void Registrar::SetSettingsString(std::wstring const &name, std::wstring const &value) {
+    auto hkey = SettingsRoot();
+    return SetStringValue(hkey, name, value);
 }
 
-void Registrar::SetSettingsInt(std::wstring_view name, int value) {
-    auto rkey = registry_key();
-    check_win32(::RegOpenKeyEx(HKEY_CURRENT_USER, kSettingsPath.data(), 0, KEY_READ, rkey.put()));
-    DWORD data{};
-    DWORD data_size = sizeof(DWORD);
-    rkey.close();
-    check_win32(::RegSetValueEx(rkey.get(), name.data(), 0, REG_DWORD, (LPBYTE)&data, data_size));
+int Registrar::GetSettingsInt(std::wstring const &name) {
+    auto hkey = SettingsRoot();
+    return GetIntValue(hkey, name);
+}
+
+void Registrar::SetSettingsInt(std::wstring const &name, int value) {
+    auto key = SettingsRoot();
+    return SetIntValue(key, name, value);
 }
 
 } // namespace khiin::win32::tip

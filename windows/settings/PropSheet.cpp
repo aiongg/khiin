@@ -3,6 +3,7 @@
 #include "PropSheet.h"
 
 #include "proto/proto.h"
+#include "tip/Config.h"
 
 #include "Application.h"
 #include "Strings.h"
@@ -83,7 +84,7 @@ void PropSheet::SetHwnd(HWND hwnd) {
 void PropSheet::InitComboBox(uint32_t control_rid, std::vector<uint32_t> const &option_rids, int selected_index) {
     HWND cb_hwnd = ::GetDlgItem(m_hwnd, control_rid);
     ComboBox_ResetContent(cb_hwnd);
-    auto lang = m_app->uilang();
+    auto lang = Config::GetUiLanguage();
     for (auto rid : option_rids) {
         auto str = Strings::T(rid, lang);
         if (!str.empty()) {
@@ -132,7 +133,7 @@ void PropSheet::Reload() {
 }
 
 void PropSheet::Initialize() {
-    auto lang = m_app->uilang();
+    auto lang = Config::GetUiLanguage();
 
     SetTitle(m_hwnd, m_template_id, lang);
 

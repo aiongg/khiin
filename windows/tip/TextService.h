@@ -46,6 +46,7 @@ struct TextService : winrt::implements<TextService, IUnknown> {
     virtual TfGuidAtom focused_attribute() = 0;
 
     virtual void RegisterConfigChangeListener(ConfigChangeListener *config_listener) = 0;
+    virtual void SwapOnOff() = 0;
 };
 
 struct TextServiceFactory {

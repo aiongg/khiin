@@ -16,6 +16,7 @@
 #include "Guids.h"
 #include "KeyEventSink.h"
 #include "LangBarIndicator.h"
+#include "PreservedKeyMgr.h"
 #include "SettingsApp.h"
 #include "TextEditSink.h"
 #include "ThreadMgrEventSink.h"
@@ -43,6 +44,7 @@ struct TextServiceImpl :
         CandidateListUIFactory::Create(m_candidate_list_ui.put());
         m_keyevent_sink = make_self<KeyEventSink>();
         LangBarIndicatorFactory::Create(m_indicator.put());
+        m_preservedkeymgr = PreservedKeyMgr::Create();
     }
 
   private:
@@ -57,6 +59,7 @@ struct TextServiceImpl :
         m_threadmgr_sink->Initialize(pTextService);
         m_candidate_list_ui->Initialize(pTextService);
         m_keyevent_sink->Activate(pTextService);
+        m_preservedkeymgr->Initialize(pTextService);
         m_openclose_compartment.Initialize(m_clientid, m_threadmgr.get(), GUID_COMPARTMENT_KEYBOARD_OPENCLOSE);
         m_kbd_disabled_compartment.Initialize(m_clientid, m_threadmgr.get(), GUID_COMPARTMENT_KEYBOARD_DISABLED);
         m_config_compartment.Initialize(m_clientid, m_threadmgr.get(), guids::kConfigChangedCompartment, true);
@@ -79,6 +82,7 @@ struct TextServiceImpl :
         m_openclose_compartment.Uninitialize();
         m_config_compartment.Uninitialize();
         m_candidate_list_ui->Uninitialize();
+        m_preservedkeymgr->Shutdown();
         m_keyevent_sink->Deactivate();
         m_threadmgr_sink->Uninitialize();
         m_compositionmgr->Uninitialize();
@@ -126,6 +130,7 @@ struct TextServiceImpl :
     SinkManager<ITfCompartmentEventSink> m_config_sinkmgr;
     std::unique_ptr<AppConfig> m_config = nullptr;
     std::vector<ConfigChangeListener *> m_config_listeners;
+    std::unique_ptr<PreservedKeyMgr> m_preservedkeymgr = nullptr;
 
     com_ptr<ITfCategoryMgr> m_categorymgr = nullptr;
     com_ptr<CandidateListUI> m_candidate_list_ui = nullptr;
@@ -139,6 +144,7 @@ struct TextServiceImpl :
     TfGuidAtom m_input_attr = TF_INVALID_GUIDATOM;
     TfGuidAtom m_converted_attr = TF_INVALID_GUIDATOM;
     TfGuidAtom m_focused_attr = TF_INVALID_GUIDATOM;
+    InputMode m_prev_input_mode = IM_ALPHA;
 
   public:
     //+---------------------------------------------------------------------------
@@ -245,6 +251,16 @@ struct TextServiceImpl :
         }
     }
 
+    virtual void SwapOnOff() override {
+        auto im = config()->input_mode();
+        if (im == IM_ALPHA) {
+            OnInputModeSelected(m_prev_input_mode);
+        } else {
+            OnInputModeSelected(IM_ALPHA);
+        }
+        m_prev_input_mode = im;
+    }
+
     //+---------------------------------------------------------------------------
     //
     // ITfTextInputProcessorEx
@@ -346,7 +362,7 @@ struct TextServiceImpl :
                 m_candidate_list_ui->DestroyCandidateWindow();
             }
         }
-        
+
         if (rguid == guids::kConfigChangedCompartment) {
             NotifyConfigChangeListeners();
         }

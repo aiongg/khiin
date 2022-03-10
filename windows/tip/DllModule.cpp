@@ -105,7 +105,7 @@ STDMETHODIMP DllUnregisterServer() {
 // 2. Register this COM server as a TSF text service, and;
 // 3. Register this text service as a TSF text-input processor.
 STDMETHODIMP DllRegisterServer() {
-    // MessageBox(NULL, (LPCWSTR)L"1", (LPCWSTR)L"OK", MB_DEFBUTTON2);
+     MessageBox(NULL, (LPCWSTR)L"Waiting for debugger...", (LPCWSTR)L"OK", MB_DEFBUTTON2);
 
     auto dllPath = std::wstring(MAX_PATH, '?');
     auto pathsize = ::GetModuleFileName(ModuleImpl::module_handle(), &dllPath[0], MAX_PATH);
@@ -115,6 +115,7 @@ STDMETHODIMP DllRegisterServer() {
         khiin::win32::tip::Registrar::RegisterComServer(dllPath);
         khiin::win32::tip::Registrar::RegisterProfiles(dllPath);
         khiin::win32::tip::Registrar::RegisterCategories();
+        khiin::win32::tip::Registrar::GetSettingsString(L"");
     } catch (...) {
         DllUnregisterServer();
         return winrt::to_hresult();

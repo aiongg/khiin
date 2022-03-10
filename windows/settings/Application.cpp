@@ -19,6 +19,7 @@ namespace khiin::win32::settings {
 namespace {
 using namespace winrt;
 using namespace khiin::proto;
+using namespace khiin::win32::tip;
 
 HMODULE g_module = NULL;
 AppConfig *g_config = nullptr;
@@ -85,19 +86,7 @@ class ApplicationImpl : Application {
         g_module = hmod;
     }
 
-    virtual UiLanguage uilang() override {
-        if (g_config->has_appearance()) {
-            auto lang = g_config->appearance().ui_language();
-            if (lang != UIL_UNSPECIFIED) {
-                return lang;
-            }
-        }
-
-        return Config::GetSystemLang();
-    }
-
-    virtual void set_uilang(UiLanguage lang) override {
-        g_config->mutable_appearance()->set_ui_language(lang);
+    virtual void Reinitialize() override {
         m_display.Reload();
         UpdateTitle();
     }
@@ -129,7 +118,7 @@ class ApplicationImpl : Application {
 
   private:
     void UpdateTitle() {
-        m_title = Strings::T(IDS_WINDOW_CAPTION, uilang());
+        m_title = Strings::T(IDS_WINDOW_CAPTION, Config::GetUiLanguage());
         auto hwnd = ::GetParent(m_display.hwnd());
         if (hwnd) {
             ::SetWindowText(hwnd, m_title.data());
@@ -154,8 +143,8 @@ bool BringExistingDialogToFront() {
     using namespace khiin::win32::settings;
     auto ret = false;
     auto titles = std::vector<std::wstring>();
-    titles.push_back(Strings::T(IDS_WINDOW_CAPTION, UIL_ENGLISH));
-    titles.push_back(Strings::T(IDS_WINDOW_CAPTION, UIL_TAI_HANLO));
+    titles.push_back(Strings::T(IDS_WINDOW_CAPTION, khiin::win32::UiLanguage::English));
+    titles.push_back(Strings::T(IDS_WINDOW_CAPTION, khiin::win32::UiLanguage::HanloTai));
 
     for (auto &title : titles) {
         HWND hwnd = ::FindWindow(NULL, title.data());

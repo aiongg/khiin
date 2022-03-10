@@ -2,12 +2,11 @@
 
 #include "Colors.h"
 
-#include "proto/proto.h"
+#include "Config.h"
 
 namespace khiin::win32 {
 namespace {
 using namespace D2D1;
-using namespace khiin::proto;
 
 ColorScheme const kLightScheme = ColorScheme{
     ColorF(ColorF::Black),          // text
@@ -33,16 +32,15 @@ const std::vector<ColorScheme> kColorSchemeMap = {kLightScheme, kDarkScheme};
 
 } // namespace
 
-ColorScheme const &Colors::GetScheme(AppConfig *config) {
-    if (config->has_appearance()) {
-        auto colors = config->appearance().colors();
-    
-        if (colors < static_cast<int32_t>(kColorSchemeMap.size())) {
-            return kColorSchemeMap.at(colors);
-        }
-    }
+ColorScheme const &Colors::GetScheme() {
+    auto colors = Config::GetUiColors();
 
-    return kLightScheme;
+    switch (colors) {
+    case UiColors::Dark:
+        return kDarkScheme;
+    default:
+        return kLightScheme;
+    }
 }
 
 } // namespace khiin::win32

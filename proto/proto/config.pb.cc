@@ -43,25 +43,9 @@ struct KeyConfigurationDefaultTypeInternal {
   };
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT KeyConfigurationDefaultTypeInternal _KeyConfiguration_default_instance_;
-constexpr Appearance::Appearance(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
-  : colors_(0)
-  , size_(0)
-  , ui_language_(0)
-{}
-struct AppearanceDefaultTypeInternal {
-  constexpr AppearanceDefaultTypeInternal()
-    : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
-  ~AppearanceDefaultTypeInternal() {}
-  union {
-    Appearance _instance;
-  };
-};
-PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT AppearanceDefaultTypeInternal _Appearance_default_instance_;
 constexpr AppConfig::AppConfig(
   ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
   : key_config_(nullptr)
-  , appearance_(nullptr)
   , input_mode_(0)
 {}
 struct AppConfigDefaultTypeInternal {
@@ -75,8 +59,8 @@ struct AppConfigDefaultTypeInternal {
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT AppConfigDefaultTypeInternal _AppConfig_default_instance_;
 }  // namespace proto
 }  // namespace khiin
-static ::PROTOBUF_NAMESPACE_ID::Metadata file_level_metadata_proto_2fconfig_2eproto[3];
-static const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor* file_level_enum_descriptors_proto_2fconfig_2eproto[2];
+static ::PROTOBUF_NAMESPACE_ID::Metadata file_level_metadata_proto_2fconfig_2eproto[2];
+static const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor* file_level_enum_descriptors_proto_2fconfig_2eproto[1];
 static constexpr ::PROTOBUF_NAMESPACE_ID::ServiceDescriptor const** file_level_service_descriptors_proto_2fconfig_2eproto = nullptr;
 
 const ::PROTOBUF_NAMESPACE_ID::uint32 TableStruct_proto_2fconfig_2eproto::offsets[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) = {
@@ -101,15 +85,6 @@ const ::PROTOBUF_NAMESPACE_ID::uint32 TableStruct_proto_2fconfig_2eproto::offset
   PROTOBUF_FIELD_OFFSET(::khiin::proto::KeyConfiguration, enable_uppercase_nasal_),
   PROTOBUF_FIELD_OFFSET(::khiin::proto::KeyConfiguration, use_digits_as_fallback_),
   ~0u,  // no _has_bits_
-  PROTOBUF_FIELD_OFFSET(::khiin::proto::Appearance, _internal_metadata_),
-  ~0u,  // no _extensions_
-  ~0u,  // no _oneof_case_
-  ~0u,  // no _weak_field_map_
-  ~0u,  // no _inlined_string_donated_
-  PROTOBUF_FIELD_OFFSET(::khiin::proto::Appearance, colors_),
-  PROTOBUF_FIELD_OFFSET(::khiin::proto::Appearance, size_),
-  PROTOBUF_FIELD_OFFSET(::khiin::proto::Appearance, ui_language_),
-  ~0u,  // no _has_bits_
   PROTOBUF_FIELD_OFFSET(::khiin::proto::AppConfig, _internal_metadata_),
   ~0u,  // no _extensions_
   ~0u,  // no _oneof_case_
@@ -117,17 +92,14 @@ const ::PROTOBUF_NAMESPACE_ID::uint32 TableStruct_proto_2fconfig_2eproto::offset
   ~0u,  // no _inlined_string_donated_
   PROTOBUF_FIELD_OFFSET(::khiin::proto::AppConfig, key_config_),
   PROTOBUF_FIELD_OFFSET(::khiin::proto::AppConfig, input_mode_),
-  PROTOBUF_FIELD_OFFSET(::khiin::proto::AppConfig, appearance_),
 };
 static const ::PROTOBUF_NAMESPACE_ID::internal::MigrationSchema schemas[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) = {
   { 0, -1, -1, sizeof(::khiin::proto::KeyConfiguration)},
-  { 20, -1, -1, sizeof(::khiin::proto::Appearance)},
-  { 29, -1, -1, sizeof(::khiin::proto::AppConfig)},
+  { 20, -1, -1, sizeof(::khiin::proto::AppConfig)},
 };
 
 static ::PROTOBUF_NAMESPACE_ID::Message const * const file_default_instances[] = {
   reinterpret_cast<const ::PROTOBUF_NAMESPACE_ID::Message*>(&::khiin::proto::_KeyConfiguration_default_instance_),
-  reinterpret_cast<const ::PROTOBUF_NAMESPACE_ID::Message*>(&::khiin::proto::_Appearance_default_instance_),
   reinterpret_cast<const ::PROTOBUF_NAMESPACE_ID::Message*>(&::khiin::proto::_AppConfig_default_instance_),
 };
 
@@ -140,23 +112,17 @@ const char descriptor_table_protodef_proto_2fconfig_2eproto[] PROTOBUF_SECTION_V
   "\022\022\n\nalt_hyphen\030\t \001(\t\022\r\n\005nasal\030\n \001(\t\022\027\n\017d"
   "ot_above_right\030\013 \001(\t\022\022\n\ndots_below\030\014 \001(\t"
   "\022\036\n\026enable_uppercase_nasal\030\r \001(\010\022\036\n\026use_"
-  "digits_as_fallback\030\016 \001(\010\"X\n\nAppearance\022\016"
-  "\n\006colors\030\001 \001(\005\022\014\n\004size\030\002 \001(\005\022,\n\013ui_langu"
-  "age\030\003 \001(\0162\027.khiin.proto.UiLanguage\"\227\001\n\tA"
-  "ppConfig\0221\n\nkey_config\030\001 \001(\0132\035.khiin.pro"
-  "to.KeyConfiguration\022*\n\ninput_mode\030\002 \001(\0162"
-  "\026.khiin.proto.InputMode\022+\n\nappearance\030\003 "
-  "\001(\0132\027.khiin.proto.Appearance*Z\n\tInputMod"
-  "e\022\022\n\016IM_UNSPECIFIED\020\000\022\014\n\010IM_ALPHA\020\001\022\021\n\rI"
-  "M_CONTINUOUS\020\002\022\014\n\010IM_BASIC\020\003\022\n\n\006IM_PRO\020\004"
-  "*W\n\nUiLanguage\022\023\n\017UIL_UNSPECIFIED\020\000\022\017\n\013U"
-  "IL_ENGLISH\020\001\022\021\n\rUIL_TAI_HANLO\020\002\022\020\n\014UIL_T"
-  "AI_LOJI\020\003b\006proto3"
+  "digits_as_fallback\030\016 \001(\010\"j\n\tAppConfig\0221\n"
+  "\nkey_config\030\001 \001(\0132\035.khiin.proto.KeyConfi"
+  "guration\022*\n\ninput_mode\030\002 \001(\0162\026.khiin.pro"
+  "to.InputMode*Z\n\tInputMode\022\022\n\016IM_UNSPECIF"
+  "IED\020\000\022\014\n\010IM_ALPHA\020\001\022\021\n\rIM_CONTINUOUS\020\002\022\014"
+  "\n\010IM_BASIC\020\003\022\n\n\006IM_PRO\020\004b\006proto3"
   ;
 static ::PROTOBUF_NAMESPACE_ID::internal::once_flag descriptor_table_proto_2fconfig_2eproto_once;
 const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable descriptor_table_proto_2fconfig_2eproto = {
-  false, false, 777, descriptor_table_protodef_proto_2fconfig_2eproto, "proto/config.proto", 
-  &descriptor_table_proto_2fconfig_2eproto_once, nullptr, 0, 3,
+  false, false, 552, descriptor_table_protodef_proto_2fconfig_2eproto, "proto/config.proto", 
+  &descriptor_table_proto_2fconfig_2eproto_once, nullptr, 0, 2,
   schemas, file_default_instances, TableStruct_proto_2fconfig_2eproto::offsets,
   file_level_metadata_proto_2fconfig_2eproto, file_level_enum_descriptors_proto_2fconfig_2eproto, file_level_service_descriptors_proto_2fconfig_2eproto,
 };
@@ -179,22 +145,6 @@ bool InputMode_IsValid(int value) {
     case 2:
     case 3:
     case 4:
-      return true;
-    default:
-      return false;
-  }
-}
-
-const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor* UiLanguage_descriptor() {
-  ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&descriptor_table_proto_2fconfig_2eproto);
-  return file_level_enum_descriptors_proto_2fconfig_2eproto[1];
-}
-bool UiLanguage_IsValid(int value) {
-  switch (value) {
-    case 0:
-    case 1:
-    case 2:
-    case 3:
       return true;
     default:
       return false;
@@ -934,256 +884,14 @@ void KeyConfiguration::InternalSwap(KeyConfiguration* other) {
 
 // ===================================================================
 
-class Appearance::_Internal {
- public:
-};
-
-Appearance::Appearance(::PROTOBUF_NAMESPACE_ID::Arena* arena,
-                         bool is_message_owned)
-  : ::PROTOBUF_NAMESPACE_ID::Message(arena, is_message_owned) {
-  SharedCtor();
-  if (!is_message_owned) {
-    RegisterArenaDtor(arena);
-  }
-  // @@protoc_insertion_point(arena_constructor:khiin.proto.Appearance)
-}
-Appearance::Appearance(const Appearance& from)
-  : ::PROTOBUF_NAMESPACE_ID::Message() {
-  _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
-  ::memcpy(&colors_, &from.colors_,
-    static_cast<size_t>(reinterpret_cast<char*>(&ui_language_) -
-    reinterpret_cast<char*>(&colors_)) + sizeof(ui_language_));
-  // @@protoc_insertion_point(copy_constructor:khiin.proto.Appearance)
-}
-
-void Appearance::SharedCtor() {
-::memset(reinterpret_cast<char*>(this) + static_cast<size_t>(
-    reinterpret_cast<char*>(&colors_) - reinterpret_cast<char*>(this)),
-    0, static_cast<size_t>(reinterpret_cast<char*>(&ui_language_) -
-    reinterpret_cast<char*>(&colors_)) + sizeof(ui_language_));
-}
-
-Appearance::~Appearance() {
-  // @@protoc_insertion_point(destructor:khiin.proto.Appearance)
-  if (GetArenaForAllocation() != nullptr) return;
-  SharedDtor();
-  _internal_metadata_.Delete<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
-}
-
-inline void Appearance::SharedDtor() {
-  GOOGLE_DCHECK(GetArenaForAllocation() == nullptr);
-}
-
-void Appearance::ArenaDtor(void* object) {
-  Appearance* _this = reinterpret_cast< Appearance* >(object);
-  (void)_this;
-}
-void Appearance::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {
-}
-void Appearance::SetCachedSize(int size) const {
-  _cached_size_.Set(size);
-}
-
-void Appearance::Clear() {
-// @@protoc_insertion_point(message_clear_start:khiin.proto.Appearance)
-  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
-  // Prevent compiler warnings about cached_has_bits being unused
-  (void) cached_has_bits;
-
-  ::memset(&colors_, 0, static_cast<size_t>(
-      reinterpret_cast<char*>(&ui_language_) -
-      reinterpret_cast<char*>(&colors_)) + sizeof(ui_language_));
-  _internal_metadata_.Clear<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
-}
-
-const char* Appearance::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
-#define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
-  while (!ctx->Done(&ptr)) {
-    ::PROTOBUF_NAMESPACE_ID::uint32 tag;
-    ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
-    switch (tag >> 3) {
-      // int32 colors = 1;
-      case 1:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 8)) {
-          colors_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
-          CHK_(ptr);
-        } else
-          goto handle_unusual;
-        continue;
-      // int32 size = 2;
-      case 2:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 16)) {
-          size_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
-          CHK_(ptr);
-        } else
-          goto handle_unusual;
-        continue;
-      // .khiin.proto.UiLanguage ui_language = 3;
-      case 3:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 24)) {
-          ::PROTOBUF_NAMESPACE_ID::uint64 val = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
-          CHK_(ptr);
-          _internal_set_ui_language(static_cast<::khiin::proto::UiLanguage>(val));
-        } else
-          goto handle_unusual;
-        continue;
-      default:
-        goto handle_unusual;
-    }  // switch
-  handle_unusual:
-    if ((tag == 0) || ((tag & 7) == 4)) {
-      CHK_(ptr);
-      ctx->SetLastTag(tag);
-      goto message_done;
-    }
-    ptr = UnknownFieldParse(
-        tag,
-        _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(),
-        ptr, ctx);
-    CHK_(ptr != nullptr);
-  }  // while
-message_done:
-  return ptr;
-failure:
-  ptr = nullptr;
-  goto message_done;
-#undef CHK_
-}
-
-::PROTOBUF_NAMESPACE_ID::uint8* Appearance::_InternalSerialize(
-    ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const {
-  // @@protoc_insertion_point(serialize_to_array_start:khiin.proto.Appearance)
-  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
-  (void) cached_has_bits;
-
-  // int32 colors = 1;
-  if (this->_internal_colors() != 0) {
-    target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteInt32ToArray(1, this->_internal_colors(), target);
-  }
-
-  // int32 size = 2;
-  if (this->_internal_size() != 0) {
-    target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteInt32ToArray(2, this->_internal_size(), target);
-  }
-
-  // .khiin.proto.UiLanguage ui_language = 3;
-  if (this->_internal_ui_language() != 0) {
-    target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteEnumToArray(
-      3, this->_internal_ui_language(), target);
-  }
-
-  if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::InternalSerializeUnknownFieldsToArray(
-        _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
-  }
-  // @@protoc_insertion_point(serialize_to_array_end:khiin.proto.Appearance)
-  return target;
-}
-
-size_t Appearance::ByteSizeLong() const {
-// @@protoc_insertion_point(message_byte_size_start:khiin.proto.Appearance)
-  size_t total_size = 0;
-
-  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
-  // Prevent compiler warnings about cached_has_bits being unused
-  (void) cached_has_bits;
-
-  // int32 colors = 1;
-  if (this->_internal_colors() != 0) {
-    total_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32SizePlusOne(this->_internal_colors());
-  }
-
-  // int32 size = 2;
-  if (this->_internal_size() != 0) {
-    total_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32SizePlusOne(this->_internal_size());
-  }
-
-  // .khiin.proto.UiLanguage ui_language = 3;
-  if (this->_internal_ui_language() != 0) {
-    total_size += 1 +
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::EnumSize(this->_internal_ui_language());
-  }
-
-  return MaybeComputeUnknownFieldsSize(total_size, &_cached_size_);
-}
-
-const ::PROTOBUF_NAMESPACE_ID::Message::ClassData Appearance::_class_data_ = {
-    ::PROTOBUF_NAMESPACE_ID::Message::CopyWithSizeCheck,
-    Appearance::MergeImpl
-};
-const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*Appearance::GetClassData() const { return &_class_data_; }
-
-void Appearance::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to,
-                      const ::PROTOBUF_NAMESPACE_ID::Message& from) {
-  static_cast<Appearance *>(to)->MergeFrom(
-      static_cast<const Appearance &>(from));
-}
-
-
-void Appearance::MergeFrom(const Appearance& from) {
-// @@protoc_insertion_point(class_specific_merge_from_start:khiin.proto.Appearance)
-  GOOGLE_DCHECK_NE(&from, this);
-  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
-  (void) cached_has_bits;
-
-  if (from._internal_colors() != 0) {
-    _internal_set_colors(from._internal_colors());
-  }
-  if (from._internal_size() != 0) {
-    _internal_set_size(from._internal_size());
-  }
-  if (from._internal_ui_language() != 0) {
-    _internal_set_ui_language(from._internal_ui_language());
-  }
-  _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
-}
-
-void Appearance::CopyFrom(const Appearance& from) {
-// @@protoc_insertion_point(class_specific_copy_from_start:khiin.proto.Appearance)
-  if (&from == this) return;
-  Clear();
-  MergeFrom(from);
-}
-
-bool Appearance::IsInitialized() const {
-  return true;
-}
-
-void Appearance::InternalSwap(Appearance* other) {
-  using std::swap;
-  _internal_metadata_.InternalSwap(&other->_internal_metadata_);
-  ::PROTOBUF_NAMESPACE_ID::internal::memswap<
-      PROTOBUF_FIELD_OFFSET(Appearance, ui_language_)
-      + sizeof(Appearance::ui_language_)
-      - PROTOBUF_FIELD_OFFSET(Appearance, colors_)>(
-          reinterpret_cast<char*>(&colors_),
-          reinterpret_cast<char*>(&other->colors_));
-}
-
-::PROTOBUF_NAMESPACE_ID::Metadata Appearance::GetMetadata() const {
-  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(
-      &descriptor_table_proto_2fconfig_2eproto_getter, &descriptor_table_proto_2fconfig_2eproto_once,
-      file_level_metadata_proto_2fconfig_2eproto[1]);
-}
-
-// ===================================================================
-
 class AppConfig::_Internal {
  public:
   static const ::khiin::proto::KeyConfiguration& key_config(const AppConfig* msg);
-  static const ::khiin::proto::Appearance& appearance(const AppConfig* msg);
 };
 
 const ::khiin::proto::KeyConfiguration&
 AppConfig::_Internal::key_config(const AppConfig* msg) {
   return *msg->key_config_;
-}
-const ::khiin::proto::Appearance&
-AppConfig::_Internal::appearance(const AppConfig* msg) {
-  return *msg->appearance_;
 }
 AppConfig::AppConfig(::PROTOBUF_NAMESPACE_ID::Arena* arena,
                          bool is_message_owned)
@@ -1201,11 +909,6 @@ AppConfig::AppConfig(const AppConfig& from)
     key_config_ = new ::khiin::proto::KeyConfiguration(*from.key_config_);
   } else {
     key_config_ = nullptr;
-  }
-  if (from._internal_has_appearance()) {
-    appearance_ = new ::khiin::proto::Appearance(*from.appearance_);
-  } else {
-    appearance_ = nullptr;
   }
   input_mode_ = from.input_mode_;
   // @@protoc_insertion_point(copy_constructor:khiin.proto.AppConfig)
@@ -1228,7 +931,6 @@ AppConfig::~AppConfig() {
 inline void AppConfig::SharedDtor() {
   GOOGLE_DCHECK(GetArenaForAllocation() == nullptr);
   if (this != internal_default_instance()) delete key_config_;
-  if (this != internal_default_instance()) delete appearance_;
 }
 
 void AppConfig::ArenaDtor(void* object) {
@@ -1251,10 +953,6 @@ void AppConfig::Clear() {
     delete key_config_;
   }
   key_config_ = nullptr;
-  if (GetArenaForAllocation() == nullptr && appearance_ != nullptr) {
-    delete appearance_;
-  }
-  appearance_ = nullptr;
   input_mode_ = 0;
   _internal_metadata_.Clear<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
@@ -1279,14 +977,6 @@ const char* AppConfig::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::
           ::PROTOBUF_NAMESPACE_ID::uint64 val = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
           CHK_(ptr);
           _internal_set_input_mode(static_cast<::khiin::proto::InputMode>(val));
-        } else
-          goto handle_unusual;
-        continue;
-      // .khiin.proto.Appearance appearance = 3;
-      case 3:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 26)) {
-          ptr = ctx->ParseMessage(_internal_mutable_appearance(), ptr);
-          CHK_(ptr);
         } else
           goto handle_unusual;
         continue;
@@ -1334,14 +1024,6 @@ failure:
       2, this->_internal_input_mode(), target);
   }
 
-  // .khiin.proto.Appearance appearance = 3;
-  if (this->_internal_has_appearance()) {
-    target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
-      InternalWriteMessage(
-        3, _Internal::appearance(this), target, stream);
-  }
-
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::InternalSerializeUnknownFieldsToArray(
         _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
@@ -1363,13 +1045,6 @@ size_t AppConfig::ByteSizeLong() const {
     total_size += 1 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
         *key_config_);
-  }
-
-  // .khiin.proto.Appearance appearance = 3;
-  if (this->_internal_has_appearance()) {
-    total_size += 1 +
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
-        *appearance_);
   }
 
   // .khiin.proto.InputMode input_mode = 2;
@@ -1403,9 +1078,6 @@ void AppConfig::MergeFrom(const AppConfig& from) {
   if (from._internal_has_key_config()) {
     _internal_mutable_key_config()->::khiin::proto::KeyConfiguration::MergeFrom(from._internal_key_config());
   }
-  if (from._internal_has_appearance()) {
-    _internal_mutable_appearance()->::khiin::proto::Appearance::MergeFrom(from._internal_appearance());
-  }
   if (from._internal_input_mode() != 0) {
     _internal_set_input_mode(from._internal_input_mode());
   }
@@ -1437,7 +1109,7 @@ void AppConfig::InternalSwap(AppConfig* other) {
 ::PROTOBUF_NAMESPACE_ID::Metadata AppConfig::GetMetadata() const {
   return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(
       &descriptor_table_proto_2fconfig_2eproto_getter, &descriptor_table_proto_2fconfig_2eproto_once,
-      file_level_metadata_proto_2fconfig_2eproto[2]);
+      file_level_metadata_proto_2fconfig_2eproto[1]);
 }
 
 // @@protoc_insertion_point(namespace_scope)
@@ -1446,9 +1118,6 @@ void AppConfig::InternalSwap(AppConfig* other) {
 PROTOBUF_NAMESPACE_OPEN
 template<> PROTOBUF_NOINLINE ::khiin::proto::KeyConfiguration* Arena::CreateMaybeMessage< ::khiin::proto::KeyConfiguration >(Arena* arena) {
   return Arena::CreateMessageInternal< ::khiin::proto::KeyConfiguration >(arena);
-}
-template<> PROTOBUF_NOINLINE ::khiin::proto::Appearance* Arena::CreateMaybeMessage< ::khiin::proto::Appearance >(Arena* arena) {
-  return Arena::CreateMessageInternal< ::khiin::proto::Appearance >(arena);
 }
 template<> PROTOBUF_NOINLINE ::khiin::proto::AppConfig* Arena::CreateMaybeMessage< ::khiin::proto::AppConfig >(Arena* arena) {
   return Arena::CreateMessageInternal< ::khiin::proto::AppConfig >(arena);

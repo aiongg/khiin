@@ -2,10 +2,6 @@
 
 #include "pch.h"
 
-namespace khiin::proto {
-class AppConfig;
-} // namespace khiin::proto
-
 namespace khiin::win32 {
 
 struct ColorScheme {
@@ -21,7 +17,7 @@ struct ColorScheme {
 class Colors {
   public:
     static std::vector<std::string> const &ColorSchemeNames();
-    static ColorScheme const &GetScheme(proto::AppConfig *config);
+    static ColorScheme const &GetScheme();
 };
 
 } // namespace khiin::win32

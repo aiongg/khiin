@@ -1,15 +1,14 @@
 #pragma once
 
-namespace khiin::proto {
-enum UiLanguage : int;
+namespace khiin::win32 {
+enum class UiLanguage;
 }
 
 namespace khiin::win32::settings {
 
 class Application {
   public:
-    virtual proto::UiLanguage uilang() = 0;
-    virtual void set_uilang(proto::UiLanguage lang) = 0;
+    virtual void Reinitialize() = 0;
 };
 
 } // namespace khiin::win32::settings

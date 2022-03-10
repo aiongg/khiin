@@ -2,8 +2,10 @@
 
 #include "GuiWindow.h"
 
-#include "RenderFactory.h"
 #include "proto/proto.h"
+
+#include "Config.h"
+#include "RenderFactory.h"
 
 namespace khiin::win32 {
 using namespace geometry;
@@ -16,7 +18,7 @@ void SetRoundedCorners(HWND hwnd, DWM_WINDOW_CORNER_PREFERENCE pref) {
 }
 #pragma warning(pop)
 
-GuiWindow::GuiWindow() : m_language(proto::UIL_TAI_HANLO){};
+GuiWindow::GuiWindow() : m_language(UiLanguage::HanloTai){};
 
 GuiWindow::~GuiWindow() = default;
 
@@ -82,7 +84,7 @@ void GuiWindow::OnCreate() {
     m_factory = RenderFactory::Create();
     m_dpi = ::GetDpiForWindow(m_hwnd);
     m_dpi_parent = ::GetDpiForWindow(::GetParent(m_hwnd));
-    m_scale = static_cast<float>(m_dpi / USER_DEFAULT_SCREEN_DPI);
+    m_scale = static_cast<float>(m_dpi) / USER_DEFAULT_SCREEN_DPI;
     OnMonitorSizeChanged();
 }
 
@@ -159,8 +161,8 @@ void GuiWindow::EnsureRenderTarget() {
 
 void GuiWindow::OnConfigChanged(AppConfig *config) {
     m_config = config;
-    m_colors = Colors::GetScheme(config);
-    m_language = config->appearance().ui_language();
+    m_colors = Colors::GetScheme();
+    m_language = Config::GetUiLanguage();
 }
 
 bool GuiWindow::ClientHitTest(Point const &pt) {

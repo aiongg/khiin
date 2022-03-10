@@ -11,8 +11,8 @@ using namespace winrt;
 inline constexpr std::string_view kAppDataFolder = "Khiin PJH";
 inline constexpr std::string_view kModuleFolderDataFolder = "resources";
 
-inline constexpr std::wstring_view kRegistrySettingsExeValueName = L"KhiinSettings.exe";
-inline constexpr std::wstring_view kDefaultSettingsExeFileName = L"KhiinSettings.exe";
+const std::wstring kRegistrySettingsExeValueName = L"SettingsApplicationPath";
+const std::wstring kDefaultSettingsExeFileName = L"KhiinSettings.exe";
 
 } // namespace
 

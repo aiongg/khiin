@@ -36,9 +36,10 @@ struct Registrar {
     static HRESULT SetProfileEnabled(BOOL enable);
 
     // Retrieve settings stored in the HKCU hive
-    static std::wstring GetSettingsString(std::wstring_view name);
-    static int GetSettingsInt(std::wstring_view name);
-    static void SetSettingsInt(std::wstring_view name, int value);
+    static int GetSettingsInt(std::wstring const &name);
+    static void SetSettingsInt(std::wstring const &name, int value);
+    static std::wstring GetSettingsString(std::wstring const &name);
+    static void SetSettingsString(std::wstring const &name, std::wstring const &value);
 };
 
 } // namespace khiin::win32::tip

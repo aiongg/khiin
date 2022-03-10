@@ -2,10 +2,12 @@
 
 #include "KeyEventSink.h"
 
+#include "proto/proto.h"
+
 #include "EditSession.h"
 #include "EngineController.h"
+#include "Guids.h"
 #include "KeyEvent.h"
-#include "proto/proto.h"
 
 namespace khiin::win32::tip {
 namespace {
@@ -186,6 +188,7 @@ STDMETHODIMP KeyEventSink::OnTestKeyUp(ITfContext *pContext, WPARAM wParam, LPAR
     TRY_FOR_HRESULT;
 
     auto keyEvent = win32::KeyEvent(WM_KEYUP, wParam, lParam);
+    KHIIN_DEBUG("OnTestKeyUp");
 
     return E_NOTIMPL;
     CATCH_FOR_HRESULT;
@@ -198,8 +201,7 @@ STDMETHODIMP KeyEventSink::OnKeyDown(ITfContext *pContext, WPARAM wParam, LPARAM
     *pfEaten = false;
     auto keyEvent = win32::KeyEvent(WM_KEYDOWN, wParam, lParam);
     HandleKey(pContext, keyEvent, pfEaten);
-
-    return S_OK;
+    
     CATCH_FOR_HRESULT;
 }
 
@@ -213,7 +215,11 @@ STDMETHODIMP KeyEventSink::OnKeyUp(ITfContext *pic, WPARAM wParam, LPARAM lParam
 
 STDMETHODIMP KeyEventSink::OnPreservedKey(ITfContext *pic, REFGUID rguid, BOOL *pfEaten) {
     TRY_FOR_HRESULT;
-    return E_NOTIMPL;
+
+    if (rguid == guids::kPreservedKeyOnOff) {
+        service->SwapOnOff();
+        *pfEaten = TRUE;
+    }
     CATCH_FOR_HRESULT;
 }
 

@@ -7,6 +7,7 @@
 #include "proto/proto.h"
 
 #include "Colors.h"
+#include "Config.h"
 #include "Geometry.h"
 #include "GridLayout.h"
 #include "Metrics.h"
@@ -70,7 +71,7 @@ class CandidateWindow2Impl : public CandidateWindow {
 
     virtual void OnConfigChanged(AppConfig *config) override {
         GuiWindow::OnConfigChanged(config);
-        m_metrics = GetMetricsForSize(static_cast<DisplaySize>(config->appearance().size()));
+        m_metrics = GetMetricsForSize(static_cast<DisplaySize>(Config::GetUiSize()));
         DiscardGraphicsResources();
     }
 

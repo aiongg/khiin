@@ -9,9 +9,11 @@
 
 #include <google/protobuf/util/json_util.h>
 
+#include "proto/proto.h"
+
 #include "Files.h"
 #include "Guids.h"
-#include "proto/proto.h"
+#include "Registrar.h"
 
 namespace khiin::win32 {
 
@@ -23,14 +25,28 @@ using namespace khiin::win32::tip;
 
 inline constexpr std::string_view kConfigFilename = "khiin_config.json";
 
+inline const std::wstring kSettingUiColors = L"UiColors";
+inline const std::wstring kSettingUiSize = L"UiSize";
+inline const std::wstring kSettingUiLanguage = L"UiLanguage";
+
+template <typename EnumT>
+int EnumInt(EnumT e) {
+    return static_cast<int>(e);
+}
+
+template <typename EnumT>
+EnumT EnumVal(std::underlying_type_t<EnumT> e) {
+    return static_cast<EnumT>(e);
+}
+
 } // namespace
 
 UiLanguage Config::GetSystemLang() {
     if (auto lang = PRIMARYLANGID(::GetUserDefaultUILanguage());
         lang == LANG_CHINESE || lang == LANG_CHINESE_TRADITIONAL) {
-        return UIL_TAI_HANLO;
+        return UiLanguage::HanloTai;
     } else {
-        return UIL_ENGLISH;
+        return UiLanguage::English;
     }
 }
 
@@ -45,9 +61,9 @@ void Config::LoadFromFile(HMODULE hmodule, AppConfig *config) {
         f.close();
     }
 
-    if (config->appearance().ui_language() == UIL_UNSPECIFIED) {
-        config->mutable_appearance()->set_ui_language(Config::GetSystemLang());
-    }
+    //if (config->appearance().ui_language() == UIL_UNSPECIFIED) {
+    //    config->mutable_appearance()->set_ui_language(Config::GetSystemLang());
+    //}
 
     if (config->input_mode() == IM_UNSPECIFIED) {
         config->set_input_mode(IM_CONTINUOUS);
@@ -93,6 +109,30 @@ void Config::NotifyChanged() {
     var.lVal = ::GetTickCount();
 #pragma warning(pop)
     check_hresult(compartment->SetValue(client_id, &var));
+}
+
+UiColors Config::GetUiColors() {
+    return EnumVal<UiColors>(Registrar::GetSettingsInt(kSettingUiColors));
+}
+
+void Config::SetUiColors(UiColors colors) {
+    Registrar::SetSettingsInt(kSettingUiColors, EnumInt(colors));
+}
+
+UiLanguage Config::GetUiLanguage() {
+    return EnumVal<UiLanguage>(Registrar::GetSettingsInt(kSettingUiLanguage));
+}
+
+void Config::SetUiLanguage(UiLanguage lang) {
+    Registrar::SetSettingsInt(kSettingUiLanguage, EnumInt(lang));
+}
+
+int Config::GetUiSize() {
+    return Registrar::GetSettingsInt(kSettingUiSize);
+}
+
+void Config::SetUiSize(int size) {
+    Registrar::SetSettingsInt(kSettingUiSize, size);
 }
 
 } // namespace khiin::win32

@@ -47,7 +47,7 @@ struct TableStruct_proto_2fconfig_2eproto {
     PROTOBUF_SECTION_VARIABLE(protodesc_cold);
   static const ::PROTOBUF_NAMESPACE_ID::internal::AuxiliaryParseTableField aux[]
     PROTOBUF_SECTION_VARIABLE(protodesc_cold);
-  static const ::PROTOBUF_NAMESPACE_ID::internal::ParseTable schema[3]
+  static const ::PROTOBUF_NAMESPACE_ID::internal::ParseTable schema[2]
     PROTOBUF_SECTION_VARIABLE(protodesc_cold);
   static const ::PROTOBUF_NAMESPACE_ID::internal::FieldMetadata field_metadata[];
   static const ::PROTOBUF_NAMESPACE_ID::internal::SerializationTable serialization_table[];
@@ -59,9 +59,6 @@ namespace proto {
 class AppConfig;
 struct AppConfigDefaultTypeInternal;
 extern AppConfigDefaultTypeInternal _AppConfig_default_instance_;
-class Appearance;
-struct AppearanceDefaultTypeInternal;
-extern AppearanceDefaultTypeInternal _Appearance_default_instance_;
 class KeyConfiguration;
 struct KeyConfigurationDefaultTypeInternal;
 extern KeyConfigurationDefaultTypeInternal _KeyConfiguration_default_instance_;
@@ -69,7 +66,6 @@ extern KeyConfigurationDefaultTypeInternal _KeyConfiguration_default_instance_;
 }  // namespace khiin
 PROTOBUF_NAMESPACE_OPEN
 template<> ::khiin::proto::AppConfig* Arena::CreateMaybeMessage<::khiin::proto::AppConfig>(Arena*);
-template<> ::khiin::proto::Appearance* Arena::CreateMaybeMessage<::khiin::proto::Appearance>(Arena*);
 template<> ::khiin::proto::KeyConfiguration* Arena::CreateMaybeMessage<::khiin::proto::KeyConfiguration>(Arena*);
 PROTOBUF_NAMESPACE_CLOSE
 namespace khiin {
@@ -102,33 +98,6 @@ inline bool InputMode_Parse(
     ::PROTOBUF_NAMESPACE_ID::ConstStringParam name, InputMode* value) {
   return ::PROTOBUF_NAMESPACE_ID::internal::ParseNamedEnum<InputMode>(
     InputMode_descriptor(), name, value);
-}
-enum UiLanguage : int {
-  UIL_UNSPECIFIED = 0,
-  UIL_ENGLISH = 1,
-  UIL_TAI_HANLO = 2,
-  UIL_TAI_LOJI = 3,
-  UiLanguage_INT_MIN_SENTINEL_DO_NOT_USE_ = std::numeric_limits<::PROTOBUF_NAMESPACE_ID::int32>::min(),
-  UiLanguage_INT_MAX_SENTINEL_DO_NOT_USE_ = std::numeric_limits<::PROTOBUF_NAMESPACE_ID::int32>::max()
-};
-bool UiLanguage_IsValid(int value);
-constexpr UiLanguage UiLanguage_MIN = UIL_UNSPECIFIED;
-constexpr UiLanguage UiLanguage_MAX = UIL_TAI_LOJI;
-constexpr int UiLanguage_ARRAYSIZE = UiLanguage_MAX + 1;
-
-const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor* UiLanguage_descriptor();
-template<typename T>
-inline const std::string& UiLanguage_Name(T enum_t_value) {
-  static_assert(::std::is_same<T, UiLanguage>::value ||
-    ::std::is_integral<T>::value,
-    "Incorrect type passed to function UiLanguage_Name.");
-  return ::PROTOBUF_NAMESPACE_ID::internal::NameOfEnum(
-    UiLanguage_descriptor(), enum_t_value);
-}
-inline bool UiLanguage_Parse(
-    ::PROTOBUF_NAMESPACE_ID::ConstStringParam name, UiLanguage* value) {
-  return ::PROTOBUF_NAMESPACE_ID::internal::ParseNamedEnum<UiLanguage>(
-    UiLanguage_descriptor(), name, value);
 }
 // ===================================================================
 
@@ -478,171 +447,6 @@ class KeyConfiguration final :
 };
 // -------------------------------------------------------------------
 
-class Appearance final :
-    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:khiin.proto.Appearance) */ {
- public:
-  inline Appearance() : Appearance(nullptr) {}
-  ~Appearance() override;
-  explicit constexpr Appearance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
-
-  Appearance(const Appearance& from);
-  Appearance(Appearance&& from) noexcept
-    : Appearance() {
-    *this = ::std::move(from);
-  }
-
-  inline Appearance& operator=(const Appearance& from) {
-    CopyFrom(from);
-    return *this;
-  }
-  inline Appearance& operator=(Appearance&& from) noexcept {
-    if (this == &from) return *this;
-    if (GetOwningArena() == from.GetOwningArena()
-  #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
-        && GetOwningArena() != nullptr
-  #endif  // !PROTOBUF_FORCE_COPY_IN_MOVE
-    ) {
-      InternalSwap(&from);
-    } else {
-      CopyFrom(from);
-    }
-    return *this;
-  }
-
-  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
-    return GetDescriptor();
-  }
-  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
-    return default_instance().GetMetadata().descriptor;
-  }
-  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
-    return default_instance().GetMetadata().reflection;
-  }
-  static const Appearance& default_instance() {
-    return *internal_default_instance();
-  }
-  static inline const Appearance* internal_default_instance() {
-    return reinterpret_cast<const Appearance*>(
-               &_Appearance_default_instance_);
-  }
-  static constexpr int kIndexInFileMessages =
-    1;
-
-  friend void swap(Appearance& a, Appearance& b) {
-    a.Swap(&b);
-  }
-  inline void Swap(Appearance* other) {
-    if (other == this) return;
-    if (GetOwningArena() == other->GetOwningArena()) {
-      InternalSwap(other);
-    } else {
-      ::PROTOBUF_NAMESPACE_ID::internal::GenericSwap(this, other);
-    }
-  }
-  void UnsafeArenaSwap(Appearance* other) {
-    if (other == this) return;
-    GOOGLE_DCHECK(GetOwningArena() == other->GetOwningArena());
-    InternalSwap(other);
-  }
-
-  // implements Message ----------------------------------------------
-
-  inline Appearance* New() const final {
-    return new Appearance();
-  }
-
-  Appearance* New(::PROTOBUF_NAMESPACE_ID::Arena* arena) const final {
-    return CreateMaybeMessage<Appearance>(arena);
-  }
-  using ::PROTOBUF_NAMESPACE_ID::Message::CopyFrom;
-  void CopyFrom(const Appearance& from);
-  using ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom;
-  void MergeFrom(const Appearance& from);
-  private:
-  static void MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to, const ::PROTOBUF_NAMESPACE_ID::Message& from);
-  public:
-  PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
-  bool IsInitialized() const final;
-
-  size_t ByteSizeLong() const final;
-  const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
-  ::PROTOBUF_NAMESPACE_ID::uint8* _InternalSerialize(
-      ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
-  int GetCachedSize() const final { return _cached_size_.Get(); }
-
-  private:
-  void SharedCtor();
-  void SharedDtor();
-  void SetCachedSize(int size) const final;
-  void InternalSwap(Appearance* other);
-  friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
-  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
-    return "khiin.proto.Appearance";
-  }
-  protected:
-  explicit Appearance(::PROTOBUF_NAMESPACE_ID::Arena* arena,
-                       bool is_message_owned = false);
-  private:
-  static void ArenaDtor(void* object);
-  inline void RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena* arena);
-  public:
-
-  static const ClassData _class_data_;
-  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*GetClassData() const final;
-
-  ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
-
-  // nested types ----------------------------------------------------
-
-  // accessors -------------------------------------------------------
-
-  enum : int {
-    kColorsFieldNumber = 1,
-    kSizeFieldNumber = 2,
-    kUiLanguageFieldNumber = 3,
-  };
-  // int32 colors = 1;
-  void clear_colors();
-  ::PROTOBUF_NAMESPACE_ID::int32 colors() const;
-  void set_colors(::PROTOBUF_NAMESPACE_ID::int32 value);
-  private:
-  ::PROTOBUF_NAMESPACE_ID::int32 _internal_colors() const;
-  void _internal_set_colors(::PROTOBUF_NAMESPACE_ID::int32 value);
-  public:
-
-  // int32 size = 2;
-  void clear_size();
-  ::PROTOBUF_NAMESPACE_ID::int32 size() const;
-  void set_size(::PROTOBUF_NAMESPACE_ID::int32 value);
-  private:
-  ::PROTOBUF_NAMESPACE_ID::int32 _internal_size() const;
-  void _internal_set_size(::PROTOBUF_NAMESPACE_ID::int32 value);
-  public:
-
-  // .khiin.proto.UiLanguage ui_language = 3;
-  void clear_ui_language();
-  ::khiin::proto::UiLanguage ui_language() const;
-  void set_ui_language(::khiin::proto::UiLanguage value);
-  private:
-  ::khiin::proto::UiLanguage _internal_ui_language() const;
-  void _internal_set_ui_language(::khiin::proto::UiLanguage value);
-  public:
-
-  // @@protoc_insertion_point(class_scope:khiin.proto.Appearance)
- private:
-  class _Internal;
-
-  template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
-  typedef void InternalArenaConstructable_;
-  typedef void DestructorSkippable_;
-  ::PROTOBUF_NAMESPACE_ID::int32 colors_;
-  ::PROTOBUF_NAMESPACE_ID::int32 size_;
-  int ui_language_;
-  mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
-  friend struct ::TableStruct_proto_2fconfig_2eproto;
-};
-// -------------------------------------------------------------------
-
 class AppConfig final :
     public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:khiin.proto.AppConfig) */ {
  public:
@@ -691,7 +495,7 @@ class AppConfig final :
                &_AppConfig_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    2;
+    1;
 
   friend void swap(AppConfig& a, AppConfig& b) {
     a.Swap(&b);
@@ -763,7 +567,6 @@ class AppConfig final :
 
   enum : int {
     kKeyConfigFieldNumber = 1,
-    kAppearanceFieldNumber = 3,
     kInputModeFieldNumber = 2,
   };
   // .khiin.proto.KeyConfiguration key_config = 1;
@@ -784,24 +587,6 @@ class AppConfig final :
       ::khiin::proto::KeyConfiguration* key_config);
   ::khiin::proto::KeyConfiguration* unsafe_arena_release_key_config();
 
-  // .khiin.proto.Appearance appearance = 3;
-  bool has_appearance() const;
-  private:
-  bool _internal_has_appearance() const;
-  public:
-  void clear_appearance();
-  const ::khiin::proto::Appearance& appearance() const;
-  PROTOBUF_MUST_USE_RESULT ::khiin::proto::Appearance* release_appearance();
-  ::khiin::proto::Appearance* mutable_appearance();
-  void set_allocated_appearance(::khiin::proto::Appearance* appearance);
-  private:
-  const ::khiin::proto::Appearance& _internal_appearance() const;
-  ::khiin::proto::Appearance* _internal_mutable_appearance();
-  public:
-  void unsafe_arena_set_allocated_appearance(
-      ::khiin::proto::Appearance* appearance);
-  ::khiin::proto::Appearance* unsafe_arena_release_appearance();
-
   // .khiin.proto.InputMode input_mode = 2;
   void clear_input_mode();
   ::khiin::proto::InputMode input_mode() const;
@@ -819,7 +604,6 @@ class AppConfig final :
   typedef void InternalArenaConstructable_;
   typedef void DestructorSkippable_;
   ::khiin::proto::KeyConfiguration* key_config_;
-  ::khiin::proto::Appearance* appearance_;
   int input_mode_;
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   friend struct ::TableStruct_proto_2fconfig_2eproto;
@@ -1429,70 +1213,6 @@ inline void KeyConfiguration::set_use_digits_as_fallback(bool value) {
 
 // -------------------------------------------------------------------
 
-// Appearance
-
-// int32 colors = 1;
-inline void Appearance::clear_colors() {
-  colors_ = 0;
-}
-inline ::PROTOBUF_NAMESPACE_ID::int32 Appearance::_internal_colors() const {
-  return colors_;
-}
-inline ::PROTOBUF_NAMESPACE_ID::int32 Appearance::colors() const {
-  // @@protoc_insertion_point(field_get:khiin.proto.Appearance.colors)
-  return _internal_colors();
-}
-inline void Appearance::_internal_set_colors(::PROTOBUF_NAMESPACE_ID::int32 value) {
-  
-  colors_ = value;
-}
-inline void Appearance::set_colors(::PROTOBUF_NAMESPACE_ID::int32 value) {
-  _internal_set_colors(value);
-  // @@protoc_insertion_point(field_set:khiin.proto.Appearance.colors)
-}
-
-// int32 size = 2;
-inline void Appearance::clear_size() {
-  size_ = 0;
-}
-inline ::PROTOBUF_NAMESPACE_ID::int32 Appearance::_internal_size() const {
-  return size_;
-}
-inline ::PROTOBUF_NAMESPACE_ID::int32 Appearance::size() const {
-  // @@protoc_insertion_point(field_get:khiin.proto.Appearance.size)
-  return _internal_size();
-}
-inline void Appearance::_internal_set_size(::PROTOBUF_NAMESPACE_ID::int32 value) {
-  
-  size_ = value;
-}
-inline void Appearance::set_size(::PROTOBUF_NAMESPACE_ID::int32 value) {
-  _internal_set_size(value);
-  // @@protoc_insertion_point(field_set:khiin.proto.Appearance.size)
-}
-
-// .khiin.proto.UiLanguage ui_language = 3;
-inline void Appearance::clear_ui_language() {
-  ui_language_ = 0;
-}
-inline ::khiin::proto::UiLanguage Appearance::_internal_ui_language() const {
-  return static_cast< ::khiin::proto::UiLanguage >(ui_language_);
-}
-inline ::khiin::proto::UiLanguage Appearance::ui_language() const {
-  // @@protoc_insertion_point(field_get:khiin.proto.Appearance.ui_language)
-  return _internal_ui_language();
-}
-inline void Appearance::_internal_set_ui_language(::khiin::proto::UiLanguage value) {
-  
-  ui_language_ = value;
-}
-inline void Appearance::set_ui_language(::khiin::proto::UiLanguage value) {
-  _internal_set_ui_language(value);
-  // @@protoc_insertion_point(field_set:khiin.proto.Appearance.ui_language)
-}
-
-// -------------------------------------------------------------------
-
 // AppConfig
 
 // .khiin.proto.KeyConfiguration key_config = 1;
@@ -1605,101 +1325,9 @@ inline void AppConfig::set_input_mode(::khiin::proto::InputMode value) {
   // @@protoc_insertion_point(field_set:khiin.proto.AppConfig.input_mode)
 }
 
-// .khiin.proto.Appearance appearance = 3;
-inline bool AppConfig::_internal_has_appearance() const {
-  return this != internal_default_instance() && appearance_ != nullptr;
-}
-inline bool AppConfig::has_appearance() const {
-  return _internal_has_appearance();
-}
-inline void AppConfig::clear_appearance() {
-  if (GetArenaForAllocation() == nullptr && appearance_ != nullptr) {
-    delete appearance_;
-  }
-  appearance_ = nullptr;
-}
-inline const ::khiin::proto::Appearance& AppConfig::_internal_appearance() const {
-  const ::khiin::proto::Appearance* p = appearance_;
-  return p != nullptr ? *p : reinterpret_cast<const ::khiin::proto::Appearance&>(
-      ::khiin::proto::_Appearance_default_instance_);
-}
-inline const ::khiin::proto::Appearance& AppConfig::appearance() const {
-  // @@protoc_insertion_point(field_get:khiin.proto.AppConfig.appearance)
-  return _internal_appearance();
-}
-inline void AppConfig::unsafe_arena_set_allocated_appearance(
-    ::khiin::proto::Appearance* appearance) {
-  if (GetArenaForAllocation() == nullptr) {
-    delete reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(appearance_);
-  }
-  appearance_ = appearance;
-  if (appearance) {
-    
-  } else {
-    
-  }
-  // @@protoc_insertion_point(field_unsafe_arena_set_allocated:khiin.proto.AppConfig.appearance)
-}
-inline ::khiin::proto::Appearance* AppConfig::release_appearance() {
-  
-  ::khiin::proto::Appearance* temp = appearance_;
-  appearance_ = nullptr;
-#ifdef PROTOBUF_FORCE_COPY_IN_RELEASE
-  auto* old =  reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(temp);
-  temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
-  if (GetArenaForAllocation() == nullptr) { delete old; }
-#else  // PROTOBUF_FORCE_COPY_IN_RELEASE
-  if (GetArenaForAllocation() != nullptr) {
-    temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
-  }
-#endif  // !PROTOBUF_FORCE_COPY_IN_RELEASE
-  return temp;
-}
-inline ::khiin::proto::Appearance* AppConfig::unsafe_arena_release_appearance() {
-  // @@protoc_insertion_point(field_release:khiin.proto.AppConfig.appearance)
-  
-  ::khiin::proto::Appearance* temp = appearance_;
-  appearance_ = nullptr;
-  return temp;
-}
-inline ::khiin::proto::Appearance* AppConfig::_internal_mutable_appearance() {
-  
-  if (appearance_ == nullptr) {
-    auto* p = CreateMaybeMessage<::khiin::proto::Appearance>(GetArenaForAllocation());
-    appearance_ = p;
-  }
-  return appearance_;
-}
-inline ::khiin::proto::Appearance* AppConfig::mutable_appearance() {
-  ::khiin::proto::Appearance* _msg = _internal_mutable_appearance();
-  // @@protoc_insertion_point(field_mutable:khiin.proto.AppConfig.appearance)
-  return _msg;
-}
-inline void AppConfig::set_allocated_appearance(::khiin::proto::Appearance* appearance) {
-  ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaForAllocation();
-  if (message_arena == nullptr) {
-    delete appearance_;
-  }
-  if (appearance) {
-    ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
-        ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper<::khiin::proto::Appearance>::GetOwningArena(appearance);
-    if (message_arena != submessage_arena) {
-      appearance = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
-          message_arena, appearance, submessage_arena);
-    }
-    
-  } else {
-    
-  }
-  appearance_ = appearance;
-  // @@protoc_insertion_point(field_set_allocated:khiin.proto.AppConfig.appearance)
-}
-
 #ifdef __GNUC__
   #pragma GCC diagnostic pop
 #endif  // __GNUC__
-// -------------------------------------------------------------------
-
 // -------------------------------------------------------------------
 
 
@@ -1714,11 +1342,6 @@ template <> struct is_proto_enum< ::khiin::proto::InputMode> : ::std::true_type 
 template <>
 inline const EnumDescriptor* GetEnumDescriptor< ::khiin::proto::InputMode>() {
   return ::khiin::proto::InputMode_descriptor();
-}
-template <> struct is_proto_enum< ::khiin::proto::UiLanguage> : ::std::true_type {};
-template <>
-inline const EnumDescriptor* GetEnumDescriptor< ::khiin::proto::UiLanguage>() {
-  return ::khiin::proto::UiLanguage_descriptor();
 }
 
 PROTOBUF_NAMESPACE_CLOSE

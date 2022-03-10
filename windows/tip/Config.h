@@ -2,17 +2,33 @@
 
 namespace khiin::proto {
 class AppConfig;
-enum UiLanguage : int;
-}
+} // namespace khiin::proto
 
 namespace khiin::win32 {
+
+enum class UiLanguage {
+    English,
+    HanloTai,
+    LojiTai,
+};
+
+enum class UiColors {
+    Light,
+    Dark,
+};
 
 class Config {
   public:
     static void LoadFromFile(HMODULE hmodule, proto::AppConfig *config);
     static void SaveToFile(HMODULE hmodule, proto::AppConfig *config);
     static void NotifyChanged();
-    static proto::UiLanguage GetSystemLang();
+    static UiLanguage GetSystemLang();
+    static UiColors GetUiColors();
+    static void SetUiColors(UiColors colors);
+    static UiLanguage GetUiLanguage();
+    static void SetUiLanguage(UiLanguage lang);
+    static int GetUiSize();
+    static void SetUiSize(int size);
 };
 
 namespace tip {

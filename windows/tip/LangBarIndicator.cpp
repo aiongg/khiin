@@ -128,13 +128,7 @@ struct LangBarIndicatorImpl :
 
     virtual STDMETHODIMP OnClick(TfLBIClick click, POINT pt, const RECT *prcArea) override {
         if (click == TF_LBI_CLK_LEFT) {
-            auto im = m_service->config()->input_mode();
-            if (im == IM_ALPHA) {
-                m_service->OnInputModeSelected(m_prev_input_mode);
-            } else {
-                m_service->OnInputModeSelected(IM_ALPHA);
-            }
-            m_prev_input_mode = im;
+            m_service->SwapOnOff();
         } else {
             m_popup->Show(pt);
         }
