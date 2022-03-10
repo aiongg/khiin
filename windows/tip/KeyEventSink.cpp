@@ -11,6 +11,7 @@
 
 namespace khiin::win32::tip {
 namespace {
+using namespace winrt;
 
 bool TestPageKeyForCandidateUI(CandidateListUI *cand_ui, win32::KeyEvent const &key_event) {
     if (cand_ui->Selecting()) {
@@ -81,146 +82,151 @@ void HandleKeyBasic(TextService *service, ITfContext *context, win32::KeyEvent c
     EditSession::HandleAction(service, context, std::move(command));
 }
 
+struct KeyEventSinkImpl : implements<KeyEventSinkImpl, ITfKeyEventSink, KeyEventSink> {
+
+    virtual void Activate(TextService *pTextService) override {
+        service.copy_from(pTextService);
+        thread_mgr.copy_from(service->thread_mgr());
+        composition_mgr.copy_from(cast_as<CompositionMgr>(service->composition_mgr()));
+        keystrokeMgr = thread_mgr.as<ITfKeystrokeMgr>();
+
+        winrt::check_hresult(keystrokeMgr->AdviseKeyEventSink(service->clientId(), this, TRUE));
+    }
+
+    virtual void Deactivate() override {
+        KHIIN_TRACE("");
+        if (keystrokeMgr) {
+            winrt::check_hresult(keystrokeMgr->UnadviseKeyEventSink(service->clientId()));
+        }
+
+        thread_mgr = nullptr;
+        keystrokeMgr = nullptr;
+        composition_mgr = nullptr;
+        service = nullptr;
+    }
+
+
+    void TestKey(ITfContext *pContext, win32::KeyEvent keyEvent, BOOL *pfEaten) {
+        KHIIN_TRACE("");
+        WINRT_ASSERT(pContext);
+        WINRT_ASSERT(composition_mgr);
+
+        if (TestKeyForCandidateUI(service->candidate_ui(), keyEvent)) {
+            *pfEaten = TRUE;
+            return;
+        }
+
+        if (!composition_mgr->composing()) {
+            service->engine()->Reset();
+        }
+
+        auto command = service->engine()->TestKey(keyEvent);
+
+        if (command->response().consumable()) {
+            *pfEaten = TRUE;
+            return;
+        }
+
+        EditSession::HandleAction(service.get(), pContext, std::move(command));
+    }
+
+    void HandleKey(ITfContext *pContext, win32::KeyEvent keyEvent, BOOL *pfEaten) {
+        if (TestQuickSelectForCandidateUI(service->candidate_ui(), keyEvent)) {
+            HandleQuickSelect(service.get(), pContext, service->candidate_ui(), keyEvent);
+            *pfEaten = TRUE;
+            return;
+        } else if (TestPageKeyForCandidateUI(service->candidate_ui(), keyEvent)) {
+            HandleCandidatePage(service.get(), pContext, service->candidate_ui(), keyEvent);
+            *pfEaten = TRUE;
+            return;
+        }
+
+        TestKey(pContext, keyEvent, pfEaten);
+
+        if (!*pfEaten) {
+            return;
+        }
+
+        HandleKeyBasic(service.get(), pContext, keyEvent);
+    }
+
+    //+---------------------------------------------------------------------------
+    //
+    // ITfKeyEventSink
+    //
+    //----------------------------------------------------------------------------
+
+    virtual STDMETHODIMP OnSetFocus(BOOL fForeground) override {
+        TRY_FOR_HRESULT;
+        if (!fForeground) {
+            return S_OK;
+        }
+
+        return E_NOTIMPL;
+        CATCH_FOR_HRESULT;
+    }
+
+    virtual STDMETHODIMP OnTestKeyDown(ITfContext *pContext, WPARAM wParam, LPARAM lParam, BOOL *pfEaten) override {
+        TRY_FOR_HRESULT;
+        KHIIN_TRACE("");
+
+        *pfEaten = false;
+        auto keyEvent = win32::KeyEvent(WM_KEYDOWN, wParam, lParam);
+        TestKey(pContext, keyEvent, pfEaten);
+
+        return S_OK;
+        CATCH_FOR_HRESULT;
+    }
+
+    virtual STDMETHODIMP OnTestKeyUp(ITfContext *pContext, WPARAM wParam, LPARAM lParam, BOOL *pfEaten) override {
+        TRY_FOR_HRESULT;
+
+        auto keyEvent = win32::KeyEvent(WM_KEYUP, wParam, lParam);
+        KHIIN_DEBUG("OnTestKeyUp");
+
+        return E_NOTIMPL;
+        CATCH_FOR_HRESULT;
+    }
+
+    virtual STDMETHODIMP OnKeyDown(ITfContext *pContext, WPARAM wParam, LPARAM lParam, BOOL *pfEaten) override {
+        TRY_FOR_HRESULT;
+        KHIIN_TRACE("");
+
+        *pfEaten = false;
+        auto keyEvent = win32::KeyEvent(WM_KEYDOWN, wParam, lParam);
+        HandleKey(pContext, keyEvent, pfEaten);
+
+        CATCH_FOR_HRESULT;
+    }
+
+    virtual STDMETHODIMP OnKeyUp(ITfContext *pic, WPARAM wParam, LPARAM lParam, BOOL *pfEaten) override {
+        TRY_FOR_HRESULT;
+        auto keyEvent = win32::KeyEvent(WM_KEYUP, wParam, lParam);
+
+        return E_NOTIMPL;
+        CATCH_FOR_HRESULT;
+    }
+
+    virtual STDMETHODIMP OnPreservedKey(ITfContext *pic, REFGUID rguid, BOOL *pfEaten) override {
+        TRY_FOR_HRESULT;
+
+        if (rguid == guids::kPreservedKeyOnOff) {
+            service->SwapOnOff();
+            *pfEaten = TRUE;
+        }
+        CATCH_FOR_HRESULT;
+    }
+
+    winrt::com_ptr<TextService> service = nullptr;
+    winrt::com_ptr<ITfThreadMgr> thread_mgr = nullptr;
+    winrt::com_ptr<ITfKeystrokeMgr> keystrokeMgr = nullptr;
+    winrt::com_ptr<CompositionMgr> composition_mgr = nullptr;
+};
+
 } // namespace
 
-using namespace proto;
-
-enum class KeyEventSink::KeyAction { Test, Input };
-
-KeyEventSink::~KeyEventSink() {
-    Deactivate();
-}
-
-void KeyEventSink::Activate(TextService *pTextService) {
-    service.copy_from(pTextService);
-    thread_mgr.copy_from(service->thread_mgr());
-    composition_mgr.copy_from(cast_as<CompositionMgr>(service->composition_mgr()));
-    keystrokeMgr = thread_mgr.as<ITfKeystrokeMgr>();
-
-    winrt::check_hresult(keystrokeMgr->AdviseKeyEventSink(service->clientId(), this, TRUE));
-}
-
-void KeyEventSink::Deactivate() {
-    KHIIN_TRACE("");
-    if (keystrokeMgr) {
-        winrt::check_hresult(keystrokeMgr->UnadviseKeyEventSink(service->clientId()));
-    }
-
-    thread_mgr = nullptr;
-    keystrokeMgr = nullptr;
-    composition_mgr = nullptr;
-    service = nullptr;
-}
-
-void KeyEventSink::TestKey(ITfContext *pContext, win32::KeyEvent keyEvent, BOOL *pfEaten) {
-    KHIIN_TRACE("");
-    WINRT_ASSERT(pContext);
-    WINRT_ASSERT(composition_mgr);
-
-    if (TestKeyForCandidateUI(service->candidate_ui(), keyEvent)) {
-        *pfEaten = TRUE;
-        return;
-    }
-
-    if (!composition_mgr->composing()) {
-        service->engine()->Reset();
-    }
-
-    auto command = service->engine()->TestKey(keyEvent);
-
-    if (command->response().consumable()) {
-        *pfEaten = TRUE;
-        return;
-    }
-
-    EditSession::HandleAction(service.get(), pContext, std::move(command));
-}
-
-void KeyEventSink::HandleKey(ITfContext *pContext, win32::KeyEvent keyEvent, BOOL *pfEaten) {
-    if (TestQuickSelectForCandidateUI(service->candidate_ui(), keyEvent)) {
-        HandleQuickSelect(service.get(), pContext, service->candidate_ui(), keyEvent);
-        *pfEaten = TRUE;
-        return;
-    } else if (TestPageKeyForCandidateUI(service->candidate_ui(), keyEvent)) {
-        HandleCandidatePage(service.get(), pContext, service->candidate_ui(), keyEvent);
-        *pfEaten = TRUE;
-        return;
-    }
-
-    TestKey(pContext, keyEvent, pfEaten);
-
-    if (!*pfEaten) {
-        return;
-    }
-
-    HandleKeyBasic(service.get(), pContext, keyEvent);
-}
-
-//+---------------------------------------------------------------------------
-//
-// ITfKeyEventSink
-//
-//----------------------------------------------------------------------------
-
-STDMETHODIMP KeyEventSink::OnSetFocus(BOOL fForeground) {
-    TRY_FOR_HRESULT;
-    if (!fForeground) {
-        return S_OK;
-    }
-
-    return E_NOTIMPL;
-    CATCH_FOR_HRESULT;
-}
-
-STDMETHODIMP KeyEventSink::OnTestKeyDown(ITfContext *pContext, WPARAM wParam, LPARAM lParam, BOOL *pfEaten) {
-    TRY_FOR_HRESULT;
-    KHIIN_TRACE("");
-
-    *pfEaten = false;
-    auto keyEvent = win32::KeyEvent(WM_KEYDOWN, wParam, lParam);
-    TestKey(pContext, keyEvent, pfEaten);
-
-    return S_OK;
-    CATCH_FOR_HRESULT;
-}
-
-STDMETHODIMP KeyEventSink::OnTestKeyUp(ITfContext *pContext, WPARAM wParam, LPARAM lParam, BOOL *pfEaten) {
-    TRY_FOR_HRESULT;
-
-    auto keyEvent = win32::KeyEvent(WM_KEYUP, wParam, lParam);
-    KHIIN_DEBUG("OnTestKeyUp");
-
-    return E_NOTIMPL;
-    CATCH_FOR_HRESULT;
-}
-
-STDMETHODIMP KeyEventSink::OnKeyDown(ITfContext *pContext, WPARAM wParam, LPARAM lParam, BOOL *pfEaten) {
-    TRY_FOR_HRESULT;
-    KHIIN_TRACE("");
-
-    *pfEaten = false;
-    auto keyEvent = win32::KeyEvent(WM_KEYDOWN, wParam, lParam);
-    HandleKey(pContext, keyEvent, pfEaten);
-    
-    CATCH_FOR_HRESULT;
-}
-
-STDMETHODIMP KeyEventSink::OnKeyUp(ITfContext *pic, WPARAM wParam, LPARAM lParam, BOOL *pfEaten) {
-    TRY_FOR_HRESULT;
-    auto keyEvent = win32::KeyEvent(WM_KEYUP, wParam, lParam);
-
-    return E_NOTIMPL;
-    CATCH_FOR_HRESULT;
-}
-
-STDMETHODIMP KeyEventSink::OnPreservedKey(ITfContext *pic, REFGUID rguid, BOOL *pfEaten) {
-    TRY_FOR_HRESULT;
-
-    if (rguid == guids::kPreservedKeyOnOff) {
-        service->SwapOnOff();
-        *pfEaten = TRUE;
-    }
-    CATCH_FOR_HRESULT;
+com_ptr<KeyEventSink> KeyEventSink::Create() {
+    return as_self<KeyEventSink>(make_self<KeyEventSinkImpl>());
 }
 
 } // namespace khiin::win32::tip

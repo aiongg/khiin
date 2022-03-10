@@ -42,7 +42,7 @@ struct TextServiceImpl :
         m_compositionmgr = make_self<CompositionMgr>();
         m_threadmgr_sink = make_self<ThreadMgrEventSink>();
         CandidateListUIFactory::Create(m_candidate_list_ui.put());
-        m_keyevent_sink = make_self<KeyEventSink>();
+        m_keyevent_sink = KeyEventSink::Create();
         LangBarIndicatorFactory::Create(m_indicator.put());
         m_preservedkeymgr = PreservedKeyMgr::Create();
     }
