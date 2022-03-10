@@ -39,7 +39,7 @@ struct TextServiceImpl :
                       TextService> { // clang-format on
     TextServiceImpl() {
         m_engine = EngineController::Create();
-        m_compositionmgr = make_self<CompositionMgr>();
+        m_compositionmgr = CompositionMgr::Create();
         m_threadmgr_sink = make_self<ThreadMgrEventSink>();
         m_candidate_list_ui = CandidateListUI::Create();
         m_keyevent_sink = KeyEventSink::Create();
@@ -173,8 +173,8 @@ struct TextServiceImpl :
         return m_threadmgr.as<ITfKeystrokeMgr>();
     }
 
-    virtual IUnknown *composition_mgr() override {
-        return m_compositionmgr.as<IUnknown>().get();
+    virtual com_ptr<CompositionMgr> composition_mgr() override {
+        return m_compositionmgr;
     }
 
     virtual com_ptr<EngineController> engine() override {

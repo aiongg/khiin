@@ -86,7 +86,6 @@ struct KeyEventSinkImpl : implements<KeyEventSinkImpl, ITfKeyEventSink, KeyEvent
 
     virtual void Advise(TextService *pTextService) override {
         service.copy_from(pTextService);
-        composition_mgr.copy_from(cast_as<CompositionMgr>(service->composition_mgr()));
         keystrokeMgr = service->keystroke_mgr();
 
         winrt::check_hresult(keystrokeMgr->AdviseKeyEventSink(service->clientId(), this, TRUE));
@@ -99,21 +98,19 @@ struct KeyEventSinkImpl : implements<KeyEventSinkImpl, ITfKeyEventSink, KeyEvent
         }
 
         keystrokeMgr = nullptr;
-        composition_mgr = nullptr;
         service = nullptr;
     }
 
     void TestKey(ITfContext *pContext, win32::KeyEvent keyEvent, BOOL *pfEaten) {
         KHIIN_TRACE("");
         WINRT_ASSERT(pContext);
-        WINRT_ASSERT(composition_mgr);
 
         if (TestKeyForCandidateUI(service->candidate_ui().get(), keyEvent)) {
             *pfEaten = TRUE;
             return;
         }
 
-        if (!composition_mgr->composing()) {
+        if (!service->composition_mgr()->composing()) {
             service->engine()->Reset();
         }
 
@@ -219,7 +216,6 @@ struct KeyEventSinkImpl : implements<KeyEventSinkImpl, ITfKeyEventSink, KeyEvent
     winrt::com_ptr<TextService> service = nullptr;
     winrt::com_ptr<ITfThreadMgr> thread_mgr = nullptr;
     winrt::com_ptr<ITfKeystrokeMgr> keystrokeMgr = nullptr;
-    winrt::com_ptr<CompositionMgr> composition_mgr = nullptr;
 };
 
 } // namespace

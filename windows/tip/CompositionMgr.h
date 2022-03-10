@@ -2,7 +2,6 @@
 
 #include "DisplayAttributeInfo.h"
 #include "DisplayAttributeInfoEnum.h"
-#include "TextService.h"
 
 namespace khiin::proto {
 class Preedit;
@@ -10,33 +9,27 @@ class Preedit;
 
 namespace khiin::win32::tip {
 
+struct TextService;
+
 struct CompositionMgr : winrt::implements<CompositionMgr, IUnknown> {
     CompositionMgr() = default;
     CompositionMgr(const CompositionMgr &) = delete;
     CompositionMgr &operator=(const CompositionMgr &) = delete;
-    ~CompositionMgr();
+    ~CompositionMgr() = default;
 
-    void Initialize(TextService *pTextService);
-    void Uninitialize();
+    static winrt::com_ptr<CompositionMgr> Create();
+    virtual void Initialize(TextService *pTextService) = 0;
+    virtual void Uninitialize() = 0;
 
-    void ClearComposition();
+    virtual void ClearComposition() = 0;
 
-    bool composing();
+    virtual bool composing() = 0;
 
-    void DoComposition(TfEditCookie cookie, ITfContext *pContext, proto::Preedit comp_data);
-    void CommitComposition(TfEditCookie cookie, ITfContext *pContext);
-    void CommitComposition(TfEditCookie cookie, ITfContext *pContext, proto::Preedit comp_data);
-    void CancelComposition(TfEditCookie cookie);
-    void GetTextRange(TfEditCookie cookie, ITfRange **ppRange);
-
-  private:
-    void StartComposition(TfEditCookie cookie, ITfContext *pContext);
-    void ApplyDisplayAttribute(TfEditCookie cookie, ITfContext *pContext, ITfRange *pRange, AttrInfoKey index);
-    //void CollapseCursorToEnd(TfEditCookie cookie, ITfContext *pContext);
-    void SetSelection(TfEditCookie cookie, ITfContext *pContext, ITfRange *pRange, TfActiveSelEnd active_sel_end);
-
-    winrt::com_ptr<TextService> service = nullptr;
-    winrt::com_ptr<ITfComposition> composition = nullptr;
+    virtual void DoComposition(TfEditCookie cookie, ITfContext *pContext, proto::Preedit comp_data) = 0;
+    virtual void CommitComposition(TfEditCookie cookie, ITfContext *pContext) = 0;
+    virtual void CommitComposition(TfEditCookie cookie, ITfContext *pContext, proto::Preedit comp_data) = 0;
+    virtual void CancelComposition(TfEditCookie cookie) = 0;
+    virtual void GetTextRange(TfEditCookie cookie, ITfRange **ppRange) = 0;
 };
 
-} // namespace khiin::win32
+} // namespace khiin::win32::tip

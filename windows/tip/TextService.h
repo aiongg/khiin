@@ -12,6 +12,7 @@ class AppConfig;
 namespace khiin::win32::tip {
 
 struct CandidateListUI;
+struct CompositionMgr;
 struct ConfigChangeListener;
 struct EngineController;
 
@@ -36,8 +37,7 @@ struct TextService : winrt::implements<TextService, IUnknown> {
     virtual winrt::com_ptr<ITfCategoryMgr> category_mgr() = 0;
     virtual winrt::com_ptr<ITfContext> top_context() = 0;
     virtual winrt::com_ptr<ITfCompositionSink> CreateCompositionSink(ITfContext *context) = 0;
-
-    virtual IUnknown *composition_mgr() = 0;
+    virtual winrt::com_ptr<CompositionMgr> composition_mgr() = 0;
 
     virtual proto::AppConfig *config() = 0;
 

@@ -46,7 +46,7 @@ struct EditSessionImpl : winrt::implements<EditSessionImpl, ITfEditSession> {
     virtual STDMETHODIMP DoEditSession(TfEditCookie ec) override {
         KHIIN_TRACE("");
         TRY_FOR_HRESULT;
-        auto composition_mgr = cast_as<CompositionMgr>(service->composition_mgr());
+        auto composition_mgr = service->composition_mgr();
         auto candidate_ui = service->candidate_ui();
         bool composing = composition_mgr->composing();
         bool Showing = candidate_ui->Showing();
@@ -67,7 +67,7 @@ struct EditSessionImpl : winrt::implements<EditSessionImpl, ITfEditSession> {
 
             if (response.candidate_list().candidates().size() > 0) {
                 candidate_ui->Update(context.get(), response.edit_state(), response.candidate_list(),
-                                     GetEditRect(ec, composition_mgr, context.get()));
+                                     GetEditRect(ec, composition_mgr.get(), context.get()));
                 if (!Showing) {
                     candidate_ui->Show();
                 }
