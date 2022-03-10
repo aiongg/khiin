@@ -23,7 +23,7 @@ using registry_key = handle_type<registry_traits>;
 
 const std::wstring kTextServiceGuidString = guids::String(guids::kTextService);
 
-const auto supportedCategories = std::vector<GUID>{
+const auto kSupportedCategories = std::vector<GUID>{
     GUID_TFCAT_DISPLAYATTRIBUTEPROVIDER,    // It supports inline input.
     GUID_TFCAT_TIPCAP_COMLESS,              // It's a COM-Less module.
     GUID_TFCAT_TIPCAP_INPUTMODECOMPARTMENT, // It supports input mode.
@@ -36,7 +36,7 @@ const auto supportedCategories = std::vector<GUID>{
 const std::wstring kClsidPrefix = L"CLSID\\";
 const std::wstring kInprocServer32 = L"InprocServer32";
 const std::wstring kThreadingModel = L"ThreadingModel";
-const std::wstring kApartmentModel = L"Apartment";
+const std::wstring kApartment = L"Apartment";
 const std::wstring kClsidDescription = L"Khiin Taiwanese IME";
 const std::wstring kHkcuAppPath = L"Software\\Khiin PJH";
 const std::wstring kSettingsPath = L"Software\\Khiin PJH\\Settings";
@@ -106,7 +106,7 @@ registry_key CurrentUser() {
 
 registry_key SettingsRoot() {
     auto hkcu = CurrentUser();
-    return CreateKey(hkcu, kSettingsPath.data());
+    return CreateKey(hkcu, kSettingsPath);
 }
 
 } // namespace
@@ -120,14 +120,14 @@ void Registrar::RegisterComServer(std::wstring modulePath) {
     DeleteAllValues(clskey);
 
     // Set the description
-    SetStringValue(clskey, L"", kClsidDescription.data());
+    SetStringValue(clskey, L"", kClsidDescription);
 
     // Add the InprocServer32 sub-key
-    auto inprockey = CreateKey(clskey, kInprocServer32.data());
+    auto inprockey = CreateKey(clskey, kInprocServer32);
 
     // Set the DLL module path
     SetStringValue(inprockey, L"", modulePath);
-    SetStringValue(inprockey, kThreadingModel.data(), kApartmentModel.data());
+    SetStringValue(inprockey, kThreadingModel, kApartment);
     inprockey.close();
     clskey.close();
     clsroot.close();
@@ -139,56 +139,54 @@ void Registrar::UnregisterComServer() {
     // check_win32(::RegDeleteTree(HKEY_CLASSES_ROOT, clskey.c_str()));
     DeleteTree(clsroot, clskey);
     auto hkcuroot = registry_key(HKEY_CURRENT_USER);
-    DeleteTree(hkcuroot, kHkcuAppPath.data());
+    DeleteTree(hkcuroot, kHkcuAppPath);
     return;
 }
 
 void Registrar::RegisterProfiles(std::wstring modulePath) {
-    auto inputProcessorProfiles = com_ptr<ITfInputProcessorProfiles>();
+    auto profiles = com_ptr<ITfInputProcessorProfiles>();
 
     check_hresult(::CoCreateInstance(CLSID_TF_InputProcessorProfiles, NULL, CLSCTX_INPROC_SERVER,
-                                     IID_ITfInputProcessorProfiles, inputProcessorProfiles.put_void()));
+                                     IID_ITfInputProcessorProfiles, profiles.put_void()));
 
-    check_hresult(inputProcessorProfiles->Register(guids::kTextService));
+    check_hresult(profiles->Register(guids::kTextService));
 
-    check_hresult(inputProcessorProfiles->AddLanguageProfile(guids::kTextService, static_cast<LANGID>(Profile::langId),
-                                                             guids::kLanguageProfile, kClsidDescription.data(),
-                                                             wcharSize(kClsidDescription), modulePath.data(), NULL, 0));
+    check_hresult(profiles->AddLanguageProfile(guids::kTextService, static_cast<LANGID>(Profile::langId),
+                                               guids::kLanguageProfile, kClsidDescription.data(),
+                                               wcharSize(kClsidDescription), modulePath.data(), NULL, 0));
 
-    if (auto profilesEx = inputProcessorProfiles.try_as<ITfInputProcessorProfilesEx>(); profilesEx) {
-        check_hresult(profilesEx->SetLanguageProfileDisplayName(
+    if (auto profiles_ex = profiles.try_as<ITfInputProcessorProfilesEx>(); profiles_ex) {
+        check_hresult(profiles_ex->SetLanguageProfileDisplayName(
             guids::kTextService, static_cast<LANGID>(Profile::langId), guids::kLanguageProfile, modulePath.data(),
             wcharSize(modulePath), Profile::displayNameIndex));
     }
 }
 
 void Registrar::UnregisterProfiles() {
-    auto inputProcessorProfiles = com_ptr<ITfInputProcessorProfiles>();
+    auto profiles = com_ptr<ITfInputProcessorProfiles>();
     check_hresult(::CoCreateInstance(CLSID_TF_InputProcessorProfiles, NULL, CLSCTX_INPROC_SERVER,
-                                     IID_ITfInputProcessorProfiles, inputProcessorProfiles.put_void()));
+                                     IID_ITfInputProcessorProfiles, profiles.put_void()));
 
-    check_hresult(inputProcessorProfiles->Unregister(guids::kTextService));
+    check_hresult(profiles->Unregister(guids::kTextService));
 }
 
 void Registrar::RegisterCategories() {
-    auto categoryMgr = com_ptr<ITfCategoryMgr>();
+    auto category_mgr = com_ptr<ITfCategoryMgr>();
     check_hresult(::CoCreateInstance(CLSID_TF_CategoryMgr, NULL, CLSCTX_INPROC_SERVER, IID_ITfCategoryMgr,
-                                     categoryMgr.put_void()));
-    auto guid = guids::kTextService;
-
-    for (auto &category : supportedCategories) {
-        check_hresult(categoryMgr->RegisterCategory(guid, category, guid));
+                                     category_mgr.put_void()));
+    
+    for (auto &category : kSupportedCategories) {
+        check_hresult(category_mgr->RegisterCategory(guids::kTextService, category, guids::kTextService));
     }
 }
 
 void Registrar::UnregisterCategories() {
-    auto categoryMgr = com_ptr<ITfCategoryMgr>();
+    auto category_mgr = com_ptr<ITfCategoryMgr>();
     check_hresult(::CoCreateInstance(CLSID_TF_CategoryMgr, NULL, CLSCTX_INPROC_SERVER, IID_ITfCategoryMgr,
-                                     categoryMgr.put_void()));
-    auto guid = guids::kTextService;
+                                     category_mgr.put_void()));
 
-    for (auto &category : supportedCategories) {
-        check_hresult(categoryMgr->UnregisterCategory(guid, category, guid));
+    for (auto &category : kSupportedCategories) {
+        check_hresult(category_mgr->UnregisterCategory(guids::kTextService, category, guids::kTextService));
     }
 }
 
@@ -203,23 +201,19 @@ HRESULT Registrar::SetProfileEnabled(BOOL enable) {
 }
 
 std::wstring Registrar::GetSettingsString(std::wstring const &name) {
-    auto hkey = SettingsRoot();
-    return GetStringValue(hkey, name);
+    return GetStringValue(SettingsRoot(), name);
 }
 
 void Registrar::SetSettingsString(std::wstring const &name, std::wstring const &value) {
-    auto hkey = SettingsRoot();
-    return SetStringValue(hkey, name, value);
+    return SetStringValue(SettingsRoot(), name, value);
 }
 
 int Registrar::GetSettingsInt(std::wstring const &name) {
-    auto hkey = SettingsRoot();
-    return GetIntValue(hkey, name);
+    return GetIntValue(SettingsRoot(), name);
 }
 
 void Registrar::SetSettingsInt(std::wstring const &name, int value) {
-    auto key = SettingsRoot();
-    return SetIntValue(key, name, value);
+    return SetIntValue(SettingsRoot(), name, value);
 }
 
 } // namespace khiin::win32::tip

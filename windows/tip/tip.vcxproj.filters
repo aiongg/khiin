@@ -1,10 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <Filter Include="Resource Files">
-      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
-      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
-    </Filter>
     <Filter Include="win32">
       <UniqueIdentifier>{bad95efc-e61d-4606-a86b-4e32ce8c9d69}</UniqueIdentifier>
     </Filter>
@@ -14,6 +10,10 @@
     </Filter>
     <Filter Include="renderer">
       <UniqueIdentifier>{e6f43124-42c9-4cc7-89e1-a56c8a78c1b1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="resources">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -247,7 +247,7 @@
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="tip.rc">
-      <Filter>Resource Files</Filter>
+      <Filter>resources</Filter>
     </ResourceCompile>
   </ItemGroup>
   <ItemGroup>
@@ -257,19 +257,19 @@
   </ItemGroup>
   <ItemGroup>
     <Image Include="mainicon.ico">
-      <Filter>Resource Files</Filter>
+      <Filter>resources</Filter>
     </Image>
     <Image Include="mode-alpha.ico">
-      <Filter>Resource Files</Filter>
+      <Filter>resources</Filter>
     </Image>
     <Image Include="mode-cont.ico">
-      <Filter>Resource Files</Filter>
+      <Filter>resources</Filter>
     </Image>
     <Image Include="mode-pro.ico">
-      <Filter>Resource Files</Filter>
+      <Filter>resources</Filter>
     </Image>
     <Image Include="mode-basic.ico">
-      <Filter>Resource Files</Filter>
+      <Filter>resources</Filter>
     </Image>
   </ItemGroup>
 </Project>

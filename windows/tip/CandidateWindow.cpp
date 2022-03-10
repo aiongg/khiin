@@ -71,7 +71,8 @@ class CandidateWindow2Impl : public CandidateWindow {
 
     virtual void OnConfigChanged(AppConfig *config) override {
         GuiWindow::OnConfigChanged(config);
-        m_metrics = GetMetricsForSize(static_cast<DisplaySize>(Config::GetUiSize()));
+        m_metrics = GetMetricsScaled(Config::GetUiSize());
+        //m_metrics = GetMetricsForSize(static_cast<DisplaySize>(Config::GetUiSize()));
         DiscardGraphicsResources();
     }
 
@@ -322,7 +323,7 @@ class CandidateWindow2Impl : public CandidateWindow {
     CandidateLayoutGrid m_layout_grid;
     CandidateGrid *m_candidate_grid = nullptr;
     RECT m_text_rect = {};
-    Metrics m_metrics = GetMetricsForSize(DisplaySize::S);
+    Metrics m_metrics = GetMetricsScaled();
     DisplayMode m_display_mode = DisplayMode::ShortColumn;
     int m_focused_id = -1;
     size_t m_quickselect_col = 0;

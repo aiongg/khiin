@@ -39,7 +39,7 @@ class PreservedKeyMgrImpl : public PreservedKeyMgr {
     }
 
     void PreserveKey(TfClientId tid, ITfKeystrokeMgr *keystroke_mgr, PreservedKey const &pk) {
-        keystroke_mgr->PreserveKey(tid, pk.guid, &pk.prekey, pk.desc.data(), pk.desc.size());
+        keystroke_mgr->PreserveKey(tid, pk.guid, &pk.prekey, pk.desc.data(), static_cast<ULONG>(pk.desc.size()));
     }
 
     void UnpreserveKey(PreservedKey const &pk) {}

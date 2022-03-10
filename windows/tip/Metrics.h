@@ -2,14 +2,6 @@
 
 namespace khiin::win32 {
 
-enum class DisplaySize {
-    S,
-    M,
-    L,
-    XL,
-    XXL,
-};
-
 struct Metrics {
     float padding = 0.0f;
     float padding_sm = 0.0f;
@@ -23,6 +15,6 @@ struct Metrics {
     uint32_t qs_col_w = 0;
 };
 
-Metrics GetMetricsForSize(DisplaySize size);
+Metrics GetMetricsScaled(int scale = 0);
 
 } // namespace khiin::win32

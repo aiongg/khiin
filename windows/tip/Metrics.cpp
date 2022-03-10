@@ -5,48 +5,44 @@
 namespace khiin::win32 {
 namespace {
 
+constexpr auto kScaleMax = 10;
+
+struct MinMax {
+    float min = 0.0f;
+    float max = 0.0f;
+};
+
+constexpr auto kFontSize = MinMax{16.0f, 32.0f};
+constexpr auto kFontSizeSm = MinMax{16.0f, 20.0f};
+constexpr auto kPadding = MinMax{8.0f, 12.0f};
+constexpr auto kPaddingSm = MinMax{4.0f, 6.0f};
+constexpr auto kMarkerHeight = MinMax{16.0f, 24.0f};
+
+constexpr float ScaleF(MinMax range, int scale) {
+    auto s = scale / static_cast<float>(kScaleMax);
+    return s * (range.max - range.min) + range.min;
+}
+
 } // namespace
 
-Metrics GetMetricsForSize(DisplaySize size) {
+Metrics GetMetricsScaled(int scale) {
+    if (scale < 0) {
+        scale = 0;
+    } else if (scale > kScaleMax) {
+        scale = kScaleMax;
+    }
+
     auto metrics = Metrics();
     metrics.marker_w = 4.0f;
-    metrics.font_size_sm = 16.0f;
     metrics.min_col_w_multi = 80;
     metrics.min_col_w_single = 160;
     metrics.qs_col_w = 44;
 
-    switch (size) {
-    case DisplaySize::S:
-        metrics.padding = 8.0f;
-        metrics.padding_sm = 4.0f;
-        metrics.font_size = 16.0f;
-        metrics.marker_h = 16.0f;
-        break;
-    case DisplaySize::M:
-        metrics.padding = 10.0f;
-        metrics.padding_sm = 5.0f;
-        metrics.font_size = 20.0f;
-        metrics.marker_h = 20.0f;
-        break;
-    case DisplaySize::L:
-        metrics.padding = 12.0f;
-        metrics.padding_sm = 6.0f;
-        metrics.font_size = 24.0f;
-        metrics.marker_h = 24.0f;
-        break;
-    case DisplaySize::XL:
-        metrics.padding = 14.0f;
-        metrics.padding_sm = 7.0f;
-        metrics.font_size = 28.0f;
-        metrics.marker_h = 24.0f;
-        break;
-    case DisplaySize::XXL:
-        metrics.padding = 16.0f;
-        metrics.padding_sm = 8.0f;
-        metrics.font_size = 32.0f;
-        metrics.marker_h = 24.0f;
-        break;
-    }
+    metrics.padding = ScaleF(kPadding, scale);
+    metrics.padding_sm = ScaleF(kPaddingSm, scale);
+    metrics.font_size = ScaleF(kFontSize, scale);
+    metrics.font_size_sm = ScaleF(kFontSizeSm, scale);
+    metrics.marker_h = ScaleF(kMarkerHeight, scale);
 
     metrics.row_height = metrics.font_size + metrics.padding;
 

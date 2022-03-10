@@ -176,7 +176,7 @@ class PopupMenuImpl : public PopupMenu {
             // KHIIN_DEBUG("Item rect: {}, {}, {}, {}", item.rc.left(), item.rc.top(), item.rc.right(),
             // item.rc.bottom());
             if (it->rc.Hit(pt)) {
-                ret = std::distance(begin, it);
+                ret = static_cast<int>(std::distance(begin, it));
                 break;
             }
         }

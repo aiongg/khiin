@@ -14,7 +14,7 @@ namespace {
 using namespace proto;
 
 constexpr int kSizeTrackbarMin = 0;
-constexpr int kSizeTrackbarMax = 4;
+constexpr int kSizeTrackbarMax = 10;
 
 auto kThemeNameStringRids = std::vector<uint32_t>{
     IDS_LIGHT_THEME,
@@ -50,6 +50,7 @@ void AppearanceProps::Initialize() {
     HWND size_hwnd = ::GetDlgItem(m_hwnd, IDC_CANDIDATE_SIZE);
     ::SendMessage(size_hwnd, TBM_SETRANGE, TRUE, MAKELPARAM(kSizeTrackbarMin, kSizeTrackbarMax));
     ::SendMessage(size_hwnd, TBM_SETPOS, TRUE, Config::GetUiSize());
+    //::SendMessage(size_hwnd, TBM_SETTICFREQ, 10, 0);
 
     PropSheet::Initialize();
 }
