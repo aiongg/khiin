@@ -19,6 +19,8 @@ struct CandidateListUI : winrt::implements<CandidateListUI, IUnknown> {
     CandidateListUI &operator=(const CandidateListUI &) = delete;
     ~CandidateListUI() = default;
 
+    static winrt::com_ptr<CandidateListUI> Create();
+
     virtual void Initialize(TextService *pTextService) = 0;
     virtual void Uninitialize() = 0;
     virtual void DestroyCandidateWindow() = 0;
@@ -48,10 +50,6 @@ struct CandidateListUI : winrt::implements<CandidateListUI, IUnknown> {
     virtual void OnSetThreadFocus() = 0;
     virtual void OnKillThreadFocus() = 0;
     virtual ITfContext *context() = 0;
-};
-
-struct CandidateListUIFactory {
-    static HRESULT Create(CandidateListUI **ppCandidateListUI);
 };
 
 } // namespace khiin::win32

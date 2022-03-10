@@ -16,6 +16,10 @@ struct EngineController : winrt::implements<EngineController, IUnknown> {
     EngineController &operator=(const EngineController &) = delete;
     ~EngineController() = default;
 
+    static void OnDllProcessAttach(HMODULE module);
+    static void OnDllProcessDetach(HMODULE module);
+    static winrt::com_ptr<EngineController> Create();
+
     virtual void Initialize(TextService *pService) = 0;
     virtual void Uninitialize() = 0;
 
@@ -24,12 +28,6 @@ struct EngineController : winrt::implements<EngineController, IUnknown> {
     virtual proto::Command *SelectCandidate(int32_t candidate_id) = 0;
     virtual proto::Command *FocusCandidate(int32_t candidate_id) = 0;
     virtual void Reset() = 0;
-};
-
-struct EngineControllerFactory {
-    static void OnDllProcessAttach(HMODULE module);
-    static void OnDllProcessDetach(HMODULE module);
-    static void Create(EngineController **ppEngine);
 };
 
 } // namespace khiin::win32

@@ -31,10 +31,8 @@ STDMETHODIMP KhiinClassFactory::CreateInstance(IUnknown *pUnkOuter, REFIID riid,
 #pragma warning(pop)
     KHIIN_DEBUG(L"QI: {}", riidStr.c_str());
 
-    auto textService = winrt::com_ptr<TextService>();
-    TextServiceFactory::Create(textService.put());
-
-    winrt::check_hresult(textService->QueryInterface(riid, ppvObject));
+    auto tip = TextService::Create();
+    winrt::check_hresult(tip->QueryInterface(riid, ppvObject));
 
     CATCH_FOR_HRESULT;
 }

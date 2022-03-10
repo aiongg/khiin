@@ -150,24 +150,18 @@ struct EngineControllerImpl : winrt::implements<EngineControllerImpl, EngineCont
     com_ptr<TextService> m_service = nullptr;
 };
 
-//+---------------------------------------------------------------------------
-//
-// TextEngineFactory
-//
-//----------------------------------------------------------------------------
-
-void EngineControllerFactory::OnDllProcessAttach(HMODULE module) {
+void EngineController::OnDllProcessAttach(HMODULE module) {
     tip::DllModule::AddRef();
     g_module = module;
 }
 
-void EngineControllerFactory::OnDllProcessDetach(HMODULE module) {
+void EngineController::OnDllProcessDetach(HMODULE module) {
     g_module = nullptr;
     tip::DllModule::Release();
 }
 
-void EngineControllerFactory::Create(EngineController **ppEngineCtrl) {
-    as_self<EngineController>(winrt::make_self<EngineControllerImpl>()).copy_to(ppEngineCtrl);
+com_ptr<EngineController> EngineController::Create() {
+    return as_self<EngineController>(winrt::make_self<EngineControllerImpl>());
 }
 
 } // namespace khiin::win32::tip

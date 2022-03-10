@@ -516,9 +516,8 @@ struct CandidateListUIImpl :
 
 } // namespace
 
-HRESULT CandidateListUIFactory::Create(CandidateListUI **ppCandidateListUI) {
-    as_self<CandidateListUI>(make_self<CandidateListUIImpl>()).copy_to(ppCandidateListUI);
-    return S_OK;
+com_ptr<CandidateListUI> CandidateListUI::Create() {
+    return as_self<CandidateListUI>(make_self<CandidateListUIImpl>());
 }
 
 } // namespace khiin::win32::tip

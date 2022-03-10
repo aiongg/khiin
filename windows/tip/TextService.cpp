@@ -38,12 +38,12 @@ struct TextServiceImpl :
                       ITfCompartmentEventSink,
                       TextService> { // clang-format on
     TextServiceImpl() {
-        EngineControllerFactory::Create(m_engine.put());
+        m_engine = EngineController::Create();
         m_compositionmgr = make_self<CompositionMgr>();
         m_threadmgr_sink = make_self<ThreadMgrEventSink>();
-        CandidateListUIFactory::Create(m_candidate_list_ui.put());
+        m_candidate_list_ui = CandidateListUI::Create();
         m_keyevent_sink = KeyEventSink::Create();
-        LangBarIndicatorFactory::Create(m_indicator.put());
+        m_indicator = LangBarIndicator::Create();
         m_preservedkeymgr = PreservedKeyMgr::Create();
     }
 
@@ -379,19 +379,18 @@ struct TextServiceImpl :
 //
 //----------------------------------------------------------------------------
 
-void TextServiceFactory::OnDllProcessAttach(HMODULE module) {
+void TextService::OnDllProcessAttach(HMODULE module) {
     DllModule::AddRef();
     g_module = module;
 }
 
-void TextServiceFactory::OnDllProcessDetach(HMODULE module) {
+void TextService::OnDllProcessDetach(HMODULE module) {
     g_module = nullptr;
     DllModule::Release();
 }
 
-void TextServiceFactory::Create(TextService **ppService) {
-    KHIIN_TRACE("");
-    as_self<TextService>(winrt::make_self<TextServiceImpl>()).copy_to(ppService);
+com_ptr<TextService> TextService::Create() {
+    return as_self<TextService>(winrt::make_self<TextServiceImpl>());
 }
 
 } // namespace khiin::win32::tip

@@ -191,8 +191,8 @@ struct LangBarIndicatorImpl :
 
 } // namespace
 
-void LangBarIndicatorFactory::Create(LangBarIndicator **indicator) {
-    as_self<LangBarIndicator>(make_self<LangBarIndicatorImpl>()).copy_to(indicator);
+com_ptr<LangBarIndicator> LangBarIndicator::Create() {
+    return as_self<LangBarIndicator>(make_self<LangBarIndicatorImpl>());
 }
 
 } // namespace khiin::win32::tip

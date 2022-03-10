@@ -10,12 +10,9 @@ struct LangBarIndicator : winrt::implements<LangBarIndicator, IUnknown> {
     LangBarIndicator &operator=(const LangBarIndicator &) = delete;
     ~LangBarIndicator() = default;
 
+    static winrt::com_ptr<LanguageBarIndicator> Create();
     virtual void Initialize(TextService *pTextService) = 0;
     virtual void Shutdown() = 0;
-};
-
-struct LangBarIndicatorFactory {
-    static void Create(LangBarIndicator **indicator);
 };
 
 } // namespace khiin::win32

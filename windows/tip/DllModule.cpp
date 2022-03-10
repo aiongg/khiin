@@ -38,17 +38,17 @@ class ModuleImpl {
 
     static BOOL OnDllProcessAttach(HINSTANCE instance, bool static_loading) {
         khiin::Logger::Initialize(khiin::win32::Files::GetTempFolder());
-        TextServiceFactory::OnDllProcessAttach(instance);
+        TextService::OnDllProcessAttach(instance);
         WindowSetup::OnDllProcessAttach(instance);
-        EngineControllerFactory::OnDllProcessAttach(instance);
+        EngineController::OnDllProcessAttach(instance);
         moduleHandle = instance;
         return TRUE;
     }
 
     static BOOL OnDllProcessDetach(HINSTANCE instance, bool process_shutdown) {
-        TextServiceFactory::OnDllProcessDetach(instance);
+        TextService::OnDllProcessDetach(instance);
         WindowSetup::OnDllProcessDetach(instance);
-        EngineControllerFactory::OnDllProcessDetach(instance);
+        EngineController::OnDllProcessDetach(instance);
         Logger::Uninitialize();
         moduleHandle = nullptr;
         unloaded = true;
