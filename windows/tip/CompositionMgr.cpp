@@ -8,6 +8,7 @@
 #include "EditSession.h"
 #include "TextService.h"
 #include "Utils.h"
+#include "common.h"
 
 namespace khiin::win32::tip {
 namespace {

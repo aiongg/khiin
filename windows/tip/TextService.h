@@ -2,8 +2,6 @@
 
 #include "pch.h"
 
-#include "common.h"
-
 namespace khiin::proto {
 enum InputMode : int;
 class AppConfig;
@@ -32,12 +30,12 @@ struct TextService : winrt::implements<TextService, IUnknown> {
 
     virtual winrt::com_ptr<ITfThreadMgr> thread_mgr() = 0;
     virtual winrt::com_ptr<ITfKeystrokeMgr> keystroke_mgr() = 0;
-    virtual winrt::com_ptr<EngineController> engine() = 0;
-    virtual winrt::com_ptr<CandidateListUI> candidate_ui() = 0;
     virtual winrt::com_ptr<ITfCategoryMgr> category_mgr() = 0;
     virtual winrt::com_ptr<ITfContext> top_context() = 0;
-    virtual winrt::com_ptr<ITfCompositionSink> CreateCompositionSink(ITfContext *context) = 0;
+    virtual winrt::com_ptr<EngineController> engine() = 0;
     virtual winrt::com_ptr<CompositionMgr> composition_mgr() = 0;
+    virtual winrt::com_ptr<CandidateListUI> candidate_ui() = 0;
+    virtual winrt::com_ptr<ITfCompositionSink> CreateCompositionSink(ITfContext *context) = 0;
 
     virtual proto::AppConfig *config() = 0;
 
