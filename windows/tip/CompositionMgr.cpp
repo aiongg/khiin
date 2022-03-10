@@ -9,9 +9,31 @@
 
 namespace khiin::win32::tip {
 namespace {
+    using namespace winrt;
 using namespace khiin::proto;
 
 inline static int kMaxBufSize = 512;
+
+
+
+
+
+
+struct CompositionMgrImpl : implements<CompositionMgrImpl, CompositionMgr> {
+
+};
+
+
+
+
+
+
+
+
+
+
+
+
 
 } // namespace
 

@@ -9,7 +9,7 @@ class Compartment {
 
     void GetValue(_Out_ DWORD *val);
     void SetValue(_In_ const DWORD &val);
-    ITfCompartment *getCompartment();
+    ITfCompartment *get();
 
   private:
     winrt::com_ptr<ITfCompartment> compartment;

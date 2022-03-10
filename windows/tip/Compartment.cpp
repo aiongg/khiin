@@ -52,7 +52,7 @@ void Compartment::SetValue(_In_ const DWORD &val) {
     winrt::check_hresult(compartment->SetValue(clientId, &var));
 }
 
-ITfCompartment* Compartment::getCompartment() {
+ITfCompartment* Compartment::get() {
     WINRT_ASSERT(compartment != nullptr);
     return compartment.get();
 }

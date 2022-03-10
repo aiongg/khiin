@@ -15,7 +15,7 @@ void ThreadMgrEventSink::Initialize(TextService *text_service) {
     KHIIN_TRACE("");
     auto hr = E_FAIL;
     service.copy_from(text_service);
-    threadMgrSinkMgr.Advise(service->thread_mgr(), this);
+    threadMgrSinkMgr.Advise(service->thread_mgr().get(), this);
 }
 
 void ThreadMgrEventSink::Uninitialize() {

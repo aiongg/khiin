@@ -47,7 +47,7 @@ struct EditSessionImpl : winrt::implements<EditSessionImpl, ITfEditSession> {
         KHIIN_TRACE("");
         TRY_FOR_HRESULT;
         auto composition_mgr = cast_as<CompositionMgr>(service->composition_mgr());
-        auto candidate_ui = cast_as<CandidateListUI>(service->candidate_ui());
+        auto candidate_ui = service->candidate_ui();
         bool composing = composition_mgr->composing();
         bool Showing = candidate_ui->Showing();
         auto cmd_type = command->request().type();

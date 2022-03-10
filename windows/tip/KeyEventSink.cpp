@@ -84,34 +84,31 @@ void HandleKeyBasic(TextService *service, ITfContext *context, win32::KeyEvent c
 
 struct KeyEventSinkImpl : implements<KeyEventSinkImpl, ITfKeyEventSink, KeyEventSink> {
 
-    virtual void Activate(TextService *pTextService) override {
+    virtual void Advise(TextService *pTextService) override {
         service.copy_from(pTextService);
-        thread_mgr.copy_from(service->thread_mgr());
         composition_mgr.copy_from(cast_as<CompositionMgr>(service->composition_mgr()));
-        keystrokeMgr = thread_mgr.as<ITfKeystrokeMgr>();
+        keystrokeMgr = service->keystroke_mgr();
 
         winrt::check_hresult(keystrokeMgr->AdviseKeyEventSink(service->clientId(), this, TRUE));
     }
 
-    virtual void Deactivate() override {
+    virtual void Unadvise() override {
         KHIIN_TRACE("");
         if (keystrokeMgr) {
             winrt::check_hresult(keystrokeMgr->UnadviseKeyEventSink(service->clientId()));
         }
 
-        thread_mgr = nullptr;
         keystrokeMgr = nullptr;
         composition_mgr = nullptr;
         service = nullptr;
     }
-
 
     void TestKey(ITfContext *pContext, win32::KeyEvent keyEvent, BOOL *pfEaten) {
         KHIIN_TRACE("");
         WINRT_ASSERT(pContext);
         WINRT_ASSERT(composition_mgr);
 
-        if (TestKeyForCandidateUI(service->candidate_ui(), keyEvent)) {
+        if (TestKeyForCandidateUI(service->candidate_ui().get(), keyEvent)) {
             *pfEaten = TRUE;
             return;
         }
@@ -131,12 +128,14 @@ struct KeyEventSinkImpl : implements<KeyEventSinkImpl, ITfKeyEventSink, KeyEvent
     }
 
     void HandleKey(ITfContext *pContext, win32::KeyEvent keyEvent, BOOL *pfEaten) {
-        if (TestQuickSelectForCandidateUI(service->candidate_ui(), keyEvent)) {
-            HandleQuickSelect(service.get(), pContext, service->candidate_ui(), keyEvent);
+        auto cui = service->candidate_ui().get();
+
+        if (TestQuickSelectForCandidateUI(cui, keyEvent)) {
+            HandleQuickSelect(service.get(), pContext, cui, keyEvent);
             *pfEaten = TRUE;
             return;
-        } else if (TestPageKeyForCandidateUI(service->candidate_ui(), keyEvent)) {
-            HandleCandidatePage(service.get(), pContext, service->candidate_ui(), keyEvent);
+        } else if (TestPageKeyForCandidateUI(cui, keyEvent)) {
+            HandleCandidatePage(service.get(), pContext, cui, keyEvent);
             *pfEaten = TRUE;
             return;
         }

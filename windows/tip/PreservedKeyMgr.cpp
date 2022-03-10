@@ -34,8 +34,7 @@ class PreservedKeyMgrImpl : public PreservedKeyMgr {
     }
 
     com_ptr<ITfKeystrokeMgr> KeystrokeMgr() {
-        auto thread_mgr = winrt::com_ptr<ITfThreadMgr>();
-        thread_mgr.copy_from(m_service->thread_mgr());
+        auto thread_mgr = m_service->thread_mgr();
         return thread_mgr.as<ITfKeystrokeMgr>();
     }
 

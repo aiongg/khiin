@@ -50,23 +50,24 @@ struct TextServiceImpl :
   private:
     HRESULT OnActivate() {
         auto hr = E_FAIL;
-        auto pTextService = cast_as<TextService>(this);
+        auto service = cast_as<TextService>(this);
+        auto threadmgr = m_threadmgr.get();
 
         InitConfig();
         DisplayAttributeInfoEnum::load(m_displayattrs.put());
-        m_indicator->Initialize(pTextService);
-        m_compositionmgr->Initialize(pTextService);
-        m_threadmgr_sink->Initialize(pTextService);
-        m_candidate_list_ui->Initialize(pTextService);
-        m_keyevent_sink->Activate(pTextService);
-        m_preservedkeymgr->Initialize(pTextService);
-        m_openclose_compartment.Initialize(m_clientid, m_threadmgr.get(), GUID_COMPARTMENT_KEYBOARD_OPENCLOSE);
-        m_kbd_disabled_compartment.Initialize(m_clientid, m_threadmgr.get(), GUID_COMPARTMENT_KEYBOARD_DISABLED);
-        m_config_compartment.Initialize(m_clientid, m_threadmgr.get(), guids::kConfigChangedCompartment, true);
+        m_indicator->Initialize(service);
+        m_compositionmgr->Initialize(service);
+        m_threadmgr_sink->Initialize(service);
+        m_candidate_list_ui->Initialize(service);
+        m_keyevent_sink->Advise(service);
+        m_preservedkeymgr->Initialize(service);
+        m_openclose_compartment.Initialize(m_clientid, threadmgr, GUID_COMPARTMENT_KEYBOARD_OPENCLOSE);
+        m_kbd_disabled_compartment.Initialize(m_clientid, threadmgr, GUID_COMPARTMENT_KEYBOARD_DISABLED);
+        m_config_compartment.Initialize(m_clientid, threadmgr, guids::kConfigChangedCompartment, true);
         m_openclose_compartment.SetValue(true);
-        m_openclose_sinkmgr.Advise(m_openclose_compartment.getCompartment(), this);
-        m_config_sinkmgr.Advise(m_config_compartment.getCompartment(), this);
-        m_engine->Initialize(pTextService);
+        m_openclose_sinkmgr.Advise(m_openclose_compartment.get(), this);
+        m_config_sinkmgr.Advise(m_config_compartment.get(), this);
+        m_engine->Initialize(service);
         InitCategoryMgr();
         InitDisplayAttributes();
         NotifyConfigChangeListeners();
@@ -77,13 +78,13 @@ struct TextServiceImpl :
         auto hr = E_FAIL;
         m_engine->Uninitialize();
         m_openclose_sinkmgr.Unadvise();
+        m_keyevent_sink->Unadvise();
         m_openclose_compartment.SetValue(false);
         m_kbd_disabled_compartment.Uninitialize();
         m_openclose_compartment.Uninitialize();
         m_config_compartment.Uninitialize();
         m_candidate_list_ui->Uninitialize();
         m_preservedkeymgr->Shutdown();
-        m_keyevent_sink->Deactivate();
         m_threadmgr_sink->Uninitialize();
         m_compositionmgr->Uninitialize();
         m_indicator->Shutdown();
@@ -146,7 +147,6 @@ struct TextServiceImpl :
     TfGuidAtom m_focused_attr = TF_INVALID_GUIDATOM;
     InputMode m_prev_input_mode = IM_ALPHA;
 
-  public:
     //+---------------------------------------------------------------------------
     //
     // TextService
@@ -165,33 +165,31 @@ struct TextServiceImpl :
         return m_activate_flags;
     }
 
-    virtual ITfThreadMgr *thread_mgr() override {
-        return m_threadmgr.get();
+    virtual com_ptr<ITfThreadMgr> thread_mgr() override {
+        return m_threadmgr;
+    }
+
+    virtual com_ptr<ITfKeystrokeMgr> keystroke_mgr() override {
+        return m_threadmgr.as<ITfKeystrokeMgr>();
     }
 
     virtual IUnknown *composition_mgr() override {
         return m_compositionmgr.as<IUnknown>().get();
     }
 
-    virtual IEnumTfDisplayAttributeInfo *displayAttrInfoEnum() override {
-        IEnumTfDisplayAttributeInfo *tmp = nullptr;
-        EnumDisplayAttributeInfo(&tmp);
-        return tmp;
+    virtual com_ptr<EngineController> engine() override {
+        return m_engine;
     }
 
-    virtual EngineController *engine() override {
-        return m_engine.get();
-    }
-
-    virtual CandidateListUI *candidate_ui() override {
-        return m_candidate_list_ui.get();
+    virtual com_ptr<CandidateListUI> candidate_ui() override {
+        return m_candidate_list_ui;
     }
 
     virtual AppConfig *config() override {
         return m_config.get();
     }
 
-    virtual winrt::com_ptr<ITfContext> GetTopContext() override {
+    virtual winrt::com_ptr<ITfContext> top_context() override {
         KHIIN_TRACE("");
         auto documentMgr = winrt::com_ptr<ITfDocumentMgr>();
         auto context = winrt::com_ptr<ITfContext>();
@@ -200,7 +198,7 @@ struct TextServiceImpl :
         return context;
     }
 
-    virtual winrt::com_ptr<ITfCategoryMgr> categoryMgr() override {
+    virtual winrt::com_ptr<ITfCategoryMgr> category_mgr() override {
         KHIIN_TRACE("");
         return m_categorymgr;
     }
@@ -231,7 +229,7 @@ struct TextServiceImpl :
 
     virtual void OnCandidateSelected(int32_t candidate_id) override {
         auto command = m_engine->SelectCandidate(candidate_id);
-        auto context = GetTopContext();
+        auto context = top_context();
         EditSession::HandleAction(this, context.get(), std::move(command));
     }
 
@@ -372,12 +370,6 @@ struct TextServiceImpl :
 };
 
 } // namespace
-
-//+---------------------------------------------------------------------------
-//
-// TextServiceFactory
-//
-//----------------------------------------------------------------------------
 
 void TextService::OnDllProcessAttach(HMODULE module) {
     DllModule::AddRef();

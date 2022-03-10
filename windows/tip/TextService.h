@@ -29,28 +29,28 @@ struct TextService : winrt::implements<TextService, IUnknown> {
     virtual TfClientId clientId() = 0;
     virtual DWORD activateFlags() = 0;
 
-    virtual ITfThreadMgr *thread_mgr() = 0;
+    virtual winrt::com_ptr<ITfThreadMgr> thread_mgr() = 0;
+    virtual winrt::com_ptr<ITfKeystrokeMgr> keystroke_mgr() = 0;
+    virtual winrt::com_ptr<EngineController> engine() = 0;
+    virtual winrt::com_ptr<CandidateListUI> candidate_ui() = 0;
+    virtual winrt::com_ptr<ITfCategoryMgr> category_mgr() = 0;
+    virtual winrt::com_ptr<ITfContext> top_context() = 0;
+    virtual winrt::com_ptr<ITfCompositionSink> CreateCompositionSink(ITfContext *context) = 0;
+
     virtual IUnknown *composition_mgr() = 0;
-    virtual IEnumTfDisplayAttributeInfo *displayAttrInfoEnum() = 0;
-    virtual EngineController *engine() = 0;
-    virtual CandidateListUI *candidate_ui() = 0;
+
     virtual proto::AppConfig *config() = 0;
 
-    virtual winrt::com_ptr<ITfCategoryMgr> categoryMgr() = 0;
-    virtual winrt::com_ptr<ITfContext> GetTopContext() = 0;
-    virtual winrt::com_ptr<ITfCompositionSink> CreateCompositionSink(ITfContext *context) = 0;
-    
     virtual void OnCompositionTerminated(TfEditCookie ecWrite, ITfContext *context, ITfComposition *pComposition) = 0;
     virtual void OnCandidateSelected(int32_t candidate_id) = 0;
     virtual void OnInputModeSelected(proto::InputMode mode) = 0;
     virtual void OpenSettingsApplication() = 0;
+    virtual void RegisterConfigChangeListener(ConfigChangeListener *config_listener) = 0;
+    virtual void SwapOnOff() = 0;
 
     virtual TfGuidAtom input_attribute() = 0;
     virtual TfGuidAtom converted_attribute() = 0;
     virtual TfGuidAtom focused_attribute() = 0;
-
-    virtual void RegisterConfigChangeListener(ConfigChangeListener *config_listener) = 0;
-    virtual void SwapOnOff() = 0;
 };
 
 } // namespace khiin::win32::tip
