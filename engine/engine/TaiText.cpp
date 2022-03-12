@@ -8,6 +8,7 @@
 
 namespace khiin::engine {
 namespace {
+namespace u8u = utf8::unchecked;
 
 static auto composed_size_visitor = overloaded //
     {[](Syllable const &elem) {
@@ -47,14 +48,14 @@ std::vector<std::string> SplitConvertedToSyllables(std::string_view str) {
     while (end != str.end()) {
         auto cat = glyph_type(start);
         if (cat == GlyphCategory::Hanji) {
-            utf8::unchecked::advance(end, 1);
+            u8u::advance(end, 1);
             ret.push_back(std::string(start, end));
             start = end;
             continue;
         } else if (cat == GlyphCategory::Alnum) {
-            utf8::unchecked::advance(end, 1);
+            u8u::advance(end, 1);
             while (end != str.end() && glyph_type(end) == GlyphCategory::Alnum) {
-                utf8::unchecked::advance(end, 1);
+                u8u::advance(end, 1);
             }
             ret.push_back(std::string(start, end));
             start = end;
@@ -122,7 +123,7 @@ utf8_size_t TaiText::RawSize() const {
     utf8_size_t size = 0;
     for (auto &v_elem : m_elements) {
         if (auto elem = std::get_if<Syllable>(&v_elem)) {
-            size += elem->raw_input.size();
+            size += unicode::u8_size(elem->raw_input);
         }
     }
     return size;
@@ -183,8 +184,8 @@ utf8_size_t TaiText::RawToComposedCaret(SyllableParser *parser, size_t raw_caret
     for (auto &v_elem : m_elements) {
         if (remainder > 0) {
             if (auto elem = std::get_if<Syllable>(&v_elem)) {
-                if (remainder > elem->raw_input.size()) {
-                    remainder -= elem->raw_input.size();
+                if (auto raw_size = unicode::u8_size(elem->raw_input);  remainder > raw_size) {
+                    remainder -= raw_size;
                     caret += unicode::u8_size(elem->composed);
                 } else {
                     caret += parser->RawToComposedCaret(*elem, remainder);
@@ -213,7 +214,7 @@ size_t TaiText::ComposedToRawCaret(SyllableParser *parser, utf8_size_t caret) co
         if (auto elem = std::get_if<Syllable>(&v_elem)) {
             if (auto size = unicode::u8_size(elem->composed); remainder > size) {
                 remainder -= size;
-                raw_caret += elem->raw_input.size();
+                raw_caret += unicode::u8_size(elem->raw_input);
             } else {
                 raw_caret += parser->ComposedToRawCaret(*elem, remainder);
                 remainder = 0;
@@ -250,7 +251,7 @@ size_t TaiText::ConvertedToRawCaret(SyllableParser *parser, utf8_size_t caret) c
         if (auto elem = std::get_if<Syllable>(&v_elem)) {
             if (auto size = unicode::u8_size(elem->composed); remainder > size) {
                 remainder -= size;
-                raw_caret += elem->raw_input.size();
+                raw_caret += unicode::u8_size(elem->raw_input);
             } else {
                 raw_caret += parser->ComposedToRawCaret(*elem, remainder);
                 remainder = 0;

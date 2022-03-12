@@ -102,7 +102,7 @@ TaiToken *HighestBigramCountImpl(SQLite::Database &db, std::string const &lgram,
 }
 
 void LoadPunctuationImpl(SQLite::Database &db, std::vector<Punctuation> &output) {
-    auto query = SQLite::Statement(db, "SELECT * FROM punctuation");
+    auto query = SQLite::Statement(db, "SELECT * FROM symbols");
     while (query.executeStep()) {
         output.push_back(Punctuation{query.getColumn("id").getInt(), query.getColumn("input").getString(),
                                      query.getColumn("output").getString(), query.getColumn("annotation").getString()});
@@ -115,6 +115,7 @@ class DatabaseImpl : public Database {
         db_handle = std::unique_ptr<SQLite::Database>(handle);
     }
 
+  private:
     virtual void AllWordsByFreq(std::vector<InputByFreq> &output) override {
         AllWordsByFreqImpl(*db_handle, output);
     }
@@ -148,7 +149,15 @@ class DatabaseImpl : public Database {
         LoadPunctuationImpl(*db_handle, output);
     }
 
-  private:
+    virtual std::vector<Emoji> GetEmojis() override {
+        auto ret = std::vector<Emoji>();
+        auto query = SQLite::Statement(*db_handle, "SELECT * FROM emojis ORDER BY category ASC, id ASC");
+        while (query.executeStep()) {
+            ret.push_back(Emoji{query.getColumn("category").getInt(), query.getColumn("emoji").getString()});
+        }
+        return ret;
+    }
+
     std::unique_ptr<SQLite::Database> db_handle;
 };
 

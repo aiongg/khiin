@@ -1,5 +1,4 @@
 #pragma once
-#include "BaseWindow.h"
 
 #include "GuiWindow.h"
 

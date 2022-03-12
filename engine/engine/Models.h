@@ -27,4 +27,9 @@ struct Punctuation {
     std::string annotation;
 };
 
+struct Emoji {
+    int category;
+    std::string value;
+};
+
 } // namespace khiin::engine

@@ -1,5 +1,9 @@
 #include "BufferMgr.h"
 
+#include <algorithm>
+
+#include "proto/proto.h"
+
 #include "Buffer.h"
 #include "BufferElement.h"
 #include "CandidateFinder.h"
@@ -7,7 +11,6 @@
 #include "KeyConfig.h"
 #include "KhinHandler.h"
 #include "Lomaji.h"
-#include "proto.h"
 #include "unicode_utils.h"
 
 namespace khiin::engine {
@@ -34,6 +37,10 @@ class BufferMgrImpl : public BufferMgr {
                     segment->set_status(SS_COMPOSING);
                     segment->set_value(composing_text);
                     continue;
+                } else if (it->IsVirtualSpace()) {
+                    auto segment = preedit->add_segments();
+                    segment->set_value(" ");
+                    segment->set_status(SS_UNMARKED);
                 } else if (it->is_converted) {
                     auto segment = preedit->add_segments();
                     segment->set_value(it->converted());
@@ -358,7 +365,7 @@ class BufferMgrImpl : public BufferMgr {
 
             auto cand_raw_size = candidate.RawTextSize();
             auto pre_raw_size = m_precomp.RawTextSize();
-            raw_caret = std::max(raw_caret, cand_raw_size + pre_raw_size);
+            raw_caret = (std::max)(raw_caret, cand_raw_size + pre_raw_size);
         }
 
         m_composition.Replace(replace_from, replace_to, candidate);
@@ -373,12 +380,22 @@ class BufferMgrImpl : public BufferMgr {
         FocusCandidate_(index);
 
         size_t n_elems_added = m_candidates.at(index).Size();
-        size_t n_elems_remaining = std::distance(m_composition.Begin() + m_focused_element, m_composition.End());
 
-        if (n_elems_remaining > n_elems_added && m_edit_state == EditState::ES_SELECTING) {
-            m_focused_element += n_elems_added;
+        auto comp_begin = m_composition.CBegin();
+        auto focused_elem = comp_begin + m_focused_element;
+        auto comp_end = m_composition.CEnd();
+        auto selecting = m_edit_state == EditState::ES_SELECTING;
+        size_t n_elems_remaining = std::distance(focused_elem, comp_end);
+
+        if (selecting && n_elems_remaining > n_elems_added) {
+            focused_elem += n_elems_added;
         }
 
+        while (focused_elem != comp_end && focused_elem->IsVirtualSpace()) {
+            ++focused_elem;
+        }
+
+        m_focused_element = std::distance(comp_begin, focused_elem);
         UpdateCandidatesForFocusedElement();
     }
 

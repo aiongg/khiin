@@ -8,6 +8,7 @@ add_library (khiin
     "${PROTOBUF_DIR}/config.pb.cc"
     "${PROTOBUF_DIR}/command.pb.h"
     "${PROTOBUF_DIR}/command.pb.cc"
+    "${PROTOBUF_DIR}/proto.h"
     "CandidateFinder.h"
     "CandidateFinder.cpp"
     "BufferElement.h"
@@ -28,7 +29,6 @@ add_library (khiin
     "Engine.cpp"
     "KeyConfig.h"
     "KeyConfig.cpp"
-    "proto.h"
     "Segmenter.h"
     "Segmenter.cpp"
     "SQL.h"
@@ -43,7 +43,7 @@ add_library (khiin
     "unicode_utils.h"
     "unicode_utils.cpp"
     "utils.h"
- "Models.h"   "Config.h" "KhinHandler.h" "KhinHandler.cpp"   "Buffer.h" "Buffer.cpp" "utils.cpp"  )
+ "Models.h"   "Config.h" "KhinHandler.h" "KhinHandler.cpp"   "Buffer.h" "Buffer.cpp" "utils.cpp"    "Config.cpp")
 
 # Debug
 target_link_options(khiin PRIVATE "/MAP")

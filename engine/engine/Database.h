@@ -29,6 +29,7 @@ class Database {
     virtual void AllWordsByFreq(std::vector<InputByFreq> &output) = 0;
     virtual void ConversionsByInputId(int input_id, std::vector<TaiToken> &conversions) = 0;
     virtual void LoadPunctuation(std::vector<Punctuation> &output) = 0;
+    virtual std::vector<Emoji> GetEmojis() = 0;
 };
 
 } // namespace khiin::engine

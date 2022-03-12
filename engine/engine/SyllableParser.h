@@ -5,6 +5,7 @@
 
 namespace khiin::engine {
 
+class Engine;
 class KeyConfig;
 struct Syllable;
 class TaiText;
@@ -17,8 +18,7 @@ struct InputSequence {
 
 class SyllableParser {
   public:
-    static SyllableParser *Create(KeyConfig *key_config);
-    virtual void SetKeyConfiguration(KeyConfig *key_config) = 0;
+    static SyllableParser *Create(Engine *engine);
 
     virtual void ParseRaw(std::string const &input, Syllable &output) = 0;
 

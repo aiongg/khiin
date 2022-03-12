@@ -47,7 +47,8 @@ constexpr AppConfig::AppConfig(
   ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
   : key_config_(nullptr)
   , input_mode_(0)
-{}
+
+  , dotted_khin_(false){}
 struct AppConfigDefaultTypeInternal {
   constexpr AppConfigDefaultTypeInternal()
     : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
@@ -92,6 +93,7 @@ const ::PROTOBUF_NAMESPACE_ID::uint32 TableStruct_proto_2fconfig_2eproto::offset
   ~0u,  // no _inlined_string_donated_
   PROTOBUF_FIELD_OFFSET(::khiin::proto::AppConfig, key_config_),
   PROTOBUF_FIELD_OFFSET(::khiin::proto::AppConfig, input_mode_),
+  PROTOBUF_FIELD_OFFSET(::khiin::proto::AppConfig, dotted_khin_),
 };
 static const ::PROTOBUF_NAMESPACE_ID::internal::MigrationSchema schemas[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) = {
   { 0, -1, -1, sizeof(::khiin::proto::KeyConfiguration)},
@@ -112,16 +114,17 @@ const char descriptor_table_protodef_proto_2fconfig_2eproto[] PROTOBUF_SECTION_V
   "\022\022\n\nalt_hyphen\030\t \001(\t\022\r\n\005nasal\030\n \001(\t\022\027\n\017d"
   "ot_above_right\030\013 \001(\t\022\022\n\ndots_below\030\014 \001(\t"
   "\022\036\n\026enable_uppercase_nasal\030\r \001(\010\022\036\n\026use_"
-  "digits_as_fallback\030\016 \001(\010\"j\n\tAppConfig\0221\n"
+  "digits_as_fallback\030\016 \001(\010\"\177\n\tAppConfig\0221\n"
   "\nkey_config\030\001 \001(\0132\035.khiin.proto.KeyConfi"
   "guration\022*\n\ninput_mode\030\002 \001(\0162\026.khiin.pro"
-  "to.InputMode*Z\n\tInputMode\022\022\n\016IM_UNSPECIF"
-  "IED\020\000\022\014\n\010IM_ALPHA\020\001\022\021\n\rIM_CONTINUOUS\020\002\022\014"
-  "\n\010IM_BASIC\020\003\022\n\n\006IM_PRO\020\004b\006proto3"
+  "to.InputMode\022\023\n\013dotted_khin\030\003 \001(\010*Z\n\tInp"
+  "utMode\022\022\n\016IM_UNSPECIFIED\020\000\022\014\n\010IM_ALPHA\020\001"
+  "\022\021\n\rIM_CONTINUOUS\020\002\022\014\n\010IM_BASIC\020\003\022\n\n\006IM_"
+  "PRO\020\004b\006proto3"
   ;
 static ::PROTOBUF_NAMESPACE_ID::internal::once_flag descriptor_table_proto_2fconfig_2eproto_once;
 const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable descriptor_table_proto_2fconfig_2eproto = {
-  false, false, 552, descriptor_table_protodef_proto_2fconfig_2eproto, "proto/config.proto", 
+  false, false, 573, descriptor_table_protodef_proto_2fconfig_2eproto, "proto/config.proto", 
   &descriptor_table_proto_2fconfig_2eproto_once, nullptr, 0, 2,
   schemas, file_default_instances, TableStruct_proto_2fconfig_2eproto::offsets,
   file_level_metadata_proto_2fconfig_2eproto, file_level_enum_descriptors_proto_2fconfig_2eproto, file_level_service_descriptors_proto_2fconfig_2eproto,
@@ -910,15 +913,17 @@ AppConfig::AppConfig(const AppConfig& from)
   } else {
     key_config_ = nullptr;
   }
-  input_mode_ = from.input_mode_;
+  ::memcpy(&input_mode_, &from.input_mode_,
+    static_cast<size_t>(reinterpret_cast<char*>(&dotted_khin_) -
+    reinterpret_cast<char*>(&input_mode_)) + sizeof(dotted_khin_));
   // @@protoc_insertion_point(copy_constructor:khiin.proto.AppConfig)
 }
 
 void AppConfig::SharedCtor() {
 ::memset(reinterpret_cast<char*>(this) + static_cast<size_t>(
     reinterpret_cast<char*>(&key_config_) - reinterpret_cast<char*>(this)),
-    0, static_cast<size_t>(reinterpret_cast<char*>(&input_mode_) -
-    reinterpret_cast<char*>(&key_config_)) + sizeof(input_mode_));
+    0, static_cast<size_t>(reinterpret_cast<char*>(&dotted_khin_) -
+    reinterpret_cast<char*>(&key_config_)) + sizeof(dotted_khin_));
 }
 
 AppConfig::~AppConfig() {
@@ -953,7 +958,9 @@ void AppConfig::Clear() {
     delete key_config_;
   }
   key_config_ = nullptr;
-  input_mode_ = 0;
+  ::memset(&input_mode_, 0, static_cast<size_t>(
+      reinterpret_cast<char*>(&dotted_khin_) -
+      reinterpret_cast<char*>(&input_mode_)) + sizeof(dotted_khin_));
   _internal_metadata_.Clear<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
 
@@ -977,6 +984,14 @@ const char* AppConfig::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::
           ::PROTOBUF_NAMESPACE_ID::uint64 val = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
           CHK_(ptr);
           _internal_set_input_mode(static_cast<::khiin::proto::InputMode>(val));
+        } else
+          goto handle_unusual;
+        continue;
+      // bool dotted_khin = 3;
+      case 3:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 24)) {
+          dotted_khin_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
+          CHK_(ptr);
         } else
           goto handle_unusual;
         continue;
@@ -1024,6 +1039,12 @@ failure:
       2, this->_internal_input_mode(), target);
   }
 
+  // bool dotted_khin = 3;
+  if (this->_internal_dotted_khin() != 0) {
+    target = stream->EnsureSpace(target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteBoolToArray(3, this->_internal_dotted_khin(), target);
+  }
+
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::InternalSerializeUnknownFieldsToArray(
         _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
@@ -1051,6 +1072,11 @@ size_t AppConfig::ByteSizeLong() const {
   if (this->_internal_input_mode() != 0) {
     total_size += 1 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::EnumSize(this->_internal_input_mode());
+  }
+
+  // bool dotted_khin = 3;
+  if (this->_internal_dotted_khin() != 0) {
+    total_size += 1 + 1;
   }
 
   return MaybeComputeUnknownFieldsSize(total_size, &_cached_size_);
@@ -1081,6 +1107,9 @@ void AppConfig::MergeFrom(const AppConfig& from) {
   if (from._internal_input_mode() != 0) {
     _internal_set_input_mode(from._internal_input_mode());
   }
+  if (from._internal_dotted_khin() != 0) {
+    _internal_set_dotted_khin(from._internal_dotted_khin());
+  }
   _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
 }
 
@@ -1099,8 +1128,8 @@ void AppConfig::InternalSwap(AppConfig* other) {
   using std::swap;
   _internal_metadata_.InternalSwap(&other->_internal_metadata_);
   ::PROTOBUF_NAMESPACE_ID::internal::memswap<
-      PROTOBUF_FIELD_OFFSET(AppConfig, input_mode_)
-      + sizeof(AppConfig::input_mode_)
+      PROTOBUF_FIELD_OFFSET(AppConfig, dotted_khin_)
+      + sizeof(AppConfig::dotted_khin_)
       - PROTOBUF_FIELD_OFFSET(AppConfig, key_config_)>(
           reinterpret_cast<char*>(&key_config_),
           reinterpret_cast<char*>(&other->key_config_));

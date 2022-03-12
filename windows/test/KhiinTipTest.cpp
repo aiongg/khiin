@@ -6,6 +6,7 @@
 
 #include "KhiinClassFactory.h"
 #include "Profile.h"
+#include "Guids.h"
 
 namespace khiin::win32::tip {
 using namespace winrt;
@@ -23,7 +24,7 @@ TEST(KhiinTipTest, Activate) {
         check_hresult(
             CoCreateInstance(CLSID_TF_ThreadMgr, NULL, CLSCTX_INPROC_SERVER, IID_ITfThreadMgr, threadmgr.put_void()));
         check_hresult(threadmgr->QueryInterface(IID_ITfClientId, clientid.put_void()));
-        check_hresult(clientid->GetClientId(Profile::textServiceGuid, &tid));
+        check_hresult(clientid->GetClientId(guids::kTextService, &tid));
         check_hresult(threadmgr->Activate(&tid));
         check_hresult(threadmgr->CreateDocumentMgr(docmgr.put()));
         HWND dummyHWND = ::CreateWindowA("STATIC", "dummy", WS_VISIBLE, 0, 0, 100, 100, NULL, NULL, NULL, NULL);

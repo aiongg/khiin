@@ -1,10 +1,14 @@
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
+#include "proto/proto.h"
+
+#include "Engine.h"
 #include "KeyConfig.h"
 #include "Syllable.h"
 #include "SyllableParser.h"
 #include "TaiText.h"
+#include "TestEnv.h"
 
 namespace khiin::engine {
 namespace {
@@ -22,10 +26,8 @@ std::vector<std::string> input_sequence_strings_only(std::vector<InputSequence> 
 struct SyllableParserTest : ::testing::Test {
   protected:
     void SetUp() {
-        keyconfig = KeyConfig::Create();
-        parser = SyllableParser::Create(keyconfig);
+        parser = TestEnv::engine()->syllable_parser();
     }
-    KeyConfig *keyconfig = nullptr;
     SyllableParser *parser = nullptr;
 };
 
@@ -339,6 +341,29 @@ TEST_F(SyllableParserTest, Erase_kah8) {
     EXPECT_EQ(s.raw_input, "kh");
 }
 
+TEST_F(SyllableParserTest, Erase_khin) {
+    auto s = Syllable();
+    s.composed = "·a";
+    s.raw_input = "--a";
+    s.raw_body = "a";
+    s.khin_key = '-';
+    s.khin_pos = KhinKeyPosition::Start;
+    parser->Erase(s, 1);
+    EXPECT_EQ(s.composed, "·");
+    EXPECT_EQ(s.raw_body, "");
+    EXPECT_EQ(s.raw_input, "--");
+}
+
+TEST_F(SyllableParserTest, Khin_only) {
+    auto input = "--";
+    auto s = Syllable();
+    parser->ParseRaw(input, s);
+    EXPECT_EQ(s.composed, "·");
+    EXPECT_EQ(s.raw_body, "");
+    EXPECT_EQ(s.raw_input, "--");
+    EXPECT_EQ(s.khin_pos, KhinKeyPosition::Start);
+    EXPECT_EQ(s.khin_key, '-');
+}
 TEST_F(SyllableParserTest, Khin_a) {
     auto input = "--a";
     auto s = Syllable();
@@ -359,6 +384,21 @@ TEST_F(SyllableParserTest, Khin_a0) {
     EXPECT_EQ(s.raw_input, "a0");
     EXPECT_EQ(s.khin_pos, KhinKeyPosition::End);
     EXPECT_EQ(s.khin_key, '0');
+}
+
+TEST_F(SyllableParserTest, Khin_with_dashes) {
+    auto input = "--a";
+    auto s = Syllable();
+
+    TestEnv::engine()->config()->set_dotted_khin(false);
+    parser->ParseRaw(input, s);
+    EXPECT_EQ(s.composed, "--a");
+    EXPECT_EQ(s.raw_body, "a");
+    EXPECT_EQ(s.raw_input, "--a");
+    EXPECT_EQ(s.khin_pos, KhinKeyPosition::Start);
+    EXPECT_EQ(s.khin_key, '-');
+    parser->Erase(s, 1);
+    TestEnv::engine()->config()->set_dotted_khin(true);
 }
 
 TEST_F(SyllableParserTest, AsTaiText_sou2i2) {

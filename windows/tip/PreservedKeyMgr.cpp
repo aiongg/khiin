@@ -18,6 +18,7 @@ struct PreservedKey {
 
 // VK_OEM_3 = ` (BACK QUOTE)
 PreservedKey kPrekeyOnOff = {guids::kPreservedKeyOnOff, {VK_OEM_3, MOD_ALT}, L"Direct input"};
+PreservedKey kPrekeyFWS = {guids::kPreservedKeyFullWidthSpace, {VK_SPACE, MOD_SHIFT}, L"Full width space"};
 
 class PreservedKeyMgrImpl : public PreservedKeyMgr {
     virtual void Initialize(TextService *service) override {
@@ -25,11 +26,13 @@ class PreservedKeyMgrImpl : public PreservedKeyMgr {
         auto client_id = m_service->clientId();
         auto keystroke_mgr = KeystrokeMgr();
         PreserveKey(client_id, keystroke_mgr.get(), kPrekeyOnOff);
+        PreserveKey(client_id, keystroke_mgr.get(), kPrekeyFWS);
     }
 
     virtual void Shutdown() override {
         auto keystroke_mgr = KeystrokeMgr();
         UnpreserveKey(kPrekeyOnOff);
+        UnpreserveKey(kPrekeyFWS);
         m_service = nullptr;
     }
 

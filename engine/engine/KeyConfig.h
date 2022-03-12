@@ -13,6 +13,7 @@ class KeyConfiguration;
 
 namespace engine {
 
+
 enum class VKey {
     None,
     Nasal,
@@ -37,11 +38,13 @@ struct ConversionRuleSet {
     std::vector<ConversionRule> conversion_rules;
 };
 
+class Engine;
+
 class KeyConfig {
   public:
     static KeyConfig *CreateEmpty();
     static KeyConfig *Create();
-    static KeyConfig *Create(proto::KeyConfiguration configuration);
+    static KeyConfig *Create(Engine *engine);
     virtual bool SetKey(char key, VKey vkey, bool standalone = false) = 0;
     virtual std::vector<ConversionRule> const &ConversionRules() = 0;
     virtual std::vector<char> GetHyphenKeys() = 0;

@@ -1,7 +1,11 @@
 #include "KeyConfig.h"
 
 #include <iterator>
-#include "proto.h"
+
+#include "proto/proto.h"
+
+#include "Config.h"
+#include "Engine.h"
 
 namespace khiin::engine {
 namespace {
@@ -51,8 +55,72 @@ static inline bool is_allowed_dotaboveright_key(char key, bool standalone) {
     return true;
 }
 
-class KeyCfgImpl : public KeyConfig {
+class KeyCfgImpl : public KeyConfig, ConfigChangeListener {
   public:
+    KeyCfgImpl(Engine *engine) : m_engine(engine) {
+        if (m_engine) {
+            m_engine->RegisterConfigChangedListener(this);
+        }
+    };
+
+    // Inherited via ConfigChangeListener
+    virtual void OnConfigChanged(khiin::proto::AppConfig *config) {
+        ReloadEngineConfig();
+    }
+
+  private:
+    void Reset() {
+        m_conversion_rule_cache.clear();
+        m_conversion_rule_sets.clear();
+        m_key_map.clear();
+        standalone_nasal = false;
+        standalone_dotaboveright = false;
+        use_fallback_tone_digits = true;
+    }
+
+    void ReloadDefaultConfig() {
+        Reset();
+        SetKey('n', VKey::Nasal);
+        SetKey('u', VKey::DotAboveRight);
+        SetKey('r', VKey::DotsBelow);
+    }
+
+    void ReloadEngineConfig() {
+        if (m_engine == nullptr) {
+            ReloadDefaultConfig();
+            return;
+        }
+
+        Reset();
+        auto config = m_engine->config()->key_config();
+        std::string key;
+
+        key = config.nasal();
+        if (key.size() == 1) {
+            SetKey(tolower(key.front()), VKey::Nasal, true);
+        } else if (key.size() == 2 && tolower(key.front()) == 'n') {
+            SetKey(tolower(key.back()), VKey::Nasal, false);
+        } else {
+            SetKey('n', VKey::Nasal);
+        }
+
+        key = config.dot_above_right();
+        if (key.size() == 1) {
+            SetKey(tolower(key.front()), VKey::DotAboveRight, true);
+        } else if (key.size() == 2 && tolower(key.front()) == 'o') {
+            SetKey(tolower(key.back()), VKey::DotAboveRight, false);
+        } else {
+            SetKey('u', VKey::DotAboveRight);
+        }
+
+        key = config.dots_below();
+        if (key.size() > 0) {
+            SetKey(tolower(key.front()), VKey::DotsBelow, false);
+        } else {
+            SetKey('r', VKey::DotsBelow);
+        }
+    }
+
     virtual bool SetKey(char key, VKey vkey, bool standalone = false) override {
         auto set = false;
         switch (vkey) {
@@ -169,7 +237,6 @@ class KeyCfgImpl : public KeyConfig {
         return false;
     }
 
-  private:
     bool SetNasal(char key, bool standalone) {
         if (!is_allowed_nasal_key(key, standalone)) {
             return false;
@@ -291,7 +358,7 @@ class KeyCfgImpl : public KeyConfig {
             }));
     }
 
-    inline bool is_key_available(char key, VKey vkey) {
+    bool is_key_available(char key, VKey vkey) {
         for (auto &[used_vkey, used_key] : m_key_map) {
             if (key == used_key && vkey != used_vkey) {
                 return false;
@@ -301,6 +368,7 @@ class KeyCfgImpl : public KeyConfig {
         return true;
     }
 
+    Engine *m_engine = nullptr;
     std::vector<ConversionRule> m_conversion_rule_cache;
     std::vector<ConversionRuleSet> m_conversion_rule_sets;
     std::unordered_map<VKey, char> m_key_map;
@@ -312,40 +380,19 @@ class KeyCfgImpl : public KeyConfig {
 } // namespace
 
 KeyConfig *KeyConfig::Create() {
-    auto key_config = new KeyCfgImpl();
+    auto key_config = reinterpret_cast<KeyConfig *>(new KeyCfgImpl(nullptr));
     key_config->SetKey('n', VKey::Nasal);
     key_config->SetKey('u', VKey::DotAboveRight);
     key_config->SetKey('r', VKey::DotsBelow);
     return key_config;
 }
 
-KeyConfig *KeyConfig::Create(KeyConfiguration config) {
-    auto key_config = new KeyCfgImpl();
-    std::string key;
-
-    key = config.nasal();
-    if (key.size() == 1) {
-        key_config->SetKey(tolower(key.front()), VKey::Nasal, true);
-    } else if (key.size() == 2 && tolower(key.front()) == 'n') {
-        key_config->SetKey(tolower(key.back()), VKey::Nasal, false);
-    }
-
-    key = config.dot_above_right();
-    if (key.size() == 1) {
-        key_config->SetKey(tolower(key.front()), VKey::DotAboveRight, true);
-    } else if (key.size() == 2 && tolower(key.front()) == 'o') {
-        key_config->SetKey(tolower(key.back()), VKey::DotAboveRight, false);
-    }
-
-    key = config.dots_below();
-    if (key.size() > 0) {
-        key_config->SetKey(tolower(key.front()), VKey::DotsBelow, false);
-    }
-    return key_config;
+KeyConfig *KeyConfig::Create(Engine *engine) {
+    return new KeyCfgImpl(engine);
 }
 
 KeyConfig *KeyConfig::CreateEmpty() {
-    return new KeyCfgImpl();
+    return new KeyCfgImpl(nullptr);
 }
 
 } // namespace khiin::engine

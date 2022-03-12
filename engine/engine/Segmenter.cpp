@@ -9,7 +9,7 @@ namespace khiin::engine {
 namespace {
 
 size_t CheckHyphens(Engine *engine, std::string_view str) {
-    auto hyphen_keys = engine->key_configuration()->GetHyphenKeys();
+    auto hyphen_keys = engine->keyconfig()->GetHyphenKeys();
 
     size_t n_hyphens = 0;
     auto is_hyphen = false;

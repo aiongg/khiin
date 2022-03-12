@@ -14,7 +14,6 @@ class Command;
 namespace khiin::engine {
 
 class BufferMgr;
-// class CandidateFinder;
 class Database;
 class Dictionary;
 class KeyConfig;
@@ -35,7 +34,7 @@ class Engine {
     virtual BufferMgr *buffer_mgr() = 0;
     virtual Database *database() = 0;
     virtual Dictionary *dictionary() = 0;
-    virtual KeyConfig *key_configuration() = 0;
+    virtual KeyConfig *keyconfig() = 0;
     virtual SyllableParser *syllable_parser() = 0;
     virtual proto::AppConfig *config() = 0;
 };

@@ -1,16 +1,21 @@
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
+#include "proto/proto.h"
+
 #include "BufferMgr.h"
 #include "TestEnv.h"
-#include "proto.h"
 
 namespace khiin::engine {
 namespace {
 using namespace proto;
 using ::testing::Contains;
 
-bool OrEqual(std::string test, std::string v1, std::string v2) {
+bool OrEqual4(std::string test, std::string v1, std::string v2, std::string v3) {
+    return test == v1 || test == v2 || test == v3;
+}
+
+bool OrEqual3(std::string test, std::string v1, std::string v2) {
     return test == v1 || test == v2;
 }
 
@@ -369,7 +374,7 @@ TEST_F(BufferCaretTest, MoveType_siongho) {
     ExpectBuffer("siong ho", 8);
     curs_left(6);
     typing("h");
-    ExpectBuffer("si ho ng ho", 4);
+    ExpectBuffer("si hong ho", 4);
 }
 
 //+---------------------------------------------------------------------------
@@ -478,6 +483,39 @@ TEST_F(BufferKhinTest, Insert_2khins) {
     ExpectBuffer("hó ·sī ·bô", 10);
 }
 
+TEST_F(BufferKhinTest, Delete_khins) {
+    typing("--a");
+    ExpectBuffer("·a", 2);
+    key_bksp(1);
+    ExpectBuffer("·", 1);
+    key_bksp(1);
+    ExpectEmpty();
+}
+
+TEST_F(BufferKhinTest, Delete_khin_an2) {
+    typing("--an2");
+    ExpectBuffer("·án", 3);
+    key_bksp(1);
+    ExpectBuffer("·á", 2);
+    key_bksp(1);
+    ExpectBuffer("·", 1);
+    key_bksp(1);
+    ExpectEmpty();
+}
+
+TEST_F(BufferKhinTest, Delete_khins2) {
+    TestEnv::engine()->config()->set_dotted_khin(false);
+    typing("--a");
+    ExpectBuffer("--a", 3);
+    key_bksp(1);
+    ExpectBuffer("--", 2);
+    key_bksp(1);
+    ExpectBuffer("-", 1);
+    key_bksp(1);
+    ExpectEmpty();
+    TestEnv::engine()->config()->set_dotted_khin(true);
+}
+
 //+---------------------------------------------------------------------------
 //
 // Candidates
@@ -509,12 +547,12 @@ TEST_F(CandidatesTest, Candidates_e) {
 
 TEST_F(CandidatesTest, Goa_goa) {
     typing("goa");
-    ExpectCandidateSize(2);
+    ExpectCandidateSize(8);
     ExpectCandidate("我");
     ExpectCandidate("góa");
     bufmgr->Clear();
     typing("Goa");
-    ExpectCandidateSize(2);
+    ExpectCandidateSize(8);
     ExpectCandidate("我");
     ExpectCandidate("Góa");
 }
@@ -580,11 +618,11 @@ TEST_F(BufferConversionTest, Convert_erase_ho2) {
 TEST_F(BufferConversionTest, Convert_erase_kamanne) {
     typing("kamanne");
     spacebar(1);
-    ASSERT_PRED3(OrEqual, display(), "咁按呢", "敢按呢");
+    ASSERT_PRED4(OrEqual4, display(), "咁按呢", "咁安呢", "敢按呢");
     key_bksp(1);
-    ASSERT_PRED3(OrEqual, display(), "咁按", "敢按");
+    ASSERT_PRED4(OrEqual4, display(), "咁按", "咁安", "敢按");
     key_bksp(1);
-    ASSERT_PRED3(OrEqual, display(), "咁", "敢");
+    ASSERT_PRED3(OrEqual3, display(), "咁", "敢");
     key_bksp(1);
     EXPECT_EQ(display(), u8"");
 }
@@ -594,36 +632,36 @@ TEST_F(BufferConversionTest, Convert_erase_insert) {
     spacebar(1);
     curs_left(1);
     key_bksp(1);
-    ExpectBuffer("是按無", 2);
+    ExpectBuffer("省無", 1);
     typing("h");
-    ExpectBuffer("是按 h 無", 4);
+    ExpectBuffer("省 h 無", 3);
     typing("o");
-    ExpectBuffer("是按 ho 無", 5);
+    ExpectBuffer("省 ho 無", 4);
 }
 
 TEST_F(BufferConversionTest, Convert_insert_middle) {
-    typing("anne");
+    typing("bunte");
     spacebar(1);
-    ExpectSegment(1, 0, SS_FOCUSED, "按呢", 2);
+    ExpectSegment(1, 0, SS_FOCUSED, "問題", 2);
     curs_left(1);
-    ExpectSegment(1, 0, SS_FOCUSED, "按呢", 1);
+    ExpectSegment(1, 0, SS_FOCUSED, "問題", 1);
     typing("ho");
-    ExpectBuffer("按 ho 呢", 4);
-    ExpectSegment(3, 0, SS_CONVERTED, "按", 4);
+    ExpectBuffer("問 ho 題", 4);
+    ExpectSegment(3, 0, SS_CONVERTED, "問", 4);
     ExpectSegment(3, 1, SS_COMPOSING, " ho ", 4);
-    ExpectSegment(3, 2, SS_CONVERTED, "呢", 4);
+    ExpectSegment(3, 2, SS_CONVERTED, "題", 4);
     spacebar(1);
-    ExpectBuffer("按好呢", 2);
+    ExpectBuffer("問好題", 2);
     ExpectSegment(3, 1, SS_FOCUSED, "好", 2);
 }
 
 TEST_F(BufferConversionTest, Convert_insert_erase) {
-    typing("anne");
+    typing("bunte");
     spacebar(1);
     curs_left(1);
     typing("ho");
     key_bksp(2);
-    ExpectSegment(1, 0, SS_COMPOSING, "按呢", 1);
+    ExpectSegment(1, 0, SS_COMPOSING, "問題", 1);
 }
 
 TEST_F(BufferConversionTest, Convert_e5) {
@@ -723,6 +761,15 @@ TEST_F(BufferNavigationTest, Focus_element) {
     ExpectSegment(2, 1, SS_CONVERTED);
 }
 
+TEST_F(BufferNavigationTest, Focus_skips_vspace) {
+    typing("boho");
+    spacebar(2);
+    enter();
+    ExpectSegment(3, 0, SS_CONVERTED, "bô", 4);
+    ExpectSegment(3, 1, SS_UNMARKED);
+    ExpectSegment(3, 2, SS_FOCUSED);
+}
+
 TEST_F(BufferMgrTest, DISABLED_TmpTest) {
     typing("iniauchiaheanneoupoetemthangchhikimhiahanahesitihiasisinithia");
     typing("n");
@@ -762,7 +809,7 @@ TEST_F(CandidateNavigationTest, Focus_prev_e) {
     spacebar(1);
     curs_up(1);
     ExpectSegment(3, 0, SS_FOCUSED, "ē", 3);
-    ExpectSegment(3, 1, SS_CONVERTED, " ", 3);
+    ExpectSegment(3, 1, SS_UNMARKED, " ", 3);
     ExpectSegment(3, 2, SS_CONVERTED, "x", 3);
 }
 
@@ -770,7 +817,7 @@ TEST_F(CandidateNavigationTest, Focus_xyz) {
     typing("boxyz");
     spacebar(1);
     ExpectSegment(3, 0, SS_FOCUSED, "無", 5);
-    ExpectSegment(3, 1, SS_CONVERTED, " ", 5);
+    ExpectSegment(3, 1, SS_UNMARKED, " ", 5);
     ExpectSegment(3, 2, SS_CONVERTED, "xyz", 5);
 
     curs_right(1);
@@ -827,7 +874,7 @@ TEST_F(CandidateSelectionTest, Select_ex) {
     typing("ex");
     spacebar(1);
     ExpectSegment(3, 0, SS_FOCUSED, "个", 3);
-    ExpectSegment(3, 1, SS_CONVERTED, " ", 3);
+    ExpectSegment(3, 1, SS_UNMARKED, " ", 3);
     ExpectSegment(3, 2, SS_CONVERTED, "x", 3);
     curs_down(1);
     ExpectSegment(3, 0, SS_FOCUSED, "兮", 3);

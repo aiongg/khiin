@@ -3,6 +3,8 @@
 //#include <algorithm>
 #include <unordered_map>
 
+#include "proto/proto.h"
+
 #include "Database.h"
 #include "Engine.h"
 #include "KeyConfig.h"
@@ -10,7 +12,6 @@
 #include "Splitter.h"
 #include "SyllableParser.h"
 #include "Trie.h"
-#include "proto.h"
 
 #include <mutex>
 
@@ -52,7 +53,7 @@ class DictionaryImpl : public Dictionary {
             return false;
         }
 
-        auto maybe_tone = m_engine->key_configuration()->CheckToneKey(query.back());
+        auto maybe_tone = m_engine->keyconfig()->CheckToneKey(query.back());
 
         if (Lomaji::NeedsToneDiacritic(maybe_tone)) {
             query = query.substr(0, query.size() - 1);

@@ -55,6 +55,10 @@ class CandidatePagerImpl : public CandidatePager {
         }
     }
 
+    virtual void SetFocusIndex(int index) override {
+        m_focused_index = index;
+    }
+
     virtual DisplayMode GetDisplayMode() override {
         return m_display_mode;
     }

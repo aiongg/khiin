@@ -568,6 +568,7 @@ class AppConfig final :
   enum : int {
     kKeyConfigFieldNumber = 1,
     kInputModeFieldNumber = 2,
+    kDottedKhinFieldNumber = 3,
   };
   // .khiin.proto.KeyConfiguration key_config = 1;
   bool has_key_config() const;
@@ -596,6 +597,15 @@ class AppConfig final :
   void _internal_set_input_mode(::khiin::proto::InputMode value);
   public:
 
+  // bool dotted_khin = 3;
+  void clear_dotted_khin();
+  bool dotted_khin() const;
+  void set_dotted_khin(bool value);
+  private:
+  bool _internal_dotted_khin() const;
+  void _internal_set_dotted_khin(bool value);
+  public:
+
   // @@protoc_insertion_point(class_scope:khiin.proto.AppConfig)
  private:
   class _Internal;
@@ -605,6 +615,7 @@ class AppConfig final :
   typedef void DestructorSkippable_;
   ::khiin::proto::KeyConfiguration* key_config_;
   int input_mode_;
+  bool dotted_khin_;
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   friend struct ::TableStruct_proto_2fconfig_2eproto;
 };
@@ -1323,6 +1334,26 @@ inline void AppConfig::_internal_set_input_mode(::khiin::proto::InputMode value)
 inline void AppConfig::set_input_mode(::khiin::proto::InputMode value) {
   _internal_set_input_mode(value);
   // @@protoc_insertion_point(field_set:khiin.proto.AppConfig.input_mode)
+}
+
+// bool dotted_khin = 3;
+inline void AppConfig::clear_dotted_khin() {
+  dotted_khin_ = false;
+}
+inline bool AppConfig::_internal_dotted_khin() const {
+  return dotted_khin_;
+}
+inline bool AppConfig::dotted_khin() const {
+  // @@protoc_insertion_point(field_get:khiin.proto.AppConfig.dotted_khin)
+  return _internal_dotted_khin();
+}
+inline void AppConfig::_internal_set_dotted_khin(bool value) {
+  
+  dotted_khin_ = value;
+}
+inline void AppConfig::set_dotted_khin(bool value) {
+  _internal_set_dotted_khin(value);
+  // @@protoc_insertion_point(field_set:khiin.proto.AppConfig.dotted_khin)
 }
 
 #ifdef __GNUC__

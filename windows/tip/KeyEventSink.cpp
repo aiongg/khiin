@@ -210,6 +210,11 @@ struct KeyEventSinkImpl : implements<KeyEventSinkImpl, ITfKeyEventSink, KeyEvent
             service->SwapOnOff();
             *pfEaten = TRUE;
         }
+
+        if (rguid == guids::kPreservedKeyFullWidthSpace) {
+            
+        }
+
         CATCH_FOR_HRESULT;
     }
 

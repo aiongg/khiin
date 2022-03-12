@@ -23,6 +23,7 @@ class CandidatePager {
     virtual void SetCandidateList(proto::CandidateList *candidate_list) = 0;
     virtual void SetDisplayMode(DisplayMode display_mode) = 0;
     virtual void SetFocus(int candidate_id) = 0;
+    virtual void SetFocusIndex(int index) = 0;
 
     virtual DisplayMode GetDisplayMode() = 0;
     virtual void GetPage(CandidateGrid &grid) = 0;

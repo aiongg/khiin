@@ -11,6 +11,7 @@
 #include <unordered_map>
 #include <unordered_set>
 
+#include "proto/proto.h"
 #include "utf8cpp/utf8.h"
 
 #include "BufferMgr.h"
@@ -18,7 +19,6 @@
 #include "Dictionary.h"
 #include "KeyConfig.h"
 #include "SyllableParser.h"
-#include "proto.h"
 #include "utils.h"
 
 namespace khiin::engine {
@@ -41,8 +41,9 @@ class EngineImpl : public Engine {
             m_database = std::unique_ptr<Database>(Database::TestDb());
         }
 
-        m_keyconfig = std::unique_ptr<KeyConfig>(KeyConfig::Create());
-        m_syllable_parser = std::unique_ptr<SyllableParser>(SyllableParser::Create(m_keyconfig.get()));
+        m_config = DefaultAppConfig();
+        m_keyconfig = std::unique_ptr<KeyConfig>(KeyConfig::Create(this));
+        m_syllable_parser = std::unique_ptr<SyllableParser>(SyllableParser::Create(this));
         m_dictionary = std::unique_ptr<Dictionary>(Dictionary::Create(this));
         m_buffer_mgr = std::unique_ptr<BufferMgr>(BufferMgr::Create(this));
 
@@ -52,9 +53,10 @@ class EngineImpl : public Engine {
         m_cmd_handlers[CMD_SELECT_CANDIDATE] = &EngineImpl::HandleSelectCandidate;
         m_cmd_handlers[CMD_FOCUS_CANDIDATE] = &EngineImpl::HandleFocusCandidate;
         m_cmd_handlers[CMD_SET_CONFIG] = &EngineImpl::HandleSetConfig;
+        m_cmd_handlers[CMD_LIST_EMOJIS] = &EngineImpl::HandleListEmojis;
 
+        NotifyConfigChangeListeners();
         m_dictionary->Initialize();
-        m_config = new AppConfig();
     }
 
     virtual void SendCommand(Command *pCommand) override {
@@ -79,7 +81,7 @@ class EngineImpl : public Engine {
         return m_database.get();
     }
 
-    virtual KeyConfig *key_configuration() override {
+    virtual KeyConfig *keyconfig() override {
         return m_keyconfig.get();
     }
 
@@ -92,7 +94,7 @@ class EngineImpl : public Engine {
     }
 
     virtual AppConfig *config() override {
-        return m_config;
+        return m_config.get();
     }
 
     virtual void RegisterConfigChangedListener(ConfigChangeListener *listener) override {
@@ -243,8 +245,18 @@ class EngineImpl : public Engine {
     void NotifyConfigChangeListeners() {
         for (auto &listener : m_config_change_listeners) {
             if (listener) {
-                listener->OnConfigChanged(m_config);
+                listener->OnConfigChanged(m_config.get());
             }
+        }
+    }
+
+    void HandleListEmojis(Command *command) {
+        auto emojis = m_database->GetEmojis();
+        auto candidates = command->mutable_response()->mutable_candidate_list();
+        for (auto &emoji : emojis) {
+            auto cand = candidates->add_candidates();
+            cand->set_id(emoji.category);
+            cand->set_value(emoji.value);
         }
     }
 
@@ -264,7 +276,7 @@ class EngineImpl : public Engine {
 
     std::unordered_map<CommandType, decltype(&HandleNone)> m_cmd_handlers = {};
     std::vector<ConfigChangeListener *> m_config_change_listeners;
-    AppConfig *m_config = nullptr;
+    std::unique_ptr<AppConfig> m_config = nullptr;
 };
 
 } // namespace

@@ -41,6 +41,10 @@ inline constexpr bool is_nasal(char32_t c) {
     return c == kNasalLower || c == kNasalUpper;
 }
 
+inline constexpr bool is_khin(char32_t c) {
+    return c == kKhinDot;
+}
+
 enum class GlyphCategory {
     Other,
     Alnum,

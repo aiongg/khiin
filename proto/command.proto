@@ -57,6 +57,7 @@ enum CommandType {
     CMD_ENABLE = 10;
     CMD_SET_CONFIG = 11;
     CMD_TEST_SEND_KEY = 12;
+    CMD_LIST_EMOJIS = 13;
 }
 
 // Message sent from app to engine

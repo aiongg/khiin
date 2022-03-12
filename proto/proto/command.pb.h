@@ -201,12 +201,13 @@ enum CommandType : int {
   CMD_ENABLE = 10,
   CMD_SET_CONFIG = 11,
   CMD_TEST_SEND_KEY = 12,
+  CMD_LIST_EMOJIS = 13,
   CommandType_INT_MIN_SENTINEL_DO_NOT_USE_ = std::numeric_limits<::PROTOBUF_NAMESPACE_ID::int32>::min(),
   CommandType_INT_MAX_SENTINEL_DO_NOT_USE_ = std::numeric_limits<::PROTOBUF_NAMESPACE_ID::int32>::max()
 };
 bool CommandType_IsValid(int value);
 constexpr CommandType CommandType_MIN = CMD_UNSPECIFIED;
-constexpr CommandType CommandType_MAX = CMD_TEST_SEND_KEY;
+constexpr CommandType CommandType_MAX = CMD_LIST_EMOJIS;
 constexpr int CommandType_ARRAYSIZE = CommandType_MAX + 1;
 
 const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor* CommandType_descriptor();

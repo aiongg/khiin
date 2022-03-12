@@ -185,10 +185,15 @@ class CandidateWindow2Impl : public CandidateWindow {
 
         m_metrics.row_height = static_cast<float>(m_layout_grid.row_height());
         auto grid_size = m_layout_grid.GetGridSize();
-        auto left = m_text_rect.left - m_metrics.qs_col_w * m_scale;
+        auto left = m_text_rect.left - m_metrics.qs_col_w;
         auto top = m_text_rect.bottom * 1.0f;
-        auto width = grid_size.width * m_scale;
-        auto height = grid_size.height * m_scale;
+        auto width = grid_size.width;
+        auto height = grid_size.height;
+
+        if (DpiAware()) {
+            width = ToPx(width);
+            height = ToPx(height);
+        }
 
         if (left + width > m_max_width) {
             left = m_max_width - width;

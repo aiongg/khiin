@@ -6,11 +6,11 @@
 #include <filesystem>
 #include <vector>
 
-#include <utf8cpp/utf8/cpp17.h>
+#include "proto/proto.h"
+#include "utf8cpp/utf8/cpp17.h"
 
 #include "TestEnv.h"
 #include "common.h"
-#include "proto.h"
 
 namespace khiin::engine {
 namespace {
@@ -71,18 +71,18 @@ TEST_F(EngineTest, Loads) {
 }
 
 TEST_F(EngineTest, SimpleInput) {
-    //feedText("ka");
-    //EXPECT_GT(output->candidate_list().candidates().size(), 0);
+    // feedText("ka");
+    // EXPECT_GT(output->candidate_list().candidates().size(), 0);
 }
 
 TEST_F(EngineTest, PrimaryCandidate) {
-    //feedText("goasiannmihlongboai");
-    //EXPECT_GT(output->candidate_list().candidates().size(), 0);
-    //EXPECT_EQ(output->candidate_list().candidates().at(0).value(), u8"我省乜朗無愛");
+    // feedText("goasiannmihlongboai");
+    // EXPECT_GT(output->candidate_list().candidates().size(), 0);
+    // EXPECT_EQ(output->candidate_list().candidates().at(0).value(), u8"我省乜朗無愛");
 }
 
 TEST_F(EngineTest, Erasing) {
-    //feedText("a");
+    // feedText("a");
     // auto ret = e->onKeyDown(KeyCode::BACK, display);
     // BOOST_TEST((ret == RetVal::Cancelled));
     // BOOST_TEST(display.buffer == u8"");

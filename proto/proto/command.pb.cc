@@ -278,26 +278,26 @@ const char descriptor_table_protodef_proto_2fcommand_2eproto[] PROTOBUF_SECTION_
   "UP\020\n\022\013\n\007SK_PGDN\020\013\022\013\n\007SK_HOME\020\014\022\n\n\006SK_END"
   "\020\r\022\n\n\006SK_DEL\020\016*I\n\013ModifierKey\022\r\n\tMODK_NO"
   "NE\020\000\022\r\n\tMODK_CTRL\020\001\022\014\n\010MODK_ALT\020\002\022\016\n\nMOD"
-  "K_SHIFT\020\003*\223\002\n\013CommandType\022\023\n\017CMD_UNSPECI"
+  "K_SHIFT\020\003*\250\002\n\013CommandType\022\023\n\017CMD_UNSPECI"
   "FIED\020\000\022\020\n\014CMD_SEND_KEY\020\001\022\016\n\nCMD_REVERT\020\002"
   "\022\r\n\tCMD_RESET\020\003\022\016\n\nCMD_COMMIT\020\004\022\030\n\024CMD_S"
   "ELECT_CANDIDATE\020\005\022\027\n\023CMD_FOCUS_CANDIDATE"
   "\020\006\022\031\n\025CMD_SWITCH_INPUT_MODE\020\007\022\024\n\020CMD_PLA"
   "CE_CURSOR\020\010\022\017\n\013CMD_DISABLE\020\t\022\016\n\nCMD_ENAB"
   "LE\020\n\022\022\n\016CMD_SET_CONFIG\020\013\022\025\n\021CMD_TEST_SEN"
-  "D_KEY\020\014*T\n\rSegmentStatus\022\017\n\013SS_UNMARKED\020"
-  "\000\022\020\n\014SS_COMPOSING\020\001\022\020\n\014SS_CONVERTED\020\002\022\016\n"
-  "\nSS_FOCUSED\020\003*\035\n\tErrorCode\022\006\n\002OK\020\000\022\010\n\004FA"
-  "IL\020\001*O\n\tEditState\022\014\n\010ES_EMPTY\020\000\022\020\n\014ES_CO"
-  "MPOSING\020\001\022\020\n\014ES_CONVERTED\020\002\022\020\n\014ES_SELECT"
-  "ING\020\003b\006proto3"
+  "D_KEY\020\014\022\023\n\017CMD_LIST_EMOJIS\020\r*T\n\rSegmentS"
+  "tatus\022\017\n\013SS_UNMARKED\020\000\022\020\n\014SS_COMPOSING\020\001"
+  "\022\020\n\014SS_CONVERTED\020\002\022\016\n\nSS_FOCUSED\020\003*\035\n\tEr"
+  "rorCode\022\006\n\002OK\020\000\022\010\n\004FAIL\020\001*O\n\tEditState\022\014"
+  "\n\010ES_EMPTY\020\000\022\020\n\014ES_COMPOSING\020\001\022\020\n\014ES_CON"
+  "VERTED\020\002\022\020\n\014ES_SELECTING\020\003b\006proto3"
   ;
 static const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable*const descriptor_table_proto_2fcommand_2eproto_deps[1] = {
   &::descriptor_table_proto_2fconfig_2eproto,
 };
 static ::PROTOBUF_NAMESPACE_ID::internal::once_flag descriptor_table_proto_2fcommand_2eproto_once;
 const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable descriptor_table_proto_2fcommand_2eproto = {
-  false, false, 1853, descriptor_table_protodef_proto_2fcommand_2eproto, "proto/command.proto", 
+  false, false, 1874, descriptor_table_protodef_proto_2fcommand_2eproto, "proto/command.proto", 
   &descriptor_table_proto_2fcommand_2eproto_once, descriptor_table_proto_2fcommand_2eproto_deps, 1, 8,
   schemas, file_default_instances, TableStruct_proto_2fcommand_2eproto::offsets,
   file_level_metadata_proto_2fcommand_2eproto, file_level_enum_descriptors_proto_2fcommand_2eproto, file_level_service_descriptors_proto_2fcommand_2eproto,
@@ -395,6 +395,7 @@ bool CommandType_IsValid(int value) {
     case 10:
     case 11:
     case 12:
+    case 13:
       return true;
     default:
       return false;

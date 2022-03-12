@@ -122,6 +122,16 @@ struct EngineControllerImpl : winrt::implements<EngineControllerImpl, EngineCont
         SendCommand(cmd);
     }
 
+    virtual CandidateList *LoadEmojis() override {
+        if (m_emojis.candidates_size() == 0) {
+            auto cmd = new Command();
+            cmd->mutable_request()->set_type(CMD_LIST_EMOJIS);
+            SendCommand(cmd);
+            m_emojis.CopyFrom(cmd->response().candidate_list());
+        }
+        return &m_emojis;
+    }
+
     //+---------------------------------------------------------------------------
     //
     // ConfigChangeListener
@@ -143,11 +153,10 @@ struct EngineControllerImpl : winrt::implements<EngineControllerImpl, EngineCont
         return m_prev_command.get();
     }
 
-    std::string buffer_{};
-    std::vector<std::string> candidates_;
+    com_ptr<TextService> m_service = nullptr;
     std::unique_ptr<Engine> m_engine = nullptr;
     std::unique_ptr<Command> m_prev_command = nullptr;
-    com_ptr<TextService> m_service = nullptr;
+    CandidateList m_emojis;
 };
 
 void EngineController::OnDllProcessAttach(HMODULE module) {

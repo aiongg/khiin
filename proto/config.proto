@@ -30,4 +30,5 @@ enum InputMode {
 message AppConfig {
     KeyConfiguration key_config = 1;
     InputMode input_mode = 2;
+    bool dotted_khin = 3;
 }
