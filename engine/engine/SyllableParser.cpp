@@ -128,7 +128,7 @@ class SyllableParserImpl : public SyllableParser {
     SyllableParserImpl(Engine *engine) : m_engine(engine) {}
 
     bool DottedKhin() {
-        return m_engine->config()->dotted_khin();
+        return m_engine->config()->dotted_khin().value();
     }
 
     virtual Syllable ParseRaw(std::string const &input) override {

@@ -21,6 +21,8 @@ using namespace winrt;
 using namespace khiin::proto;
 using namespace khiin::win32::tip;
 
+
+Application *g_app;
 HMODULE g_module = NULL;
 AppConfig *g_config = nullptr;
 WNDPROC g_propsheet_original_wndproc = NULL;
@@ -37,6 +39,7 @@ void InitCommonCtrls() {
 void FinalizeCallback() {
     Config::SaveToFile(g_module, g_config);
     Config::NotifyChanged();
+    g_app->Reinitialize();
 }
 
 LRESULT CALLBACK PropsheetWndProcOverride(HWND hdlg, UINT msg, WPARAM wParam, LPARAM lParam) {
@@ -79,7 +82,7 @@ void LoadConfig() {
     Config::LoadFromFile(g_module, g_config);
 }
 
-class ApplicationImpl : Application {
+class ApplicationImpl : public Application {
   public:
     ApplicationImpl(HMODULE hmod) :
         m_display(AppearanceProps(this)), m_input(InputProps(this)), m_about(PropSheetPage(this)) {
@@ -92,7 +95,7 @@ class ApplicationImpl : Application {
         UpdateTitle();
     }
 
-    int ShowDialog() {
+    virtual int ShowDialog() override {
         LoadConfig();
         UpdateTitle();
 
@@ -179,6 +182,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
         return 1;
     }
 
-    auto app = khiin::win32::settings::ApplicationImpl(hInstance);
-    return app.ShowDialog();
+    using namespace khiin::win32::settings;
+    g_app = new ApplicationImpl(hInstance);
+    return g_app->ShowDialog();
 }

@@ -67,8 +67,6 @@ void AppearanceProps::Finalize() {
 
     item = ::GetDlgItem(m_hwnd, IDC_DISPLAY_LANGUAGE);
     Config::SetUiLanguage(static_cast<UiLanguage>(ComboBox_GetCurSel(item)));
-
-    m_app->Reinitialize();
 }
 
 } // namespace khiin::win32::settings

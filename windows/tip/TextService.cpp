@@ -109,8 +109,8 @@ struct TextServiceImpl :
     void InitConfig() {
         if (!m_config) {
             m_config = std::make_unique<AppConfig>();
-            Config::LoadFromFile(g_module, m_config.get());
         }
+        Config::LoadFromFile(g_module, m_config.get());
     }
 
     void NotifyConfigChangeListeners() {
@@ -362,6 +362,7 @@ struct TextServiceImpl :
         }
 
         if (rguid == guids::kConfigChangedCompartment) {
+            InitConfig();
             NotifyConfigChangeListeners();
         }
 

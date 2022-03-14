@@ -138,6 +138,7 @@ INT_PTR PropSheetPage::DlgProc(UINT msg, WPARAM wParam, LPARAM lParam) {
 
 void PropSheetPage::Reload() {
     Initialize();
+    PropSheet_UnChanged(::GetParent(m_hwnd), m_hwnd);
 }
 
 void PropSheetPage::Initialize() {
