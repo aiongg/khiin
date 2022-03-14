@@ -15,12 +15,6 @@ using namespace khiin::unicode;
 const std::string kKhinDotStr = u8"\u00b7";
 const std::string kKhinHyphenStr = "--";
 
-void ReplaceKhinDot(std::string &str) {
-    if (auto pos = str.find(kKhinDotStr); pos != std::string::npos) {
-        str.replace(pos, kKhinDotStr.size(), kKhinHyphenStr);
-    }
-}
-
 } // namespace
 
 Syllable::Syllable(Syllable const &other) = default;
@@ -82,7 +76,13 @@ size_t Syllable::ComposedToRawCaret(utf8_size_t composed_caret) const {
         auto lhs = std::string(m_composed.cbegin(), caret);
         Lomaji::RemoveToneDiacritic(lhs);
         m_keyconfig->Deconvert(lhs);
-        ReplaceKhinDot(lhs);
+
+        if (m_khin_pos == KhinKeyPosition::Virtual || m_khin_pos == KhinKeyPosition::End) {
+            Lomaji::RemoveKhin(lhs);
+        } else if (m_khin_pos == KhinKeyPosition::Start) {
+            Lomaji::ReplaceKhinDot(lhs);
+        }
+
         ret = u8_size(lhs);
     }
 

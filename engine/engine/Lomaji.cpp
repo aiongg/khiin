@@ -15,6 +15,8 @@ using namespace unicode;
 inline constexpr char *kOrderedToneablesIndex1[] = {"o", "a", "e", "u", "i", "ng", "m"};
 inline constexpr char *kOrderedToneablesIndex2[] = {"oa", "oe"};
 inline constexpr char kToneableLetters[] = {'a', 'e', 'i', 'm', 'n', 'o', 'u'};
+const std::string kKhinDotStr = u8"\u00b7";
+const std::string kKhinHyphenStr = "--";
 
 const std::unordered_map<Tone, std::string> kToneToUnicodeMap = {{Tone::T2, u8"\u0301"}, {Tone::T3, u8"\u0300"},
                                                                  {Tone::T5, u8"\u0302"}, {Tone::T7, u8"\u0304"},
@@ -285,5 +287,12 @@ bool Lomaji::RemoveKhin(std::string &syllable) {
 
     return has_khin;
 }
+
+void Lomaji::ReplaceKhinDot(std::string &str) {
+    if (auto pos = str.find(kKhinDotStr); pos != std::string::npos) {
+        str.replace(pos, kKhinDotStr.size(), kKhinHyphenStr);
+    }
+}
+
 
 } // namespace khiin::engine

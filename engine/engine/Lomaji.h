@@ -32,6 +32,7 @@ class Lomaji {
     static void ApplyToneDiacritic(Tone tone, std::string &syllable);
     static Tone RemoveToneDiacritic(std::string &syllable);
     static bool RemoveKhin(std::string &syllable);
+    static void ReplaceKhinDot(std::string &syllable);
     static bool IsLomaji(std::string_view str);
     static std::string Decompose(std::string_view str);
     static std::string MatchCapitalization(std::string_view pattern, std::string_view input);

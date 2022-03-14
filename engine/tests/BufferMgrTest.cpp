@@ -516,6 +516,22 @@ TEST_F(BufferKhinTest, Delete_khins2) {
     TestEnv::engine()->config()->set_dotted_khin(true);
 }
 
+TEST_F(BufferKhinTest, Delete_autokhin) {
+    typing("--aa");
+    ExpectBuffer("·a ·a", 5);
+    key_bksp(1);
+    ExpectBuffer("·a", 2);
+}
+
+TEST_F(BufferKhinTest, Delete_autkhin_hyphens) {
+    TestEnv::engine()->config()->set_dotted_khin(false);
+    typing("--aa");
+    ExpectBuffer("--a--a", 6);
+    key_bksp(1);
+    ExpectBuffer("--a", 3);
+    TestEnv::engine()->config()->set_dotted_khin(true);
+}
+
 //+---------------------------------------------------------------------------
 //
 // Candidates
