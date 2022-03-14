@@ -22,10 +22,16 @@ enum class Tone {
 
 class Lomaji {
   public:
+    static bool HasToneable(std::string_view str);
+    static bool HasToneDiacritic(std::string_view str);
     static utf8_size_t MoveCaret(std::string_view str, utf8_size_t start_pos, CursorDirection dir);
     static inline bool NeedsToneDiacritic(Tone t) {
         return !(t == Tone::NaT || t == Tone::T1 || t == Tone::T4);
     }
+    static size_t FindTonePosition(std::string_view syllable);
+    static void ApplyToneDiacritic(Tone tone, std::string &syllable);
+    static Tone RemoveToneDiacritic(std::string &syllable);
+    static bool RemoveKhin(std::string &syllable);
     static bool IsLomaji(std::string_view str);
     static std::string Decompose(std::string_view str);
     static std::string MatchCapitalization(std::string_view pattern, std::string_view input);

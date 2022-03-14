@@ -145,6 +145,30 @@ class KeyCfgImpl : public KeyConfig, ConfigChangeListener {
         return m_conversion_rule_cache;
     }
 
+    virtual std::string Convert(std::string const &input) override {
+        std::string ret = input;
+        auto &rules = ConversionRules();
+
+        for (auto &rule : rules) {
+            if (auto pos = ret.find(rule.first); pos != std::string::npos) {
+                ret.replace(pos, rule.first.size(), rule.second);
+            }
+        }
+        return ret;
+    }
+
+    virtual std::string Deconvert(std::string const &input) override {
+        std::string ret = input;
+        auto &rules = ConversionRules();
+
+        for (auto &rule : rules) {
+            if (auto pos = ret.find(rule.second); pos != std::string::npos) {
+                ret.replace(pos, rule.second.size(), rule.first);
+            }
+        }
+        return ret;
+    }
+
     virtual std::vector<char> GetHyphenKeys() override {
         auto ret = std::vector<char>();
         ret.push_back('-');

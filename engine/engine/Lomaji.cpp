@@ -12,6 +12,14 @@ namespace {
 namespace u8u = utf8::unchecked;
 using namespace unicode;
 
+inline constexpr char *kOrderedToneablesIndex1[] = {"o", "a", "e", "u", "i", "ng", "m"};
+inline constexpr char *kOrderedToneablesIndex2[] = {"oa", "oe"};
+inline constexpr char kToneableLetters[] = {'a', 'e', 'i', 'm', 'n', 'o', 'u'};
+
+const std::unordered_map<Tone, std::string> kToneToUnicodeMap = {{Tone::T2, u8"\u0301"}, {Tone::T3, u8"\u0300"},
+                                                                 {Tone::T5, u8"\u0302"}, {Tone::T7, u8"\u0304"},
+                                                                 {Tone::T8, u8"\u030d"}, {Tone::T9, u8"\u0306"}};
+
 bool IsCombiningCharacter(uint32_t cp) {
     return 0x0300 <= cp && cp <= 0x0358;
 }
@@ -183,6 +191,99 @@ std::string Lomaji::MatchCapitalization(std::string_view pattern, std::string_vi
     }
 
     return u32_to_u8_nfc(ret);
+}
+
+bool Lomaji::HasToneable(std::string_view str) {
+    for (auto &c1 : str) {
+        for (auto &c2 : kToneableLetters) {
+            if (tolower(c1) == c2) {
+                return true;
+            }
+        }
+    }
+
+    return false;
+}
+
+bool Lomaji::HasToneDiacritic(std::string_view str) {
+    auto s = Decompose(str);
+    auto it = s.cbegin();
+    while (it != s.cend()) {
+        auto cp = u8u::next(it);
+        if (is_tone(cp)) {
+            return true;
+        }
+    }
+    return false;
+}
+
+size_t Lomaji::FindTonePosition(std::string_view syllable) {
+    auto str = unicode::copy_str_tolower(syllable);
+
+    for (auto &sequence : kOrderedToneablesIndex2) {
+        if (auto i = str.find(sequence); i != std::string::npos && str.size() > i + 2) {
+            return i + 2;
+        }
+    }
+
+    for (auto &letter : kOrderedToneablesIndex1) {
+        if (auto i = str.find(letter); i != std::string::npos) {
+            return i + 1;
+        }
+    }
+
+    return std::string::npos;
+}
+
+void Lomaji::ApplyToneDiacritic(Tone tone, std::string &syllable) {
+    if (tone == Tone::NaT || tone == Tone::T1 || tone == Tone::T4) {
+        return;
+    }
+
+    size_t tone_index = FindTonePosition(syllable);
+    if (tone_index == std::string::npos) {
+        return;
+    }
+
+    syllable.insert(tone_index, kToneToUnicodeMap.at(tone));
+}
+
+Tone Lomaji::RemoveToneDiacritic(std::string &syllable) {
+    if (syllable.empty()) {
+        return Tone::NaT;
+    }
+
+    auto nfd = Decompose(syllable);
+    for (auto &[t, t_str] : kToneToUnicodeMap) {
+        if (auto i = nfd.find(t_str); i != std::string::npos) {
+            nfd.erase(i, t_str.size());
+            syllable = nfd;
+            return t;
+        }
+    }
+    return Tone::NaT;
+}
+
+bool Lomaji::RemoveKhin(std::string &syllable) {
+    if (syllable.empty()) {
+        return false;
+    }
+
+    auto it = syllable.begin();
+    auto cp = u8u::next(it);
+    auto has_khin = false;
+
+    if (is_khin(cp)) {
+        has_khin = true;
+    } else if (u8_size(syllable) > 1 && cp == '-' && u8u::next(it) == '-') {
+        has_khin = true;
+    }
+
+    if (has_khin) {
+        syllable.erase(syllable.begin(), it);
+    }
+
+    return has_khin;
 }
 
 } // namespace khiin::engine
