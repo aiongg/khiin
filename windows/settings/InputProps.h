@@ -1,12 +1,12 @@
 #pragma once
 
-#include "PropSheet.h"
+#include "PropSheetPage.h"
 
 namespace khiin::win32::settings {
 
 class Application;
 
-class InputProps : public PropSheet {
+class InputProps : public PropSheetPage {
   public:
     InputProps(Application *app);
     virtual void Initialize() override;

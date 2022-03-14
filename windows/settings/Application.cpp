@@ -82,12 +82,13 @@ void LoadConfig() {
 class ApplicationImpl : Application {
   public:
     ApplicationImpl(HMODULE hmod) :
-        m_display(AppearanceProps(this)), m_input(InputProps(this)), m_about(PropSheet(this)) {
+        m_display(AppearanceProps(this)), m_input(InputProps(this)), m_about(PropSheetPage(this)) {
         g_module = hmod;
     }
 
     virtual void Reinitialize() override {
         m_display.Reload();
+        m_input.Reload();
         UpdateTitle();
     }
 
@@ -127,9 +128,8 @@ class ApplicationImpl : Application {
 
     AppearanceProps m_display;
     InputProps m_input;
-    PropSheet m_about;
+    PropSheetPage m_about;
     std::wstring m_title;
-    HWND m_hwnd = NULL;
 };
 
 } // namespace

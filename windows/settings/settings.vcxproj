@@ -192,7 +192,7 @@
     <ClInclude Include="InputProps.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="Application.h" />
-    <ClInclude Include="PropSheet.h" />
+    <ClInclude Include="PropSheetPage.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="Strings.h" />
   </ItemGroup>
@@ -210,7 +210,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="PropSheet.cpp" />
+    <ClCompile Include="PropSheetPage.cpp" />
     <ClCompile Include="Strings.cpp" />
   </ItemGroup>
   <ItemGroup>

@@ -1,9 +1,9 @@
 //{{NO_DEPENDENCIES}}
 // Microsoft Visual C++ generated include file.
-// Used by KhiinSettings.rc
+// Used by Settings.rc
 //
 #define IDI_KHIINSETTINGS               101
-#define IDD_ABOUTTAB                    103
+#define IDD_ABOUTTAB                    102
 #define IDS_LIGHT_THEME                 500
 #define IDS_DARK_THEME                  501
 #define IDS_DISPLAY_LANGUAGE_EN         504
@@ -26,8 +26,15 @@
 #define IDC_INPUTMODE_CONTINUOUS        2003
 #define IDC_INPUTMODE_BASIC             2004
 #define IDC_INPUTMODE_PRO               2005
-#define IDC_OPTION_TELEX                2006
-#define IDC_OPTION_SHIFT_ENGLISH        2007
+#define IDC_OPTION_INPUTMODE_HOTKEY     2006
+#define IDC_OPTION_ALPHA_HOTKEY         2007
+#define IDC_OPTION_TELEX                2008
+#define IDC_OPTION_DOTTED_KHIN          2009
+#define IDC_OPTION_AUTOKHIN             2010
+#define IDC_OPTION_EASY_CH              2011
+#define IDL_DEFAULT_PUNCUTATION         2012
+#define IDC_PUNCT_FULL_WIDTH            2013
+#define IDC_PUNCT_HALF_WIDTH            2014
 #define IDC_STATIC                      -1
 
 // Next default values for new objects

@@ -2,6 +2,10 @@ syntax = "proto3";
 
 package khiin.proto;
 
+message BoolValue {
+    bool value = 1;
+}
+
 message KeyConfiguration {
     string telex_t2 = 1;
     string telex_t3 = 2;
@@ -30,5 +34,5 @@ enum InputMode {
 message AppConfig {
     KeyConfiguration key_config = 1;
     InputMode input_mode = 2;
-    bool dotted_khin = 3;
+    BoolValue dotted_khin = 3;
 }

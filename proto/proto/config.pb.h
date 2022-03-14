@@ -47,7 +47,7 @@ struct TableStruct_proto_2fconfig_2eproto {
     PROTOBUF_SECTION_VARIABLE(protodesc_cold);
   static const ::PROTOBUF_NAMESPACE_ID::internal::AuxiliaryParseTableField aux[]
     PROTOBUF_SECTION_VARIABLE(protodesc_cold);
-  static const ::PROTOBUF_NAMESPACE_ID::internal::ParseTable schema[2]
+  static const ::PROTOBUF_NAMESPACE_ID::internal::ParseTable schema[3]
     PROTOBUF_SECTION_VARIABLE(protodesc_cold);
   static const ::PROTOBUF_NAMESPACE_ID::internal::FieldMetadata field_metadata[];
   static const ::PROTOBUF_NAMESPACE_ID::internal::SerializationTable serialization_table[];
@@ -59,6 +59,9 @@ namespace proto {
 class AppConfig;
 struct AppConfigDefaultTypeInternal;
 extern AppConfigDefaultTypeInternal _AppConfig_default_instance_;
+class BoolValue;
+struct BoolValueDefaultTypeInternal;
+extern BoolValueDefaultTypeInternal _BoolValue_default_instance_;
 class KeyConfiguration;
 struct KeyConfigurationDefaultTypeInternal;
 extern KeyConfigurationDefaultTypeInternal _KeyConfiguration_default_instance_;
@@ -66,6 +69,7 @@ extern KeyConfigurationDefaultTypeInternal _KeyConfiguration_default_instance_;
 }  // namespace khiin
 PROTOBUF_NAMESPACE_OPEN
 template<> ::khiin::proto::AppConfig* Arena::CreateMaybeMessage<::khiin::proto::AppConfig>(Arena*);
+template<> ::khiin::proto::BoolValue* Arena::CreateMaybeMessage<::khiin::proto::BoolValue>(Arena*);
 template<> ::khiin::proto::KeyConfiguration* Arena::CreateMaybeMessage<::khiin::proto::KeyConfiguration>(Arena*);
 PROTOBUF_NAMESPACE_CLOSE
 namespace khiin {
@@ -100,6 +104,149 @@ inline bool InputMode_Parse(
     InputMode_descriptor(), name, value);
 }
 // ===================================================================
+
+class BoolValue final :
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:khiin.proto.BoolValue) */ {
+ public:
+  inline BoolValue() : BoolValue(nullptr) {}
+  ~BoolValue() override;
+  explicit constexpr BoolValue(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
+
+  BoolValue(const BoolValue& from);
+  BoolValue(BoolValue&& from) noexcept
+    : BoolValue() {
+    *this = ::std::move(from);
+  }
+
+  inline BoolValue& operator=(const BoolValue& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  inline BoolValue& operator=(BoolValue&& from) noexcept {
+    if (this == &from) return *this;
+    if (GetOwningArena() == from.GetOwningArena()
+  #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
+        && GetOwningArena() != nullptr
+  #endif  // !PROTOBUF_FORCE_COPY_IN_MOVE
+    ) {
+      InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
+    return default_instance().GetMetadata().descriptor;
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
+    return default_instance().GetMetadata().reflection;
+  }
+  static const BoolValue& default_instance() {
+    return *internal_default_instance();
+  }
+  static inline const BoolValue* internal_default_instance() {
+    return reinterpret_cast<const BoolValue*>(
+               &_BoolValue_default_instance_);
+  }
+  static constexpr int kIndexInFileMessages =
+    0;
+
+  friend void swap(BoolValue& a, BoolValue& b) {
+    a.Swap(&b);
+  }
+  inline void Swap(BoolValue* other) {
+    if (other == this) return;
+    if (GetOwningArena() == other->GetOwningArena()) {
+      InternalSwap(other);
+    } else {
+      ::PROTOBUF_NAMESPACE_ID::internal::GenericSwap(this, other);
+    }
+  }
+  void UnsafeArenaSwap(BoolValue* other) {
+    if (other == this) return;
+    GOOGLE_DCHECK(GetOwningArena() == other->GetOwningArena());
+    InternalSwap(other);
+  }
+
+  // implements Message ----------------------------------------------
+
+  inline BoolValue* New() const final {
+    return new BoolValue();
+  }
+
+  BoolValue* New(::PROTOBUF_NAMESPACE_ID::Arena* arena) const final {
+    return CreateMaybeMessage<BoolValue>(arena);
+  }
+  using ::PROTOBUF_NAMESPACE_ID::Message::CopyFrom;
+  void CopyFrom(const BoolValue& from);
+  using ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom;
+  void MergeFrom(const BoolValue& from);
+  private:
+  static void MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to, const ::PROTOBUF_NAMESPACE_ID::Message& from);
+  public:
+  PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
+  bool IsInitialized() const final;
+
+  size_t ByteSizeLong() const final;
+  const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
+  ::PROTOBUF_NAMESPACE_ID::uint8* _InternalSerialize(
+      ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
+  int GetCachedSize() const final { return _cached_size_.Get(); }
+
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const final;
+  void InternalSwap(BoolValue* other);
+  friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
+    return "khiin.proto.BoolValue";
+  }
+  protected:
+  explicit BoolValue(::PROTOBUF_NAMESPACE_ID::Arena* arena,
+                       bool is_message_owned = false);
+  private:
+  static void ArenaDtor(void* object);
+  inline void RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena* arena);
+  public:
+
+  static const ClassData _class_data_;
+  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*GetClassData() const final;
+
+  ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  enum : int {
+    kValueFieldNumber = 1,
+  };
+  // bool value = 1;
+  void clear_value();
+  bool value() const;
+  void set_value(bool value);
+  private:
+  bool _internal_value() const;
+  void _internal_set_value(bool value);
+  public:
+
+  // @@protoc_insertion_point(class_scope:khiin.proto.BoolValue)
+ private:
+  class _Internal;
+
+  template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
+  typedef void InternalArenaConstructable_;
+  typedef void DestructorSkippable_;
+  bool value_;
+  mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
+  friend struct ::TableStruct_proto_2fconfig_2eproto;
+};
+// -------------------------------------------------------------------
 
 class KeyConfiguration final :
     public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:khiin.proto.KeyConfiguration) */ {
@@ -149,7 +296,7 @@ class KeyConfiguration final :
                &_KeyConfiguration_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    0;
+    1;
 
   friend void swap(KeyConfiguration& a, KeyConfiguration& b) {
     a.Swap(&b);
@@ -495,7 +642,7 @@ class AppConfig final :
                &_AppConfig_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    1;
+    2;
 
   friend void swap(AppConfig& a, AppConfig& b) {
     a.Swap(&b);
@@ -567,8 +714,8 @@ class AppConfig final :
 
   enum : int {
     kKeyConfigFieldNumber = 1,
-    kInputModeFieldNumber = 2,
     kDottedKhinFieldNumber = 3,
+    kInputModeFieldNumber = 2,
   };
   // .khiin.proto.KeyConfiguration key_config = 1;
   bool has_key_config() const;
@@ -588,6 +735,24 @@ class AppConfig final :
       ::khiin::proto::KeyConfiguration* key_config);
   ::khiin::proto::KeyConfiguration* unsafe_arena_release_key_config();
 
+  // .khiin.proto.BoolValue dotted_khin = 3;
+  bool has_dotted_khin() const;
+  private:
+  bool _internal_has_dotted_khin() const;
+  public:
+  void clear_dotted_khin();
+  const ::khiin::proto::BoolValue& dotted_khin() const;
+  PROTOBUF_MUST_USE_RESULT ::khiin::proto::BoolValue* release_dotted_khin();
+  ::khiin::proto::BoolValue* mutable_dotted_khin();
+  void set_allocated_dotted_khin(::khiin::proto::BoolValue* dotted_khin);
+  private:
+  const ::khiin::proto::BoolValue& _internal_dotted_khin() const;
+  ::khiin::proto::BoolValue* _internal_mutable_dotted_khin();
+  public:
+  void unsafe_arena_set_allocated_dotted_khin(
+      ::khiin::proto::BoolValue* dotted_khin);
+  ::khiin::proto::BoolValue* unsafe_arena_release_dotted_khin();
+
   // .khiin.proto.InputMode input_mode = 2;
   void clear_input_mode();
   ::khiin::proto::InputMode input_mode() const;
@@ -595,15 +760,6 @@ class AppConfig final :
   private:
   ::khiin::proto::InputMode _internal_input_mode() const;
   void _internal_set_input_mode(::khiin::proto::InputMode value);
-  public:
-
-  // bool dotted_khin = 3;
-  void clear_dotted_khin();
-  bool dotted_khin() const;
-  void set_dotted_khin(bool value);
-  private:
-  bool _internal_dotted_khin() const;
-  void _internal_set_dotted_khin(bool value);
   public:
 
   // @@protoc_insertion_point(class_scope:khiin.proto.AppConfig)
@@ -614,8 +770,8 @@ class AppConfig final :
   typedef void InternalArenaConstructable_;
   typedef void DestructorSkippable_;
   ::khiin::proto::KeyConfiguration* key_config_;
+  ::khiin::proto::BoolValue* dotted_khin_;
   int input_mode_;
-  bool dotted_khin_;
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   friend struct ::TableStruct_proto_2fconfig_2eproto;
 };
@@ -628,6 +784,30 @@ class AppConfig final :
   #pragma GCC diagnostic push
   #pragma GCC diagnostic ignored "-Wstrict-aliasing"
 #endif  // __GNUC__
+// BoolValue
+
+// bool value = 1;
+inline void BoolValue::clear_value() {
+  value_ = false;
+}
+inline bool BoolValue::_internal_value() const {
+  return value_;
+}
+inline bool BoolValue::value() const {
+  // @@protoc_insertion_point(field_get:khiin.proto.BoolValue.value)
+  return _internal_value();
+}
+inline void BoolValue::_internal_set_value(bool value) {
+  
+  value_ = value;
+}
+inline void BoolValue::set_value(bool value) {
+  _internal_set_value(value);
+  // @@protoc_insertion_point(field_set:khiin.proto.BoolValue.value)
+}
+
+// -------------------------------------------------------------------
+
 // KeyConfiguration
 
 // string telex_t2 = 1;
@@ -1336,29 +1516,101 @@ inline void AppConfig::set_input_mode(::khiin::proto::InputMode value) {
   // @@protoc_insertion_point(field_set:khiin.proto.AppConfig.input_mode)
 }
 
-// bool dotted_khin = 3;
+// .khiin.proto.BoolValue dotted_khin = 3;
+inline bool AppConfig::_internal_has_dotted_khin() const {
+  return this != internal_default_instance() && dotted_khin_ != nullptr;
+}
+inline bool AppConfig::has_dotted_khin() const {
+  return _internal_has_dotted_khin();
+}
 inline void AppConfig::clear_dotted_khin() {
-  dotted_khin_ = false;
+  if (GetArenaForAllocation() == nullptr && dotted_khin_ != nullptr) {
+    delete dotted_khin_;
+  }
+  dotted_khin_ = nullptr;
 }
-inline bool AppConfig::_internal_dotted_khin() const {
-  return dotted_khin_;
+inline const ::khiin::proto::BoolValue& AppConfig::_internal_dotted_khin() const {
+  const ::khiin::proto::BoolValue* p = dotted_khin_;
+  return p != nullptr ? *p : reinterpret_cast<const ::khiin::proto::BoolValue&>(
+      ::khiin::proto::_BoolValue_default_instance_);
 }
-inline bool AppConfig::dotted_khin() const {
+inline const ::khiin::proto::BoolValue& AppConfig::dotted_khin() const {
   // @@protoc_insertion_point(field_get:khiin.proto.AppConfig.dotted_khin)
   return _internal_dotted_khin();
 }
-inline void AppConfig::_internal_set_dotted_khin(bool value) {
-  
-  dotted_khin_ = value;
+inline void AppConfig::unsafe_arena_set_allocated_dotted_khin(
+    ::khiin::proto::BoolValue* dotted_khin) {
+  if (GetArenaForAllocation() == nullptr) {
+    delete reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(dotted_khin_);
+  }
+  dotted_khin_ = dotted_khin;
+  if (dotted_khin) {
+    
+  } else {
+    
+  }
+  // @@protoc_insertion_point(field_unsafe_arena_set_allocated:khiin.proto.AppConfig.dotted_khin)
 }
-inline void AppConfig::set_dotted_khin(bool value) {
-  _internal_set_dotted_khin(value);
-  // @@protoc_insertion_point(field_set:khiin.proto.AppConfig.dotted_khin)
+inline ::khiin::proto::BoolValue* AppConfig::release_dotted_khin() {
+  
+  ::khiin::proto::BoolValue* temp = dotted_khin_;
+  dotted_khin_ = nullptr;
+#ifdef PROTOBUF_FORCE_COPY_IN_RELEASE
+  auto* old =  reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(temp);
+  temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
+  if (GetArenaForAllocation() == nullptr) { delete old; }
+#else  // PROTOBUF_FORCE_COPY_IN_RELEASE
+  if (GetArenaForAllocation() != nullptr) {
+    temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
+  }
+#endif  // !PROTOBUF_FORCE_COPY_IN_RELEASE
+  return temp;
+}
+inline ::khiin::proto::BoolValue* AppConfig::unsafe_arena_release_dotted_khin() {
+  // @@protoc_insertion_point(field_release:khiin.proto.AppConfig.dotted_khin)
+  
+  ::khiin::proto::BoolValue* temp = dotted_khin_;
+  dotted_khin_ = nullptr;
+  return temp;
+}
+inline ::khiin::proto::BoolValue* AppConfig::_internal_mutable_dotted_khin() {
+  
+  if (dotted_khin_ == nullptr) {
+    auto* p = CreateMaybeMessage<::khiin::proto::BoolValue>(GetArenaForAllocation());
+    dotted_khin_ = p;
+  }
+  return dotted_khin_;
+}
+inline ::khiin::proto::BoolValue* AppConfig::mutable_dotted_khin() {
+  ::khiin::proto::BoolValue* _msg = _internal_mutable_dotted_khin();
+  // @@protoc_insertion_point(field_mutable:khiin.proto.AppConfig.dotted_khin)
+  return _msg;
+}
+inline void AppConfig::set_allocated_dotted_khin(::khiin::proto::BoolValue* dotted_khin) {
+  ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaForAllocation();
+  if (message_arena == nullptr) {
+    delete dotted_khin_;
+  }
+  if (dotted_khin) {
+    ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
+        ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper<::khiin::proto::BoolValue>::GetOwningArena(dotted_khin);
+    if (message_arena != submessage_arena) {
+      dotted_khin = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
+          message_arena, dotted_khin, submessage_arena);
+    }
+    
+  } else {
+    
+  }
+  dotted_khin_ = dotted_khin;
+  // @@protoc_insertion_point(field_set_allocated:khiin.proto.AppConfig.dotted_khin)
 }
 
 #ifdef __GNUC__
   #pragma GCC diagnostic pop
 #endif  // __GNUC__
+// -------------------------------------------------------------------
+
 // -------------------------------------------------------------------
 
 

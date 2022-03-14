@@ -18,6 +18,18 @@
 PROTOBUF_PRAGMA_INIT_SEG
 namespace khiin {
 namespace proto {
+constexpr BoolValue::BoolValue(
+  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
+  : value_(false){}
+struct BoolValueDefaultTypeInternal {
+  constexpr BoolValueDefaultTypeInternal()
+    : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
+  ~BoolValueDefaultTypeInternal() {}
+  union {
+    BoolValue _instance;
+  };
+};
+PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT BoolValueDefaultTypeInternal _BoolValue_default_instance_;
 constexpr KeyConfiguration::KeyConfiguration(
   ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
   : telex_t2_(&::PROTOBUF_NAMESPACE_ID::internal::fixed_address_empty_string)
@@ -46,9 +58,9 @@ PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT KeyConfigurationDefaultTypeInte
 constexpr AppConfig::AppConfig(
   ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
   : key_config_(nullptr)
+  , dotted_khin_(nullptr)
   , input_mode_(0)
-
-  , dotted_khin_(false){}
+{}
 struct AppConfigDefaultTypeInternal {
   constexpr AppConfigDefaultTypeInternal()
     : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
@@ -60,11 +72,18 @@ struct AppConfigDefaultTypeInternal {
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT AppConfigDefaultTypeInternal _AppConfig_default_instance_;
 }  // namespace proto
 }  // namespace khiin
-static ::PROTOBUF_NAMESPACE_ID::Metadata file_level_metadata_proto_2fconfig_2eproto[2];
+static ::PROTOBUF_NAMESPACE_ID::Metadata file_level_metadata_proto_2fconfig_2eproto[3];
 static const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor* file_level_enum_descriptors_proto_2fconfig_2eproto[1];
 static constexpr ::PROTOBUF_NAMESPACE_ID::ServiceDescriptor const** file_level_service_descriptors_proto_2fconfig_2eproto = nullptr;
 
 const ::PROTOBUF_NAMESPACE_ID::uint32 TableStruct_proto_2fconfig_2eproto::offsets[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) = {
+  ~0u,  // no _has_bits_
+  PROTOBUF_FIELD_OFFSET(::khiin::proto::BoolValue, _internal_metadata_),
+  ~0u,  // no _extensions_
+  ~0u,  // no _oneof_case_
+  ~0u,  // no _weak_field_map_
+  ~0u,  // no _inlined_string_donated_
+  PROTOBUF_FIELD_OFFSET(::khiin::proto::BoolValue, value_),
   ~0u,  // no _has_bits_
   PROTOBUF_FIELD_OFFSET(::khiin::proto::KeyConfiguration, _internal_metadata_),
   ~0u,  // no _extensions_
@@ -96,36 +115,39 @@ const ::PROTOBUF_NAMESPACE_ID::uint32 TableStruct_proto_2fconfig_2eproto::offset
   PROTOBUF_FIELD_OFFSET(::khiin::proto::AppConfig, dotted_khin_),
 };
 static const ::PROTOBUF_NAMESPACE_ID::internal::MigrationSchema schemas[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) = {
-  { 0, -1, -1, sizeof(::khiin::proto::KeyConfiguration)},
-  { 20, -1, -1, sizeof(::khiin::proto::AppConfig)},
+  { 0, -1, -1, sizeof(::khiin::proto::BoolValue)},
+  { 7, -1, -1, sizeof(::khiin::proto::KeyConfiguration)},
+  { 27, -1, -1, sizeof(::khiin::proto::AppConfig)},
 };
 
 static ::PROTOBUF_NAMESPACE_ID::Message const * const file_default_instances[] = {
+  reinterpret_cast<const ::PROTOBUF_NAMESPACE_ID::Message*>(&::khiin::proto::_BoolValue_default_instance_),
   reinterpret_cast<const ::PROTOBUF_NAMESPACE_ID::Message*>(&::khiin::proto::_KeyConfiguration_default_instance_),
   reinterpret_cast<const ::PROTOBUF_NAMESPACE_ID::Message*>(&::khiin::proto::_AppConfig_default_instance_),
 };
 
 const char descriptor_table_protodef_proto_2fconfig_2eproto[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) =
-  "\n\022proto/config.proto\022\013khiin.proto\"\264\002\n\020Ke"
-  "yConfiguration\022\020\n\010telex_t2\030\001 \001(\t\022\020\n\010tele"
-  "x_t3\030\002 \001(\t\022\020\n\010telex_t5\030\003 \001(\t\022\020\n\010telex_t6"
-  "\030\004 \001(\t\022\020\n\010telex_t7\030\005 \001(\t\022\020\n\010telex_t8\030\006 \001"
-  "(\t\022\020\n\010telex_t9\030\007 \001(\t\022\022\n\ntelex_khin\030\010 \001(\t"
-  "\022\022\n\nalt_hyphen\030\t \001(\t\022\r\n\005nasal\030\n \001(\t\022\027\n\017d"
-  "ot_above_right\030\013 \001(\t\022\022\n\ndots_below\030\014 \001(\t"
-  "\022\036\n\026enable_uppercase_nasal\030\r \001(\010\022\036\n\026use_"
-  "digits_as_fallback\030\016 \001(\010\"\177\n\tAppConfig\0221\n"
-  "\nkey_config\030\001 \001(\0132\035.khiin.proto.KeyConfi"
-  "guration\022*\n\ninput_mode\030\002 \001(\0162\026.khiin.pro"
-  "to.InputMode\022\023\n\013dotted_khin\030\003 \001(\010*Z\n\tInp"
-  "utMode\022\022\n\016IM_UNSPECIFIED\020\000\022\014\n\010IM_ALPHA\020\001"
-  "\022\021\n\rIM_CONTINUOUS\020\002\022\014\n\010IM_BASIC\020\003\022\n\n\006IM_"
-  "PRO\020\004b\006proto3"
+  "\n\022proto/config.proto\022\013khiin.proto\"\032\n\tBoo"
+  "lValue\022\r\n\005value\030\001 \001(\010\"\264\002\n\020KeyConfigurati"
+  "on\022\020\n\010telex_t2\030\001 \001(\t\022\020\n\010telex_t3\030\002 \001(\t\022\020"
+  "\n\010telex_t5\030\003 \001(\t\022\020\n\010telex_t6\030\004 \001(\t\022\020\n\010te"
+  "lex_t7\030\005 \001(\t\022\020\n\010telex_t8\030\006 \001(\t\022\020\n\010telex_"
+  "t9\030\007 \001(\t\022\022\n\ntelex_khin\030\010 \001(\t\022\022\n\nalt_hyph"
+  "en\030\t \001(\t\022\r\n\005nasal\030\n \001(\t\022\027\n\017dot_above_rig"
+  "ht\030\013 \001(\t\022\022\n\ndots_below\030\014 \001(\t\022\036\n\026enable_u"
+  "ppercase_nasal\030\r \001(\010\022\036\n\026use_digits_as_fa"
+  "llback\030\016 \001(\010\"\227\001\n\tAppConfig\0221\n\nkey_config"
+  "\030\001 \001(\0132\035.khiin.proto.KeyConfiguration\022*\n"
+  "\ninput_mode\030\002 \001(\0162\026.khiin.proto.InputMod"
+  "e\022+\n\013dotted_khin\030\003 \001(\0132\026.khiin.proto.Boo"
+  "lValue*Z\n\tInputMode\022\022\n\016IM_UNSPECIFIED\020\000\022"
+  "\014\n\010IM_ALPHA\020\001\022\021\n\rIM_CONTINUOUS\020\002\022\014\n\010IM_B"
+  "ASIC\020\003\022\n\n\006IM_PRO\020\004b\006proto3"
   ;
 static ::PROTOBUF_NAMESPACE_ID::internal::once_flag descriptor_table_proto_2fconfig_2eproto_once;
 const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable descriptor_table_proto_2fconfig_2eproto = {
-  false, false, 573, descriptor_table_protodef_proto_2fconfig_2eproto, "proto/config.proto", 
-  &descriptor_table_proto_2fconfig_2eproto_once, nullptr, 0, 2,
+  false, false, 626, descriptor_table_protodef_proto_2fconfig_2eproto, "proto/config.proto", 
+  &descriptor_table_proto_2fconfig_2eproto_once, nullptr, 0, 3,
   schemas, file_default_instances, TableStruct_proto_2fconfig_2eproto::offsets,
   file_level_metadata_proto_2fconfig_2eproto, file_level_enum_descriptors_proto_2fconfig_2eproto, file_level_service_descriptors_proto_2fconfig_2eproto,
 };
@@ -154,6 +176,184 @@ bool InputMode_IsValid(int value) {
   }
 }
 
+
+// ===================================================================
+
+class BoolValue::_Internal {
+ public:
+};
+
+BoolValue::BoolValue(::PROTOBUF_NAMESPACE_ID::Arena* arena,
+                         bool is_message_owned)
+  : ::PROTOBUF_NAMESPACE_ID::Message(arena, is_message_owned) {
+  SharedCtor();
+  if (!is_message_owned) {
+    RegisterArenaDtor(arena);
+  }
+  // @@protoc_insertion_point(arena_constructor:khiin.proto.BoolValue)
+}
+BoolValue::BoolValue(const BoolValue& from)
+  : ::PROTOBUF_NAMESPACE_ID::Message() {
+  _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
+  value_ = from.value_;
+  // @@protoc_insertion_point(copy_constructor:khiin.proto.BoolValue)
+}
+
+void BoolValue::SharedCtor() {
+value_ = false;
+}
+
+BoolValue::~BoolValue() {
+  // @@protoc_insertion_point(destructor:khiin.proto.BoolValue)
+  if (GetArenaForAllocation() != nullptr) return;
+  SharedDtor();
+  _internal_metadata_.Delete<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
+}
+
+inline void BoolValue::SharedDtor() {
+  GOOGLE_DCHECK(GetArenaForAllocation() == nullptr);
+}
+
+void BoolValue::ArenaDtor(void* object) {
+  BoolValue* _this = reinterpret_cast< BoolValue* >(object);
+  (void)_this;
+}
+void BoolValue::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {
+}
+void BoolValue::SetCachedSize(int size) const {
+  _cached_size_.Set(size);
+}
+
+void BoolValue::Clear() {
+// @@protoc_insertion_point(message_clear_start:khiin.proto.BoolValue)
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void) cached_has_bits;
+
+  value_ = false;
+  _internal_metadata_.Clear<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
+}
+
+const char* BoolValue::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
+#define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
+  while (!ctx->Done(&ptr)) {
+    ::PROTOBUF_NAMESPACE_ID::uint32 tag;
+    ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
+    switch (tag >> 3) {
+      // bool value = 1;
+      case 1:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 8)) {
+          value_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
+          CHK_(ptr);
+        } else
+          goto handle_unusual;
+        continue;
+      default:
+        goto handle_unusual;
+    }  // switch
+  handle_unusual:
+    if ((tag == 0) || ((tag & 7) == 4)) {
+      CHK_(ptr);
+      ctx->SetLastTag(tag);
+      goto message_done;
+    }
+    ptr = UnknownFieldParse(
+        tag,
+        _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(),
+        ptr, ctx);
+    CHK_(ptr != nullptr);
+  }  // while
+message_done:
+  return ptr;
+failure:
+  ptr = nullptr;
+  goto message_done;
+#undef CHK_
+}
+
+::PROTOBUF_NAMESPACE_ID::uint8* BoolValue::_InternalSerialize(
+    ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const {
+  // @@protoc_insertion_point(serialize_to_array_start:khiin.proto.BoolValue)
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+  (void) cached_has_bits;
+
+  // bool value = 1;
+  if (this->_internal_value() != 0) {
+    target = stream->EnsureSpace(target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteBoolToArray(1, this->_internal_value(), target);
+  }
+
+  if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::InternalSerializeUnknownFieldsToArray(
+        _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
+  }
+  // @@protoc_insertion_point(serialize_to_array_end:khiin.proto.BoolValue)
+  return target;
+}
+
+size_t BoolValue::ByteSizeLong() const {
+// @@protoc_insertion_point(message_byte_size_start:khiin.proto.BoolValue)
+  size_t total_size = 0;
+
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void) cached_has_bits;
+
+  // bool value = 1;
+  if (this->_internal_value() != 0) {
+    total_size += 1 + 1;
+  }
+
+  return MaybeComputeUnknownFieldsSize(total_size, &_cached_size_);
+}
+
+const ::PROTOBUF_NAMESPACE_ID::Message::ClassData BoolValue::_class_data_ = {
+    ::PROTOBUF_NAMESPACE_ID::Message::CopyWithSizeCheck,
+    BoolValue::MergeImpl
+};
+const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*BoolValue::GetClassData() const { return &_class_data_; }
+
+void BoolValue::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to,
+                      const ::PROTOBUF_NAMESPACE_ID::Message& from) {
+  static_cast<BoolValue *>(to)->MergeFrom(
+      static_cast<const BoolValue &>(from));
+}
+
+
+void BoolValue::MergeFrom(const BoolValue& from) {
+// @@protoc_insertion_point(class_specific_merge_from_start:khiin.proto.BoolValue)
+  GOOGLE_DCHECK_NE(&from, this);
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+  (void) cached_has_bits;
+
+  if (from._internal_value() != 0) {
+    _internal_set_value(from._internal_value());
+  }
+  _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
+}
+
+void BoolValue::CopyFrom(const BoolValue& from) {
+// @@protoc_insertion_point(class_specific_copy_from_start:khiin.proto.BoolValue)
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+bool BoolValue::IsInitialized() const {
+  return true;
+}
+
+void BoolValue::InternalSwap(BoolValue* other) {
+  using std::swap;
+  _internal_metadata_.InternalSwap(&other->_internal_metadata_);
+  swap(value_, other->value_);
+}
+
+::PROTOBUF_NAMESPACE_ID::Metadata BoolValue::GetMetadata() const {
+  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(
+      &descriptor_table_proto_2fconfig_2eproto_getter, &descriptor_table_proto_2fconfig_2eproto_once,
+      file_level_metadata_proto_2fconfig_2eproto[0]);
+}
 
 // ===================================================================
 
@@ -882,7 +1082,7 @@ void KeyConfiguration::InternalSwap(KeyConfiguration* other) {
 ::PROTOBUF_NAMESPACE_ID::Metadata KeyConfiguration::GetMetadata() const {
   return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(
       &descriptor_table_proto_2fconfig_2eproto_getter, &descriptor_table_proto_2fconfig_2eproto_once,
-      file_level_metadata_proto_2fconfig_2eproto[0]);
+      file_level_metadata_proto_2fconfig_2eproto[1]);
 }
 
 // ===================================================================
@@ -890,11 +1090,16 @@ void KeyConfiguration::InternalSwap(KeyConfiguration* other) {
 class AppConfig::_Internal {
  public:
   static const ::khiin::proto::KeyConfiguration& key_config(const AppConfig* msg);
+  static const ::khiin::proto::BoolValue& dotted_khin(const AppConfig* msg);
 };
 
 const ::khiin::proto::KeyConfiguration&
 AppConfig::_Internal::key_config(const AppConfig* msg) {
   return *msg->key_config_;
+}
+const ::khiin::proto::BoolValue&
+AppConfig::_Internal::dotted_khin(const AppConfig* msg) {
+  return *msg->dotted_khin_;
 }
 AppConfig::AppConfig(::PROTOBUF_NAMESPACE_ID::Arena* arena,
                          bool is_message_owned)
@@ -913,17 +1118,20 @@ AppConfig::AppConfig(const AppConfig& from)
   } else {
     key_config_ = nullptr;
   }
-  ::memcpy(&input_mode_, &from.input_mode_,
-    static_cast<size_t>(reinterpret_cast<char*>(&dotted_khin_) -
-    reinterpret_cast<char*>(&input_mode_)) + sizeof(dotted_khin_));
+  if (from._internal_has_dotted_khin()) {
+    dotted_khin_ = new ::khiin::proto::BoolValue(*from.dotted_khin_);
+  } else {
+    dotted_khin_ = nullptr;
+  }
+  input_mode_ = from.input_mode_;
   // @@protoc_insertion_point(copy_constructor:khiin.proto.AppConfig)
 }
 
 void AppConfig::SharedCtor() {
 ::memset(reinterpret_cast<char*>(this) + static_cast<size_t>(
     reinterpret_cast<char*>(&key_config_) - reinterpret_cast<char*>(this)),
-    0, static_cast<size_t>(reinterpret_cast<char*>(&dotted_khin_) -
-    reinterpret_cast<char*>(&key_config_)) + sizeof(dotted_khin_));
+    0, static_cast<size_t>(reinterpret_cast<char*>(&input_mode_) -
+    reinterpret_cast<char*>(&key_config_)) + sizeof(input_mode_));
 }
 
 AppConfig::~AppConfig() {
@@ -936,6 +1144,7 @@ AppConfig::~AppConfig() {
 inline void AppConfig::SharedDtor() {
   GOOGLE_DCHECK(GetArenaForAllocation() == nullptr);
   if (this != internal_default_instance()) delete key_config_;
+  if (this != internal_default_instance()) delete dotted_khin_;
 }
 
 void AppConfig::ArenaDtor(void* object) {
@@ -958,9 +1167,11 @@ void AppConfig::Clear() {
     delete key_config_;
   }
   key_config_ = nullptr;
-  ::memset(&input_mode_, 0, static_cast<size_t>(
-      reinterpret_cast<char*>(&dotted_khin_) -
-      reinterpret_cast<char*>(&input_mode_)) + sizeof(dotted_khin_));
+  if (GetArenaForAllocation() == nullptr && dotted_khin_ != nullptr) {
+    delete dotted_khin_;
+  }
+  dotted_khin_ = nullptr;
+  input_mode_ = 0;
   _internal_metadata_.Clear<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
 
@@ -987,10 +1198,10 @@ const char* AppConfig::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::
         } else
           goto handle_unusual;
         continue;
-      // bool dotted_khin = 3;
+      // .khiin.proto.BoolValue dotted_khin = 3;
       case 3:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 24)) {
-          dotted_khin_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 26)) {
+          ptr = ctx->ParseMessage(_internal_mutable_dotted_khin(), ptr);
           CHK_(ptr);
         } else
           goto handle_unusual;
@@ -1039,10 +1250,12 @@ failure:
       2, this->_internal_input_mode(), target);
   }
 
-  // bool dotted_khin = 3;
-  if (this->_internal_dotted_khin() != 0) {
+  // .khiin.proto.BoolValue dotted_khin = 3;
+  if (this->_internal_has_dotted_khin()) {
     target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteBoolToArray(3, this->_internal_dotted_khin(), target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
+      InternalWriteMessage(
+        3, _Internal::dotted_khin(this), target, stream);
   }
 
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
@@ -1068,15 +1281,17 @@ size_t AppConfig::ByteSizeLong() const {
         *key_config_);
   }
 
+  // .khiin.proto.BoolValue dotted_khin = 3;
+  if (this->_internal_has_dotted_khin()) {
+    total_size += 1 +
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
+        *dotted_khin_);
+  }
+
   // .khiin.proto.InputMode input_mode = 2;
   if (this->_internal_input_mode() != 0) {
     total_size += 1 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::EnumSize(this->_internal_input_mode());
-  }
-
-  // bool dotted_khin = 3;
-  if (this->_internal_dotted_khin() != 0) {
-    total_size += 1 + 1;
   }
 
   return MaybeComputeUnknownFieldsSize(total_size, &_cached_size_);
@@ -1104,11 +1319,11 @@ void AppConfig::MergeFrom(const AppConfig& from) {
   if (from._internal_has_key_config()) {
     _internal_mutable_key_config()->::khiin::proto::KeyConfiguration::MergeFrom(from._internal_key_config());
   }
+  if (from._internal_has_dotted_khin()) {
+    _internal_mutable_dotted_khin()->::khiin::proto::BoolValue::MergeFrom(from._internal_dotted_khin());
+  }
   if (from._internal_input_mode() != 0) {
     _internal_set_input_mode(from._internal_input_mode());
-  }
-  if (from._internal_dotted_khin() != 0) {
-    _internal_set_dotted_khin(from._internal_dotted_khin());
   }
   _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
 }
@@ -1128,8 +1343,8 @@ void AppConfig::InternalSwap(AppConfig* other) {
   using std::swap;
   _internal_metadata_.InternalSwap(&other->_internal_metadata_);
   ::PROTOBUF_NAMESPACE_ID::internal::memswap<
-      PROTOBUF_FIELD_OFFSET(AppConfig, dotted_khin_)
-      + sizeof(AppConfig::dotted_khin_)
+      PROTOBUF_FIELD_OFFSET(AppConfig, input_mode_)
+      + sizeof(AppConfig::input_mode_)
       - PROTOBUF_FIELD_OFFSET(AppConfig, key_config_)>(
           reinterpret_cast<char*>(&key_config_),
           reinterpret_cast<char*>(&other->key_config_));
@@ -1138,13 +1353,16 @@ void AppConfig::InternalSwap(AppConfig* other) {
 ::PROTOBUF_NAMESPACE_ID::Metadata AppConfig::GetMetadata() const {
   return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(
       &descriptor_table_proto_2fconfig_2eproto_getter, &descriptor_table_proto_2fconfig_2eproto_once,
-      file_level_metadata_proto_2fconfig_2eproto[1]);
+      file_level_metadata_proto_2fconfig_2eproto[2]);
 }
 
 // @@protoc_insertion_point(namespace_scope)
 }  // namespace proto
 }  // namespace khiin
 PROTOBUF_NAMESPACE_OPEN
+template<> PROTOBUF_NOINLINE ::khiin::proto::BoolValue* Arena::CreateMaybeMessage< ::khiin::proto::BoolValue >(Arena* arena) {
+  return Arena::CreateMessageInternal< ::khiin::proto::BoolValue >(arena);
+}
 template<> PROTOBUF_NOINLINE ::khiin::proto::KeyConfiguration* Arena::CreateMaybeMessage< ::khiin::proto::KeyConfiguration >(Arena* arena) {
   return Arena::CreateMessageInternal< ::khiin::proto::KeyConfiguration >(arena);
 }

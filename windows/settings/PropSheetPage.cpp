@@ -1,6 +1,6 @@
 #include "pch.h"
 
-#include "PropSheet.h"
+#include "PropSheetPage.h"
 
 #include "proto/proto.h"
 #include "tip/Config.h"
@@ -19,8 +19,8 @@ void SetTitle(HWND page_hwnd, uint32_t page_rid, UiLanguage lang) {
         tci.mask = TCIF_TEXT;
         tci.pszText = &title[0];
         auto parent = ::GetParent(page_hwnd);
+        auto pageidx = PropSheet_HwndToIndex(parent, page_hwnd);
         auto tab_hwnd = PropSheet_GetTabControl(parent);
-        auto pageidx = PropSheet_HwndToIndex(page_hwnd, parent);
         TabCtrl_SetItem(tab_hwnd, pageidx, &tci);
     }
 }
@@ -36,19 +36,19 @@ void SetText(HWND hwnd, uint32_t rid, UiLanguage lang) {
 
 using namespace proto;
 
-PropSheet::PropSheet(Application *app) : m_app(app) {}
+PropSheetPage::PropSheetPage(Application *app) : m_app(app) {}
 
-LRESULT CALLBACK PropSheet::StaticDlgProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
-    PropSheetPage *psp = NULL;
-    PropSheet *self = NULL;
+LRESULT CALLBACK PropSheetPage::StaticDlgProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
+    PSP *psp = NULL;
+    PropSheetPage *self = NULL;
 
     if (uMsg == WM_INITDIALOG) {
-        auto psp = reinterpret_cast<PropSheetPage *>(lParam);
-        self = reinterpret_cast<PropSheet *>(psp->self);
+        auto psp = reinterpret_cast<PSP *>(lParam);
+        self = reinterpret_cast<PropSheetPage *>(psp->self);
         self->SetHwnd(hwnd);
         ::SetWindowLongPtr(hwnd, DWLP_USER, reinterpret_cast<LONG_PTR>(self));
     } else {
-        self = reinterpret_cast<PropSheet *>(::GetWindowLongPtr(hwnd, DWLP_USER));
+        self = reinterpret_cast<PropSheetPage *>(::GetWindowLongPtr(hwnd, DWLP_USER));
     }
 
     if (self) {
@@ -58,11 +58,14 @@ LRESULT CALLBACK PropSheet::StaticDlgProc(HWND hwnd, UINT uMsg, WPARAM wParam, L
     }
 }
 
-HPROPSHEETPAGE PropSheet::psp(HMODULE hmod, int template_id, AppConfig *config) {
+HPROPSHEETPAGE PropSheetPage::psp(HMODULE hmod, int template_id, AppConfig *config) {
     m_module = hmod;
     m_template_id = template_id;
     m_config = config;
+    m_tab_label = Strings::T(m_template_id, Config::GetUiLanguage());
 
+    m_psp.dwFlags = PSP_USETITLE;
+    m_psp.pszTitle = &m_tab_label[0];
     m_psp.dwSize = sizeof(PropSheetPage);
     m_psp.hInstance = m_module;
     m_psp.pszTemplate = MAKEINTRESOURCE(m_template_id);
@@ -73,15 +76,15 @@ HPROPSHEETPAGE PropSheet::psp(HMODULE hmod, int template_id, AppConfig *config) 
     return m_hpsp;
 }
 
-HWND PropSheet::hwnd() {
+HWND PropSheetPage::hwnd() {
     return m_hwnd;
 }
 
-void PropSheet::SetHwnd(HWND hwnd) {
+void PropSheetPage::SetHwnd(HWND hwnd) {
     m_hwnd = hwnd;
 }
 
-void PropSheet::InitComboBox(uint32_t control_rid, std::vector<uint32_t> const &option_rids, int selected_index) {
+void PropSheetPage::InitComboBox(uint32_t control_rid, std::vector<uint32_t> const &option_rids, int selected_index) {
     HWND cb_hwnd = ::GetDlgItem(m_hwnd, control_rid);
     ComboBox_ResetContent(cb_hwnd);
     auto lang = Config::GetUiLanguage();
@@ -94,7 +97,7 @@ void PropSheet::InitComboBox(uint32_t control_rid, std::vector<uint32_t> const &
     ComboBox_SetCurSel(cb_hwnd, selected_index);
 }
 
-INT_PTR PropSheet::DlgProc(UINT msg, WPARAM wParam, LPARAM lParam) {
+INT_PTR PropSheetPage::DlgProc(UINT msg, WPARAM wParam, LPARAM lParam) {
     switch (msg) {
     case WM_INITDIALOG:
         Initialize();
@@ -114,6 +117,11 @@ INT_PTR PropSheet::DlgProc(UINT msg, WPARAM wParam, LPARAM lParam) {
         break;
     case WM_COMMAND:
         switch (HIWORD(wParam)) {
+        case BN_CLICKED: {
+            auto btn = LOWORD(wParam);
+            auto x = 5;
+            [[fallthrough]];
+        }
         case EN_CHANGE:
             [[fallthrough]];
         case CBN_SELCHANGE:
@@ -128,11 +136,11 @@ INT_PTR PropSheet::DlgProc(UINT msg, WPARAM wParam, LPARAM lParam) {
     return FALSE;
 }
 
-void PropSheet::Reload() {
+void PropSheetPage::Reload() {
     Initialize();
 }
 
-void PropSheet::Initialize() {
+void PropSheetPage::Initialize() {
     auto lang = Config::GetUiLanguage();
 
     SetTitle(m_hwnd, m_template_id, lang);
@@ -145,14 +153,14 @@ void PropSheet::Initialize() {
     }
 }
 
-void PropSheet::Cancel() {
+void PropSheetPage::Cancel() {
     // do nothing
 }
-void PropSheet::Finalize() {
+void PropSheetPage::Finalize() {
     // do nothing
 }
 
-void PropSheet::OnChange() {
+void PropSheetPage::OnChange() {
     auto parent = ::GetParent(m_hwnd);
     auto apply_btn = ::GetDlgItem(parent, ID_APPLY_NOW);
     Button_Enable(apply_btn, TRUE);
