@@ -9,7 +9,7 @@ class BufferElement;
 
 class KhinHandler {
   public:
-    static void AutokhinBuffer(SyllableParser* parser, std::vector<BufferElement> &buffer);
+    static void AutokhinBuffer(SyllableParser* parser, bool autokhin_enabled, std::vector<BufferElement> &buffer);
 };
 
 }

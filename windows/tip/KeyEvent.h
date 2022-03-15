@@ -15,7 +15,8 @@ class KeyEvent {
     ~KeyEvent() = default;
 
     char ascii() const;
-    int keyCode() const;
+    int keycode() const;
+    bool key_down(int vk_code) const;
 
   private:
     BYTE keyboardState[KEYBOARD_SIZE];

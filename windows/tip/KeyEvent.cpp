@@ -23,8 +23,12 @@ char KeyEvent::ascii() const {
     return ascii_;
 }
 
-int KeyEvent::keyCode() const {
+int KeyEvent::keycode() const {
     return static_cast<int>(wParam);
+}
+
+bool KeyEvent::key_down(int vk_code) const {
+    return keyboardState[vk_code] & 0x80 != 0;
 }
 
 } // namespace khiin::win32

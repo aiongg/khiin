@@ -8,6 +8,7 @@
 
 namespace khiin::engine {
 
+class Config;
 class Engine;
 class Splitter;
 class Trie;
@@ -35,7 +36,7 @@ class Dictionary : public ConfigChangeListener {
     virtual Trie *word_trie() = 0;
 
     // Inherited via ConfigChangeListener
-    virtual void OnConfigChanged(proto::AppConfig *config) override = 0;
+    virtual void OnConfigChanged(Config *config) override = 0;
 };
 
 } // namespace khiin::engine

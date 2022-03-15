@@ -224,7 +224,7 @@ class PopupMenuImpl : public PopupMenu {
             m_service->OnInputModeSelected(InputMode::IM_PRO);
             break;
         case IDS_DIRECT_MODE:
-            m_service->OnInputModeSelected(InputMode::IM_ALPHA);
+            m_service->TipOnOff(false);
             break;
         case IDS_OPEN_SETTINGS:
             m_service->OpenSettingsApplication();

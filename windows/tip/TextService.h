@@ -39,12 +39,13 @@ struct TextService : winrt::implements<TextService, IUnknown> {
 
     virtual proto::AppConfig *config() = 0;
 
+    virtual void TipOnOff() = 0;
+    virtual void TipOnOff(bool on_off) = 0;
     virtual void OnCompositionTerminated(TfEditCookie ecWrite, ITfContext *context, ITfComposition *pComposition) = 0;
     virtual void OnCandidateSelected(int32_t candidate_id) = 0;
     virtual void OnInputModeSelected(proto::InputMode mode) = 0;
     virtual void OpenSettingsApplication() = 0;
     virtual void RegisterConfigChangeListener(ConfigChangeListener *config_listener) = 0;
-    virtual void SwapOnOff() = 0;
 
     virtual TfGuidAtom input_attribute() = 0;
     virtual TfGuidAtom converted_attribute() = 0;

@@ -52,7 +52,7 @@ void TranslateKeyEvent(win32::KeyEvent *e1, proto::KeyEvent *e2) {
         e2->set_special_key(SpecialKey::SK_NONE);
     }
 
-    if (auto idx = kWindowsToKhiinKeyCode.find(e1->keyCode()); idx != kWindowsToKhiinKeyCode.end()) {
+    if (auto idx = kWindowsToKhiinKeyCode.find(e1->keycode()); idx != kWindowsToKhiinKeyCode.end()) {
         e2->set_special_key(idx->second);
     }
 }

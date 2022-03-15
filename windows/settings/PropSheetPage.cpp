@@ -80,6 +80,10 @@ HWND PropSheetPage::hwnd() {
     return m_hwnd;
 }
 
+HWND PropSheetPage::ItemById(uint32_t res_id) {
+    return ::GetDlgItem(m_hwnd, res_id);
+}
+
 void PropSheetPage::SetHwnd(HWND hwnd) {
     m_hwnd = hwnd;
 }

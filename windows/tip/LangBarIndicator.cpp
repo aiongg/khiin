@@ -128,7 +128,7 @@ struct LangBarIndicatorImpl :
 
     virtual STDMETHODIMP OnClick(TfLBIClick click, POINT pt, const RECT *prcArea) override {
         if (click == TF_LBI_CLK_LEFT) {
-            m_service->SwapOnOff();
+            m_service->TipOnOff();
         } else {
             m_popup->Show(pt);
         }
@@ -150,22 +150,22 @@ struct LangBarIndicatorImpl :
 
         auto icon_resource = 0;
 
-        switch (m_service->config()->input_mode()) {
-        case IM_CONTINUOUS:
-            icon_resource = IDI_MODE_CONTINUOUS;
-            break;
-        case IM_BASIC:
-            icon_resource = IDI_MODE_BASIC;
-            break;
-        case IM_PRO:
-            icon_resource = IDI_MODE_PRO;
-            break;
-        case IM_ALPHA:
+        if (m_service->config()->ime_enabled().value()) {
+            switch (m_service->config()->input_mode()) {
+            case IM_CONTINUOUS:
+                icon_resource = IDI_MODE_CONTINUOUS;
+                break;
+            case IM_BASIC:
+                icon_resource = IDI_MODE_BASIC;
+                break;
+            case IM_PRO:
+                icon_resource = IDI_MODE_PRO;
+                break;
+            }
+        } else {
             icon_resource = IDI_MODE_ALPHA;
-            break;
-        default:
-            return E_INVALIDARG;
         }
+
 
         auto icon =
             ::LoadImage(m_service->hmodule(), MAKEINTRESOURCE(icon_resource), IMAGE_ICON, 0, 0, LR_DEFAULTCOLOR);

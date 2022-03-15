@@ -77,10 +77,9 @@ namespace proto {
 
 enum InputMode : int {
   IM_UNSPECIFIED = 0,
-  IM_ALPHA = 1,
-  IM_CONTINUOUS = 2,
-  IM_BASIC = 3,
-  IM_PRO = 4,
+  IM_CONTINUOUS = 1,
+  IM_BASIC = 2,
+  IM_PRO = 3,
   InputMode_INT_MIN_SENTINEL_DO_NOT_USE_ = std::numeric_limits<::PROTOBUF_NAMESPACE_ID::int32>::min(),
   InputMode_INT_MAX_SENTINEL_DO_NOT_USE_ = std::numeric_limits<::PROTOBUF_NAMESPACE_ID::int32>::max()
 };
@@ -102,6 +101,32 @@ inline bool InputMode_Parse(
     ::PROTOBUF_NAMESPACE_ID::ConstStringParam name, InputMode* value) {
   return ::PROTOBUF_NAMESPACE_ID::internal::ParseNamedEnum<InputMode>(
     InputMode_descriptor(), name, value);
+}
+enum DefaultPunctuation : int {
+  PUNCT_UNSPECIFIED = 0,
+  PUNCT_HALF = 1,
+  PUNCT_WHOLE = 2,
+  DefaultPunctuation_INT_MIN_SENTINEL_DO_NOT_USE_ = std::numeric_limits<::PROTOBUF_NAMESPACE_ID::int32>::min(),
+  DefaultPunctuation_INT_MAX_SENTINEL_DO_NOT_USE_ = std::numeric_limits<::PROTOBUF_NAMESPACE_ID::int32>::max()
+};
+bool DefaultPunctuation_IsValid(int value);
+constexpr DefaultPunctuation DefaultPunctuation_MIN = PUNCT_UNSPECIFIED;
+constexpr DefaultPunctuation DefaultPunctuation_MAX = PUNCT_WHOLE;
+constexpr int DefaultPunctuation_ARRAYSIZE = DefaultPunctuation_MAX + 1;
+
+const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor* DefaultPunctuation_descriptor();
+template<typename T>
+inline const std::string& DefaultPunctuation_Name(T enum_t_value) {
+  static_assert(::std::is_same<T, DefaultPunctuation>::value ||
+    ::std::is_integral<T>::value,
+    "Incorrect type passed to function DefaultPunctuation_Name.");
+  return ::PROTOBUF_NAMESPACE_ID::internal::NameOfEnum(
+    DefaultPunctuation_descriptor(), enum_t_value);
+}
+inline bool DefaultPunctuation_Parse(
+    ::PROTOBUF_NAMESPACE_ID::ConstStringParam name, DefaultPunctuation* value) {
+  return ::PROTOBUF_NAMESPACE_ID::internal::ParseNamedEnum<DefaultPunctuation>(
+    DefaultPunctuation_descriptor(), name, value);
 }
 // ===================================================================
 
@@ -550,23 +575,41 @@ class KeyConfiguration final :
   std::string* _internal_mutable_dots_below();
   public:
 
-  // bool enable_uppercase_nasal = 13;
+  // .khiin.proto.BoolValue enable_uppercase_nasal = 13;
+  bool has_enable_uppercase_nasal() const;
+  private:
+  bool _internal_has_enable_uppercase_nasal() const;
+  public:
   void clear_enable_uppercase_nasal();
-  bool enable_uppercase_nasal() const;
-  void set_enable_uppercase_nasal(bool value);
+  const ::khiin::proto::BoolValue& enable_uppercase_nasal() const;
+  PROTOBUF_MUST_USE_RESULT ::khiin::proto::BoolValue* release_enable_uppercase_nasal();
+  ::khiin::proto::BoolValue* mutable_enable_uppercase_nasal();
+  void set_allocated_enable_uppercase_nasal(::khiin::proto::BoolValue* enable_uppercase_nasal);
   private:
-  bool _internal_enable_uppercase_nasal() const;
-  void _internal_set_enable_uppercase_nasal(bool value);
+  const ::khiin::proto::BoolValue& _internal_enable_uppercase_nasal() const;
+  ::khiin::proto::BoolValue* _internal_mutable_enable_uppercase_nasal();
   public:
+  void unsafe_arena_set_allocated_enable_uppercase_nasal(
+      ::khiin::proto::BoolValue* enable_uppercase_nasal);
+  ::khiin::proto::BoolValue* unsafe_arena_release_enable_uppercase_nasal();
 
-  // bool use_digits_as_fallback = 14;
-  void clear_use_digits_as_fallback();
-  bool use_digits_as_fallback() const;
-  void set_use_digits_as_fallback(bool value);
+  // .khiin.proto.BoolValue use_digits_as_fallback = 14;
+  bool has_use_digits_as_fallback() const;
   private:
-  bool _internal_use_digits_as_fallback() const;
-  void _internal_set_use_digits_as_fallback(bool value);
+  bool _internal_has_use_digits_as_fallback() const;
   public:
+  void clear_use_digits_as_fallback();
+  const ::khiin::proto::BoolValue& use_digits_as_fallback() const;
+  PROTOBUF_MUST_USE_RESULT ::khiin::proto::BoolValue* release_use_digits_as_fallback();
+  ::khiin::proto::BoolValue* mutable_use_digits_as_fallback();
+  void set_allocated_use_digits_as_fallback(::khiin::proto::BoolValue* use_digits_as_fallback);
+  private:
+  const ::khiin::proto::BoolValue& _internal_use_digits_as_fallback() const;
+  ::khiin::proto::BoolValue* _internal_mutable_use_digits_as_fallback();
+  public:
+  void unsafe_arena_set_allocated_use_digits_as_fallback(
+      ::khiin::proto::BoolValue* use_digits_as_fallback);
+  ::khiin::proto::BoolValue* unsafe_arena_release_use_digits_as_fallback();
 
   // @@protoc_insertion_point(class_scope:khiin.proto.KeyConfiguration)
  private:
@@ -587,8 +630,8 @@ class KeyConfiguration final :
   ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr nasal_;
   ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr dot_above_right_;
   ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr dots_below_;
-  bool enable_uppercase_nasal_;
-  bool use_digits_as_fallback_;
+  ::khiin::proto::BoolValue* enable_uppercase_nasal_;
+  ::khiin::proto::BoolValue* use_digits_as_fallback_;
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   friend struct ::TableStruct_proto_2fconfig_2eproto;
 };
@@ -713,11 +756,35 @@ class AppConfig final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kKeyConfigFieldNumber = 1,
-    kDottedKhinFieldNumber = 3,
-    kInputModeFieldNumber = 2,
+    kImeEnabledFieldNumber = 1,
+    kKeyConfigFieldNumber = 2,
+    kTelexEnabledFieldNumber = 4,
+    kDottedKhinFieldNumber = 5,
+    kAutokhinFieldNumber = 6,
+    kEasyChFieldNumber = 8,
+    kUppercaseNasalFieldNumber = 9,
+    kInputModeFieldNumber = 3,
+    kDefaultPunctuationFieldNumber = 7,
   };
-  // .khiin.proto.KeyConfiguration key_config = 1;
+  // .khiin.proto.BoolValue ime_enabled = 1;
+  bool has_ime_enabled() const;
+  private:
+  bool _internal_has_ime_enabled() const;
+  public:
+  void clear_ime_enabled();
+  const ::khiin::proto::BoolValue& ime_enabled() const;
+  PROTOBUF_MUST_USE_RESULT ::khiin::proto::BoolValue* release_ime_enabled();
+  ::khiin::proto::BoolValue* mutable_ime_enabled();
+  void set_allocated_ime_enabled(::khiin::proto::BoolValue* ime_enabled);
+  private:
+  const ::khiin::proto::BoolValue& _internal_ime_enabled() const;
+  ::khiin::proto::BoolValue* _internal_mutable_ime_enabled();
+  public:
+  void unsafe_arena_set_allocated_ime_enabled(
+      ::khiin::proto::BoolValue* ime_enabled);
+  ::khiin::proto::BoolValue* unsafe_arena_release_ime_enabled();
+
+  // .khiin.proto.KeyConfiguration key_config = 2;
   bool has_key_config() const;
   private:
   bool _internal_has_key_config() const;
@@ -735,7 +802,25 @@ class AppConfig final :
       ::khiin::proto::KeyConfiguration* key_config);
   ::khiin::proto::KeyConfiguration* unsafe_arena_release_key_config();
 
-  // .khiin.proto.BoolValue dotted_khin = 3;
+  // .khiin.proto.BoolValue telex_enabled = 4;
+  bool has_telex_enabled() const;
+  private:
+  bool _internal_has_telex_enabled() const;
+  public:
+  void clear_telex_enabled();
+  const ::khiin::proto::BoolValue& telex_enabled() const;
+  PROTOBUF_MUST_USE_RESULT ::khiin::proto::BoolValue* release_telex_enabled();
+  ::khiin::proto::BoolValue* mutable_telex_enabled();
+  void set_allocated_telex_enabled(::khiin::proto::BoolValue* telex_enabled);
+  private:
+  const ::khiin::proto::BoolValue& _internal_telex_enabled() const;
+  ::khiin::proto::BoolValue* _internal_mutable_telex_enabled();
+  public:
+  void unsafe_arena_set_allocated_telex_enabled(
+      ::khiin::proto::BoolValue* telex_enabled);
+  ::khiin::proto::BoolValue* unsafe_arena_release_telex_enabled();
+
+  // .khiin.proto.BoolValue dotted_khin = 5;
   bool has_dotted_khin() const;
   private:
   bool _internal_has_dotted_khin() const;
@@ -753,13 +838,76 @@ class AppConfig final :
       ::khiin::proto::BoolValue* dotted_khin);
   ::khiin::proto::BoolValue* unsafe_arena_release_dotted_khin();
 
-  // .khiin.proto.InputMode input_mode = 2;
+  // .khiin.proto.BoolValue autokhin = 6;
+  bool has_autokhin() const;
+  private:
+  bool _internal_has_autokhin() const;
+  public:
+  void clear_autokhin();
+  const ::khiin::proto::BoolValue& autokhin() const;
+  PROTOBUF_MUST_USE_RESULT ::khiin::proto::BoolValue* release_autokhin();
+  ::khiin::proto::BoolValue* mutable_autokhin();
+  void set_allocated_autokhin(::khiin::proto::BoolValue* autokhin);
+  private:
+  const ::khiin::proto::BoolValue& _internal_autokhin() const;
+  ::khiin::proto::BoolValue* _internal_mutable_autokhin();
+  public:
+  void unsafe_arena_set_allocated_autokhin(
+      ::khiin::proto::BoolValue* autokhin);
+  ::khiin::proto::BoolValue* unsafe_arena_release_autokhin();
+
+  // .khiin.proto.BoolValue easy_ch = 8;
+  bool has_easy_ch() const;
+  private:
+  bool _internal_has_easy_ch() const;
+  public:
+  void clear_easy_ch();
+  const ::khiin::proto::BoolValue& easy_ch() const;
+  PROTOBUF_MUST_USE_RESULT ::khiin::proto::BoolValue* release_easy_ch();
+  ::khiin::proto::BoolValue* mutable_easy_ch();
+  void set_allocated_easy_ch(::khiin::proto::BoolValue* easy_ch);
+  private:
+  const ::khiin::proto::BoolValue& _internal_easy_ch() const;
+  ::khiin::proto::BoolValue* _internal_mutable_easy_ch();
+  public:
+  void unsafe_arena_set_allocated_easy_ch(
+      ::khiin::proto::BoolValue* easy_ch);
+  ::khiin::proto::BoolValue* unsafe_arena_release_easy_ch();
+
+  // .khiin.proto.BoolValue uppercase_nasal = 9;
+  bool has_uppercase_nasal() const;
+  private:
+  bool _internal_has_uppercase_nasal() const;
+  public:
+  void clear_uppercase_nasal();
+  const ::khiin::proto::BoolValue& uppercase_nasal() const;
+  PROTOBUF_MUST_USE_RESULT ::khiin::proto::BoolValue* release_uppercase_nasal();
+  ::khiin::proto::BoolValue* mutable_uppercase_nasal();
+  void set_allocated_uppercase_nasal(::khiin::proto::BoolValue* uppercase_nasal);
+  private:
+  const ::khiin::proto::BoolValue& _internal_uppercase_nasal() const;
+  ::khiin::proto::BoolValue* _internal_mutable_uppercase_nasal();
+  public:
+  void unsafe_arena_set_allocated_uppercase_nasal(
+      ::khiin::proto::BoolValue* uppercase_nasal);
+  ::khiin::proto::BoolValue* unsafe_arena_release_uppercase_nasal();
+
+  // .khiin.proto.InputMode input_mode = 3;
   void clear_input_mode();
   ::khiin::proto::InputMode input_mode() const;
   void set_input_mode(::khiin::proto::InputMode value);
   private:
   ::khiin::proto::InputMode _internal_input_mode() const;
   void _internal_set_input_mode(::khiin::proto::InputMode value);
+  public:
+
+  // .khiin.proto.DefaultPunctuation default_punctuation = 7;
+  void clear_default_punctuation();
+  ::khiin::proto::DefaultPunctuation default_punctuation() const;
+  void set_default_punctuation(::khiin::proto::DefaultPunctuation value);
+  private:
+  ::khiin::proto::DefaultPunctuation _internal_default_punctuation() const;
+  void _internal_set_default_punctuation(::khiin::proto::DefaultPunctuation value);
   public:
 
   // @@protoc_insertion_point(class_scope:khiin.proto.AppConfig)
@@ -769,9 +917,15 @@ class AppConfig final :
   template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
   typedef void InternalArenaConstructable_;
   typedef void DestructorSkippable_;
+  ::khiin::proto::BoolValue* ime_enabled_;
   ::khiin::proto::KeyConfiguration* key_config_;
+  ::khiin::proto::BoolValue* telex_enabled_;
   ::khiin::proto::BoolValue* dotted_khin_;
+  ::khiin::proto::BoolValue* autokhin_;
+  ::khiin::proto::BoolValue* easy_ch_;
+  ::khiin::proto::BoolValue* uppercase_nasal_;
   int input_mode_;
+  int default_punctuation_;
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   friend struct ::TableStruct_proto_2fconfig_2eproto;
 };
@@ -1362,51 +1516,281 @@ inline void KeyConfiguration::set_allocated_dots_below(std::string* dots_below) 
   // @@protoc_insertion_point(field_set_allocated:khiin.proto.KeyConfiguration.dots_below)
 }
 
-// bool enable_uppercase_nasal = 13;
+// .khiin.proto.BoolValue enable_uppercase_nasal = 13;
+inline bool KeyConfiguration::_internal_has_enable_uppercase_nasal() const {
+  return this != internal_default_instance() && enable_uppercase_nasal_ != nullptr;
+}
+inline bool KeyConfiguration::has_enable_uppercase_nasal() const {
+  return _internal_has_enable_uppercase_nasal();
+}
 inline void KeyConfiguration::clear_enable_uppercase_nasal() {
-  enable_uppercase_nasal_ = false;
+  if (GetArenaForAllocation() == nullptr && enable_uppercase_nasal_ != nullptr) {
+    delete enable_uppercase_nasal_;
+  }
+  enable_uppercase_nasal_ = nullptr;
 }
-inline bool KeyConfiguration::_internal_enable_uppercase_nasal() const {
-  return enable_uppercase_nasal_;
+inline const ::khiin::proto::BoolValue& KeyConfiguration::_internal_enable_uppercase_nasal() const {
+  const ::khiin::proto::BoolValue* p = enable_uppercase_nasal_;
+  return p != nullptr ? *p : reinterpret_cast<const ::khiin::proto::BoolValue&>(
+      ::khiin::proto::_BoolValue_default_instance_);
 }
-inline bool KeyConfiguration::enable_uppercase_nasal() const {
+inline const ::khiin::proto::BoolValue& KeyConfiguration::enable_uppercase_nasal() const {
   // @@protoc_insertion_point(field_get:khiin.proto.KeyConfiguration.enable_uppercase_nasal)
   return _internal_enable_uppercase_nasal();
 }
-inline void KeyConfiguration::_internal_set_enable_uppercase_nasal(bool value) {
-  
-  enable_uppercase_nasal_ = value;
+inline void KeyConfiguration::unsafe_arena_set_allocated_enable_uppercase_nasal(
+    ::khiin::proto::BoolValue* enable_uppercase_nasal) {
+  if (GetArenaForAllocation() == nullptr) {
+    delete reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(enable_uppercase_nasal_);
+  }
+  enable_uppercase_nasal_ = enable_uppercase_nasal;
+  if (enable_uppercase_nasal) {
+    
+  } else {
+    
+  }
+  // @@protoc_insertion_point(field_unsafe_arena_set_allocated:khiin.proto.KeyConfiguration.enable_uppercase_nasal)
 }
-inline void KeyConfiguration::set_enable_uppercase_nasal(bool value) {
-  _internal_set_enable_uppercase_nasal(value);
-  // @@protoc_insertion_point(field_set:khiin.proto.KeyConfiguration.enable_uppercase_nasal)
+inline ::khiin::proto::BoolValue* KeyConfiguration::release_enable_uppercase_nasal() {
+  
+  ::khiin::proto::BoolValue* temp = enable_uppercase_nasal_;
+  enable_uppercase_nasal_ = nullptr;
+#ifdef PROTOBUF_FORCE_COPY_IN_RELEASE
+  auto* old =  reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(temp);
+  temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
+  if (GetArenaForAllocation() == nullptr) { delete old; }
+#else  // PROTOBUF_FORCE_COPY_IN_RELEASE
+  if (GetArenaForAllocation() != nullptr) {
+    temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
+  }
+#endif  // !PROTOBUF_FORCE_COPY_IN_RELEASE
+  return temp;
+}
+inline ::khiin::proto::BoolValue* KeyConfiguration::unsafe_arena_release_enable_uppercase_nasal() {
+  // @@protoc_insertion_point(field_release:khiin.proto.KeyConfiguration.enable_uppercase_nasal)
+  
+  ::khiin::proto::BoolValue* temp = enable_uppercase_nasal_;
+  enable_uppercase_nasal_ = nullptr;
+  return temp;
+}
+inline ::khiin::proto::BoolValue* KeyConfiguration::_internal_mutable_enable_uppercase_nasal() {
+  
+  if (enable_uppercase_nasal_ == nullptr) {
+    auto* p = CreateMaybeMessage<::khiin::proto::BoolValue>(GetArenaForAllocation());
+    enable_uppercase_nasal_ = p;
+  }
+  return enable_uppercase_nasal_;
+}
+inline ::khiin::proto::BoolValue* KeyConfiguration::mutable_enable_uppercase_nasal() {
+  ::khiin::proto::BoolValue* _msg = _internal_mutable_enable_uppercase_nasal();
+  // @@protoc_insertion_point(field_mutable:khiin.proto.KeyConfiguration.enable_uppercase_nasal)
+  return _msg;
+}
+inline void KeyConfiguration::set_allocated_enable_uppercase_nasal(::khiin::proto::BoolValue* enable_uppercase_nasal) {
+  ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaForAllocation();
+  if (message_arena == nullptr) {
+    delete enable_uppercase_nasal_;
+  }
+  if (enable_uppercase_nasal) {
+    ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
+        ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper<::khiin::proto::BoolValue>::GetOwningArena(enable_uppercase_nasal);
+    if (message_arena != submessage_arena) {
+      enable_uppercase_nasal = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
+          message_arena, enable_uppercase_nasal, submessage_arena);
+    }
+    
+  } else {
+    
+  }
+  enable_uppercase_nasal_ = enable_uppercase_nasal;
+  // @@protoc_insertion_point(field_set_allocated:khiin.proto.KeyConfiguration.enable_uppercase_nasal)
 }
 
-// bool use_digits_as_fallback = 14;
+// .khiin.proto.BoolValue use_digits_as_fallback = 14;
+inline bool KeyConfiguration::_internal_has_use_digits_as_fallback() const {
+  return this != internal_default_instance() && use_digits_as_fallback_ != nullptr;
+}
+inline bool KeyConfiguration::has_use_digits_as_fallback() const {
+  return _internal_has_use_digits_as_fallback();
+}
 inline void KeyConfiguration::clear_use_digits_as_fallback() {
-  use_digits_as_fallback_ = false;
+  if (GetArenaForAllocation() == nullptr && use_digits_as_fallback_ != nullptr) {
+    delete use_digits_as_fallback_;
+  }
+  use_digits_as_fallback_ = nullptr;
 }
-inline bool KeyConfiguration::_internal_use_digits_as_fallback() const {
-  return use_digits_as_fallback_;
+inline const ::khiin::proto::BoolValue& KeyConfiguration::_internal_use_digits_as_fallback() const {
+  const ::khiin::proto::BoolValue* p = use_digits_as_fallback_;
+  return p != nullptr ? *p : reinterpret_cast<const ::khiin::proto::BoolValue&>(
+      ::khiin::proto::_BoolValue_default_instance_);
 }
-inline bool KeyConfiguration::use_digits_as_fallback() const {
+inline const ::khiin::proto::BoolValue& KeyConfiguration::use_digits_as_fallback() const {
   // @@protoc_insertion_point(field_get:khiin.proto.KeyConfiguration.use_digits_as_fallback)
   return _internal_use_digits_as_fallback();
 }
-inline void KeyConfiguration::_internal_set_use_digits_as_fallback(bool value) {
-  
-  use_digits_as_fallback_ = value;
+inline void KeyConfiguration::unsafe_arena_set_allocated_use_digits_as_fallback(
+    ::khiin::proto::BoolValue* use_digits_as_fallback) {
+  if (GetArenaForAllocation() == nullptr) {
+    delete reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(use_digits_as_fallback_);
+  }
+  use_digits_as_fallback_ = use_digits_as_fallback;
+  if (use_digits_as_fallback) {
+    
+  } else {
+    
+  }
+  // @@protoc_insertion_point(field_unsafe_arena_set_allocated:khiin.proto.KeyConfiguration.use_digits_as_fallback)
 }
-inline void KeyConfiguration::set_use_digits_as_fallback(bool value) {
-  _internal_set_use_digits_as_fallback(value);
-  // @@protoc_insertion_point(field_set:khiin.proto.KeyConfiguration.use_digits_as_fallback)
+inline ::khiin::proto::BoolValue* KeyConfiguration::release_use_digits_as_fallback() {
+  
+  ::khiin::proto::BoolValue* temp = use_digits_as_fallback_;
+  use_digits_as_fallback_ = nullptr;
+#ifdef PROTOBUF_FORCE_COPY_IN_RELEASE
+  auto* old =  reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(temp);
+  temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
+  if (GetArenaForAllocation() == nullptr) { delete old; }
+#else  // PROTOBUF_FORCE_COPY_IN_RELEASE
+  if (GetArenaForAllocation() != nullptr) {
+    temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
+  }
+#endif  // !PROTOBUF_FORCE_COPY_IN_RELEASE
+  return temp;
+}
+inline ::khiin::proto::BoolValue* KeyConfiguration::unsafe_arena_release_use_digits_as_fallback() {
+  // @@protoc_insertion_point(field_release:khiin.proto.KeyConfiguration.use_digits_as_fallback)
+  
+  ::khiin::proto::BoolValue* temp = use_digits_as_fallback_;
+  use_digits_as_fallback_ = nullptr;
+  return temp;
+}
+inline ::khiin::proto::BoolValue* KeyConfiguration::_internal_mutable_use_digits_as_fallback() {
+  
+  if (use_digits_as_fallback_ == nullptr) {
+    auto* p = CreateMaybeMessage<::khiin::proto::BoolValue>(GetArenaForAllocation());
+    use_digits_as_fallback_ = p;
+  }
+  return use_digits_as_fallback_;
+}
+inline ::khiin::proto::BoolValue* KeyConfiguration::mutable_use_digits_as_fallback() {
+  ::khiin::proto::BoolValue* _msg = _internal_mutable_use_digits_as_fallback();
+  // @@protoc_insertion_point(field_mutable:khiin.proto.KeyConfiguration.use_digits_as_fallback)
+  return _msg;
+}
+inline void KeyConfiguration::set_allocated_use_digits_as_fallback(::khiin::proto::BoolValue* use_digits_as_fallback) {
+  ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaForAllocation();
+  if (message_arena == nullptr) {
+    delete use_digits_as_fallback_;
+  }
+  if (use_digits_as_fallback) {
+    ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
+        ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper<::khiin::proto::BoolValue>::GetOwningArena(use_digits_as_fallback);
+    if (message_arena != submessage_arena) {
+      use_digits_as_fallback = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
+          message_arena, use_digits_as_fallback, submessage_arena);
+    }
+    
+  } else {
+    
+  }
+  use_digits_as_fallback_ = use_digits_as_fallback;
+  // @@protoc_insertion_point(field_set_allocated:khiin.proto.KeyConfiguration.use_digits_as_fallback)
 }
 
 // -------------------------------------------------------------------
 
 // AppConfig
 
-// .khiin.proto.KeyConfiguration key_config = 1;
+// .khiin.proto.BoolValue ime_enabled = 1;
+inline bool AppConfig::_internal_has_ime_enabled() const {
+  return this != internal_default_instance() && ime_enabled_ != nullptr;
+}
+inline bool AppConfig::has_ime_enabled() const {
+  return _internal_has_ime_enabled();
+}
+inline void AppConfig::clear_ime_enabled() {
+  if (GetArenaForAllocation() == nullptr && ime_enabled_ != nullptr) {
+    delete ime_enabled_;
+  }
+  ime_enabled_ = nullptr;
+}
+inline const ::khiin::proto::BoolValue& AppConfig::_internal_ime_enabled() const {
+  const ::khiin::proto::BoolValue* p = ime_enabled_;
+  return p != nullptr ? *p : reinterpret_cast<const ::khiin::proto::BoolValue&>(
+      ::khiin::proto::_BoolValue_default_instance_);
+}
+inline const ::khiin::proto::BoolValue& AppConfig::ime_enabled() const {
+  // @@protoc_insertion_point(field_get:khiin.proto.AppConfig.ime_enabled)
+  return _internal_ime_enabled();
+}
+inline void AppConfig::unsafe_arena_set_allocated_ime_enabled(
+    ::khiin::proto::BoolValue* ime_enabled) {
+  if (GetArenaForAllocation() == nullptr) {
+    delete reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(ime_enabled_);
+  }
+  ime_enabled_ = ime_enabled;
+  if (ime_enabled) {
+    
+  } else {
+    
+  }
+  // @@protoc_insertion_point(field_unsafe_arena_set_allocated:khiin.proto.AppConfig.ime_enabled)
+}
+inline ::khiin::proto::BoolValue* AppConfig::release_ime_enabled() {
+  
+  ::khiin::proto::BoolValue* temp = ime_enabled_;
+  ime_enabled_ = nullptr;
+#ifdef PROTOBUF_FORCE_COPY_IN_RELEASE
+  auto* old =  reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(temp);
+  temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
+  if (GetArenaForAllocation() == nullptr) { delete old; }
+#else  // PROTOBUF_FORCE_COPY_IN_RELEASE
+  if (GetArenaForAllocation() != nullptr) {
+    temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
+  }
+#endif  // !PROTOBUF_FORCE_COPY_IN_RELEASE
+  return temp;
+}
+inline ::khiin::proto::BoolValue* AppConfig::unsafe_arena_release_ime_enabled() {
+  // @@protoc_insertion_point(field_release:khiin.proto.AppConfig.ime_enabled)
+  
+  ::khiin::proto::BoolValue* temp = ime_enabled_;
+  ime_enabled_ = nullptr;
+  return temp;
+}
+inline ::khiin::proto::BoolValue* AppConfig::_internal_mutable_ime_enabled() {
+  
+  if (ime_enabled_ == nullptr) {
+    auto* p = CreateMaybeMessage<::khiin::proto::BoolValue>(GetArenaForAllocation());
+    ime_enabled_ = p;
+  }
+  return ime_enabled_;
+}
+inline ::khiin::proto::BoolValue* AppConfig::mutable_ime_enabled() {
+  ::khiin::proto::BoolValue* _msg = _internal_mutable_ime_enabled();
+  // @@protoc_insertion_point(field_mutable:khiin.proto.AppConfig.ime_enabled)
+  return _msg;
+}
+inline void AppConfig::set_allocated_ime_enabled(::khiin::proto::BoolValue* ime_enabled) {
+  ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaForAllocation();
+  if (message_arena == nullptr) {
+    delete ime_enabled_;
+  }
+  if (ime_enabled) {
+    ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
+        ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper<::khiin::proto::BoolValue>::GetOwningArena(ime_enabled);
+    if (message_arena != submessage_arena) {
+      ime_enabled = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
+          message_arena, ime_enabled, submessage_arena);
+    }
+    
+  } else {
+    
+  }
+  ime_enabled_ = ime_enabled;
+  // @@protoc_insertion_point(field_set_allocated:khiin.proto.AppConfig.ime_enabled)
+}
+
+// .khiin.proto.KeyConfiguration key_config = 2;
 inline bool AppConfig::_internal_has_key_config() const {
   return this != internal_default_instance() && key_config_ != nullptr;
 }
@@ -1496,7 +1880,7 @@ inline void AppConfig::set_allocated_key_config(::khiin::proto::KeyConfiguration
   // @@protoc_insertion_point(field_set_allocated:khiin.proto.AppConfig.key_config)
 }
 
-// .khiin.proto.InputMode input_mode = 2;
+// .khiin.proto.InputMode input_mode = 3;
 inline void AppConfig::clear_input_mode() {
   input_mode_ = 0;
 }
@@ -1516,7 +1900,97 @@ inline void AppConfig::set_input_mode(::khiin::proto::InputMode value) {
   // @@protoc_insertion_point(field_set:khiin.proto.AppConfig.input_mode)
 }
 
-// .khiin.proto.BoolValue dotted_khin = 3;
+// .khiin.proto.BoolValue telex_enabled = 4;
+inline bool AppConfig::_internal_has_telex_enabled() const {
+  return this != internal_default_instance() && telex_enabled_ != nullptr;
+}
+inline bool AppConfig::has_telex_enabled() const {
+  return _internal_has_telex_enabled();
+}
+inline void AppConfig::clear_telex_enabled() {
+  if (GetArenaForAllocation() == nullptr && telex_enabled_ != nullptr) {
+    delete telex_enabled_;
+  }
+  telex_enabled_ = nullptr;
+}
+inline const ::khiin::proto::BoolValue& AppConfig::_internal_telex_enabled() const {
+  const ::khiin::proto::BoolValue* p = telex_enabled_;
+  return p != nullptr ? *p : reinterpret_cast<const ::khiin::proto::BoolValue&>(
+      ::khiin::proto::_BoolValue_default_instance_);
+}
+inline const ::khiin::proto::BoolValue& AppConfig::telex_enabled() const {
+  // @@protoc_insertion_point(field_get:khiin.proto.AppConfig.telex_enabled)
+  return _internal_telex_enabled();
+}
+inline void AppConfig::unsafe_arena_set_allocated_telex_enabled(
+    ::khiin::proto::BoolValue* telex_enabled) {
+  if (GetArenaForAllocation() == nullptr) {
+    delete reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(telex_enabled_);
+  }
+  telex_enabled_ = telex_enabled;
+  if (telex_enabled) {
+    
+  } else {
+    
+  }
+  // @@protoc_insertion_point(field_unsafe_arena_set_allocated:khiin.proto.AppConfig.telex_enabled)
+}
+inline ::khiin::proto::BoolValue* AppConfig::release_telex_enabled() {
+  
+  ::khiin::proto::BoolValue* temp = telex_enabled_;
+  telex_enabled_ = nullptr;
+#ifdef PROTOBUF_FORCE_COPY_IN_RELEASE
+  auto* old =  reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(temp);
+  temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
+  if (GetArenaForAllocation() == nullptr) { delete old; }
+#else  // PROTOBUF_FORCE_COPY_IN_RELEASE
+  if (GetArenaForAllocation() != nullptr) {
+    temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
+  }
+#endif  // !PROTOBUF_FORCE_COPY_IN_RELEASE
+  return temp;
+}
+inline ::khiin::proto::BoolValue* AppConfig::unsafe_arena_release_telex_enabled() {
+  // @@protoc_insertion_point(field_release:khiin.proto.AppConfig.telex_enabled)
+  
+  ::khiin::proto::BoolValue* temp = telex_enabled_;
+  telex_enabled_ = nullptr;
+  return temp;
+}
+inline ::khiin::proto::BoolValue* AppConfig::_internal_mutable_telex_enabled() {
+  
+  if (telex_enabled_ == nullptr) {
+    auto* p = CreateMaybeMessage<::khiin::proto::BoolValue>(GetArenaForAllocation());
+    telex_enabled_ = p;
+  }
+  return telex_enabled_;
+}
+inline ::khiin::proto::BoolValue* AppConfig::mutable_telex_enabled() {
+  ::khiin::proto::BoolValue* _msg = _internal_mutable_telex_enabled();
+  // @@protoc_insertion_point(field_mutable:khiin.proto.AppConfig.telex_enabled)
+  return _msg;
+}
+inline void AppConfig::set_allocated_telex_enabled(::khiin::proto::BoolValue* telex_enabled) {
+  ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaForAllocation();
+  if (message_arena == nullptr) {
+    delete telex_enabled_;
+  }
+  if (telex_enabled) {
+    ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
+        ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper<::khiin::proto::BoolValue>::GetOwningArena(telex_enabled);
+    if (message_arena != submessage_arena) {
+      telex_enabled = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
+          message_arena, telex_enabled, submessage_arena);
+    }
+    
+  } else {
+    
+  }
+  telex_enabled_ = telex_enabled;
+  // @@protoc_insertion_point(field_set_allocated:khiin.proto.AppConfig.telex_enabled)
+}
+
+// .khiin.proto.BoolValue dotted_khin = 5;
 inline bool AppConfig::_internal_has_dotted_khin() const {
   return this != internal_default_instance() && dotted_khin_ != nullptr;
 }
@@ -1606,6 +2080,296 @@ inline void AppConfig::set_allocated_dotted_khin(::khiin::proto::BoolValue* dott
   // @@protoc_insertion_point(field_set_allocated:khiin.proto.AppConfig.dotted_khin)
 }
 
+// .khiin.proto.BoolValue autokhin = 6;
+inline bool AppConfig::_internal_has_autokhin() const {
+  return this != internal_default_instance() && autokhin_ != nullptr;
+}
+inline bool AppConfig::has_autokhin() const {
+  return _internal_has_autokhin();
+}
+inline void AppConfig::clear_autokhin() {
+  if (GetArenaForAllocation() == nullptr && autokhin_ != nullptr) {
+    delete autokhin_;
+  }
+  autokhin_ = nullptr;
+}
+inline const ::khiin::proto::BoolValue& AppConfig::_internal_autokhin() const {
+  const ::khiin::proto::BoolValue* p = autokhin_;
+  return p != nullptr ? *p : reinterpret_cast<const ::khiin::proto::BoolValue&>(
+      ::khiin::proto::_BoolValue_default_instance_);
+}
+inline const ::khiin::proto::BoolValue& AppConfig::autokhin() const {
+  // @@protoc_insertion_point(field_get:khiin.proto.AppConfig.autokhin)
+  return _internal_autokhin();
+}
+inline void AppConfig::unsafe_arena_set_allocated_autokhin(
+    ::khiin::proto::BoolValue* autokhin) {
+  if (GetArenaForAllocation() == nullptr) {
+    delete reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(autokhin_);
+  }
+  autokhin_ = autokhin;
+  if (autokhin) {
+    
+  } else {
+    
+  }
+  // @@protoc_insertion_point(field_unsafe_arena_set_allocated:khiin.proto.AppConfig.autokhin)
+}
+inline ::khiin::proto::BoolValue* AppConfig::release_autokhin() {
+  
+  ::khiin::proto::BoolValue* temp = autokhin_;
+  autokhin_ = nullptr;
+#ifdef PROTOBUF_FORCE_COPY_IN_RELEASE
+  auto* old =  reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(temp);
+  temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
+  if (GetArenaForAllocation() == nullptr) { delete old; }
+#else  // PROTOBUF_FORCE_COPY_IN_RELEASE
+  if (GetArenaForAllocation() != nullptr) {
+    temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
+  }
+#endif  // !PROTOBUF_FORCE_COPY_IN_RELEASE
+  return temp;
+}
+inline ::khiin::proto::BoolValue* AppConfig::unsafe_arena_release_autokhin() {
+  // @@protoc_insertion_point(field_release:khiin.proto.AppConfig.autokhin)
+  
+  ::khiin::proto::BoolValue* temp = autokhin_;
+  autokhin_ = nullptr;
+  return temp;
+}
+inline ::khiin::proto::BoolValue* AppConfig::_internal_mutable_autokhin() {
+  
+  if (autokhin_ == nullptr) {
+    auto* p = CreateMaybeMessage<::khiin::proto::BoolValue>(GetArenaForAllocation());
+    autokhin_ = p;
+  }
+  return autokhin_;
+}
+inline ::khiin::proto::BoolValue* AppConfig::mutable_autokhin() {
+  ::khiin::proto::BoolValue* _msg = _internal_mutable_autokhin();
+  // @@protoc_insertion_point(field_mutable:khiin.proto.AppConfig.autokhin)
+  return _msg;
+}
+inline void AppConfig::set_allocated_autokhin(::khiin::proto::BoolValue* autokhin) {
+  ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaForAllocation();
+  if (message_arena == nullptr) {
+    delete autokhin_;
+  }
+  if (autokhin) {
+    ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
+        ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper<::khiin::proto::BoolValue>::GetOwningArena(autokhin);
+    if (message_arena != submessage_arena) {
+      autokhin = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
+          message_arena, autokhin, submessage_arena);
+    }
+    
+  } else {
+    
+  }
+  autokhin_ = autokhin;
+  // @@protoc_insertion_point(field_set_allocated:khiin.proto.AppConfig.autokhin)
+}
+
+// .khiin.proto.DefaultPunctuation default_punctuation = 7;
+inline void AppConfig::clear_default_punctuation() {
+  default_punctuation_ = 0;
+}
+inline ::khiin::proto::DefaultPunctuation AppConfig::_internal_default_punctuation() const {
+  return static_cast< ::khiin::proto::DefaultPunctuation >(default_punctuation_);
+}
+inline ::khiin::proto::DefaultPunctuation AppConfig::default_punctuation() const {
+  // @@protoc_insertion_point(field_get:khiin.proto.AppConfig.default_punctuation)
+  return _internal_default_punctuation();
+}
+inline void AppConfig::_internal_set_default_punctuation(::khiin::proto::DefaultPunctuation value) {
+  
+  default_punctuation_ = value;
+}
+inline void AppConfig::set_default_punctuation(::khiin::proto::DefaultPunctuation value) {
+  _internal_set_default_punctuation(value);
+  // @@protoc_insertion_point(field_set:khiin.proto.AppConfig.default_punctuation)
+}
+
+// .khiin.proto.BoolValue easy_ch = 8;
+inline bool AppConfig::_internal_has_easy_ch() const {
+  return this != internal_default_instance() && easy_ch_ != nullptr;
+}
+inline bool AppConfig::has_easy_ch() const {
+  return _internal_has_easy_ch();
+}
+inline void AppConfig::clear_easy_ch() {
+  if (GetArenaForAllocation() == nullptr && easy_ch_ != nullptr) {
+    delete easy_ch_;
+  }
+  easy_ch_ = nullptr;
+}
+inline const ::khiin::proto::BoolValue& AppConfig::_internal_easy_ch() const {
+  const ::khiin::proto::BoolValue* p = easy_ch_;
+  return p != nullptr ? *p : reinterpret_cast<const ::khiin::proto::BoolValue&>(
+      ::khiin::proto::_BoolValue_default_instance_);
+}
+inline const ::khiin::proto::BoolValue& AppConfig::easy_ch() const {
+  // @@protoc_insertion_point(field_get:khiin.proto.AppConfig.easy_ch)
+  return _internal_easy_ch();
+}
+inline void AppConfig::unsafe_arena_set_allocated_easy_ch(
+    ::khiin::proto::BoolValue* easy_ch) {
+  if (GetArenaForAllocation() == nullptr) {
+    delete reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(easy_ch_);
+  }
+  easy_ch_ = easy_ch;
+  if (easy_ch) {
+    
+  } else {
+    
+  }
+  // @@protoc_insertion_point(field_unsafe_arena_set_allocated:khiin.proto.AppConfig.easy_ch)
+}
+inline ::khiin::proto::BoolValue* AppConfig::release_easy_ch() {
+  
+  ::khiin::proto::BoolValue* temp = easy_ch_;
+  easy_ch_ = nullptr;
+#ifdef PROTOBUF_FORCE_COPY_IN_RELEASE
+  auto* old =  reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(temp);
+  temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
+  if (GetArenaForAllocation() == nullptr) { delete old; }
+#else  // PROTOBUF_FORCE_COPY_IN_RELEASE
+  if (GetArenaForAllocation() != nullptr) {
+    temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
+  }
+#endif  // !PROTOBUF_FORCE_COPY_IN_RELEASE
+  return temp;
+}
+inline ::khiin::proto::BoolValue* AppConfig::unsafe_arena_release_easy_ch() {
+  // @@protoc_insertion_point(field_release:khiin.proto.AppConfig.easy_ch)
+  
+  ::khiin::proto::BoolValue* temp = easy_ch_;
+  easy_ch_ = nullptr;
+  return temp;
+}
+inline ::khiin::proto::BoolValue* AppConfig::_internal_mutable_easy_ch() {
+  
+  if (easy_ch_ == nullptr) {
+    auto* p = CreateMaybeMessage<::khiin::proto::BoolValue>(GetArenaForAllocation());
+    easy_ch_ = p;
+  }
+  return easy_ch_;
+}
+inline ::khiin::proto::BoolValue* AppConfig::mutable_easy_ch() {
+  ::khiin::proto::BoolValue* _msg = _internal_mutable_easy_ch();
+  // @@protoc_insertion_point(field_mutable:khiin.proto.AppConfig.easy_ch)
+  return _msg;
+}
+inline void AppConfig::set_allocated_easy_ch(::khiin::proto::BoolValue* easy_ch) {
+  ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaForAllocation();
+  if (message_arena == nullptr) {
+    delete easy_ch_;
+  }
+  if (easy_ch) {
+    ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
+        ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper<::khiin::proto::BoolValue>::GetOwningArena(easy_ch);
+    if (message_arena != submessage_arena) {
+      easy_ch = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
+          message_arena, easy_ch, submessage_arena);
+    }
+    
+  } else {
+    
+  }
+  easy_ch_ = easy_ch;
+  // @@protoc_insertion_point(field_set_allocated:khiin.proto.AppConfig.easy_ch)
+}
+
+// .khiin.proto.BoolValue uppercase_nasal = 9;
+inline bool AppConfig::_internal_has_uppercase_nasal() const {
+  return this != internal_default_instance() && uppercase_nasal_ != nullptr;
+}
+inline bool AppConfig::has_uppercase_nasal() const {
+  return _internal_has_uppercase_nasal();
+}
+inline void AppConfig::clear_uppercase_nasal() {
+  if (GetArenaForAllocation() == nullptr && uppercase_nasal_ != nullptr) {
+    delete uppercase_nasal_;
+  }
+  uppercase_nasal_ = nullptr;
+}
+inline const ::khiin::proto::BoolValue& AppConfig::_internal_uppercase_nasal() const {
+  const ::khiin::proto::BoolValue* p = uppercase_nasal_;
+  return p != nullptr ? *p : reinterpret_cast<const ::khiin::proto::BoolValue&>(
+      ::khiin::proto::_BoolValue_default_instance_);
+}
+inline const ::khiin::proto::BoolValue& AppConfig::uppercase_nasal() const {
+  // @@protoc_insertion_point(field_get:khiin.proto.AppConfig.uppercase_nasal)
+  return _internal_uppercase_nasal();
+}
+inline void AppConfig::unsafe_arena_set_allocated_uppercase_nasal(
+    ::khiin::proto::BoolValue* uppercase_nasal) {
+  if (GetArenaForAllocation() == nullptr) {
+    delete reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(uppercase_nasal_);
+  }
+  uppercase_nasal_ = uppercase_nasal;
+  if (uppercase_nasal) {
+    
+  } else {
+    
+  }
+  // @@protoc_insertion_point(field_unsafe_arena_set_allocated:khiin.proto.AppConfig.uppercase_nasal)
+}
+inline ::khiin::proto::BoolValue* AppConfig::release_uppercase_nasal() {
+  
+  ::khiin::proto::BoolValue* temp = uppercase_nasal_;
+  uppercase_nasal_ = nullptr;
+#ifdef PROTOBUF_FORCE_COPY_IN_RELEASE
+  auto* old =  reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(temp);
+  temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
+  if (GetArenaForAllocation() == nullptr) { delete old; }
+#else  // PROTOBUF_FORCE_COPY_IN_RELEASE
+  if (GetArenaForAllocation() != nullptr) {
+    temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
+  }
+#endif  // !PROTOBUF_FORCE_COPY_IN_RELEASE
+  return temp;
+}
+inline ::khiin::proto::BoolValue* AppConfig::unsafe_arena_release_uppercase_nasal() {
+  // @@protoc_insertion_point(field_release:khiin.proto.AppConfig.uppercase_nasal)
+  
+  ::khiin::proto::BoolValue* temp = uppercase_nasal_;
+  uppercase_nasal_ = nullptr;
+  return temp;
+}
+inline ::khiin::proto::BoolValue* AppConfig::_internal_mutable_uppercase_nasal() {
+  
+  if (uppercase_nasal_ == nullptr) {
+    auto* p = CreateMaybeMessage<::khiin::proto::BoolValue>(GetArenaForAllocation());
+    uppercase_nasal_ = p;
+  }
+  return uppercase_nasal_;
+}
+inline ::khiin::proto::BoolValue* AppConfig::mutable_uppercase_nasal() {
+  ::khiin::proto::BoolValue* _msg = _internal_mutable_uppercase_nasal();
+  // @@protoc_insertion_point(field_mutable:khiin.proto.AppConfig.uppercase_nasal)
+  return _msg;
+}
+inline void AppConfig::set_allocated_uppercase_nasal(::khiin::proto::BoolValue* uppercase_nasal) {
+  ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaForAllocation();
+  if (message_arena == nullptr) {
+    delete uppercase_nasal_;
+  }
+  if (uppercase_nasal) {
+    ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
+        ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper<::khiin::proto::BoolValue>::GetOwningArena(uppercase_nasal);
+    if (message_arena != submessage_arena) {
+      uppercase_nasal = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
+          message_arena, uppercase_nasal, submessage_arena);
+    }
+    
+  } else {
+    
+  }
+  uppercase_nasal_ = uppercase_nasal;
+  // @@protoc_insertion_point(field_set_allocated:khiin.proto.AppConfig.uppercase_nasal)
+}
+
 #ifdef __GNUC__
   #pragma GCC diagnostic pop
 #endif  // __GNUC__
@@ -1625,6 +2389,11 @@ template <> struct is_proto_enum< ::khiin::proto::InputMode> : ::std::true_type 
 template <>
 inline const EnumDescriptor* GetEnumDescriptor< ::khiin::proto::InputMode>() {
   return ::khiin::proto::InputMode_descriptor();
+}
+template <> struct is_proto_enum< ::khiin::proto::DefaultPunctuation> : ::std::true_type {};
+template <>
+inline const EnumDescriptor* GetEnumDescriptor< ::khiin::proto::DefaultPunctuation>() {
+  return ::khiin::proto::DefaultPunctuation_descriptor();
 }
 
 PROTOBUF_NAMESPACE_CLOSE

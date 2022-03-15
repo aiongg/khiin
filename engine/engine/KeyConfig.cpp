@@ -2,8 +2,6 @@
 
 #include <iterator>
 
-#include "proto/proto.h"
-
 #include "Config.h"
 #include "Engine.h"
 
@@ -64,7 +62,7 @@ class KeyCfgImpl : public KeyConfig, ConfigChangeListener {
     };
 
     // Inherited via ConfigChangeListener
-    virtual void OnConfigChanged(khiin::proto::AppConfig *config) {
+    virtual void OnConfigChanged(Config *config) {
         ReloadEngineConfig();
     }
 
@@ -92,30 +90,26 @@ class KeyCfgImpl : public KeyConfig, ConfigChangeListener {
         }
 
         Reset();
-        auto config = m_engine->config()->key_config();
-        std::string key;
-
-        key = config.nasal();
-        if (key.size() == 1) {
+        auto config = m_engine->config();
+       
+        if (auto key = config->nasal(); key.size() == 1) {
             SetKey(tolower(key.front()), VKey::Nasal, true);
         } else if (key.size() == 2 && tolower(key.front()) == 'n') {
             SetKey(tolower(key.back()), VKey::Nasal, false);
         } else {
-            SetKey('n', VKey::Nasal);
+            SetKey('n', VKey::Nasal, false);
         }
 
-        key = config.dot_above_right();
-        if (key.size() == 1) {
+        if (auto key = config->dot_above_right(); key.size() == 1) {
             SetKey(tolower(key.front()), VKey::DotAboveRight, true);
         } else if (key.size() == 2 && tolower(key.front()) == 'o') {
             SetKey(tolower(key.back()), VKey::DotAboveRight, false);
         } else {
-            SetKey('u', VKey::DotAboveRight);
+            SetKey('u', VKey::DotAboveRight, false);
         }
 
-        key = config.dots_below();
-        if (key.size() > 0) {
-            SetKey(tolower(key.front()), VKey::DotsBelow, false);
+        if (auto key = config->dots_below(); key != 0) {
+            SetKey(tolower(key), VKey::DotsBelow, false);
         } else {
             SetKey('r', VKey::DotsBelow);
         }

@@ -15,6 +15,7 @@
 #include "utf8cpp/utf8.h"
 
 #include "BufferMgr.h"
+#include "Config.h"
 #include "Database.h"
 #include "Dictionary.h"
 #include "KeyConfig.h"
@@ -41,7 +42,7 @@ class EngineImpl : public Engine {
             m_database = std::unique_ptr<Database>(Database::TestDb());
         }
 
-        m_config = DefaultAppConfig();
+        m_config = Config::Default();
         m_keyconfig = std::unique_ptr<KeyConfig>(KeyConfig::Create(this));
         m_syllable_parser = std::unique_ptr<SyllableParser>(SyllableParser::Create(this));
         m_dictionary = std::unique_ptr<Dictionary>(Dictionary::Create(this));
@@ -93,7 +94,7 @@ class EngineImpl : public Engine {
         return m_dictionary.get();
     }
 
-    virtual AppConfig *config() override {
+    virtual Config *config() override {
         return m_config.get();
     }
 
@@ -195,7 +196,7 @@ class EngineImpl : public Engine {
         auto &request = command->request();
         auto res = command->mutable_response();
 
-        if (m_config->input_mode() == InputMode::IM_ALPHA) {
+        if (!m_config->ime_enabled()) {
             // Direct input mode, skip all processing
             res->set_consumable(false);
             return;
@@ -237,7 +238,7 @@ class EngineImpl : public Engine {
 
     void HandleSetConfig(Command *command) {
         if (command->request().has_config()) {
-            m_config->CopyFrom(command->request().config());
+            m_config->UpdateAppConfig(command->request().config());
             NotifyConfigChangeListeners();
         }
     }
@@ -276,7 +277,7 @@ class EngineImpl : public Engine {
 
     std::unordered_map<CommandType, decltype(&HandleNone)> m_cmd_handlers = {};
     std::vector<ConfigChangeListener *> m_config_change_listeners;
-    std::unique_ptr<AppConfig> m_config = nullptr;
+    std::unique_ptr<Config> m_config = nullptr;
 };
 
 } // namespace

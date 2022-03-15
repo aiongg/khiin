@@ -4,6 +4,7 @@
 
 #include "TextService.h"
 
+#include "Config.h"
 #include "Guids.h"
 
 namespace khiin::win32::tip {
@@ -20,13 +21,14 @@ struct PreservedKey {
 PreservedKey kPrekeyOnOff = {guids::kPreservedKeyOnOff, {VK_OEM_3, MOD_ALT}, L"Direct input"};
 PreservedKey kPrekeyFWS = {guids::kPreservedKeyFullWidthSpace, {VK_SPACE, MOD_SHIFT}, L"Full width space"};
 
-class PreservedKeyMgrImpl : public PreservedKeyMgr {
+class PreservedKeyMgrImpl : public PreservedKeyMgr, ConfigChangeListener {
     virtual void Initialize(TextService *service) override {
         m_service.copy_from(service);
-        auto client_id = m_service->clientId();
-        auto keystroke_mgr = KeystrokeMgr();
-        PreserveKey(client_id, keystroke_mgr.get(), kPrekeyOnOff);
-        PreserveKey(client_id, keystroke_mgr.get(), kPrekeyFWS);
+        m_service->RegisterConfigChangeListener(this);
+    }
+
+    virtual void OnConfigChanged(proto::AppConfig *config) override {
+        PreserveKeys();
     }
 
     virtual void Shutdown() override {
@@ -41,11 +43,22 @@ class PreservedKeyMgrImpl : public PreservedKeyMgr {
         return thread_mgr.as<ITfKeystrokeMgr>();
     }
 
-    void PreserveKey(TfClientId tid, ITfKeystrokeMgr *keystroke_mgr, PreservedKey const &pk) {
-        keystroke_mgr->PreserveKey(tid, pk.guid, &pk.prekey, pk.desc.data(), static_cast<ULONG>(pk.desc.size()));
+    void PreserveKeys() {
+        if (Config::GetOnOffHotkey() == Hotkey::AltBacktick) {
+            PreserveKey(kPrekeyOnOff);
+        } else {
+            UnpreserveKey(kPrekeyOnOff);
+        }
     }
 
-    void UnpreserveKey(PreservedKey const &pk) {}
+    void PreserveKey(PreservedKey const &pk) {
+        KeystrokeMgr()->PreserveKey(m_service->clientId(), pk.guid, &pk.prekey, pk.desc.data(),
+                                    static_cast<ULONG>(pk.desc.size()));
+    }
+
+    void UnpreserveKey(PreservedKey const &pk) {
+        KeystrokeMgr()->UnpreserveKey(pk.guid, &pk.prekey);
+    }
 
     com_ptr<TextService> m_service;
 };

@@ -52,7 +52,7 @@ static inline const std::string bigramTriple(size_t n) {
     return makeSQLBinder(n, "(?, ?, 1)");
 }
 
-} // namespace
+} // namespace 
 
 static inline const std::string SELECT_AllInputsByFreq = "SELECT * FROM frequency ORDER BY id";
 

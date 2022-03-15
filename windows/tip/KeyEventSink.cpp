@@ -4,6 +4,7 @@
 
 #include "proto/proto.h"
 
+#include "Config.h"
 #include "EditSession.h"
 #include "EngineController.h"
 #include "Guids.h"
@@ -13,9 +14,13 @@ namespace khiin::win32::tip {
 namespace {
 using namespace winrt;
 
+inline bool ShiftOnOff() {
+    return Config::GetOnOffHotkey() == Hotkey::Shift;
+}
+
 bool TestPageKeyForCandidateUI(CandidateListUI *cand_ui, win32::KeyEvent const &key_event) {
     if (cand_ui->Selecting()) {
-        auto key = key_event.keyCode();
+        auto key = key_event.keycode();
         if (cand_ui->MultiColumn() && (key == VK_LEFT || key == VK_RIGHT)) {
             return true;
         }
@@ -60,9 +65,9 @@ bool HandleCandidatePage(TextService *service, ITfContext *context, CandidateLis
 
     auto id = -1;
 
-    if (key_event.keyCode() == VK_NEXT) {
+    if (key_event.keycode() == VK_NEXT) {
         id = cand_ui->RotateNext();
-    } else if (key_event.keyCode() == VK_PRIOR) {
+    } else if (key_event.keycode() == VK_PRIOR) {
         id = cand_ui->RotatePrev();
     }
 
@@ -105,6 +110,14 @@ struct KeyEventSinkImpl : implements<KeyEventSinkImpl, ITfKeyEventSink, KeyEvent
         KHIIN_TRACE("");
         WINRT_ASSERT(pContext);
 
+        if (ShiftOnOff() && keyEvent.keycode() == VK_SHIFT) {
+            shift_pressed = true;
+            *pfEaten = TRUE;
+            return;
+        } else {
+            shift_pressed = false;
+        }
+
         if (TestKeyForCandidateUI(service->candidate_ui().get(), keyEvent)) {
             *pfEaten = TRUE;
             return;
@@ -146,6 +159,23 @@ struct KeyEventSinkImpl : implements<KeyEventSinkImpl, ITfKeyEventSink, KeyEvent
         HandleKeyBasic(service.get(), pContext, keyEvent);
     }
 
+    void TestKeyUp(ITfContext *context, win32::KeyEvent key_event, BOOL *pfEaten) {
+        if (ShiftOnOff() && shift_pressed && key_event.keycode() == VK_SHIFT) {
+            *pfEaten = TRUE;
+        } else {
+            *pfEaten = FALSE;
+        }
+    }
+
+    void HandleKeyUp(ITfContext *context, win32::KeyEvent key_event, BOOL *pfEaten) {
+        if (ShiftOnOff() && shift_pressed && key_event.keycode() == VK_SHIFT) {
+            service->TipOnOff();
+            *pfEaten = TRUE;
+        } else {
+            *pfEaten = FALSE;
+        }
+    }
+
     //+---------------------------------------------------------------------------
     //
     // ITfKeyEventSink
@@ -170,7 +200,6 @@ struct KeyEventSinkImpl : implements<KeyEventSinkImpl, ITfKeyEventSink, KeyEvent
         auto keyEvent = win32::KeyEvent(WM_KEYDOWN, wParam, lParam);
         TestKey(pContext, keyEvent, pfEaten);
 
-        return S_OK;
         CATCH_FOR_HRESULT;
     }
 
@@ -178,9 +207,8 @@ struct KeyEventSinkImpl : implements<KeyEventSinkImpl, ITfKeyEventSink, KeyEvent
         TRY_FOR_HRESULT;
 
         auto keyEvent = win32::KeyEvent(WM_KEYUP, wParam, lParam);
-        KHIIN_DEBUG("OnTestKeyUp");
+        TestKeyUp(pContext, keyEvent, pfEaten);
 
-        return E_NOTIMPL;
         CATCH_FOR_HRESULT;
     }
 
@@ -197,9 +225,10 @@ struct KeyEventSinkImpl : implements<KeyEventSinkImpl, ITfKeyEventSink, KeyEvent
 
     virtual STDMETHODIMP OnKeyUp(ITfContext *pic, WPARAM wParam, LPARAM lParam, BOOL *pfEaten) override {
         TRY_FOR_HRESULT;
+        
         auto keyEvent = win32::KeyEvent(WM_KEYUP, wParam, lParam);
+        HandleKeyUp(pic, keyEvent, pfEaten);
 
-        return E_NOTIMPL;
         CATCH_FOR_HRESULT;
     }
 
@@ -207,12 +236,11 @@ struct KeyEventSinkImpl : implements<KeyEventSinkImpl, ITfKeyEventSink, KeyEvent
         TRY_FOR_HRESULT;
 
         if (rguid == guids::kPreservedKeyOnOff) {
-            service->SwapOnOff();
+            service->TipOnOff();
             *pfEaten = TRUE;
         }
 
         if (rguid == guids::kPreservedKeyFullWidthSpace) {
-            
         }
 
         CATCH_FOR_HRESULT;
@@ -221,6 +249,7 @@ struct KeyEventSinkImpl : implements<KeyEventSinkImpl, ITfKeyEventSink, KeyEvent
     winrt::com_ptr<TextService> service = nullptr;
     winrt::com_ptr<ITfThreadMgr> thread_mgr = nullptr;
     winrt::com_ptr<ITfKeystrokeMgr> keystrokeMgr = nullptr;
+    bool shift_pressed = false;
 };
 
 } // namespace

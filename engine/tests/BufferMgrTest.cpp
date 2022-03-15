@@ -4,6 +4,7 @@
 #include "proto/proto.h"
 
 #include "BufferMgr.h"
+#include "Config.h"
 #include "TestEnv.h"
 
 namespace khiin::engine {
@@ -504,7 +505,7 @@ TEST_F(BufferKhinTest, Delete_khin_an2) {
 }
 
 TEST_F(BufferKhinTest, Delete_khins2) {
-    TestEnv::engine()->config()->mutable_dotted_khin()->set_value(false);
+    TestEnv::engine()->config()->set_dotted_khin(false);
     typing("--a");
     ExpectBuffer("--a", 3);
     key_bksp(1);
@@ -513,7 +514,7 @@ TEST_F(BufferKhinTest, Delete_khins2) {
     ExpectBuffer("-", 1);
     key_bksp(1);
     ExpectEmpty();
-    TestEnv::engine()->config()->mutable_dotted_khin()->set_value(true);
+    TestEnv::engine()->config()->set_dotted_khin(true);
 }
 
 TEST_F(BufferKhinTest, Delete_autokhin) {
@@ -524,12 +525,21 @@ TEST_F(BufferKhinTest, Delete_autokhin) {
 }
 
 TEST_F(BufferKhinTest, Delete_autkhin_hyphens) {
-    TestEnv::engine()->config()->mutable_dotted_khin()->set_value(false);
+    TestEnv::engine()->config()->set_dotted_khin(false);
     typing("--aa");
     ExpectBuffer("--a--a", 6);
     key_bksp(1);
     ExpectBuffer("--a", 3);
-    TestEnv::engine()->config()->mutable_dotted_khin()->set_value(true);
+    TestEnv::engine()->config()->set_dotted_khin(true);
+}
+
+TEST_F(BufferKhinTest, Autokhin_disabled) {
+    TestEnv::engine()->config()->set_autokhin(false);
+    typing("--aa");
+    ExpectBuffer("·a a", 4);
+    key_bksp(1);
+    ExpectBuffer("·a", 2);
+    TestEnv::engine()->config()->set_autokhin(true);
 }
 
 //+---------------------------------------------------------------------------

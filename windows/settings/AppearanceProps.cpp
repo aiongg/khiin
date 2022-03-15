@@ -57,16 +57,9 @@ void AppearanceProps::Initialize() {
 }
 
 void AppearanceProps::Finalize() {
-    HWND item = NULL;
-
-    item = ::GetDlgItem(m_hwnd, IDC_COMBOBOX_THEME_COLOR);
-    Config::SetUiColors(static_cast<UiColors>(ComboBox_GetCurSel(item)));
-
-    item = ::GetDlgItem(m_hwnd, IDC_CANDIDATE_SIZE);
-    Config::SetUiSize(::SendMessage(item, TBM_GETPOS, 0, 0));
-
-    item = ::GetDlgItem(m_hwnd, IDC_DISPLAY_LANGUAGE);
-    Config::SetUiLanguage(static_cast<UiLanguage>(ComboBox_GetCurSel(item)));
+    Config::SetUiColors(static_cast<UiColors>(ComboBox_GetCurSel(::GetDlgItem(m_hwnd, IDC_COMBOBOX_THEME_COLOR))));
+    Config::SetUiSize(::SendMessage(::GetDlgItem(m_hwnd, IDC_CANDIDATE_SIZE), TBM_GETPOS, 0, 0));
+    Config::SetUiLanguage(static_cast<UiLanguage>(ComboBox_GetCurSel(::GetDlgItem(m_hwnd, IDC_DISPLAY_LANGUAGE))));
 }
 
 } // namespace khiin::win32::settings

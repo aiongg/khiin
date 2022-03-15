@@ -17,7 +17,7 @@ bool is_all_hyphens(std::string_view str) {
     return true;
 }
 
-void AutokhinBufferImpl(SyllableParser *parser, std::vector<BufferElement> &buffer) {
+void AutokhinBufferImpl(SyllableParser *parser, bool autokhin_enabled, std::vector<BufferElement> &buffer) {
     bool autokhin = false;
     auto it = buffer.begin();
 
@@ -55,7 +55,7 @@ void AutokhinBufferImpl(SyllableParser *parser, std::vector<BufferElement> &buff
             continue;
         }
 
-        if (autokhin && !it->SetKhin(parser, KhinKeyPosition::Virtual, 0)) {
+        if (autokhin_enabled && autokhin && !it->SetKhin(parser, KhinKeyPosition::Virtual, 0)) {
             autokhin = false;
         }
 
@@ -65,8 +65,8 @@ void AutokhinBufferImpl(SyllableParser *parser, std::vector<BufferElement> &buff
 
 } // namespace
 
-void KhinHandler::AutokhinBuffer(SyllableParser *parser, std::vector<BufferElement> &buffer) {
-    AutokhinBufferImpl(parser, buffer);
+void KhinHandler::AutokhinBuffer(SyllableParser *parser, bool autokhin_enabled, std::vector<BufferElement> &buffer) {
+    AutokhinBufferImpl(parser, autokhin_enabled, buffer);
 }
 
 } // namespace khiin::engine

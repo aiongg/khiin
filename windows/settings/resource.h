@@ -26,15 +26,40 @@
 #define IDC_INPUTMODE_CONTINUOUS        2003
 #define IDC_INPUTMODE_BASIC             2004
 #define IDC_INPUTMODE_PRO               2005
-#define IDC_OPTION_INPUTMODE_HOTKEY     2006
-#define IDC_OPTION_ALPHA_HOTKEY         2007
-#define IDC_OPTION_TELEX                2008
-#define IDC_OPTION_DOTTED_KHIN          2009
-#define IDC_OPTION_AUTOKHIN             2010
-#define IDC_OPTION_EASY_CH              2011
-#define IDL_DEFAULT_PUNCUTATION         2012
-#define IDC_PUNCT_FULL_WIDTH            2013
-#define IDC_PUNCT_HALF_WIDTH            2014
+#define IDL_INPUTMODE_HOTKEY            2006
+#define IDC_INPUTMODE_KEY_COMBO         2007
+#define IDS_INPUTMODE_KEY_CTRL_SPACE    2008
+#define IDS_INPUTMODE_KEY_CTRL_SHIFT    2009
+#define IDS_INPUTMODE_KEY_CTRL_CAPS     2010
+#define IDL_ON_OFF_HOTKEY               2011
+#define IDC_ON_OFF_HOTKEY_COMBO         2012
+#define IDS_ON_OFF_HOTKEY_SHIFT         2013
+#define IDS_ON_OFF_HOTKEY_ALTBACKTICK   2014
+#define IDL_DEFAULT_PUNCTUATION         2015
+#define IDC_PUNCTUATION_COMBO           2016
+#define IDS_PUNCT_FULL_WIDTH            2017
+#define IDS_PUNCT_HALF_WIDTH            2018
+#define IDL_TONE_KEYS                   2019
+#define IDC_TONE_KEYS_COMBO             2020
+#define IDS_TONE_KEYS_NUMERIC           2021
+#define IDS_TONE_KEYS_TELEX             2022
+#define IDL_DOTTED_O_KEY                2023
+#define IDC_DOTTED_O_KEY_COMBO          2024
+#define IDS_DOTTED_O_OU                 2025
+#define IDS_DOTTED_O_OO                 2026
+#define IDS_DOTTED_O_Y                  2027
+#define IDL_NASAL_KEY                   2028
+#define IDC_NASAL_KEY_COMBO             2029
+#define IDS_NASAL_NN                    2030
+#define IDS_NASAL_V                     2031
+#define IDC_OPTION_DOTTED_KHIN          2032
+#define IDC_OPTION_AUTOKHIN             2033
+#define IDC_OPTION_EASY_CH              2034
+#define IDC_OPTION_UPPERCASE_NASAL      2035
+#define IDL_HYPHEN_KEY                  2036
+#define IDC_HYPHEN_KEY_COMBO            2037
+#define IDS_HYPHEN_KEY_HYPHEN           2038
+#define IDS_HYPHEN_KEY_V                2039
 #define IDC_STATIC                      -1
 
 // Next default values for new objects
@@ -44,7 +69,7 @@
 #define _APS_NO_MFC                     1
 #define _APS_NEXT_RESOURCE_VALUE        128
 #define _APS_NEXT_COMMAND_VALUE         32771
-#define _APS_NEXT_CONTROL_VALUE         10000
+#define _APS_NEXT_CONTROL_VALUE         10024
 #define _APS_NEXT_SYMED_VALUE           110
 #endif
 #endif

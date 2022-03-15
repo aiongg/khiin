@@ -6,11 +6,11 @@ namespace khiin::proto {
 class Preedit;
 class CandidateList;
 enum EditState : int;
-enum InputMode : int;
 } // namespace khiin::proto
 
 namespace khiin::engine {
 
+enum class InputMode;
 class Engine;
 
 /**
@@ -133,8 +133,6 @@ class BufferMgr {
      * must be updated before display.
      */
     virtual void SelectCandidate(size_t id) = 0;
-
-    virtual void SetInputMode(proto::InputMode new_mode) = 0;
 };
 
 } // namespace khiin::engine

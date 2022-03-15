@@ -28,6 +28,7 @@ class PropSheetPage {
     virtual void Finalize();
     virtual void OnChange();
 
+    HWND ItemById(uint32_t res_id);
     void InitComboBox(uint32_t control_rid, std::vector<uint32_t> const &option_rids, int selected_index);
     void SetHwnd(HWND hwnd);
 

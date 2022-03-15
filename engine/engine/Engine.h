@@ -7,13 +7,13 @@
 #endif
 
 namespace khiin::proto {
-class AppConfig;
 class Command;
 }
 
 namespace khiin::engine {
 
 class BufferMgr;
+class Config;
 class Database;
 class Dictionary;
 class KeyConfig;
@@ -36,7 +36,7 @@ class Engine {
     virtual Dictionary *dictionary() = 0;
     virtual KeyConfig *keyconfig() = 0;
     virtual SyllableParser *syllable_parser() = 0;
-    virtual proto::AppConfig *config() = 0;
+    virtual Config *config() = 0;
 };
 
 } // namespace khiin::engine

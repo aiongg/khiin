@@ -17,6 +17,15 @@ enum class UiColors {
     Dark,
 };
 
+enum class Hotkey {
+    None,
+    AltBacktick,
+    Shift,
+    CtrlSpace,
+    CtrlShift,
+    CtrlCaps,
+};
+
 class Config {
   public:
     static void LoadFromFile(HMODULE hmodule, proto::AppConfig *config);
@@ -29,6 +38,10 @@ class Config {
     static void SetUiLanguage(UiLanguage lang);
     static int GetUiSize();
     static void SetUiSize(int size);
+    static Hotkey GetOnOffHotkey();
+    static void SetOnOffHotkey(Hotkey key);
+    static Hotkey GetInputModeHotkey();
+    static void SetInputModeHotkey(Hotkey key);
 };
 
 namespace tip {

@@ -3,8 +3,7 @@
 #include <algorithm>
 #include <iterator>
 
-#include "proto/proto.h"
-
+#include "Config.h"
 #include "Engine.h"
 #include "KeyConfig.h"
 #include "Lomaji.h"
@@ -128,7 +127,7 @@ class SyllableParserImpl : public SyllableParser {
     SyllableParserImpl(Engine *engine) : m_engine(engine) {}
 
     bool DottedKhin() {
-        return m_engine->config()->dotted_khin().value();
+        return m_engine->config()->dotted_khin();
     }
 
     virtual Syllable ParseRaw(std::string const &input) override {

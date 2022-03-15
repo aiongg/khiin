@@ -23,11 +23,13 @@ using namespace proto;
 namespace fs = std::filesystem;
 using namespace khiin::win32::tip;
 
-inline constexpr std::string_view kConfigFilename = "khiin_config.json";
+constexpr std::string_view kConfigFilename = "khiin_config.json";
 
-inline const std::wstring kSettingUiColors = L"UiColors";
-inline const std::wstring kSettingUiSize = L"UiSize";
-inline const std::wstring kSettingUiLanguage = L"UiLanguage";
+const std::wstring kSettingUiColors = L"UiColors";
+const std::wstring kSettingUiSize = L"UiSize";
+const std::wstring kSettingUiLanguage = L"UiLanguage";
+const std::wstring kSettingOnOffHotkey = L"OnOffHotkey";
+const std::wstring kSettingInputModeHotkey = L"InputModeHotkey";
 
 template <typename EnumT>
 int EnumInt(EnumT e) {
@@ -61,12 +63,36 @@ void Config::LoadFromFile(HMODULE hmodule, AppConfig *config) {
         f.close();
     }
 
-    //if (config->appearance().ui_language() == UIL_UNSPECIFIED) {
+    // if (config->appearance().ui_language() == UIL_UNSPECIFIED) {
     //    config->mutable_appearance()->set_ui_language(Config::GetSystemLang());
     //}
 
+    if (!config->has_ime_enabled()) {
+        config->mutable_ime_enabled()->set_value(true);
+    }
+
     if (config->input_mode() == IM_UNSPECIFIED) {
         config->set_input_mode(IM_CONTINUOUS);
+    }
+
+    if (!config->has_dotted_khin()) {
+        config->mutable_dotted_khin()->set_value(true);
+    }
+
+    if (!config->has_telex_enabled()) {
+        config->mutable_telex_enabled()->set_value(false);
+    }
+
+    if (!config->has_autokhin()) {
+        config->mutable_autokhin()->set_value(true);
+    }
+
+    if (!config->has_easy_ch()) {
+        config->mutable_easy_ch()->set_value(false);
+    }
+
+    if (!config->has_uppercase_nasal()) {
+        config->mutable_uppercase_nasal()->set_value(true);
     }
 }
 
@@ -133,6 +159,22 @@ int Config::GetUiSize() {
 
 void Config::SetUiSize(int size) {
     Registrar::SetSettingsInt(kSettingUiSize, size);
+}
+
+Hotkey Config::GetOnOffHotkey() {
+    return EnumVal<Hotkey>(Registrar::GetSettingsInt(kSettingOnOffHotkey));
+}
+
+void Config::SetOnOffHotkey(Hotkey key) {
+    Registrar::SetSettingsInt(kSettingOnOffHotkey, EnumInt(key));
+}
+
+Hotkey Config::GetInputModeHotkey() {
+    return EnumVal<Hotkey>(Registrar::GetSettingsInt(kSettingInputModeHotkey));
+}
+
+void Config::SetInputModeHotkey(Hotkey key) {
+    Registrar::SetSettingsInt(kSettingInputModeHotkey, EnumInt(key));
 }
 
 } // namespace khiin::win32

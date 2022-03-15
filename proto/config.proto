@@ -19,20 +19,31 @@ message KeyConfiguration {
     string nasal = 10;
     string dot_above_right = 11;
     string dots_below = 12;
-    bool enable_uppercase_nasal = 13;
-    bool use_digits_as_fallback = 14;
+    BoolValue enable_uppercase_nasal = 13;
+    BoolValue use_digits_as_fallback = 14;
 }
 
 enum InputMode {
     IM_UNSPECIFIED = 0;
-    IM_ALPHA = 1;
-    IM_CONTINUOUS = 2;
-    IM_BASIC = 3;
-    IM_PRO = 4;
+    IM_CONTINUOUS = 1;
+    IM_BASIC = 2;
+    IM_PRO = 3;
+}
+
+enum DefaultPunctuation {
+    PUNCT_UNSPECIFIED = 0;
+    PUNCT_HALF = 1;
+    PUNCT_WHOLE = 2;
 }
 
 message AppConfig {
-    KeyConfiguration key_config = 1;
-    InputMode input_mode = 2;
-    BoolValue dotted_khin = 3;
+    BoolValue ime_enabled = 1;
+    KeyConfiguration key_config = 2;
+    InputMode input_mode = 3;
+    BoolValue telex_enabled = 4;
+    BoolValue dotted_khin = 5;
+    BoolValue autokhin = 6;
+    DefaultPunctuation default_punctuation = 7;
+    BoolValue easy_ch = 8;
+    BoolValue uppercase_nasal = 9;
 }

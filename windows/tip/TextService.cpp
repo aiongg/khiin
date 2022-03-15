@@ -145,7 +145,6 @@ struct TextServiceImpl :
     TfGuidAtom m_input_attr = TF_INVALID_GUIDATOM;
     TfGuidAtom m_converted_attr = TF_INVALID_GUIDATOM;
     TfGuidAtom m_focused_attr = TF_INVALID_GUIDATOM;
-    InputMode m_prev_input_mode = IM_ALPHA;
 
     //+---------------------------------------------------------------------------
     //
@@ -233,6 +232,15 @@ struct TextServiceImpl :
         EditSession::HandleAction(this, context.get(), std::move(command));
     }
 
+    virtual void TipOnOff() {
+        TipOnOff(!m_config->ime_enabled().value());
+    }
+
+    virtual void TipOnOff(bool on_off) {
+        m_config->mutable_ime_enabled()->set_value(on_off);
+        NotifyConfigChangeListeners();
+    }
+
     virtual void OnInputModeSelected(InputMode mode) override {
         m_config->set_input_mode(mode);
         NotifyConfigChangeListeners();
@@ -247,16 +255,6 @@ struct TextServiceImpl :
             m_config_listeners.end()) {
             m_config_listeners.push_back(config_listener);
         }
-    }
-
-    virtual void SwapOnOff() override {
-        auto im = config()->input_mode();
-        if (im == IM_ALPHA) {
-            OnInputModeSelected(m_prev_input_mode);
-        } else {
-            OnInputModeSelected(IM_ALPHA);
-        }
-        m_prev_input_mode = im;
     }
 
     //+---------------------------------------------------------------------------

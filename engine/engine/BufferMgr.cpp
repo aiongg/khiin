@@ -7,6 +7,7 @@
 #include "Buffer.h"
 #include "BufferElement.h"
 #include "CandidateFinder.h"
+#include "Config.h"
 #include "Engine.h"
 #include "KeyConfig.h"
 #include "KhinHandler.h"
@@ -15,14 +16,27 @@
 
 namespace khiin::engine {
 namespace {
-using namespace proto;
 using namespace unicode;
+
+enum class EditState {
+    Empty,
+    Composing,
+    Converted,
+    Selecting,
+};
+
+enum class NavMode {
+    BySegment,
+    ByCharacter,
+};
 
 class BufferMgrImpl : public BufferMgr {
   public:
     BufferMgrImpl(Engine *engine) : m_engine(engine) {}
 
-    virtual void BuildPreedit(Preedit *preedit) override {
+  private:
+    // Protobuf-related methods
+    virtual void BuildPreedit(proto::Preedit *preedit) override {
         {
             auto it = m_composition.CBegin();
             auto end = m_composition.CEnd();
@@ -34,20 +48,20 @@ class BufferMgrImpl : public BufferMgr {
                         ++it;
                     }
                     auto segment = preedit->add_segments();
-                    segment->set_status(SS_COMPOSING);
+                    segment->set_status(proto::SS_COMPOSING);
                     segment->set_value(composing_text);
                     continue;
                 } else if (it->IsVirtualSpace()) {
                     auto segment = preedit->add_segments();
                     segment->set_value(" ");
-                    segment->set_status(SS_UNMARKED);
+                    segment->set_status(proto::SS_UNMARKED);
                 } else if (it->is_converted) {
                     auto segment = preedit->add_segments();
                     segment->set_value(it->converted());
                     if (std::distance(m_composition.CBegin(), it) == m_focused_element) {
-                        segment->set_status(SS_FOCUSED);
+                        segment->set_status(proto::SS_FOCUSED);
                     } else {
-                        segment->set_status(SS_CONVERTED);
+                        segment->set_status(proto::SS_CONVERTED);
                     }
                 }
                 ++it;
@@ -57,8 +71,8 @@ class BufferMgrImpl : public BufferMgr {
         preedit->set_cursor_position(static_cast<int32_t>(m_caret));
     }
 
-    virtual void GetCandidates(CandidateList *candidate_list) override {
-        if (m_edit_state == ES_CONVERTED) {
+    virtual void GetCandidates(proto::CandidateList *candidate_list) override {
+        if (m_edit_state == EditState::Converted) {
             return;
         }
 
@@ -73,6 +87,21 @@ class BufferMgrImpl : public BufferMgr {
         candidate_list->set_focused(static_cast<int32_t>(m_focused_candidate));
     }
 
+    virtual proto::EditState edit_state() {
+        switch (m_edit_state) {
+        case EditState::Composing:
+            return proto::ES_COMPOSING;
+        case EditState::Converted:
+            return proto::ES_CONVERTED;
+        case EditState::Selecting:
+            return proto::ES_SELECTING;
+        default:
+            return proto::ES_EMPTY;
+        }
+    }
+
+    // Buffer Mgr impl
+
     virtual bool IsEmpty() override {
         return m_composition.Empty();
     }
@@ -81,20 +110,26 @@ class BufferMgrImpl : public BufferMgr {
         m_composition.Clear();
         m_candidates.clear();
         m_caret = 0;
-        m_edit_state = ES_EMPTY;
+        m_edit_state = EditState::Empty;
         NavMode m_nav_mode = NavMode::ByCharacter;
         m_focused_candidate = 0;
         m_focused_element = 0;
     }
 
     virtual void Insert(char ch) override {
-        if (m_edit_state != ES_COMPOSING) {
-            m_edit_state = ES_COMPOSING;
+        if (m_edit_state != EditState::Composing) {
+            m_edit_state = EditState::Composing;
         }
 
-        switch (m_input_mode) {
-        case IM_CONTINUOUS:
+        switch (m_engine->config()->input_mode()) {
+        case InputMode::Continuous:
             InsertContinuous(ch);
+            break;
+        case InputMode::Basic:
+            InsertBasic(ch);
+            break;
+        case InputMode::Manual:
+            InsertManual(ch);
             break;
         default:
             break;
@@ -126,15 +161,15 @@ class BufferMgrImpl : public BufferMgr {
     }
 
     virtual void HandleLeftRight(CursorDirection direction) override {
-        if (m_edit_state == ES_COMPOSING) {
+        if (m_edit_state == EditState::Composing) {
             MoveCaret(direction);
-        } else if (m_edit_state == ES_CONVERTED) {
+        } else if (m_edit_state == EditState::Converted) {
             MoveFocusOrCaret(direction);
         }
     }
 
     virtual bool HandleSelectOrCommit() override {
-        if (m_edit_state == ES_SELECTING) {
+        if (m_edit_state == EditState::Selecting) {
             SelectCandidate(m_focused_candidate);
             return false;
         }
@@ -143,27 +178,23 @@ class BufferMgrImpl : public BufferMgr {
     }
 
     virtual void HandleSelectOrFocus() override {
-        if (m_input_mode == IM_CONTINUOUS && m_edit_state == ES_COMPOSING) {
-            m_edit_state = ES_CONVERTED;
+        if (m_engine->config()->input_mode() == InputMode::Continuous && m_edit_state == EditState::Composing) {
+            m_edit_state = EditState::Converted;
             SelectCandidate(0);
-        } else if (m_edit_state == ES_CONVERTED) {
-            m_edit_state = ES_SELECTING;
+        } else if (m_edit_state == EditState::Converted) {
+            m_edit_state = EditState::Selecting;
             FocusNextCandidate();
-        } else if (m_edit_state == ES_SELECTING) {
+        } else if (m_edit_state == EditState::Selecting) {
             FocusNextCandidate();
         }
     }
 
-    virtual void SetInputMode(InputMode new_mode) override {
-        m_input_mode = new_mode;
-    }
-
     virtual void FocusNextCandidate() override {
-        if (m_edit_state == ES_COMPOSING) {
-            m_edit_state = ES_SELECTING;
+        if (m_edit_state == EditState::Composing) {
+            m_edit_state = EditState::Selecting;
             FocusCandidate(0);
         } else {
-            m_edit_state = ES_SELECTING;
+            m_edit_state = EditState::Selecting;
             if (m_focused_candidate >= m_candidates.size() - 1) {
                 FocusCandidate(0);
             } else {
@@ -173,7 +204,7 @@ class BufferMgrImpl : public BufferMgr {
     }
 
     virtual void FocusPrevCandidate() override {
-        m_edit_state = ES_SELECTING;
+        m_edit_state = EditState::Selecting;
 
         if (m_focused_candidate == 0) {
             FocusCandidate(m_candidates.size() - 1);
@@ -184,7 +215,7 @@ class BufferMgrImpl : public BufferMgr {
 
     virtual void FocusCandidate(size_t index) override {
         if (m_candidates.empty()) {
-            m_edit_state = ES_CONVERTED;
+            m_edit_state = EditState::Converted;
             return;
         }
 
@@ -196,19 +227,14 @@ class BufferMgrImpl : public BufferMgr {
     virtual void SelectCandidate(size_t index) {
         SelectCandidate_(index);
         m_nav_mode = NavMode::BySegment;
-        m_edit_state = ES_CONVERTED;
+        m_edit_state = EditState::Converted;
     }
 
-    virtual EditState edit_state() {
-        return m_edit_state;
-    }
-
-  private:
     void MoveCaret(CursorDirection direction) {
         auto buffer_text = GetDisplayBuffer();
         m_caret = Lomaji::MoveCaret(buffer_text, m_caret, direction);
 
-        if (m_edit_state != ES_COMPOSING) {
+        if (m_edit_state != EditState::Composing) {
             FocusElementAtCursor();
         }
     }
@@ -229,7 +255,7 @@ class BufferMgrImpl : public BufferMgr {
             ++m_focused_element;
         }
 
-        if (m_edit_state == ES_CONVERTED) {
+        if (m_edit_state == EditState::Converted) {
             UpdateCandidatesForFocusedElement();
         }
     }
@@ -294,11 +320,15 @@ class BufferMgrImpl : public BufferMgr {
 
         m_composition.SetConverted(false);
 
-        KhinHandler::AutokhinBuffer(m_engine->syllable_parser(), m_composition.get());
-        raw_caret += m_precomp.RawTextSize();
+        KhinHandler::AutokhinBuffer(m_engine->syllable_parser(), m_engine->config()->autokhin(), m_composition.get());
 
+        raw_caret += m_precomp.RawTextSize();
         JoinBufferUpdateCaretAndFocus(raw_caret);
     }
+
+    void InsertBasic(char ch) {}
+
+    void InsertManual(char ch) {}
 
     void SplitBufferForComposition() {
         if (m_composition.Empty()) {
@@ -384,7 +414,7 @@ class BufferMgrImpl : public BufferMgr {
         auto comp_begin = m_composition.CBegin();
         auto focused_elem = comp_begin + m_focused_element;
         auto comp_end = m_composition.CEnd();
-        auto selecting = m_edit_state == EditState::ES_SELECTING;
+        auto selecting = m_edit_state == EditState::Selecting;
         size_t n_elems_remaining = std::distance(focused_elem, comp_end);
 
         if (selecting && n_elems_remaining > n_elems_added) {
@@ -462,7 +492,7 @@ class BufferMgrImpl : public BufferMgr {
         m_candidates = CandidateFinder::MultiSegmentCandidates(m_engine, nullptr, raw_buffer);
         m_composition = m_candidates[0];
         m_composition.SetConverted(false);
-        KhinHandler::AutokhinBuffer(m_engine->syllable_parser(), m_composition.get());
+        KhinHandler::AutokhinBuffer(m_engine->syllable_parser(), m_engine->config()->autokhin(), m_composition.get());
         m_composition.AdjustVirtualSpacing();
         m_caret = m_composition.CaretFrom(raw_caret, m_engine->syllable_parser());
     }
@@ -492,8 +522,7 @@ class BufferMgrImpl : public BufferMgr {
     std::vector<Buffer> m_candidates;
     size_t m_focused_candidate = 0;
     size_t m_focused_element = 0;
-    EditState m_edit_state = EditState::ES_EMPTY;
-    InputMode m_input_mode = InputMode::IM_CONTINUOUS;
+    EditState m_edit_state = EditState::Empty;
     NavMode m_nav_mode = NavMode::ByCharacter;
 };
 

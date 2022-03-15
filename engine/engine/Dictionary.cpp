@@ -3,8 +3,6 @@
 //#include <algorithm>
 #include <unordered_map>
 
-#include "proto/proto.h"
-
 #include "Database.h"
 #include "Engine.h"
 #include "KeyConfig.h"
@@ -130,7 +128,7 @@ class DictionaryImpl : public Dictionary {
         return m_word_trie.get();
     };
 
-    virtual void OnConfigChanged(AppConfig *config) override {
+    virtual void OnConfigChanged(Config *config) override {
         // Reload with new KeyConfig
     }
 
