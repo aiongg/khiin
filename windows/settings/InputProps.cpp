@@ -67,33 +67,27 @@ void SetOnOffHotkey(int index) {
 }
 
 auto kInputModeHotkeyIds = std::vector<uint32_t>{
-    IDS_INPUTMODE_KEY_CTRL_SPACE,
-    IDS_INPUTMODE_KEY_CTRL_SHIFT,
-    IDS_INPUTMODE_KEY_CTRL_CAPS,
+    IDS_INPUTMODE_KEY_CTRL_BACKTICK,
+    IDS_INPUTMODE_KEY_CTRL_PERIOD,
 };
 
 int SelectedInputModeHotkey() {
     switch (Config::GetInputModeHotkey()) {
-    case Hotkey::CtrlShift:
-        return index_in(kInputModeHotkeyIds, IDS_INPUTMODE_KEY_CTRL_SHIFT);
-    case Hotkey::CtrlCaps:
-        return index_in(kInputModeHotkeyIds, IDS_INPUTMODE_KEY_CTRL_CAPS);
+    case Hotkey::CtrlPeriod:
+        return index_in(kInputModeHotkeyIds, IDS_INPUTMODE_KEY_CTRL_PERIOD);
     default:
-        return index_in(kInputModeHotkeyIds, IDS_INPUTMODE_KEY_CTRL_SPACE);
+        return index_in(kInputModeHotkeyIds, IDS_INPUTMODE_KEY_CTRL_BACKTICK);
     }
 }
 
 void SetInputModeHotkey(int index) {
     if (index < kInputModeHotkeyIds.size()) {
         switch (kInputModeHotkeyIds[index]) {
-        case IDS_INPUTMODE_KEY_CTRL_SPACE:
-            Config::SetInputModeHotkey(Hotkey::CtrlSpace);
+        case IDS_INPUTMODE_KEY_CTRL_PERIOD:
+            Config::SetInputModeHotkey(Hotkey::CtrlPeriod);
             break;
-        case IDS_INPUTMODE_KEY_CTRL_CAPS:
-            Config::SetInputModeHotkey(Hotkey::CtrlCaps);
-            break;
-        case IDS_INPUTMODE_KEY_CTRL_SHIFT:
-            Config::SetInputModeHotkey(Hotkey::CtrlShift);
+        case IDS_INPUTMODE_KEY_CTRL_BACKTICK:
+            Config::SetInputModeHotkey(Hotkey::CtrlBacktick);
             break;
         }
     }

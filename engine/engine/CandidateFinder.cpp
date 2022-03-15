@@ -13,12 +13,23 @@ namespace khiin::engine {
 namespace {
 using namespace unicode;
 
-inline bool IsHigherFrequency(TaiToken *left, TaiToken *right) {
-    return left->input_id == right->input_id ? left->weight > right->weight : left->input_id < right->input_id;
+inline bool IsHigherFrequency(TaiToken *a, TaiToken *b) {
+    return a->input_id == b->input_id ? a->weight > b->weight : a->input_id < b->input_id;
 }
 
-inline void SortTokens(std::vector<TaiToken *> &tokens) {
+inline bool SizeAndFrequencySort(TaiToken *a, TaiToken *b) {
+    auto a_size = letter_count(a->input);
+    auto b_size = letter_count(b->input);
+
+    return a_size == b_size ? IsHigherFrequency(a, b) : a_size > b_size;
+}
+
+inline void SortTokensByFrequency(std::vector<TaiToken *> &tokens) {
     std::sort(tokens.begin(), tokens.end(), IsHigherFrequency);
+}
+
+inline void SortTokensByLetterCountAndFrequency(std::vector<TaiToken *> &tokens) {
+    std::sort(tokens.begin(), tokens.end(), SizeAndFrequencySort);
 }
 
 std::string RemoveRawFromStart(TaiText const &text, std::string const &raw_query) {
@@ -53,7 +64,7 @@ TaiToken *BestMatchImpl(Engine *engine, TaiToken *lgram, std::vector<TaiToken *>
     }
 
     if (options.size()) {
-        SortTokens(options);
+        SortTokensByFrequency(options);
         return options[0];
     }
 
@@ -104,6 +115,49 @@ std::vector<Buffer> AllPunctuationsImpl(Engine *engine, TaiToken *lgram, std::st
         ret.push_back(Buffer(p));
         ret.back().SetConverted(true);
     }
+    return ret;
+}
+
+std::vector<Buffer> LongestCandidatesFromStartImpl(Engine *engine, TaiToken *lgram, std::string const &raw_query) {
+    auto ret = std::vector<Buffer>();
+    if (raw_query.empty()) {
+        return ret;
+    }
+
+    auto segments = Segmenter::SegmentText(engine, raw_query);
+    if (segments.empty()) {
+        ret.push_back(Buffer(raw_query));
+        ret.back().SetConverted(true);
+        return ret;
+    }
+
+    if (segments.at(0).type == SegmentType::Punct) {
+        return AllPunctuationsImpl(engine, lgram, raw_query);
+    } else if (segments.at(0).type != SegmentType::Splittable) {
+        ret.push_back(Buffer(raw_query));
+        ret.back().SetConverted(true);
+        return ret;
+    }
+
+    auto query_lc = unicode::copy_str_tolower(raw_query);
+    auto options = engine->dictionary()->AllWordsFromStart(query_lc);
+    SortTokensByLetterCountAndFrequency(options);
+
+    auto parser = engine->syllable_parser();
+    auto seen = std::unordered_set<std::string>();
+
+    for (auto option : options) {
+        if (!seen.insert(option->output).second) {
+            continue;
+        }
+
+        auto tai_text = parser->AsTaiText(raw_query, option->input);
+        tai_text.SetCandidate(option);
+        auto elem = BufferElement(std::move(tai_text));
+        elem.is_converted = true;
+        ret.push_back(std::vector<BufferElement>{std::move(elem)});
+    }
+
     return ret;
 }
 
@@ -259,6 +313,11 @@ TaiToken *CandidateFinder::BestAutocomplete(Engine *engine, TaiToken *lgram, std
 
 std::vector<Buffer> CandidateFinder::GetCandidatesFromStart(Engine *engine, TaiToken *lgram, std::string const &query) {
     return GetCandidatesFromStartImpl(engine, lgram, query);
+}
+
+std::vector<Buffer> CandidateFinder::LongestCandidatesFromStart(Engine *engine, TaiToken *lgram,
+                                                                std::string const &query) {
+    return LongestCandidatesFromStartImpl(engine, lgram, query);
 }
 
 std::vector<Buffer> CandidateFinder::ContinuousCandidates(Engine *engine, TaiToken *lgram, std::string const &query) {

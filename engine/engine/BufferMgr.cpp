@@ -178,7 +178,7 @@ class BufferMgrImpl : public BufferMgr {
     }
 
     virtual void HandleSelectOrFocus() override {
-        if (m_engine->config()->input_mode() == InputMode::Continuous && m_edit_state == EditState::Composing) {
+        if (m_edit_state == EditState::Composing) {
             m_edit_state = EditState::Converted;
             SelectCandidate(0);
         } else if (m_edit_state == EditState::Converted) {
@@ -304,7 +304,7 @@ class BufferMgrImpl : public BufferMgr {
         }
     }
 
-    void InsertContinuous(char ch) {
+    std::pair<std::string, size_t> BeginInsertion(char ch) {
         SplitBufferForComposition();
         auto raw_composition = m_composition.RawText();
         auto raw_caret = m_composition.RawCaretFrom(m_caret, m_engine->syllable_parser());
@@ -313,20 +313,40 @@ class BufferMgrImpl : public BufferMgr {
         raw_composition.insert(it, 1, ch);
         ++raw_caret;
 
+        return std::make_pair(raw_composition, raw_caret);
+    }
+
+    void FinalizeInsertion(size_t raw_caret) {
+        m_composition.SetConverted(false);
+        KhinHandler::AutokhinBuffer(m_engine->syllable_parser(), m_engine->config()->autokhin(), m_composition.get());
+        raw_caret += m_precomp.RawTextSize();
+        JoinBufferUpdateCaretAndFocus(raw_caret);
+    }
+
+    void InsertContinuous(char ch) {
+        auto [raw_composition, raw_caret] = BeginInsertion(ch);
+
         m_candidates = CandidateFinder::MultiSegmentCandidates(m_engine, nullptr, raw_composition);
         m_composition = m_candidates[0];
 
         assert(m_composition.RawText() == raw_composition);
 
-        m_composition.SetConverted(false);
-
-        KhinHandler::AutokhinBuffer(m_engine->syllable_parser(), m_engine->config()->autokhin(), m_composition.get());
-
-        raw_caret += m_precomp.RawTextSize();
-        JoinBufferUpdateCaretAndFocus(raw_caret);
+        FinalizeInsertion(raw_caret);
     }
 
-    void InsertBasic(char ch) {}
+    void InsertBasic(char ch) {
+        auto [raw_composition, raw_caret] = BeginInsertion(ch);
+
+        m_candidates = CandidateFinder::LongestCandidatesFromStart(m_engine, nullptr, raw_composition);
+        m_composition = m_candidates[0];
+
+        auto raw_text_size = m_composition.RawTextSize();
+        if (raw_caret > raw_text_size) {
+            raw_caret = raw_text_size;            
+        }
+
+        FinalizeInsertion(raw_caret);
+    }
 
     void InsertManual(char ch) {}
 

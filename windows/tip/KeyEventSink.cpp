@@ -240,6 +240,11 @@ struct KeyEventSinkImpl : implements<KeyEventSinkImpl, ITfKeyEventSink, KeyEvent
             *pfEaten = TRUE;
         }
 
+        if (rguid == guids::kPreservedKeySwitchMode) {
+            KHIIN_DEBUG("Switch mode key");
+            *pfEaten = TRUE;
+        }
+
         if (rguid == guids::kPreservedKeyFullWidthSpace) {
         }
 

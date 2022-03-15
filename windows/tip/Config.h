@@ -21,9 +21,8 @@ enum class Hotkey {
     None,
     AltBacktick,
     Shift,
-    CtrlSpace,
-    CtrlShift,
-    CtrlCaps,
+    CtrlPeriod,
+    CtrlBacktick,
 };
 
 class Config {

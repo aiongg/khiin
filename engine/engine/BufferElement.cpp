@@ -72,9 +72,9 @@ utf8_size_t BufferElement::size() const {
         u8_size(elem->output);
     } else if (auto elem = std::get_if<VirtualSpace>(&m_element)) {
         return utf8_size_t(1);
-    } else { // std::monostate
-        return utf8_size_t(0);
     }
+    
+    return utf8_size_t(0);
 }
 
 std::string BufferElement::raw() const {

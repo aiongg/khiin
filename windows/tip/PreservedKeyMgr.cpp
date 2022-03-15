@@ -12,29 +12,33 @@ namespace {
 using namespace winrt;
 
 struct PreservedKey {
-    const GUID &guid;
-    const TF_PRESERVEDKEY prekey;
-    const std::wstring desc;
+    GUID guid;
+    TF_PRESERVEDKEY prekey;
+    std::wstring desc;
 };
 
+inline constexpr int kVkBacktick = VK_OEM_3;
+
 // VK_OEM_3 = ` (BACK QUOTE)
-PreservedKey kPrekeyOnOff = {guids::kPreservedKeyOnOff, {VK_OEM_3, MOD_ALT}, L"Direct input"};
+PreservedKey kPrekeyOnOff = {guids::kPreservedKeyOnOff, {kVkBacktick, MOD_ALT}, L"Direct input"};
+PreservedKey kPreKeySwitchMode = {guids::kPreservedKeySwitchMode, {kVkBacktick, MOD_CONTROL}, L"Switch Mode"};
 PreservedKey kPrekeyFWS = {guids::kPreservedKeyFullWidthSpace, {VK_SPACE, MOD_SHIFT}, L"Full width space"};
 
 class PreservedKeyMgrImpl : public PreservedKeyMgr, ConfigChangeListener {
     virtual void Initialize(TextService *service) override {
         m_service.copy_from(service);
         m_service->RegisterConfigChangeListener(this);
+        m_switch_mode_key = kPreKeySwitchMode;
     }
 
     virtual void OnConfigChanged(proto::AppConfig *config) override {
+        UnpreserveKeys();
         PreserveKeys();
     }
 
     virtual void Shutdown() override {
         auto keystroke_mgr = KeystrokeMgr();
-        UnpreserveKey(kPrekeyOnOff);
-        UnpreserveKey(kPrekeyFWS);
+        UnpreserveKeys();
         m_service = nullptr;
     }
 
@@ -49,11 +53,30 @@ class PreservedKeyMgrImpl : public PreservedKeyMgr, ConfigChangeListener {
         } else {
             UnpreserveKey(kPrekeyOnOff);
         }
+
+        switch (Config::GetInputModeHotkey()) {
+        case Hotkey::CtrlPeriod:
+            m_switch_mode_key.prekey = {VK_OEM_PERIOD, MOD_CONTROL};
+            break;
+        case Hotkey::CtrlBacktick:
+            m_switch_mode_key.prekey = {kVkBacktick, MOD_CONTROL};
+            break;
+        }
+
+        PreserveKey(m_switch_mode_key);
     }
 
     void PreserveKey(PreservedKey const &pk) {
-        KeystrokeMgr()->PreserveKey(m_service->clientId(), pk.guid, &pk.prekey, pk.desc.data(),
+        auto hr = KeystrokeMgr()->PreserveKey(m_service->clientId(), pk.guid, &pk.prekey, pk.desc.data(),
                                     static_cast<ULONG>(pk.desc.size()));
+        
+        CHECK_HRESULT(hr);
+    }
+
+    void UnpreserveKeys() {
+        UnpreserveKey(kPrekeyOnOff);
+        UnpreserveKey(kPrekeyFWS);
+        UnpreserveKey(m_switch_mode_key);
     }
 
     void UnpreserveKey(PreservedKey const &pk) {
@@ -61,6 +84,7 @@ class PreservedKeyMgrImpl : public PreservedKeyMgr, ConfigChangeListener {
     }
 
     com_ptr<TextService> m_service;
+    PreservedKey m_switch_mode_key;
 };
 
 } // namespace

@@ -170,7 +170,8 @@ void Config::SetOnOffHotkey(Hotkey key) {
 }
 
 Hotkey Config::GetInputModeHotkey() {
-    return EnumVal<Hotkey>(Registrar::GetSettingsInt(kSettingInputModeHotkey));
+    auto i = Registrar::GetSettingsInt(kSettingInputModeHotkey);
+    return i ? EnumVal<Hotkey>(i) : Hotkey::CtrlBacktick;
 }
 
 void Config::SetInputModeHotkey(Hotkey key) {
