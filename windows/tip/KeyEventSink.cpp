@@ -241,7 +241,7 @@ struct KeyEventSinkImpl : implements<KeyEventSinkImpl, ITfKeyEventSink, KeyEvent
         }
 
         if (rguid == guids::kPreservedKeySwitchMode) {
-            KHIIN_DEBUG("Switch mode key");
+            service->CycleInputMode();
             *pfEaten = TRUE;
         }
 

@@ -41,7 +41,6 @@ StrMap kStringsEn = {
     {IDL_INPUTMODE_HOTKEY,            L"Switch mode:"},
     {IDS_INPUTMODE_KEY_CTRL_PERIOD,   L"ctrl + ."},
     {IDS_INPUTMODE_KEY_CTRL_BACKTICK, L"ctrl + ` (~)"},
-    {IDS_INPUTMODE_KEY_CTRL_CAPS,     L"ctrl + caps"},
 
     {IDL_ON_OFF_HOTKEY,              L"IME quick on/off:"},
     {IDS_ON_OFF_HOTKEY_ALTBACKTICK,  L"alt + ` (~)"},
@@ -100,7 +99,6 @@ StrMap kStringsHanlo = {
     {IDL_INPUTMODE_HOTKEY,            L"換打字模式："},
     {IDS_INPUTMODE_KEY_CTRL_PERIOD,   L"ctrl + ."},
     {IDS_INPUTMODE_KEY_CTRL_BACKTICK, L"ctrl + ` (~)"},
-    {IDS_INPUTMODE_KEY_CTRL_CAPS,     L"ctrl + caps"},
 
     {IDL_ON_OFF_HOTKEY,               L"打字法切掉．点灱："},
     {IDS_ON_OFF_HOTKEY_ALTBACKTICK,   L"alt + ` (~)"},

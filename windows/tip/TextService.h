@@ -44,6 +44,7 @@ struct TextService : winrt::implements<TextService, IUnknown> {
     virtual void OnCompositionTerminated(TfEditCookie ecWrite, ITfContext *context, ITfComposition *pComposition) = 0;
     virtual void OnCandidateSelected(int32_t candidate_id) = 0;
     virtual void OnInputModeSelected(proto::InputMode mode) = 0;
+    virtual void CycleInputMode() = 0;
     virtual void OpenSettingsApplication() = 0;
     virtual void RegisterConfigChangeListener(ConfigChangeListener *config_listener) = 0;
 

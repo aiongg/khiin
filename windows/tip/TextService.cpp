@@ -241,8 +241,29 @@ struct TextServiceImpl :
         NotifyConfigChangeListeners();
     }
 
-    virtual void OnInputModeSelected(InputMode mode) override {
+    virtual void OnInputModeSelected(proto::InputMode mode) override {
         m_config->set_input_mode(mode);
+        NotifyConfigChangeListeners();
+    }
+
+
+    virtual void CycleInputMode() override {
+        if (!m_config->ime_enabled().value()) {
+            m_config->mutable_ime_enabled()->set_value(true);
+        } else {
+            switch (m_config->input_mode()) {
+            case IM_CONTINUOUS:
+                m_config->set_input_mode(IM_BASIC);
+                break;
+            case IM_BASIC:
+                m_config->set_input_mode(IM_PRO);
+                break;
+            case IM_PRO:
+                m_config->set_input_mode(IM_CONTINUOUS);
+                break;
+            }
+        }
+
         NotifyConfigChangeListeners();
     }
 
