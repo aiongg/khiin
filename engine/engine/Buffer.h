@@ -98,7 +98,7 @@ class Buffer {
     void Append(Punctuation &&punct);
 
     // Replace element at |index| in this Buffer with all elements from |replace|
-    void Replace(iterator first, iterator last, Buffer &other);
+    iterator Replace(iterator first, iterator last, Buffer &other);
 
     void SetConverted(bool converted);
 

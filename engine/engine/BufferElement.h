@@ -48,6 +48,7 @@ class BufferElement {
     bool IsVirtualSpace(utf8_size_t index) const;
 
     bool is_converted = false;
+    bool is_selected = false;
 
   private:
     std::variant<std::monostate, std::string, TaiText, Punctuation, VirtualSpace> m_element;

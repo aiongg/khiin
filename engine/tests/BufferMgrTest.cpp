@@ -492,7 +492,9 @@ TEST_F(BufferConversionTest, Convert_insert_middle) {
     ExpectSegment(3, 2, SS_CONVERTED, "題", 4);
     spacebar(1);
     ExpectBuffer("問好題", 2);
+    ExpectSegment(3, 0, SS_CONVERTED, "問", 2);
     ExpectSegment(3, 1, SS_FOCUSED, "好", 2);
+    ExpectSegment(3, 2, SS_CONVERTED, "題", 2);
 }
 
 TEST_F(BufferConversionTest, Convert_insert_erase) {
@@ -501,7 +503,8 @@ TEST_F(BufferConversionTest, Convert_insert_erase) {
     curs_left(1);
     input("ho");
     key_bksp(2);
-    ExpectSegment(1, 0, SS_COMPOSING, "問題", 1);
+    ExpectSegment(2, 0, SS_CONVERTED, "問", 1);
+    ExpectSegment(2, 1, SS_FOCUSED, "題", 1);
 }
 
 TEST_F(BufferConversionTest, Convert_e5) {
@@ -670,6 +673,16 @@ TEST_F(CandidateNavigationTest, Focus_si__bo) {
     curs_down(1);
 }
 
+TEST_F(CandidateNavigationTest, Focus_hobo) {
+    input("hobo");
+    curs_down(1);
+    ExpectSegment(2, 0, SS_FOCUSED, "好", 2);
+    ExpectSegment(2, 1, SS_CONVERTED, "無", 2);
+    curs_down(1);
+    ExpectSegment(2, 0, SS_FOCUSED, "好", 4);
+    ExpectSegment(2, 1, SS_COMPOSING, " bo", 4);
+}
+
 //+---------------------------------------------------------------------------
 //
 // Candidate selection
@@ -718,8 +731,12 @@ TEST_F(CandidateSelectionTest, Select_ex) {
     ExpectSegment(3, 2, SS_CONVERTED, "x", 3);
     curs_down(1);
     ExpectSegment(3, 0, SS_FOCUSED, "兮", 3);
+    ExpectSegment(3, 1, SS_UNMARKED, " ", 3);
+    ExpectSegment(3, 2, SS_CONVERTED, "x", 3);
     enter();
     ExpectSegment(3, 0, SS_CONVERTED, "兮", 3);
+    ExpectSegment(3, 1, SS_UNMARKED, " ", 3);
+    ExpectSegment(3, 2, SS_FOCUSED, "x", 3);
     curs_right(2);
     curs_down(1);
 }

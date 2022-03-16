@@ -3,6 +3,8 @@
 #include <string>
 
 #include "BufferElement.h"
+#include "Config.h"
+#include "Engine.h"
 #include "SyllableParser.h"
 
 namespace khiin::engine {
@@ -65,8 +67,8 @@ void AutokhinBufferImpl(SyllableParser *parser, bool autokhin_enabled, std::vect
 
 } // namespace
 
-void KhinHandler::AutokhinBuffer(SyllableParser *parser, bool autokhin_enabled, std::vector<BufferElement> &buffer) {
-    AutokhinBufferImpl(parser, autokhin_enabled, buffer);
+void KhinHandler::AutokhinBuffer(Engine *engine, std::vector<BufferElement> &buffer) {
+    AutokhinBufferImpl(engine->syllable_parser(), engine->config()->autokhin(), buffer);
 }
 
 } // namespace khiin::engine

@@ -4,12 +4,12 @@
 
 namespace khiin::engine {
 
-class SyllableParser;
+class Engine;
 class BufferElement;
 
 class KhinHandler {
   public:
-    static void AutokhinBuffer(SyllableParser* parser, bool autokhin_enabled, std::vector<BufferElement> &buffer);
+    static void AutokhinBuffer(Engine *engine, std::vector<BufferElement> &buffer);
 };
 
 }

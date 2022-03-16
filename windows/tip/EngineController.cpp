@@ -137,7 +137,7 @@ struct EngineControllerImpl : winrt::implements<EngineControllerImpl, EngineCont
     // ConfigChangeListener
     //
     //----------------------------------------------------------------------------
-
+     
     virtual void OnConfigChanged(proto::AppConfig *config) override {
         auto cmd = new Command();
         auto request = cmd->mutable_request();

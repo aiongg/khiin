@@ -33,4 +33,13 @@ TEST_F(BasicModeTest, Insert_hobo) {
     ExpectCandidate("hó");
 }
 
+TEST_F(BasicModeTest, Select_anne) {
+    input("anne");
+    ExpectBuffer("an ne", 5);
+    curs_down(4);
+    ExpectBuffer("安 ne", 4);
+    curs_up(1);
+    ExpectBuffer("án-ne", 5);
+}
+
 } // namespace khiin::engine

@@ -226,6 +226,11 @@ size_t Buffer::RawCaretFrom(utf8_size_t caret) {
 
     auto begin = Begin();
     auto it = IterCaret(caret);
+
+    if (it == End()) {
+        return RawTextSize();
+    }
+
     assert(it != End());
     auto remainder = caret - TextSize(begin, it);
     auto raw_remainder = it->ComposedToRawCaret(remainder);
@@ -238,6 +243,11 @@ utf8_size_t Buffer::CaretFrom(utf8_size_t raw_caret) {
     }
     auto begin = Begin();
     auto it = IterRawCaret(raw_caret);
+
+    if (it == End()) {
+        return TextSize();
+    }
+
     assert(it != End());
     auto raw_remainder = raw_caret - RawTextSize(begin, it);
     auto remainder = it->RawToComposedCaret(raw_remainder);
@@ -325,11 +335,13 @@ void Buffer::SplitForComposition(utf8_size_t caret, Buffer &pre, Buffer &post) {
         if (it != converted.begin()) {
             auto tmp = BufferElement(std::string(converted.begin(), it));
             tmp.is_converted = true;
+            tmp.is_selected = true;
             pre.get().push_back(std::move(tmp));
         }
         if (it != converted.end()) {
             auto tmp = BufferElement(std::string(it, converted.end()));
             tmp.is_converted = true;
+            tmp.is_selected = true;
             post.get().insert(post.Begin(), std::move(tmp));
         }
         Clear();
@@ -370,13 +382,41 @@ void Buffer::Join(Buffer *pre, Buffer *post) {
     }
 }
 
-void Buffer::Replace(iterator first, iterator last, Buffer &other) {
+iterator Buffer::Replace(iterator first, iterator last, Buffer &other) {
     auto it = m_elements.erase(first, last);
-    m_elements.insert(it, other.Begin(), other.End());
+    return m_elements.insert(it, other.Begin(), other.End());
+}
+
+std::string ConvertedOrComposedText(BufferElement& element) {
+    if (element.is_converted) {
+        return element.converted();
+    }
+
+    return element.composed();
 }
 
 void Buffer::AdjustVirtualSpacing() {
-    AdjustVirtualSpacing(m_elements);
+    if (m_elements.empty()) {
+        return;
+    }
+
+    RemoveVirtualSpaces(m_elements);
+
+    for (auto i = m_elements.size() - 1; i != 0; --i) {
+        auto lhs = ConvertedOrComposedText(m_elements.at(i - 1));
+        auto rhs = ConvertedOrComposedText(m_elements.at(i));
+
+        if (NeedsVirtualSpace(lhs, rhs)) {
+            auto tmp = BufferElement(VirtualSpace());
+            if (m_elements.at(i - 1).is_converted && m_elements.at(i).is_converted) {
+                tmp.is_converted = true;
+            } else if (m_elements.at(i - 1).is_selected && m_elements.at(i).is_selected) {
+                tmp.is_selected = true;
+            }
+            m_elements.insert(m_elements.begin() + i, std::move(tmp));
+        }
+    }
+    //caret = CaretFrom(raw_caret);
 }
 
 void Buffer::SetConverted(bool converted) {
