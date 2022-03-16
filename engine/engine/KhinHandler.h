@@ -5,11 +5,11 @@
 namespace khiin::engine {
 
 class Engine;
-class BufferElement;
+class Buffer;
 
 class KhinHandler {
   public:
-    static void AutokhinBuffer(Engine *engine, std::vector<BufferElement> &buffer);
+    static void AutokhinBuffer(Engine *engine, Buffer &buffer);
 };
 
 }

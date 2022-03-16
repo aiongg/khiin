@@ -491,10 +491,10 @@ TEST_F(BufferConversionTest, Convert_insert_middle) {
     ExpectSegment(3, 1, SS_COMPOSING, " ho ", 4);
     ExpectSegment(3, 2, SS_CONVERTED, "題", 4);
     spacebar(1);
-    ExpectBuffer("問好題", 2);
-    ExpectSegment(3, 0, SS_CONVERTED, "問", 2);
-    ExpectSegment(3, 1, SS_FOCUSED, "好", 2);
-    ExpectSegment(3, 2, SS_CONVERTED, "題", 2);
+    ExpectBuffer("問好題", 3);
+    ExpectSegment(3, 0, SS_CONVERTED, "問", 3);
+    ExpectSegment(3, 1, SS_FOCUSED, "好", 3);
+    ExpectSegment(3, 2, SS_CONVERTED, "題", 3);
 }
 
 TEST_F(BufferConversionTest, Convert_insert_erase) {
@@ -611,6 +611,15 @@ TEST_F(BufferNavigationTest, Focus_skips_vspace) {
     ExpectSegment(3, 0, SS_CONVERTED, "bô", 4);
     ExpectSegment(3, 1, SS_UNMARKED);
     ExpectSegment(3, 2, SS_FOCUSED);
+}
+
+TEST_F(BufferNavigationTest, Focus_moves_to_end) {
+    input("hobo");
+    spacebar(1);
+    curs_left(1);
+    input("a");
+    spacebar(1);
+    ExpectCaret(3);
 }
 
 TEST_F(BufferMgrTest, DISABLED_TmpTest) {

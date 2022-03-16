@@ -31,10 +31,10 @@ bool NeedsVirtualSpace(std::string const &lhs, std::string const &rhs) {
 
 } // namespace
 
-using iterator = BufferElementList::iterator;
-using const_iterator = BufferElementList::const_iterator;
+using iterator = Buffer::iterator;
+using const_iterator = Buffer::const_iterator;
 
-utf8_size_t Buffer::TextSize(iterator const &from, iterator const &to) {
+utf8_size_t Buffer::TextSize(const_iterator const &from, const_iterator const &to) {
     auto it = from;
     utf8_size_t size = 0;
 
@@ -45,7 +45,7 @@ utf8_size_t Buffer::TextSize(iterator const &from, iterator const &to) {
     return size;
 }
 
-utf8_size_t Buffer::RawTextSize(iterator const &from, iterator const &to) {
+utf8_size_t Buffer::RawTextSize(const_iterator const &from, const_iterator const &to) {
     auto it = from;
     utf8_size_t size = 0;
 
@@ -56,7 +56,7 @@ utf8_size_t Buffer::RawTextSize(iterator const &from, iterator const &to) {
     return size;
 }
 
-std::string Buffer::RawText(iterator const &from, iterator const &to) {
+std::string Buffer::RawText(const_iterator const &from, const_iterator const &to) {
     auto ret = std::string();
     auto it = from;
     for (; it != to; ++it) {
@@ -123,11 +123,11 @@ Buffer::Buffer(BufferElement &&element) {
     m_elements.push_back(std::move(element));
 }
 
-iterator Buffer::Begin() {
+iterator Buffer::Begin() noexcept {
     return m_elements.begin();
 }
 
-iterator Buffer::End() {
+iterator Buffer::End() noexcept {
     return m_elements.end();
 }
 
@@ -135,11 +135,11 @@ BufferElement &Buffer::At(size_t index) {
     return m_elements.at(index);
 }
 
-BufferElement &Buffer::Back() {
+BufferElement &Buffer::Back() noexcept {
     return m_elements.back();
 }
 
-size_t Buffer::Size() {
+size_t Buffer::Size() const {
     return m_elements.size();
 }
 
@@ -165,9 +165,14 @@ iterator Buffer::Erase(iterator it) {
 
 // Returns iterator pointing to the element at visible caret position
 iterator Buffer::IterCaret(utf8_size_t caret) {
+    auto it = CIterCaret(caret);
+    return Begin() + std::distance(CBegin(), it);
+}
+
+const_iterator Buffer::CIterCaret(utf8_size_t caret) const {
     auto rem = caret;
-    auto it = Begin();
-    auto end = End();
+    auto it = CBegin();
+    auto end = CEnd();
     for (; it != end; ++it) {
         if (auto size = it->size(); rem > size) {
             rem -= size;
@@ -179,10 +184,15 @@ iterator Buffer::IterCaret(utf8_size_t caret) {
 }
 
 // Returns iterator pointing to the element at raw caret position
-iterator Buffer::IterRawCaret(utf8_size_t raw_caret) {
+iterator Buffer::IterRawCaret(size_t raw_caret) {
+    auto it = CIterRawCaret(raw_caret);
+    return Begin() + std::distance(CBegin(), it);
+}
+
+const_iterator Buffer::CIterRawCaret(size_t raw_caret) const {
     auto rem = raw_caret;
-    auto it = Begin();
-    auto end = End();
+    auto it = CBegin();
+    auto end = CEnd();
     for (; it != end; ++it) {
         if (auto size = it->RawSize(); rem > size) {
             rem -= size;
@@ -193,11 +203,11 @@ iterator Buffer::IterRawCaret(utf8_size_t raw_caret) {
     return it;
 }
 
-const_iterator Buffer::CBegin() {
+const_iterator Buffer::CBegin() const {
     return m_elements.cbegin();
 }
 
-const_iterator Buffer::CEnd() {
+const_iterator Buffer::CEnd() const {
     return m_elements.cend();
 }
 
@@ -205,60 +215,65 @@ void Buffer::Clear() {
     m_elements.clear();
 }
 
-bool Buffer::Empty() {
+bool Buffer::Empty() const {
     return m_elements.empty();
 }
 
-utf8_size_t Buffer::TextSize() {
-    return TextSize(Begin(), End());
+utf8_size_t Buffer::TextSize() const {
+    return TextSize(CBegin(), CEnd());
 }
 
-size_t Buffer::RawTextSize() {
-    return RawTextSize(Begin(), End());
+std::string Buffer::RawTextFrom(size_t element_index) const {
+    assert(element_index < m_elements.size());
+    return RawText(m_elements.cbegin() + element_index, m_elements.cend());
+}
+
+size_t Buffer::RawTextSize() const {
+    return RawTextSize(CBegin(), CEnd());
 }
 
 // Input |caret| is the visible displayed caret, in unicode code points. Returns
 // the corresponding raw caret.
-size_t Buffer::RawCaretFrom(utf8_size_t caret) {
+size_t Buffer::RawCaretFrom(utf8_size_t caret) const {
     if (Empty()) {
         return 0;
     }
 
-    auto begin = Begin();
-    auto it = IterCaret(caret);
+    auto begin = CBegin();
+    auto it = CIterCaret(caret);
 
-    if (it == End()) {
+    if (it == CEnd()) {
         return RawTextSize();
     }
 
-    assert(it != End());
+    assert(it != CEnd());
     auto remainder = caret - TextSize(begin, it);
     auto raw_remainder = it->ComposedToRawCaret(remainder);
     return RawTextSize(begin, it) + raw_remainder;
 }
 
-utf8_size_t Buffer::CaretFrom(utf8_size_t raw_caret) {
+utf8_size_t Buffer::CaretFrom(utf8_size_t raw_caret) const {
     if (Empty()) {
         return 0;
     }
-    auto begin = Begin();
-    auto it = IterRawCaret(raw_caret);
+    auto begin = CBegin();
+    auto it = CIterRawCaret(raw_caret);
 
-    if (it == End()) {
+    if (it == CEnd()) {
         return TextSize();
     }
 
-    assert(it != End());
+    assert(it != CEnd());
     auto raw_remainder = raw_caret - RawTextSize(begin, it);
     auto remainder = it->RawToComposedCaret(raw_remainder);
     return TextSize(begin, it) + remainder;
 }
 
-std::string Buffer::RawText() {
-    return RawText(Begin(), End());
+std::string Buffer::RawText() const {
+    return RawText(CBegin(), CEnd());
 }
 
-std::string Buffer::Text() {
+std::string Buffer::Text() const {
     auto ret = std::string();
     for (auto &elem : m_elements) {
         if (elem.is_converted) {
@@ -270,7 +285,7 @@ std::string Buffer::Text() {
     return ret;
 }
 
-bool Buffer::HasComposing() {
+bool Buffer::HasComposing() const {
     for (auto &el : m_elements) {
         if (!el.is_converted) {
             return true;
@@ -284,8 +299,9 @@ bool Buffer::HasComposing() {
 // into separate holders |pre| and |post|. Buffer must be re-joined later.
 void Buffer::IsolateComposing(Buffer &pre, Buffer &post) {
     auto begin = Begin();
-    auto it = Begin();
+    auto it = begin;
     auto end = End();
+
     while (it != end && it->is_converted) {
         ++it;
     }
@@ -422,6 +438,12 @@ void Buffer::AdjustVirtualSpacing() {
 void Buffer::SetConverted(bool converted) {
     for (auto &elem : m_elements) {
         elem.is_converted = converted;
+    }
+}
+
+void Buffer::SetSelected(bool selected) {
+    for (auto &elem : m_elements) {
+        elem.is_selected = selected;
     }
 }
 

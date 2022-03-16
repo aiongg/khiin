@@ -2,7 +2,7 @@
 
 #include <string>
 
-#include "BufferElement.h"
+#include "Buffer.h"
 #include "Config.h"
 #include "Engine.h"
 #include "SyllableParser.h"
@@ -19,7 +19,7 @@ bool is_all_hyphens(std::string_view str) {
     return true;
 }
 
-void AutokhinBufferImpl(SyllableParser *parser, bool autokhin_enabled, std::vector<BufferElement> &buffer) {
+void AutokhinBufferImpl(SyllableParser *parser, bool autokhin_enabled, BufferElementList &buffer) {
     bool autokhin = false;
     auto it = buffer.begin();
 
@@ -67,8 +67,8 @@ void AutokhinBufferImpl(SyllableParser *parser, bool autokhin_enabled, std::vect
 
 } // namespace
 
-void KhinHandler::AutokhinBuffer(Engine *engine, std::vector<BufferElement> &buffer) {
-    AutokhinBufferImpl(engine->syllable_parser(), engine->config()->autokhin(), buffer);
+void KhinHandler::AutokhinBuffer(Engine *engine, Buffer &buffer) {
+    AutokhinBufferImpl(engine->syllable_parser(), engine->config()->autokhin(), buffer.get());
 }
 
 } // namespace khiin::engine

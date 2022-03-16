@@ -16,7 +16,8 @@
 
 namespace khiin::engine {
 namespace {
-using namespace unicode;
+namespace u8u = utf8::unchecked;
+using namespace khiin::unicode;
 
 enum class EditState {
     Empty,
@@ -77,7 +78,7 @@ class BufferMgrImpl : public BufferMgr {
     }
 
     virtual void GetCandidates(proto::CandidateList *candidate_list) override {
-        AdjustAllCandidates();
+        AdjustKhinAndSpacing(m_candidates);
 
         if (m_edit_state == EditState::Converted) {
             return;
@@ -114,7 +115,7 @@ class BufferMgrImpl : public BufferMgr {
     //----------------------------------------------------------------------------
 
     virtual bool IsEmpty() override {
-        return m_composition.Empty();
+        return m_composition.Empty() && m_precomp.Empty() && m_postcomp.Empty();
     }
 
     virtual void Clear() override {
@@ -122,7 +123,7 @@ class BufferMgrImpl : public BufferMgr {
         m_candidates.clear();
         m_caret = 0;
         m_edit_state = EditState::Empty;
-        NavMode m_nav_mode = NavMode::ByCharacter;
+        m_nav_mode = NavMode::ByCharacter;
         m_focused_candidate = 0;
         m_focused_element = 0;
     }
@@ -132,7 +133,7 @@ class BufferMgrImpl : public BufferMgr {
             m_edit_state = EditState::Composing;
         }
 
-        switch (config()->input_mode()) {
+        switch (input_mode()) {
         case InputMode::Continuous:
             InsertContinuous(ch);
             break;
@@ -233,13 +234,11 @@ class BufferMgrImpl : public BufferMgr {
 
         assert(index < m_candidates.size());
 
-        FocusCandidate_(index);
+        FocusCandidate_(index, false);
     }
 
     virtual void SelectCandidate(size_t index) {
         SelectCandidate_(index);
-        m_nav_mode = NavMode::BySegment;
-        m_edit_state = EditState::Converted;
     }
 
     //+---------------------------------------------------------------------------
@@ -252,9 +251,14 @@ class BufferMgrImpl : public BufferMgr {
     //+----------------------------------
     // Navigation
     //
+    void BeginSegmentNavigation() {
+        m_nav_mode = NavMode::BySegment;
+        m_edit_state = EditState::Converted;
+        m_caret = m_composition.TextSize();
+    }
 
     void MoveCaret(CursorDirection direction) {
-        auto buffer_text = GetDisplayBuffer();
+        auto buffer_text = m_composition.Text();
         m_caret = Lomaji::MoveCaret(buffer_text, m_caret, direction);
 
         if (m_edit_state != EditState::Composing) {
@@ -270,13 +274,17 @@ class BufferMgrImpl : public BufferMgr {
     }
 
     void OnFocusElementChange(size_t new_focused_element_idx) {
-        m_focused_element = new_focused_element_idx;
+        assert(new_focused_element_idx < m_composition.Size());
 
-        auto elem = m_composition.Begin() + m_focused_element;
-        while (elem != m_composition.End() && elem->IsVirtualSpace()) {
-            ++elem;
-            ++m_focused_element;
+        auto begin = m_composition.Begin();
+        auto it = begin + new_focused_element_idx;
+        auto end = m_composition.End();
+
+        while (it != end && it->IsVirtualSpace()) {
+            ++it;
         }
+
+        m_focused_element = std::distance(m_composition.Begin(), it);
 
         if (m_edit_state == EditState::Converted) {
             UpdateCandidatesForFocusedElement();
@@ -284,9 +292,9 @@ class BufferMgrImpl : public BufferMgr {
     }
 
     void UpdateCandidatesForFocusedElement() {
-        auto raw_text = Buffer::RawText(m_composition.Begin() + m_focused_element, m_composition.End());
+        auto raw_text = m_composition.RawTextFrom(m_focused_element);
 
-        switch (config()->input_mode()) {
+        switch (input_mode()) {
         case InputMode::Continuous:
             m_candidates = CandidateFinder::GetCandidatesFromStart(m_engine, nullptr, raw_text);
             break;
@@ -311,7 +319,8 @@ class BufferMgrImpl : public BufferMgr {
     }
 
     void MoveFocus(CursorDirection direction) {
-        auto it = m_composition.Begin() + m_focused_element;
+        auto begin = m_composition.CBegin();
+        auto it = begin + m_focused_element;
 
         if (direction == CursorDirection::R) {
             if (m_focused_element >= m_composition.Size() - 1) {
@@ -323,14 +332,15 @@ class BufferMgrImpl : public BufferMgr {
                 ++it;
             }
         } else if (direction == CursorDirection::L) {
-
             --it;
+
             while (it->IsVirtualSpace()) {
                 --it;
             }
         }
 
-        auto idx = static_cast<int>(std::distance(m_composition.Begin(), it));
+        auto idx = static_cast<size_t>(std::distance(begin, it));
+
         if (idx != m_focused_element) {
             OnFocusElementChange(idx);
         }
@@ -364,12 +374,11 @@ class BufferMgrImpl : public BufferMgr {
 
         // Join the elements and adjust spacing
         m_composition.Join(&m_precomp, &m_postcomp);
-        KhinHandler::AutokhinBuffer(m_engine, m_composition.get());
-        m_composition.AdjustVirtualSpacing();
+        AdjustKhinAndSpacing(m_composition);
 
         // Get the focused element using the virtual raw caret position
-        auto focus_elem_it = m_composition.IterRawCaret(focus_raw_caret);
-        OnFocusElementChange(std::distance(m_composition.Begin(), focus_elem_it));
+        auto focus_elem_it = m_composition.CIterRawCaret(focus_raw_caret);
+        OnFocusElementChange(std::distance(m_composition.CBegin(), focus_elem_it));
         m_caret = m_composition.CaretFrom(raw_caret);
     }
 
@@ -378,7 +387,7 @@ class BufferMgrImpl : public BufferMgr {
         auto raw_composition = m_composition.RawText();
         auto raw_caret = m_composition.RawCaretFrom(m_caret);
         auto it = raw_composition.begin();
-        utf8::unchecked::advance(it, raw_caret);
+        u8u::advance(it, raw_caret);
         raw_composition.insert(it, 1, ch);
         ++raw_caret;
 
@@ -431,39 +440,33 @@ class BufferMgrImpl : public BufferMgr {
     // Candidate navigation & selection
     //
 
-    size_t FocusCandidate_(size_t index, bool select = false) {
+    size_t FocusCandidate_(size_t index, bool selected) {
         auto raw_caret = m_composition.RawCaretFrom(m_caret);
         Buffer candidate = m_candidates.at(index);
-
-        Buffer tmp = candidate;
-        KhinHandler::AutokhinBuffer(m_engine, tmp.get());
-        tmp.AdjustVirtualSpacing();
-        auto candidate_size = tmp.Size();
-
-        if (select) {
-            for (auto &ea : candidate.get()) {
-                ea.is_selected = true;
-            }
-        }
+        candidate.SetSelected(selected);
+        auto adjusted_candidate_size = AdjustedSize(candidate);
 
         m_composition.SplitAtElement(m_focused_element, &m_precomp, nullptr);
 
-        auto replace_from = m_composition.Begin();
-        auto raw_cand_size = candidate.RawTextSize();
+        auto begin = m_composition.Begin();
+        auto raw_candidate_size = candidate.RawTextSize();
+        auto it = m_composition.IterRawCaret(raw_candidate_size) + 1;
+        auto raw_buffer_size = Buffer::RawTextSize(begin, it);
+        auto end = m_composition.End();
 
-        auto replace_to = m_composition.IterRawCaret(raw_cand_size) + 1;
-        auto raw_buf_size = Buffer::RawTextSize(replace_from, replace_to);
+        assert(raw_buffer_size >= raw_candidate_size);
 
-        assert(raw_buf_size >= raw_cand_size);
+        if (raw_buffer_size > raw_candidate_size) {
+            auto raw_text = Buffer::RawText(begin, it);
+            auto deconverted = std::string(raw_text.begin() + raw_candidate_size, raw_text.end());
 
-        if (raw_buf_size > raw_cand_size) {
-            auto raw_text = Buffer::RawText(replace_from, replace_to);
-            auto deconverted = std::string(raw_text.begin() + raw_cand_size, raw_text.end());
-
-            while (replace_to != m_composition.End() &&
-                   (!CandidateFinder::HasExactMatch(m_engine, deconverted) || deconverted.empty())) {
-                deconverted.append(replace_to->raw());
-                ++replace_to;
+            while (it != end) {
+                if (!CandidateFinder::HasExactMatch(m_engine, deconverted) || deconverted.empty()) {
+                    deconverted.append(it->raw());
+                    ++it;
+                } else {
+                    break;
+                }
             }
 
             auto next_buf = CandidateFinder::ContinuousBestMatch(m_engine, nullptr, deconverted);
@@ -480,10 +483,11 @@ class BufferMgrImpl : public BufferMgr {
             raw_caret = (std::max)(raw_caret, cand_raw_size + pre_raw_size);
         }
 
-        auto it = m_composition.Replace(replace_from, replace_to, candidate);
+        it = m_composition.Replace(begin, it, candidate);
         it += candidate.Size();
+        end = m_composition.End();
 
-        while (it != m_composition.End() && !it->is_selected) {
+        while (it != end && !it->is_selected) {
             it->is_converted = false;
             ++it;
         }
@@ -491,14 +495,14 @@ class BufferMgrImpl : public BufferMgr {
         m_focused_candidate = index;
 
         JoinBufferUpdateCaretAndFocus(raw_caret);
-        return candidate_size;
+        return adjusted_candidate_size;
     }
 
     void SelectCandidate_(size_t index) {
         assert(index < m_candidates.size());
-        
+
         // Move the candidate into the composition
-        auto n_elems_added = FocusCandidate_(index, true);
+        auto candidate_size = FocusCandidate_(index, true);
 
         // When |EditState::Selecting|, buffer focus moves to the next element
         auto comp_begin = m_composition.Begin();
@@ -506,8 +510,8 @@ class BufferMgrImpl : public BufferMgr {
         auto comp_end = m_composition.End();
         size_t n_elems_remaining = std::distance(focused_elem, comp_end);
 
-        if (m_edit_state == EditState::Selecting && n_elems_remaining > n_elems_added) {
-            focused_elem += n_elems_added;
+        if (m_edit_state == EditState::Selecting && n_elems_remaining > candidate_size) {
+            focused_elem += candidate_size;
         }
 
         // Don't let a virtual space become focused
@@ -517,6 +521,7 @@ class BufferMgrImpl : public BufferMgr {
 
         m_focused_element = std::distance(comp_begin, focused_elem);
         UpdateCandidatesForFocusedElement();
+        BeginSegmentNavigation();
     }
 
     void SetFocusedCandidateIndexToCurrent() {
@@ -544,8 +549,8 @@ class BufferMgrImpl : public BufferMgr {
         auto end = Lomaji::MoveCaret(text, caret, CursorDirection::R);
         auto from = text.begin();
         auto to = text.begin();
-        utf8::unchecked::advance(from, caret);
-        utf8::unchecked::advance(to, end);
+        u8u::advance(from, caret);
+        u8u::advance(to, end);
         text.erase(from, to);
 
         if (text.empty()) {
@@ -582,9 +587,10 @@ class BufferMgrImpl : public BufferMgr {
 
         if (IsEmpty()) {
             Clear();
+            return;
         }
 
-        switch (config()->input_mode()) {
+        switch (input_mode()) {
         case InputMode::Continuous:
             SetCompositionAndCandidatesContinuous(GetRawBuffer());
             break;
@@ -596,14 +602,20 @@ class BufferMgrImpl : public BufferMgr {
         JoinBufferUpdateCaretAndFocus(raw_caret);
     }
 
-    void AdjustAllCandidates() {
-        if (m_candidates.empty()) {
-            return;
-        }
+    size_t AdjustedSize(Buffer const &buffer) {
+        auto copy = buffer;
+        AdjustKhinAndSpacing(copy);
+        return copy.Size();
+    }
 
-        for (auto &cand : m_candidates) {
-            KhinHandler::AutokhinBuffer(m_engine, cand.get());
-            cand.AdjustVirtualSpacing();
+    void AdjustKhinAndSpacing(Buffer &buffer) {
+        KhinHandler::AutokhinBuffer(m_engine, buffer);
+        buffer.AdjustVirtualSpacing();
+    }
+
+    void AdjustKhinAndSpacing(std::vector<Buffer> &buffers) {
+        for (auto &buffer : buffers) {
+            AdjustKhinAndSpacing(buffer);
         }
     }
 
@@ -619,8 +631,8 @@ class BufferMgrImpl : public BufferMgr {
         return u8_size(GetDisplayBuffer());
     }
 
-    Config *config() {
-        return m_engine->config();
+    InputMode input_mode() {
+        return m_engine->config()->input_mode();
     }
 
     SyllableParser *parser() {

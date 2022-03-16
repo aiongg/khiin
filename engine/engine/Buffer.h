@@ -16,13 +16,13 @@ class Buffer {
     using const_iterator = BufferElementList::const_iterator;
 
     // Returns size of composed or converted buffer in unicode codepoints
-    static utf8_size_t TextSize(iterator const &from, iterator const &to);
+    static utf8_size_t TextSize(const_iterator const &from, const_iterator const &to);
 
     // Returns size of the raw buffer in unicode codepoints
-    static utf8_size_t RawTextSize(iterator const &from, iterator const &to);
+    static utf8_size_t RawTextSize(const_iterator const &from, const_iterator const &to);
 
     // Returns the raw text between |from| and |to|
-    static std::string RawText(iterator const &from, iterator const &to);
+    static std::string RawText(const_iterator const &from, const_iterator const &to);
 
     // Adds virtual spacer elements where required
     // (e.g., between loji and hanji).
@@ -32,41 +32,45 @@ class Buffer {
     Buffer(BufferElementList &&elements);
     Buffer(BufferElement &&element);
 
-    iterator Begin();
-    iterator End();
-    const_iterator CBegin();
-    const_iterator CEnd();
+    iterator Begin() noexcept;
+    iterator End() noexcept;
+    const_iterator CBegin() const;
+    const_iterator CEnd() const;
     BufferElement &At(size_t index);
-    BufferElement &Back();
-    size_t Size();
+    BufferElement &Back() noexcept;
+    size_t Size() const;
     iterator Erase(iterator it);
 
     // Returns iterator pointing to the element at the caret, using the
     // visible caret position
-    iterator IterCaret(utf8_size_t caret);
+    iterator IterCaret(size_t caret);
+    const_iterator CIterCaret(size_t caret) const;
 
     // Returns iterator pointing to the element at the caret, using the
     // underlying raw caret position
-    iterator IterRawCaret(utf8_size_t raw_caret);
+    iterator IterRawCaret(size_t raw_caret);
+    const_iterator CIterRawCaret(size_t caret) const;
 
     void Clear();
-    bool Empty();
+    bool Empty() const;
 
     // Input |caret| is the visible displayed caret, in unicode code points. Returns
     // the corresponding raw caret.
-    size_t RawCaretFrom(utf8_size_t caret);
+    size_t RawCaretFrom(utf8_size_t caret) const;
 
     // Input |raw_caret| is the raw caret position, in unicode code points. Returns
     // the corresponding display caret position.
-    utf8_size_t CaretFrom(utf8_size_t raw_caret);
+    utf8_size_t CaretFrom(utf8_size_t raw_caret) const;
 
-    std::string RawText();
-    utf8_size_t RawTextSize();
-    std::string Text();
-    utf8_size_t TextSize();
+    std::string RawText() const;
+    utf8_size_t RawTextSize() const;
+    std::string Text() const;
+    utf8_size_t TextSize() const;
+
+    std::string RawTextFrom(size_t element_index) const;
 
     // Returns true if there are any non-converted elements in the compostion
-    bool HasComposing();
+    bool HasComposing() const;
 
     // Moves converted sections before and after composition
     // into separate holders |pre| and |post|. Buffer must be re-joined later.
@@ -101,6 +105,7 @@ class Buffer {
     iterator Replace(iterator first, iterator last, Buffer &other);
 
     void SetConverted(bool converted);
+    void SetSelected(bool selected);
 
     BufferElementList &get();
 
