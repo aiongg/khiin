@@ -193,7 +193,7 @@ class CandidatePagerImpl : public CandidatePager {
     }
 
     inline int EndCandidateIndex() {
-        return min(CandidatesSize() - 1, MaxPageSize() * (CurrentPage() + 1));
+        return min(CandidatesSize(), MaxPageSize() * (CurrentPage() + 1));
     }
 
     inline int CandidatesSize() {

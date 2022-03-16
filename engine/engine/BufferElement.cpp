@@ -93,7 +93,7 @@ utf8_size_t BufferElement::RawSize() const {
     return unicode::u8_size(raw());
 }
 
-utf8_size_t BufferElement::RawToComposedCaret(SyllableParser *parser, size_t raw_caret) const {
+utf8_size_t BufferElement::RawToComposedCaret(size_t raw_caret) const {
     if (raw_caret == 0) {
         return 0;
     }
@@ -104,7 +104,7 @@ utf8_size_t BufferElement::RawToComposedCaret(SyllableParser *parser, size_t raw
         if (is_converted && elem->candidate()) {
             return u8_size(elem->candidate()->output);
         } else {
-            return elem->RawToComposedCaret(parser, raw_caret);
+            return elem->RawToComposedCaret(raw_caret);
         }
     } else if (auto elem = std::get_if<Punctuation>(&m_element)) {
         return u8_size(elem->output);
@@ -114,7 +114,7 @@ utf8_size_t BufferElement::RawToComposedCaret(SyllableParser *parser, size_t raw
     return 0; // std::monostate
 }
 
-size_t BufferElement::ComposedToRawCaret(SyllableParser *parser, utf8_size_t caret) const {
+size_t BufferElement::ComposedToRawCaret(utf8_size_t caret) const {
     if (caret == 0) {
         return 0;
     }
@@ -123,9 +123,9 @@ size_t BufferElement::ComposedToRawCaret(SyllableParser *parser, utf8_size_t car
         return caret;
     } else if (auto elem = std::get_if<TaiText>(&m_element)) {
         if (is_converted) {
-            return elem->ConvertedToRawCaret(parser, caret);
+            return elem->ConvertedToRawCaret(caret);
         } else {
-            return elem->ComposedToRawCaret(parser, caret);
+            return elem->ComposedToRawCaret(caret);
         }
     } else if (auto elem = std::get_if<Punctuation>(&m_element)) {
         return u8_size(elem->input);
@@ -170,11 +170,11 @@ TaiToken *BufferElement::candidate() const {
     return nullptr;
 }
 
-void BufferElement::Erase(SyllableParser *parser, utf8_size_t index) {
+void BufferElement::Erase(utf8_size_t index) {
     if (auto elem = std::get_if<std::string>(&m_element)) {
         safe_erase(*elem, index, 1);
     } else if (auto elem = std::get_if<TaiText>(&m_element)) {
-        elem->Erase(parser, index);
+        elem->Erase(index);
     } else if (auto elem = std::get_if<Punctuation>(&m_element)) {
         Replace(std::string());
     } else if (auto elem = std::get_if<VirtualSpace>(&m_element)) {
@@ -200,9 +200,9 @@ bool BufferElement::IsVirtualSpace(utf8_size_t index) const {
     return false;
 }
 
-bool BufferElement::SetKhin(SyllableParser *parser, KhinKeyPosition khin_pos, char khin_key) {
+bool BufferElement::SetKhin(KhinKeyPosition khin_pos, char khin_key) {
     if (auto elem = std::get_if<TaiText>(&m_element)) {
-        elem->SetKhin(parser, khin_pos, khin_key);
+        elem->SetKhin(khin_pos, khin_key);
         return true;
     } else if (auto elem = std::get_if<std::string>(&m_element)) {
         if (khin_pos == KhinKeyPosition::Start) {

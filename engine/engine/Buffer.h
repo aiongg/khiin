@@ -54,11 +54,11 @@ class Buffer {
 
     // Input |caret| is the visible displayed caret, in unicode code points. Returns
     // the corresponding raw caret.
-    size_t RawCaretFrom(utf8_size_t caret, SyllableParser *parser);
+    size_t RawCaretFrom(utf8_size_t caret);
 
     // Input |raw_caret| is the raw caret position, in unicode code points. Returns
     // the corresponding display caret position.
-    utf8_size_t CaretFrom(utf8_size_t raw_caret, SyllableParser *parser);
+    utf8_size_t CaretFrom(utf8_size_t raw_caret);
 
     std::string RawText();
     utf8_size_t RawTextSize();

@@ -175,7 +175,7 @@ TaiToken *TaiText::candidate() const {
     return m_candidate;
 }
 
-utf8_size_t TaiText::RawToComposedCaret(SyllableParser *parser, size_t raw_caret) const {
+utf8_size_t TaiText::RawToComposedCaret(size_t raw_caret) const {
     auto remainder = raw_caret;
     utf8_size_t caret = 0;
 
@@ -200,7 +200,7 @@ utf8_size_t TaiText::RawToComposedCaret(SyllableParser *parser, size_t raw_caret
     return caret;
 }
 
-size_t TaiText::ComposedToRawCaret(SyllableParser *parser, utf8_size_t caret) const {
+size_t TaiText::ComposedToRawCaret(utf8_size_t caret) const {
     auto remainder = caret;
     size_t raw_caret = 0;
 
@@ -227,7 +227,7 @@ size_t TaiText::ComposedToRawCaret(SyllableParser *parser, utf8_size_t caret) co
     return raw_caret;
 }
 
-size_t TaiText::ConvertedToRawCaret(SyllableParser *parser, utf8_size_t caret) const {
+size_t TaiText::ConvertedToRawCaret(utf8_size_t caret) const {
     auto remainder = caret;
     size_t raw_caret = 0;
 
@@ -236,7 +236,7 @@ size_t TaiText::ConvertedToRawCaret(SyllableParser *parser, utf8_size_t caret) c
     }
 
     if (!m_candidate) {
-        return ComposedToRawCaret(parser, caret);
+        return ComposedToRawCaret(caret);
     }
 
     //ConvertedSyllableSizeMatches();
@@ -264,7 +264,7 @@ size_t TaiText::ConvertedToRawCaret(SyllableParser *parser, utf8_size_t caret) c
     return raw_caret;
 }
 
-void TaiText::Erase(SyllableParser *parser, utf8_size_t index) {
+void TaiText::Erase(utf8_size_t index) {
     auto remainder = index;
     auto it = m_elements.begin();
     for (; it != m_elements.end(); ++it) {
@@ -302,7 +302,7 @@ bool TaiText::IsVirtualSpace(utf8_size_t index) const {
     return false;
 }
 
-void TaiText::SetKhin(SyllableParser *parser, KhinKeyPosition khin_pos, char khin_key) {
+void TaiText::SetKhin(KhinKeyPosition khin_pos, char khin_key) {
     for (auto it = m_elements.begin(); it != m_elements.end(); ++it) {
         if (auto elem = std::get_if<Syllable>(&*it)) {
             elem->SetKhin(khin_pos, khin_key);

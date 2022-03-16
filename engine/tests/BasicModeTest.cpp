@@ -27,8 +27,10 @@ TEST_F(BasicModeTest, Insert_a) {
 }
 
 TEST_F(BasicModeTest, Insert_hobo) {
-    input("siann");
-    ExpectBuffer("siaⁿ", 4);
+    input("hobo");
+    ExpectBuffer("ho bo", 5);
+    ExpectCandidate("好");
+    ExpectCandidate("hó");
 }
 
 } // namespace khiin::engine

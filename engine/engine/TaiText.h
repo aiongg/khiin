@@ -37,13 +37,13 @@ class TaiText {
     TaiToken *candidate() const;
 
 
-    utf8_size_t RawToComposedCaret(SyllableParser *parser, size_t raw_caret) const;
-    size_t ComposedToRawCaret(SyllableParser *parser, utf8_size_t caret) const;
-    size_t ConvertedToRawCaret(SyllableParser *parser, utf8_size_t caret) const;
+    utf8_size_t RawToComposedCaret(size_t raw_caret) const;
+    size_t ComposedToRawCaret(utf8_size_t caret) const;
+    size_t ConvertedToRawCaret(utf8_size_t caret) const;
 
-    void Erase(SyllableParser *parser, utf8_size_t index);
+    void Erase(utf8_size_t index);
     bool IsVirtualSpace(utf8_size_t index) const;
-    void SetKhin(SyllableParser *parser, KhinKeyPosition khin_pos, char khin_key);
+    void SetKhin(KhinKeyPosition khin_pos, char khin_key);
 
   private:
     std::vector<Chunk> m_elements;

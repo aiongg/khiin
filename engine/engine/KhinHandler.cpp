@@ -44,7 +44,7 @@ void AutokhinBufferImpl(SyllableParser *parser, bool autokhin_enabled, std::vect
                 it = std::next(it, 1);
             }
 
-            if (!it->SetKhin(parser, KhinKeyPosition::Start, '-')) {
+            if (!it->SetKhin(KhinKeyPosition::Start, '-')) {
                 autokhin = false;
             }
 
@@ -55,7 +55,7 @@ void AutokhinBufferImpl(SyllableParser *parser, bool autokhin_enabled, std::vect
             continue;
         }
 
-        if (autokhin_enabled && autokhin && !it->SetKhin(parser, KhinKeyPosition::Virtual, 0)) {
+        if (autokhin_enabled && autokhin && !it->SetKhin(KhinKeyPosition::Virtual, 0)) {
             autokhin = false;
         }
 

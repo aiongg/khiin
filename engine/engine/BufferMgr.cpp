@@ -121,7 +121,7 @@ class BufferMgrImpl : public BufferMgr {
             m_edit_state = EditState::Composing;
         }
 
-        switch (m_engine->config()->input_mode()) {
+        switch (config()->input_mode()) {
         case InputMode::Continuous:
             InsertContinuous(ch);
             break;
@@ -307,7 +307,7 @@ class BufferMgrImpl : public BufferMgr {
     std::pair<std::string, size_t> BeginInsertion(char ch) {
         SplitBufferForComposition();
         auto raw_composition = m_composition.RawText();
-        auto raw_caret = m_composition.RawCaretFrom(m_caret, m_engine->syllable_parser());
+        auto raw_caret = m_composition.RawCaretFrom(m_caret);
         auto it = raw_composition.begin();
         utf8::unchecked::advance(it, raw_caret);
         raw_composition.insert(it, 1, ch);
@@ -318,7 +318,7 @@ class BufferMgrImpl : public BufferMgr {
 
     void FinalizeInsertion(size_t raw_caret) {
         m_composition.SetConverted(false);
-        KhinHandler::AutokhinBuffer(m_engine->syllable_parser(), m_engine->config()->autokhin(), m_composition.get());
+        KhinHandler::AutokhinBuffer(parser(), config()->autokhin(), m_composition.get());
         raw_caret += m_precomp.RawTextSize();
         JoinBufferUpdateCaretAndFocus(raw_caret);
     }
@@ -339,12 +339,12 @@ class BufferMgrImpl : public BufferMgr {
 
         m_candidates = CandidateFinder::LongestCandidatesFromStart(m_engine, nullptr, raw_composition);
         m_composition = m_candidates[0];
+        
+        auto raw_comp_size = u8_size(raw_composition);
+        auto top_cand_size = m_composition.RawTextSize();
 
-
-
-        auto raw_text_size = m_composition.RawTextSize();
-        if (raw_caret > raw_text_size) {
-            raw_caret = raw_text_size;            
+        if (raw_comp_size > top_cand_size) {
+            m_composition.Append(raw_composition.substr(top_cand_size, raw_comp_size));
         }
 
         FinalizeInsertion(raw_caret);
@@ -381,7 +381,7 @@ class BufferMgrImpl : public BufferMgr {
         // Get the focused element using the virtual raw caret position
         auto focus_elem_it = m_composition.IterRawCaret(focus_raw_caret);
         OnFocusElementChange(std::distance(m_composition.Begin(), focus_elem_it));
-        m_caret = m_composition.CaretFrom(raw_caret, m_engine->syllable_parser());
+        m_caret = m_composition.CaretFrom(raw_caret);
     }
 
     void FocusCandidate_(size_t index) {
@@ -389,7 +389,7 @@ class BufferMgrImpl : public BufferMgr {
             auto x = 3;
         }
 
-        auto raw_caret = m_composition.RawCaretFrom(m_caret, m_engine->syllable_parser());
+        auto raw_caret = m_composition.RawCaretFrom(m_caret);
         Buffer candidate = m_candidates.at(index);
         m_composition.SplitAtElement(m_focused_element, &m_precomp, nullptr);
 
@@ -484,7 +484,7 @@ class BufferMgrImpl : public BufferMgr {
     }
 
     void EraseComposing(CursorDirection direction) {
-        auto raw_caret = m_composition.RawCaretFrom(m_caret, m_engine->syllable_parser());
+        auto raw_caret = m_composition.RawCaretFrom(m_caret);
         auto remainder = m_caret;
 
         auto it = m_composition.Begin();
@@ -501,7 +501,7 @@ class BufferMgrImpl : public BufferMgr {
             return;
         }
 
-        it->Erase(m_engine->syllable_parser(), remainder);
+        it->Erase(remainder);
         if (it->size() == 0) {
             m_composition.Erase(it);
         }
@@ -514,9 +514,9 @@ class BufferMgrImpl : public BufferMgr {
         m_candidates = CandidateFinder::MultiSegmentCandidates(m_engine, nullptr, raw_buffer);
         m_composition = m_candidates[0];
         m_composition.SetConverted(false);
-        KhinHandler::AutokhinBuffer(m_engine->syllable_parser(), m_engine->config()->autokhin(), m_composition.get());
+        KhinHandler::AutokhinBuffer(m_engine->syllable_parser(), config()->autokhin(), m_composition.get());
         m_composition.AdjustVirtualSpacing();
-        m_caret = m_composition.CaretFrom(raw_caret, m_engine->syllable_parser());
+        m_caret = m_composition.CaretFrom(raw_caret);
     }
 
     std::string GetRawBuffer() {
@@ -529,6 +529,14 @@ class BufferMgrImpl : public BufferMgr {
 
     utf8_size_t GetDisplayBufferSize() {
         return u8_size(GetDisplayBuffer());
+    }
+
+    Config* config() {
+        return m_engine->config();
+    }
+
+    SyllableParser* parser() {
+        return m_engine->syllable_parser();
     }
 
     enum class NavMode {
