@@ -68,21 +68,21 @@ class DictionaryImpl : public Dictionary {
         return m_word_trie->HasKey(query);
     }
 
-    virtual std::vector<TaiToken *> WordSearch(std::string const &query) override {
-        auto ret = std::vector<TaiToken *>();
+    virtual std::vector<TokenResult> WordSearch(std::string const &query) override {
+        auto ret = std::vector<TokenResult>();
         GetOrCacheTokens(query, ret);
         return ret;
     }
 
-    virtual std::vector<TaiToken *> Autocomplete(std::string const &query) override {
-        auto ret = std::vector<TaiToken *>();
+    virtual std::vector<TokenResult> Autocomplete(std::string const &query) override {
+        auto ret = std::vector<TokenResult>();
         auto words = m_word_trie->Autocomplete(query, 10, 5);
         GetOrCacheTokens(words, ret);
         return ret;
     }
 
-    virtual std::vector<TaiToken *> AllWordsFromStart(std::string const &query) override {
-        auto ret = std::vector<TaiToken *>();
+    virtual std::vector<TokenResult> AllWordsFromStart(std::string const &query) override {
+        auto ret = std::vector<TokenResult>();
         auto words = std::vector<std::string>();
         m_word_trie->FindKeys(query, words);
         GetOrCacheTokens(words, ret);
@@ -198,27 +198,35 @@ class DictionaryImpl : public Dictionary {
         }
     }
 
-    void GetOrCacheTokens(std::string const &input, std::vector<TaiToken *> &output) {
-        if (auto ids = m_input_ids.find(input); ids != m_input_ids.end()) {
-            GetOrCacheTokens(ids->second, output);
-        }
-    }
-
-    void GetOrCacheTokens(std::vector<std::string> const &inputs, std::vector<TaiToken *> &output) {
+    void GetOrCacheTokens(std::vector<std::string> const &inputs, std::vector<TokenResult> &output) {
         for (auto &input : inputs) {
             GetOrCacheTokens(input, output);
         }
     }
 
-    void GetOrCacheTokens(std::vector<int> const &input_ids, std::vector<TaiToken *> &output) {
+    void GetOrCacheTokens(std::string const &input, std::vector<TokenResult> &output) {
+        auto input_size = unicode::u8_size(input);
+        auto tmp = std::vector<TokenResult>();
+        if (auto ids = m_input_ids.find(input); ids != m_input_ids.end()) {
+            GetOrCacheTokens(ids->second, tmp);
+            for (auto &each : tmp) {
+                each.input_size = input_size;
+                output.push_back(std::move(each));
+            }
+        }
+    }
+
+    void GetOrCacheTokens(std::vector<int> const &input_ids, std::vector<TokenResult> &output) {
         for (auto id : input_ids) {
             GetOrCacheTokens(id, output);
         }
     }
 
-    void GetOrCacheTokens(int input_id, std::vector<TaiToken *> &output) {
+    void GetOrCacheTokens(int input_id, std::vector<TokenResult> &output) {
         if (auto cached = m_input_id_token_cache.find(input_id); cached != m_input_id_token_cache.end()) {
-            output.insert(output.end(), cached->second.begin(), cached->second.end());
+            for (auto token : cached->second) {
+                output.push_back(TokenResult{token});
+            }
             return;
         }
 
@@ -229,7 +237,7 @@ class DictionaryImpl : public Dictionary {
         for (auto &token : tokens) {
             auto inserted = m_token_cache.insert(std::make_pair(token.id, std::move(token)));
             ptr_cache.push_back(&inserted.first->second);
-            output.push_back(&inserted.first->second);
+            output.push_back(TokenResult{&inserted.first->second});
         }
     }
 

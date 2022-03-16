@@ -26,4 +26,9 @@ TEST_F(BasicModeTest, Insert_a) {
     ExpectBuffer("a", 1);
 }
 
+TEST_F(BasicModeTest, Insert_hobo) {
+    input("siann");
+    ExpectBuffer("siaⁿ", 4);
+}
+
 } // namespace khiin::engine

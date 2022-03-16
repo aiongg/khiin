@@ -18,10 +18,20 @@ inline bool IsHigherFrequency(TaiToken *a, TaiToken *b) {
 }
 
 inline bool SizeAndFrequencySort(TaiToken *a, TaiToken *b) {
+
     auto a_size = letter_count(a->input);
     auto b_size = letter_count(b->input);
 
     return a_size == b_size ? IsHigherFrequency(a, b) : a_size > b_size;
+}
+
+inline void SortTokenResults(std::vector<TokenResult> &tokens) {
+    std::sort(tokens.begin(), tokens.end(), [&](TokenResult const &a, TokenResult const &b) {
+        return a.input_size == b.input_size
+                   ? (a.token->input_id == b.token->input_id ? a.token->weight > b.token->weight
+                                                             : a.token->input_id < b.token->input_id)
+                   : a.input_size > b.input_size;
+    });
 }
 
 inline void SortTokensByFrequency(std::vector<TaiToken *> &tokens) {
@@ -81,25 +91,21 @@ std::vector<Buffer> AllSplittableCandidatesFromStart(Engine *engine, TaiToken *l
     auto query_lc = unicode::copy_str_tolower(raw_query);
     auto options = engine->dictionary()->AllWordsFromStart(query_lc);
 
-    std::sort(options.begin(), options.end(), [](TaiToken *a, TaiToken *b) {
-        return unicode::letter_count(a->input) > unicode::letter_count(b->input);
-    });
-
+    SortTokenResults(options);
     auto parser = engine->syllable_parser();
     auto seen = std::unordered_set<std::string>();
 
-    for (auto option : options) {
-        if (!seen.insert(option->output).second) {
+    for (auto &option : options) {
+        if (!seen.insert(option.token->output).second) {
             continue;
         }
 
-        auto tai_text = parser->AsTaiText(raw_query, option->input);
-
-        if (!LeavesGoodRemainder(engine->dictionary(), tai_text, raw_query)) {
+        if (!engine->dictionary()->word_splitter()->CanSplit(raw_query.substr(option.input_size, raw_query.size()))) {
             continue;
         }
 
-        tai_text.SetCandidate(option);
+        auto tai_text = parser->AsTaiText(raw_query.substr(0, option.input_size), option.token->input);
+        tai_text.SetCandidate(option.token);
         auto elem = BufferElement(std::move(tai_text));
         elem.is_converted = true;
         ret.push_back(std::vector<BufferElement>{std::move(elem)});
@@ -141,18 +147,18 @@ std::vector<Buffer> LongestCandidatesFromStartImpl(Engine *engine, TaiToken *lgr
 
     auto query_lc = unicode::copy_str_tolower(raw_query);
     auto options = engine->dictionary()->AllWordsFromStart(query_lc);
-    SortTokensByLetterCountAndFrequency(options);
+    SortTokenResults(options);
 
     auto parser = engine->syllable_parser();
     auto seen = std::unordered_set<std::string>();
 
-    for (auto option : options) {
-        if (!seen.insert(option->output).second) {
+    for (auto &option : options) {
+        if (!seen.insert(option.token->output).second) {
             continue;
         }
 
-        auto tai_text = parser->AsTaiText(raw_query, option->input);
-        tai_text.SetCandidate(option);
+        auto tai_text = parser->AsTaiText(raw_query.substr(0, option.input_size), option.token->input);
+        tai_text.SetCandidate(option.token);
         auto elem = BufferElement(std::move(tai_text));
         elem.is_converted = true;
         ret.push_back(std::vector<BufferElement>{std::move(elem)});
@@ -303,12 +309,20 @@ std::vector<Buffer> MultiSegmentCandidatesImpl(Engine *engine, TaiToken *lgram, 
 
 TaiToken *CandidateFinder::BestMatch(Engine *engine, TaiToken *lgram, std::string const &query) {
     auto options = engine->dictionary()->WordSearch(copy_str_tolower(query));
-    return BestMatchImpl(engine, lgram, options);
+    auto tokens = std::vector<TaiToken *>();
+    for (auto &opt : options) {
+        tokens.push_back(opt.token);
+    }
+    return BestMatchImpl(engine, lgram, tokens);
 }
 
 TaiToken *CandidateFinder::BestAutocomplete(Engine *engine, TaiToken *lgram, std::string const &query) {
     auto options = engine->dictionary()->Autocomplete(copy_str_tolower(query));
-    return BestMatchImpl(engine, lgram, options);
+    auto tokens = std::vector<TaiToken *>();
+    for (auto &opt : options) {
+        tokens.push_back(opt.token);
+    }
+    return BestMatchImpl(engine, lgram, tokens);
 }
 
 std::vector<Buffer> CandidateFinder::GetCandidatesFromStart(Engine *engine, TaiToken *lgram, std::string const &query) {

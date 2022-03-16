@@ -340,6 +340,8 @@ class BufferMgrImpl : public BufferMgr {
         m_candidates = CandidateFinder::LongestCandidatesFromStart(m_engine, nullptr, raw_composition);
         m_composition = m_candidates[0];
 
+
+
         auto raw_text_size = m_composition.RawTextSize();
         if (raw_caret > raw_text_size) {
             raw_caret = raw_text_size;            
