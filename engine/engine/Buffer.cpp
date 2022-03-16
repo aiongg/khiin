@@ -341,6 +341,12 @@ void Buffer::SplitForComposition(utf8_size_t caret, Buffer &pre, Buffer &post) {
         m_elements.erase(elem, end);
     }
 
+    if (TextSize() == caret) {
+        pre.get().insert(pre.End(), Begin(), End());
+        Clear();
+        return;
+    }
+
     // Only one element remaining: if Hanji we split it and
     // start a new composition buffer, if Lomaji we keep it as-is
     if (auto converted = Begin()->converted(); unicode::contains_hanji(converted)) {

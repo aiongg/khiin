@@ -154,20 +154,25 @@ class BufferMgrImpl : public BufferMgr {
         }
 
         auto elem_it = m_composition.IterCaret(m_caret);
+        auto pos_in_elem = m_caret - Buffer::TextSize(m_composition.Begin(), elem_it);
+
+        if (elem_it->size() == pos_in_elem) {
+            ++elem_it;
+            pos_in_elem = 0;
+        }
 
         if (elem_it->is_converted) {
-            auto pos_in_elem = m_caret - Buffer::TextSize(m_composition.Begin(), elem_it);
-
-            if (elem_it->size() == pos_in_elem) {
-                ++elem_it;
-                pos_in_elem = 0;
-            }
-
             EraseConverted(elem_it, pos_in_elem);
         } else {
             EraseComposing(direction);
         }
 
+        m_composition.StripVirtualSpacing();
+        EnsureCaretInBounds();
+        if (m_composition.Empty()) {
+            Clear();
+            return;
+        }
         if (m_focused_element > m_composition.Size() - 1) {
             OnFocusElementChange(m_composition.Size() - 1);
         }
@@ -583,20 +588,20 @@ class BufferMgrImpl : public BufferMgr {
         it->Erase(pos);
         if (it->size() == 0) {
             m_composition.Erase(it);
+        } else {
+            switch (input_mode()) {
+            case InputMode::Continuous:
+                SetCompositionAndCandidatesContinuous(GetRawBuffer());
+                break;
+            case InputMode::Basic:
+                SetCompositionAndCandidatesBasic(GetRawBuffer());
+                break;
+            }
         }
 
         if (IsEmpty()) {
             Clear();
             return;
-        }
-
-        switch (input_mode()) {
-        case InputMode::Continuous:
-            SetCompositionAndCandidatesContinuous(GetRawBuffer());
-            break;
-        case InputMode::Basic:
-            SetCompositionAndCandidatesBasic(GetRawBuffer());
-            break;
         }
 
         JoinBufferUpdateCaretAndFocus(raw_caret);
@@ -617,6 +622,10 @@ class BufferMgrImpl : public BufferMgr {
         for (auto &buffer : buffers) {
             AdjustKhinAndSpacing(buffer);
         }
+    }
+
+    void EnsureCaretInBounds() {
+        m_caret = (std::min)(m_caret, m_composition.TextSize());
     }
 
     std::string GetRawBuffer() {

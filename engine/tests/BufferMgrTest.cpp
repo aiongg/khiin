@@ -270,6 +270,24 @@ TEST_F(BufferEraseTest, Delete_kah8a) {
     ExpectBuffer("kha", 1);
 }
 
+TEST_F(BufferEraseTest, Delete_hox) {
+    input("hox");
+    ExpectBuffer("ho x", 4);
+    spacebar(1);
+    key_bksp(1);
+    ExpectSegment(1, 0, SS_FOCUSED, "好", 1);
+}
+
+TEST_F(BufferEraseTest, Delete_ho_x) {
+    input("ho");
+    spacebar(1);
+    ExpectBuffer("好", 1);
+    input("x");
+    key_bksp(1);
+    ExpectSegment(1, 0, SS_FOCUSED, "好", 1);
+}
+
+
 //+---------------------------------------------------------------------------
 //
 // Khin
