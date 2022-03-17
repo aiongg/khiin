@@ -162,7 +162,8 @@ void Config::SetUiSize(int size) {
 }
 
 Hotkey Config::GetOnOffHotkey() {
-    return EnumVal<Hotkey>(Registrar::GetSettingsInt(kSettingOnOffHotkey));
+    auto i = Registrar::GetSettingsInt(kSettingOnOffHotkey);
+    return i ? EnumVal<Hotkey>(i) : Hotkey::Shift;
 }
 
 void Config::SetOnOffHotkey(Hotkey key) {
