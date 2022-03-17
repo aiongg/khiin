@@ -461,7 +461,7 @@ struct CandidateListUIImpl :
         auto focused_col = m_pager->GetFocusedColumnIndex();
         auto display_mode = m_pager->GetDisplayMode();
 
-        KHIIN_DEBUG("m_text_rect: {} {}", m_text_rect.left, m_text_rect.top);
+        KHIIN_DEBUG("cand grid size: {}", m_candidate_grid.size());
 
         m_candidate_window->SetCandidates(display_mode, &m_candidate_grid, focused_cand_id, focused_col, qs_active,
                                           m_text_rect);

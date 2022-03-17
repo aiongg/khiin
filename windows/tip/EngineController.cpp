@@ -25,7 +25,7 @@ using namespace khiin::proto;
 
 volatile HMODULE g_module = nullptr;
 
-constexpr std::string_view kDbFilename = "khiin.db";
+constexpr std::string_view kDbFilename = "khiin_test.db";
 
 static std::unordered_map<int, SpecialKey> kWindowsToKhiinKeyCode = {
     // clang-format off

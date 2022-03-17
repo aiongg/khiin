@@ -150,14 +150,20 @@ void Registrar::RegisterProfiles(std::wstring modulePath, uint32_t icon_index) {
 
     check_hresult(profiles->Register(guids::kTextService));
 
-    check_hresult(profiles->AddLanguageProfile(guids::kTextService, static_cast<LANGID>(Profile::langId),
-                                               guids::kLanguageProfile, kClsidDescription.data(),
-                                               wcharSize(kClsidDescription), modulePath.data(), NULL, icon_index));
+    check_hresult(profiles->AddLanguageProfile(guids::kTextService, Profile::langId, guids::kLanguageProfile,
+                                               kClsidDescription.data(), wcharSize(kClsidDescription),
+                                               modulePath.data(), NULL, icon_index));
+
+    // Untested
+    // check_hresult(
+    //    profiles->EnableLanguageProfile(guids::kTextService, Profile::langId, guids::kLanguageProfile, TRUE));
+    // check_hresult(profiles->SubstituteKeyboardLayout(guids::kTextService, Profile::langId, guids::kLanguageProfile,
+    //                                                 ::LoadKeyboardLayout(L"00000409", 0)));
 
     if (auto profiles_ex = profiles.try_as<ITfInputProcessorProfilesEx>(); profiles_ex) {
-        check_hresult(profiles_ex->SetLanguageProfileDisplayName(
-            guids::kTextService, static_cast<LANGID>(Profile::langId), guids::kLanguageProfile, modulePath.data(),
-            wcharSize(modulePath), Profile::displayNameIndex));
+        check_hresult(profiles_ex->SetLanguageProfileDisplayName(guids::kTextService, Profile::langId,
+                                                                 guids::kLanguageProfile, modulePath.data(),
+                                                                 wcharSize(modulePath), Profile::displayNameIndex));
     }
 }
 
@@ -173,7 +179,7 @@ void Registrar::RegisterCategories() {
     auto category_mgr = com_ptr<ITfCategoryMgr>();
     check_hresult(::CoCreateInstance(CLSID_TF_CategoryMgr, NULL, CLSCTX_INPROC_SERVER, IID_ITfCategoryMgr,
                                      category_mgr.put_void()));
-    
+
     for (auto &category : kSupportedCategories) {
         check_hresult(category_mgr->RegisterCategory(guids::kTextService, category, guids::kTextService));
     }
