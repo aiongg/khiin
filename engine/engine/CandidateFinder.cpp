@@ -114,7 +114,7 @@ std::vector<Buffer> AllSplittableCandidatesFromStart(Engine *engine, TaiToken *l
     return ret;
 }
 
-std::vector<Buffer> AllPunctuationsImpl(Engine *engine, TaiToken *lgram, std::string const &query) {
+std::vector<Buffer> AllPunctuation(Engine *engine, TaiToken *lgram, std::string const &query) {
     auto ret = std::vector<Buffer>();
     auto options = engine->dictionary()->SearchPunctuation(query);
     for (auto &p : options) {
@@ -124,28 +124,9 @@ std::vector<Buffer> AllPunctuationsImpl(Engine *engine, TaiToken *lgram, std::st
     return ret;
 }
 
-std::vector<Buffer> LongestCandidatesFromStartImpl(Engine *engine, TaiToken *lgram, std::string const &raw_query) {
+std::vector<Buffer> AllWordsFromStart(Engine* engine, TaiToken* lgram, std::string const& query) {
     auto ret = std::vector<Buffer>();
-    if (raw_query.empty()) {
-        return ret;
-    }
-
-    auto segments = Segmenter::SegmentText(engine, raw_query);
-    if (segments.empty()) {
-        ret.push_back(Buffer(raw_query));
-        ret.back().SetConverted(true);
-        return ret;
-    }
-
-    if (segments.at(0).type == SegmentType::Punct) {
-        return AllPunctuationsImpl(engine, lgram, raw_query);
-    } else if (segments.at(0).type != SegmentType::Splittable) {
-        ret.push_back(Buffer(raw_query));
-        ret.back().SetConverted(true);
-        return ret;
-    }
-
-    auto query_lc = unicode::copy_str_tolower(raw_query);
+    auto query_lc = unicode::copy_str_tolower(query);
     auto options = engine->dictionary()->AllWordsFromStart(query_lc);
     SortTokenResults(options);
 
@@ -157,7 +138,7 @@ std::vector<Buffer> LongestCandidatesFromStartImpl(Engine *engine, TaiToken *lgr
             continue;
         }
 
-        auto tai_text = parser->AsTaiText(raw_query.substr(0, option.input_size), option.token->input);
+        auto tai_text = parser->AsTaiText(query.substr(0, option.input_size), option.token->input);
         tai_text.SetCandidate(option.token);
         auto elem = BufferElement(std::move(tai_text));
         elem.is_converted = true;
@@ -165,6 +146,28 @@ std::vector<Buffer> LongestCandidatesFromStartImpl(Engine *engine, TaiToken *lgr
     }
 
     return ret;
+}
+
+std::vector<Buffer> LongestCandidatesFromStartImpl(Engine *engine, TaiToken *lgram, std::string const &raw_query) {
+    if (raw_query.empty()) {
+        return std::vector<Buffer>();
+    }
+
+    auto segment = Segmenter::LongestSegmentFromStart(engine, raw_query);
+
+    switch (segment.type) {
+    case SegmentType::Punct:
+        return AllPunctuation(engine, lgram, raw_query);
+        break;
+    case SegmentType::Splittable:
+        return AllWordsFromStart(engine, lgram, raw_query);
+        break;
+    default: {
+        auto ret = std::vector<Buffer>{Buffer(raw_query)};
+        ret.back().SetConverted(true);
+        return ret;
+    }
+    }
 }
 
 std::vector<Buffer> GetCandidatesFromStartImpl(Engine *engine, TaiToken *lgram, std::string const &raw_query) {
@@ -190,7 +193,7 @@ std::vector<Buffer> GetCandidatesFromStartImpl(Engine *engine, TaiToken *lgram, 
     }
 
     if (first_seg.type == SegmentType::Punct) {
-        return AllPunctuationsImpl(engine, lgram, query);
+        return AllPunctuation(engine, lgram, query);
     }
 
     ret.push_back(Buffer(query));
@@ -214,7 +217,7 @@ Buffer WordsToBuffer(Engine *engine, std::vector<std::string> &words) {
     return Buffer(std::move(elems));
 }
 
-Buffer ContinuousBestMatchImpl(Engine *engine, TaiToken *lgram, std::string_view query) {
+Buffer BestContinuousCandidate(Engine *engine, TaiToken *lgram, std::string_view query) {
     auto segmentations = engine->dictionary()->Segment(query, 1);
 
     if (segmentations.empty()) {
@@ -224,7 +227,7 @@ Buffer ContinuousBestMatchImpl(Engine *engine, TaiToken *lgram, std::string_view
     return WordsToBuffer(engine, segmentations[0]);
 }
 
-std::vector<Buffer> ContinuousCandidatesImpl(Engine *engine, TaiToken *lgram, std::string const &query) {
+std::vector<Buffer> AllContinuousCandidates(Engine *engine, TaiToken *lgram, std::string const &query) {
     auto all_cands = std::vector<Buffer>();
     auto segmentations = engine->dictionary()->Segment(query, 5);
     auto seen = std::unordered_set<std::string>();
@@ -247,7 +250,7 @@ std::vector<Buffer> ContinuousCandidatesImpl(Engine *engine, TaiToken *lgram, st
     return ret;
 }
 
-Punctuation BestPunctuationImpl(Engine *engine, TaiToken *lgram, std::string const &query) {
+Punctuation BestPunctuation(Engine *engine, TaiToken *lgram, std::string const &query) {
     auto puncts = engine->dictionary()->SearchPunctuation(query);
     if (!puncts.empty()) {
         return puncts[0];
@@ -268,9 +271,9 @@ std::vector<Buffer> MultiSegmentCandidatesImpl(Engine *engine, TaiToken *lgram, 
         switch (seg.type) {
         case SegmentType::Splittable:
             if (i == 0) {
-                candidates = ContinuousCandidatesImpl(engine, lgram, seg_raw_comp);
+                candidates = AllContinuousCandidates(engine, lgram, seg_raw_comp);
             } else {
-                candidates[0].Append(ContinuousBestMatchImpl(engine, lgram, seg_raw_comp));
+                candidates[0].Append(BestContinuousCandidate(engine, lgram, seg_raw_comp));
             }
             break;
         case SegmentType::Hyphens:
@@ -278,9 +281,9 @@ std::vector<Buffer> MultiSegmentCandidatesImpl(Engine *engine, TaiToken *lgram, 
             break;
         case SegmentType::Punct:
             if (i == 0) {
-                candidates = AllPunctuationsImpl(engine, lgram, seg_raw_comp);
+                candidates = AllPunctuation(engine, lgram, seg_raw_comp);
             } else {
-                candidates[0].Append(BestPunctuationImpl(engine, lgram, seg_raw_comp));
+                candidates[0].Append(BestPunctuation(engine, lgram, seg_raw_comp));
             }
             break;
         case SegmentType::None:
@@ -335,7 +338,7 @@ std::vector<Buffer> CandidateFinder::LongestCandidatesFromStart(Engine *engine, 
 }
 
 std::vector<Buffer> CandidateFinder::ContinuousCandidates(Engine *engine, TaiToken *lgram, std::string const &query) {
-    return ContinuousCandidatesImpl(engine, lgram, query);
+    return AllContinuousCandidates(engine, lgram, query);
 }
 
 std::vector<Buffer> CandidateFinder::MultiSegmentCandidates(Engine *engine, TaiToken *lgram, std::string const &query) {
@@ -343,7 +346,7 @@ std::vector<Buffer> CandidateFinder::MultiSegmentCandidates(Engine *engine, TaiT
 }
 
 Buffer CandidateFinder::ContinuousBestMatch(Engine *engine, TaiToken *lgram, std::string_view query) {
-    return ContinuousBestMatchImpl(engine, lgram, query);
+    return BestContinuousCandidate(engine, lgram, query);
 }
 
 bool CandidateFinder::HasExactMatch(Engine *engine, std::string_view query) {

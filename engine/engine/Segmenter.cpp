@@ -187,11 +187,40 @@ std::vector<SegmentOffset> SegmentTextImpl(Engine *engine, std::string_view raw_
     return ret;
 }
 
+SegmentOffset LongestSegmentFromStartImpl(Engine *engine, std::string_view raw_buffer) {
+    if (auto size = CheckHyphens(engine, raw_buffer); size > 0) {
+        return SegmentOffset{SegmentType::Hyphens, 0, size};
+    }
+
+    if (auto size = CheckAsciiPunctuation(raw_buffer); size > 0) {
+        return SegmentOffset{SegmentType::Punct, 0, size};
+    }
+
+    if (auto size = MaxSplitSize(engine, raw_buffer); size > 0) {
+        return SegmentOffset{SegmentType::Splittable, 0, size};
+    }
+
+    if (CheckWordPrefix(engine, raw_buffer)) {
+        return SegmentOffset{SegmentType::WordPrefix, 0, raw_buffer.size()};
+    }
+
+    if (CheckSyllablePrefix(engine, raw_buffer)) {
+        return SegmentOffset{SegmentType::SyllablePrefix, 0, raw_buffer.size()};
+    }
+
+    return SegmentOffset{SegmentType::None, 0, raw_buffer.size()};
+}
+
 } // namespace
 
 std::vector<SegmentOffset> Segmenter::SegmentText(Engine *engine, std::string_view raw_buffer) {
     auto lc = unicode::copy_str_tolower(raw_buffer);
     return SegmentTextImpl(engine, lc);
+}
+
+SegmentOffset Segmenter::LongestSegmentFromStart(Engine *engine, std::string_view raw_buffer) {
+    auto lc = unicode::copy_str_tolower(raw_buffer);
+    return LongestSegmentFromStartImpl(engine, lc);
 }
 
 } // namespace khiin::engine

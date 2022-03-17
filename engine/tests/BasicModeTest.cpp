@@ -49,4 +49,19 @@ TEST_F(BasicModeTest, Delete_a2) {
     ExpectEmpty();
 }
 
+TEST_F(BasicModeTest, Delete_aa) {
+    input("a");
+    spacebar(1);
+    input("a");
+    key_bksp(1);
+    ExpectSegment(1, 0, SS_FOCUSED);
+    key_bksp(1);
+    ExpectEmpty();
+}
+
+TEST_F(BasicModeTest, Insert_u7h) {
+    input("u7h");
+    ExpectBuffer("ū h", 3);
+}
+
 } // namespace khiin::engine

@@ -26,6 +26,7 @@ struct SegmentOffset {
 class Segmenter {
   public:
     static std::vector<SegmentOffset> SegmentText(Engine *engine, std::string_view raw_buffer);
+    static SegmentOffset LongestSegmentFromStart(Engine *engine, std::string_view raw_buffer);
 };
 
 } // namespace khiin::engine

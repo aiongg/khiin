@@ -367,6 +367,8 @@ class BufferMgrImpl : public BufferMgr {
         m_composition.Join(&m_precomp, &m_postcomp);
         AdjustKhinAndSpacing(m_composition);
 
+        focus_raw_caret = (std::min)(focus_raw_caret, m_composition.RawTextSize());
+
         FocusElement(m_composition.CIterRawCaret(focus_raw_caret));
         SetCaretFromRaw(raw_caret);
     }
@@ -398,14 +400,17 @@ class BufferMgrImpl : public BufferMgr {
 
     void SetCompositionAndCandidatesBasic(std::string const &raw_composition) {
         m_candidates = CandidateFinder::LongestCandidatesFromStart(m_engine, nullptr, raw_composition);
-        m_composition = m_candidates[0];
-        m_composition.SetConverted(false);
 
-        auto raw_comp_size = u8_size(raw_composition);
-        auto top_cand_size = m_composition.RawTextSize();
+        if (!m_candidates.empty()) {
+            m_composition = m_candidates[0];
+            m_composition.SetConverted(false);
 
-        if (raw_comp_size > top_cand_size) {
-            m_composition.Append(raw_composition.substr(top_cand_size, raw_comp_size));
+            auto raw_comp_size = u8_size(raw_composition);
+            auto top_cand_size = m_composition.RawTextSize();
+
+            if (raw_comp_size > top_cand_size) {
+                m_composition.Append(raw_composition.substr(top_cand_size, raw_comp_size));
+            }
         }
 
         assert(m_composition.RawText() == raw_composition);
