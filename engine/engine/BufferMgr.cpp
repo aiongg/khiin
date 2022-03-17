@@ -166,16 +166,6 @@ class BufferMgrImpl : public BufferMgr {
         } else {
             EraseComposing(direction);
         }
-
-        m_composition.StripVirtualSpacing();
-        EnsureCaretInBounds();
-        if (m_composition.Empty()) {
-            Clear();
-            return;
-        }
-        if (m_focused_element > m_composition.Size() - 1) {
-            OnFocusElementChange(m_composition.Size() - 1);
-        }
     }
 
     virtual void HandleLeftRight(CursorDirection direction) override {
@@ -254,27 +244,64 @@ class BufferMgrImpl : public BufferMgr {
 
   private:
     //+----------------------------------
-    // Navigation
+    // Buffer focus navigation
     //
+
     void BeginSegmentNavigation() {
         m_nav_mode = NavMode::BySegment;
         m_edit_state = EditState::Converted;
-        m_caret = m_composition.TextSize();
+        SetCaretToEnd();
+    }
+
+    void MoveFocusOrCaret(CursorDirection direction) {
+        if (m_nav_mode == NavMode::BySegment && m_focused_element == 0 && direction == CursorDirection::L) {
+            m_nav_mode = NavMode::ByCharacter;
+        }
+
+        if (m_nav_mode == NavMode::BySegment) {
+            MoveFocus(direction);
+        } else if (m_nav_mode == NavMode::ByCharacter) {
+            MoveCaret(direction);
+        }
     }
 
     void MoveCaret(CursorDirection direction) {
         auto buffer_text = m_composition.Text();
-        m_caret = Lomaji::MoveCaret(buffer_text, m_caret, direction);
+        SetCaret(Lomaji::MoveCaret(buffer_text, m_caret, direction));
 
         if (m_edit_state != EditState::Composing) {
-            FocusElementAtCursor();
+            FocusElement(m_composition.CIterCaret(m_caret));
         }
     }
 
-    void FocusElementAtCursor() {
-        auto focus_idx = std::distance(m_composition.Begin(), m_composition.IterCaret(m_caret));
-        if (focus_idx != m_focused_element) {
-            OnFocusElementChange(focus_idx);
+    void MoveFocus(CursorDirection direction) {
+        auto begin = m_composition.CBegin();
+        auto it = begin + m_focused_element;
+
+        if (direction == CursorDirection::R) {
+            if (m_focused_element >= m_composition.Size() - 1) {
+                return;
+            }
+
+            ++it;
+
+            while (it->IsVirtualSpace()) {
+                ++it;
+            }
+        } else if (direction == CursorDirection::L) {
+            --it;
+
+            while (it->IsVirtualSpace()) {
+                --it;
+            }
+        }
+
+        FocusElement(it);
+    }
+
+    void FocusElement(Buffer::const_iterator element) {
+        if (auto idx = static_cast<size_t>(std::distance(m_composition.CBegin(), element)); idx != m_focused_element) {
+            OnFocusElementChange(idx);
         }
     }
 
@@ -311,46 +338,6 @@ class BufferMgrImpl : public BufferMgr {
         SetFocusedCandidateIndexToCurrent();
     }
 
-    void MoveFocusOrCaret(CursorDirection direction) {
-        if (m_nav_mode == NavMode::BySegment && m_focused_element == 0 && direction == CursorDirection::L) {
-            m_nav_mode = NavMode::ByCharacter;
-        }
-
-        if (m_nav_mode == NavMode::BySegment) {
-            MoveFocus(direction);
-        } else if (m_nav_mode == NavMode::ByCharacter) {
-            MoveCaret(direction);
-        }
-    }
-
-    void MoveFocus(CursorDirection direction) {
-        auto begin = m_composition.CBegin();
-        auto it = begin + m_focused_element;
-
-        if (direction == CursorDirection::R) {
-            if (m_focused_element >= m_composition.Size() - 1) {
-                return;
-            }
-
-            ++it;
-            while (it->IsVirtualSpace()) {
-                ++it;
-            }
-        } else if (direction == CursorDirection::L) {
-            --it;
-
-            while (it->IsVirtualSpace()) {
-                --it;
-            }
-        }
-
-        auto idx = static_cast<size_t>(std::distance(begin, it));
-
-        if (idx != m_focused_element) {
-            OnFocusElementChange(idx);
-        }
-    }
-
     //+----------------------------------
     // Composition
     //
@@ -377,14 +364,11 @@ class BufferMgrImpl : public BufferMgr {
         // position may be affected by virtual spacing
         auto focus_raw_caret = m_composition.Empty() ? m_precomp.RawTextSize() : m_precomp.RawTextSize() + 1;
 
-        // Join the elements and adjust spacing
         m_composition.Join(&m_precomp, &m_postcomp);
         AdjustKhinAndSpacing(m_composition);
 
-        // Get the focused element using the virtual raw caret position
-        auto focus_elem_it = m_composition.CIterRawCaret(focus_raw_caret);
-        OnFocusElementChange(std::distance(m_composition.CBegin(), focus_elem_it));
-        m_caret = m_composition.CaretFrom(raw_caret);
+        FocusElement(m_composition.CIterRawCaret(focus_raw_caret));
+        SetCaretFromRaw(raw_caret);
     }
 
     std::pair<std::string, size_t> BeginInsertion(char ch) {
@@ -440,6 +424,77 @@ class BufferMgrImpl : public BufferMgr {
     }
 
     void InsertManual(char ch) {}
+
+    //+----------------------------------
+    // Erasing
+    //
+
+    void EraseConverted(BufferElementList::iterator caret_element, utf8_size_t caret) {
+        auto text = caret_element->converted();
+        auto end = Lomaji::MoveCaret(text, caret, CursorDirection::R);
+        auto from = text.begin();
+        auto to = text.begin();
+        u8u::advance(from, caret);
+        u8u::advance(to, end);
+        text.erase(from, to);
+
+        if (text.empty()) {
+            m_composition.Erase(caret_element);
+        } else {
+            caret_element->Replace(text);
+        }
+
+        m_composition.StripVirtualSpacing();
+
+        if (m_composition.Empty()) {
+            Clear();
+            return;
+        }
+
+        EnsureCaretAndFocusInBounds();
+    }
+
+    void EraseComposing(CursorDirection direction) {
+        auto raw_caret = m_composition.RawCaretFrom(m_caret);
+        SplitBufferForComposition();
+
+        auto pos = m_caret;
+
+        auto it = m_composition.Begin();
+        for (; it != m_composition.End(); ++it) {
+            if (auto size = it->size(); pos >= size) {
+                pos -= size;
+            } else {
+                break;
+            }
+        }
+
+        if (it->IsVirtualSpace(pos) && direction == CursorDirection::R) {
+            HandleLeftRight(CursorDirection::R);
+            return;
+        }
+
+        it->Erase(pos);
+        if (it->size() == 0) {
+            m_composition.Erase(it);
+        }
+
+        if (IsEmpty()) {
+            Clear();
+            return;
+        }
+
+        switch (input_mode()) {
+        case InputMode::Continuous:
+            SetCompositionAndCandidatesContinuous(m_composition.RawText());
+            break;
+        case InputMode::Basic:
+            SetCompositionAndCandidatesBasic(m_composition.RawText());
+            break;
+        }
+
+        JoinBufferUpdateCaretAndFocus(raw_caret);
+    }
 
     //+----------------------------------
     // Candidate navigation & selection
@@ -546,66 +601,8 @@ class BufferMgrImpl : public BufferMgr {
     }
 
     //+----------------------------------
-    // Erasing
+    // Helpers
     //
-
-    void EraseConverted(BufferElementList::iterator caret_element, utf8_size_t caret) {
-        auto text = caret_element->converted();
-        auto end = Lomaji::MoveCaret(text, caret, CursorDirection::R);
-        auto from = text.begin();
-        auto to = text.begin();
-        u8u::advance(from, caret);
-        u8u::advance(to, end);
-        text.erase(from, to);
-
-        if (text.empty()) {
-            m_composition.Erase(caret_element);
-        } else {
-            caret_element->Replace(text);
-        }
-    }
-
-    void EraseComposing(CursorDirection direction) {
-        auto raw_caret = m_composition.RawCaretFrom(m_caret);
-        SplitBufferForComposition();
-
-        auto pos = m_caret;
-
-        auto it = m_composition.Begin();
-        for (; it != m_composition.End(); ++it) {
-            if (auto size = it->size(); pos >= size) {
-                pos -= size;
-            } else {
-                break;
-            }
-        }
-
-        if (it->IsVirtualSpace(pos) && direction == CursorDirection::R) {
-            HandleLeftRight(CursorDirection::R);
-            return;
-        }
-
-        it->Erase(pos);
-        if (it->size() == 0) {
-            m_composition.Erase(it);
-        }
-
-        switch (input_mode()) {
-        case InputMode::Continuous:
-            SetCompositionAndCandidatesContinuous(GetRawBuffer());
-            break;
-        case InputMode::Basic:
-            SetCompositionAndCandidatesBasic(GetRawBuffer());
-            break;
-        }
-
-        if (IsEmpty()) {
-            Clear();
-            return;
-        }
-
-        JoinBufferUpdateCaretAndFocus(raw_caret);
-    }
 
     size_t AdjustedSize(Buffer const &buffer) {
         auto copy = buffer;
@@ -624,20 +621,24 @@ class BufferMgrImpl : public BufferMgr {
         }
     }
 
-    void EnsureCaretInBounds() {
-        m_caret = (std::min)(m_caret, m_composition.TextSize());
+    void EnsureCaretAndFocusInBounds() {
+        SetCaret(m_caret);
+
+        if (m_focused_element > m_composition.Size() - 1) {
+            OnFocusElementChange(m_composition.Size() - 1);
+        }
     }
 
-    std::string GetRawBuffer() {
-        return m_composition.RawText();
+    void SetCaret(size_t caret) {
+        m_caret = (std::min)(caret, m_composition.TextSize());
     }
 
-    std::string GetDisplayBuffer() {
-        return m_composition.Text();
+    void SetCaretFromRaw(size_t raw_caret) {
+        SetCaret(m_composition.CaretFrom(raw_caret));
     }
 
-    utf8_size_t GetDisplayBufferSize() {
-        return u8_size(GetDisplayBuffer());
+    void SetCaretToEnd() {
+        m_caret = m_composition.TextSize();
     }
 
     InputMode input_mode() {

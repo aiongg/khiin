@@ -42,4 +42,11 @@ TEST_F(BasicModeTest, Select_anne) {
     ExpectBuffer("án-ne", 5);
 }
 
+TEST_F(BasicModeTest, Delete_a2) {
+    input("a2");
+    ExpectBuffer("á", 1);
+    key_bksp(1);
+    ExpectEmpty();
+}
+
 } // namespace khiin::engine
