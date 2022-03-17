@@ -10,7 +10,7 @@ struct Registrar {
 
     // Registers this COM server to the profile store for input processors.
     // The caller is responsible for initializing COM before call this function.
-    static void RegisterProfiles(std::wstring modulePath);
+    static void RegisterProfiles(std::wstring modulePath, uint32_t icon_index = 0);
 
     // Unregisters this COM server from the text service framework.
     // The caller is responsible for initializing COM before call this function.
@@ -40,6 +40,7 @@ struct Registrar {
     static void SetSettingsInt(std::wstring const &name, int value);
     static std::wstring GetSettingsString(std::wstring const &name);
     static void SetSettingsString(std::wstring const &name, std::wstring const &value);
+    static bool SystemUsesLightTheme();
 };
 
 } // namespace khiin::win32::tip

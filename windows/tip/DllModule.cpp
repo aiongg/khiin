@@ -59,6 +59,13 @@ class ModuleImpl {
         return moduleHandle;
     }
 
+    static std::wstring module_path() {
+        auto path = std::wstring(MAX_PATH, '?');
+        auto pathsize = ::GetModuleFileName(ModuleImpl::module_handle(), &path[0], MAX_PATH);
+        path.resize(static_cast<size_t>(pathsize));
+        return path;
+    }
+
   private:
     static HMODULE moduleHandle;
     static bool unloaded;
@@ -107,9 +114,7 @@ STDMETHODIMP DllUnregisterServer() {
 STDMETHODIMP DllRegisterServer() {
      MessageBox(NULL, (LPCWSTR)L"Waiting for debugger...", (LPCWSTR)L"OK", MB_DEFBUTTON2);
 
-    auto dllPath = std::wstring(MAX_PATH, '?');
-    auto pathsize = ::GetModuleFileName(ModuleImpl::module_handle(), &dllPath[0], MAX_PATH);
-    dllPath.resize(static_cast<size_t>(pathsize));
+    auto dllPath = ModuleImpl::module_path();
 
     try {
         khiin::win32::tip::Registrar::RegisterComServer(dllPath);

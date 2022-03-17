@@ -148,24 +148,24 @@ struct LangBarIndicatorImpl :
         TRY_FOR_HRESULT
         using namespace proto;
 
-        auto icon_resource = 0;
+        auto icon_resource = IDI_MODE_ALPHA;
+        auto light_theme = Config::SystemUsesLightTheme();
 
         if (m_service->config()->ime_enabled().value()) {
             switch (m_service->config()->input_mode()) {
             case IM_CONTINUOUS:
-                icon_resource = IDI_MODE_CONTINUOUS;
+                icon_resource = light_theme ? IDI_MODE_CONTINUOUS : IDI_MODE_CONTINUOUS_W;
                 break;
             case IM_BASIC:
-                icon_resource = IDI_MODE_BASIC;
+                icon_resource = light_theme ? IDI_MODE_BASIC : IDI_MODE_BASIC_W;
                 break;
             case IM_PRO:
-                icon_resource = IDI_MODE_PRO;
+                icon_resource = light_theme ? IDI_MODE_PRO : IDI_MODE_PRO_W;
                 break;
             }
         } else {
-            icon_resource = IDI_MODE_ALPHA;
+            icon_resource = light_theme ? IDI_MODE_ALPHA : IDI_MODE_ALPHA_W;
         }
-
 
         auto icon =
             ::LoadImage(m_service->hmodule(), MAKEINTRESOURCE(icon_resource), IMAGE_ICON, 0, 0, LR_DEFAULTCOLOR);

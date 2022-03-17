@@ -136,14 +136,13 @@ void Registrar::RegisterComServer(std::wstring modulePath) {
 void Registrar::UnregisterComServer() {
     auto clsroot = registry_key(HKEY_CLASSES_ROOT);
     auto clskey = std::wstring(kClsidPrefix) + kTextServiceGuidString;
-    // check_win32(::RegDeleteTree(HKEY_CLASSES_ROOT, clskey.c_str()));
     DeleteTree(clsroot, clskey);
     auto hkcuroot = registry_key(HKEY_CURRENT_USER);
     DeleteTree(hkcuroot, kHkcuAppPath);
     return;
 }
 
-void Registrar::RegisterProfiles(std::wstring modulePath) {
+void Registrar::RegisterProfiles(std::wstring modulePath, uint32_t icon_index) {
     auto profiles = com_ptr<ITfInputProcessorProfiles>();
 
     check_hresult(::CoCreateInstance(CLSID_TF_InputProcessorProfiles, NULL, CLSCTX_INPROC_SERVER,
@@ -153,7 +152,7 @@ void Registrar::RegisterProfiles(std::wstring modulePath) {
 
     check_hresult(profiles->AddLanguageProfile(guids::kTextService, static_cast<LANGID>(Profile::langId),
                                                guids::kLanguageProfile, kClsidDescription.data(),
-                                               wcharSize(kClsidDescription), modulePath.data(), NULL, 0));
+                                               wcharSize(kClsidDescription), modulePath.data(), NULL, icon_index));
 
     if (auto profiles_ex = profiles.try_as<ITfInputProcessorProfilesEx>(); profiles_ex) {
         check_hresult(profiles_ex->SetLanguageProfileDisplayName(
@@ -206,6 +205,21 @@ std::wstring Registrar::GetSettingsString(std::wstring const &name) {
 
 void Registrar::SetSettingsString(std::wstring const &name, std::wstring const &value) {
     return SetStringValue(SettingsRoot(), name, value);
+}
+
+bool Registrar::SystemUsesLightTheme() {
+    auto key = registry_key(HKEY_CURRENT_USER);
+    auto subkey = L"Software\\Microsoft\\Windows\\CurrentVersion\\Themes\\Personalize";
+    auto name = L"SystemUsesLightTheme";
+
+    DWORD data{};
+    DWORD data_size = sizeof(data);
+    if (ERROR_SUCCESS != ::RegGetValue(key.get(), subkey, name, RRF_RT_REG_DWORD, nullptr, &data, &data_size)) {
+        // Default
+        return true;
+    }
+
+    return data == 1;
 }
 
 int Registrar::GetSettingsInt(std::wstring const &name) {

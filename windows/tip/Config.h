@@ -17,6 +17,11 @@ enum class UiColors {
     Dark,
 };
 
+enum class SystemUiColors {
+    Light,
+    Dark,
+};
+
 enum class Hotkey {
     None,
     AltBacktick,
@@ -41,6 +46,7 @@ class Config {
     static void SetOnOffHotkey(Hotkey key);
     static Hotkey GetInputModeHotkey();
     static void SetInputModeHotkey(Hotkey key);
+    static bool SystemUsesLightTheme();
 };
 
 namespace tip {

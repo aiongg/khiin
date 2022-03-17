@@ -178,4 +178,8 @@ void Config::SetInputModeHotkey(Hotkey key) {
     Registrar::SetSettingsInt(kSettingInputModeHotkey, EnumInt(key));
 }
 
+bool Config::SystemUsesLightTheme() {
+    return Registrar::SystemUsesLightTheme();
+}
+
 } // namespace khiin::win32
