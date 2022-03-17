@@ -212,24 +212,26 @@ const inline std::string SELECT_ConversionsByInputId_One = R"(
 // ON CONFLICT DO UPDATE SET n = n + 1 WHERE gram = ?
 //)";
 //
-// const inline std::string UPSERT_Unigrams(size_t n) {
-//    std::string sql = R"(
-// INSERT INTO unigram_freq (gram, n)
-// VALUES %s
-// ON CONFLICT DO UPDATE
-// SET n = n + 1
-// WHERE gram IN (%s))";
-//
-//    return utils::format(sql, unigramPair(n), questionMarks(n));
-//}
-//
-// const std::string UPSERT_Bigrams(size_t n) {
-//    std::string sql = R"(
-// INSERT INTO bigram_freq (lgram, rgram, n) VALUES %s
-// ON CONFLICT DO UPDATE SET n = n + 1 WHERE (lgram, rgram) IN (
-// VALUES %s ))";
-//    return utils::format(sql, bigramTriple(n), questionMarkPairs(n));
-//}
+ const inline std::string UPSERT_Unigrams(size_t n) {
+    std::string sql = R"(
+        INSERT INTO unigram_freq (gram, n)
+            VALUES %s
+        ON CONFLICT DO UPDATE
+            SET n = n + 1
+        WHERE gram IN (%s))";
+
+    return utils::format(sql, unigramPair(n), questionMarks(n));
+}
+
+ const std::string UPSERT_Bigrams(size_t n) {
+    std::string sql = R"(
+        INSERT INTO bigram_freq (lgram, rgram, n)
+            VALUES %s
+        ON CONFLICT DO UPDATE
+            SET n = n + 1
+        WHERE (lgram, rgram) IN (VALUES %s ))";
+    return utils::format(sql, bigramTriple(n), questionMarkPairs(n));
+}
 
 const std::string CREATE_DummyDatabase() {
     return std::string(R"(BEGIN TRANSACTION;

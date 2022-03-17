@@ -1,5 +1,7 @@
 #include "BufferMgrBaseTest.h"
 
+#include "Database.h"
+
 namespace khiin::engine {
 using namespace proto;
 
@@ -787,6 +789,31 @@ struct PunctuationTest : public BufferMgrTest {};
 TEST_F(PunctuationTest, Input_period) {
     input(".");
     ExpectCandidate("。");
+}
+
+//+---------------------------------------------------------------------------
+//
+// Commit buffer
+//
+//----------------------------------------------------------------------------
+
+struct BufferCommitTest : ::testing::Test, BufferMgrTestBase {
+  protected:
+    void SetUp() override {
+        bufmgr = TestEnv::engine()->buffer_mgr();
+        bufmgr->Clear();
+    }
+    void TearDown() override {
+        TestEnv::engine()->database()->ClearNGramsData();
+    }
+};
+
+TEST_F(BufferCommitTest, NgramsSaved) {
+    input("hobo");
+    spacebar(1);
+    enter();
+    EXPECT_EQ(TestEnv::engine()->database()->UnigramCount("好"), 1);
+    EXPECT_EQ(TestEnv::engine()->database()->BigramCount({"好", "無"}), 1);
 }
 
 } // namespace khiin::engine

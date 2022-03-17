@@ -46,6 +46,7 @@ class BufferElement {
 
     bool IsVirtualSpace() const;
     bool IsVirtualSpace(utf8_size_t index) const;
+    bool IsTaiText() const noexcept;
 
     bool is_converted = false;
     bool is_selected = false;

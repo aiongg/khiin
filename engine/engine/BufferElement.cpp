@@ -183,21 +183,19 @@ void BufferElement::Erase(utf8_size_t index) {
 }
 
 bool BufferElement::IsVirtualSpace() const {
-    if (auto elem = std::get_if<VirtualSpace>(&m_element)) {
-        return true;
-    }
-
-    return false;
+    return std::holds_alternative<VirtualSpace>(m_element);
 }
 
 bool BufferElement::IsVirtualSpace(utf8_size_t index) const {
     if (auto elem = std::get_if<TaiText>(&m_element)) {
         return elem->IsVirtualSpace(index);
-    } else if (auto elem = std::get_if<VirtualSpace>(&m_element)) {
-        return true;
     }
+    
+    return std::holds_alternative<VirtualSpace>(m_element);
+}
 
-    return false;
+bool BufferElement::IsTaiText() const noexcept {
+    return std::holds_alternative<TaiText>(m_element);
 }
 
 bool BufferElement::SetKhin(KhinKeyPosition khin_pos, char khin_key) {

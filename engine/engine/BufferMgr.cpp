@@ -8,6 +8,7 @@
 #include "BufferElement.h"
 #include "CandidateFinder.h"
 #include "Config.h"
+#include "Dictionary.h"
 #include "Engine.h"
 #include "KeyConfig.h"
 #include "KhinHandler.h"
@@ -128,6 +129,16 @@ class BufferMgrImpl : public BufferMgr {
         m_focused_element = 0;
     }
 
+    virtual void Commit() override {
+        if (IsEmpty()) {
+            Clear();
+            return;
+        }
+
+        m_engine->dictionary()->RecordNGrams(m_composition);
+        Clear();
+    }
+
     virtual void Insert(char ch) override {
         if (m_edit_state != EditState::Composing) {
             m_edit_state = EditState::Composing;
@@ -182,6 +193,7 @@ class BufferMgrImpl : public BufferMgr {
             return false;
         }
 
+        Commit();
         return true;
     }
 

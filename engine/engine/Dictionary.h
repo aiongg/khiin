@@ -8,6 +8,7 @@
 
 namespace khiin::engine {
 
+class Buffer;
 class Config;
 class Engine;
 class Splitter;
@@ -36,6 +37,8 @@ class Dictionary : public ConfigChangeListener {
     virtual bool IsWord(std::string_view query) const = 0;
 
     virtual std::vector<Punctuation> SearchPunctuation(std::string const &query) = 0;
+
+    virtual void RecordNGrams(Buffer const &buffer) = 0;
 
     virtual Splitter *word_splitter() = 0;
     virtual Trie *word_trie() = 0;

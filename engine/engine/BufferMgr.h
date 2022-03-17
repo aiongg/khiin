@@ -60,6 +60,11 @@ class BufferMgr {
     virtual void Clear() = 0;
 
     /**
+     * Save input statistics and reset the buffer
+     */
+    virtual void Commit() = 0;
+
+    /**
      * Insert one ascii character into the raw buffer. If possible,
      * the composition will be displayed as Lomaji directly.
      *

@@ -3,6 +3,7 @@
 //#include <algorithm>
 #include <unordered_map>
 
+#include "Buffer.h"
 #include "Database.h"
 #include "Engine.h"
 #include "KeyConfig.h"
@@ -28,6 +29,7 @@ class DictionaryImpl : public Dictionary {
   public:
     DictionaryImpl(Engine *engine) : m_engine(engine) {}
 
+  private:
     virtual void Initialize() override {
         LoadInputsByFreq();
         LoadInputSequences();
@@ -132,7 +134,6 @@ class DictionaryImpl : public Dictionary {
         // Reload with new KeyConfig
     }
 
-  private:
     void LoadInputsByFreq() {
         m_inputs_by_freq.clear();
         m_engine->database()->AllWordsByFreq(m_inputs_by_freq);
@@ -239,6 +240,31 @@ class DictionaryImpl : public Dictionary {
             ptr_cache.push_back(&inserted.first->second);
             output.push_back(TokenResult{&inserted.first->second});
         }
+    }
+
+    void RecordNGrams(Buffer const &buffer) {
+        if (buffer.Empty()) {
+            return;
+        }
+
+        auto unigrams = std::vector<std::string>();
+        auto bigrams = std::vector<std::pair<std::string, std::string>>();
+
+        auto it = buffer.CBegin();
+        auto end = buffer.CEnd();
+        for (; it != end; ++it) {
+            if (it[0].IsTaiText() && it[0].is_converted) {
+                auto lgram = it[0].converted();
+
+                unigrams.push_back(lgram);
+                if (it != end - 1 && it[1].IsTaiText() && it[1].is_converted) {
+                    bigrams.push_back({std::move(lgram), it[1].converted()});
+                }
+            }
+        }
+
+        m_engine->database()->RecordUnigrams(std::move(unigrams));
+        m_engine->database()->RecordBigrams(std::move(bigrams));
     }
 
     Engine *m_engine = nullptr;
