@@ -521,8 +521,8 @@ TEST_F(BufferConversionTest, Convert_insert_erase) {
     curs_left(1);
     input("ho");
     key_bksp(2);
-    ExpectSegment(2, 0, SS_CONVERTED, "問", 1);
-    ExpectSegment(2, 1, SS_FOCUSED, "題", 1);
+    ExpectSegment(2, 0, SS_FOCUSED, "問", 1);
+    ExpectSegment(2, 1, SS_CONVERTED, "題", 1);
 }
 
 TEST_F(BufferConversionTest, Convert_e5) {
@@ -593,7 +593,9 @@ TEST_F(BufferConversionTest, Convert_boe4) {
 
 TEST_F(BufferConversionTest, Convert_eee_remove_e) {
     input("eee");
+    ExpectSegment(1, 0, SS_COMPOSING, "e e e", 5);
     key_bksp(1);
+    ExpectSegment(1, 0, SS_COMPOSING, "e e", 3);
     spacebar(1);
     ExpectSegment(2, 0, SS_FOCUSED, "个", 2);
     ExpectSegment(2, 1, SS_CONVERTED, "个", 2);

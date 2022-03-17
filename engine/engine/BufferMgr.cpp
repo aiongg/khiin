@@ -375,7 +375,7 @@ class BufferMgrImpl : public BufferMgr {
         // After joining, focus moves to the first element past m_precomp
         // Save this position as a virtual raw caret, since its actual
         // position may be affected by virtual spacing
-        auto focus_raw_caret = m_precomp.RawTextSize() + 1;
+        auto focus_raw_caret = m_composition.Empty() ? m_precomp.RawTextSize() : m_precomp.RawTextSize() + 1;
 
         // Join the elements and adjust spacing
         m_composition.Join(&m_precomp, &m_postcomp);
@@ -588,15 +588,15 @@ class BufferMgrImpl : public BufferMgr {
         it->Erase(pos);
         if (it->size() == 0) {
             m_composition.Erase(it);
-        } else {
-            switch (input_mode()) {
-            case InputMode::Continuous:
-                SetCompositionAndCandidatesContinuous(GetRawBuffer());
-                break;
-            case InputMode::Basic:
-                SetCompositionAndCandidatesBasic(GetRawBuffer());
-                break;
-            }
+        }
+
+        switch (input_mode()) {
+        case InputMode::Continuous:
+            SetCompositionAndCandidatesContinuous(GetRawBuffer());
+            break;
+        case InputMode::Basic:
+            SetCompositionAndCandidatesBasic(GetRawBuffer());
+            break;
         }
 
         if (IsEmpty()) {
