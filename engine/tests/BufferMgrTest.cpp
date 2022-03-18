@@ -788,6 +788,7 @@ struct PunctuationTest : public BufferMgrTest {};
 
 TEST_F(PunctuationTest, Input_period) {
     input(".");
+    ExpectBuffer(".", 1);
     ExpectCandidate("。");
 }
 

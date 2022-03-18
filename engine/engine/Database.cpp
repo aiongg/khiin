@@ -9,6 +9,7 @@
 
 namespace khiin::engine {
 namespace {
+using namespace db_tables;
 
 class DatabaseImpl : public Database {
   public:
@@ -18,42 +19,35 @@ class DatabaseImpl : public Database {
 
   private:
     virtual void AllWordsByFreq(std::vector<InputByFreq> &output) override {
-        auto q = SQLite::Statement(*db_handle, SQL::SELECT_AllInputsByFreq);
-        while (q.executeStep()) {
-            output.push_back(InputByFreq{q.getColumn("id").getInt(), q.getColumn("input").getString()});
+        auto query = SQL::SelectInputsByFreq(*db_handle);
+        while (query.executeStep()) {
+            auto tmp = InputByFreq();
+            tmp.id = query.getColumn(frequencies::id).getInt();
+            tmp.input = query.getColumn(frequencies::input).getString();
+            output.push_back(std::move(tmp));
         }
     }
 
     virtual void LoadSyllables(std::vector<std::string> &syllables) override {
         syllables.clear();
         syllables.reserve(1500);
-        auto query = SQLite::Statement(*db_handle, SQL::SELECT_Syllables);
-
+        auto query = SQL::SelectSyllables(*db_handle);
         while (query.executeStep()) {
-            syllables.push_back(query.getColumn("input").getString());
+            syllables.push_back(query.getColumn(syllables::input).getString());
         }
     }
 
     virtual void ClearNGramsData() override {
-        auto q1 = SQLite::Statement(*db_handle, R"(DELETE FROM "unigram_freq")");
-        q1.exec();
-        auto q2 = SQLite::Statement(*db_handle, R"(DELETE FROM "bigram_freq")");
-        q2.exec();
+        SQL::DeleteBigrams(*db_handle).exec();
+        SQL::DeleteUnigrams(*db_handle).exec();
     }
 
     virtual void RecordUnigrams(std::vector<std::string> const &grams) override {
         if (grams.empty()) {
             return;
         }
-        auto size = grams.size();
-        auto query = SQLite::Statement(*db_handle, SQL::UPSERT_Unigrams(size));
-        auto i = 1;
-        for (auto const &gram : grams) {
-            query.bind(i, gram);
-            query.bind(i + size, gram);
-            ++i;
-        }
-        query.exec();
+
+        SQL::IncrementUnigrams(*db_handle, grams).exec();
     }
 
     virtual void RecordBigrams(std::vector<Bigram> const &grams) override {
@@ -61,129 +55,132 @@ class DatabaseImpl : public Database {
             return;
         }
 
-        auto size = grams.size();
-        auto query = SQLite::Statement(*db_handle, SQL::UPSERT_Bigrams(size));
-        auto i = 1;
-        for (auto const &gram : grams) {
-            query.bind(i, gram.first);
-            query.bind(i + size * 2, gram.first);
-            ++i;
-            query.bind(i, gram.second);
-            query.bind(i + size * 2, gram.second);
-            ++i;
-        }
-        query.exec();        
+        SQL::IncrementBigrams(*db_handle, grams).exec();
     }
 
-    virtual int UnigramCount(std::string const& gram) override {
-        auto query = SQLite::Statement(*db_handle, R"(SELECT "n" FROM "unigram_freq" WHERE "gram" = ?)");
-        query.bind(1, gram);
+    virtual int UnigramCount(std::string const &gram) override {
+        auto ret = 0;
 
-        if (query.executeStep()) {
-            return query.getColumn("n").getInt();
+        if (auto query = SQL::SelectUnigramCount(*db_handle, gram); query.executeStep()) {
+            ret = query.getColumn(unigram_freq::count).getInt();
         }
 
-        return 0;
+        return ret;
     }
 
-    virtual int BigramCount(Bigram const& gram) override {
-        auto query = SQLite::Statement(*db_handle, R"(SELECT "n" FROM "bigram_freq" WHERE "lgram" = ? AND "rgram" = ?)");
-        query.bind(1, gram.first);
-        query.bind(2, gram.second);
+    virtual int BigramCount(Bigram const &gram) override {
+        auto ret = 0;
 
-        if (query.executeStep()) {
-            return query.getColumn("n").getInt();
+        if (auto query = SQL::SelectBigramCount(*db_handle, gram.first, gram.second); query.executeStep()) {
+            ret = query.getColumn(bigram_freq::count).getInt();
         }
 
-        return 0;
+        return ret;
     }
 
-    virtual TaiToken *HighestUnigramCount(std::vector<TaiToken *> const &grams) override {
-        if (grams.empty()) {
-            return nullptr;
-        }
+    virtual std::vector<Gram> UnigramCounts(std::vector<std::string> const &grams) override {
+        auto ret = std::vector<Gram>();
+        auto query = SQL::SelectUnigramCounts(*db_handle, grams);
 
-        auto query = SQLite::Statement(*db_handle, SQL::SELECT_BestUnigram(grams.size()));
-        auto i = 1;
-        for (auto const &gram : grams) {
-            query.bind(i, gram->output);
-            ++i;
-        }
-
-        auto result = std::string();
         while (query.executeStep()) {
-            result = query.getColumn("gram").getString();
-            break;
+            Gram gram{};
+            gram.value = query.getColumn(unigram_freq::gram).getString();
+            gram.count = query.getColumn(unigram_freq::count).getInt();
         }
 
-        for (auto const &gram : grams) {
-            if (result == gram->output) {
-                return gram;
+        return ret;
+    }
+
+    virtual TaiToken *HighestUnigramCount(std::vector<TaiToken *> const &tokens) override {
+        TaiToken *ret = nullptr;
+
+        if (tokens.empty()) {
+            return ret;
+        }
+
+        auto grams = std::vector<std::string *>();
+        for (auto &token : tokens) {
+            grams.push_back(&token->output);
+        }
+
+        auto query = SQL::SelectBestUnigram(*db_handle, grams);
+
+        if (query.executeStep()) {
+            auto result = query.getColumn(unigram_freq::gram).getString();
+            for (auto const &token : tokens) {
+                if (result == token->output) {
+                    ret = token;
+                    break;
+                }
             }
         }
 
-        return nullptr;
+        return ret;
     }
 
-    virtual TaiToken *HighestBigramCount(std::string const &lgram, std::vector<TaiToken *> const &rgrams) override {
-        if (lgram.empty() || rgrams.empty()) {
-            return nullptr;
+    virtual TaiToken *HighestBigramCount(std::string const &lgram,
+                                         std::vector<TaiToken *> const &rgram_tokens) override {
+        TaiToken *ret = nullptr;
+
+        if (lgram.empty() || rgram_tokens.empty()) {
+            return ret;
         }
 
-        auto query = SQLite::Statement(*db_handle, SQL::SELECT_BestBigram(rgrams.size()));
-        query.bind(1, lgram);
-        auto i = 2;
-        for (auto const &gram : rgrams) {
-            query.bind(i, gram->output);
-            ++i;
+        auto rgrams = std::vector<std::string *>();
+        for (auto const &token : rgram_tokens) {
+            rgrams.push_back(&token->output);
         }
 
-        auto result = std::string();
-        while (query.executeStep()) {
-            result = query.getColumn("rgram").getString();
-            break;
-        }
-
-        for (auto const &gram : rgrams) {
-            if (result == gram->output) {
-                return gram;
+        auto query = SQL::SelectBestBigram(*db_handle, lgram, rgrams);
+        if (query.executeStep()) {
+            auto result = query.getColumn(bigram_freq::rgram).getString();
+            for (auto const &token : rgram_tokens) {
+                if (result == token->output) {
+                    ret = token;
+                    break;
+                }
             }
         }
 
-        return nullptr;
+        return ret;
     }
 
     virtual void ConversionsByInputId(int input_id, std::vector<TaiToken> &conversions) override {
-        auto q = SQLite::Statement(*db_handle, SQL::SELECT_ConversionsByInputId_One);
-        q.bind(1, input_id);
+        auto query = SQL::SelectConversions(*db_handle, input_id);
 
-        while (q.executeStep()) {
+        while (query.executeStep()) {
             auto token = TaiToken();
-            token.id = q.getColumn(SQL::conv_id).getInt();
+            token.id = query.getColumn(conversions::id).getInt();
             token.input_id = input_id;
-            token.input = q.getColumn(SQL::freq_input).getString();
-            token.output = q.getColumn(SQL::conv_output).getString();
-            token.annotation = q.getColumn(SQL::conv_annotation).getString();
-            token.category = q.getColumn(SQL::conv_category).getInt();
-            token.weight = q.getColumn(SQL::conv_weight).getInt();
+            token.input = query.getColumn(frequencies::input).getString();
+            token.output = query.getColumn(conversions::output).getString();
+            token.annotation = query.getColumn(conversions::annotation).getString();
+            token.category = query.getColumn(conversions::category).getInt();
+            token.weight = query.getColumn(conversions::weight).getInt();
             conversions.push_back(std::move(token));
         }
     }
 
     virtual void LoadPunctuation(std::vector<Punctuation> &output) override {
-        auto query = SQLite::Statement(*db_handle, "SELECT * FROM symbols");
+        auto query = SQL::SelectSymbols(*db_handle);
         while (query.executeStep()) {
-            output.push_back(Punctuation{query.getColumn("id").getInt(), query.getColumn("input").getString(),
-                                         query.getColumn("output").getString(),
-                                         query.getColumn("annotation").getString()});
+            auto tmp = Punctuation();
+            tmp.id = query.getColumn(symbols::id).getInt();
+            tmp.input = query.getColumn(symbols::input).getString();
+            tmp.output = query.getColumn(symbols::output).getString();
+            tmp.annotation = query.getColumn(symbols::annotation).getString();
+            output.push_back(std::move(tmp));
         }
     }
 
     virtual std::vector<Emoji> GetEmojis() override {
         auto ret = std::vector<Emoji>();
-        auto query = SQLite::Statement(*db_handle, "SELECT * FROM emojis ORDER BY category ASC, id ASC");
+        auto query = SQL::SelectEmojis(*db_handle);
         while (query.executeStep()) {
-            ret.push_back(Emoji{query.getColumn("category").getInt(), query.getColumn("emoji").getString()});
+            auto tmp = Emoji();
+            tmp.category = query.getColumn(emojis::category).getInt();
+            tmp.value = query.getColumn(emojis::emoji).getString();
+            ret.push_back(std::move(tmp));
         }
         return ret;
     }
@@ -195,7 +192,7 @@ class DatabaseImpl : public Database {
 
 Database *Database::TestDb() {
     auto handle = new SQLite::Database(":memory:", SQLite::OPEN_READWRITE);
-    handle->exec(SQL::CREATE_DummyDatabase());
+    SQL::CreateDummyDb(*handle).exec();
     return new DatabaseImpl(handle);
 }
 

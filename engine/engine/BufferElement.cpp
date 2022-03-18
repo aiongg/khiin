@@ -60,21 +60,23 @@ void BufferElement::Replace(VirtualSpace elem) {
 }
 
 utf8_size_t BufferElement::size() const {
+    utf8_size_t ret = 0;
+
     if (auto elem = std::get_if<std::string>(&m_element)) {
-        return u8_size(*elem);
+        ret = u8_size(*elem);
     } else if (auto elem = std::get_if<TaiText>(&m_element)) {
         if (is_converted && elem->candidate()) {
-            return u8_size(elem->candidate()->output);
+            ret = u8_size(elem->candidate()->output);
         } else {
-            return elem->ComposedSize();
+            ret = elem->ComposedSize();
         }
     } else if (auto elem = std::get_if<Punctuation>(&m_element)) {
-        u8_size(elem->output);
+        ret = u8_size(elem->output);
     } else if (auto elem = std::get_if<VirtualSpace>(&m_element)) {
-        return utf8_size_t(1);
+        ret = 1;
     }
     
-    return utf8_size_t(0);
+    return ret;
 }
 
 std::string BufferElement::raw() const {

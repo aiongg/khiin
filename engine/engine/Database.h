@@ -13,6 +13,11 @@
 
 namespace khiin::engine {
 
+struct Gram {
+    std::string value;
+    int count;
+};
+
 class Database {
   public:
     using Bigram = std::pair<std::string, std::string>;
@@ -30,6 +35,7 @@ class Database {
     virtual void RecordBigrams(std::vector<Bigram> const &grams) = 0;
     virtual int UnigramCount(std::string const &gram) = 0;
     virtual int BigramCount(Bigram const &gram) = 0;
+    virtual std::vector<Gram> UnigramCounts(std::vector<std::string> const &grams) = 0;
     virtual TaiToken *HighestUnigramCount(std::vector<TaiToken *> const &grams) = 0;
     virtual TaiToken *HighestBigramCount(std::string const &lgram, std::vector<TaiToken *> const &rgrams) = 0;
 
