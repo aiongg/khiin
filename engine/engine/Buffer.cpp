@@ -147,6 +147,10 @@ void Buffer::Append(Buffer &rhs) {
     m_elements.insert(m_elements.end(), rhs.Begin(), rhs.End());
 }
 
+void Buffer::Append(BufferElement &&elem) {
+    m_elements.push_back(std::move(elem));
+}
+
 void Buffer::Append(std::string &&elem) {
     m_elements.push_back(BufferElement(std::move(elem)));
 }

@@ -35,7 +35,12 @@ class Lomaji {
     static void ReplaceKhinDot(std::string &syllable);
     static bool IsLomaji(std::string_view str);
     static std::string Decompose(std::string_view str);
-    static std::string MatchCapitalization(std::string_view pattern, std::string_view input);
+
+    /**
+     * Returns a string copy of |output| such that the casing of the string matches casing
+     * provided by |pattern|, irrespective of diacritics, spaces, or hyphens
+     */
+    static std::string MatchCapitalization(std::string_view pattern, std::string_view output);
 };
 
 } // namespace khiin::engine

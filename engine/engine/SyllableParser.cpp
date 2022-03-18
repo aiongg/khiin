@@ -210,7 +210,6 @@ class SyllableParserImpl : public SyllableParser {
 
     virtual TaiText AsTaiText(std::string const &raw, std::string const &target) override {
         auto ret = TaiText();
-        auto raw_lc = copy_str_tolower(raw);
         auto t_start = target.cbegin();
         auto t_end = target.cend();
         auto r_start = raw.cbegin();

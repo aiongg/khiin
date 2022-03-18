@@ -73,7 +73,9 @@ bool TaiText::operator==(TaiText const &rhs) const {
         return false;
     }
 
-    for (auto i = 0; i < m_elements.size(); ++i) {
+    return ConvertedText() == rhs.ConvertedText();
+
+    for (size_t i = 0; i < m_elements.size(); ++i) {
         auto &l = m_elements[i];
         auto &r = rhs.m_elements[i];
 
@@ -146,10 +148,13 @@ utf8_size_t TaiText::ComposedSize() const {
 std::string TaiText::ConvertedText() const {
     if (m_candidate) {
         if (Lomaji::IsLomaji(m_candidate->output)) {
-            return Lomaji::MatchCapitalization(RawText(), m_candidate->output);
-        } else {
-            return m_candidate->output;
+            auto raw = RawText();
+            if (!unicode::all_lower(raw)) {
+                return Lomaji::MatchCapitalization(raw, m_candidate->output);
+            }
         }
+
+        return m_candidate->output;
     }
 
     return ComposedText();
@@ -182,7 +187,7 @@ utf8_size_t TaiText::RawToComposedCaret(size_t raw_caret) const {
     for (auto &v_elem : m_elements) {
         if (remainder > 0) {
             if (auto elem = std::get_if<Syllable>(&v_elem)) {
-                if (auto raw_size = elem->raw_input_size();  remainder > raw_size) {
+                if (auto raw_size = elem->raw_input_size(); remainder > raw_size) {
                     remainder -= raw_size;
                     caret += elem->composed_size();
                 } else {
@@ -239,7 +244,7 @@ size_t TaiText::ConvertedToRawCaret(utf8_size_t caret) const {
         return ComposedToRawCaret(caret);
     }
 
-    //ConvertedSyllableSizeMatches();
+    // ConvertedSyllableSizeMatches();
 
     for (auto &v_elem : m_elements) {
         if (remainder <= 0) {

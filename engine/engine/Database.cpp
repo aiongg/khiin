@@ -86,6 +86,21 @@ class DatabaseImpl : public Database {
             Gram gram{};
             gram.value = query.getColumn(unigram_freq::gram).getString();
             gram.count = query.getColumn(unigram_freq::count).getInt();
+            ret.push_back(std::move(gram));
+        }
+
+        return ret;
+    }
+
+    virtual std::vector<Gram> BigramCounts(std::string const &lgram, std::vector<std::string> const &rgrams) override {
+        auto ret = std::vector<Gram>();
+        auto query = SQL::SelectBigramCounts(*db_handle, lgram, rgrams);
+
+        while (query.executeStep()) {
+            Gram gram{};
+            gram.value = query.getColumn(bigram_freq::rgram).getString();
+            gram.count = query.getColumn(bigram_freq::count).getInt();
+            ret.push_back(std::move(gram));
         }
 
         return ret;

@@ -453,6 +453,14 @@ TEST_F(CandidatesTest, boe2) {
     // ExpectCandidate("ê");
 }
 
+TEST_F(CandidatesTest, gu5) {
+    input("gu5");
+    ExpectCandidateSize(3);
+    ExpectCandidate("牛");
+    ExpectCandidate("gû");
+    ExpectCandidate("Gû");
+}
+
 //+---------------------------------------------------------------------------
 //
 // Conversions

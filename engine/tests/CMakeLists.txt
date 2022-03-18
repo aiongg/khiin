@@ -7,7 +7,7 @@ add_executable(test_khiin_engine
     "TrieTest.cpp"
     "test_buffer.cpp"
     "LomajiTest.cpp"
-    "test_db.cpp"
+    "DatabaseTest.cpp"
     "SyllableTest.cpp"
     "KeyConfigTest.cpp"
     "SyllableParserTest.cpp"

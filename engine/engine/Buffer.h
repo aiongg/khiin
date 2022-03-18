@@ -92,6 +92,8 @@ class Buffer {
     // Append all elements of |rhs| to this Buffer
     void Append(Buffer &rhs);
 
+    void Append(BufferElement &&elem);
+
     // Append a plain text string as a new buffer element
     void Append(std::string &&str);
 

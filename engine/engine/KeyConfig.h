@@ -52,6 +52,7 @@ class KeyConfig {
     virtual bool IsHyphen(char ch) = 0;
     virtual void GetToneKeys(Tone tone, char &digit_key, char &telex_key) = 0;
     virtual Tone CheckToneKey(char ch) = 0;
+    virtual bool IsToneKey(char ch) = 0;
     virtual void EnableToneDigitFallback(bool enabled) = 0;
     virtual std::string Convert(std::string const &str) = 0;
     virtual std::string Deconvert(std::string const &str) = 0;

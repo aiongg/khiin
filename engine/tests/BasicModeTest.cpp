@@ -26,6 +26,10 @@ TEST_F(BasicModeTest, Insert_a) {
     ExpectBuffer("a", 1);
 }
 
+TEST_F(BasicModeTest, Insert_e5) {
+    input("e5");
+    ExpectCandidateSize(4);
+}
 TEST_F(BasicModeTest, Insert_hobo) {
     input("hobo");
     ExpectBuffer("ho bo", 5);

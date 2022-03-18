@@ -14,6 +14,7 @@ struct Punctuation;
 class BufferElement {
   public:
     static bool ConvertedEq(BufferElement const &lhs, BufferElement const &rhs);
+    static BufferElement Build(SyllableParser *parser, std::string const &input, TaiToken *match, bool set_candidate, bool set_converted);
 
     BufferElement();
     BufferElement(TaiText const &elem);

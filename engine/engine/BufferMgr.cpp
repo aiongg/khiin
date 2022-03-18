@@ -340,10 +340,10 @@ class BufferMgrImpl : public BufferMgr {
 
         switch (input_mode()) {
         case InputMode::Continuous:
-            m_candidates = CandidateFinder::GetCandidatesFromStart(m_engine, nullptr, raw_text);
+            m_candidates = CandidateFinder::WordsByWeight(m_engine, FocusLGram(), raw_text);
             break;
         case InputMode::Basic:
-            m_candidates = CandidateFinder::LongestCandidatesFromStart(m_engine, nullptr, raw_text);
+            m_candidates = CandidateFinder::WordsByLength(m_engine, FocusLGram(), raw_text);
             break;
         }
 
@@ -404,14 +404,14 @@ class BufferMgrImpl : public BufferMgr {
     }
 
     void SetCompositionAndCandidatesContinuous(std::string const &raw_composition) {
-        m_candidates = CandidateFinder::MultiSegmentCandidates(m_engine, nullptr, raw_composition);
+        m_candidates = CandidateFinder::ContinuousMultiMatch(m_engine, FocusLGram(), raw_composition);
         m_composition = m_candidates[0];
         m_composition.SetConverted(false);
         assert(m_composition.RawText() == raw_composition);
     }
 
     void SetCompositionAndCandidatesBasic(std::string const &raw_composition) {
-        m_candidates = CandidateFinder::LongestCandidatesFromStart(m_engine, nullptr, raw_composition);
+        m_candidates = CandidateFinder::WordsByLength(m_engine, FocusLGram(), raw_composition);
 
         if (!m_candidates.empty()) {
             m_composition = m_candidates[0];
@@ -494,6 +494,7 @@ class BufferMgrImpl : public BufferMgr {
         it->Erase(pos);
         if (it->size() == 0) {
             m_composition.Erase(it);
+            EnsureCaretAndFocusInBounds();
         }
 
         if (IsEmpty()) {
@@ -546,7 +547,7 @@ class BufferMgrImpl : public BufferMgr {
                 }
             }
 
-            auto next_buf = CandidateFinder::ContinuousBestMatch(m_engine, nullptr, deconverted);
+            auto next_buf = CandidateFinder::ContinuousBestMatch(m_engine, FocusLGram(), deconverted);
 
             if (next_buf.Empty()) {
                 next_buf.Append(std::move(deconverted));
@@ -604,7 +605,7 @@ class BufferMgrImpl : public BufferMgr {
     void SetFocusedCandidateIndexToCurrent() {
         auto &current = m_composition.At(m_focused_element);
 
-        for (auto i = 0; i < m_candidates.size(); ++i) {
+        for (size_t i = 0; i < m_candidates.size(); ++i) {
             auto &check = m_candidates.at(i).At(0);
 
             if (current == check) {
@@ -656,6 +657,38 @@ class BufferMgrImpl : public BufferMgr {
 
     void SetCaretToEnd() {
         m_caret = m_composition.TextSize();
+    }
+
+    TaiToken *FocusLGram() {
+        if (m_focused_element == 0 && !m_precomp.Empty()) {
+            auto it = m_precomp.End() - 1;
+
+            if (it->IsVirtualSpace() && it != m_precomp.Begin()) {
+                --it;
+            }
+
+            if (it->IsTaiText()) {
+                return it->candidate();
+            }
+        } else if (m_focused_element > 0) {
+            auto it = m_composition.Begin() + m_focused_element - 1;
+
+            if (it->IsVirtualSpace()) {
+                if (it == m_composition.Begin()) {
+                    if (!m_precomp.Empty() && m_precomp.Back().IsTaiText()) {
+                        return m_precomp.Back().candidate();
+                    }
+                } else {
+                    --it;
+                }
+            }
+
+            if (it->IsTaiText()) {
+                return it->candidate();
+            }
+        }
+
+        return nullptr;
     }
 
     InputMode input_mode() {

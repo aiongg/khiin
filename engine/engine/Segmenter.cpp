@@ -68,7 +68,7 @@ size_t MaxSyllable(Engine *engine, std::string_view str) {
         return 0;
     }
 
-    auto i = 1;
+    size_t i = 1;
     auto size = str.size();
     while (i < size + 1) {
         if (dictionary->IsSyllablePrefix(str.substr(0, i))) {

@@ -200,6 +200,19 @@ std::string copy_str_tolower(StrT const &str) {
     return ret;
 }
 
+template <typename StrT>
+bool all_lower(StrT const &str) {
+    auto nfd = to_nfd(str);
+    auto it = u8_cbegin(nfd);
+    auto end = u8_cend(nfd);
+    for (; it != end; ++it) {
+        if (*it <= kMaxAscii && isupper(*it)) {
+            return false;
+        }
+    }
+    return true;
+}
+
 inline void safe_erase(std::string &str, utf8_size_t index, size_t count = 1) {
     auto size = u8_size(str);
     if (index >= size) {

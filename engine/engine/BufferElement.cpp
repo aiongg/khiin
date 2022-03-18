@@ -13,6 +13,17 @@ bool BufferElement::ConvertedEq(BufferElement const &lhs, BufferElement const &r
     return lhs.converted() == rhs.converted();
 }
 
+BufferElement BufferElement::Build(SyllableParser *parser, std::string const &input, TaiToken *match,
+                                   bool set_candidate, bool set_converted) {
+    auto tt = TaiText::FromMatching(parser, input, match);
+    if (set_candidate) {
+        tt.SetCandidate(match);
+    }
+    auto ret = BufferElement(std::move(tt));
+    ret.is_converted = set_converted;
+    return ret;
+}
+
 BufferElement::BufferElement() {}
 
 BufferElement::BufferElement(TaiText const &elem) {
@@ -75,7 +86,7 @@ utf8_size_t BufferElement::size() const {
     } else if (auto elem = std::get_if<VirtualSpace>(&m_element)) {
         ret = 1;
     }
-    
+
     return ret;
 }
 
@@ -192,7 +203,7 @@ bool BufferElement::IsVirtualSpace(utf8_size_t index) const {
     if (auto elem = std::get_if<TaiText>(&m_element)) {
         return elem->IsVirtualSpace(index);
     }
-    
+
     return std::holds_alternative<VirtualSpace>(m_element);
 }
 

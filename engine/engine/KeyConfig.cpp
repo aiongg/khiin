@@ -241,6 +241,11 @@ class KeyCfgImpl : public KeyConfig, ConfigChangeListener {
         }
     }
 
+    virtual bool IsToneKey(char ch) override {
+        // TODO: handle telex keys
+        return isdigit(ch);
+    }
+
     virtual void EnableToneDigitFallback(bool enabled) {
         return;
     }

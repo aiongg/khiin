@@ -1,3 +1,4 @@
+#include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
 #include <boost/algorithm/string.hpp>
@@ -8,6 +9,7 @@
 
 namespace khiin::engine {
 namespace {
+using ::testing::Contains;
 
 static const auto kDatabaseFilename = "khiin_test.db";
 
@@ -25,7 +27,7 @@ class DatabaseTest : public ::testing::Test {
 
 TEST_F(DatabaseTest, RecordUnigrams) {
     std::vector<std::string> grams = {"a", "b", "c", "b"};
-    db->RecordUnigrams(grams); 
+    db->RecordUnigrams(grams);
     EXPECT_EQ(db->UnigramCount("a"), 1);
     EXPECT_EQ(db->UnigramCount("b"), 2);
     EXPECT_EQ(db->UnigramCount("c"), 1);
@@ -45,6 +47,31 @@ TEST_F(DatabaseTest, RecordBigrams) {
     db->RecordBigrams(grams);
     EXPECT_EQ(db->BigramCount({"b", "c"}), 2);
     EXPECT_EQ(db->BigramCount({"c", "d"}), 1);
+}
+
+TEST_F(DatabaseTest, GetUnigramCounts) {
+    std::vector<std::string> grams = {"a", "b", "c", "b"};
+    db->RecordUnigrams(grams);
+    auto result = db->UnigramCounts(grams);
+    std::sort(result.begin(), result.end(), [&](auto a, auto b) {
+        return a.value < b.value;
+    });
+    EXPECT_EQ(result.size(), 3);
+    EXPECT_EQ(result[0].value, "a");
+    EXPECT_EQ(result[0].count, 1);
+    EXPECT_EQ(result[1].value, "b");
+    EXPECT_EQ(result[1].count, 2);
+    EXPECT_EQ(result[2].value, "c");
+    EXPECT_EQ(result[2].count, 1);
+}
+
+TEST_F(DatabaseTest, GetBigramCounts) {
+    std::vector<Database::Bigram> grams = {{"a", "b"}};
+    db->RecordBigrams(grams);
+    auto result = db->BigramCounts("a", {"b"});
+    EXPECT_EQ(result.size(), 1);
+    EXPECT_EQ(result[0].value, "b");
+    EXPECT_EQ(result[0].count, 1);
 }
 
 TEST_F(DatabaseTest, select_syllable_list) {

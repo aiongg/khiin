@@ -7,7 +7,7 @@ namespace {
 using namespace SQLite;
 using namespace khiin::engine::utils;
 
-std::string makeSQLBinder(size_t n, std::string sep) {
+std::string sql_binder(size_t n, std::string sep) {
     std::string res;
 
     if (n == 0) {
@@ -16,203 +16,48 @@ std::string makeSQLBinder(size_t n, std::string sep) {
 
     res += sep;
 
-    for (auto i = 0; i < n - 1; i++) {
+    for (size_t i = 0; i < n - 1; i++) {
         res += ", " + sep;
     }
 
     return res;
 }
 
-std::string questionMarks(size_t n) {
-    return makeSQLBinder(n, "?");
+std::string qmarks(size_t n) {
+    return sql_binder(n, "?");
 }
 
-std::string questionMarkPairs(size_t n) {
-    return makeSQLBinder(n, "(?, ?)");
+std::string qmark_pairs(size_t n) {
+    return sql_binder(n, "(?, ?)");
 }
 
-std::string unigramPair(size_t n) {
-    return makeSQLBinder(n, "(?, 1)");
+std::string gram_pair(size_t n) {
+    return sql_binder(n, "(?, 1)");
 }
 
-std::string bigramTriple(size_t n) {
-    return makeSQLBinder(n, "(?, ?, 1)");
+std::string gram_triple(size_t n) {
+    return sql_binder(n, "(?, ?, 1)");
 }
 
 } // namespace
 
-Statement SQL::SelectInputsByFreq(SQLite::Database &db) {
+Statement SQL::SelectInputsByFreq(DbHandle &db) {
     return Statement(db, "SELECT * FROM frequency ORDER BY id");
 }
 
-Statement SQL::SelectSyllables(SQLite::Database &db) {
+Statement SQL::SelectSyllables(DbHandle &db) {
     return Statement(db, "SELECT input FROM syllables");
 }
 
-SQLite::Statement SQL::SelectSymbols(SQLite::Database &db) {
+SQLite::Statement SQL::SelectSymbols(DbHandle &db) {
     return Statement(db, "SELECT * FROM symbols");
 }
 
-SQLite::Statement SQL::SelectEmojis(SQLite::Database &db) {
+SQLite::Statement SQL::SelectEmojis(DbHandle &db) {
     return Statement(db, "SELECT * FROM emojis ORDER BY category ASC, id ASC");
 }
 
-Statement SQL::SelectUnigramCounts(SQLite::Database &db, std::vector<std::string> const &grams) {
-    static constexpr auto sql = R"(
-        SELECT gram, n
-        FROM unigram_freq
-        WHERE gram in (%s)
-    )";
-
-    auto ret = Statement(db, format(sql, questionMarks(grams.size())));
-    auto i = 1;
-    for (auto const &gram : grams) {
-        ret.bind(i, gram);
-        ++i;
-    }
-    return ret;
-}
-
-SQLite::Statement SQL::SelectBestUnigram(SQLite::Database &db, std::vector<std::string *> const &grams) {
-    static constexpr auto sql = R"(
-        SELECT gram, n
-        FROM unigram_freq
-        WHERE gram in (%s)
-        ORDER BY n DESC LIMIT 1
-    )";
-
-    auto ret = Statement(db, format(sql, questionMarks(grams.size())));
-    auto i = 1;
-    for (auto gram : grams) {
-        ret.bind(i, *gram);
-        ++i;
-    }
-    return ret;
-}
-
-SQLite::Statement SQL::SelectBestBigram(SQLite::Database &db, std::string const &lgram,
-                                        std::vector<std::string *> const &rgrams) {
-    static constexpr auto sql = R"(
-        SELECT *
-        FROM bigram_freq
-        WHERE lgram = ?
-        AND rgram in (%s)
-        ORDER BY n DESC LIMIT 1
-    )";
-
-    auto ret = Statement(db, format(sql, questionMarks(rgrams.size())));
-    ret.bind(1, lgram);
-    auto i = 2;
-    for (auto gram : rgrams) {
-        ret.bind(i, *gram);
-        ++i;
-    }
-    return ret;
-}
-
-SQLite::Statement SQL::SelectUnigramCount(SQLite::Database &db, std::string const &gram) {
-    auto ret = Statement(db, "SELECT n FROM unigram_freq WHERE gram = ?");
-    ret.bind(1, gram);
-    return ret;
-}
-
-SQLite::Statement SQL::SelectBigramCount(SQLite::Database &db, std::string const &lgram, std::string const &rgram) {
-    auto ret = Statement(db, "SELECT n FROM bigram_freq WHERE lgram = ? AND rgram = ?");
-    ret.bind(1, lgram);
-    ret.bind(2, rgram);
-    return ret;
-}
-
-SQLite::Statement SQL::SelectUnigrams(SQLite::Database &db, std::vector<std::string *> const &grams) {
-    static constexpr auto sql = R"(
-        SELECT gram, n
-        FROM unigram_freq
-        WHERE gram in (%s)
-    )";
-
-    auto ret = Statement(db, format(sql, questionMarks(grams.size())));
-    auto i = 1;
-    for (auto gram : grams) {
-        ret.bind(i, *gram);
-        ++i;
-    }
-    return ret;
-}
-
-SQLite::Statement SQL::SelectBigrams(SQLite::Database &db, std::string const &lgram,
-                                     std::vector<std::string *> const &rgrams) {
-    static constexpr auto sql = R"(
-        SELECT rgram, n
-        FROM bigram_freq
-        WHERE lgram = ?
-        AND rgram in (%s)
-    )";
-
-    auto ret = Statement(db, format(sql, questionMarks(rgrams.size())));
-    ret.bind(1, lgram);
-    auto i = 2;
-    for (auto gram : rgrams) {
-        ret.bind(i, *gram);
-        ++i;
-    }
-    return ret;
-}
-
-SQLite::Statement SQL::IncrementUnigrams(SQLite::Database &db, std::vector<std::string> const &grams) {
-    static constexpr auto sql = R"(
-        INSERT INTO unigram_freq (gram, n)
-            VALUES %s
-        ON CONFLICT DO UPDATE
-            SET n = n + 1
-        WHERE gram IN (%s)
-    )";
-
-    auto size = grams.size();
-    auto ret = Statement(db, format(sql, unigramPair(size), questionMarks(size)));
-
-    auto i = 1;
-    for (auto const &gram : grams) {
-        ret.bind(i, gram);
-        ret.bind(i + static_cast<int>(size), gram);
-        ++i;
-    }
-
-    return ret;
-}
-
-SQLite::Statement SQL::IncrementBigrams(SQLite::Database &db,
-                                        std::vector<std::pair<std::string, std::string>> const &bigrams) {
-    static constexpr auto sql = R"(
-        INSERT INTO bigram_freq (lgram, rgram, n)
-            VALUES %s
-        ON CONFLICT DO UPDATE
-            SET n = n + 1
-        WHERE (lgram, rgram) IN (VALUES %s )
-    )";
-
-    auto size = bigrams.size();
-    auto ret = Statement(db, format(sql, bigramTriple(size), questionMarkPairs(size)));
-    auto i = 1;
-    for (auto const &bigram : bigrams) {
-        ret.bind(i, bigram.first);
-        ret.bind(i + static_cast<int>(size) * 2, bigram.first);
-        ++i;
-        ret.bind(i, bigram.second);
-        ret.bind(i + static_cast<int>(size) * 2, bigram.second);
-        ++i;
-    }
-    return ret;
-}
-
-SQLite::Statement SQL::DeleteUnigrams(SQLite::Database &db) {
-    return Statement(db, "DELETE FROM unigram_freq");
-}
-
-SQLite::Statement SQL::DeleteBigrams(SQLite::Database &db) {
-    return Statement(db, "DELETE FROM bigram_freq");
-}
-
-SQLite::Statement SQL::SelectConversions(SQLite::Database &db, int input_id) {
+SQLite::Statement SQL::SelectConversions(DbHandle &db, int input_id) {
     static constexpr auto sql = R"(
         SELECT
             c.id,
@@ -233,7 +78,7 @@ SQLite::Statement SQL::SelectConversions(SQLite::Database &db, int input_id) {
     return ret;
 }
 
-SQLite::Statement SQL::SelectConversions(SQLite::Database &db, std::vector<std::string *> const &inputs) {
+SQLite::Statement SQL::SelectConversions(DbHandle &db, std::vector<std::string *> const &inputs) {
     static constexpr auto sql = R"(
         SELECT
             c.id,
@@ -248,13 +93,187 @@ SQLite::Statement SQL::SelectConversions(SQLite::Database &db, std::vector<std::
         ORDER BY c.id
     )";
 
-    auto ret = Statement(db, format(sql, questionMarks(inputs.size())));
+    auto ret = Statement(db, format(sql, qmarks(inputs.size())));
     auto i = 1;
     for (auto input : inputs) {
         ret.bind(i, *input);
         ++i;
     }
     return ret;
+}
+
+SQLite::Statement SQL::SelectBestUnigram(DbHandle &db, std::vector<std::string *> const &grams) {
+    static constexpr auto sql = R"(
+        SELECT gram, n
+        FROM unigram_freq
+        WHERE gram in (%s)
+        ORDER BY n DESC LIMIT 1
+    )";
+
+    auto ret = Statement(db, format(sql, qmarks(grams.size())));
+    auto i = 1;
+    for (auto gram : grams) {
+        ret.bind(i, *gram);
+        ++i;
+    }
+    return ret;
+}
+
+SQLite::Statement SQL::SelectBestBigram(DbHandle &db, std::string const &lgram,
+                                        std::vector<std::string *> const &rgrams) {
+    static constexpr auto sql = R"(
+        SELECT *
+        FROM bigram_freq
+        WHERE lgram = ?
+        AND rgram in (%s)
+        ORDER BY n DESC LIMIT 1
+    )";
+
+    auto ret = Statement(db, format(sql, qmarks(rgrams.size())));
+    ret.bind(1, lgram);
+    auto i = 2;
+    for (auto gram : rgrams) {
+        ret.bind(i, *gram);
+        ++i;
+    }
+    return ret;
+}
+
+SQLite::Statement SQL::SelectUnigrams(DbHandle &db, std::vector<std::string *> const &grams) {
+    static constexpr auto sql = R"(
+        SELECT gram, n
+        FROM unigram_freq
+        WHERE gram in (%s)
+    )";
+
+    auto ret = Statement(db, format(sql, qmarks(grams.size())));
+    auto i = 1;
+    for (auto gram : grams) {
+        ret.bind(i, *gram);
+        ++i;
+    }
+    return ret;
+}
+
+SQLite::Statement SQL::SelectBigrams(DbHandle &db, std::string const &lgram,
+                                     std::vector<std::string *> const &rgrams) {
+    static constexpr auto sql = R"(
+        SELECT rgram, n
+        FROM bigram_freq
+        WHERE lgram = ?
+        AND rgram in (%s)
+    )";
+
+    auto ret = Statement(db, format(sql, qmarks(rgrams.size())));
+    ret.bind(1, lgram);
+    auto i = 2;
+    for (auto gram : rgrams) {
+        ret.bind(i, *gram);
+        ++i;
+    }
+    return ret;
+}
+
+SQLite::Statement SQL::SelectUnigramCount(DbHandle &db, std::string const &gram) {
+    auto ret = Statement(db, "SELECT n FROM unigram_freq WHERE gram = ?");
+    ret.bind(1, gram);
+    return ret;
+}
+
+Statement SQL::SelectUnigramCounts(DbHandle &db, std::vector<std::string> const &grams) {
+    static constexpr auto sql = R"(
+        SELECT gram, n
+        FROM unigram_freq
+        WHERE gram in (%s)
+    )";
+
+    auto ret = Statement(db, format(sql, qmarks(grams.size())));
+    auto i = 1;
+    for (auto const &gram : grams) {
+        ret.bind(i, gram);
+        ++i;
+    }
+    return ret;
+}
+
+SQLite::Statement SQL::SelectBigramCount(DbHandle &db, std::string const &lgram, std::string const &rgram) {
+    auto ret = Statement(db, "SELECT n FROM bigram_freq WHERE lgram = ? AND rgram = ?");
+    ret.bind(1, lgram);
+    ret.bind(2, rgram);
+    return ret;
+}
+
+SQLite::Statement SQL::SelectBigramCounts(DbHandle &db, std::string const &lgram,
+                                          std::vector<std::string> const &rgrams) {
+    static constexpr auto sql = R"(
+        SELECT n, rgram
+        FROM bigram_freq
+        WHERE lgram = ?
+        AND rgram in (%s)
+    )";
+
+    auto ret = Statement(db, format(sql, qmarks(rgrams.size())));
+    ret.bind(1, lgram);
+    auto i = 2;
+    for (auto &rgram : rgrams) {
+        ret.bind(i, rgram);
+        ++i;
+    }
+    return ret;
+}
+
+SQLite::Statement SQL::IncrementUnigrams(DbHandle &db, std::vector<std::string> const &grams) {
+    static constexpr auto sql = R"(
+        INSERT INTO unigram_freq (gram, n)
+            VALUES %s
+        ON CONFLICT DO UPDATE
+            SET n = n + 1
+        WHERE gram IN (%s)
+    )";
+
+    auto size = grams.size();
+    auto ret = Statement(db, format(sql, gram_pair(size), qmarks(size)));
+
+    auto i = 1;
+    for (auto const &gram : grams) {
+        ret.bind(i, gram);
+        ret.bind(i + static_cast<int>(size), gram);
+        ++i;
+    }
+
+    return ret;
+}
+
+SQLite::Statement SQL::IncrementBigrams(DbHandle &db,
+                                        std::vector<std::pair<std::string, std::string>> const &bigrams) {
+    static constexpr auto sql = R"(
+        INSERT INTO bigram_freq (lgram, rgram, n)
+            VALUES %s
+        ON CONFLICT DO UPDATE
+            SET n = n + 1
+        WHERE (lgram, rgram) IN (VALUES %s )
+    )";
+
+    auto size = bigrams.size();
+    auto ret = Statement(db, format(sql, gram_triple(size), qmark_pairs(size)));
+    auto i = 1;
+    for (auto const &bigram : bigrams) {
+        ret.bind(i, bigram.first);
+        ret.bind(i + static_cast<int>(size) * 2, bigram.first);
+        ++i;
+        ret.bind(i, bigram.second);
+        ret.bind(i + static_cast<int>(size) * 2, bigram.second);
+        ++i;
+    }
+    return ret;
+}
+
+SQLite::Statement SQL::DeleteUnigrams(DbHandle &db) {
+    return Statement(db, "DELETE FROM unigram_freq");
+}
+
+SQLite::Statement SQL::DeleteBigrams(DbHandle &db) {
+    return Statement(db, "DELETE FROM bigram_freq");
 }
 
 constexpr auto kCreateDummyDb = R"(BEGIN TRANSACTION;
@@ -306,7 +325,7 @@ constexpr auto kCreateDummyDb = R"(BEGIN TRANSACTION;
     COMMIT;
     )";
 
-SQLite::Statement SQL::CreateDummyDb(SQLite::Database &db) {
+SQLite::Statement SQL::CreateDummyDb(DbHandle &db) {
     return Statement(db, kCreateDummyDb);
 }
 

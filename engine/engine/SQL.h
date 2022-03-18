@@ -58,29 +58,36 @@ inline constexpr const char *emoji = "emoji";
 
 class SQL {
   public:
-    static SQLite::Statement SelectInputsByFreq(SQLite::Database &db);
-    static SQLite::Statement SelectSyllables(SQLite::Database &db);
-    static SQLite::Statement SelectSymbols(SQLite::Database &db);
-    static SQLite::Statement SelectEmojis(SQLite::Database &db);
+    using Statement = SQLite::Statement;
+    using DbHandle = SQLite::Database;
+    static Statement SelectInputsByFreq(DbHandle &db);
+    static Statement SelectSyllables(DbHandle &db);
+    static Statement SelectConversions(DbHandle &db, int input_id);
+    static Statement SelectConversions(DbHandle &db, std::vector<std::string *> const &inputs);
+    static Statement SelectSymbols(DbHandle &db);
+    static Statement SelectEmojis(DbHandle &db);
 
-    static SQLite::Statement SelectUnigramCounts(SQLite::Database &db, std::vector<std::string> const &grams);
-    static SQLite::Statement SelectBestUnigram(SQLite::Database &db, std::vector<std::string *> const &grams);
-    static SQLite::Statement SelectBestBigram(SQLite::Database &db, std::string const &lgram,
+    // Ngrams
+    static Statement SelectBestUnigram(DbHandle &db, std::vector<std::string *> const &grams);
+    static Statement SelectBestBigram(DbHandle &db, std::string const &lgram,
                                               std::vector<std::string *> const &rgrams);
-    static SQLite::Statement SelectUnigramCount(SQLite::Database &db, std::string const &gram);
-    static SQLite::Statement SelectBigramCount(SQLite::Database &db, std::string const &lgram,
-                                               std::string const &rgram);
-    static SQLite::Statement SelectUnigrams(SQLite::Database &db, std::vector<std::string *> const &grams);
-    static SQLite::Statement SelectBigrams(SQLite::Database &db, std::string const &lgram,
+    static Statement SelectUnigrams(DbHandle &db, std::vector<std::string *> const &grams);
+    static Statement SelectBigrams(DbHandle &db, std::string const &lgram,
                                            std::vector<std::string *> const &rgrams);
-    static SQLite::Statement IncrementUnigrams(SQLite::Database &db, std::vector<std::string> const &grams);
-    static SQLite::Statement IncrementBigrams(SQLite::Database &db,
+    static Statement SelectUnigramCount(DbHandle &db, std::string const &gram);
+    static Statement SelectUnigramCounts(DbHandle &db, std::vector<std::string> const &grams);
+    static Statement SelectBigramCount(DbHandle &db, std::string const &lgram,
+                                               std::string const &rgram);
+    static Statement SelectBigramCounts(DbHandle &db, std::string const &lgram,
+                                                std::vector<std::string> const &rgrams);
+    static Statement IncrementUnigrams(DbHandle &db, std::vector<std::string> const &grams);
+    static Statement IncrementBigrams(DbHandle &db,
                                               std::vector<std::pair<std::string, std::string>> const &bigrams);
-    static SQLite::Statement DeleteUnigrams(SQLite::Database &db);
-    static SQLite::Statement DeleteBigrams(SQLite::Database &db);
-    static SQLite::Statement SelectConversions(SQLite::Database &db, int input_id);
-    static SQLite::Statement SelectConversions(SQLite::Database &db, std::vector<std::string *> const &inputs);
-    static SQLite::Statement CreateDummyDb(SQLite::Database &db);
+    static Statement DeleteUnigrams(DbHandle &db);
+    static Statement DeleteBigrams(DbHandle &db);
+
+    // DummyDb
+    static Statement CreateDummyDb(DbHandle &db);
 };
 
 } // namespace khiin::engine
