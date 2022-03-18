@@ -3,11 +3,10 @@
 
     <?include Defines.wxi ?>
 
-    <Product Id="$(var.GUID_ProductId)" Name="!(loc.ApplicationName)" Language="1033" Version="0.0.0" Manufacturer="!(loc.ManufacturerName)" UpgradeCode="$(var.GUID_UpgradeCode)">
-        <Package Id="*" InstallerVersion="200" Compressed="yes" InstallScope="perMachine" />
+    <Product Id="*" Name="!(loc.ApplicationName)" Language="1033" Version="$(var.VersionNumber)" Manufacturer="!(loc.ManufacturerName)" UpgradeCode="$(var.GUID_UpgradeCode)">
+        <Package InstallerVersion="200" Compressed="yes" InstallScope="perMachine" />
 
-        <MajorUpgrade AllowDowngrades="yes" />
-        <!-- <MajorUpgrade DowngradeErrorMessage="A newer version of [ProductName] is already installed." />-->
+        <MajorUpgrade AllowSameVersionUpgrades="yes" DowngradeErrorMessage="A newer version of Khiin PJH is already installed." />
         <MediaTemplate EmbedCab="yes" />
 
         <Feature Id="ProductFeature" Title="KhiinInstaller" Level="1">
