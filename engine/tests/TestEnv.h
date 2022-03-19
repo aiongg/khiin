@@ -6,8 +6,8 @@
 
 class TestEnv : public ::testing::Environment {
   public:
-    static khiin::engine::Engine *engine();
-    virtual ~TestEnv() = default;
-    virtual void SetUp();
-    virtual void TearDown();
+    //virtual ~TestEnv() = default;
+    void SetUp() override;
+    void TearDown() override;
+    khiin::engine::Engine *engine();
 };

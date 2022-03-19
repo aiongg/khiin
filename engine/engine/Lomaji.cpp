@@ -1,5 +1,6 @@
 #include "Lomaji.h"
 
+#include <array>
 #include <functional>
 
 #include <utf8cpp/utf8.h>
@@ -12,9 +13,9 @@ namespace {
 namespace u8u = utf8::unchecked;
 using namespace unicode;
 
-inline constexpr char *kOrderedToneablesIndex1[] = {"o", "a", "e", "u", "i", "ng", "m"};
-inline constexpr char *kOrderedToneablesIndex2[] = {"oa", "oe"};
-inline constexpr char kToneableLetters[] = {'a', 'e', 'i', 'm', 'n', 'o', 'u'};
+inline constexpr std::array<char *, 7> kOrderedToneablesIndex1 = {{"o", "a", "e", "u", "i", "ng", "m"}};
+inline constexpr std::array<char *, 2> kOrderedToneablesIndex2 = {{"oa", "oe"}};
+inline constexpr std::array<char, 7> kToneableLetters = {'a', 'e', 'i', 'm', 'n', 'o', 'u'};
 const std::string kKhinDotStr = u8"\u00b7";
 const std::string kKhinHyphenStr = "--";
 
@@ -293,6 +294,5 @@ void Lomaji::ReplaceKhinDot(std::string &str) {
         str.replace(pos, kKhinDotStr.size(), kKhinHyphenStr);
     }
 }
-
 
 } // namespace khiin::engine

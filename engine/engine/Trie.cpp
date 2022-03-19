@@ -62,7 +62,7 @@ class TrieImpl : public Trie {
         }
     }
 
-    virtual void Insert(std::string_view key) override {
+    void Insert(std::string_view key) override {
         auto curr = &root;
 
         for (auto &ch : key) {
@@ -76,7 +76,7 @@ class TrieImpl : public Trie {
         curr->end_of_word = true;
     }
 
-    virtual bool Remove(std::string_view key) override {
+    bool Remove(std::string_view key) override {
         auto onlyChildNodes = std::vector<std::tuple<char, Node *, bool>>();
         auto curr = &root;
 
@@ -122,12 +122,12 @@ class TrieImpl : public Trie {
         return false;
     }
 
-    virtual bool HasKey(std::string_view query) override {
+    bool HasKey(std::string_view query) override {
         auto found = Find(query);
         return found != nullptr && found->end_of_word;
     }
 
-    virtual bool StartsWithKey(std::string_view query) override {
+    bool StartsWithKey(std::string_view query) override {
         if (query.empty()) {
             return false;
         }
@@ -145,12 +145,12 @@ class TrieImpl : public Trie {
         return curr->end_of_word;
     }
 
-    virtual bool HasKeyOrPrefix(std::string_view query) override {
+    bool HasKeyOrPrefix(std::string_view query) override {
         auto found = Find(query);
         return found != nullptr && (found->end_of_word || found->children.size() > 0);
     }
 
-    virtual size_t LongestKeyOf(std::string_view query) override {
+    size_t LongestKeyOf(std::string_view query) override {
         size_t ret = 0;
 
         if (query.empty()) {
@@ -173,7 +173,7 @@ class TrieImpl : public Trie {
         return ret;
     }
 
-    virtual std::vector<std::string> Autocomplete(std::string const &query, int limit, int maxDepth) override {
+    std::vector<std::string> Autocomplete(std::string const &query, int limit, int maxDepth) override {
         auto ret = std::vector<std::string>();
         auto found = Find(query);
 
@@ -192,7 +192,7 @@ class TrieImpl : public Trie {
         return ret;
     }
 
-    virtual void FindKeys(std::string_view query, std::vector<std::string> &results) {
+    void FindKeys(std::string_view query, std::vector<std::string> &results) {
         results.clear();
 
         if (query.empty()) {
@@ -214,7 +214,7 @@ class TrieImpl : public Trie {
         }
     }
 
-    virtual std::vector<std::vector<int>> Multisplit(std::string_view query, WordCostMap const &cost_map,
+    std::vector<std::vector<int>> Multisplit(std::string_view query, WordCostMap const &cost_map,
                                                      uint32_t limit) override {
         query = query.substr(0, 63);
         auto query_size = query.size();

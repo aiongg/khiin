@@ -10,6 +10,7 @@
 
 #include "engine/BufferMgr.h"
 #include "engine/Config.h"
+#include "engine/Engine.h"
 
 #include "TestEnv.h"
 
@@ -30,11 +31,9 @@ class BufferMgr;
 class Engine;
 using Segments = google::protobuf::RepeatedPtrField<khiin::proto::Preedit_Segment>;
 
-struct BufferMgrTestBase {
-
+struct BufferMgrTestBase : TestEnv {
   protected:
     BufferMgr *bufmgr = nullptr;
-    Engine *engine = nullptr;
 
     void input(std::string str);
     void curs_left(int n);

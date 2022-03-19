@@ -24,10 +24,10 @@ std::vector<std::string> input_sequence_strings_only(std::vector<InputSequence> 
     return ret;
 }
 
-struct SyllableParserTest : ::testing::Test {
+struct SyllableParserTest : ::testing::Test, TestEnv {
   protected:
     void SetUp() {
-        parser = TestEnv::engine()->syllable_parser();
+        parser = engine()->syllable_parser();
     }
     SyllableParser *parser = nullptr;
 };

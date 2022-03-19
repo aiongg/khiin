@@ -8,8 +8,10 @@
 namespace khiin::engine {
 namespace {
 
-TEST(DictionaryTest, Loads) {
-    auto dict = TestEnv::engine()->dictionary();
+struct DictionaryTest : ::testing::Test, TestEnv {};
+
+TEST_F(DictionaryTest, Loads) {
+    auto dict = engine()->dictionary();
 }
 
 } // namespace

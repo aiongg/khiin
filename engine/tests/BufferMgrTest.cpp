@@ -8,7 +8,7 @@ using namespace proto;
 struct BufferMgrTest : ::testing::Test, BufferMgrTestBase {
   protected:
     void SetUp() override {
-        bufmgr = TestEnv::engine()->buffer_mgr();
+        bufmgr = engine()->buffer_mgr();
         bufmgr->Clear();
     }
 };
@@ -339,7 +339,7 @@ TEST_F(BufferKhinTest, Delete_khin_an2) {
 }
 
 TEST_F(BufferKhinTest, Delete_khins2) {
-    TestEnv::engine()->config()->set_dotted_khin(false);
+    engine()->config()->set_dotted_khin(false);
     input("--a");
     ExpectBuffer("--a", 3);
     key_bksp(1);
@@ -348,7 +348,7 @@ TEST_F(BufferKhinTest, Delete_khins2) {
     ExpectBuffer("-", 1);
     key_bksp(1);
     ExpectEmpty();
-    TestEnv::engine()->config()->set_dotted_khin(true);
+    engine()->config()->set_dotted_khin(true);
 }
 
 TEST_F(BufferKhinTest, Delete_autokhin) {
@@ -359,21 +359,21 @@ TEST_F(BufferKhinTest, Delete_autokhin) {
 }
 
 TEST_F(BufferKhinTest, Delete_autkhin_hyphens) {
-    TestEnv::engine()->config()->set_dotted_khin(false);
+    engine()->config()->set_dotted_khin(false);
     input("--aa");
     ExpectBuffer("--a--a", 6);
     key_bksp(1);
     ExpectBuffer("--a", 3);
-    TestEnv::engine()->config()->set_dotted_khin(true);
+    engine()->config()->set_dotted_khin(true);
 }
 
 TEST_F(BufferKhinTest, Autokhin_disabled) {
-    TestEnv::engine()->config()->set_autokhin(false);
+    engine()->config()->set_autokhin(false);
     input("--aa");
     ExpectBuffer("·a a", 4);
     key_bksp(1);
     ExpectBuffer("·a", 2);
-    TestEnv::engine()->config()->set_autokhin(true);
+    engine()->config()->set_autokhin(true);
 }
 
 //+---------------------------------------------------------------------------
@@ -809,11 +809,11 @@ TEST_F(PunctuationTest, Input_period) {
 struct BufferCommitTest : ::testing::Test, BufferMgrTestBase {
   protected:
     void SetUp() override {
-        bufmgr = TestEnv::engine()->buffer_mgr();
+        bufmgr = engine()->buffer_mgr();
         bufmgr->Clear();
     }
     void TearDown() override {
-        TestEnv::engine()->database()->ClearNGramsData();
+        engine()->database()->ClearNGramsData();
     }
 };
 
@@ -821,8 +821,8 @@ TEST_F(BufferCommitTest, NgramsSaved) {
     input("hobo");
     spacebar(1);
     enter();
-    EXPECT_EQ(TestEnv::engine()->database()->UnigramCount("好"), 1);
-    EXPECT_EQ(TestEnv::engine()->database()->BigramCount({"好", "無"}), 1);
+    EXPECT_EQ(engine()->database()->UnigramCount("好"), 1);
+    EXPECT_EQ(engine()->database()->BigramCount({"好", "無"}), 1);
 }
 
 } // namespace khiin::engine

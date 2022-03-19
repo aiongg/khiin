@@ -115,7 +115,7 @@ class KeyCfgImpl : public KeyConfig, ConfigChangeListener {
         }
     }
 
-    virtual bool SetKey(char key, VKey vkey, bool standalone = false) override {
+    bool SetKey(char key, VKey vkey, bool standalone = false) override {
         auto set = false;
         switch (vkey) {
         case VKey::Nasal:
@@ -129,7 +129,7 @@ class KeyCfgImpl : public KeyConfig, ConfigChangeListener {
         }
     }
 
-    virtual std::vector<ConversionRule> const &ConversionRules() override {
+    std::vector<ConversionRule> const &ConversionRules() override {
         if (m_conversion_rule_cache.empty()) {
             for (auto &rule : m_conversion_rule_sets) {
                 std::copy(rule.conversion_rules.begin(), rule.conversion_rules.end(),
@@ -139,7 +139,7 @@ class KeyCfgImpl : public KeyConfig, ConfigChangeListener {
         return m_conversion_rule_cache;
     }
 
-    virtual std::string Convert(std::string const &input) override {
+    std::string Convert(std::string const &input) override {
         std::string ret = input;
         auto &rules = ConversionRules();
 
@@ -151,7 +151,7 @@ class KeyCfgImpl : public KeyConfig, ConfigChangeListener {
         return ret;
     }
 
-    virtual std::string Deconvert(std::string const &input) override {
+    std::string Deconvert(std::string const &input) override {
         std::string ret = input;
         auto &rules = ConversionRules();
 
@@ -163,7 +163,7 @@ class KeyCfgImpl : public KeyConfig, ConfigChangeListener {
         return ret;
     }
 
-    virtual std::vector<char> GetHyphenKeys() override {
+    std::vector<char> GetHyphenKeys() override {
         auto ret = std::vector<char>();
         ret.push_back('-');
         if (auto it = m_key_map.find(VKey::Hyphen); it != m_key_map.end()) {
@@ -172,7 +172,7 @@ class KeyCfgImpl : public KeyConfig, ConfigChangeListener {
         return ret;
     }
 
-    virtual std::vector<char> GetKhinKeys() override {
+    std::vector<char> GetKhinKeys() override {
         auto ret = std::vector<char>();
         ret.push_back('0');
         if (auto it = m_key_map.find(VKey::TelexKhin); it != m_key_map.end()) {
@@ -181,7 +181,7 @@ class KeyCfgImpl : public KeyConfig, ConfigChangeListener {
         return ret;
     }
 
-    virtual void GetToneKeys(Tone tone, char &digit_key, char &telex_key) override {
+    void GetToneKeys(Tone tone, char &digit_key, char &telex_key) override {
         // TODO: Handle telex keys
         switch (tone) {
         case Tone::T1:
@@ -214,7 +214,7 @@ class KeyCfgImpl : public KeyConfig, ConfigChangeListener {
         }
     }
 
-    virtual Tone CheckToneKey(char ch) override {
+    Tone CheckToneKey(char ch) override {
         // TODO: Handle telex keys and fallback to digits
 
         switch (ch) {
@@ -241,16 +241,16 @@ class KeyCfgImpl : public KeyConfig, ConfigChangeListener {
         }
     }
 
-    virtual bool IsToneKey(char ch) override {
+    bool IsToneKey(char ch) override {
         // TODO: handle telex keys
         return isdigit(ch);
     }
 
-    virtual void EnableToneDigitFallback(bool enabled) {
+    void EnableToneDigitFallback(bool enabled) override {
         return;
     }
 
-    virtual bool IsHyphen(char ch) override {
+    bool IsHyphen(char ch) override {
         auto hyphen_keys = GetHyphenKeys();
         for (auto key : hyphen_keys) {
             if (ch == key) {

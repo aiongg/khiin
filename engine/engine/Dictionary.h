@@ -14,11 +14,6 @@ class Engine;
 class Splitter;
 class Trie;
 
-struct TokenResult {
-    TaiToken *token = nullptr;
-    size_t input_size = 0;
-};
-
 class Dictionary : public ConfigChangeListener {
   public:
     static Dictionary *Create(Engine *engine);

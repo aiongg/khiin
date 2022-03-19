@@ -5,14 +5,18 @@
 
 namespace khiin::unicode {
 
+constexpr char32_t kLowCombiningCharacter = 0x0300;
+constexpr char32_t kHighCombiningCharacter = 0x030d;
+constexpr char32_t kDotCombiningCharacter = 0x0358;
+
 std::string strip_diacritics(std::string_view str, bool strip_letter_diacritics) {
     auto u32s = utf8::utf8to32(to_nfd(str));
     auto stripped = std::u32string();
-    char32_t from = 0x0300;
-    char32_t to = 0x030d;
+    char32_t from = kLowCombiningCharacter;
+    char32_t to = kHighCombiningCharacter;
 
     if (strip_letter_diacritics) {
-        to = 0x0358;
+        to = kDotCombiningCharacter;
     }
 
     for (auto &c : u32s) {

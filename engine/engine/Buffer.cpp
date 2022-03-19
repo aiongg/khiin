@@ -20,13 +20,10 @@ bool NeedsVirtualSpace(std::string const &lhs, std::string const &rhs) {
     auto left = end_glyph_type(lhs);
     auto right = start_glyph_type(rhs);
 
-    if (left == GlyphCategory::Alnum && right == GlyphCategory::Alnum ||
-        left == GlyphCategory::Alnum && right == GlyphCategory::Khin ||
-        left == GlyphCategory::Alnum && right == GlyphCategory::Hanji ||
-        left == GlyphCategory::Hanji && right == GlyphCategory::Alnum) {
-        return true;
-    }
-    return false;
+    return ((left == GlyphCategory::Alnum && right == GlyphCategory::Alnum) ||
+            (left == GlyphCategory::Alnum && right == GlyphCategory::Khin) ||
+            (left == GlyphCategory::Alnum && right == GlyphCategory::Hanji) ||
+            (left == GlyphCategory::Hanji && right == GlyphCategory::Alnum));
 }
 
 } // namespace
@@ -82,7 +79,7 @@ void Buffer::AdjustVirtualSpacing(BufferElementList &elements) {
             if (elements.at(i - 1).is_converted && elements.at(i).is_converted) {
                 tmp.is_converted = true;
             }
-            elements.insert(elements.begin() + i, std::move(tmp));
+            elements.insert(elements.begin() + static_cast<int>(i), std::move(tmp));
         }
     }
 }
@@ -229,7 +226,7 @@ utf8_size_t Buffer::TextSize() const {
 
 std::string Buffer::RawTextFrom(size_t element_index) const {
     assert(element_index < m_elements.size());
-    return RawText(m_elements.cbegin() + element_index, m_elements.cend());
+    return RawText(m_elements.cbegin() + static_cast<int>(element_index), m_elements.cend());
 }
 
 size_t Buffer::RawTextSize() const {
@@ -279,7 +276,7 @@ std::string Buffer::RawText() const {
 
 std::string Buffer::Text() const {
     auto ret = std::string();
-    for (auto &elem : m_elements) {
+    for (auto const &elem : m_elements) {
         if (elem.is_converted) {
             ret.append(elem.converted());
         } else {
@@ -290,13 +287,9 @@ std::string Buffer::Text() const {
 }
 
 bool Buffer::HasComposing() const {
-    for (auto &el : m_elements) {
-        if (!el.is_converted) {
-            return true;
-        }
-    }
-
-    return false;
+    return std::any_of(m_elements.cbegin(), m_elements.cend(), [](auto const &el) {
+        return !el.is_converted;
+    });
 }
 
 // Moves converted sections before and after composition
@@ -382,14 +375,14 @@ void Buffer::SplitAtElement(size_t index, Buffer *pre, Buffer *post) {
     }
 
     auto begin = m_elements.begin();
-    auto it = begin + index;
+    auto it = begin + static_cast<int>(index);
 
-    if (pre) {
+    if (pre != nullptr) {
         pre->get().insert(pre->Begin(), begin, it);
         it = m_elements.erase(begin, it);
     }
 
-    if (post && std::distance(it, m_elements.end()) > 1) {
+    if (post != nullptr && std::distance(it, m_elements.end()) > 1) {
         ++it;
         post->get().insert(post->Begin(), it, m_elements.end());
         m_elements.erase(it, m_elements.end());
@@ -397,12 +390,12 @@ void Buffer::SplitAtElement(size_t index, Buffer *pre, Buffer *post) {
 }
 
 void Buffer::Join(Buffer *pre, Buffer *post) {
-    if (pre && !pre->Empty()) {
+    if (pre != nullptr && !pre->Empty()) {
         m_elements.insert(Begin(), pre->Begin(), pre->End());
         pre->Clear();
     }
 
-    if (post && !post->Empty()) {
+    if (post != nullptr && !post->Empty()) {
         m_elements.insert(End(), post->Begin(), post->End());
         post->Clear();
     }
@@ -413,7 +406,7 @@ iterator Buffer::Replace(iterator first, iterator last, Buffer &other) {
     return m_elements.insert(it, other.Begin(), other.End());
 }
 
-std::string ConvertedOrComposedText(BufferElement& element) {
+std::string ConvertedOrComposedText(BufferElement &element) {
     if (element.is_converted) {
         return element.converted();
     }
@@ -439,10 +432,10 @@ void Buffer::AdjustVirtualSpacing() {
             } else if (m_elements.at(i - 1).is_selected && m_elements.at(i).is_selected) {
                 tmp.is_selected = true;
             }
-            m_elements.insert(m_elements.begin() + i, std::move(tmp));
+            m_elements.insert(m_elements.begin() + static_cast<int>(i), std::move(tmp));
         }
     }
-    //caret = CaretFrom(raw_caret);
+    // caret = CaretFrom(raw_caret);
 }
 
 void Buffer::SetConverted(bool converted) {

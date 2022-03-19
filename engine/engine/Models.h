@@ -25,6 +25,13 @@ struct Gram {
     int count = 0;
 };
 
+struct TokenResult {
+    TaiToken *token = nullptr;
+    size_t input_size = 0;
+    size_t bigram_count = 0;
+    size_t unigram_count = 0;
+};
+
 struct Punctuation {
     int id = 0;
     std::string input;

@@ -11,11 +11,11 @@ class ConfigImpl : public Config {
         m_protoconf = proto::AppConfig::default_instance().New();
     }
 
-    virtual void UpdateAppConfig(const proto::AppConfig &proto_config) {
+    void UpdateAppConfig(const proto::AppConfig &proto_config) override {
         m_protoconf->CopyFrom(proto_config);
     }
 
-    virtual bool ime_enabled() override {
+    bool ime_enabled() override {
         if (m_protoconf->has_ime_enabled()) {
             return m_protoconf->ime_enabled().value();
         }
@@ -23,7 +23,7 @@ class ConfigImpl : public Config {
         return default_ime_enabled;
     }
 
-    virtual InputMode input_mode() {
+    InputMode input_mode() override {
         switch (m_protoconf->input_mode()) {
         case proto::IM_PRO:
             return InputMode::Manual;
@@ -36,7 +36,7 @@ class ConfigImpl : public Config {
         }
     }
 
-    virtual bool dotted_khin() override {
+    bool dotted_khin() override {
         if (m_protoconf->has_dotted_khin()) {
             return m_protoconf->dotted_khin().value();
         }
@@ -44,7 +44,7 @@ class ConfigImpl : public Config {
         return default_dotted_khin;
     }
 
-    virtual bool autokhin() override {
+    bool autokhin() override {
         if (m_protoconf->has_autokhin()) {
             return m_protoconf->autokhin().value();
         }
@@ -52,7 +52,7 @@ class ConfigImpl : public Config {
         return default_autokhin;
     }
 
-    virtual bool telex() override {
+    bool telex() override {
         if (m_protoconf->has_telex_enabled()) {
             return m_protoconf->telex_enabled().value();
         }
@@ -60,7 +60,7 @@ class ConfigImpl : public Config {
         return default_telex_enabled;
     }
 
-    virtual char telex_t2() override {
+    char telex_t2() override {
         if (m_protoconf->has_key_config()) {
             auto &keyconf = m_protoconf->key_config();
             if (!keyconf.telex_t2().empty()) {
@@ -71,7 +71,7 @@ class ConfigImpl : public Config {
         return default_telex_t2;
     }
 
-    virtual char telex_t3() override {
+    char telex_t3() override {
         if (m_protoconf->has_key_config()) {
             auto &keyconf = m_protoconf->key_config();
             if (!keyconf.telex_t3().empty()) {
@@ -82,7 +82,7 @@ class ConfigImpl : public Config {
         return default_telex_t3;
     }
 
-    virtual char telex_t5() override {
+    char telex_t5() override {
         if (m_protoconf->has_key_config()) {
             auto &keyconf = m_protoconf->key_config();
             if (!keyconf.telex_t5().empty()) {
@@ -93,11 +93,11 @@ class ConfigImpl : public Config {
         return default_telex_t5;
     }
 
-    virtual char telex_t6() override {
+    char telex_t6() override {
         return 0;
     }
 
-    virtual char telex_t7() override {
+    char telex_t7() override {
         if (m_protoconf->has_key_config()) {
             auto &keyconf = m_protoconf->key_config();
             if (!keyconf.telex_t7().empty()) {
@@ -108,7 +108,7 @@ class ConfigImpl : public Config {
         return default_telex_t7;
     }
 
-    virtual char telex_t8() override {
+    char telex_t8() override {
         if (m_protoconf->has_key_config()) {
             auto &keyconf = m_protoconf->key_config();
             if (!keyconf.telex_t8().empty()) {
@@ -119,7 +119,7 @@ class ConfigImpl : public Config {
         return default_telex_t8;
     }
 
-    virtual char telex_t9() override {
+    char telex_t9() override {
         if (m_protoconf->has_key_config()) {
             auto &keyconf = m_protoconf->key_config();
             if (!keyconf.telex_t9().empty()) {
@@ -130,7 +130,7 @@ class ConfigImpl : public Config {
         return default_telex_t9;
     }
 
-    virtual char telex_khin() override {
+    char telex_khin() override {
         if (m_protoconf->has_key_config()) {
             auto &keyconf = m_protoconf->key_config();
             if (!keyconf.telex_khin().empty()) {
@@ -141,7 +141,7 @@ class ConfigImpl : public Config {
         return default_telex_khin;
     }
 
-    virtual char alt_hyphen() override {
+    char alt_hyphen() override {
         if (m_protoconf->has_key_config()) {
             auto &keyconf = m_protoconf->key_config();
             if (!keyconf.alt_hyphen().empty()) {
@@ -152,7 +152,7 @@ class ConfigImpl : public Config {
         return default_alt_hyphen;
     }
 
-    virtual std::string nasal() override {
+    std::string nasal() override {
         if (m_protoconf->has_key_config()) {
             auto &keyconf = m_protoconf->key_config();
             if (!keyconf.nasal().empty()) {
@@ -163,7 +163,7 @@ class ConfigImpl : public Config {
         return default_nasal;
     }
 
-    virtual std::string dot_above_right() override {
+    std::string dot_above_right() override {
         if (m_protoconf->has_key_config()) {
             auto &keyconf = m_protoconf->key_config();
             if (!keyconf.dot_above_right().empty()) {
@@ -174,7 +174,7 @@ class ConfigImpl : public Config {
         return default_dotaboveright;
     }
 
-    virtual char dots_below() override {
+    char dots_below() override {
         if (m_protoconf->has_key_config()) {
             auto &keyconf = m_protoconf->key_config();
             if (!keyconf.dots_below().empty()) {
@@ -185,7 +185,7 @@ class ConfigImpl : public Config {
         return default_dotsbelow;
     }
 
-    virtual bool uppercase_nasal() override {
+    bool uppercase_nasal() override {
         if (m_protoconf->has_key_config()) {
             auto &keyconf = m_protoconf->key_config();
             if (keyconf.has_enable_uppercase_nasal()) {
@@ -196,11 +196,11 @@ class ConfigImpl : public Config {
         return false;
     }
 
-    virtual void set_dotted_khin(bool value) override {
+    void set_dotted_khin(bool value) override {
         m_protoconf->mutable_dotted_khin()->set_value(value);
     }
 
-    virtual void set_autokhin(bool value) override {
+    void set_autokhin(bool value) override {
         m_protoconf->mutable_autokhin()->set_value(value);
     }
 

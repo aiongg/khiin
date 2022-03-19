@@ -43,7 +43,7 @@ class BufferMgrImpl : public BufferMgr {
     //
     //----------------------------------------------------------------------------
 
-    virtual void BuildPreedit(proto::Preedit *preedit) override {
+    void BuildPreedit(proto::Preedit *preedit) override {
         {
             auto it = m_composition.CBegin();
             auto end = m_composition.CEnd();
@@ -78,7 +78,7 @@ class BufferMgrImpl : public BufferMgr {
         preedit->set_cursor_position(static_cast<int32_t>(m_caret));
     }
 
-    virtual void GetCandidates(proto::CandidateList *candidate_list) override {
+    void GetCandidates(proto::CandidateList *candidate_list) override {
         AdjustKhinAndSpacing(m_candidates);
 
         if (m_edit_state == EditState::Converted) {
@@ -96,7 +96,7 @@ class BufferMgrImpl : public BufferMgr {
         candidate_list->set_focused(static_cast<int32_t>(m_focused_candidate));
     }
 
-    virtual proto::EditState edit_state() {
+    proto::EditState edit_state() override {
         switch (m_edit_state) {
         case EditState::Composing:
             return proto::ES_COMPOSING;
@@ -115,11 +115,11 @@ class BufferMgrImpl : public BufferMgr {
     //
     //----------------------------------------------------------------------------
 
-    virtual bool IsEmpty() override {
+    bool IsEmpty() override {
         return m_composition.Empty() && m_precomp.Empty() && m_postcomp.Empty();
     }
 
-    virtual void Clear() override {
+    void Clear() override {
         m_composition.Clear();
         m_candidates.clear();
         m_caret = 0;
@@ -129,7 +129,7 @@ class BufferMgrImpl : public BufferMgr {
         m_focused_element = 0;
     }
 
-    virtual void Commit() override {
+    void Commit() override {
         if (IsEmpty()) {
             Clear();
             return;
@@ -139,7 +139,7 @@ class BufferMgrImpl : public BufferMgr {
         Clear();
     }
 
-    virtual void Insert(char ch) override {
+    void Insert(char ch) override {
         if (m_edit_state != EditState::Composing) {
             m_edit_state = EditState::Composing;
         }
@@ -159,7 +159,7 @@ class BufferMgrImpl : public BufferMgr {
         }
     }
 
-    virtual void Erase(CursorDirection direction) override {
+    void Erase(CursorDirection direction) override {
         if (direction == CursorDirection::L) {
             MoveCaret(CursorDirection::L);
         }
@@ -179,7 +179,7 @@ class BufferMgrImpl : public BufferMgr {
         }
     }
 
-    virtual void HandleLeftRight(CursorDirection direction) override {
+    void HandleLeftRight(CursorDirection direction) override {
         if (m_edit_state == EditState::Composing) {
             MoveCaret(direction);
         } else if (m_edit_state == EditState::Converted) {
@@ -187,7 +187,7 @@ class BufferMgrImpl : public BufferMgr {
         }
     }
 
-    virtual bool HandleSelectOrCommit() override {
+    bool HandleSelectOrCommit() override {
         if (m_edit_state == EditState::Selecting) {
             SelectCandidate(m_focused_candidate);
             return false;
@@ -197,7 +197,7 @@ class BufferMgrImpl : public BufferMgr {
         return true;
     }
 
-    virtual void HandleSelectOrFocus() override {
+    void HandleSelectOrFocus() override {
         if (m_edit_state == EditState::Composing) {
             m_edit_state = EditState::Converted;
             SelectCandidate(0);
@@ -209,7 +209,7 @@ class BufferMgrImpl : public BufferMgr {
         }
     }
 
-    virtual void FocusNextCandidate() override {
+    void FocusNextCandidate() override {
         if (m_edit_state == EditState::Composing) {
             m_edit_state = EditState::Selecting;
             FocusCandidate(0);
@@ -223,7 +223,7 @@ class BufferMgrImpl : public BufferMgr {
         }
     }
 
-    virtual void FocusPrevCandidate() override {
+    void FocusPrevCandidate() override {
         m_edit_state = EditState::Selecting;
 
         if (m_focused_candidate == 0) {
@@ -233,7 +233,7 @@ class BufferMgrImpl : public BufferMgr {
         }
     }
 
-    virtual void FocusCandidate(size_t index) override {
+    void FocusCandidate(size_t index) override {
         if (m_candidates.empty()) {
             m_edit_state = EditState::Converted;
             return;
@@ -244,7 +244,7 @@ class BufferMgrImpl : public BufferMgr {
         FocusCandidate_(index, false);
     }
 
-    virtual void SelectCandidate(size_t index) {
+    void SelectCandidate(size_t index) {
         SelectCandidate_(index);
     }
 

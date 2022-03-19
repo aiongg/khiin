@@ -9,6 +9,8 @@
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
+#include "engine/Database.h"
+
 #include "TestEnv.h"
 
 namespace {
@@ -17,6 +19,7 @@ static khiin::engine::Engine *g_engine = nullptr;
 
 void TestEnv::SetUp() {
     g_engine = khiin::engine::Engine::Create("./khiin_test.db");
+    g_engine->database()->ClearNGramsData();
 }
 
 void TestEnv::TearDown() {

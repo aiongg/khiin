@@ -89,8 +89,10 @@ TEST(SplitterTest, SplitIndices) {
     EXPECT_EQ(splitter.MaxSplitSize("toalang"), 7);
 }
 
-TEST(SplitterTest, DISABLED_UsingActualEngine) {
-    auto splitter = TestEnv::engine()->dictionary()->word_splitter();
+struct SplitterTestWithDb : ::testing::Test, TestEnv {};
+
+TEST_F(SplitterTestWithDb, DISABLED_UsingActualEngine) {
+    auto splitter = engine()->dictionary()->word_splitter();
     std::vector<std::string> res;
 
     splitter->Split("goutuitiunnkinkukasiokthekiongechuliauchitesiauliankesisimchongb"

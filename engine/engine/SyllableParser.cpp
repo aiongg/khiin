@@ -44,11 +44,11 @@ std::vector<T> odometer_merge(std::vector<std::vector<T>> const &vector_set) {
     return ret;
 }
 
-inline constexpr char *kOrderedToneablesIndex1[] = {"o", "a", "e", "u", "i", "ng", "m"};
-inline constexpr char *kOrderedToneablesIndex2[] = {"oa", "oe"};
-inline constexpr char kToneableLetters[] = {'a', 'e', 'i', 'm', 'n', 'o', 'u'};
+inline constexpr std::array<char *, 7> kOrderedToneablesIndex1 = {{"o", "a", "e", "u", "i", "ng", "m"}};
+inline constexpr std::array<char *, 3> kOrderedToneablesIndex2 = {{"oa", "oe"}};
+inline constexpr std::array<char, 8> kToneableLetters = {'a', 'e', 'i', 'm', 'n', 'o', 'u'};
 
-inline constexpr char kSyllableSeparator[] = {' ', '-'};
+inline constexpr std::array<char, 2> kSyllableSeparator = {' ', '-'};
 
 const std::unordered_map<Tone, std::string> kToneToUnicodeMap = {{Tone::T2, u8"\u0301"}, {Tone::T3, u8"\u0300"},
                                                                  {Tone::T5, u8"\u0302"}, {Tone::T7, u8"\u0304"},
@@ -130,23 +130,23 @@ class SyllableParserImpl : public SyllableParser {
         return m_engine->config()->dotted_khin();
     }
 
-    virtual Syllable ParseRaw(std::string const &input) override {
+    Syllable ParseRaw(std::string const &input) override {
         auto syl = Syllable(m_engine->keyconfig(), DottedKhin());
         syl.SetRawInput(input);
         return syl;
     }
 
-    virtual Syllable ParseComposed(std::string const &input) override {
+    Syllable ParseComposed(std::string const &input) override {
         auto syl = Syllable(m_engine->keyconfig(), DottedKhin());
         syl.SetComposed(input);
         return syl;
     }
 
-    virtual void ToFuzzy(std::string const &input, std::vector<std::string> &output, bool &has_tone) {
+    void ToFuzzy(std::string const &input, std::vector<std::string> &output, bool &has_tone) {
         ComposedToRawWithAlternates(m_engine->keyconfig(), input, output, has_tone);
     }
 
-    virtual std::vector<InputSequence> AsInputSequences(std::string const &word) override {
+    std::vector<InputSequence> AsInputSequences(std::string const &word) override {
         if (word == u8"iăn-jín") {
             auto x = 3;
         }
@@ -208,7 +208,7 @@ class SyllableParserImpl : public SyllableParser {
         return ret;
     }
 
-    virtual TaiText AsTaiText(std::string const &raw, std::string const &target) override {
+    TaiText AsTaiText(std::string const &raw, std::string const &target) override {
         auto ret = TaiText();
         auto t_start = target.cbegin();
         auto t_end = target.cend();

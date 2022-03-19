@@ -1,6 +1,5 @@
 #include "Dictionary.h"
 
-//#include <algorithm>
 #include <unordered_map>
 
 #include "Buffer.h"
@@ -11,8 +10,6 @@
 #include "Splitter.h"
 #include "SyllableParser.h"
 #include "Trie.h"
-
-#include <mutex>
 
 namespace khiin::engine {
 
@@ -30,7 +27,7 @@ class DictionaryImpl : public Dictionary {
     DictionaryImpl(Engine *engine) : m_engine(engine) {}
 
   private:
-    virtual void Initialize() override {
+    void Initialize() override {
         LoadInputsByFreq();
         LoadInputSequences();
         BuildWordTrie();
@@ -40,15 +37,15 @@ class DictionaryImpl : public Dictionary {
         m_engine->RegisterConfigChangedListener(this);
     }
 
-    virtual bool StartsWithWord(std::string_view query) const override {
+    bool StartsWithWord(std::string_view query) const override {
         return m_word_trie->StartsWithKey(query);
     }
 
-    virtual bool StartsWithSyllable(std::string_view query) const override {
+    bool StartsWithSyllable(std::string_view query) const override {
         return m_syllable_trie->StartsWithKey(query);
     }
 
-    virtual bool IsSyllablePrefix(std::string_view query) const override {
+    bool IsSyllablePrefix(std::string_view query) const override {
         if (query.empty()) {
             return false;
         }
@@ -62,28 +59,28 @@ class DictionaryImpl : public Dictionary {
         return m_syllable_trie->HasKeyOrPrefix(query);
     }
 
-    virtual bool IsWordPrefix(std::string_view query) const override {
+    bool IsWordPrefix(std::string_view query) const override {
         return m_word_trie->HasKeyOrPrefix(query);
     }
 
-    virtual bool IsWord(std::string_view query) const override {
+    bool IsWord(std::string_view query) const override {
         return m_word_trie->HasKey(query);
     }
 
-    virtual std::vector<TokenResult> WordSearch(std::string const &query) override {
+    std::vector<TokenResult> WordSearch(std::string const &query) override {
         auto ret = std::vector<TokenResult>();
         GetOrCacheTokens(query, ret);
         return ret;
     }
 
-    virtual std::vector<TokenResult> Autocomplete(std::string const &query) override {
+    std::vector<TokenResult> Autocomplete(std::string const &query) override {
         auto ret = std::vector<TokenResult>();
         auto words = m_word_trie->Autocomplete(query, 10, 5);
         GetOrCacheTokens(words, ret);
         return ret;
     }
 
-    virtual std::vector<TokenResult> AllWordsFromStart(std::string const &query) override {
+    std::vector<TokenResult> AllWordsFromStart(std::string const &query) override {
         auto ret = std::vector<TokenResult>();
         auto words = std::vector<std::string>();
         m_word_trie->FindKeys(query, words);
@@ -91,11 +88,11 @@ class DictionaryImpl : public Dictionary {
         return ret;
     }
 
-    virtual std::vector<std::string> const &AllInputsByFreq() override {
+    std::vector<std::string> const &AllInputsByFreq() override {
         return m_user_inputs;
     }
 
-    virtual std::vector<std::vector<std::string>> Segment(std::string_view query, uint32_t limit) override {
+    std::vector<std::vector<std::string>> Segment(std::string_view query, uint32_t limit) override {
         auto ret = std::vector<std::vector<std::string>>();
         auto query_lc = unicode::copy_str_tolower(query);
         auto segmentations = m_word_trie->Multisplit(query_lc, m_word_splitter->cost_map(), limit);
@@ -112,7 +109,7 @@ class DictionaryImpl : public Dictionary {
         return ret;
     }
 
-    virtual std::vector<Punctuation> SearchPunctuation(std::string const &query) override {
+    std::vector<Punctuation> SearchPunctuation(std::string const &query) override {
         auto ret = std::vector<Punctuation>();
         for (auto &p : m_punctuation) {
             if (query == p.input) {
@@ -122,15 +119,15 @@ class DictionaryImpl : public Dictionary {
         return ret;
     }
 
-    virtual Splitter *word_splitter() override {
+    Splitter *word_splitter() override {
         return m_word_splitter.get();
     };
 
-    virtual Trie *word_trie() override {
+    Trie *word_trie() override {
         return m_word_trie.get();
     };
 
-    virtual void OnConfigChanged(Config *config) override {
+    void OnConfigChanged(Config *config) override {
         // Reload with new KeyConfig
     }
 
@@ -142,7 +139,7 @@ class DictionaryImpl : public Dictionary {
     void LoadInputSequences() {
         m_input_ids.clear();
         m_user_inputs.clear();
-        auto parser = m_engine->syllable_parser();
+        auto *parser = m_engine->syllable_parser();
         auto seen = std::unordered_set<std::string>();
 
         for (auto &row : m_inputs_by_freq) {
@@ -168,7 +165,7 @@ class DictionaryImpl : public Dictionary {
     void BuildSyllableTrie() {
         m_syllable_trie = std::unique_ptr<Trie>(Trie::Create());
         auto syllables = std::vector<std::string>();
-        auto parser = m_engine->syllable_parser();
+        auto *parser = m_engine->syllable_parser();
         m_engine->database()->LoadSyllables(syllables);
 
         for (auto &syl : syllables) {
@@ -200,7 +197,7 @@ class DictionaryImpl : public Dictionary {
     }
 
     void GetOrCacheTokens(std::vector<std::string> const &inputs, std::vector<TokenResult> &output) {
-        for (auto &input : inputs) {
+        for (auto const &input : inputs) {
             GetOrCacheTokens(input, output);
         }
     }
@@ -225,7 +222,7 @@ class DictionaryImpl : public Dictionary {
 
     void GetOrCacheTokens(int input_id, std::vector<TokenResult> &output) {
         if (auto cached = m_input_id_token_cache.find(input_id); cached != m_input_id_token_cache.end()) {
-            for (auto token : cached->second) {
+            for (auto *token : cached->second) {
                 output.push_back(TokenResult{token});
             }
             return;
@@ -242,7 +239,7 @@ class DictionaryImpl : public Dictionary {
         }
     }
 
-    void RecordNGrams(Buffer const &buffer) {
+    void RecordNGrams(Buffer const &buffer) override {
         if (buffer.Empty()) {
             return;
         }

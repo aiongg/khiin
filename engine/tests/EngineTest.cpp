@@ -41,14 +41,12 @@ auto setTaikeyPath() {
 #endif
 }
 
-class EngineTest : public ::testing::Test {
+struct EngineTest : public ::testing::Test, TestEnv {
   protected:
     void SetUp() override {
         setTaikeyPath();
-        engine = TestEnv::engine();
     }
 
-    Engine *engine = nullptr;
     Command *command = nullptr;
     Request *req = nullptr;
     Response *res = nullptr;
@@ -61,13 +59,13 @@ class EngineTest : public ::testing::Test {
 
             req->set_type(CMD_SEND_KEY);
             req->mutable_key_event()->set_key_code(c);
-            engine->SendCommand(command);
+            engine()->SendCommand(command);
         }
     }
 };
 
 TEST_F(EngineTest, Loads) {
-    EXPECT_TRUE(engine);
+    EXPECT_TRUE(engine());
 }
 
 TEST_F(EngineTest, SimpleInput) {

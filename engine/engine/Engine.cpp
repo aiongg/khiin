@@ -275,7 +275,7 @@ class EngineImpl : public Engine {
 
     std::vector<std::string> m_valid_syllables;
 
-    std::unordered_map<CommandType, decltype(&HandleNone)> m_cmd_handlers = {};
+    std::unordered_map<CommandType, decltype(&EngineImpl::HandleNone)> m_cmd_handlers = {};
     std::vector<ConfigChangeListener *> m_config_change_listeners;
     std::unique_ptr<Config> m_config = nullptr;
 };
