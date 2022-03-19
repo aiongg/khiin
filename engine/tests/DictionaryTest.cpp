@@ -1,7 +1,8 @@
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
-#include "Dictionary.h"
+#include "engine/Dictionary.h"
+
 #include "TestEnv.h"
 
 namespace khiin::engine {

@@ -1,6 +1,6 @@
 #include "BufferMgrBaseTest.h"
 
-#include "Database.h"
+#include "engine/Database.h"
 
 namespace khiin::engine {
 using namespace proto;

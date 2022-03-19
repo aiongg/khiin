@@ -1,11 +1,11 @@
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
-#include <boost/algorithm/string.hpp>
+//#include <boost/algorithm/string.hpp>
 
 #include <SQLiteCpp/SQLiteCpp.h>
 
-#include "Database.h"
+#include "engine/Database.h"
 
 namespace khiin::engine {
 namespace {
@@ -103,7 +103,7 @@ TEST_F(DatabaseTest, update_gram_counts) {
     auto v = std::vector<std::string>();
     auto text = u8"囝仔 王 子 是 無 國 界 个 文 學 經 典";
 
-    boost::split(v, text, boost::is_any_of(" "));
+    //boost::split(v, text, boost::is_any_of(" "));
 
     // auto res = db->IncrementNGramCounts(v);
     // EXPECT_EQ(res, 23);

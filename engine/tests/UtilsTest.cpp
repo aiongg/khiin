@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 
-#include "utils.h"
+#include "engine/utils.h"
 
 namespace khiin::engine::utils {
 namespace {

@@ -8,8 +8,9 @@
 
 #include "proto/proto.h"
 
-#include "BufferMgr.h"
-#include "Config.h"
+#include "engine/BufferMgr.h"
+#include "engine/Config.h"
+
 #include "TestEnv.h"
 
 namespace khiin::engine {

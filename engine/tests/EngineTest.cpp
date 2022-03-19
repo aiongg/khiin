@@ -1,7 +1,5 @@
 #include <gtest/gtest.h>
 
-#include "Engine.h"
-
 #include <cstdlib>
 #include <filesystem>
 #include <vector>
@@ -9,8 +7,10 @@
 #include "proto/proto.h"
 #include "utf8cpp/utf8/cpp17.h"
 
+#include "engine/Engine.h"
+#include "engine/common.h"
+
 #include "TestEnv.h"
-#include "common.h"
 
 namespace khiin::engine {
 namespace {

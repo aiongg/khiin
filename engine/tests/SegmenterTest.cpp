@@ -1,8 +1,9 @@
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
+#include "engine/Segmenter.h"
+
 #include "TestEnv.h"
-#include "Segmenter.h"
 
 namespace khiin::engine {
 namespace {

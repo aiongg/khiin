@@ -1,8 +1,9 @@
 #include <gtest/gtest.h>
 
-#include "Engine.h"
-#include "KeyConfig.h"
-#include "Syllable.h"
+#include "engine/Engine.h"
+#include "engine/KeyConfig.h"
+#include "engine/Syllable.h"
+
 #include "TestEnv.h"
 
 namespace khiin::engine::test {
