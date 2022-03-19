@@ -20,39 +20,9 @@ inline bool IsHigherFrequency(TaiToken *a, TaiToken *b) {
     return a->input_id == b->input_id ? a->weight > b->weight : a->input_id < b->input_id;
 }
 
-// inline bool SizeAndFrequencySort(TaiToken *a, TaiToken *b) {
-//
-//    auto a_size = letter_count(a->input);
-//    auto b_size = letter_count(b->input);
-//
-//    return a_size == b_size ? IsHigherFrequency(a, b) : a_size > b_size;
-//}
-
-inline void SortTokenResults(std::vector<TokenResult> &tokens) {
-    std::sort(tokens.begin(), tokens.end(), [&](TokenResult const &a, TokenResult const &b) {
-        return a.input_size == b.input_size
-                   ? (a.token->input_id == b.token->input_id ? a.token->weight > b.token->weight
-                                                             : a.token->input_id < b.token->input_id)
-                   : a.input_size > b.input_size;
-    });
-}
-
-inline void SortTokensByFrequency(std::vector<TaiToken *> &tokens) {
-    std::sort(tokens.begin(), tokens.end(), IsHigherFrequency);
-}
-
-TaiToken *BestMatchUnigram(Engine *engine, std::vector<TaiToken *> const &options) {
-    return engine->database()->HighestUnigramCount(options);
-}
-
-TaiToken *BestMatchBigram(Engine *engine, TaiToken *lgram, std::vector<TaiToken *> const &options) {
-    assert(lgram);
-    return engine->database()->HighestBigramCount(lgram->output, options);
-}
-
 void LoadUnigramCounts(Engine *engine, std::vector<TokenResult> &options) {
     auto grams = std::vector<std::string>();
-    for (auto &option : options) {
+    for (auto const &option : options) {
         grams.push_back(option.token->output);
     }
     auto result = engine->database()->UnigramCounts(grams);
@@ -67,8 +37,85 @@ void LoadUnigramCounts(Engine *engine, std::vector<TokenResult> &options) {
     }
 }
 
-void SortByNgrams(Engine *engine, std::vector<TokenResult> &options) {
+void LoadBigramCounts(Engine* engine, TaiToken *lgram, std::vector<TokenResult>& options) {
+    if (lgram == nullptr) {
+        return;
+    }
+
+    auto rgrams = std::vector<std::string>();
+    for (auto const &option : options) {
+        rgrams.push_back(option.token->output);
+    }
+    auto result = engine->database()->BigramCounts(lgram->output, rgrams);
+
+    for (auto &option : options) {
+        auto it = std::find_if(result.cbegin(), result.cend(), [&](auto const &gram) {
+            return gram.value == option.token->output;
+        });
+        if (it != result.cend()) {
+            option.bigram_count = it->count;
+        }
+    }
+}
+
+//bool CompareTokenResultsByWeightFirst(TokenResult const &a, TokenResult const &b) {
+//    if (a.bigram_count != b.bigram_count) {
+//        return a.bigram_count > b.bigram_count;
+//    }
+//
+//    if (a.unigram_count != b.unigram_count) {
+//        return a.unigram_count > b.unigram_count;
+//    }
+//
+//    if (a.token->weight != b.token->weight) {
+//        return a.token->weight > b.token->weight;
+//    }
+//
+//    return a.token->input_id < b.token->input_id;
+//}
+
+//inline void SortTokenResultsByWeightFirst(Engine *engine, std::vector<TokenResult> &options) {
+//    LoadUnigramCounts(engine, options);
+//    std::sort(options.begin(), options.end(), CompareTokenResultsByWeightFirst);
+//}
+
+bool CompareTokenResultsByLengthFirst(TokenResult const &a, TokenResult const &b) {
+    if (a.input_size != b.input_size) {
+        return a.input_size > b.input_size;
+    }
+
+    if (a.bigram_count != b.bigram_count) {
+        return a.bigram_count > b.bigram_count;
+    }
+
+    if (a.unigram_count != b.unigram_count) {
+        return a.unigram_count > b.unigram_count;
+    }
+
+    if (a.token->weight != b.token->weight) {
+        return a.token->weight > b.token->weight;
+    }
+
+    return a.token->input_id < b.token->input_id;
+}
+
+inline void SortTokenResultsByLengthFirst(Engine *engine, TaiToken *lgram, std::vector<TokenResult> &options) {
     LoadUnigramCounts(engine, options);
+    LoadBigramCounts(engine, lgram, options);
+    std::sort(options.begin(), options.end(), CompareTokenResultsByLengthFirst);
+}
+
+inline void SortTokensByFrequency(std::vector<TaiToken *> &tokens) {
+    std::sort(tokens.begin(), tokens.end(), IsHigherFrequency);
+}
+
+TaiToken *BestMatchUnigram(Engine *engine, std::vector<TaiToken *> const &options) {
+    return engine->database()->HighestUnigramCount(options);
+}
+
+TaiToken *BestMatchBigram(Engine *engine, TaiToken *lgram, std::vector<TaiToken *> const &options) {
+    assert(lgram);
+    return engine->database()->HighestBigramCount(lgram->output, options);
 }
 
 TaiToken *BestMatchNgram(Engine *engine, TaiToken *lgram, std::vector<TaiToken *> &options) {
@@ -110,11 +157,6 @@ TaiToken *BestSingleTokenMatch(Engine *engine, TaiToken *lgram, std::string cons
         tokens.push_back(opt.token);
     }
     return BestMatchNgram(engine, lgram, tokens);
-}
-
-bool LeavesGoodRemainder(Dictionary *dict, TaiText const &prefix, std::string_view raw_query) {
-    auto size = prefix.RawSize();
-    return dict->word_splitter()->CanSplit(raw_query.substr(size, raw_query.size() - size));
 }
 
 std::vector<Buffer> TokensToBuffers(Engine *engine, std::vector<TokenResult> const &options, std::string const &query) {
@@ -159,7 +201,7 @@ std::vector<Buffer> AllSplittableCandidatesFromStart(Engine *engine, TaiToken *l
         ++it;
     }
 
-    SortTokenResults(options);
+    SortTokenResultsByLengthFirst(engine, lgram, options);
     return TokensToBuffers(engine, options, raw_query);
 }
 
@@ -204,7 +246,7 @@ std::vector<Buffer> AllWordsFromStart(Engine *engine, TaiToken *lgram, std::stri
         ++it;
     }
 
-    SortTokenResults(options);
+    SortTokenResultsByLengthFirst(engine, lgram, options);
     return TokensToBuffers(engine, options, query);
 }
 

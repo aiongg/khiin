@@ -92,16 +92,18 @@ class Buffer {
     // Append all elements of |rhs| to this Buffer
     void Append(Buffer &rhs);
 
-    void Append(BufferElement &&elem);
+    void Append(Buffer &&rhs);
+
+    void Append(BufferElement &&rhs);
 
     // Append a plain text string as a new buffer element
-    void Append(std::string &&str);
+    void Append(std::string &&rhs);
 
     // Append a TaiText as a new buffer element
-    void Append(TaiText &&taitext);
+    void Append(TaiText &&rhs);
 
     // Append a Punctuation as a new buffer element
-    void Append(Punctuation &&punct);
+    void Append(Punctuation &&rhs);
 
     // Replace element at |index| in this Buffer with all elements from |replace|
     iterator Replace(iterator first, iterator last, Buffer &other);

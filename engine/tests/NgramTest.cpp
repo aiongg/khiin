@@ -24,4 +24,16 @@ TEST_F(NgramTest, TestUnigram) {
     EXPECT_EQ(result.Text(), "兮");
 }
 
+TEST_F(NgramTest, TestUnigramSort) {
+    auto result = CandidateFinder::WordsByWeight(engine(), nullptr, "e5");
+    EXPECT_EQ(result[0].Text(), "个");
+    EXPECT_EQ(result[1].Text(), "兮");
+    EXPECT_EQ(result[2].Text(), "鞋");
+    RecordUnigrams({"鞋"});
+    result = CandidateFinder::WordsByWeight(engine(), nullptr, "e5");
+    EXPECT_EQ(result[0].Text(), "鞋");
+    EXPECT_EQ(result[1].Text(), "个");
+    EXPECT_EQ(result[2].Text(), "兮");
+}
+
 } // namespace khiin::engine

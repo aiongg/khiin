@@ -144,20 +144,24 @@ void Buffer::Append(Buffer &rhs) {
     m_elements.insert(m_elements.end(), rhs.Begin(), rhs.End());
 }
 
-void Buffer::Append(BufferElement &&elem) {
-    m_elements.push_back(std::move(elem));
+void Buffer::Append(Buffer &&rhs) {
+    m_elements.insert(m_elements.end(), std::make_move_iterator(rhs.Begin()), std::make_move_iterator(rhs.End()));
 }
 
-void Buffer::Append(std::string &&elem) {
-    m_elements.push_back(BufferElement(std::move(elem)));
+void Buffer::Append(BufferElement &&rhs) {
+    m_elements.push_back(std::move(rhs));
 }
 
-void Buffer::Append(TaiText &&elem) {
-    m_elements.push_back(BufferElement(std::move(elem)));
+void Buffer::Append(std::string &&rhs) {
+    m_elements.push_back(BufferElement(std::move(rhs)));
 }
 
-void Buffer::Append(Punctuation &&elem) {
-    m_elements.push_back(BufferElement(std::move(elem)));
+void Buffer::Append(TaiText &&rhs) {
+    m_elements.push_back(BufferElement(std::move(rhs)));
+}
+
+void Buffer::Append(Punctuation &&rhs) {
+    m_elements.push_back(BufferElement(std::move(rhs)));
 }
 
 iterator Buffer::Erase(iterator it) {

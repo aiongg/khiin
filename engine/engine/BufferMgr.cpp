@@ -54,16 +54,18 @@ class BufferMgrImpl : public BufferMgr {
                         composing_text += it->composed();
                         ++it;
                     }
-                    auto segment = preedit->add_segments();
+                    auto *segment = preedit->add_segments();
                     segment->set_status(proto::SS_COMPOSING);
                     segment->set_value(composing_text);
                     continue;
-                } else if (it->IsVirtualSpace()) {
-                    auto segment = preedit->add_segments();
+                }
+                
+                if (it->IsVirtualSpace()) {
+                    auto *segment = preedit->add_segments();
                     segment->set_value(" ");
                     segment->set_status(proto::SS_UNMARKED);
                 } else if (it->is_converted) {
-                    auto segment = preedit->add_segments();
+                    auto *segment = preedit->add_segments();
                     segment->set_value(it->converted());
                     if (std::distance(m_composition.CBegin(), it) == m_focused_element) {
                         segment->set_status(proto::SS_FOCUSED);
@@ -87,7 +89,7 @@ class BufferMgrImpl : public BufferMgr {
 
         auto id = 0;
         for (auto &cand : m_candidates) {
-            auto candidate_output = candidate_list->add_candidates();
+            auto *candidate_output = candidate_list->add_candidates();
             candidate_output->set_value(cand.Text());
             candidate_output->set_id(id);
             ++id;
@@ -244,7 +246,7 @@ class BufferMgrImpl : public BufferMgr {
         FocusCandidate_(index, false);
     }
 
-    void SelectCandidate(size_t index) {
+    void SelectCandidate(size_t index) override {
         SelectCandidate_(index);
     }
 
@@ -253,8 +255,6 @@ class BufferMgrImpl : public BufferMgr {
     // BufferMgr private methods
     //
     //----------------------------------------------------------------------------
-
-  private:
     //+----------------------------------
     // Buffer focus navigation
     //
@@ -288,7 +288,7 @@ class BufferMgrImpl : public BufferMgr {
 
     void MoveFocus(CursorDirection direction) {
         auto begin = m_composition.CBegin();
-        auto it = begin + m_focused_element;
+        auto it = begin + static_cast<int>(m_focused_element);
 
         if (direction == CursorDirection::R) {
             if (m_focused_element >= m_composition.Size() - 1) {
@@ -536,7 +536,7 @@ class BufferMgrImpl : public BufferMgr {
 
         if (raw_buffer_size > raw_candidate_size) {
             auto raw_text = Buffer::RawText(begin, it);
-            auto deconverted = std::string(raw_text.begin() + raw_candidate_size, raw_text.end());
+            auto deconverted = std::string(raw_text.begin() + static_cast<int>(raw_candidate_size), raw_text.end());
 
             while (it != end) {
                 if (!CandidateFinder::HasExactMatch(m_engine, deconverted) || deconverted.empty()) {
@@ -562,7 +562,7 @@ class BufferMgrImpl : public BufferMgr {
         }
 
         it = m_composition.Replace(begin, it, candidate);
-        it += candidate.Size();
+        it += static_cast<int>(candidate.Size());
         end = m_composition.End();
 
         while (it != end && !it->is_selected) {
@@ -671,7 +671,7 @@ class BufferMgrImpl : public BufferMgr {
                 return it->candidate();
             }
         } else if (m_focused_element > 0) {
-            auto it = m_composition.Begin() + m_focused_element - 1;
+            auto it = m_composition.Begin() + static_cast<int>(m_focused_element) - 1;
 
             if (it->IsVirtualSpace()) {
                 if (it == m_composition.Begin()) {
