@@ -31,7 +31,7 @@ static const DWORD kDwStyle = WS_BORDER | WS_POPUP;
 static const DWORD kDwExStyle = WS_EX_TOPMOST | WS_EX_TOOLWINDOW | WS_EX_NOACTIVATE;
 
 float CenterTextLayoutY(IDWriteTextLayout *layout, float available_height) {
-    DWRITE_TEXT_METRICS dwt_metrics;
+    DWRITE_TEXT_METRICS dwt_metrics{};
     check_hresult(layout->GetMetrics(&dwt_metrics));
     return (available_height - dwt_metrics.height) / 2;
 }
@@ -54,11 +54,11 @@ class CandidateWindow2Impl : public CandidateWindow {
             NULL); // clang-format on
     }
 
-    virtual std::wstring const &ClassName() const override {
+    std::wstring const &ClassName() const override {
         return kCandidateWindowClassName;
     }
 
-    virtual void SetCandidates(DisplayMode display_mode, CandidateGrid *candidate_grid, int focused_id, size_t qs_col,
+    void SetCandidates(DisplayMode display_mode, CandidateGrid *candidate_grid, int focused_id, size_t qs_col,
                                bool qs_active, RECT text_position) override {
         m_candidate_grid = candidate_grid;
         m_display_mode = display_mode;
@@ -69,20 +69,20 @@ class CandidateWindow2Impl : public CandidateWindow {
         CalculateLayout();
     }
 
-    virtual void OnConfigChanged(AppConfig *config) override {
+    void OnConfigChanged(AppConfig *config) override {
         GuiWindow::OnConfigChanged(config);
         m_metrics = GetMetricsScaled(Config::GetUiSize());
         //m_metrics = GetMetricsForSize(static_cast<DisplaySize>(Config::GetUiSize()));
         DiscardGraphicsResources();
     }
 
-    virtual void RegisterCandidateSelectListener(CandidateSelectListener *listener) override {
+    void RegisterCandidateSelectListener(CandidateSelectListener *listener) override {
         if (std::find(m_focus_listeners.begin(), m_focus_listeners.end(), listener) == m_focus_listeners.end()) {
             m_focus_listeners.push_back(listener);
         }
     }
 
-    virtual void OnMouseMove(Point pt) override {
+    void OnMouseMove(Point pt) override {
         if (!ClientHitTest(pt)) {
             m_mouse_focused_id = -1;
             return;
@@ -99,7 +99,7 @@ class CandidateWindow2Impl : public CandidateWindow {
         }
     }
 
-    virtual bool OnClick(Point pt) override {
+    bool OnClick(Point pt) override {
         if (!ClientHitTest(pt)) {
             Hide();
             return false;
@@ -153,7 +153,7 @@ class CandidateWindow2Impl : public CandidateWindow {
         auto &value = Utils::Widen(candidate->value());
         auto layout = m_factory->CreateTextLayout(candidate->value(), m_textformat, m_max_width, m_max_height);
 
-        DWRITE_TEXT_METRICS dwtm;
+        DWRITE_TEXT_METRICS dwtm{};
         check_hresult(layout->GetMetrics(&dwtm));
 
         m_layout_grid.EnsureColumnWidth(col, static_cast<int>(dwtm.width + m_metrics.qs_col_w));
@@ -196,10 +196,10 @@ class CandidateWindow2Impl : public CandidateWindow {
         }
 
         if (left + width > m_max_width) {
-            left = m_max_width - width;
+            left = static_cast<float>(m_max_width) - static_cast<float>(width);
         }
         if (top + height > m_max_height) {
-            top = m_text_rect.top - height;
+            top = static_cast<float>(m_text_rect.top) - static_cast<float>(height);
         }
 
         auto l = static_cast<int>(left);
@@ -298,7 +298,7 @@ class CandidateWindow2Impl : public CandidateWindow {
         }
     }
 
-    virtual void Render() override {
+    void Render() override {
         KHIIN_TRACE("");
         try {
             EnsureRenderTarget();

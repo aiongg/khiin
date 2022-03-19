@@ -74,21 +74,25 @@
     <LinkIncremental>true</LinkIncremental>
     <OutDir>$(SolutionDir)\out\build\$(PlatformShortName)-$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)\out\obj\$(ProjectName)-$(PlatformShortName)-$(Configuration)\</IntDir>
+    <EnableMicrosoftCodeAnalysis>false</EnableMicrosoftCodeAnalysis>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
     <OutDir>$(SolutionDir)\out\build\$(PlatformShortName)-$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)\out\obj\$(ProjectName)-$(PlatformShortName)-$(Configuration)\</IntDir>
+    <EnableMicrosoftCodeAnalysis>false</EnableMicrosoftCodeAnalysis>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
     <OutDir>$(SolutionDir)\out\build\$(PlatformShortName)-$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)\out\obj\$(ProjectName)-$(PlatformShortName)-$(Configuration)\</IntDir>
+    <EnableMicrosoftCodeAnalysis>false</EnableMicrosoftCodeAnalysis>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
     <OutDir>$(SolutionDir)\out\build\$(PlatformShortName)-$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)\out\obj\$(ProjectName)-$(PlatformShortName)-$(Configuration)\</IntDir>
+    <EnableMicrosoftCodeAnalysis>false</EnableMicrosoftCodeAnalysis>
   </PropertyGroup>
   <PropertyGroup Label="Vcpkg" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <VcpkgTriplet>x86-windows-static-md</VcpkgTriplet>

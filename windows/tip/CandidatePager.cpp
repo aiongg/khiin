@@ -20,12 +20,12 @@ inline constexpr uint32_t kLongColSize = 9;
 
 class CandidatePagerImpl : public CandidatePager {
   public:
-    virtual void SetCandidateList(CandidateList *candidate_list) {
+    void SetCandidateList(CandidateList *candidate_list) {
         Reset();
         m_candidate_list = candidate_list;
     }
 
-    virtual void SetDisplayMode(DisplayMode mode) override {
+    void SetDisplayMode(DisplayMode mode) override {
         if (m_display_mode == DisplayMode::LongColumn && mode == DisplayMode::ShortColumn) {
             return;
         }
@@ -33,7 +33,7 @@ class CandidatePagerImpl : public CandidatePager {
         m_display_mode = mode;
     }
 
-    virtual void SetFocus(int id) override {
+    void SetFocus(int id) override {
         if (!m_candidate_list) {
             return;
         }
@@ -55,23 +55,23 @@ class CandidatePagerImpl : public CandidatePager {
         }
     }
 
-    virtual void SetFocusIndex(int index) override {
+    void SetFocusIndex(int index) override {
         m_focused_index = index;
     }
 
-    virtual DisplayMode GetDisplayMode() override {
+    DisplayMode GetDisplayMode() override {
         return m_display_mode;
     }
 
-    virtual int GetFocusedCandidateId() override {
+    int GetFocusedCandidateId() override {
         return m_focused_id;
     }
 
-    virtual size_t GetFocusedColumnIndex() override {
+    size_t GetFocusedColumnIndex() override {
         return std::div(static_cast<int>(m_focused_index) - StartCandidateIndex(), MaxColSize()).quot;
     }
 
-    virtual void GetPage(CandidateGrid &grid) override {
+    void GetPage(CandidateGrid &grid) override {
         if (!m_candidate_list) {
             return;
         }
@@ -103,19 +103,19 @@ class CandidatePagerImpl : public CandidatePager {
         grid.push_back(std::move(col));
     }
 
-    virtual int PageCount() override {
+    int PageCount() override {
         return divide_ceil(CandidatesSize(), MaxPageSize());
     }
 
-    virtual int MaxPageSize() override {
+    int MaxPageSize() override {
         return MaxColsPerPage() * MaxColSize();
     }
 
-    virtual int CurrentPageIndex() override {
+    int CurrentPageIndex() override {
         return std::div(static_cast<int>(m_focused_index), MaxPageSize()).quot;
     }
 
-    virtual int NextPageCandidateId() override {
+    int NextPageCandidateId() override {
         auto size = CandidatesSize();
         auto col_size = MaxColSize();
         auto next_idx = static_cast<int>(m_focused_index) + col_size;
@@ -134,7 +134,7 @@ class CandidatePagerImpl : public CandidatePager {
         return CandidateIdAtIndex(next_idx % col_size);
     }
 
-    virtual int PrevPageCandidateId() override {
+    int PrevPageCandidateId() override {
         auto col_size = MaxColSize();
         auto curr_idx = static_cast<int>(m_focused_index);
         auto prev_idx = curr_idx - col_size;

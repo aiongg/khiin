@@ -58,7 +58,7 @@ void AppearanceProps::Initialize() {
 
 void AppearanceProps::Finalize() {
     Config::SetUiColors(static_cast<UiColors>(ComboBox_GetCurSel(::GetDlgItem(m_hwnd, IDC_COMBOBOX_THEME_COLOR))));
-    Config::SetUiSize(::SendMessage(::GetDlgItem(m_hwnd, IDC_CANDIDATE_SIZE), TBM_GETPOS, 0, 0));
+    Config::SetUiSize(static_cast<int>(::SendMessage(::GetDlgItem(m_hwnd, IDC_CANDIDATE_SIZE), TBM_GETPOS, 0, 0)));
     Config::SetUiLanguage(static_cast<UiLanguage>(ComboBox_GetCurSel(::GetDlgItem(m_hwnd, IDC_DISPLAY_LANGUAGE))));
 }
 

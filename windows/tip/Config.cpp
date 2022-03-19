@@ -73,9 +73,9 @@ UiLanguage Config::GetSystemLang() {
     if (auto lang = PRIMARYLANGID(::GetUserDefaultUILanguage());
         lang == LANG_CHINESE || lang == LANG_CHINESE_TRADITIONAL) {
         return UiLanguage::HanloTai;
-    } else {
-        return UiLanguage::English;
     }
+
+    return UiLanguage::English;
 }
 
 void Config::LoadFromFile(HMODULE hmodule, AppConfig *config) {
@@ -171,7 +171,7 @@ void Config::SetUiSize(int size) {
 
 Hotkey Config::GetOnOffHotkey() {
     auto i = Registrar::GetSettingsInt(kSettingOnOffHotkey);
-    return i ? EnumVal<Hotkey>(i) : Hotkey::Shift;
+    return i > 0 ? EnumVal<Hotkey>(i) : Hotkey::Shift;
 }
 
 void Config::SetOnOffHotkey(Hotkey key) {
@@ -180,7 +180,7 @@ void Config::SetOnOffHotkey(Hotkey key) {
 
 Hotkey Config::GetInputModeHotkey() {
     auto i = Registrar::GetSettingsInt(kSettingInputModeHotkey);
-    return i ? EnumVal<Hotkey>(i) : Hotkey::CtrlBacktick;
+    return i > 0 ? EnumVal<Hotkey>(i) : Hotkey::CtrlBacktick;
 }
 
 void Config::SetInputModeHotkey(Hotkey key) {

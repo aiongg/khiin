@@ -4,10 +4,15 @@
 
 namespace khiin::win32::guids {
 
+inline constexpr int kGuidSize = 39;
+
 static inline std::wstring String(GUID guid) {
-    auto ret = std::wstring(39, L'?');
-    ::StringFromGUID2(guid, &ret[0], 64);
-    return ret;
+    auto ret = std::wstring(kGuidSize, L'?');
+    auto size = ::StringFromGUID2(guid, &ret[0], kGuidSize);
+    if (size > 0) {
+        return ret;
+    }
+    return std::wstring();
 }
 
 // 829893f6-728d-11ec-8c6e-e0d46491b35a

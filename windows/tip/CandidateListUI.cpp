@@ -26,7 +26,7 @@ struct CandidateListUIImpl :
     public implements<CandidateListUIImpl, ITfCandidateListUIElementBehavior, CandidateListUI>,
     CandidateSelectListener,
     ConfigChangeListener {
-    virtual void Initialize(TextService *pTextService) override {
+    void Initialize(TextService *pTextService) override {
         KHIIN_TRACE("");
         m_service.copy_from(pTextService);
         m_service->RegisterConfigChangeListener(this);
@@ -34,7 +34,7 @@ struct CandidateListUIImpl :
         BeginUIElement();
     }
 
-    virtual void Uninitialize() override {
+    void Uninitialize() override {
         KHIIN_TRACE("");
         EndUIElement();
         m_service = nullptr;
@@ -44,14 +44,14 @@ struct CandidateListUIImpl :
         m_pager.reset(nullptr);
     }
 
-    virtual void DestroyCandidateWindow() override {
+    void DestroyCandidateWindow() override {
         KHIIN_TRACE("");
         if (m_candidate_window && m_candidate_window->hwnd()) {
             ::DestroyWindow(m_candidate_window->hwnd());
         }
     }
 
-    virtual void Update(ITfContext *pContext, EditState edit_state, const CandidateList &candidate_list,
+    void Update(ITfContext *pContext, EditState edit_state, const CandidateList &candidate_list,
                         RECT text_rect) override {
         KHIIN_TRACE("");
         m_context.copy_from(pContext);
@@ -72,27 +72,27 @@ struct CandidateListUIImpl :
         UpdateWindow();
     }
 
-    virtual bool Showing() override {
+    bool Showing() override {
         KHIIN_TRACE("");
         return m_candidate_window && m_candidate_window->Showing();
     }
 
-    virtual bool Selecting() override {
+    bool Selecting() override {
         KHIIN_TRACE("");
         return m_edit_state == ES_SELECTING;
     }
 
-    virtual bool MultiColumn() override {
+    bool MultiColumn() override {
         KHIIN_TRACE("");
         return m_candidate_grid.size() > 1;
     }
 
-    virtual int PageCount() override {
+    int PageCount() override {
         KHIIN_TRACE("");
         return m_pager->PageCount();
     }
 
-    virtual int MaxQuickSelect() override {
+    int MaxQuickSelect() override {
         KHIIN_TRACE("");
         auto focused_col = m_pager->GetFocusedColumnIndex();
         if (focused_col < m_candidate_grid.size()) {
@@ -101,7 +101,7 @@ struct CandidateListUIImpl :
         return 0;
     }
 
-    virtual int QuickSelect(int index) override {
+    int QuickSelect(int index) override {
         KHIIN_TRACE("");
         auto focused_col = m_pager->GetFocusedColumnIndex();
 
@@ -116,7 +116,7 @@ struct CandidateListUIImpl :
         return -1;
     }
 
-    virtual int RotateNext() override {
+    int RotateNext() override {
         KHIIN_TRACE("");
         if (m_pager->PageCount() < 2) {
             return -1;
@@ -125,7 +125,7 @@ struct CandidateListUIImpl :
         return m_pager->NextPageCandidateId();
     }
 
-    virtual int RotatePrev() override {
+    int RotatePrev() override {
         KHIIN_TRACE("");
         if (m_pager->PageCount() < 2) {
             return -1;
@@ -134,33 +134,33 @@ struct CandidateListUIImpl :
         return m_pager->PrevPageCandidateId();
     }
 
-    virtual void Show() override {
+    void Show() override {
         KHIIN_TRACE("");
         if (m_candidate_window && m_showable) {
             m_candidate_window->Show();
         }
     }
 
-    virtual void Hide() override {
+    void Hide() override {
         KHIIN_TRACE("");
         if (m_candidate_window) {
             m_candidate_window->Hide();
         }
     }
 
-    virtual void OnSetThreadFocus() override {
+    void OnSetThreadFocus() override {
         KHIIN_TRACE("");
         if (Showing() && m_showable) {
             Show();
         }
     }
 
-    virtual void OnKillThreadFocus() override {
+    void OnKillThreadFocus() override {
         KHIIN_TRACE("");
         Hide();
     }
 
-    virtual ITfContext *context() {
+    ITfContext *context() {
         KHIIN_TRACE("");
         return m_context.get();
     }
@@ -171,7 +171,7 @@ struct CandidateListUIImpl :
     //
     //----------------------------------------------------------------------------
 
-    virtual void OnSelectCandidate(int32_t id) override {
+    void OnSelectCandidate(int32_t id) override {
         KHIIN_TRACE("");
         m_service->OnCandidateSelected(id);
     }
@@ -182,7 +182,7 @@ struct CandidateListUIImpl :
     //
     //----------------------------------------------------------------------------
 
-    virtual void OnConfigChanged(AppConfig *config) override {
+    void OnConfigChanged(AppConfig *config) override {
         KHIIN_TRACE("");
         if (m_candidate_window) {
             m_candidate_window->OnConfigChanged(config);
@@ -195,7 +195,7 @@ struct CandidateListUIImpl :
     //
     //----------------------------------------------------------------------------
 
-    virtual STDMETHODIMP GetDescription(BSTR *pbstrDescription) override {
+    STDMETHODIMP GetDescription(BSTR *pbstrDescription) override {
         TRY_FOR_HRESULT;
         KHIIN_TRACE("");
         BSTR bstr = ::SysAllocString(kCandidateWindowClassName.data());
@@ -203,14 +203,14 @@ struct CandidateListUIImpl :
         CATCH_FOR_HRESULT;
     }
 
-    virtual STDMETHODIMP GetGUID(GUID *pguid) override {
+    STDMETHODIMP GetGUID(GUID *pguid) override {
         TRY_FOR_HRESULT;
         KHIIN_TRACE("");
         *pguid = guids::kCandidateWindow;
         CATCH_FOR_HRESULT;
     }
 
-    virtual STDMETHODIMP Show(BOOL bShow) override {
+    STDMETHODIMP Show(BOOL bShow) override {
         TRY_FOR_HRESULT;
         KHIIN_TRACE("");
         if (!m_candidate_window) {
@@ -226,7 +226,7 @@ struct CandidateListUIImpl :
         CATCH_FOR_HRESULT;
     }
 
-    virtual STDMETHODIMP IsShown(BOOL *pbShow) override {
+    STDMETHODIMP IsShown(BOOL *pbShow) override {
         TRY_FOR_HRESULT;
         KHIIN_TRACE("");
         if (!m_candidate_window) {
@@ -244,7 +244,7 @@ struct CandidateListUIImpl :
     //
     //----------------------------------------------------------------------------
 
-    virtual STDMETHODIMP GetUpdatedFlags(DWORD *flags) override {
+    STDMETHODIMP GetUpdatedFlags(DWORD *flags) override {
         KHIIN_TRACE("");
         *flags = 0;
 
@@ -257,7 +257,7 @@ struct CandidateListUIImpl :
         return S_OK;
     }
 
-    virtual STDMETHODIMP GetDocumentMgr(ITfDocumentMgr **ppdim) override {
+    STDMETHODIMP GetDocumentMgr(ITfDocumentMgr **ppdim) override {
         TRY_FOR_HRESULT;
         KHIIN_TRACE("");
         if (ppdim == nullptr) {
@@ -267,7 +267,7 @@ struct CandidateListUIImpl :
         CATCH_FOR_HRESULT;
     }
 
-    virtual STDMETHODIMP GetCount(UINT *puCount) override {
+    STDMETHODIMP GetCount(UINT *puCount) override {
         TRY_FOR_HRESULT;
         KHIIN_TRACE("");
         if (puCount == nullptr) {
@@ -277,7 +277,7 @@ struct CandidateListUIImpl :
         CATCH_FOR_HRESULT;
     }
 
-    virtual STDMETHODIMP GetSelection(UINT *puIndex) override {
+    STDMETHODIMP GetSelection(UINT *puIndex) override {
         TRY_FOR_HRESULT;
         KHIIN_TRACE("");
         if (puIndex == nullptr) {
@@ -287,7 +287,7 @@ struct CandidateListUIImpl :
         CATCH_FOR_HRESULT;
     }
 
-    virtual STDMETHODIMP GetString(UINT uIndex, BSTR *pstr) override {
+    STDMETHODIMP GetString(UINT uIndex, BSTR *pstr) override {
         TRY_FOR_HRESULT;
         KHIIN_TRACE("");
         if (pstr == nullptr) {
@@ -304,7 +304,7 @@ struct CandidateListUIImpl :
         CATCH_FOR_HRESULT;
     }
 
-    virtual STDMETHODIMP GetPageIndex(UINT *pIndex, UINT uSize, UINT *puPageCnt) override {
+    STDMETHODIMP GetPageIndex(UINT *pIndex, UINT uSize, UINT *puPageCnt) override {
         TRY_FOR_HRESULT;
         KHIIN_TRACE("");
         if (puPageCnt == nullptr) {
@@ -327,12 +327,12 @@ struct CandidateListUIImpl :
         CATCH_FOR_HRESULT;
     }
 
-    virtual STDMETHODIMP SetPageIndex(UINT *pIndex, UINT uPageCnt) override {
+    STDMETHODIMP SetPageIndex(UINT *pIndex, UINT uPageCnt) override {
         KHIIN_TRACE("");
         return E_NOTIMPL;
     }
 
-    virtual STDMETHODIMP GetCurrentPage(UINT *puPage) override {
+    STDMETHODIMP GetCurrentPage(UINT *puPage) override {
         TRY_FOR_HRESULT;
         KHIIN_TRACE("");
         if (puPage == nullptr) {
@@ -348,7 +348,7 @@ struct CandidateListUIImpl :
     //
     //----------------------------------------------------------------------------
 
-    virtual STDMETHODIMP SetSelection(UINT nIndex) override {
+    STDMETHODIMP SetSelection(UINT nIndex) override {
         TRY_FOR_HRESULT;
         KHIIN_TRACE("");
         if (nIndex >= static_cast<uint32_t>(m_candidate_list.candidates_size())) {
@@ -359,7 +359,7 @@ struct CandidateListUIImpl :
         CATCH_FOR_HRESULT;
     }
 
-    virtual STDMETHODIMP Finalize(void) override {
+    STDMETHODIMP Finalize(void) override {
         TRY_FOR_HRESULT;
         KHIIN_TRACE("");
         auto cmd = Command::default_instance().New();
@@ -368,7 +368,7 @@ struct CandidateListUIImpl :
         CATCH_FOR_HRESULT;
     }
 
-    virtual STDMETHODIMP Abort(void) override {
+    STDMETHODIMP Abort(void) override {
         TRY_FOR_HRESULT;
         KHIIN_TRACE("");
         auto cmd = Command::default_instance().New();
@@ -383,19 +383,19 @@ struct CandidateListUIImpl :
     // ITfIntegratableCandidateListUIElement
     //
     //----------------------------------------------------------------------------
-    // virtual STDMETHODIMP SetIntegrationStyle(GUID guidIntegrationStyle) override {
+    // STDMETHODIMP SetIntegrationStyle(GUID guidIntegrationStyle) override {
     //    return E_NOTIMPL;
     //}
-    // virtual STDMETHODIMP GetSelectionStyle(TfIntegratableCandidateListSelectionStyle *ptfSelectionStyle) override {
+    // STDMETHODIMP GetSelectionStyle(TfIntegratableCandidateListSelectionStyle *ptfSelectionStyle) override {
     //    return E_NOTIMPL;
     //}
-    // virtual STDMETHODIMP OnKeyDown(WPARAM wParam, LPARAM lParam, BOOL *pfEaten) override {
+    // STDMETHODIMP OnKeyDown(WPARAM wParam, LPARAM lParam, BOOL *pfEaten) override {
     //    return E_NOTIMPL;
     //}
-    // virtual STDMETHODIMP ShowCandidateNumbers(BOOL *pfShow) override {
+    // STDMETHODIMP ShowCandidateNumbers(BOOL *pfShow) override {
     //    return E_NOTIMPL;
     //}
-    // virtual STDMETHODIMP FinalizeExactCompositionString(void) override {
+    // STDMETHODIMP FinalizeExactCompositionString(void) override {
     //    return E_NOTIMPL;
     //}
 

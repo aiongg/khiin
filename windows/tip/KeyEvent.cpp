@@ -6,8 +6,8 @@ namespace khiin::win32 {
 
 KeyEvent::KeyEvent(UINT message, WPARAM wParam, LPARAM lParam) noexcept :
     message(message), wParam(wParam), lParam(lParam) {
-    if (!::GetKeyboardState(keyboardState)) {
-        ::memset(keyboardState, 0, KEYBOARD_SIZE);
+    if (!::GetKeyboardState(static_cast<PBYTE>(keyboardState))) {
+        ::memset(static_cast<PBYTE>(keyboardState), 0, KEYBOARD_SIZE);
     }
     scanCode = LOBYTE(HIWORD(lParam));
     WORD lpChar[2];
@@ -28,7 +28,7 @@ int KeyEvent::keycode() const {
 }
 
 bool KeyEvent::key_down(int vk_code) const {
-    return keyboardState[vk_code] & 0x80 != 0;
+    return (keyboardState[vk_code] & 0x80) != 0;
 }
 
 } // namespace khiin::win32

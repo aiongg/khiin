@@ -31,7 +31,7 @@ constexpr std::string_view kDbFilename = "khiin_test.db";
 constexpr std::string_view kDbFilename = "khiin.db";
 #endif
 
-static std::unordered_map<int, SpecialKey> kWindowsToKhiinKeyCode = {
+const std::unordered_map<int, SpecialKey> kWindowsToKhiinKeyCode = {
     // clang-format off
     {VK_BACK, SpecialKey::SK_BACKSPACE},
     {VK_TAB, SpecialKey::SK_TAB},
@@ -51,7 +51,7 @@ static std::unordered_map<int, SpecialKey> kWindowsToKhiinKeyCode = {
 } // namespace
 
 void TranslateKeyEvent(win32::KeyEvent *e1, proto::KeyEvent *e2) {
-    if (e1->ascii()) {
+    if (e1->ascii() > 0) {
         e2->set_key_code(e1->ascii());
         e2->set_special_key(SpecialKey::SK_NONE);
     }

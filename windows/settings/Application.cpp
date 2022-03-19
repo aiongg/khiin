@@ -90,14 +90,14 @@ class ApplicationImpl : public Application {
         g_module = hmod;
     }
 
-    virtual void Reinitialize() override {
+    void Reinitialize() override {
         m_display.Reload();
         m_input.Reload();
         m_user.Reload();
         UpdateTitle();
     }
 
-    virtual int ShowDialog() override {
+    int ShowDialog() override {
         LoadConfig();
         UpdateTitle();
 
@@ -113,14 +113,14 @@ class ApplicationImpl : public Application {
         psh.dwFlags = PSH_NOCONTEXTHELP | PSH_USECALLBACK | PSH_USEICONID;
         psh.hwndParent = HWND_DESKTOP;
         psh.hInstance = g_module;
-        psh.nPages = pages.size();
+        psh.nPages = static_cast<uint32_t>(pages.size());
         psh.nStartPage = 0;
         psh.pfnCallback = PropsheetCallback;
         psh.phpage = pages.data();
         psh.pszCaption = m_title.data();
         psh.pszIcon = MAKEINTRESOURCE(IDI_KHIINSETTINGS);
 
-        return ::PropertySheet(&psh);
+        return static_cast<int>(::PropertySheet(&psh));
     }
 
   private:

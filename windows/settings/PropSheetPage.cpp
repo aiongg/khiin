@@ -15,7 +15,7 @@ using namespace proto;
 void SetTitle(HWND page_hwnd, uint32_t page_rid, UiLanguage lang) {
     auto title = Strings::T(page_rid, lang);
     if (!title.empty()) {
-        TCITEM tci;
+        TCITEM tci{};
         tci.mask = TCIF_TEXT;
         tci.pszText = &title[0];
         auto parent = ::GetParent(page_hwnd);

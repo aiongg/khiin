@@ -15,30 +15,30 @@ namespace {
 using namespace winrt;
 using namespace khiin::proto;
 
-inline static int kMaxBufSize = 512;
+constexpr int kMaxBufSize = 512;
 
 struct CompositionMgrImpl : implements<CompositionMgrImpl, CompositionMgr> {
 
-    virtual void Initialize(TextService *pTextService) override {
+    void Initialize(TextService *pTextService) override {
         KHIIN_TRACE("");
         service.copy_from(pTextService);
     }
 
-    virtual void ClearComposition() override {
+    void ClearComposition() override {
         composition = nullptr;
     }
 
-    virtual void Uninitialize() override {
+    void Uninitialize() override {
         KHIIN_TRACE("");
         service = nullptr;
         composition = nullptr;
     }
 
-    virtual bool composing() override {
+    bool composing() override {
         return bool(composition);
     }
 
-    virtual void DoComposition(TfEditCookie cookie, ITfContext *pContext, Preedit preedit) override {
+    void DoComposition(TfEditCookie cookie, ITfContext *pContext, Preedit preedit) override {
         KHIIN_TRACE("");
 
         auto w_preedit = Utils::WidenPreedit(preedit);
@@ -110,7 +110,7 @@ struct CompositionMgrImpl : implements<CompositionMgrImpl, CompositionMgr> {
         SetSelection(cookie, pContext, cursor_range.get(), TF_AE_END);
     }
 
-    virtual void CommitComposition(TfEditCookie cookie, ITfContext *pContext) override {
+    void CommitComposition(TfEditCookie cookie, ITfContext *pContext) override {
         KHIIN_TRACE("");
         if (!composition) {
             return;
@@ -130,7 +130,7 @@ struct CompositionMgrImpl : implements<CompositionMgrImpl, CompositionMgr> {
         composition = nullptr;
     }
 
-    virtual void CommitComposition(TfEditCookie cookie, ITfContext *pContext, Preedit preedit) override try {
+    void CommitComposition(TfEditCookie cookie, ITfContext *pContext, Preedit preedit) override try {
         KHIIN_TRACE("");
 
         if (!composition) {
@@ -162,11 +162,11 @@ struct CompositionMgrImpl : implements<CompositionMgrImpl, CompositionMgr> {
         return;
     }
 
-    virtual void CancelComposition(TfEditCookie cookie) override {
+    void CancelComposition(TfEditCookie cookie) override {
         KHIIN_TRACE("");
     }
 
-    virtual void GetTextRange(TfEditCookie cookie, ITfRange **ppRange) override {
+    void GetTextRange(TfEditCookie cookie, ITfRange **ppRange) override {
         KHIIN_TRACE("");
         if (!composing()) {
             return;
