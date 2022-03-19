@@ -61,12 +61,18 @@ struct TextServiceImpl :
         m_candidate_list_ui->Initialize(service);
         m_keyevent_sink->Advise(service);
         m_preservedkeymgr->Initialize(service);
+
         m_openclose_compartment.Initialize(m_clientid, threadmgr, GUID_COMPARTMENT_KEYBOARD_OPENCLOSE);
-        m_kbd_disabled_compartment.Initialize(m_clientid, threadmgr, GUID_COMPARTMENT_KEYBOARD_DISABLED);
-        m_config_compartment.Initialize(m_clientid, threadmgr, guids::kConfigChangedCompartment, true);
         m_openclose_compartment.SetValue(true);
         m_openclose_sinkmgr.Advise(m_openclose_compartment.get(), this);
+        
+        m_config_compartment.Initialize(m_clientid, threadmgr, guids::kConfigChangedCompartment, true);
         m_config_sinkmgr.Advise(m_config_compartment.get(), this);
+        m_userdata_compartment.Initialize(m_clientid, threadmgr, guids::kResetUserdataCompartment, true);
+        m_userdata_sinkmgr.Advise(m_userdata_compartment.get(), this);
+
+        m_kbd_disabled_compartment.Initialize(m_clientid, threadmgr, GUID_COMPARTMENT_KEYBOARD_DISABLED);
+        
         m_engine->Initialize(service);
         InitCategoryMgr();
         InitDisplayAttributes();
@@ -77,12 +83,15 @@ struct TextServiceImpl :
     HRESULT OnDeactivate() {
         auto hr = E_FAIL;
         m_engine->Uninitialize();
-        m_openclose_sinkmgr.Unadvise();
         m_keyevent_sink->Unadvise();
+        m_openclose_sinkmgr.Unadvise();
         m_openclose_compartment.SetValue(false);
-        m_kbd_disabled_compartment.Uninitialize();
         m_openclose_compartment.Uninitialize();
+        m_config_sinkmgr.Unadvise();
         m_config_compartment.Uninitialize();
+        m_userdata_sinkmgr.Unadvise();
+        m_userdata_compartment.Uninitialize();
+        m_kbd_disabled_compartment.Uninitialize();
         m_candidate_list_ui->Uninitialize();
         m_preservedkeymgr->Shutdown();
         m_threadmgr_sink->Uninitialize();
@@ -127,8 +136,10 @@ struct TextServiceImpl :
     Compartment m_openclose_compartment;
     Compartment m_kbd_disabled_compartment;
     Compartment m_config_compartment;
+    Compartment m_userdata_compartment;
     SinkManager<ITfCompartmentEventSink> m_openclose_sinkmgr;
     SinkManager<ITfCompartmentEventSink> m_config_sinkmgr;
+    SinkManager<ITfCompartmentEventSink> m_userdata_sinkmgr;
     std::unique_ptr<AppConfig> m_config = nullptr;
     std::vector<ConfigChangeListener *> m_config_listeners;
     std::unique_ptr<PreservedKeyMgr> m_preservedkeymgr = nullptr;
@@ -383,6 +394,12 @@ struct TextServiceImpl :
         if (rguid == guids::kConfigChangedCompartment) {
             InitConfig();
             NotifyConfigChangeListeners();
+        }
+
+        if (rguid == guids::kResetUserdataCompartment) {
+            auto cmd = Command();
+            cmd.mutable_request()->set_type(CMD_RESET_USER_DATA);
+            m_engine->SendCommand(std::move(cmd));
         }
 
         CATCH_FOR_HRESULT;

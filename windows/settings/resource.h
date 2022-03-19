@@ -28,8 +28,8 @@
 #define IDC_INPUTMODE_PRO               2005
 #define IDL_INPUTMODE_HOTKEY            2006
 #define IDC_INPUTMODE_KEY_COMBO         2007
-#define IDS_INPUTMODE_KEY_CTRL_PERIOD    2008
-#define IDS_INPUTMODE_KEY_CTRL_BACKTICK    2009
+#define IDS_INPUTMODE_KEY_CTRL_PERIOD   2008
+#define IDS_INPUTMODE_KEY_CTRL_BACKTICK 2009
 #define IDL_ON_OFF_HOTKEY               2011
 #define IDC_ON_OFF_HOTKEY_COMBO         2012
 #define IDS_ON_OFF_HOTKEY_SHIFT         2013
@@ -59,6 +59,10 @@
 #define IDC_HYPHEN_KEY_COMBO            2037
 #define IDS_HYPHEN_KEY_HYPHEN           2038
 #define IDS_HYPHEN_KEY_V                2039
+#define IDD_DICTIONARYTAB               3000
+#define IDL_RESET_USER_DATA             3001
+#define IDC_RESET_BTN                   3002
+#define IDL_RESET_BUTTON_DONE           3003
 #define IDC_STATIC                      -1
 
 // Next default values for new objects
@@ -68,7 +72,7 @@
 #define _APS_NO_MFC                     1
 #define _APS_NEXT_RESOURCE_VALUE        128
 #define _APS_NEXT_COMMAND_VALUE         32771
-#define _APS_NEXT_CONTROL_VALUE         10024
+#define _APS_NEXT_CONTROL_VALUE         10026
 #define _APS_NEXT_SYMED_VALUE           110
 #endif
 #endif

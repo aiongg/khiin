@@ -14,13 +14,13 @@
 #include "AppearanceProps.h"
 #include "InputProps.h"
 #include "Strings.h"
+#include "UserProps.h"
 
 namespace khiin::win32::settings {
 namespace {
 using namespace winrt;
 using namespace khiin::proto;
 using namespace khiin::win32::tip;
-
 
 Application *g_app;
 HMODULE g_module = NULL;
@@ -85,13 +85,15 @@ void LoadConfig() {
 class ApplicationImpl : public Application {
   public:
     ApplicationImpl(HMODULE hmod) :
-        m_display(AppearanceProps(this)), m_input(InputProps(this)), m_about(PropSheetPage(this)) {
+        m_display(AppearanceProps(this)), m_input(InputProps(this)), m_about(PropSheetPage(this)),
+        m_user(UserProps(this)) {
         g_module = hmod;
     }
 
     virtual void Reinitialize() override {
         m_display.Reload();
         m_input.Reload();
+        m_user.Reload();
         UpdateTitle();
     }
 
@@ -103,6 +105,7 @@ class ApplicationImpl : public Application {
 
         pages.push_back(m_display.psp(g_module, IDD_APPEARANCETAB, g_config));
         pages.push_back(m_input.psp(g_module, IDD_INPUTTAB, g_config));
+        pages.push_back(m_user.psp(g_module, IDD_DICTIONARYTAB, g_config));
         pages.push_back(m_about.psp(g_module, IDD_ABOUTTAB, g_config));
 
         PROPSHEETHEADER psh = {};
@@ -132,6 +135,7 @@ class ApplicationImpl : public Application {
     AppearanceProps m_display;
     InputProps m_input;
     PropSheetPage m_about;
+    UserProps m_user;
     std::wstring m_title;
 };
 

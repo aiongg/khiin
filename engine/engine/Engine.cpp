@@ -55,6 +55,7 @@ class EngineImpl : public Engine {
         m_cmd_handlers[CMD_FOCUS_CANDIDATE] = &EngineImpl::HandleFocusCandidate;
         m_cmd_handlers[CMD_SET_CONFIG] = &EngineImpl::HandleSetConfig;
         m_cmd_handlers[CMD_LIST_EMOJIS] = &EngineImpl::HandleListEmojis;
+        m_cmd_handlers[CMD_RESET_USER_DATA] = &EngineImpl::HandleResetUserData;
 
         NotifyConfigChangeListeners();
         m_dictionary->Initialize();
@@ -259,6 +260,10 @@ class EngineImpl : public Engine {
             cand->set_id(emoji.category);
             cand->set_value(emoji.value);
         }
+    }
+
+    void HandleResetUserData(Command *command) {
+        m_database->ClearNGramsData();
     }
 
     // void HandleRevert(Command *command, Output *output) {}

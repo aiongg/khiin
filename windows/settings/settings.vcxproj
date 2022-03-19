@@ -195,6 +195,7 @@
     <ClInclude Include="PropSheetPage.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="Strings.h" />
+    <ClInclude Include="UserProps.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\tip\Config.cpp" />
@@ -212,6 +213,7 @@
     </ClCompile>
     <ClCompile Include="PropSheetPage.cpp" />
     <ClCompile Include="Strings.cpp" />
+    <ClCompile Include="UserProps.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Settings.rc" />

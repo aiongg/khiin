@@ -41,6 +41,32 @@ EnumT EnumVal(std::underlying_type_t<EnumT> e) {
     return static_cast<EnumT>(e);
 }
 
+DWORD Timestamp() {
+#pragma warning(push)
+#pragma warning(disable : 28159)
+    return ::GetTickCount();
+#pragma warning(pop)
+}
+
+void NotifyGlobalCompartment(GUID compartment_guid, DWORD value) {
+    auto thread_mgr = com_ptr<ITfThreadMgr>();
+    TfClientId client_id = 0;
+    auto compartment_mgr = com_ptr<ITfCompartmentMgr>();
+    auto compartment = com_ptr<ITfCompartment>();
+    VARIANT var;
+    ::VariantInit(&var);
+    var.vt = VT_I4;
+    var.lVal = value;
+
+    check_hresult(::CoInitialize(NULL));
+    check_hresult(
+        ::CoCreateInstance(CLSID_TF_ThreadMgr, NULL, CLSCTX_INPROC_SERVER, IID_ITfThreadMgr, thread_mgr.put_void()));
+    check_hresult(thread_mgr->Activate(&client_id));
+    check_hresult(thread_mgr->GetGlobalCompartment(compartment_mgr.put()));
+    check_hresult(compartment_mgr->GetCompartment(compartment_guid, compartment.put()));
+    check_hresult(compartment->SetValue(client_id, &var));
+}
+
 } // namespace
 
 UiLanguage Config::GetSystemLang() {
@@ -112,29 +138,11 @@ void Config::SaveToFile(HMODULE hmodule, AppConfig *config) {
 }
 
 void Config::NotifyChanged() {
-    check_hresult(::CoInitialize(NULL));
+    NotifyGlobalCompartment(guids::kConfigChangedCompartment, Timestamp());
+}
 
-    auto thread_mgr = com_ptr<ITfThreadMgr>();
-    check_hresult(
-        ::CoCreateInstance(CLSID_TF_ThreadMgr, NULL, CLSCTX_INPROC_SERVER, IID_ITfThreadMgr, thread_mgr.put_void()));
-
-    TfClientId client_id = 0;
-    check_hresult(thread_mgr->Activate(&client_id));
-
-    auto compartment_mgr = com_ptr<ITfCompartmentMgr>();
-    check_hresult(thread_mgr->GetGlobalCompartment(compartment_mgr.put()));
-
-    auto compartment = com_ptr<ITfCompartment>();
-    check_hresult(compartment_mgr->GetCompartment(guids::kConfigChangedCompartment, compartment.put()));
-
-    VARIANT var;
-    ::VariantInit(&var);
-    var.vt = VT_I4;
-#pragma warning(push)
-#pragma warning(disable : 28159)
-    var.lVal = ::GetTickCount();
-#pragma warning(pop)
-    check_hresult(compartment->SetValue(client_id, &var));
+void Config::ClearUserHistory() {
+    NotifyGlobalCompartment(guids::kResetUserdataCompartment, Timestamp());
 }
 
 UiColors Config::GetUiColors() {

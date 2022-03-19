@@ -1,3 +1,4 @@
+
 #include "CandidateFinder.h"
 
 #include "Database.h"
@@ -37,7 +38,7 @@ void LoadUnigramCounts(Engine *engine, std::vector<TokenResult> &options) {
     }
 }
 
-void LoadBigramCounts(Engine* engine, TaiToken *lgram, std::vector<TokenResult>& options) {
+void LoadBigramCounts(Engine *engine, TaiToken *lgram, std::vector<TokenResult> &options) {
     if (lgram == nullptr) {
         return;
     }
@@ -58,7 +59,7 @@ void LoadBigramCounts(Engine* engine, TaiToken *lgram, std::vector<TokenResult>&
     }
 }
 
-//bool CompareTokenResultsByWeightFirst(TokenResult const &a, TokenResult const &b) {
+// bool CompareTokenResultsByWeightFirst(TokenResult const &a, TokenResult const &b) {
 //    if (a.bigram_count != b.bigram_count) {
 //        return a.bigram_count > b.bigram_count;
 //    }
@@ -74,7 +75,7 @@ void LoadBigramCounts(Engine* engine, TaiToken *lgram, std::vector<TokenResult>&
 //    return a.token->input_id < b.token->input_id;
 //}
 
-//inline void SortTokenResultsByWeightFirst(Engine *engine, std::vector<TokenResult> &options) {
+// inline void SortTokenResultsByWeightFirst(Engine *engine, std::vector<TokenResult> &options) {
 //    LoadUnigramCounts(engine, options);
 //    std::sort(options.begin(), options.end(), CompareTokenResultsByWeightFirst);
 //}

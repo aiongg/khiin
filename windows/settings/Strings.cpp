@@ -71,6 +71,15 @@ StrMap kStringsEn = {
     {IDL_HYPHEN_KEY,                 L"Input -:"},
     {IDS_HYPHEN_KEY_HYPHEN,          L"-"},
     {IDS_HYPHEN_KEY_V,               L"v"},
+
+    // Dictionary tab
+    {IDD_DICTIONARYTAB,              L"Dictionary"},
+    {IDL_RESET_USER_DATA,            L"Clear input history. WARNING: cannot be undone."},
+    {IDC_RESET_BTN,                  L"Clear Now"},
+    {IDL_RESET_BUTTON_DONE,          L"Cleared!"},
+
+    // About tab
+    {IDD_ABOUTTAB,                   L"About"},
 };
 
 StrMap kStringsHanlo = {
@@ -129,6 +138,15 @@ StrMap kStringsHanlo = {
     {IDL_HYPHEN_KEY,                 L"連劃「-」："},
     {IDS_HYPHEN_KEY_HYPHEN,          L"-"},
     {IDS_HYPHEN_KEY_V,               L"v"},
+
+    // Dictionary tab
+    {IDD_DICTIONARYTAB,              L"詞庫"},
+    {IDL_RESET_USER_DATA,            L"清使用者打字統計。注！袂使 UNDO。"},
+    {IDC_RESET_BTN,                  L"Liâm-mi 清掉"},
+    {IDL_RESET_BUTTON_DONE,          L"清好啞"},
+
+    // About tab
+    {IDD_ABOUTTAB,                   L"About"},
 };
 // clang-format on
 

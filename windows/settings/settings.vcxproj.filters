@@ -35,6 +35,9 @@
     <ClInclude Include="Strings.h">
       <Filter>settings</Filter>
     </ClInclude>
+    <ClInclude Include="UserProps.h">
+      <Filter>settings</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -66,6 +69,9 @@
     </ClCompile>
     <ClCompile Include="..\tip\Registrar.cpp">
       <Filter>tip</Filter>
+    </ClCompile>
+    <ClCompile Include="UserProps.cpp">
+      <Filter>settings</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

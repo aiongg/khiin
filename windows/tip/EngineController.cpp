@@ -25,7 +25,11 @@ using namespace khiin::proto;
 
 volatile HMODULE g_module = nullptr;
 
+#ifdef _DEBUG
 constexpr std::string_view kDbFilename = "khiin_test.db";
+#else
+constexpr std::string_view kDbFilename = "khiin.db";
+#endif
 
 static std::unordered_map<int, SpecialKey> kWindowsToKhiinKeyCode = {
     // clang-format off
@@ -63,19 +67,19 @@ struct EngineControllerImpl : winrt::implements<EngineControllerImpl, EngineCont
     EngineControllerImpl &operator=(const EngineControllerImpl &) = delete;
     ~EngineControllerImpl() = default;
 
-    virtual void Initialize(TextService *pService) override {
+    void Initialize(TextService *pService) override {
         m_service.copy_from(pService);
         auto dbfile = Files::GetFilePath(g_module, kDbFilename);
         m_engine = std::unique_ptr<Engine>(Engine::Create(dbfile.string()));
         m_service->RegisterConfigChangeListener(this);
     }
 
-    virtual void Uninitialize() override {
+    void Uninitialize() override {
         m_engine.reset(nullptr);
         m_service = nullptr;
     }
 
-    virtual Command *TestKey(KeyEvent win_key_event) override {
+    Command *TestKey(KeyEvent win_key_event) override {
         auto cmd = new Command();
         auto request = cmd->mutable_request();
         request->set_type(CMD_TEST_SEND_KEY);
@@ -90,7 +94,7 @@ struct EngineControllerImpl : winrt::implements<EngineControllerImpl, EngineCont
         return SendCommand(cmd);
     }
 
-    virtual Command *OnKey(KeyEvent win_key_event) override {
+    Command *OnKey(KeyEvent win_key_event) override {
         auto cmd = new Command();
         auto request = cmd->mutable_request();
         request->set_type(CMD_SEND_KEY);
@@ -99,7 +103,7 @@ struct EngineControllerImpl : winrt::implements<EngineControllerImpl, EngineCont
         return SendCommand(cmd);
     }
 
-    virtual Command *SelectCandidate(int32_t candidate_id) override {
+    Command *SelectCandidate(int32_t candidate_id) override {
         auto cmd = new Command();
         auto request = cmd->mutable_request();
         request->set_type(CMD_SELECT_CANDIDATE);
@@ -107,7 +111,7 @@ struct EngineControllerImpl : winrt::implements<EngineControllerImpl, EngineCont
         return SendCommand(cmd);
     }
 
-    virtual Command *FocusCandidate(int32_t candidate_id) override {
+    Command *FocusCandidate(int32_t candidate_id) override {
         auto cmd = new Command();
         auto request = cmd->mutable_request();
         request->set_type(CMD_FOCUS_CANDIDATE);
@@ -115,14 +119,18 @@ struct EngineControllerImpl : winrt::implements<EngineControllerImpl, EngineCont
         return SendCommand(cmd);
     }
 
-    virtual void Reset() {
+    void Reset() override {
         auto cmd = new Command();
         auto request = cmd->mutable_request();
         request->set_type(CMD_RESET);
         SendCommand(cmd);
     }
 
-    virtual CandidateList *LoadEmojis() override {
+    void SendCommand(Command command) override {
+        m_engine->SendCommand(&command);
+    }
+
+    CandidateList *LoadEmojis() override {
         if (m_emojis.candidates_size() == 0) {
             auto cmd = new Command();
             cmd->mutable_request()->set_type(CMD_LIST_EMOJIS);
@@ -137,10 +145,10 @@ struct EngineControllerImpl : winrt::implements<EngineControllerImpl, EngineCont
     // ConfigChangeListener
     //
     //----------------------------------------------------------------------------
-     
+
     virtual void OnConfigChanged(proto::AppConfig *config) override {
-        auto cmd = new Command();
-        auto request = cmd->mutable_request();
+        auto *cmd = new Command();
+        auto *request = cmd->mutable_request();
         request->set_type(CMD_SET_CONFIG);
         request->mutable_config()->CopyFrom(*config);
         SendCommand(cmd);
