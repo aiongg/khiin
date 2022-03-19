@@ -1,0 +1,9 @@
+target_sources(khiin
+    PUBLIC
+        "common.h"
+        "errors.h"
+        "unicode.cpp"
+        "unicode.h"
+        "utils.cpp"
+        "utils.h"
+)

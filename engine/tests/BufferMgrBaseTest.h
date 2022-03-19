@@ -8,9 +8,9 @@
 
 #include "proto/proto.h"
 
-#include "engine/BufferMgr.h"
-#include "engine/Config.h"
-#include "engine/Engine.h"
+#include "input/BufferMgr.h"
+#include "config/Config.h"
+#include "Engine.h"
 
 #include "TestEnv.h"
 

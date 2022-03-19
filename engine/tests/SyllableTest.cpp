@@ -1,8 +1,8 @@
 #include <gtest/gtest.h>
 
-#include "engine/Engine.h"
-#include "engine/KeyConfig.h"
-#include "engine/Syllable.h"
+#include "Engine.h"
+#include "config/KeyConfig.h"
+#include "input/Syllable.h"
 
 #include "TestEnv.h"
 

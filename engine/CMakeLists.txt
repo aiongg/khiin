@@ -1,7 +1,7 @@
 # CMakeList.txt : Top-level CMake project file, do global configuration
 # and include sub-projects here.
 #
-cmake_minimum_required (VERSION 3.8)
+cmake_minimum_required (VERSION 3.13)
 set(CMAKE_CXX_STANDARD 17)
 set(VCPKG_FEATURE_FLAGS "versions")
 
@@ -9,17 +9,33 @@ message(STATUS "Begin ${CMAKE_BUILD_TYPE} Build")
 
 project ("KhiinEngine" CXX)
 
-set(PROTOBUF_DIR "${PROJECT_SOURCE_DIR}/../proto/proto")
+set(PROTOS_DIR "${PROJECT_SOURCE_DIR}/../proto/proto")
 
 find_package(GTest CONFIG REQUIRED)
 find_package(SQLiteCpp REQUIRED)
 find_package(Protobuf REQUIRED)
-find_package (Boost REQUIRED COMPONENTS log)
-include_directories (${Boost_INCLUDE_DIRS})
 
-add_subdirectory ("engine")
+include_directories(${PROJECT_SOURCE_DIR} ${PROTOBUF_INCLUDE_DIR})
 
+add_library(khiin STATIC
+    "${PROTOS_DIR}/config.pb.h"
+    "${PROTOS_DIR}/config.pb.cc"
+    "${PROTOS_DIR}/command.pb.h"
+    "${PROTOS_DIR}/command.pb.cc"
+    "${PROTOS_DIR}/proto.h"
+    "Engine.h"
+    "Engine.cpp"
+)
+
+add_subdirectory("config")
+add_subdirectory("data")
+add_subdirectory("input")
+add_subdirectory("utils")
 target_include_directories(khiin PUBLIC "../third_party" "../proto")
+
+# Debug
+target_link_options(khiin PRIVATE "/MAP")
+# target_include_directories (khiin PUBLIC "engine")
 
 enable_testing()
 add_subdirectory ("tests")

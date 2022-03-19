@@ -7,8 +7,8 @@
 #include "proto/proto.h"
 #include "utf8cpp/utf8/cpp17.h"
 
-#include "engine/Engine.h"
-#include "engine/common.h"
+#include "Engine.h"
+#include "utils/common.h"
 
 #include "TestEnv.h"
 

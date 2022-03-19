@@ -3,7 +3,7 @@
 
 #include <memory>
 
-#include "engine/Trie.h"
+#include "data/Trie.h"
 
 namespace khiin::engine {
 namespace {

@@ -5,7 +5,7 @@
 
 #include <SQLiteCpp/SQLiteCpp.h>
 
-#include "engine/Database.h"
+#include "data/Database.h"
 
 namespace khiin::engine {
 namespace {

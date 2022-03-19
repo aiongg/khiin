@@ -1,0 +1,15 @@
+target_sources(khiin
+    PUBLIC
+        "${CMAKE_CURRENT_LIST_DIR}/Database.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/Database.h"
+        "${CMAKE_CURRENT_LIST_DIR}/Dictionary.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/Dictionary.h"
+        "${CMAKE_CURRENT_LIST_DIR}/Models.h"
+        "${CMAKE_CURRENT_LIST_DIR}/Splitter.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/Splitter.h"
+        "${CMAKE_CURRENT_LIST_DIR}/SQL.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/SQL.h"
+        "${CMAKE_CURRENT_LIST_DIR}/Trie.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/Trie.h"
+        "${CMAKE_CURRENT_LIST_DIR}/TrieFactory.h"
+)

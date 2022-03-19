@@ -1,8 +1,8 @@
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
-#include "engine/Dictionary.h"
-#include "engine/Splitter.h"
+#include "data/Dictionary.h"
+#include "data/Splitter.h"
 
 #include "TestEnv.h"
 

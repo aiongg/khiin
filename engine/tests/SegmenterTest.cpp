@@ -1,7 +1,7 @@
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
-#include "engine/Segmenter.h"
+#include "input/Segmenter.h"
 
 #include "TestEnv.h"
 

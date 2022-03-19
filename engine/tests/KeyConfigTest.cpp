@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 
-#include "engine/KeyConfig.h"
+#include "config/KeyConfig.h"
 
 namespace khiin::engine {
 namespace {

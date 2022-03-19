@@ -146,7 +146,7 @@ StrMap kStringsHanlo = {
     {IDL_RESET_BUTTON_DONE,          L"清好啞"},
 
     // About tab
-    {IDD_ABOUTTAB,                   L"About"},
+    {IDD_ABOUTTAB,                   L"起引"},
 };
 // clang-format on
 

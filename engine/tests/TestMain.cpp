@@ -9,8 +9,9 @@
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
-#include "engine/Database.h"
+#include "data/Database.h"
 
+#include "Engine.h"
 #include "TestEnv.h"
 
 namespace {

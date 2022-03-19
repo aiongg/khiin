@@ -5,7 +5,8 @@
 #include <filesystem>
 #include <unordered_map>
 
-#include <engine/Engine.h>
+#include "engine/Engine.h"
+#include "proto/proto.h"
 
 #include "Config.h"
 #include "DllModule.h"
@@ -14,7 +15,6 @@
 #include "TextService.h"
 #include "Utils.h"
 #include "common.h"
-#include "proto/proto.h"
 
 namespace khiin::win32::tip {
 namespace {

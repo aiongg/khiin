@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 
-#include "engine/unicode_utils.h"
+#include "utils/unicode.h"
 
 namespace khiin::unicode {
 namespace {

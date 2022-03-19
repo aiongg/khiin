@@ -1,0 +1,23 @@
+target_sources(khiin
+    PUBLIC
+        "Buffer.cpp"
+        "Buffer.h"
+        "BufferElement.cpp"
+        "BufferElement.h"
+        "BufferMgr.cpp"
+        "BufferMgr.h"
+        "CandidateFinder.cpp"
+        "CandidateFinder.h"
+        "KhinHandler.cpp"
+        "KhinHandler.h"
+        "Lomaji.cpp"
+        "Lomaji.h"
+        "Segmenter.cpp"
+        "Segmenter.h"
+        "Syllable.cpp"
+        "Syllable.h"
+        "SyllableParser.cpp"
+        "SyllableParser.h"
+        "TaiText.cpp"
+        "TaiText.h"
+)

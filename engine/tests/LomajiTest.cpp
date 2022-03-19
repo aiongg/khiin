@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 
 //#include "common.h"
-#include "engine/Lomaji.h"
+#include "input/Lomaji.h"
 
 namespace khiin::engine {
 namespace {

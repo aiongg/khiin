@@ -2,7 +2,7 @@
 
 #include <gtest/gtest.h>
 
-#include "engine/Engine.h"
+#include "Engine.h"
 
 class TestEnv : public ::testing::Environment {
   public:
