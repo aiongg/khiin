@@ -3,8 +3,9 @@
 #include <sstream>
 #include <string>
 #include <utility>
+#include <cmath>
 
-#include "splitter.h"
+#include "Splitter.h"
 
 using namespace std::string_literals;
 
@@ -56,11 +57,11 @@ Splitter::Splitter() {}
 Splitter::Splitter(std::vector<std::string> const &words_by_frequency) {
     std::copy(words_by_frequency.cbegin(), words_by_frequency.cend(), std::inserter(m_word_set, m_word_set.begin()));
 
-    auto log_size = static_cast<float>(log(words_by_frequency.size()));
+    auto log_size = static_cast<float>(std::log(words_by_frequency.size()));
 
     auto idx = 0;
     for (auto &it : words_by_frequency) {
-        m_cost_map[it] = static_cast<float>(log((idx + 1) * log_size));
+        m_cost_map[it] = static_cast<float>(std::log((idx + 1) * log_size));
         m_max_word_length = std::max(m_max_word_length, (int)it.size());
         ++idx;
     }

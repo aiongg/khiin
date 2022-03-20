@@ -22,7 +22,7 @@ template <typename T>
 std::vector<T> odometer_merge(std::vector<std::vector<T>> const &vector_set) {
     auto size = vector_set.size();
     auto ret = std::vector<T>();
-    auto its = std::vector<std::vector<T>::const_iterator>();
+    auto its = std::vector<typename std::vector<T>::const_iterator>();
     for (auto &vec : vector_set) {
         its.push_back(vec.cbegin());
     }

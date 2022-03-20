@@ -124,22 +124,22 @@ GlyphCategory end_glyph_type(std::string_view str);
 
 template <typename StrT>
 utf8::unchecked::iterator<typename StrT::iterator> u8_begin(StrT &str) {
-    return utf8::unchecked::iterator<StrT::iterator>(str.begin());
+    return utf8::unchecked::iterator<typename StrT::iterator>(str.begin());
 }
 
 template <typename StrT>
 utf8::unchecked::iterator<typename StrT::iterator> u8_end(StrT &str) {
-    return utf8::unchecked::iterator<StrT::iterator>(str.end());
+    return utf8::unchecked::iterator<typename StrT::iterator>(str.end());
 }
 
 template <typename StrT>
 utf8::unchecked::iterator<typename StrT::const_iterator> u8_cbegin(StrT const &str) {
-    return utf8::unchecked::iterator<StrT::const_iterator>(str.cbegin());
+    return utf8::unchecked::iterator<typename StrT::const_iterator>(str.cbegin());
 }
 
 template <typename StrT>
 utf8::unchecked::iterator<typename StrT::const_iterator> u8_cend(StrT const &str) {
-    return utf8::unchecked::iterator<StrT::const_iterator>(str.cend());
+    return utf8::unchecked::iterator<typename StrT::const_iterator>(str.cend());
 }
 
 template <typename StrT>
