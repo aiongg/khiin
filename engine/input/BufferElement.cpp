@@ -16,10 +16,18 @@ bool BufferElement::ConvertedEq(BufferElement const &lhs, BufferElement const &r
 
 BufferElement BufferElement::Build(SyllableParser *parser, std::string const &input, TaiToken *match,
                                    bool set_candidate, bool set_converted) {
-    auto tt = TaiText::FromMatching(parser, input, match);
+    auto tt = TaiText();
+
+    if (match == nullptr) {
+        tt = TaiText::FromRawSyllable(parser, input);
+    } else {
+        tt = TaiText::FromMatching(parser, input, match);
+    }
+
     if (set_candidate) {
         tt.SetCandidate(match);
     }
+
     auto ret = BufferElement(std::move(tt));
     ret.is_converted = set_converted;
     return ret;
@@ -74,17 +82,17 @@ void BufferElement::Replace(VirtualSpace elem) {
 utf8_size_t BufferElement::size() const {
     utf8_size_t ret = 0;
 
-    if (auto elem = std::get_if<std::string>(&m_element)) {
+    if (auto *elem = std::get_if<std::string>(&m_element)) {
         ret = u8_size(*elem);
-    } else if (auto elem = std::get_if<TaiText>(&m_element)) {
+    } else if (auto *elem = std::get_if<TaiText>(&m_element)) {
         if (is_converted && elem->candidate()) {
             ret = u8_size(elem->candidate()->output);
         } else {
             ret = elem->ComposedSize();
         }
-    } else if (auto elem = std::get_if<Punctuation>(&m_element)) {
+    } else if (auto *elem = std::get_if<Punctuation>(&m_element)) {
         ret = u8_size(elem->output);
-    } else if (auto elem = std::get_if<VirtualSpace>(&m_element)) {
+    } else if (auto *elem = std::get_if<VirtualSpace>(&m_element)) {
         ret = 1;
     }
 
@@ -92,11 +100,11 @@ utf8_size_t BufferElement::size() const {
 }
 
 std::string BufferElement::raw() const {
-    if (auto elem = std::get_if<std::string>(&m_element)) {
+    if (auto *elem = std::get_if<std::string>(&m_element)) {
         return *elem;
-    } else if (auto elem = std::get_if<TaiText>(&m_element)) {
+    } else if (auto *elem = std::get_if<TaiText>(&m_element)) {
         return elem->RawText();
-    } else if (auto elem = std::get_if<Punctuation>(&m_element)) {
+    } else if (auto *elem = std::get_if<Punctuation>(&m_element)) {
         return elem->input;
     } else { // VirtualSpace && std::Monostate
         return std::string();

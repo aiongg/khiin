@@ -18,6 +18,7 @@
 #include "config/KeyConfig.h"
 #include "data/Database.h"
 #include "data/Dictionary.h"
+#include "data/UserDictionary.h"
 #include "input/BufferMgr.h"
 #include "input/SyllableParser.h"
 #include "utils/utils.h"
@@ -75,6 +76,16 @@ class EngineImpl : public Engine {
         (this->*handler)(pCommand);
     }
 
+    void LoadUserDictionary(std::string file_path) override {
+        if (file_path.empty()) {
+            m_userdict = nullptr;
+        } else {
+            if (fs::exists(fs::path(file_path))) {
+                m_userdict = UserDictionary::Create(file_path);
+            }
+        }
+    }
+
     BufferMgr *buffer_mgr() override {
         return m_buffer_mgr.get();
     }
@@ -93,6 +104,10 @@ class EngineImpl : public Engine {
 
     Dictionary *dictionary() override {
         return m_dictionary.get();
+    }
+
+    UserDictionary* user_dict() override {
+        return m_userdict.get();
     }
 
     Config *config() override {
@@ -182,7 +197,7 @@ class EngineImpl : public Engine {
 
     void HandleCommit(Command *command) {
         // command->input().set_type(CommandType::COMMIT);
-        auto* req = command->mutable_request();
+        auto *req = command->mutable_request();
         req->set_type(CMD_COMMIT);
         // auto res = command->mutable_response();
         // auto preedit = res->mutable_preedit();
@@ -245,9 +260,13 @@ class EngineImpl : public Engine {
     }
 
     void NotifyConfigChangeListeners() {
-        for (auto &listener : m_config_change_listeners) {
-            if (listener != nullptr) {
-                listener->OnConfigChanged(m_config.get());
+        auto it = m_config_change_listeners.begin();
+        while (it != m_config_change_listeners.end()) {
+            if (*it != nullptr) {
+                (*it)->OnConfigChanged(m_config.get());
+                ++it;
+            } else {
+                it = m_config_change_listeners.erase(it);
             }
         }
     }
@@ -277,6 +296,7 @@ class EngineImpl : public Engine {
     std::unique_ptr<KeyConfig> m_keyconfig = nullptr;
     std::unique_ptr<SyllableParser> m_syllable_parser = nullptr;
     std::unique_ptr<Dictionary> m_dictionary = nullptr;
+    std::unique_ptr<UserDictionary> m_userdict = nullptr;
 
     std::vector<std::string> m_valid_syllables;
 

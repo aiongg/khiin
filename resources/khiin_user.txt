@@ -1,0 +1,11 @@
+# 逐咀通打一个語詞。輸入通寫 ASCII (a-z, 0-9)。
+# Làng 一个空白閣寫卜輸出个字。
+#
+# The input string may contain only letters and numbers
+# Everything after the first space is the output string
+#
+# 凡例 Examples:
+
+khiin 起引
+dog káu-á
+no の

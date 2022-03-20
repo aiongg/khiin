@@ -46,6 +46,8 @@ class Config {
     static Hotkey GetOnOffHotkey();
     static void SetOnOffHotkey(Hotkey key);
     static Hotkey GetInputModeHotkey();
+    static void SetUserDictionaryFile(std::wstring file_path);
+    static std::wstring GetUserDictionaryFile();
     static void SetInputModeHotkey(Hotkey key);
     static bool SystemUsesLightTheme();
 };

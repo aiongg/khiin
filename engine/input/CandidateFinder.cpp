@@ -7,6 +7,7 @@
 #include "data/Dictionary.h"
 #include "data/Splitter.h"
 #include "data/Trie.h"
+#include "data/UserDictionary.h"
 
 #include "Engine.h"
 #include "Segmenter.h"
@@ -208,21 +209,8 @@ std::vector<Buffer> AllSplittableCandidatesFromStart(Engine *engine, TaiToken *l
     return TokensToBuffers(engine, options, raw_query);
 }
 
-std::vector<Buffer> AllPunctuation(Engine *engine, TaiToken *lgram, std::string const &query) {
-    auto ret = std::vector<Buffer>();
-    auto options = engine->dictionary()->SearchPunctuation(query);
-    for (auto &p : options) {
-        ret.push_back(Buffer(p));
-        ret.back().SetConverted(true);
-    }
-    return ret;
-}
-
-std::vector<Buffer> AllWordsFromStart(Engine *engine, TaiToken *lgram, std::string const &query) {
-    auto ret = std::vector<Buffer>();
-    auto query_lc = unicode::copy_str_tolower(query);
-    auto options = engine->dictionary()->AllWordsFromStart(query_lc);
-
+void DedupeAndSortTokenResultSet(Engine *engine, TaiToken *lgram, std::string const &query,
+                                 std::vector<TokenResult> &options) {
     auto *keyconfig = engine->keyconfig();
     auto seen = std::set<std::string>();
     auto invalid_sizes = std::set<size_t>();
@@ -250,6 +238,15 @@ std::vector<Buffer> AllWordsFromStart(Engine *engine, TaiToken *lgram, std::stri
     }
 
     SortTokenResultsByLengthFirst(engine, lgram, options);
+}
+
+std::vector<Buffer> AllWordsFromStart(Engine *engine, TaiToken *lgram, std::string const &query) {
+    auto ret = std::vector<Buffer>();
+    auto query_lc = unicode::copy_str_tolower(query);
+    auto options = engine->dictionary()->AllWordsFromStart(query_lc);
+
+    DedupeAndSortTokenResultSet(engine, lgram, query, options);
+
     return TokensToBuffers(engine, options, query);
 }
 
@@ -265,7 +262,7 @@ Buffer WordsToBuffer(Engine *engine, std::vector<std::string> &words) {
     return ret;
 }
 
-Punctuation BestPunctuation(Engine *engine, TaiToken *lgram, std::string const &query) {
+Punctuation OnePunctuation(Engine *engine, TaiToken *lgram, std::string const &query) {
     auto puncts = engine->dictionary()->SearchPunctuation(query);
     if (!puncts.empty()) {
         return puncts[0];
@@ -273,7 +270,17 @@ Punctuation BestPunctuation(Engine *engine, TaiToken *lgram, std::string const &
     return Punctuation{0, query, query, std::string()};
 }
 
-std::vector<Buffer> SplittableContinuousMultiMatch(Engine *engine, TaiToken *lgram, std::string const &query) {
+std::vector<Buffer> AllPunctuation(Engine *engine, TaiToken *lgram, std::string const &query) {
+    auto ret = std::vector<Buffer>();
+    auto options = engine->dictionary()->SearchPunctuation(query);
+    for (auto &p : options) {
+        ret.push_back(Buffer(p));
+        ret.back().SetConverted(true);
+    }
+    return ret;
+}
+
+std::vector<Buffer> AllSplittableMatches(Engine *engine, TaiToken *lgram, std::string const &query) {
     auto all_cands = std::vector<Buffer>();
     auto segmentations = engine->dictionary()->Segment(query, kNumberOfContinuousCandidates);
     auto seen = std::unordered_set<std::string>();
@@ -294,6 +301,43 @@ std::vector<Buffer> SplittableContinuousMultiMatch(Engine *engine, TaiToken *lgr
     }
 
     return ret;
+}
+
+Buffer OneUserItem(Engine *engine, TaiToken *lgram, std::string const &query) {
+    auto *userdict = engine->user_dict();
+    if (userdict != nullptr) {
+        auto options = userdict->SearchExact(query);
+        if (!options.empty()) {
+            DedupeAndSortTokenResultSet(engine, lgram, query, options);
+            if (options.size() > 1) {
+                options.erase(options.begin() + 1);
+            }
+            auto ret = TokensToBuffers(engine, options, query);
+            return ret[0];
+        }
+    }
+
+    return Buffer(query);
+}
+
+std::vector<Buffer> AllUserItems(Engine *engine, TaiToken *lgram, std::string const &query) {
+    auto *userdict = engine->user_dict();
+    if (userdict != nullptr) {
+        auto options = userdict->Search(query);
+        if (!options.empty()) {
+            DedupeAndSortTokenResultSet(engine, lgram, query, options);
+            return TokensToBuffers(engine, options, query);
+        }
+    }
+
+    return std::vector<Buffer>();
+}
+
+void AddUserItems(Engine *engine, TaiToken *lgram, std::string const &query, std::vector<Buffer> &candidates) {
+    auto items = AllUserItems(engine, lgram, query);
+    if (!items.empty()) {
+        candidates.insert(candidates.end(), items.begin(), items.end());
+    }
 }
 
 } // namespace
@@ -339,10 +383,10 @@ std::vector<Buffer> CandidateFinder::WordsByLength(Engine *engine, TaiToken *lgr
     switch (segment.type) {
     case SegmentType::Punct:
         return AllPunctuation(engine, lgram, query);
-        break;
     case SegmentType::Splittable:
+        [[fallthrough]];
+    case SegmentType::UserItem:
         return AllWordsFromStart(engine, lgram, query);
-        break;
     default: {
         auto ret = std::vector<Buffer>{Buffer(query)};
         ret.back().SetConverted(true);
@@ -364,44 +408,63 @@ Buffer CandidateFinder::ContinuousBestMatch(Engine *engine, TaiToken *lgram, std
 std::vector<Buffer> CandidateFinder::ContinuousMultiMatch(Engine *engine, TaiToken *lgram, std::string const &query) {
     auto candidates = std::vector<Buffer>{Buffer()};
     auto segments = Segmenter::SegmentText(engine, query);
+    auto *parser = engine->syllable_parser();
 
     for (size_t i = 0; i < segments.size(); ++i) {
         auto &seg = segments[i];
-        auto seg_raw_comp = query.substr(seg.start, seg.size);
-
-        auto *lgram = candidates.at(0).Empty() ? nullptr : candidates.at(0).Back().candidate();
+        auto segment_raw = query.substr(seg.start, seg.size);
+        auto *lgram_ = candidates.at(0).Empty() ? lgram : candidates.at(0).Back().candidate();
 
         switch (seg.type) {
         case SegmentType::Splittable:
             if (i == 0) {
-                candidates = SplittableContinuousMultiMatch(engine, lgram, seg_raw_comp);
+                candidates = AllSplittableMatches(engine, lgram_, segment_raw);
             } else {
-                candidates[0].Append(ContinuousBestMatch(engine, lgram, seg_raw_comp));
+                candidates[0].Append(ContinuousBestMatch(engine, lgram_, segment_raw));
             }
-            break;
-        case SegmentType::Hyphens:
-            candidates[0].Append(std::string(seg.size, '-'));
             break;
         case SegmentType::Punct:
             if (i == 0) {
-                candidates = AllPunctuation(engine, lgram, seg_raw_comp);
+                candidates = AllPunctuation(engine, lgram_, segment_raw);
+                AddUserItems(engine, lgram, segment_raw, candidates);
             } else {
-                candidates[0].Append(BestPunctuation(engine, lgram, seg_raw_comp));
+                candidates[0].Append(OnePunctuation(engine, lgram_, segment_raw));
             }
             break;
-        case SegmentType::None:
-            candidates[0].Append(std::move(seg_raw_comp));
+        case SegmentType::UserItem:
+            if (i == 0) {
+                candidates = AllUserItems(engine, lgram_, segment_raw);
+            } else {
+                candidates[0].Append(OneUserItem(engine, lgram_, segment_raw));
+            }
             break;
         case SegmentType::SyllablePrefix:
-            candidates[0].Append(TaiText::FromRawSyllable(engine->syllable_parser(), seg_raw_comp));
-            break;
-        case SegmentType::WordPrefix:
-            auto *best_match = BestAutocomplete(engine, nullptr, seg_raw_comp);
-            if (best_match != nullptr) {
-                candidates[0].Append(TaiText::FromMatching(engine->syllable_parser(), seg_raw_comp, best_match));
-            } else {
-                candidates[0].Append(TaiText::FromRawSyllable(engine->syllable_parser(), seg_raw_comp));
+            candidates[0].Append(parser, segment_raw);
+
+            if (i == 0) {
+                AddUserItems(engine, lgram, segment_raw, candidates);
             }
+
+            break;
+        case SegmentType::WordPrefix: {
+            auto *best_match = BestAutocomplete(engine, nullptr, segment_raw);
+            if (best_match != nullptr) {
+                candidates[0].Append(parser, segment_raw, best_match);
+            } else {
+                candidates[0].Append(parser, segment_raw);
+            }
+
+            if (i == 0) {
+                AddUserItems(engine, lgram, segment_raw, candidates);
+            }
+
+            break;
+        }
+        case SegmentType::Hyphens:
+            candidates[0].Append(std::string(seg.size, '-'));
+            break;
+        case SegmentType::None:
+            candidates[0].Append(std::move(segment_raw));
             break;
         }
     }

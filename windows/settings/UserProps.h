@@ -15,6 +15,8 @@ class UserProps : public PropSheetPage {
 
   private:
     void HandleClearUserData();
+    void HandleChooseUserDictionaryFile();
+    void HandleUnloadUserDictionaryFile();
 };
 
 } // namespace khiin::win32::settings

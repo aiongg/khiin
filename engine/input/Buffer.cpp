@@ -164,6 +164,11 @@ void Buffer::Append(Punctuation &&rhs) {
     m_elements.push_back(BufferElement(std::move(rhs)));
 }
 
+void Buffer::Append(SyllableParser *parser, std::string const &input, TaiToken *match, bool set_candidate,
+                    bool set_converted) {
+    m_elements.push_back(BufferElement::Build(parser, input, match, set_candidate, set_converted));
+}
+
 iterator Buffer::Erase(iterator it) {
     return m_elements.erase(it);
 }

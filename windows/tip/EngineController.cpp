@@ -66,11 +66,11 @@ struct EngineControllerImpl : winrt::implements<EngineControllerImpl, EngineCont
     EngineControllerImpl(const EngineControllerImpl &) = delete;
     EngineControllerImpl &operator=(const EngineControllerImpl &) = delete;
     ~EngineControllerImpl() = default;
-
+    
     void Initialize(TextService *pService) override {
         m_service.copy_from(pService);
         auto dbfile = Files::GetFilePath(g_module, kDbFilename);
-        m_engine = std::unique_ptr<Engine>(Engine::Create(dbfile.string()));
+        m_engine = Engine::Create(dbfile.string());
         m_service->RegisterConfigChangeListener(this);
     }
 
@@ -147,6 +147,11 @@ struct EngineControllerImpl : winrt::implements<EngineControllerImpl, EngineCont
     //----------------------------------------------------------------------------
 
     virtual void OnConfigChanged(proto::AppConfig *config) override {
+        if (auto wfile = Config::GetUserDictionaryFile(); !wfile.empty()) {
+            auto file = Utils::Narrow(wfile);
+            m_engine->LoadUserDictionary(file);
+        }
+
         auto *cmd = new Command();
         auto *request = cmd->mutable_request();
         request->set_type(CMD_SET_CONFIG);

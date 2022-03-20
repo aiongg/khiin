@@ -105,6 +105,9 @@ class Buffer {
     // Append a Punctuation as a new buffer element
     void Append(Punctuation &&rhs);
 
+    void Append(SyllableParser *parser, std::string const &input, TaiToken *match = nullptr, bool set_candidate = false,
+                bool set_converted = false);
+
     // Replace element at |index| in this Buffer with all elements from |replace|
     iterator Replace(iterator first, iterator last, Buffer &other);
 

@@ -29,6 +29,10 @@ inline constexpr char32_t kTone9 = 0x0306;
 inline constexpr char32_t kToneLowerBound = kTone3;
 inline constexpr char32_t kToneUpperBound = kTone8;
 
+inline constexpr bool valid_ascii_range(char ch) {
+    return -1 < ch && ch < kMaxAscii;
+}
+
 inline constexpr bool is_tone(char32_t c) {
     return c >= kToneLowerBound && c <= kToneUpperBound;
 }
@@ -223,6 +227,19 @@ inline void safe_erase(std::string &str, utf8_size_t index, size_t count = 1) {
     auto to = from;
     utf8::unchecked::advance(to, count);
     str.erase(from, to);
+}
+
+inline void ltrim(std::string &str) {
+    str.erase(0, str.find_first_not_of(" "));
+}
+
+inline void rtrim(std::string &str) {
+    str.erase(str.find_last_not_of(" ") + 1);
+}
+
+inline void trim(std::string &str) {
+    ltrim(str);
+    rtrim(str);
 }
 
 } // namespace unicode

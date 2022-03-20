@@ -11,6 +11,7 @@
 #include "Engine.h"
 #include "Splitter.h"
 #include "Trie.h"
+#include "UserDictionary.h"
 
 namespace khiin::engine {
 
@@ -86,7 +87,21 @@ class DictionaryImpl : public Dictionary {
         auto words = std::vector<std::string>();
         m_word_trie->FindKeys(query, words);
         GetOrCacheTokens(words, ret);
+        AddUserDictionaryCandidates(query, ret);
         return ret;
+    }
+
+    void AddUserDictionaryCandidates(std::string const &query, std::vector<TokenResult> &ret) {
+        auto *userdict = m_engine->user_dict();
+        if (userdict == nullptr) {
+            return;
+        }
+
+        auto extras = userdict->Search(query);
+
+        if (!extras.empty()) {
+            ret.insert(ret.end(), extras.begin(), extras.end());
+        }
     }
 
     std::vector<std::string> const &AllInputsByFreq() override {

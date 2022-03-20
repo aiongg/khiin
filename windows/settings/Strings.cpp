@@ -74,9 +74,14 @@ StrMap kStringsEn = {
 
     // Dictionary tab
     {IDD_DICTIONARYTAB,              L"Dictionary"},
-    {IDL_RESET_USER_DATA,            L"Clear input history. WARNING: cannot be undone."},
-    {IDC_RESET_BTN,                  L"Clear Now"},
-    {IDL_RESET_BUTTON_DONE,          L"Cleared!"},
+    {IDL_RESET_USERDATA,            L"Clear input history. WARNING: cannot be undone."},
+    {IDC_RESET_USERDATA_BTN,         L"Clear Now"},
+    {IDL_RESET_USERDATA_BTN_DONE,    L"Cleared!"},
+    {IDL_CHOOSE_USERDICT,            L"Load a custom dictionary file"},
+    {IDC_RESET_USERDICT_BTN,         L"Unload"},
+    {IDL_RESET_USERDICT_BTN_DONE,    L"Unloaded!"},
+    {IDC_CHOOSE_USEDICT_BTN,         L"Choose File"},
+    {IDL_CHOOSE_USEDICT_BTN_DONE,    L"Done!"},
 
     // About tab
     {IDD_ABOUTTAB,                   L"About"},
@@ -141,9 +146,14 @@ StrMap kStringsHanlo = {
 
     // Dictionary tab
     {IDD_DICTIONARYTAB,              L"詞庫"},
-    {IDL_RESET_USER_DATA,            L"清使用者打字統計。注！袂使 UNDO。"},
-    {IDC_RESET_BTN,                  L"Liâm-mi 清掉"},
-    {IDL_RESET_BUTTON_DONE,          L"清好啞"},
+    {IDL_RESET_USERDATA,            L"清使用者打字統計。注！袂使 UNDO。"},
+    {IDC_RESET_USERDATA_BTN,         L"Liâm-mi 清掉"},
+    {IDL_RESET_USERDATA_BTN_DONE,    L"清好啞"},
+    {IDL_CHOOSE_USERDICT,            L"Load a custom dictionary file"},
+    {IDC_RESET_USERDICT_BTN,         L"Unload"},
+    {IDL_RESET_USERDICT_BTN_DONE,    L"Unloaded!"},
+    {IDC_CHOOSE_USEDICT_BTN,         L"Choose File"},
+    {IDL_CHOOSE_USEDICT_BTN_DONE,    L"Done!"},
 
     // About tab
     {IDD_ABOUTTAB,                   L"起引"},

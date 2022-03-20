@@ -30,6 +30,7 @@ const std::wstring kSettingUiSize = L"UiSize";
 const std::wstring kSettingUiLanguage = L"UiLanguage";
 const std::wstring kSettingOnOffHotkey = L"OnOffHotkey";
 const std::wstring kSettingInputModeHotkey = L"InputModeHotkey";
+const std::wstring kUserDictionaryFile = L"UserDictionaryFile";
 
 template <typename EnumT>
 int EnumInt(EnumT e) {
@@ -181,6 +182,14 @@ void Config::SetOnOffHotkey(Hotkey key) {
 Hotkey Config::GetInputModeHotkey() {
     auto i = Registrar::GetSettingsInt(kSettingInputModeHotkey);
     return i > 0 ? EnumVal<Hotkey>(i) : Hotkey::CtrlBacktick;
+}
+
+void Config::SetUserDictionaryFile(std::wstring file_path) {
+    Registrar::SetSettingsString(kUserDictionaryFile, file_path);
+}
+
+std::wstring Config::GetUserDictionaryFile() {
+    return Registrar::GetSettingsString(kUserDictionaryFile);
 }
 
 void Config::SetInputModeHotkey(Hotkey key) {

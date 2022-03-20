@@ -3,6 +3,7 @@
 #include "config/KeyConfig.h"
 #include "data/Dictionary.h"
 #include "data/Splitter.h"
+#include "data/UserDictionary.h"
 
 #include "Engine.h"
 
@@ -107,6 +108,14 @@ size_t CheckAsciiPunctuation(std::string_view str) {
     return unicode::start_glyph_type(str) == unicode::GlyphCategory::AsciiPunct ? 1 : 0;
 }
 
+size_t CheckUserDictionary(Engine *engine, std::string_view query) {
+    auto *userdict = engine->user_dict();
+    if (userdict != nullptr) {
+        return userdict->StartsWithWord(query);
+    }
+    return 0;
+}
+
 std::vector<SegmentOffset> SegmentTextImpl(Engine *engine, std::string_view raw_buffer) {
     auto ret = std::vector<SegmentOffset>();
     auto begin = raw_buffer.begin();
@@ -174,6 +183,13 @@ std::vector<SegmentOffset> SegmentTextImpl(Engine *engine, std::string_view raw_
             continue;
         }
 
+        if (auto size = CheckUserDictionary(engine, std::string(remainder)); size > 0) {
+            flush_plaintext();
+            ret.push_back(SegmentOffset{SegmentType::UserItem, index, size});
+            it += size;
+            continue;
+        }
+
         if (plaintext_size == 0) {
             plaintext_start = index;
         }
@@ -199,6 +215,10 @@ SegmentOffset LongestSegmentFromStartImpl(Engine *engine, std::string_view raw_b
 
     if (auto size = MaxSplitSize(engine, raw_buffer); size > 0) {
         return SegmentOffset{SegmentType::Splittable, 0, size};
+    }
+
+    if (auto size = CheckUserDictionary(engine, raw_buffer); size > 0) {
+        return SegmentOffset{SegmentType::UserItem, 0, size};
     }
 
     if (CheckWordPrefix(engine, raw_buffer)) {

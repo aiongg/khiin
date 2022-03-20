@@ -158,8 +158,9 @@ class TrieImpl : public Trie {
             return ret;
         }
 
+        auto it = query.begin();
         auto *curr = &root;
-        for (auto it = query.begin(); it != query.end(); ++it) {
+        for (; it != query.end(); ++it) {
             if (curr->end_of_word) {
                 ret = std::distance(query.begin(), it);
             }
@@ -169,6 +170,10 @@ class TrieImpl : public Trie {
             }
 
             curr = curr->children[*it].get();
+        }
+
+        if (curr->end_of_word) {
+            ret = std::distance(query.begin(), it);
         }
 
         return ret;
@@ -216,9 +221,9 @@ class TrieImpl : public Trie {
     }
 
     std::vector<std::vector<int>> Multisplit(std::string_view query, WordCostMap const &cost_map,
-                                                     uint32_t limit) override {
+                                             uint32_t limit) override {
         query = query.substr(0, 63);
-        //auto query_size = query.size();
+        // auto query_size = query.size();
 
         /**
          * The table contains one row for each index in the query string, up to max of 64

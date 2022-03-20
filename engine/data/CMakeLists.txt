@@ -11,4 +11,8 @@ target_sources(khiin
         "SQL.h"
         "Trie.cpp"
         "Trie.h"
+        "UserDictionary.cpp"
+        "UserDictionary.h"
+        "UserDictionaryParser.cpp"
+        "UserDictionaryParser.h"
 )
