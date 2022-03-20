@@ -4,10 +4,12 @@
 
 #include "Engine.h"
 
+namespace khiin::engine {
+
 class TestEnv : public ::testing::Environment {
   public:
-    //virtual ~TestEnv() = default;
     void SetUp() override;
-    void TearDown() override;
-    khiin::engine::Engine *engine();
+    Engine *engine();
 };
+
+}

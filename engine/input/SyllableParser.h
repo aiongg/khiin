@@ -1,6 +1,7 @@
 #pragma once
 
-//#include "Syllable.h"
+#include <memory>
+
 #include "utils/common.h"
 #include "utils/unicode.h"
 
@@ -19,7 +20,8 @@ struct InputSequence {
 
 class SyllableParser {
   public:
-    static SyllableParser *Create(Engine *engine);
+    static std::unique_ptr<SyllableParser> Create(Engine *engine);
+
     virtual Syllable ParseRaw(std::string const &input) = 0;
     virtual Syllable ParseComposed(std::string const &input) = 0;
     virtual void ToFuzzy(std::string const &input, std::vector<std::string> &output, bool &has_tone) = 0;

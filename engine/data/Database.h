@@ -2,6 +2,7 @@
 
 #include <functional>
 #include <map>
+#include <memory>
 #include <string>
 #include <unordered_map>
 #include <vector>
@@ -20,10 +21,12 @@ class Database {
     Database() = default;
     Database(const Database &) = delete;
     Database &operator=(const Database &) = delete;
+    Database(Database &&) = default;
+    Database &operator=(Database &&) = default;
     ~Database() = default;
 
-    static Database *TestDb();
-    static Database *Connect(std::string const &db_filename);
+    static std::unique_ptr<Database> TestDb();
+    static std::unique_ptr<Database> Connect(std::string const &db_filename);
 
     virtual void ClearNGramsData() = 0;
     virtual void RecordUnigrams(std::vector<std::string> const &grams) = 0;

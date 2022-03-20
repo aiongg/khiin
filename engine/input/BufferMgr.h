@@ -1,5 +1,7 @@
 #pragma once
 
+#include <memory>
+
 #include "utils/common.h"
 
 namespace khiin::proto {
@@ -23,7 +25,7 @@ class Engine;
  */
 class BufferMgr {
   public:
-    static BufferMgr *Create(Engine *engine);
+    static std::unique_ptr<BufferMgr> Create(Engine *engine);
 
     /**
      * Builds a Preedit protobuf message, which may be relayed to

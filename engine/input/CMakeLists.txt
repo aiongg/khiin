@@ -1,5 +1,5 @@
 target_sources(khiin
-    PUBLIC
+    PRIVATE
         "Buffer.cpp"
         "Buffer.h"
         "BufferElement.cpp"

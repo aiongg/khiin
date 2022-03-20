@@ -345,6 +345,8 @@ class BufferMgrImpl : public BufferMgr {
         case InputMode::Basic:
             m_candidates = CandidateFinder::WordsByLength(m_engine, FocusLGram(), raw_text);
             break;
+        default:
+            break;
         }
 
         SetFocusedCandidateIndexToCurrent();
@@ -584,7 +586,7 @@ class BufferMgrImpl : public BufferMgr {
 
         // When |EditState::Selecting|, buffer focus moves to the next element
         auto comp_begin = m_composition.Begin();
-        auto focused_elem = comp_begin + m_focused_element;
+        auto focused_elem = comp_begin + static_cast<int>(m_focused_element);
         auto comp_end = m_composition.End();
         size_t n_elems_remaining = std::distance(focused_elem, comp_end);
 
@@ -718,8 +720,8 @@ class BufferMgrImpl : public BufferMgr {
 
 } // namespace
 
-BufferMgr *BufferMgr::Create(Engine *engine) {
-    return new BufferMgrImpl(engine);
+std::unique_ptr<BufferMgr> BufferMgr::Create(Engine *engine) {
+    return std::make_unique<BufferMgrImpl>(engine);
 }
 
 } // namespace khiin::engine

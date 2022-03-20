@@ -17,10 +17,7 @@ class TrieTest : public ::testing::Test {
     void SetUp() override {
         trie = Trie::Create();
     }
-    ~TrieTest() {
-        delete trie;
-    }
-    Trie *trie = nullptr;
+    std::unique_ptr<Trie> trie = nullptr;
     void ins(std::vector<std::string> words) {
         for (auto &it : words) {
             trie->Insert(it);

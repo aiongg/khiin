@@ -13,12 +13,10 @@ using namespace db_tables;
 
 class DatabaseImpl : public Database {
   public:
-    DatabaseImpl(SQLite::Database *handle) {
-        db_handle = std::unique_ptr<SQLite::Database>(handle);
-    }
+    DatabaseImpl(std::unique_ptr<SQLite::Database> &&handle) : db_handle(std::move(handle)) {}
 
   private:
-    virtual void AllWordsByFreq(std::vector<InputByFreq> &output) override {
+    void AllWordsByFreq(std::vector<InputByFreq> &output) override {
         auto query = SQL::SelectInputsByFreq(*db_handle);
         while (query.executeStep()) {
             auto tmp = InputByFreq();
@@ -28,7 +26,7 @@ class DatabaseImpl : public Database {
         }
     }
 
-    virtual void LoadSyllables(std::vector<std::string> &syllables) override {
+    void LoadSyllables(std::vector<std::string> &syllables) override {
         syllables.clear();
         syllables.reserve(1500);
         auto query = SQL::SelectSyllables(*db_handle);
@@ -37,12 +35,12 @@ class DatabaseImpl : public Database {
         }
     }
 
-    virtual void ClearNGramsData() override {
+    void ClearNGramsData() override {
         SQL::DeleteBigrams(*db_handle).exec();
         SQL::DeleteUnigrams(*db_handle).exec();
     }
 
-    virtual void RecordUnigrams(std::vector<std::string> const &grams) override {
+    void RecordUnigrams(std::vector<std::string> const &grams) override {
         if (grams.empty()) {
             return;
         }
@@ -50,7 +48,7 @@ class DatabaseImpl : public Database {
         SQL::IncrementUnigrams(*db_handle, grams).exec();
     }
 
-    virtual void RecordBigrams(std::vector<Bigram> const &grams) override {
+    void RecordBigrams(std::vector<Bigram> const &grams) override {
         if (grams.empty()) {
             return;
         }
@@ -58,7 +56,7 @@ class DatabaseImpl : public Database {
         SQL::IncrementBigrams(*db_handle, grams).exec();
     }
 
-    virtual int UnigramCount(std::string const &gram) override {
+    int UnigramCount(std::string const &gram) override {
         auto ret = 0;
 
         if (auto query = SQL::SelectUnigramCount(*db_handle, gram); query.executeStep()) {
@@ -68,7 +66,7 @@ class DatabaseImpl : public Database {
         return ret;
     }
 
-    virtual int BigramCount(Bigram const &gram) override {
+    int BigramCount(Bigram const &gram) override {
         auto ret = 0;
 
         if (auto query = SQL::SelectBigramCount(*db_handle, gram.first, gram.second); query.executeStep()) {
@@ -78,7 +76,7 @@ class DatabaseImpl : public Database {
         return ret;
     }
 
-    virtual std::vector<Gram> UnigramCounts(std::vector<std::string> const &grams) override {
+    std::vector<Gram> UnigramCounts(std::vector<std::string> const &grams) override {
         auto ret = std::vector<Gram>();
         auto query = SQL::SelectUnigramCounts(*db_handle, grams);
 
@@ -92,7 +90,7 @@ class DatabaseImpl : public Database {
         return ret;
     }
 
-    virtual std::vector<Gram> BigramCounts(std::string const &lgram, std::vector<std::string> const &rgrams) override {
+    std::vector<Gram> BigramCounts(std::string const &lgram, std::vector<std::string> const &rgrams) override {
         auto ret = std::vector<Gram>();
         auto query = SQL::SelectBigramCounts(*db_handle, lgram, rgrams);
 
@@ -106,7 +104,7 @@ class DatabaseImpl : public Database {
         return ret;
     }
 
-    virtual TaiToken *HighestUnigramCount(std::vector<TaiToken *> const &tokens) override {
+    TaiToken *HighestUnigramCount(std::vector<TaiToken *> const &tokens) override {
         TaiToken *ret = nullptr;
 
         if (tokens.empty()) {
@@ -114,7 +112,7 @@ class DatabaseImpl : public Database {
         }
 
         auto grams = std::vector<std::string *>();
-        for (auto &token : tokens) {
+        for (auto const &token : tokens) {
             grams.push_back(&token->output);
         }
 
@@ -133,8 +131,7 @@ class DatabaseImpl : public Database {
         return ret;
     }
 
-    virtual TaiToken *HighestBigramCount(std::string const &lgram,
-                                         std::vector<TaiToken *> const &rgram_tokens) override {
+    TaiToken *HighestBigramCount(std::string const &lgram, std::vector<TaiToken *> const &rgram_tokens) override {
         TaiToken *ret = nullptr;
 
         if (lgram.empty() || rgram_tokens.empty()) {
@@ -160,7 +157,7 @@ class DatabaseImpl : public Database {
         return ret;
     }
 
-    virtual void ConversionsByInputId(int input_id, std::vector<TaiToken> &conversions) override {
+    void ConversionsByInputId(int input_id, std::vector<TaiToken> &conversions) override {
         auto query = SQL::SelectConversions(*db_handle, input_id);
 
         while (query.executeStep()) {
@@ -176,7 +173,7 @@ class DatabaseImpl : public Database {
         }
     }
 
-    virtual void LoadPunctuation(std::vector<Punctuation> &output) override {
+    void LoadPunctuation(std::vector<Punctuation> &output) override {
         auto query = SQL::SelectSymbols(*db_handle);
         while (query.executeStep()) {
             auto tmp = Punctuation();
@@ -188,7 +185,7 @@ class DatabaseImpl : public Database {
         }
     }
 
-    virtual std::vector<Emoji> GetEmojis() override {
+    std::vector<Emoji> GetEmojis() override {
         auto ret = std::vector<Emoji>();
         auto query = SQL::SelectEmojis(*db_handle);
         while (query.executeStep()) {
@@ -205,16 +202,16 @@ class DatabaseImpl : public Database {
 
 } // namespace
 
-Database *Database::TestDb() {
-    auto handle = new SQLite::Database(":memory:", SQLite::OPEN_READWRITE);
+std::unique_ptr<Database> Database::TestDb() {
+    auto handle = std::make_unique<SQLite::Database>(":memory:", SQLite::OPEN_READWRITE);
     SQL::CreateDummyDb(*handle).exec();
-    return new DatabaseImpl(handle);
+    return std::make_unique<DatabaseImpl>(std::move(handle));
 }
 
-Database *Database::Connect(std::string const &db_filename) {
+std::unique_ptr<Database> Database::Connect(std::string const &db_filename) {
     try {
-        auto handle = new SQLite::Database(db_filename, SQLite::OPEN_READWRITE);
-        return new DatabaseImpl(handle);
+        auto handle = std::make_unique<SQLite::Database>(db_filename, SQLite::OPEN_READWRITE);
+        return std::make_unique<DatabaseImpl>(std::move(handle));
     } catch (...) {
         return TestDb();
     }

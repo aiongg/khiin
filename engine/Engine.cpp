@@ -37,16 +37,16 @@ class EngineImpl : public Engine {
     void Initialize() {
         auto db_path = fs::path(m_dbfilename);
         if (fs::exists(db_path)) {
-            m_database = std::unique_ptr<Database>(Database::Connect(db_path.string()));
+            m_database = Database::Connect(db_path.string());
         } else {
-            m_database = std::unique_ptr<Database>(Database::TestDb());
+            m_database = Database::TestDb();
         }
 
         m_config = Config::Default();
-        m_keyconfig = std::unique_ptr<KeyConfig>(KeyConfig::Create(this));
-        m_syllable_parser = std::unique_ptr<SyllableParser>(SyllableParser::Create(this));
-        m_dictionary = std::unique_ptr<Dictionary>(Dictionary::Create(this));
-        m_buffer_mgr = std::unique_ptr<BufferMgr>(BufferMgr::Create(this));
+        m_keyconfig = KeyConfig::Create(this);
+        m_syllable_parser = SyllableParser::Create(this);
+        m_dictionary = Dictionary::Create(this);
+        m_buffer_mgr = BufferMgr::Create(this);
 
         m_cmd_handlers[CMD_COMMIT] = &EngineImpl::HandleCommit;
         m_cmd_handlers[CMD_TEST_SEND_KEY] = &EngineImpl::HandleTestSendKey;
@@ -61,9 +61,9 @@ class EngineImpl : public Engine {
         m_dictionary->Initialize();
     }
 
-    virtual void SendCommand(Command *pCommand) override {
-        auto req = pCommand->mutable_request();
-        auto res = pCommand->mutable_response();
+    void SendCommand(Command *pCommand) override {
+        auto *req = pCommand->mutable_request();
+        // auto *res = pCommand->mutable_response();
         decltype(&EngineImpl::HandleNone) handler;
 
         if (auto it = m_cmd_handlers.find(req->type()); it != m_cmd_handlers.end()) {
@@ -75,31 +75,31 @@ class EngineImpl : public Engine {
         (this->*handler)(pCommand);
     }
 
-    virtual BufferMgr *buffer_mgr() override {
+    BufferMgr *buffer_mgr() override {
         return m_buffer_mgr.get();
     }
 
-    virtual Database *database() override {
+    Database *database() override {
         return m_database.get();
     }
 
-    virtual KeyConfig *keyconfig() override {
+    KeyConfig *keyconfig() override {
         return m_keyconfig.get();
     }
 
-    virtual SyllableParser *syllable_parser() override {
+    SyllableParser *syllable_parser() override {
         return m_syllable_parser.get();
     }
 
-    virtual Dictionary *dictionary() override {
+    Dictionary *dictionary() override {
         return m_dictionary.get();
     }
 
-    virtual Config *config() override {
+    Config *config() override {
         return m_config.get();
     }
 
-    virtual void RegisterConfigChangedListener(ConfigChangeListener *listener) override {
+    void RegisterConfigChangedListener(ConfigChangeListener *listener) override {
         m_config_change_listeners.push_back(listener);
     }
 
@@ -113,14 +113,14 @@ class EngineImpl : public Engine {
     void HandleNone(Command *command) {}
 
     void HandleSendKey(Command *command) {
-        auto req = command->mutable_request();
-        auto res = command->mutable_response();
-        auto &key = req->key_event();
+        auto *req = command->mutable_request();
+        auto *res = command->mutable_response();
+        auto const &key = req->key_event();
 
         switch (key.special_key()) {
         case SK_NONE: {
             auto key_code = req->key_event().key_code();
-            if (isprint(key_code)) {
+            if (isprint(key_code) != 0) {
                 m_buffer_mgr->Insert(static_cast<char>(key_code));
             }
             break;
@@ -182,10 +182,10 @@ class EngineImpl : public Engine {
 
     void HandleCommit(Command *command) {
         // command->input().set_type(CommandType::COMMIT);
-        auto req = command->mutable_request();
+        auto* req = command->mutable_request();
         req->set_type(CMD_COMMIT);
-        auto res = command->mutable_response();
-        auto preedit = res->mutable_preedit();
+        // auto res = command->mutable_response();
+        // auto preedit = res->mutable_preedit();
         // preedit->set_cursor_position(buffer_mgr->caret_position());
         // auto segment = preedit->add_segments();
         // segment->set_status(SegmentStatus::UNMARKED);
@@ -194,8 +194,8 @@ class EngineImpl : public Engine {
     }
 
     void HandleTestSendKey(Command *command) {
-        auto &request = command->request();
-        auto res = command->mutable_response();
+        auto const &request = command->request();
+        auto *res = command->mutable_response();
 
         if (!m_config->ime_enabled()) {
             // Direct input mode, skip all processing
@@ -205,24 +205,24 @@ class EngineImpl : public Engine {
 
         res->set_consumable(true);
 
-        auto &key_event = request.key_event();
+        auto const &key_event = request.key_event();
         auto key = key_event.key_code();
-        auto &mods = key_event.modifier_keys();
+        auto const &mods = key_event.modifier_keys();
 
         if (!mods.empty()) {
             if (mods.size() > 1 || mods.at(0) != MODK_SHIFT) {
                 res->set_consumable(false);
             }
-        } else if (m_buffer_mgr->IsEmpty() && !isgraph(key)) {
+        } else if (m_buffer_mgr->IsEmpty() && isgraph(key) == 0) {
             res->set_consumable(false);
         }
     }
 
     void AttachPreeditWithCandidates(Command *command) {
-        auto res = command->mutable_response();
-        auto preedit = res->mutable_preedit();
+        auto *res = command->mutable_response();
+        auto *preedit = res->mutable_preedit();
         m_buffer_mgr->BuildPreedit(preedit);
-        auto candidate_list = command->mutable_response()->mutable_candidate_list();
+        auto *candidate_list = command->mutable_response()->mutable_candidate_list();
         m_buffer_mgr->GetCandidates(candidate_list);
         res->set_edit_state(m_buffer_mgr->edit_state());
     }
@@ -246,7 +246,7 @@ class EngineImpl : public Engine {
 
     void NotifyConfigChangeListeners() {
         for (auto &listener : m_config_change_listeners) {
-            if (listener) {
+            if (listener != nullptr) {
                 listener->OnConfigChanged(m_config.get());
             }
         }
@@ -254,9 +254,9 @@ class EngineImpl : public Engine {
 
     void HandleListEmojis(Command *command) {
         auto emojis = m_database->GetEmojis();
-        auto candidates = command->mutable_response()->mutable_candidate_list();
+        auto *candidates = command->mutable_response()->mutable_candidate_list();
         for (auto &emoji : emojis) {
-            auto cand = candidates->add_candidates();
+            auto *cand = candidates->add_candidates();
             cand->set_id(emoji.category);
             cand->set_value(emoji.value);
         }
@@ -287,14 +287,14 @@ class EngineImpl : public Engine {
 
 } // namespace
 
-Engine *Engine::Create() {
-    auto engine = new EngineImpl;
+std::unique_ptr<Engine> Engine::Create() {
+    auto engine = std::make_unique<EngineImpl>();
     engine->Initialize();
     return engine;
 }
 
-Engine *Engine::Create(std::string dbfile) {
-    auto engine = new EngineImpl(dbfile);
+std::unique_ptr<Engine> Engine::Create(std::string dbfile) {
+    auto engine = std::make_unique<EngineImpl>(dbfile);
     engine->Initialize();
     return engine;
 }

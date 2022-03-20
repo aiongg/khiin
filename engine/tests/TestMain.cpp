@@ -14,25 +14,22 @@
 #include "Engine.h"
 #include "TestEnv.h"
 
-namespace {
-static khiin::engine::Engine *g_engine = nullptr;
-}
+namespace khiin::engine {
+static std::unique_ptr<Engine> g_engine = nullptr;
 
 void TestEnv::SetUp() {
-    g_engine = khiin::engine::Engine::Create("./khiin_test.db");
+    g_engine = Engine::Create("./khiin_test.db");
     g_engine->database()->ClearNGramsData();
 }
 
-void TestEnv::TearDown() {
-    delete g_engine;
+Engine* TestEnv::engine() {
+    return g_engine.get();
 }
-
-khiin::engine::Engine* TestEnv::engine() {
-    return g_engine;
 }
 
 int main(int argc, char *argv[]) {
-    ::testing::AddGlobalTestEnvironment(new TestEnv());
+    auto env = std::make_unique<khiin::engine::TestEnv>();
+    ::testing::AddGlobalTestEnvironment(env.get());
     ::testing::InitGoogleTest(&argc, argv);
     ::testing::InitGoogleMock(&argc, argv);
     return RUN_ALL_TESTS();

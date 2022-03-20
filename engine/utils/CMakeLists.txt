@@ -1,5 +1,5 @@
 target_sources(khiin
-    PUBLIC
+    PRIVATE
         "common.h"
         "errors.h"
         "unicode.cpp"

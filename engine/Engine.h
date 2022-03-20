@@ -1,10 +1,7 @@
 #pragma once
 
+#include <memory>
 #include <string>
-
-#ifdef _WIN32
-#include <Windows.h>
-#endif
 
 namespace khiin::proto {
 class Command;
@@ -24,8 +21,8 @@ class ConfigChangeListener;
 
 class Engine {
   public:
-    static Engine *Create();
-    static Engine *Create(std::string dbfile);
+    static std::unique_ptr<Engine> Create();
+    static std::unique_ptr<Engine> Create(std::string dbfile);
 
     virtual void SendCommand(proto::Command *command) = 0;
 

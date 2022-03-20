@@ -283,8 +283,8 @@ class SyllableParserImpl : public SyllableParser {
 
 } // namespace
 
-SyllableParser *SyllableParser::Create(Engine *engine) {
-    return new SyllableParserImpl(engine);
+std::unique_ptr<SyllableParser> SyllableParser::Create(Engine *engine) {
+    return std::make_unique<SyllableParserImpl>(engine);
 }
 
 } // namespace khiin::engine

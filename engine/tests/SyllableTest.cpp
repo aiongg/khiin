@@ -15,7 +15,7 @@ struct SyllableTest : ::testing::Test {
     }
 
     Syllable FromRaw(std::string raw, bool dotted_khin = true) {
-        auto s = Syllable(config, dotted_khin);
+        auto s = Syllable(config.get(), dotted_khin);
         s.SetRawInput(raw);
         return s;
     }
@@ -40,7 +40,7 @@ struct SyllableTest : ::testing::Test {
         EXPECT_EQ(syl.ComposedToRawCaret(composed_caret), raw_caret);
     }
 
-    KeyConfig *config;
+    std::unique_ptr<KeyConfig> config;
 };
 
 TEST_F(SyllableTest, Parse_ho2) {

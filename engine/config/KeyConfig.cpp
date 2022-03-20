@@ -66,6 +66,20 @@ class KeyCfgImpl : public KeyConfig, ConfigChangeListener {
         ReloadEngineConfig();
     }
 
+    bool SetKey(char key, VKey vkey, bool standalone = false) override {
+        auto set = false;
+        switch (vkey) {
+        case VKey::Nasal:
+            return SetNasal(key, standalone);
+        case VKey::DotAboveRight:
+            return SetDotAboveRight(key, standalone);
+        case VKey::DotsBelow:
+            return SetDotsBelow(key);
+        default:
+            return false;
+        }
+    }
+
   private:
     void Reset() {
         m_conversion_rule_cache.clear();
@@ -91,7 +105,7 @@ class KeyCfgImpl : public KeyConfig, ConfigChangeListener {
 
         Reset();
         auto config = m_engine->config();
-       
+
         if (auto key = config->nasal(); key.size() == 1) {
             SetKey(tolower(key.front()), VKey::Nasal, true);
         } else if (key.size() == 2 && tolower(key.front()) == 'n') {
@@ -112,20 +126,6 @@ class KeyCfgImpl : public KeyConfig, ConfigChangeListener {
             SetKey(tolower(key), VKey::DotsBelow, false);
         } else {
             SetKey('r', VKey::DotsBelow);
-        }
-    }
-
-    bool SetKey(char key, VKey vkey, bool standalone = false) override {
-        auto set = false;
-        switch (vkey) {
-        case VKey::Nasal:
-            return SetNasal(key, standalone);
-        case VKey::DotAboveRight:
-            return SetDotAboveRight(key, standalone);
-        case VKey::DotsBelow:
-            return SetDotsBelow(key);
-        default:
-            return false;
         }
     }
 
@@ -402,20 +402,20 @@ class KeyCfgImpl : public KeyConfig, ConfigChangeListener {
 
 } // namespace
 
-KeyConfig *KeyConfig::Create() {
-    auto key_config = reinterpret_cast<KeyConfig *>(new KeyCfgImpl(nullptr));
-    key_config->SetKey('n', VKey::Nasal);
-    key_config->SetKey('u', VKey::DotAboveRight);
-    key_config->SetKey('r', VKey::DotsBelow);
-    return key_config;
+std::unique_ptr<KeyConfig> KeyConfig::Create() {
+    auto keyconfig = std::make_unique<KeyCfgImpl>(nullptr);
+    keyconfig->SetKey('n', VKey::Nasal);
+    keyconfig->SetKey('u', VKey::DotAboveRight);
+    keyconfig->SetKey('r', VKey::DotsBelow);
+    return keyconfig;
 }
 
-KeyConfig *KeyConfig::Create(Engine *engine) {
-    return new KeyCfgImpl(engine);
+std::unique_ptr<KeyConfig> KeyConfig::Create(Engine *engine) {
+    return std::make_unique<KeyCfgImpl>(engine);
 }
 
-KeyConfig *KeyConfig::CreateEmpty() {
-    return new KeyCfgImpl(nullptr);
+std::unique_ptr<KeyConfig> KeyConfig::CreateEmpty() {
+    return std::make_unique<KeyCfgImpl>(nullptr);
 }
 
 } // namespace khiin::engine

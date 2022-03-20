@@ -1,4 +1,4 @@
-#include "BufferMgrBaseTest.h"
+#include "BufferMgrTestBase.h"
 
 namespace khiin::engine {
 using namespace proto;

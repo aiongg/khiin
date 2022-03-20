@@ -1,6 +1,7 @@
 #pragma once
 
 #include <array>
+#include <memory>
 #include <unordered_map>
 #include <vector>
 
@@ -12,7 +13,6 @@ class KeyConfiguration;
 }
 
 namespace engine {
-
 
 enum class VKey {
     None,
@@ -42,9 +42,10 @@ class Engine;
 
 class KeyConfig {
   public:
-    static KeyConfig *CreateEmpty();
-    static KeyConfig *Create();
-    static KeyConfig *Create(Engine *engine);
+    static std::unique_ptr<KeyConfig> CreateEmpty();
+    static std::unique_ptr<KeyConfig> Create();
+    static std::unique_ptr<KeyConfig> Create(Engine *engine);
+
     virtual bool SetKey(char key, VKey vkey, bool standalone = false) = 0;
     virtual std::vector<ConversionRule> const &ConversionRules() = 0;
     virtual std::vector<char> GetHyphenKeys() = 0;

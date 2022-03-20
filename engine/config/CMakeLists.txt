@@ -1,5 +1,5 @@
 target_sources(khiin
-    PUBLIC
+    PRIVATE
         "Config.cpp"
         "Config.h"
         "KeyConfig.cpp"

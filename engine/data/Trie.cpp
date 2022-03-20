@@ -22,7 +22,7 @@ struct SplitCost {
         return cost < rhs.cost;
     }
     uint64_t split = 0;
-    float cost = 0.0f;
+    float cost = 0.0F;
 };
 
 /**
@@ -64,9 +64,9 @@ class TrieImpl : public Trie {
     }
 
     void Insert(std::string_view key) override {
-        auto curr = &root;
+        auto *curr = &root;
 
-        for (auto &ch : key) {
+        for (auto ch : key) {
             if (curr->children.find(ch) == curr->children.end()) {
                 curr->children[ch] = std::make_unique<Node>();
             }
@@ -79,7 +79,7 @@ class TrieImpl : public Trie {
 
     bool Remove(std::string_view key) override {
         auto onlyChildNodes = std::vector<std::tuple<char, Node *, bool>>();
-        auto curr = &root;
+        auto *curr = &root;
 
         for (auto it = key.begin(); it != key.end(); it++) {
             auto found = curr->children.find(*it);
@@ -109,7 +109,7 @@ class TrieImpl : public Trie {
             auto &onlyChild = std::get<2>(*it);
             auto &prevOnlyChild = std::get<2>(*std::prev(it));
 
-            if (!onlyChild && prevOnlyChild || std::next(it) == onlyChildNodes.rend()) {
+            if ((!onlyChild && prevOnlyChild) || std::next(it) == onlyChildNodes.rend()) {
                 auto &chr = std::get<0>(*it);
                 auto &node = std::get<1>(*it);
 
@@ -133,7 +133,7 @@ class TrieImpl : public Trie {
             return false;
         }
 
-        auto curr = &root;
+        auto *curr = &root;
         for (auto it = query.begin(); it != query.end(); ++it) {
             if (curr->end_of_word) {
                 return true;
@@ -147,8 +147,8 @@ class TrieImpl : public Trie {
     }
 
     bool HasKeyOrPrefix(std::string_view query) override {
-        auto found = Find(query);
-        return found != nullptr && (found->end_of_word || found->children.size() > 0);
+        auto *found = Find(query);
+        return found != nullptr && (found->end_of_word || !found->children.empty());
     }
 
     size_t LongestKeyOf(std::string_view query) override {
@@ -158,7 +158,7 @@ class TrieImpl : public Trie {
             return ret;
         }
 
-        auto curr = &root;
+        auto *curr = &root;
         for (auto it = query.begin(); it != query.end(); ++it) {
             if (curr->end_of_word) {
                 ret = std::distance(query.begin(), it);
@@ -176,13 +176,13 @@ class TrieImpl : public Trie {
 
     std::vector<std::string> Autocomplete(std::string const &query, int limit, int maxDepth) override {
         auto ret = std::vector<std::string>();
-        auto found = Find(query);
+        auto *found = Find(query);
 
         if (found == nullptr) {
             return ret;
         }
 
-        if (found->end_of_word && found->children.size() == 0 && limit == 1) {
+        if (found->end_of_word && found->children.empty() && limit == 1) {
             ret.push_back(query);
             return ret;
         }
@@ -218,7 +218,7 @@ class TrieImpl : public Trie {
     std::vector<std::vector<int>> Multisplit(std::string_view query, WordCostMap const &cost_map,
                                                      uint32_t limit) override {
         query = query.substr(0, 63);
-        auto query_size = query.size();
+        //auto query_size = query.size();
 
         /**
          * The table contains one row for each index in the query string, up to max of 64
@@ -238,7 +238,7 @@ class TrieImpl : public Trie {
          */
         for (auto start = qbegin; start != qend; ++start) {
             auto start_idx = std::distance(qbegin, start);
-            auto node = &root;
+            auto *node = &root;
 
             if (table[start_idx].empty()) {
                 continue;
@@ -344,7 +344,7 @@ class TrieImpl : public Trie {
             return;
         }
 
-        if (node->children.size() == 0 || --max_depth == 0) {
+        if (node->children.empty() || --max_depth == 0) {
             return;
         }
 
@@ -358,12 +358,12 @@ class TrieImpl : public Trie {
 
 } // namespace
 
-Trie *Trie::Create() {
-    return new TrieImpl();
+std::unique_ptr<Trie> Trie::Create() {
+    return std::make_unique<TrieImpl>();
 }
 
-static Trie *Create(std::vector<std::string> const &words) {
-    return new TrieImpl(words);
+std::unique_ptr<Trie> Create(std::vector<std::string> const &words) {
+    return std::make_unique<TrieImpl>(words);
 }
 
 } // namespace khiin::engine

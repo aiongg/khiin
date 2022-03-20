@@ -17,8 +17,8 @@ add_executable(test_khiin_engine
     "TestEnv.h"
     "UnicodeTest.cpp"
     "UtilsTest.cpp"
-    "BufferMgrBaseTest.h"
-    "BufferMgrBaseTest.cpp"
+    "BufferMgrTestBase.h"
+    "BufferMgrTestBase.cpp"
     "BasicModeTest.cpp"
     "NgramTest.cpp"
 )

@@ -156,7 +156,7 @@ class DictionaryImpl : public Dictionary {
     }
 
     void BuildWordTrie() {
-        m_word_trie = std::unique_ptr<Trie>(Trie::Create());
+        m_word_trie = Trie::Create();
 
         for (auto &word : m_user_inputs) {
             m_word_trie->Insert(word);
@@ -283,8 +283,8 @@ class DictionaryImpl : public Dictionary {
 
 } // namespace
 
-Dictionary *Dictionary::Create(Engine *engine) {
-    return new DictionaryImpl(engine);
+std::unique_ptr<Dictionary> Dictionary::Create(Engine *engine) {
+    return std::make_unique<DictionaryImpl>(engine);
 }
 
 } // namespace khiin::engine

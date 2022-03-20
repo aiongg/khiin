@@ -11,7 +11,7 @@ namespace khiin::engine {
 namespace {
 using ::testing::Contains;
 
-static const auto kDatabaseFilename = "khiin_test.db";
+constexpr auto kDatabaseFilename = "khiin_test.db";
 
 class DatabaseTest : public ::testing::Test {
   protected:
@@ -20,9 +20,8 @@ class DatabaseTest : public ::testing::Test {
     }
     void TearDown() override {
         db->ClearNGramsData();
-        delete db;
     }
-    Database *db = nullptr;
+    std::unique_ptr<Database> db = nullptr;
 };
 
 TEST_F(DatabaseTest, RecordUnigrams) {
@@ -113,7 +112,7 @@ TEST(DummyDatabase, Exists) {
     auto dummy = Database::TestDb();
     // auto words = dummy->GetTrieWordlist();
     // EXPECT_EQ(words.size(), 1);
-    delete dummy;
+    //delete dummy;
 }
 
 } // namespace

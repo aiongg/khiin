@@ -1,5 +1,6 @@
 #pragma once
 
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -16,7 +17,7 @@ class Trie;
 
 class Dictionary : public ConfigChangeListener {
   public:
-    static Dictionary *Create(Engine *engine);
+    static std::unique_ptr<Dictionary> Create(Engine *engine);
     virtual void Initialize() = 0;
 
     virtual std::vector<std::string> const &AllInputsByFreq() = 0;
@@ -39,7 +40,7 @@ class Dictionary : public ConfigChangeListener {
     virtual Trie *word_trie() = 0;
 
     // Inherited via ConfigChangeListener
-    virtual void OnConfigChanged(Config *config) override = 0;
+    void OnConfigChanged(Config *config) override = 0;
 };
 
 } // namespace khiin::engine
