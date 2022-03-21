@@ -95,7 +95,7 @@ SQLite::Statement SQL::SelectConversions(DbHandle &db, std::vector<std::string *
 
     auto ret = Statement(db, format(sql, qmarks(inputs.size())));
     auto i = 1;
-    for (auto input : inputs) {
+    for (auto *input : inputs) {
         ret.bind(i, *input);
         ++i;
     }
@@ -112,7 +112,7 @@ SQLite::Statement SQL::SelectBestUnigram(DbHandle &db, std::vector<std::string *
 
     auto ret = Statement(db, format(sql, qmarks(grams.size())));
     auto i = 1;
-    for (auto gram : grams) {
+    for (auto *gram : grams) {
         ret.bind(i, *gram);
         ++i;
     }
@@ -132,7 +132,7 @@ SQLite::Statement SQL::SelectBestBigram(DbHandle &db, std::string const &lgram,
     auto ret = Statement(db, format(sql, qmarks(rgrams.size())));
     ret.bind(1, lgram);
     auto i = 2;
-    for (auto gram : rgrams) {
+    for (auto *gram : rgrams) {
         ret.bind(i, *gram);
         ++i;
     }
@@ -148,15 +148,14 @@ SQLite::Statement SQL::SelectUnigrams(DbHandle &db, std::vector<std::string *> c
 
     auto ret = Statement(db, format(sql, qmarks(grams.size())));
     auto i = 1;
-    for (auto gram : grams) {
+    for (auto *gram : grams) {
         ret.bind(i, *gram);
         ++i;
     }
     return ret;
 }
 
-SQLite::Statement SQL::SelectBigrams(DbHandle &db, std::string const &lgram,
-                                     std::vector<std::string *> const &rgrams) {
+SQLite::Statement SQL::SelectBigrams(DbHandle &db, std::string const &lgram, std::vector<std::string *> const &rgrams) {
     static constexpr auto sql = R"(
         SELECT rgram, n
         FROM bigram_freq
@@ -167,7 +166,7 @@ SQLite::Statement SQL::SelectBigrams(DbHandle &db, std::string const &lgram,
     auto ret = Statement(db, format(sql, qmarks(rgrams.size())));
     ret.bind(1, lgram);
     auto i = 2;
-    for (auto gram : rgrams) {
+    for (auto *gram : rgrams) {
         ret.bind(i, *gram);
         ++i;
     }
@@ -215,7 +214,7 @@ SQLite::Statement SQL::SelectBigramCounts(DbHandle &db, std::string const &lgram
     auto ret = Statement(db, format(sql, qmarks(rgrams.size())));
     ret.bind(1, lgram);
     auto i = 2;
-    for (auto &rgram : rgrams) {
+    for (auto const &rgram : rgrams) {
         ret.bind(i, rgram);
         ++i;
     }
@@ -244,8 +243,7 @@ SQLite::Statement SQL::IncrementUnigrams(DbHandle &db, std::vector<std::string> 
     return ret;
 }
 
-SQLite::Statement SQL::IncrementBigrams(DbHandle &db,
-                                        std::vector<std::pair<std::string, std::string>> const &bigrams) {
+SQLite::Statement SQL::IncrementBigrams(DbHandle &db, std::vector<std::pair<std::string, std::string>> const &bigrams) {
     static constexpr auto sql = R"(
         INSERT INTO bigram_freq (lgram, rgram, n)
             VALUES %s

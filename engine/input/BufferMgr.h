@@ -25,6 +25,11 @@ class Engine;
  */
 class BufferMgr {
   public:
+    BufferMgr() = default;
+    BufferMgr &operator=(BufferMgr const &) = delete;
+    BufferMgr(BufferMgr const &) = delete;
+    virtual ~BufferMgr() = 0;
+
     static std::unique_ptr<BufferMgr> Create(Engine *engine);
 
     /**

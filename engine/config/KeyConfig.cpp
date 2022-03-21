@@ -402,6 +402,8 @@ class KeyCfgImpl : public KeyConfig, ConfigChangeListener {
 
 } // namespace
 
+KeyConfig::~KeyConfig() = default;
+
 std::unique_ptr<KeyConfig> KeyConfig::Create() {
     auto keyconfig = std::make_unique<KeyCfgImpl>(nullptr);
     keyconfig->SetKey('n', VKey::Nasal);

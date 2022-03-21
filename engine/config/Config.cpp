@@ -62,7 +62,7 @@ class ConfigImpl : public Config {
 
     char telex_t2() override {
         if (m_protoconf->has_key_config()) {
-            auto &keyconf = m_protoconf->key_config();
+            auto const &keyconf = m_protoconf->key_config();
             if (!keyconf.telex_t2().empty()) {
                 return keyconf.telex_t2().front();
             }
@@ -73,7 +73,7 @@ class ConfigImpl : public Config {
 
     char telex_t3() override {
         if (m_protoconf->has_key_config()) {
-            auto &keyconf = m_protoconf->key_config();
+            auto const &keyconf = m_protoconf->key_config();
             if (!keyconf.telex_t3().empty()) {
                 return keyconf.telex_t3().front();
             }
@@ -84,7 +84,7 @@ class ConfigImpl : public Config {
 
     char telex_t5() override {
         if (m_protoconf->has_key_config()) {
-            auto &keyconf = m_protoconf->key_config();
+            auto const &keyconf = m_protoconf->key_config();
             if (!keyconf.telex_t5().empty()) {
                 return keyconf.telex_t5().front();
             }
@@ -99,7 +99,7 @@ class ConfigImpl : public Config {
 
     char telex_t7() override {
         if (m_protoconf->has_key_config()) {
-            auto &keyconf = m_protoconf->key_config();
+            auto const &keyconf = m_protoconf->key_config();
             if (!keyconf.telex_t7().empty()) {
                 return keyconf.telex_t7().front();
             }
@@ -110,7 +110,7 @@ class ConfigImpl : public Config {
 
     char telex_t8() override {
         if (m_protoconf->has_key_config()) {
-            auto &keyconf = m_protoconf->key_config();
+            auto const &keyconf = m_protoconf->key_config();
             if (!keyconf.telex_t8().empty()) {
                 return keyconf.telex_t8().front();
             }
@@ -121,7 +121,7 @@ class ConfigImpl : public Config {
 
     char telex_t9() override {
         if (m_protoconf->has_key_config()) {
-            auto &keyconf = m_protoconf->key_config();
+            auto const &keyconf = m_protoconf->key_config();
             if (!keyconf.telex_t9().empty()) {
                 return keyconf.telex_t9().front();
             }
@@ -132,7 +132,7 @@ class ConfigImpl : public Config {
 
     char telex_khin() override {
         if (m_protoconf->has_key_config()) {
-            auto &keyconf = m_protoconf->key_config();
+            auto const &keyconf = m_protoconf->key_config();
             if (!keyconf.telex_khin().empty()) {
                 return keyconf.telex_khin().front();
             }
@@ -143,7 +143,7 @@ class ConfigImpl : public Config {
 
     char alt_hyphen() override {
         if (m_protoconf->has_key_config()) {
-            auto &keyconf = m_protoconf->key_config();
+            auto const &keyconf = m_protoconf->key_config();
             if (!keyconf.alt_hyphen().empty()) {
                 return keyconf.alt_hyphen().front();
             }
@@ -154,7 +154,7 @@ class ConfigImpl : public Config {
 
     std::string nasal() override {
         if (m_protoconf->has_key_config()) {
-            auto &keyconf = m_protoconf->key_config();
+            auto const &keyconf = m_protoconf->key_config();
             if (!keyconf.nasal().empty()) {
                 return keyconf.nasal();
             }
@@ -165,7 +165,7 @@ class ConfigImpl : public Config {
 
     std::string dot_above_right() override {
         if (m_protoconf->has_key_config()) {
-            auto &keyconf = m_protoconf->key_config();
+            auto const &keyconf = m_protoconf->key_config();
             if (!keyconf.dot_above_right().empty()) {
                 return keyconf.dot_above_right();
             }
@@ -176,7 +176,7 @@ class ConfigImpl : public Config {
 
     char dots_below() override {
         if (m_protoconf->has_key_config()) {
-            auto &keyconf = m_protoconf->key_config();
+            auto const &keyconf = m_protoconf->key_config();
             if (!keyconf.dots_below().empty()) {
                 return keyconf.dots_below().front();
             }
@@ -187,7 +187,7 @@ class ConfigImpl : public Config {
 
     bool uppercase_nasal() override {
         if (m_protoconf->has_key_config()) {
-            auto &keyconf = m_protoconf->key_config();
+            auto const &keyconf = m_protoconf->key_config();
             if (keyconf.has_enable_uppercase_nasal()) {
                 return keyconf.enable_uppercase_nasal().value();
             }
@@ -226,6 +226,8 @@ class ConfigImpl : public Config {
 };
 
 } // namespace
+
+Config::~Config() = default;
 
 std::unique_ptr<Config> Config::Default() {
     return std::make_unique<ConfigImpl>();

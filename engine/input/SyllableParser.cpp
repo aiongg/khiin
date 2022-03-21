@@ -22,7 +22,7 @@ template <typename T>
 std::vector<T> odometer_merge(std::vector<std::vector<T>> const &vector_set) {
     auto size = vector_set.size();
     auto ret = std::vector<T>();
-    auto its = std::vector<std::vector<T>::const_iterator>();
+    auto its = std::vector<typename std::vector<T>::const_iterator>();
     for (auto &vec : vector_set) {
         its.push_back(vec.cbegin());
     }
@@ -45,11 +45,10 @@ std::vector<T> odometer_merge(std::vector<std::vector<T>> const &vector_set) {
     return ret;
 }
 
-inline constexpr std::array<char *, 7> kOrderedToneablesIndex1 = {{"o", "a", "e", "u", "i", "ng", "m"}};
-inline constexpr std::array<char *, 3> kOrderedToneablesIndex2 = {{"oa", "oe"}};
-inline constexpr std::array<char, 8> kToneableLetters = {'a', 'e', 'i', 'm', 'n', 'o', 'u'};
-
-inline constexpr std::array<char, 2> kSyllableSeparator = {' ', '-'};
+// inline constexpr std::array<char const *, 7> kOrderedToneablesIndex1 = {{"o", "a", "e", "u", "i", "ng", "m"}};
+// inline constexpr std::array<char const *, 3> kOrderedToneablesIndex2 = {{"oa", "oe"}};
+// inline constexpr std::array<char, 8> kToneableLetters = {'a', 'e', 'i', 'm', 'n', 'o', 'u'};
+// inline constexpr std::array<char, 2> kSyllableSeparator = {' ', '-'};
 
 const std::unordered_map<Tone, std::string> kToneToUnicodeMap = {{Tone::T2, u8"\u0301"}, {Tone::T3, u8"\u0300"},
                                                                  {Tone::T5, u8"\u0302"}, {Tone::T7, u8"\u0304"},
@@ -69,7 +68,7 @@ inline bool EndsWithPtkh(std::string_view str) {
 }
 
 bool RemoveToneDiacriticSaveTone(KeyConfig *keyconfig, std::string &input, Tone &tone, char &key, char &telex_key) {
-    for (auto &[t, t_str] : kToneToUnicodeMap) {
+    for (auto const &[t, t_str] : kToneToUnicodeMap) {
         if (auto i = input.find(t_str); i != std::string::npos) {
             tone = t;
             input.erase(i, t_str.size());
@@ -116,7 +115,7 @@ void ComposedToRawWithAlternates(KeyConfig *keyconfig, const std::string &input,
     syl.push_back(digit_key);
     output.push_back(syl);
 
-    if (telex_key) {
+    if (telex_key != 0) {
         syl.pop_back();
         syl.push_back(telex_key);
         output.push_back(syl);
@@ -143,14 +142,11 @@ class SyllableParserImpl : public SyllableParser {
         return syl;
     }
 
-    void ToFuzzy(std::string const &input, std::vector<std::string> &output, bool &has_tone) {
+    void ToFuzzy(std::string const &input, std::vector<std::string> &output, bool &has_tone) override {
         ComposedToRawWithAlternates(m_engine->keyconfig(), input, output, has_tone);
     }
 
     std::vector<InputSequence> AsInputSequences(std::string const &word) override {
-        if (word == u8"iăn-jín") {
-            auto x = 3;
-        }
         auto ret = std::vector<InputSequence>();
         std::string word_copy = word;
         EraseAll(word_copy, kKhinDotStr);
@@ -189,9 +185,9 @@ class SyllableParserImpl : public SyllableParser {
             has_tone = false;
         };
 
-        auto push_delim = [&](char ch) {
-            chunks.push_back(std::vector<std::string>{std::string(1, ch), std::string()});
-        };
+        // auto push_delim = [&](char ch) {
+        //    chunks.push_back(std::vector<std::string>{std::string(1, ch), std::string()});
+        //};
 
         while (sep != end) {
             push_chunk(start, sep);
@@ -248,7 +244,7 @@ class SyllableParserImpl : public SyllableParser {
 
         auto const &target_raw = target.raw_input();
         auto target_tone = target.tone();
-        auto keyconfig = m_engine->keyconfig();
+        auto *keyconfig = m_engine->keyconfig();
         auto r_it = r_begin;
         auto t_it = target_raw.cbegin();
         auto t_end = target_raw.cend();
@@ -282,6 +278,8 @@ class SyllableParserImpl : public SyllableParser {
 };
 
 } // namespace
+
+SyllableParser::~SyllableParser() = default;
 
 std::unique_ptr<SyllableParser> SyllableParser::Create(Engine *engine) {
     return std::make_unique<SyllableParserImpl>(engine);

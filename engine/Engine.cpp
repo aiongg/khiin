@@ -29,7 +29,7 @@ namespace {
 using namespace khiin::proto;
 namespace fs = std::filesystem;
 
-class EngineImpl : public Engine {
+class EngineImpl final : public Engine {
   public:
     EngineImpl() {}
 

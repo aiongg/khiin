@@ -21,9 +21,7 @@ class Database {
     Database() = default;
     Database(const Database &) = delete;
     Database &operator=(const Database &) = delete;
-    Database(Database &&) = default;
-    Database &operator=(Database &&) = default;
-    ~Database() = default;
+    virtual ~Database() = 0;
 
     static std::unique_ptr<Database> TestDb();
     static std::unique_ptr<Database> Connect(std::string const &db_filename);

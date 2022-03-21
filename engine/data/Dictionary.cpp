@@ -298,6 +298,8 @@ class DictionaryImpl : public Dictionary {
 
 } // namespace
 
+Dictionary::~Dictionary() = default;
+
 std::unique_ptr<Dictionary> Dictionary::Create(Engine *engine) {
     return std::make_unique<DictionaryImpl>(engine);
 }

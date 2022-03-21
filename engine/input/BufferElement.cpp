@@ -188,11 +188,11 @@ size_t BufferElement::ComposedToRawCaret(utf8_size_t caret) const {
         return 0;
     }
 
-    if (auto elem = std::get_if<std::string>(&m_element)) {
+    if (auto *elem = std::get_if<std::string>(&m_element)) {
         return caret;
     }
 
-    if (auto elem = std::get_if<TaiText>(&m_element)) {
+    if (auto *elem = std::get_if<TaiText>(&m_element)) {
         if (is_converted) {
             return elem->ConvertedToRawCaret(caret);
         }
@@ -200,7 +200,7 @@ size_t BufferElement::ComposedToRawCaret(utf8_size_t caret) const {
         return elem->ComposedToRawCaret(caret);
     }
 
-    if (auto elem = std::get_if<Punctuation>(&m_element)) {
+    if (auto *elem = std::get_if<Punctuation>(&m_element)) {
         return u8_size(elem->input);
     }
 
@@ -272,17 +272,17 @@ void BufferElement::Erase(utf8_size_t index) {
         safe_erase(*elem, index, 1);
         return;
     }
-    
+
     if (auto *elem = std::get_if<TaiText>(&m_element)) {
         elem->Erase(index);
         return;
     }
-    
-    if (auto* elem = std::get_if<Punctuation>(&m_element)) {
+
+    if (auto *elem = std::get_if<Punctuation>(&m_element)) {
         Replace(std::string());
         return;
     }
-    
+
     if (auto *elem = std::get_if<VirtualSpace>(&m_element)) {
         elem->erased = true;
         return;

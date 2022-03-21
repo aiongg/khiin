@@ -11,6 +11,8 @@ namespace khiin::engine {
 namespace {
 using namespace db_tables;
 
+constexpr size_t kReservedSyllables = 1500;
+
 class DatabaseImpl : public Database {
   public:
     DatabaseImpl(std::unique_ptr<SQLite::Database> &&handle) : db_handle(std::move(handle)) {}
@@ -28,7 +30,7 @@ class DatabaseImpl : public Database {
 
     void LoadSyllables(std::vector<std::string> &syllables) override {
         syllables.clear();
-        syllables.reserve(1500);
+        syllables.reserve(kReservedSyllables);
         auto query = SQL::SelectSyllables(*db_handle);
         while (query.executeStep()) {
             syllables.push_back(query.getColumn(syllables::input).getString());
@@ -201,6 +203,8 @@ class DatabaseImpl : public Database {
 };
 
 } // namespace
+
+Database::~Database() = default;
 
 std::unique_ptr<Database> Database::TestDb() {
     auto handle = std::make_unique<SQLite::Database>(":memory:", SQLite::OPEN_READWRITE);

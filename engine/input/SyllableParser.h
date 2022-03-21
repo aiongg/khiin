@@ -20,6 +20,11 @@ struct InputSequence {
 
 class SyllableParser {
   public:
+    SyllableParser() = default;
+    SyllableParser &operator=(SyllableParser const &) = delete;
+    SyllableParser(SyllableParser const &) = delete;
+    virtual ~SyllableParser() = 0;
+
     static std::unique_ptr<SyllableParser> Create(Engine *engine);
 
     virtual Syllable ParseRaw(std::string const &input) = 0;

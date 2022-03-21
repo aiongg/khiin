@@ -17,6 +17,11 @@ class Trie;
 
 class Dictionary : public ConfigChangeListener {
   public:
+    Dictionary() = default;
+    Dictionary &operator=(Dictionary const &) = delete;
+    Dictionary(Dictionary const &) = delete;
+    virtual ~Dictionary() = 0;
+
     static std::unique_ptr<Dictionary> Create(Engine *engine);
     virtual void Initialize() = 0;
 

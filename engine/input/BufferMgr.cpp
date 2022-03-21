@@ -321,7 +321,7 @@ class BufferMgrImpl : public BufferMgr {
         assert(new_focused_element_idx < m_composition.Size());
 
         auto begin = m_composition.Begin();
-        auto it = begin + new_focused_element_idx;
+        auto it = begin + static_cast<int>(new_focused_element_idx);
         auto end = m_composition.End();
 
         while (it != end && it->IsVirtualSpace()) {
@@ -337,18 +337,7 @@ class BufferMgrImpl : public BufferMgr {
 
     void UpdateCandidatesForFocusedElement() {
         auto raw_text = m_composition.RawTextFrom(m_focused_element);
-
-        switch (input_mode()) {
-        case InputMode::Continuous:
-            m_candidates = CandidateFinder::MultiMatch(m_engine, FocusLGram(), raw_text);
-            break;
-        case InputMode::Basic:
-            m_candidates = CandidateFinder::MultiMatch(m_engine, FocusLGram(), raw_text);
-            break;
-        default:
-            break;
-        }
-
+        m_candidates = CandidateFinder::MultiMatch(m_engine, FocusLGram(), raw_text);
         SetFocusedCandidateIndexToCurrent();
     }
 
@@ -511,6 +500,8 @@ class BufferMgrImpl : public BufferMgr {
         case InputMode::Basic:
             SetCompositionAndCandidatesBasic(m_composition.RawText());
             break;
+        case InputMode::Manual:
+            break;
         }
 
         JoinBufferUpdateCaretAndFocus(raw_caret);
@@ -591,7 +582,7 @@ class BufferMgrImpl : public BufferMgr {
         size_t n_elems_remaining = std::distance(focused_elem, comp_end);
 
         if (m_edit_state == EditState::Selecting && n_elems_remaining > candidate_size) {
-            focused_elem += candidate_size;
+            focused_elem += static_cast<int>(candidate_size);
         }
 
         // Don't let a virtual space become focused
@@ -719,6 +710,8 @@ class BufferMgrImpl : public BufferMgr {
 };
 
 } // namespace
+
+BufferMgr::~BufferMgr() = default;
 
 std::unique_ptr<BufferMgr> BufferMgr::Create(Engine *engine) {
     return std::make_unique<BufferMgrImpl>(engine);

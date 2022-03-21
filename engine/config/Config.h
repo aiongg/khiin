@@ -26,6 +26,11 @@ enum class InputMode {
 
 class Config {
   public:
+    Config() = default;
+    Config(const Config &) = delete;
+    Config &operator=(const Config &) = delete;
+    virtual ~Config() = 0;
+
     static std::unique_ptr<Config> Default();
     virtual void UpdateAppConfig(proto::AppConfig const &proto_config) = 0;
 

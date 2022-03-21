@@ -42,6 +42,11 @@ class Engine;
 
 class KeyConfig {
   public:
+    KeyConfig() = default;
+    KeyConfig &operator=(KeyConfig const &) = delete;
+    KeyConfig(KeyConfig const &) = delete;
+    virtual ~KeyConfig() = 0;
+
     static std::unique_ptr<KeyConfig> CreateEmpty();
     static std::unique_ptr<KeyConfig> Create();
     static std::unique_ptr<KeyConfig> Create(Engine *engine);
