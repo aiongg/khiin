@@ -2,19 +2,19 @@
 
 #include <string>
 #include <variant>
+#include <vector>
 
 #include "TaiText.h"
+#include "UserToken.h"
 
 namespace khiin::engine {
-
-class SyllableParser;
-struct TaiToken;
-struct Punctuation;
+using utf8_size_t = size_t;
 
 class BufferElement {
   public:
     static bool ConvertedEq(BufferElement const &lhs, BufferElement const &rhs);
-    static BufferElement Build(SyllableParser *parser, std::string const &input, TaiToken *match, bool set_candidate, bool set_converted);
+    static BufferElement Build(SyllableParser *parser, std::string const &input, TaiToken *match, bool set_candidate,
+                               bool set_converted);
 
     BufferElement();
     BufferElement(TaiText const &elem);
@@ -24,6 +24,7 @@ class BufferElement {
     BufferElement(std::string const &elem);
     BufferElement(std::string &&elem);
     BufferElement(VirtualSpace elem);
+    BufferElement(UserToken &&elem);
 
     bool operator==(BufferElement const &rhs) const;
 
@@ -48,6 +49,7 @@ class BufferElement {
     bool IsVirtualSpace() const;
     bool IsVirtualSpace(utf8_size_t index) const;
     bool IsTaiText() const noexcept;
+    bool IsUserToken() const noexcept;
     bool IsConverted() const noexcept;
     bool IsSelected() const noexcept;
     void SetConverted(bool converted) noexcept;
@@ -56,7 +58,7 @@ class BufferElement {
   private:
     bool is_converted = false;
     bool is_selected = false;
-    std::variant<std::monostate, std::string, TaiText, Punctuation, VirtualSpace> m_element;
+    std::variant<std::monostate, std::string, TaiText, Punctuation, VirtualSpace, UserToken> m_element;
 };
 
 using BufferElementList = std::vector<BufferElement>;

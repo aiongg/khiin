@@ -3,6 +3,7 @@
 #include "data/Models.h"
 #include "utils/common.h"
 
+#include "Syllable.h"
 #include "SyllableParser.h"
 #include "TaiText.h"
 
@@ -17,6 +18,12 @@ bool BufferElement::ConvertedEq(BufferElement const &lhs, BufferElement const &r
 
 BufferElement BufferElement::Build(SyllableParser *parser, std::string const &input, TaiToken *match,
                                    bool set_candidate, bool set_converted) {
+    if (match != nullptr && match->id == 0) {
+        auto elem = BufferElement(UserToken(input, match));
+        elem.SetConverted(set_converted);
+        return elem;
+    }
+
     auto tt = TaiText();
 
     if (match == nullptr) {
@@ -29,9 +36,9 @@ BufferElement BufferElement::Build(SyllableParser *parser, std::string const &in
         tt.SetCandidate(match);
     }
 
-    auto ret = BufferElement(std::move(tt));
-    ret.is_converted = set_converted;
-    return ret;
+    auto elem = BufferElement(std::move(tt));
+    elem.SetConverted(set_converted);
+    return elem;
 }
 
 BufferElement::BufferElement() {}
@@ -64,6 +71,10 @@ BufferElement::BufferElement(VirtualSpace elem) {
     m_element.emplace<VirtualSpace>(elem);
 }
 
+BufferElement::BufferElement(UserToken &&elem) {
+    m_element.emplace<UserToken>(std::move(elem));
+}
+
 bool BufferElement::operator==(BufferElement const &rhs) const {
     return BufferElement::ConvertedEq(*this, rhs);
 }
@@ -81,39 +92,59 @@ void BufferElement::Replace(VirtualSpace elem) {
 }
 
 utf8_size_t BufferElement::size() const {
-    utf8_size_t ret = 0;
-
     if (auto *elem = std::get_if<std::string>(&m_element)) {
-        ret = u8_size(*elem);
-    } else if (auto *elem = std::get_if<TaiText>(&m_element)) {
-        if (is_converted && elem->candidate()) {
-            ret = u8_size(elem->candidate()->output);
-        } else {
-            ret = elem->ComposedSize();
-        }
-    } else if (auto *elem = std::get_if<Punctuation>(&m_element)) {
-        ret = u8_size(elem->output);
-    } else if (auto *elem = std::get_if<VirtualSpace>(&m_element)) {
-        ret = 1;
+        return u8_size(*elem);
     }
 
-    return ret;
+    if (auto *elem = std::get_if<TaiText>(&m_element)) {
+        if (is_converted && elem->candidate() != nullptr) {
+            return u8_size(elem->candidate()->output);
+        }
+
+        return elem->ComposedSize();
+    }
+
+    if (auto *elem = std::get_if<Punctuation>(&m_element)) {
+        return u8_size(elem->output);
+    }
+
+    if (auto *elem = std::get_if<VirtualSpace>(&m_element)) {
+        return 1;
+    }
+
+    if (auto *elem = std::get_if<UserToken>(&m_element)) {
+        if (is_converted && elem->candidate() != nullptr) {
+            return elem->OutputSize();
+        }
+
+        return elem->InputSize();
+    }
+
+    return 0;
 }
 
 std::string BufferElement::raw() const {
     if (auto *elem = std::get_if<std::string>(&m_element)) {
         return *elem;
-    } else if (auto *elem = std::get_if<TaiText>(&m_element)) {
-        return elem->RawText();
-    } else if (auto *elem = std::get_if<Punctuation>(&m_element)) {
-        return elem->input;
-    } else { // VirtualSpace && std::Monostate
-        return std::string();
     }
+
+    if (auto *elem = std::get_if<TaiText>(&m_element)) {
+        return elem->RawText();
+    }
+
+    if (auto *elem = std::get_if<Punctuation>(&m_element)) {
+        return elem->input;
+    }
+
+    if (auto *elem = std::get_if<UserToken>(&m_element)) {
+        return elem->Input();
+    } // VirtualSpace && std::Monostate
+
+    return std::string();
 }
 
 utf8_size_t BufferElement::RawSize() const {
-    return unicode::u8_size(raw());
+    return u8_size(raw());
 }
 
 utf8_size_t BufferElement::RawToComposedCaret(size_t raw_caret) const {
@@ -121,19 +152,34 @@ utf8_size_t BufferElement::RawToComposedCaret(size_t raw_caret) const {
         return 0;
     }
 
-    if (auto elem = std::get_if<std::string>(&m_element)) {
+    if (auto *elem = std::get_if<std::string>(&m_element)) {
         return raw_caret;
-    } else if (auto elem = std::get_if<TaiText>(&m_element)) {
+    }
+
+    if (auto *elem = std::get_if<TaiText>(&m_element)) {
         if (is_converted && elem->candidate()) {
             return u8_size(elem->candidate()->output);
-        } else {
-            return elem->RawToComposedCaret(raw_caret);
         }
-    } else if (auto elem = std::get_if<Punctuation>(&m_element)) {
+
+        return elem->RawToComposedCaret(raw_caret);
+    }
+
+    if (auto *elem = std::get_if<Punctuation>(&m_element)) {
         return u8_size(elem->output);
-    } else if (auto elem = std::get_if<VirtualSpace>(&m_element)) {
+    }
+
+    if (auto *elem = std::get_if<VirtualSpace>(&m_element)) {
         return utf8_size_t(1);
     }
+
+    if (auto *elem = std::get_if<UserToken>(&m_element)) {
+        if (is_converted && elem->candidate()) {
+            return elem->OutputSize();
+        }
+
+        return elem->InputSize();
+    }
+
     return 0; // std::monostate
 }
 
@@ -144,28 +190,46 @@ size_t BufferElement::ComposedToRawCaret(utf8_size_t caret) const {
 
     if (auto elem = std::get_if<std::string>(&m_element)) {
         return caret;
-    } else if (auto elem = std::get_if<TaiText>(&m_element)) {
+    }
+
+    if (auto elem = std::get_if<TaiText>(&m_element)) {
         if (is_converted) {
             return elem->ConvertedToRawCaret(caret);
-        } else {
-            return elem->ComposedToRawCaret(caret);
         }
-    } else if (auto elem = std::get_if<Punctuation>(&m_element)) {
+
+        return elem->ComposedToRawCaret(caret);
+    }
+
+    if (auto elem = std::get_if<Punctuation>(&m_element)) {
         return u8_size(elem->input);
+    }
+
+    if (auto *elem = std::get_if<UserToken>(&m_element)) {
+        return elem->InputSize();
     }
 
     return 0; // VirtualSpace && std::monostate
 }
 
 std::string BufferElement::composed() const {
-    if (auto elem = std::get_if<std::string>(&m_element)) {
+    if (auto *elem = std::get_if<std::string>(&m_element)) {
         return *elem;
-    } else if (auto elem = std::get_if<TaiText>(&m_element)) {
+    }
+
+    if (auto *elem = std::get_if<TaiText>(&m_element)) {
         return elem->ComposedText();
-    } else if (auto elem = std::get_if<Punctuation>(&m_element)) {
+    }
+
+    if (auto *elem = std::get_if<Punctuation>(&m_element)) {
         return elem->output;
-    } else if (auto elem = std::get_if<VirtualSpace>(&m_element)) {
+    }
+
+    if (auto *elem = std::get_if<VirtualSpace>(&m_element)) {
         return std::string(1, ' ');
+    }
+
+    if (auto *elem = std::get_if<UserToken>(&m_element)) {
+        return elem->Input();
     }
 
     return std::string(); // std::monostate
@@ -174,19 +238,29 @@ std::string BufferElement::composed() const {
 std::string BufferElement::converted() const {
     if (auto elem = std::get_if<std::string>(&m_element)) {
         return *elem;
-    } else if (auto elem = std::get_if<TaiText>(&m_element)) {
+    }
+
+    if (auto *elem = std::get_if<TaiText>(&m_element)) {
         return elem->ConvertedText();
-    } else if (auto elem = std::get_if<Punctuation>(&m_element)) {
+    }
+
+    if (auto *elem = std::get_if<Punctuation>(&m_element)) {
         return elem->output;
-    } else if (auto elem = std::get_if<VirtualSpace>(&m_element)) {
+    }
+
+    if (auto *elem = std::get_if<VirtualSpace>(&m_element)) {
         return std::string(1, ' ');
+    }
+
+    if (auto *elem = std::get_if<UserToken>(&m_element)) {
+        return elem->Output();
     }
 
     return std::string(); // std::monostate
 }
 
 TaiToken *BufferElement::candidate() const {
-    if (auto elem = std::get_if<TaiText>(&m_element)) {
+    if (auto *elem = std::get_if<TaiText>(&m_element)) {
         return elem->candidate();
     }
 
@@ -194,14 +268,24 @@ TaiToken *BufferElement::candidate() const {
 }
 
 void BufferElement::Erase(utf8_size_t index) {
-    if (auto elem = std::get_if<std::string>(&m_element)) {
+    if (auto *elem = std::get_if<std::string>(&m_element)) {
         safe_erase(*elem, index, 1);
-    } else if (auto elem = std::get_if<TaiText>(&m_element)) {
+        return;
+    }
+    
+    if (auto *elem = std::get_if<TaiText>(&m_element)) {
         elem->Erase(index);
-    } else if (auto elem = std::get_if<Punctuation>(&m_element)) {
+        return;
+    }
+    
+    if (auto* elem = std::get_if<Punctuation>(&m_element)) {
         Replace(std::string());
-    } else if (auto elem = std::get_if<VirtualSpace>(&m_element)) {
+        return;
+    }
+    
+    if (auto *elem = std::get_if<VirtualSpace>(&m_element)) {
         elem->erased = true;
+        return;
     }
 }
 
@@ -219,6 +303,10 @@ bool BufferElement::IsVirtualSpace(utf8_size_t index) const {
 
 bool BufferElement::IsTaiText() const noexcept {
     return std::holds_alternative<TaiText>(m_element);
+}
+
+bool BufferElement::IsUserToken() const noexcept {
+    return std::holds_alternative<UserToken>(m_element);
 }
 
 bool BufferElement::SetKhin(KhinKeyPosition khin_pos, char khin_key) {

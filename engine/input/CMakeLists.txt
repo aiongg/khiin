@@ -20,4 +20,6 @@ target_sources(khiin
         "SyllableParser.h"
         "TaiText.cpp"
         "TaiText.h"
+        "UserToken.cpp"
+        "UserToken.h"
 )
