@@ -120,7 +120,7 @@ std::string Lomaji::Decompose(std::string_view str) {
     auto it = u8_begin(str);
     auto end = u8_end(str);
     for (; it != end; ++it) {
-        if (auto &found = kDecompositionMap.find(*it); found != kDecompositionMap.end()) {
+        if (auto found = kDecompositionMap.find(*it); found != kDecompositionMap.end()) {
             ret.append(found->second);
         } else {
             utf8::append(static_cast<char32_t>(*it), ret);

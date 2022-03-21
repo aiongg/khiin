@@ -3,8 +3,9 @@
 #include <sstream>
 #include <string>
 #include <utility>
+#include <cmath>
 
-#include "splitter.h"
+#include "Splitter.h"
 
 using namespace std::string_literals;
 

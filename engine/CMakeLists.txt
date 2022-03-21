@@ -3,7 +3,11 @@
 #
 cmake_minimum_required (VERSION 3.13)
 set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED)
 set(VCPKG_FEATURE_FLAGS "versions")
+if(UNIX)
+link_libraries(stdc++fs)
+endif()
 
 message(STATUS "Begin ${CMAKE_BUILD_TYPE} Build")
 
@@ -40,6 +44,8 @@ target_link_options(khiin PRIVATE "/MAP")
 enable_testing()
 add_subdirectory ("tests")
 
+if(WIN32)
 add_compile_options(/FAcs)
 add_compile_options("$<$<C_COMPILER_ID:MSVC>:/utf-8>")
 add_compile_options("$<$<CXX_COMPILER_ID:MSVC>:/utf-8>")
+endif()

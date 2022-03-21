@@ -29,16 +29,16 @@ auto toPWSTR(std::string str) {
 #endif
 
 auto setTaikeyPath() {
-    auto resDir = fs::current_path();
-    auto str = kKhiinHome + "=" + resDir.string();
-#ifdef _WIN32
-    auto path = toPWSTR(str);
-    auto ret = ::_wputenv(path.get());
-#else
-    const char *cpath = str.c_str();
-    char *path = const_cast<char *>(cpath);
-    auto ret = ::putenv(path);
-#endif
+//     auto resDir = fs::current_path();
+//     auto str = kKhiinHome + "=" + resDir.string();
+// #ifdef _WIN32
+//     auto path = toPWSTR(str);
+//     auto ret = ::_wputenv(path.get());
+// #else
+//     const char *cpath = str.c_str();
+//     char *path = const_cast<char *>(cpath);
+//     auto ret = ::putenv(path);
+// #endif
 }
 
 struct EngineTest : public ::testing::Test, TestEnv {
