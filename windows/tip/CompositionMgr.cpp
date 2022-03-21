@@ -17,6 +17,22 @@ using namespace khiin::proto;
 
 constexpr int kMaxBufSize = 512;
 
+std::wstring GetTextFromRange(TfEditCookie cookie, ITfRange *range) {
+    auto ret = std::wstring();
+    if (!range) {
+        return ret;
+    }
+
+    auto copy = com_ptr<ITfRange>();
+    check_hresult(range->Clone(copy.put()));
+    constexpr size_t buf_size = 1000;
+    std::unique_ptr<wchar_t[]> buffer(new wchar_t[buf_size]);
+    ULONG fetched = 0;
+    check_hresult(copy->GetText(cookie, TF_TF_MOVESTART, buffer.get(), buf_size, &fetched));
+    ret.append(buffer.get(), fetched);
+    return ret;
+}
+
 struct CompositionMgrImpl : implements<CompositionMgrImpl, CompositionMgr> {
 
     void Initialize(TextService *pTextService) override {
@@ -116,17 +132,22 @@ struct CompositionMgrImpl : implements<CompositionMgrImpl, CompositionMgr> {
             return;
         }
         auto comp_range = winrt::com_ptr<ITfRange>();
-        winrt::check_hresult(composition->GetRange(comp_range.put()));
+        check_hresult(composition->GetRange(comp_range.put()));
+        auto text = GetTextFromRange(cookie, comp_range.get());
 
         auto display_attribute = winrt::com_ptr<ITfProperty>();
-        winrt::check_hresult(pContext->GetProperty(GUID_PROP_ATTRIBUTE, display_attribute.put()));
-        winrt::check_hresult(display_attribute->Clear(cookie, comp_range.get()));
+        check_hresult(pContext->GetProperty(GUID_PROP_ATTRIBUTE, display_attribute.put()));
+        check_hresult(display_attribute->Clear(cookie, comp_range.get()));
 
-        auto end_range = winrt::com_ptr<ITfRange>();
-        winrt::check_hresult(comp_range->Clone(end_range.put()));
-        winrt::check_hresult(end_range->Collapse(cookie, TF_ANCHOR_END));
-        winrt::check_hresult(composition->ShiftStart(cookie, end_range.get()));
-        SetSelection(cookie, pContext, end_range.get(), TF_AE_END);
+        auto next_range = winrt::com_ptr<ITfRange>();
+        check_hresult(comp_range->Clone(next_range.put()));
+
+        LONG shifted = 0;
+        check_hresult(next_range->ShiftStart(cookie, text.size(), &shifted, nullptr));
+        check_hresult(next_range->Collapse(cookie, TF_ANCHOR_START));
+        check_hresult(composition->ShiftStart(cookie, next_range.get()));
+        SetSelection(cookie, pContext, next_range.get(), TF_AE_END);
+        composition->EndComposition(cookie);
         composition = nullptr;
     }
 
@@ -142,17 +163,17 @@ struct CompositionMgrImpl : implements<CompositionMgrImpl, CompositionMgr> {
 
         auto w_preedit = Utils::WidenPreedit(preedit);
         auto comp_range = winrt::com_ptr<ITfRange>();
-        winrt::check_hresult(composition->GetRange(comp_range.put()));
+        check_hresult(composition->GetRange(comp_range.put()));
         // Clone the range and move to the end
         auto end_range = winrt::com_ptr<ITfRange>();
-        winrt::check_hresult(comp_range->Clone(end_range.put()));
+        check_hresult(comp_range->Clone(end_range.put()));
         LONG shifted = 0;
         // Move START anchor to the end (outside of range)
-        winrt::check_hresult(end_range->ShiftStart(cookie, w_preedit.display_size, &shifted, nullptr));
+        check_hresult(end_range->ShiftStart(cookie, w_preedit.display_size, &shifted, nullptr));
         // Collapse to START anchor
-        winrt::check_hresult(end_range->Collapse(cookie, TF_ANCHOR_START));
+        check_hresult(end_range->Collapse(cookie, TF_ANCHOR_START));
         // Update composition by moving START anchor to the same position as the clone
-        winrt::check_hresult(composition->ShiftStart(cookie, end_range.get()));
+        check_hresult(composition->ShiftStart(cookie, end_range.get()));
 
         SetSelection(cookie, pContext, end_range.get(), TF_AE_END);
         composition->EndComposition(cookie);
@@ -190,10 +211,10 @@ struct CompositionMgrImpl : implements<CompositionMgrImpl, CompositionMgr> {
         context.copy_from(pContext);
         auto insert_selection = context.as<ITfInsertAtSelection>();
         auto insert_position = winrt::com_ptr<ITfRange>();
-        winrt::check_hresult(
+        check_hresult(
             insert_selection->InsertTextAtSelection(cookie, TF_IAS_QUERYONLY, nullptr, 0, insert_position.put()));
         auto composition_context = context.as<ITfContextComposition>();
-        winrt::check_hresult(composition_context->StartComposition(
+        check_hresult(composition_context->StartComposition(
             cookie, insert_position.get(), service->CreateCompositionSink(context.get()).get(), composition.put()));
     }
 
@@ -207,11 +228,11 @@ struct CompositionMgrImpl : implements<CompositionMgrImpl, CompositionMgr> {
         sel.range = pRange;
         sel.style.ase = ase;
         sel.style.fInterimChar = FALSE;
-        winrt::check_hresult(pContext->SetSelection(cookie, 1, &sel));
+        check_hresult(pContext->SetSelection(cookie, 1, &sel));
     }
 
-    winrt::com_ptr<TextService> service = nullptr;
-    winrt::com_ptr<ITfComposition> composition = nullptr;
+    com_ptr<TextService> service = nullptr;
+    com_ptr<ITfComposition> composition = nullptr;
 };
 
 } // namespace

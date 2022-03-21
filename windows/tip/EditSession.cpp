@@ -34,8 +34,10 @@ RECT ParentWindowTopLeft(ITfContextView *view) {
 
 HRESULT TextExtFromRange(TfEditCookie cookie, ITfContextView *view, ITfRange *range, RECT &rc) {
     LONG shifted = 0;
-    range->ShiftStart(cookie, 0, &shifted, nullptr);
+    BOOL noregion = FALSE;
     range->Collapse(cookie, TF_ANCHOR_START);
+    range->ShiftStart(cookie, 0, &shifted, nullptr);
+    range->ShiftEnd(cookie, 1, &shifted, nullptr);
     RECT rect{};
     BOOL clipped = FALSE;
     auto hr = view->GetTextExt(cookie, range, &rect, &clipped);
