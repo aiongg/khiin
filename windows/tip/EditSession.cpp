@@ -14,51 +14,72 @@ namespace {
 using namespace winrt;
 using namespace khiin::proto;
 
+RECT ParentWindowTopLeft(ITfContextView *view) {
+    RECT rect = {};
+    HWND parent_hwnd = NULL;
+    check_hresult(view->GetWnd(&parent_hwnd));
+
+    if (parent_hwnd == NULL) {
+        parent_hwnd = ::GetFocus();
+    }
+
+    auto found = ::GetWindowRect(parent_hwnd, &rect);
+
+    if (found != 0) {
+        return RECT{rect.left, rect.top, rect.left + 1, rect.top + 1};
+    }
+
+    return rect;
+}
+
+HRESULT TextExtFromRange(TfEditCookie cookie, ITfContextView *view, ITfRange *range, RECT &rc) {
+    LONG shifted = 0;
+    range->ShiftStart(cookie, 0, &shifted, nullptr);
+    range->Collapse(cookie, TF_ANCHOR_START);
+    RECT rect{};
+    BOOL clipped = FALSE;
+    auto hr = view->GetTextExt(cookie, range, &rect, &clipped);
+    rc = rect;
+    return hr;
+}
+
 com_ptr<ITfRange> GetDefaultSelectionRange(TfEditCookie cookie, ITfContext *context) {
     TF_SELECTION selection = {};
     ULONG fetched = 0;
     check_hresult(context->GetSelection(cookie, TF_DEFAULT_SELECTION, 1, &selection, &fetched));
 
     auto range = com_ptr<ITfRange>();
-    range.copy_from(selection.range);
+    check_hresult(selection.range->Clone(range.put()));
+    selection.range->Release();
     return range;
 }
 
 RECT GetEditRect(TfEditCookie ec, CompositionMgr *composition_mgr, ITfContext *context) {
-    auto contextView = winrt::com_ptr<ITfContextView>();
-    winrt::check_hresult(context->GetActiveView(contextView.put()));
+    RECT rect = {};
+    HRESULT hr = E_FAIL;
+    auto view = winrt::com_ptr<ITfContextView>();
+    check_hresult(context->GetActiveView(view.put()));
 
-    {
-        // Try default selection range
-        auto range = GetDefaultSelectionRange(ec, context);
-        if (!range) {
-            KHIIN_DEBUG("No range");
-        }
-        RECT rect{};
-        BOOL clipped = FALSE;
-        auto hr = contextView->GetTextExt(ec, range.get(), &rect, &clipped);
-        KHIIN_DEBUG("From default selection {} {} {} {}", rect.left, rect.top, rect.right, rect.bottom);
+    if (composition_mgr) {
+        auto range = composition_mgr->GetTextRange(ec);
+        hr = TextExtFromRange(ec, view.get(), range.get(), rect);
+        KHIIN_DEBUG("From composition range {} {} {} {}", rect.left, rect.top, rect.right, rect.bottom);
         CHECK_HRESULT(hr);
         if (hr == S_OK) {
             return rect;
         }
     }
 
-    {
-        // Try upper left of parent window
-        RECT rect{};
-        HWND parent_hwnd{};
-        check_hresult(contextView->GetWnd(&parent_hwnd));
-        if (!(parent_hwnd)) {
-            parent_hwnd = ::GetFocus();
-        }
-        auto found = ::GetWindowRect(parent_hwnd, &rect);
-        if (found != 0) {
-            return RECT{rect.left, rect.top, rect.left + 1, rect.top + 1};
-        }
+    // Try default selection range
+    auto range = GetDefaultSelectionRange(ec, context);
+    hr = TextExtFromRange(ec, view.get(), range.get(), rect);
+    KHIIN_DEBUG("From default selection {} {} {} {}", rect.left, rect.top, rect.right, rect.bottom);
+    CHECK_HRESULT(hr);
+    if (hr == S_OK) {
+        return rect;
     }
 
-    return RECT{};
+    return ParentWindowTopLeft(view.get());
 }
 
 std::vector<InputScope> GetInputScopes(TfEditCookie cookie, ITfContext *context) {

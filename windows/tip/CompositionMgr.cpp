@@ -170,15 +170,17 @@ struct CompositionMgrImpl : implements<CompositionMgrImpl, CompositionMgr> {
         }
     }
 
-    void GetTextRange(TfEditCookie cookie, ITfRange **ppRange) override {
+    com_ptr<ITfRange> GetTextRange(TfEditCookie cookie) override {
         KHIIN_TRACE("");
         if (!composing()) {
-            return;
+            return nullptr;
         }
 
         auto range = winrt::com_ptr<ITfRange>();
-        winrt::check_hresult(composition->GetRange(range.put()));
-        range.copy_to(ppRange);
+        check_hresult(composition->GetRange(range.put()));
+        auto clone = winrt::com_ptr<ITfRange>();
+        check_hresult(range->Clone(clone.put()));
+        return clone;
     }
 
   private:

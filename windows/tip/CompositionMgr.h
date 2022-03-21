@@ -29,7 +29,7 @@ struct CompositionMgr : winrt::implements<CompositionMgr, IUnknown> {
     virtual void CommitComposition(TfEditCookie cookie, ITfContext *pContext) = 0;
     virtual void CommitComposition(TfEditCookie cookie, ITfContext *pContext, proto::Preedit comp_data) = 0;
     virtual void CancelComposition(TfEditCookie cookie) = 0;
-    virtual void GetTextRange(TfEditCookie cookie, ITfRange **ppRange) = 0;
+    virtual winrt::com_ptr<ITfRange> GetTextRange(TfEditCookie cookie) = 0;
 };
 
 } // namespace khiin::win32::tip
