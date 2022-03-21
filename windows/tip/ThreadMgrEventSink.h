@@ -1,29 +1,19 @@
 #pragma once
 
-#include "SinkManager.h"
-#include "TextService.h"
-
 namespace khiin::win32::tip {
 
-struct ThreadMgrEventSink : winrt::implements<ThreadMgrEventSink, ITfThreadMgrEventSink> {
+struct TextService;
+
+struct ThreadMgrEventSink : winrt::implements<ThreadMgrEventSink, IUnknown> {
     ThreadMgrEventSink() = default;
     ThreadMgrEventSink(const ThreadMgrEventSink &) = delete;
     ThreadMgrEventSink &operator=(const ThreadMgrEventSink &) = delete;
-    ~ThreadMgrEventSink();
+    virtual ~ThreadMgrEventSink() = 0;
 
-    void Initialize(TextService *pService);
-    void Uninitialize();
+    static winrt::com_ptr<ThreadMgrEventSink> Create();
 
-    // Inherited via implements
-    virtual STDMETHODIMP OnInitDocumentMgr(ITfDocumentMgr *pdim) override;
-    virtual STDMETHODIMP OnUninitDocumentMgr(ITfDocumentMgr *pdim) override;
-    virtual STDMETHODIMP OnSetFocus(ITfDocumentMgr *docmgr_focus, ITfDocumentMgr *prev_docmgr_focus) override;
-    virtual STDMETHODIMP OnPushContext(ITfContext *pic) override;
-    virtual STDMETHODIMP OnPopContext(ITfContext *pic) override;
-
-  private:
-    winrt::com_ptr<TextService> service = nullptr;
-    SinkManager<ITfThreadMgrEventSink> threadMgrSinkMgr;
+    virtual void Initialize(TextService *service) = 0;
+    virtual void Uninitialize() = 0;
 };
 
 } // namespace khiin::win32

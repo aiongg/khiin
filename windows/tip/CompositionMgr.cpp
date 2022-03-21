@@ -50,7 +50,7 @@ struct CompositionMgrImpl : implements<CompositionMgrImpl, CompositionMgr> {
 
             auto is_empty = FALSE;
             winrt::check_hresult(range->IsEmpty(cookie, &is_empty));
-            if (is_empty != TRUE) {
+            if (is_empty == FALSE) {
                 winrt::check_hresult(range->SetText(cookie, TF_ST_CORRECTION, L"", 0));
             }
         } else {
@@ -155,7 +155,7 @@ struct CompositionMgrImpl : implements<CompositionMgrImpl, CompositionMgr> {
         winrt::check_hresult(composition->ShiftStart(cookie, end_range.get()));
 
         SetSelection(cookie, pContext, end_range.get(), TF_AE_END);
-
+        composition->EndComposition(cookie);
         composition = nullptr;
     } catch (...) {
         // Composition was ended
@@ -164,6 +164,10 @@ struct CompositionMgrImpl : implements<CompositionMgrImpl, CompositionMgr> {
 
     void CancelComposition(TfEditCookie cookie) override {
         KHIIN_TRACE("");
+        if (composition) {
+            composition->EndComposition(cookie);
+            composition = nullptr;
+        }
     }
 
     void GetTextRange(TfEditCookie cookie, ITfRange **ppRange) override {

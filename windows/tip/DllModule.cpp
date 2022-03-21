@@ -109,8 +109,8 @@ STDMETHODIMP DllUnregisterServer() {
 
 // Called when running regsvr32.exe
 // 1. Register this DLL as a COM server;
-// 2. Register this COM server as a TSF text service, and;
-// 3. Register this text service as a TSF text-input processor.
+// 2. Register this COM server as a TSF text m_service, and;
+// 3. Register this text m_service as a TSF text-input processor.
 STDMETHODIMP DllRegisterServer() {
      MessageBox(NULL, (LPCWSTR)L"Waiting for debugger...", (LPCWSTR)L"OK", MB_DEFBUTTON2);
 

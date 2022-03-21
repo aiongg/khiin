@@ -40,7 +40,7 @@ struct TextServiceImpl :
     TextServiceImpl() {
         m_engine = EngineController::Create();
         m_compositionmgr = CompositionMgr::Create();
-        m_threadmgr_sink = make_self<ThreadMgrEventSink>();
+        m_threadmgr_sink = ThreadMgrEventSink::Create();
         m_candidate_list_ui = CandidateListUI::Create();
         m_keyevent_sink = KeyEventSink::Create();
         m_indicator = LangBarIndicator::Create();
@@ -53,6 +53,7 @@ struct TextServiceImpl :
         auto service = cast_as<TextService>(this);
         auto threadmgr = m_threadmgr.get();
 
+        //InitTip();
         InitConfig();
         DisplayAttributeInfoEnum::load(m_displayattrs.put());
         m_indicator->Initialize(service);
@@ -116,6 +117,12 @@ struct TextServiceImpl :
             m_config = std::make_unique<AppConfig>();
         }
         Config::LoadFromFile(g_module, m_config.get());
+    }
+
+    void InitTip() {
+        auto docmgr = winrt::com_ptr<ITfDocumentMgr>();
+        check_hresult(m_threadmgr->GetFocus(docmgr.put()));
+        EditSession::HandleFocusChange(this, docmgr.get());
     }
 
     void NotifyConfigChangeListeners() {
@@ -214,9 +221,9 @@ struct TextServiceImpl :
         return winrt::make<CompositionSink>(this, context);
     }
 
-    void OnCompositionTerminated(TfEditCookie ecWrite, ITfContext *context,
-                                         ITfComposition *pComposition) override {
+    void OnCompositionTerminated(TfEditCookie ecWrite, ITfContext *context, ITfComposition *pComposition) override {
         KHIIN_TRACE("");
+        KHIIN_DEBUG("OnCompositionTerminated");
         m_compositionmgr->ClearComposition();
         m_candidate_list_ui->Hide();
     }
@@ -248,11 +255,21 @@ struct TextServiceImpl :
         NotifyConfigChangeListeners();
     }
 
+    void TipOpenClose(bool open_close) {
+        DWORD current = 0;
+        m_openclose_compartment.GetValue(&current);
+
+        if ((open_close && current != 0) || (!open_close && current == 0)) {
+            return;
+        }
+
+        m_openclose_compartment.SetValue(open_close ? 1 : 0);
+    }
+
     void OnInputModeSelected(proto::InputMode mode) override {
         m_config->set_input_mode(mode);
         NotifyConfigChangeListeners();
     }
-
 
     void CycleInputMode() override {
         if (!m_config->ime_enabled().value()) {

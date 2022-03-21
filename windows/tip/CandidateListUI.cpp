@@ -52,7 +52,7 @@ struct CandidateListUIImpl :
     }
 
     void Update(ITfContext *pContext, EditState edit_state, const CandidateList &candidate_list,
-                        RECT text_rect) override {
+                RECT text_rect) override {
         KHIIN_TRACE("");
         m_context.copy_from(pContext);
         m_candidate_list.CopyFrom(candidate_list);

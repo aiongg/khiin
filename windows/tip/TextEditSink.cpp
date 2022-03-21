@@ -26,7 +26,7 @@ HRESULT TextEditSink::Uninitialize() {
 //----------------------------------------------------------------------------
 
 STDMETHODIMP TextEditSink::OnEndEdit(ITfContext *pic, TfEditCookie ecReadOnly, ITfEditRecord *pEditRecord) {
-    return E_NOTIMPL;
+    return S_OK;
 }
 
 } // namespace khiin::win32

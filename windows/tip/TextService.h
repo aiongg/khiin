@@ -41,6 +41,7 @@ struct TextService : winrt::implements<TextService, IUnknown> {
 
     virtual void TipOnOff() = 0;
     virtual void TipOnOff(bool on_off) = 0;
+    virtual void TipOpenClose(bool open_close) = 0;
     virtual void OnCompositionTerminated(TfEditCookie ecWrite, ITfContext *context, ITfComposition *pComposition) = 0;
     virtual void OnCandidateSelected(int32_t candidate_id) = 0;
     virtual void OnInputModeSelected(proto::InputMode mode) = 0;

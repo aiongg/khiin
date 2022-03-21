@@ -24,6 +24,7 @@
 #include <d2d1effects.h>
 #include <dwmapi.h>
 #include <dwrite_3.h>
+#include <InputScope.h>
 #include <msctf.h>
 #include <shellapi.h>
 #include <shellscalingapi.h>

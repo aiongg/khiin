@@ -130,10 +130,12 @@ struct KeyEventSinkImpl : implements<KeyEventSinkImpl, ITfKeyEventSink, KeyEvent
         auto command = service->engine()->TestKey(keyEvent);
 
         if (command->response().consumable()) {
+            KHIIN_DEBUG("Key is consumable");
             *pfEaten = TRUE;
             return;
         }
 
+        KHIIN_DEBUG("Key is not consumable");
         EditSession::HandleAction(service.get(), pContext, std::move(command));
     }
 
@@ -152,7 +154,7 @@ struct KeyEventSinkImpl : implements<KeyEventSinkImpl, ITfKeyEventSink, KeyEvent
 
         TestKey(pContext, keyEvent, pfEaten);
 
-        if (!*pfEaten) {
+        if (*pfEaten == 0) {
             return;
         }
 
@@ -162,8 +164,6 @@ struct KeyEventSinkImpl : implements<KeyEventSinkImpl, ITfKeyEventSink, KeyEvent
     void TestKeyUp(ITfContext *context, win32::KeyEvent key_event, BOOL *pfEaten) {
         if (ShiftOnOff() && shift_pressed && key_event.keycode() == VK_SHIFT) {
             *pfEaten = TRUE;
-        } else {
-            *pfEaten = FALSE;
         }
     }
 
@@ -171,8 +171,6 @@ struct KeyEventSinkImpl : implements<KeyEventSinkImpl, ITfKeyEventSink, KeyEvent
         if (ShiftOnOff() && shift_pressed && key_event.keycode() == VK_SHIFT) {
             service->TipOnOff();
             *pfEaten = TRUE;
-        } else {
-            *pfEaten = FALSE;
         }
     }
 
@@ -196,7 +194,7 @@ struct KeyEventSinkImpl : implements<KeyEventSinkImpl, ITfKeyEventSink, KeyEvent
         TRY_FOR_HRESULT;
         KHIIN_TRACE("");
 
-        *pfEaten = false;
+        *pfEaten = FALSE;
         auto keyEvent = win32::KeyEvent(WM_KEYDOWN, wParam, lParam);
         TestKey(pContext, keyEvent, pfEaten);
 
@@ -206,6 +204,7 @@ struct KeyEventSinkImpl : implements<KeyEventSinkImpl, ITfKeyEventSink, KeyEvent
     virtual STDMETHODIMP OnTestKeyUp(ITfContext *pContext, WPARAM wParam, LPARAM lParam, BOOL *pfEaten) override {
         TRY_FOR_HRESULT;
 
+        *pfEaten = FALSE;
         auto keyEvent = win32::KeyEvent(WM_KEYUP, wParam, lParam);
         TestKeyUp(pContext, keyEvent, pfEaten);
 
@@ -216,7 +215,7 @@ struct KeyEventSinkImpl : implements<KeyEventSinkImpl, ITfKeyEventSink, KeyEvent
         TRY_FOR_HRESULT;
         KHIIN_TRACE("");
 
-        *pfEaten = false;
+        *pfEaten = FALSE;
         auto keyEvent = win32::KeyEvent(WM_KEYDOWN, wParam, lParam);
         HandleKey(pContext, keyEvent, pfEaten);
 
@@ -226,6 +225,7 @@ struct KeyEventSinkImpl : implements<KeyEventSinkImpl, ITfKeyEventSink, KeyEvent
     virtual STDMETHODIMP OnKeyUp(ITfContext *pic, WPARAM wParam, LPARAM lParam, BOOL *pfEaten) override {
         TRY_FOR_HRESULT;
         
+        *pfEaten = FALSE;
         auto keyEvent = win32::KeyEvent(WM_KEYUP, wParam, lParam);
         HandleKeyUp(pic, keyEvent, pfEaten);
 

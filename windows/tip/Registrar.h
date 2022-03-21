@@ -12,7 +12,7 @@ struct Registrar {
     // The caller is responsible for initializing COM before call this function.
     static void RegisterProfiles(std::wstring modulePath, uint32_t icon_index = 0);
 
-    // Unregisters this COM server from the text service framework.
+    // Unregisters this COM server from the text m_service framework.
     // The caller is responsible for initializing COM before call this function.
     static void UnregisterProfiles();
 

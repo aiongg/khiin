@@ -201,6 +201,12 @@ class CandidateWindow2Impl : public CandidateWindow {
         if (top + height > m_max_height) {
             top = static_cast<float>(m_text_rect.top) - static_cast<float>(height);
         }
+        if (left < 0) {
+            left = m_metrics.padding;
+        }
+        if (top < 0) {
+            top = m_metrics.padding;
+        }
 
         auto l = static_cast<int>(left);
         auto t = static_cast<int>(top);
