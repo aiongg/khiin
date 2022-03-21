@@ -48,11 +48,14 @@ class BufferElement {
     bool IsVirtualSpace() const;
     bool IsVirtualSpace(utf8_size_t index) const;
     bool IsTaiText() const noexcept;
-
-    bool is_converted = false;
-    bool is_selected = false;
+    bool IsConverted() const noexcept;
+    bool IsSelected() const noexcept;
+    void SetConverted(bool converted) noexcept;
+    void SetSelected(bool selected) noexcept;
 
   private:
+    bool is_converted = false;
+    bool is_selected = false;
     std::variant<std::monostate, std::string, TaiText, Punctuation, VirtualSpace> m_element;
 };
 

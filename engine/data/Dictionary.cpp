@@ -266,11 +266,11 @@ class DictionaryImpl : public Dictionary {
         auto it = buffer.CBegin();
         auto end = buffer.CEnd();
         for (; it != end; ++it) {
-            if (it[0].IsTaiText() && it[0].is_converted) {
+            if (it[0].IsTaiText() && it[0].IsConverted()) {
                 auto lgram = it[0].converted();
 
                 unigrams.push_back(lgram);
-                if (it != end - 1 && it[1].IsTaiText() && it[1].is_converted) {
+                if (it != end - 1 && it[1].IsTaiText() && it[1].IsConverted()) {
                     bigrams.push_back({std::move(lgram), it[1].converted()});
                 }
             }

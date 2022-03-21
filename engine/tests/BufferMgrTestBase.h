@@ -35,6 +35,8 @@ struct BufferMgrTestBase : TestEnv {
   protected:
     BufferMgr *bufmgr = nullptr;
 
+    void SetInputMode(proto::InputMode mode);
+
     void input(std::string str);
     void curs_left(int n);
     void curs_right(int n);

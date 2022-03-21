@@ -43,6 +43,10 @@ class UserDictionaryImpl : public UserDictionary {
         return ret;
     }
 
+    bool HasExact(std::string_view query) override {
+        return m_trie->HasKey(query);
+    }
+
     size_t StartsWithWord(std::string_view query) override {
         return m_trie->LongestKeyOf(query);
     }

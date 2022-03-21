@@ -48,9 +48,9 @@ class BufferMgrImpl : public BufferMgr {
             auto it = m_composition.CBegin();
             auto end = m_composition.CEnd();
             while (it != end) {
-                if ((it != end - 1 && it->IsVirtualSpace() && !it[1].is_converted) || (!it->is_converted)) {
+                if ((it != end - 1 && it->IsVirtualSpace() && !it[1].IsConverted()) || (!it->IsConverted())) {
                     auto composing_text = std::string();
-                    while (it != end && (it->IsVirtualSpace() || !it->is_converted)) {
+                    while (it != end && (it->IsVirtualSpace() || !it->IsConverted())) {
                         composing_text += it->composed();
                         ++it;
                     }
@@ -64,7 +64,7 @@ class BufferMgrImpl : public BufferMgr {
                     auto *segment = preedit->add_segments();
                     segment->set_value(" ");
                     segment->set_status(proto::SS_UNMARKED);
-                } else if (it->is_converted) {
+                } else if (it->IsConverted()) {
                     auto *segment = preedit->add_segments();
                     segment->set_value(it->converted());
                     if (std::distance(m_composition.CBegin(), it) == m_focused_element) {
@@ -174,7 +174,7 @@ class BufferMgrImpl : public BufferMgr {
             pos_in_elem = 0;
         }
 
-        if (elem_it->is_converted) {
+        if (elem_it->IsConverted()) {
             EraseConverted(elem_it, pos_in_elem);
         } else {
             EraseComposing(direction);
@@ -340,10 +340,10 @@ class BufferMgrImpl : public BufferMgr {
 
         switch (input_mode()) {
         case InputMode::Continuous:
-            m_candidates = CandidateFinder::WordsByWeight(m_engine, FocusLGram(), raw_text);
+            m_candidates = CandidateFinder::MultiMatch(m_engine, FocusLGram(), raw_text);
             break;
         case InputMode::Basic:
-            m_candidates = CandidateFinder::WordsByLength(m_engine, FocusLGram(), raw_text);
+            m_candidates = CandidateFinder::MultiMatch(m_engine, FocusLGram(), raw_text);
             break;
         default:
             break;
@@ -413,7 +413,7 @@ class BufferMgrImpl : public BufferMgr {
     }
 
     void SetCompositionAndCandidatesBasic(std::string const &raw_composition) {
-        m_candidates = CandidateFinder::WordsByLength(m_engine, FocusLGram(), raw_composition);
+        m_candidates = CandidateFinder::MultiMatch(m_engine, FocusLGram(), raw_composition);
 
         if (!m_candidates.empty()) {
             m_composition = m_candidates[0];
@@ -549,7 +549,7 @@ class BufferMgrImpl : public BufferMgr {
                 }
             }
 
-            auto next_buf = CandidateFinder::ContinuousBestMatch(m_engine, FocusLGram(), deconverted);
+            auto next_buf = CandidateFinder::ContinuousSingleMatch(m_engine, FocusLGram(), deconverted);
 
             if (next_buf.Empty()) {
                 next_buf.Append(std::move(deconverted));
@@ -567,8 +567,8 @@ class BufferMgrImpl : public BufferMgr {
         it += static_cast<int>(candidate.Size());
         end = m_composition.End();
 
-        while (it != end && !it->is_selected) {
-            it->is_converted = false;
+        while (it != end && !it->IsSelected()) {
+            it->SetConverted(false);
             ++it;
         }
 

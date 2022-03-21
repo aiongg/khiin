@@ -116,6 +116,14 @@ size_t CheckUserDictionary(Engine *engine, std::string_view query) {
     return 0;
 }
 
+bool CheckUserDictionaryExact(Engine* engine, std::string_view query) {
+    auto *userdict = engine->user_dict();
+    if (userdict != nullptr) {
+        return userdict->HasExact(query);
+    }
+    return false;
+}
+
 std::vector<SegmentOffset> SegmentTextImpl(Engine *engine, std::string_view raw_buffer) {
     auto ret = std::vector<SegmentOffset>();
     auto begin = raw_buffer.begin();
@@ -154,6 +162,12 @@ std::vector<SegmentOffset> SegmentTextImpl(Engine *engine, std::string_view raw_
         if (CheckSplittable(engine, remainder)) {
             flush_plaintext();
             ret.push_back(SegmentOffset{SegmentType::Splittable, index, remainder.size()});
+            break;
+        }
+
+        if (CheckUserDictionaryExact(engine, remainder)) {
+            flush_plaintext();
+            ret.push_back(SegmentOffset{SegmentType::UserItem, index, remainder.size()});
             break;
         }
 

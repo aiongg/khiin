@@ -68,43 +68,43 @@ struct UserDictionaryBufferTest : ::testing::Test, BufferMgrTestBase {
     }
     void TearDown() override {
         engine()->LoadUserDictionary("");
-        auto conf = AppConfig();
-        conf.set_input_mode(IM_CONTINUOUS);
-        TestEnv::engine()->config()->UpdateAppConfig(conf);
+        SetInputMode(IM_CONTINUOUS);
     }
 };
 
-TEST_F(UserDictionaryBufferTest, UserDictionaryCandidates) {
-    auto conf = AppConfig();
-    conf.set_input_mode(IM_BASIC);
-    TestEnv::engine()->config()->UpdateAppConfig(conf);
-    
+TEST_F(UserDictionaryBufferTest, Basic_khiin) {
+    SetInputMode(IM_BASIC);
     input("khiin");
     ExpectCandidate("起引");
-    
-    bufmgr->Clear();
+}
+TEST_F(UserDictionaryBufferTest, Basic_dog) {
+    SetInputMode(IM_BASIC);
     input("dog");
     ExpectBuffer("dog", 3);
     ExpectCandidate("káu-á");
-
-    bufmgr->Clear();
+}
+TEST_F(UserDictionaryBufferTest, Basic_no) {
+    SetInputMode(IM_BASIC);
     input("no");
     ExpectBuffer("no", 2);
     ExpectCandidate("の");
+}
 
-    bufmgr->Clear();
-    conf.set_input_mode(IM_CONTINUOUS);
-    TestEnv::engine()->config()->UpdateAppConfig(conf);
-    
+TEST_F(UserDictionaryBufferTest, Continuous_khiin) {
+    SetInputMode(IM_CONTINUOUS);
     input("khiin");
     ExpectCandidate("起引");
-    
-    bufmgr->Clear();
+}
+
+TEST_F(UserDictionaryBufferTest, Continuous_dog) {
+    SetInputMode(IM_CONTINUOUS);
     input("dog");
     ExpectBuffer("dog", 3);
     ExpectCandidate("káu-á");
+}
 
-    bufmgr->Clear();
+TEST_F(UserDictionaryBufferTest, Continuous_no) {
+    SetInputMode(IM_CONTINUOUS);
     input("no");
     ExpectBuffer("no", 2);
     ExpectCandidate("の");

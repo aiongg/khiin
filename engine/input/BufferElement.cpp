@@ -4,6 +4,7 @@
 #include "utils/common.h"
 
 #include "SyllableParser.h"
+#include "TaiText.h"
 
 namespace khiin::engine {
 using namespace unicode;
@@ -209,7 +210,7 @@ bool BufferElement::IsVirtualSpace() const {
 }
 
 bool BufferElement::IsVirtualSpace(utf8_size_t index) const {
-    if (auto elem = std::get_if<TaiText>(&m_element)) {
+    if (auto *elem = std::get_if<TaiText>(&m_element)) {
         return elem->IsVirtualSpace(index);
     }
 
@@ -221,10 +222,10 @@ bool BufferElement::IsTaiText() const noexcept {
 }
 
 bool BufferElement::SetKhin(KhinKeyPosition khin_pos, char khin_key) {
-    if (auto elem = std::get_if<TaiText>(&m_element)) {
+    if (auto *elem = std::get_if<TaiText>(&m_element)) {
         elem->SetKhin(khin_pos, khin_key);
         return true;
-    } else if (auto elem = std::get_if<std::string>(&m_element)) {
+    } else if (auto *elem = std::get_if<std::string>(&m_element)) {
         if (khin_pos == KhinKeyPosition::Start) {
             elem->insert(0, 2, khin_key);
         } else if (khin_pos == KhinKeyPosition::End) {
@@ -233,6 +234,22 @@ bool BufferElement::SetKhin(KhinKeyPosition khin_pos, char khin_key) {
     }
 
     return false;
+}
+
+bool BufferElement::IsConverted() const noexcept {
+    return is_converted;
+}
+
+void BufferElement::SetConverted(bool converted) noexcept {
+    is_converted = converted;
+}
+
+bool BufferElement::IsSelected() const noexcept {
+    return is_selected;
+}
+
+void BufferElement::SetSelected(bool selected) noexcept {
+    is_selected = selected;
 }
 
 } // namespace khiin::engine

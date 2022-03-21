@@ -70,16 +70,20 @@ void Buffer::AdjustVirtualSpacing(BufferElementList &elements) {
     RemoveVirtualSpaces(elements);
 
     for (auto i = elements.size() - 1; i != 0; --i) {
-        std::string lhs =
-            elements.at(i - 1).is_converted ? elements.at(i - 1).converted() : elements.at(i - 1).composed();
-        std::string rhs = elements.at(i).is_converted ? elements.at(i).converted() : elements.at(i).composed();
+        auto &lhs_elem = elements.at(i - 1);
+        auto &rhs_elem = elements.at(i);
+        auto lhs_converted = lhs_elem.IsConverted();
+        auto rhs_converted = rhs_elem.IsConverted();
+
+        std::string lhs = lhs_converted ? lhs_elem.converted() : lhs_elem.composed();
+        std::string rhs = rhs_converted ? rhs_elem.converted() : rhs_elem.composed();
 
         if (NeedsVirtualSpace(lhs, rhs)) {
-            auto tmp = BufferElement(VirtualSpace());
-            if (elements.at(i - 1).is_converted && elements.at(i).is_converted) {
-                tmp.is_converted = true;
+            auto vs = BufferElement(VirtualSpace());
+            if (lhs_converted && rhs_converted) {
+                vs.SetConverted(true);
             }
-            elements.insert(elements.begin() + static_cast<int>(i), std::move(tmp));
+            elements.insert(elements.begin() + static_cast<int>(i), std::move(vs));
         }
     }
 }
@@ -286,7 +290,7 @@ std::string Buffer::RawText() const {
 std::string Buffer::Text() const {
     auto ret = std::string();
     for (auto const &elem : m_elements) {
-        if (elem.is_converted) {
+        if (elem.IsConverted()) {
             ret.append(elem.converted());
         } else {
             ret.append(elem.composed());
@@ -297,7 +301,7 @@ std::string Buffer::Text() const {
 
 bool Buffer::HasComposing() const {
     return std::any_of(m_elements.cbegin(), m_elements.cend(), [](auto const &el) {
-        return !el.is_converted;
+        return !el.IsConverted();
     });
 }
 
@@ -308,7 +312,7 @@ void Buffer::IsolateComposing(Buffer &pre, Buffer &post) {
     auto it = begin;
     auto end = End();
 
-    while (it != end && it->is_converted) {
+    while (it != end && it->IsConverted()) {
         ++it;
     }
 
@@ -318,7 +322,7 @@ void Buffer::IsolateComposing(Buffer &pre, Buffer &post) {
         end = End();
     }
 
-    while (it != end && !it->is_converted) {
+    while (it != end && !it->IsConverted()) {
         ++it;
     }
 
@@ -362,14 +366,14 @@ void Buffer::SplitForComposition(utf8_size_t caret, Buffer &pre, Buffer &post) {
         utf8::unchecked::advance(it, remainder);
         if (it != converted.begin()) {
             auto tmp = BufferElement(std::string(converted.begin(), it));
-            tmp.is_converted = true;
-            tmp.is_selected = true;
+            tmp.SetConverted(true);
+            tmp.SetSelected(true);
             pre.get().push_back(std::move(tmp));
         }
         if (it != converted.end()) {
             auto tmp = BufferElement(std::string(it, converted.end()));
-            tmp.is_converted = true;
-            tmp.is_selected = true;
+            tmp.SetConverted(true);
+            tmp.SetSelected(true);
             post.get().insert(post.Begin(), std::move(tmp));
         }
         Clear();
@@ -416,7 +420,7 @@ iterator Buffer::Replace(iterator first, iterator last, Buffer &other) {
 }
 
 std::string ConvertedOrComposedText(BufferElement &element) {
-    if (element.is_converted) {
+    if (element.IsConverted()) {
         return element.converted();
     }
 
@@ -431,17 +435,19 @@ void Buffer::AdjustVirtualSpacing() {
     RemoveVirtualSpaces(m_elements);
 
     for (auto i = m_elements.size() - 1; i != 0; --i) {
-        auto lhs = ConvertedOrComposedText(m_elements.at(i - 1));
-        auto rhs = ConvertedOrComposedText(m_elements.at(i));
+        auto &lhs_elem = m_elements.at(i - 1);
+        auto &rhs_elem = m_elements.at(i);
+        auto lhs = ConvertedOrComposedText(lhs_elem);
+        auto rhs = ConvertedOrComposedText(rhs_elem);
 
         if (NeedsVirtualSpace(lhs, rhs)) {
-            auto tmp = BufferElement(VirtualSpace());
-            if (m_elements.at(i - 1).is_converted && m_elements.at(i).is_converted) {
-                tmp.is_converted = true;
-            } else if (m_elements.at(i - 1).is_selected && m_elements.at(i).is_selected) {
-                tmp.is_selected = true;
+            auto vs = BufferElement(VirtualSpace());
+            if (lhs_elem.IsConverted() && rhs_elem.IsConverted()) {
+                vs.SetConverted(true);
+            } else if (lhs_elem.IsSelected() && rhs_elem.IsSelected()) {
+                vs.SetSelected(true);
             }
-            m_elements.insert(m_elements.begin() + static_cast<int>(i), std::move(tmp));
+            m_elements.insert(m_elements.begin() + static_cast<int>(i), std::move(vs));
         }
     }
     // caret = CaretFrom(raw_caret);
@@ -449,13 +455,13 @@ void Buffer::AdjustVirtualSpacing() {
 
 void Buffer::SetConverted(bool converted) {
     for (auto &elem : m_elements) {
-        elem.is_converted = converted;
+        elem.SetConverted(converted);
     }
 }
 
 void Buffer::SetSelected(bool selected) {
     for (auto &elem : m_elements) {
-        elem.is_selected = selected;
+        elem.SetSelected(selected);
     }
 }
 

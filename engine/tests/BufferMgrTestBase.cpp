@@ -4,6 +4,12 @@ namespace khiin::engine {
 using namespace proto;
 using ::testing::Contains;
 
+void BufferMgrTestBase::SetInputMode(proto::InputMode mode) {
+    auto conf = AppConfig();
+    conf.set_input_mode(mode);
+    TestEnv::engine()->config()->UpdateAppConfig(conf);
+}
+
 void BufferMgrTestBase::input(std::string str) {
     for (auto c : str) {
         bufmgr->Insert(c);

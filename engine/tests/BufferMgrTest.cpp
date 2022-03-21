@@ -386,7 +386,7 @@ struct CandidatesTest : public BufferMgrTest {};
 
 TEST_F(CandidatesTest, Candidates_taichi) {
     input("taichi");
-    ExpectCandidateSize(3);
+    ExpectCandidateSize(7);
     ExpectCandidate("事志");
     ExpectCandidate("代志");
     ExpectCandidate("tāi-chì");
@@ -676,7 +676,7 @@ TEST_F(CandidateNavigationTest, Focus_taichi) {
     input("taichi");
     curs_down(1);
     ExpectSegment(1, 0, SS_FOCUSED, "事志", 2);
-    ExpectCandidateSize(3);
+    ExpectCandidateSize(7);
 }
 
 TEST_F(CandidateNavigationTest, Focus_erase_e) {
