@@ -44,7 +44,6 @@ AppearanceProps::AppearanceProps(Application *app) : PropSheetPage(app) {
 }
 
 void AppearanceProps::Initialize() {
-
     InitComboBox(IDC_COMBOBOX_THEME_COLOR, kThemeNameStringRids, static_cast<int>(Config::GetUiColors()));
     InitComboBox(IDC_DISPLAY_LANGUAGE, kDisplayLanguageStringRids, static_cast<int>(Config::GetUiLanguage()));
 

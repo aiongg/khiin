@@ -40,7 +40,10 @@ struct CompositionMgrImpl : implements<CompositionMgrImpl, CompositionMgr> {
         service.copy_from(pTextService);
     }
 
-    void ClearComposition() override {
+    void ClearComposition(TfEditCookie cookie) override {
+        if (composition) {
+            composition->EndComposition(cookie);
+        }
         composition = nullptr;
     }
 
@@ -216,6 +219,7 @@ struct CompositionMgrImpl : implements<CompositionMgrImpl, CompositionMgr> {
         auto composition_context = context.as<ITfContextComposition>();
         check_hresult(composition_context->StartComposition(
             cookie, insert_position.get(), service->CreateCompositionSink(context.get()).get(), composition.put()));
+        SetSelection(cookie, pContext, insert_position.get(), TF_AE_NONE);
     }
 
     void ApplyDisplayAttribute(TfEditCookie cookie, ITfContext *pContext, ITfRange *pRange, AttrInfoKey index) {

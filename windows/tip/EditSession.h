@@ -11,7 +11,7 @@ namespace khiin::win32::tip {
 struct TextService;
 
 struct EditSession {
-    static void HandleFocusChange(TextService *service, ITfDocumentMgr *docmgr);
+    static void HandleFocusChange(TextService *service, ITfContext *context);
     static void HandleAction(TextService *service, ITfContext *context, proto::Command *command);
 };
 

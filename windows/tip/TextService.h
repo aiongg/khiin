@@ -31,7 +31,7 @@ struct TextService : winrt::implements<TextService, IUnknown> {
     virtual winrt::com_ptr<ITfThreadMgr> thread_mgr() = 0;
     virtual winrt::com_ptr<ITfKeystrokeMgr> keystroke_mgr() = 0;
     virtual winrt::com_ptr<ITfCategoryMgr> category_mgr() = 0;
-    virtual winrt::com_ptr<ITfContext> top_context() = 0;
+    virtual winrt::com_ptr<ITfContext> current_context() = 0;
     virtual winrt::com_ptr<EngineController> engine() = 0;
     virtual winrt::com_ptr<CompositionMgr> composition_mgr() = 0;
     virtual winrt::com_ptr<CandidateListUI> candidate_ui() = 0;
@@ -39,9 +39,11 @@ struct TextService : winrt::implements<TextService, IUnknown> {
 
     virtual proto::AppConfig *config() = 0;
 
+    virtual bool OnContextChange(ITfContext *context) = 0;
+    virtual bool Enabled() = 0;
+    virtual void SetEnabled(bool enable) = 0;
     virtual void TipOnOff() = 0;
-    virtual void TipOnOff(bool on_off) = 0;
-    virtual void TipOpenClose(bool open_close) = 0;
+    virtual void SetLocked(bool lock) = 0;
     virtual void OnCompositionTerminated(TfEditCookie ecWrite, ITfContext *context, ITfComposition *pComposition) = 0;
     virtual void OnCandidateSelected(int32_t candidate_id) = 0;
     virtual void OnInputModeSelected(proto::InputMode mode) = 0;

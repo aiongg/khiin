@@ -3,6 +3,7 @@
 #include "ThreadMgrEventSink.h"
 
 #include "CandidateListUI.h"
+#include "CompositionMgr.h"
 #include "EditSession.h"
 #include "SinkManager.h"
 #include "TextService.h"
@@ -33,8 +34,15 @@ struct ThreadMgrEventSinkImpl : implements<ThreadMgrEventSinkImpl, ITfThreadMgrE
     //
     //----------------------------------------------------------------------------
 
-    STDMETHODIMP OnInitDocumentMgr(ITfDocumentMgr *pdim) override {
+    STDMETHODIMP OnInitDocumentMgr(ITfDocumentMgr *docmgr) override {
         KHIIN_TRACE("");
+
+        if (docmgr) {
+            auto context = com_ptr<ITfContext>();
+            check_hresult(docmgr->GetTop(context.put()));
+            m_service->OnContextChange(context.get());
+        }
+
         return S_OK;
     }
 
@@ -44,29 +52,15 @@ struct ThreadMgrEventSinkImpl : implements<ThreadMgrEventSinkImpl, ITfThreadMgrE
     }
 
     STDMETHODIMP OnSetFocus(ITfDocumentMgr *docmgr_focus, ITfDocumentMgr *prev_docmgr_focus) override {
-        TRY_FOR_HRESULT;
-
-        //EditSession::HandleFocusChange(m_service.get(), docmgr_focus);
-
-        auto candidate_context = m_service->candidate_ui()->context();
-        if (candidate_context) {
-            auto candidate_docmgr = com_ptr<ITfDocumentMgr>();
-            check_hresult(candidate_context->GetDocumentMgr(candidate_docmgr.put()));
-            if (candidate_docmgr.get() == docmgr_focus) {
-                m_service->candidate_ui()->OnSetThreadFocus();
-            } else {
-                m_service->candidate_ui()->OnKillThreadFocus();
-            }
-        }
-
-        CATCH_FOR_HRESULT;
-    }
-
-    STDMETHODIMP OnPushContext(ITfContext *pic) override {
         KHIIN_TRACE("");
         return S_OK;
     }
 
+    STDMETHODIMP OnPushContext(ITfContext *context) override {
+        KHIIN_TRACE("");
+        return S_OK;
+    }
+     
     STDMETHODIMP OnPopContext(ITfContext *pic) override {
         KHIIN_TRACE("");
         return S_OK;

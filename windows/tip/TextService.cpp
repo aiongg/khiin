@@ -53,15 +53,12 @@ struct TextServiceImpl :
         auto service = cast_as<TextService>(this);
         auto threadmgr = m_threadmgr.get();
 
-        //InitTip();
         InitConfig();
         DisplayAttributeInfoEnum::load(m_displayattrs.put());
         m_indicator->Initialize(service);
         m_compositionmgr->Initialize(service);
         m_threadmgr_sink->Initialize(service);
         m_candidate_list_ui->Initialize(service);
-        m_keyevent_sink->Advise(service);
-        m_preservedkeymgr->Initialize(service);
         m_openclose_compartment.Initialize(m_clientid, threadmgr, GUID_COMPARTMENT_KEYBOARD_OPENCLOSE);
         m_openclose_compartment.SetValue(true);
         m_openclose_sinkmgr.Advise(m_openclose_compartment.get(), this);
@@ -71,9 +68,12 @@ struct TextServiceImpl :
         m_userdata_sinkmgr.Advise(m_userdata_compartment.get(), this);
         m_kbd_disabled_compartment.Initialize(m_clientid, threadmgr, GUID_COMPARTMENT_KEYBOARD_DISABLED);
         m_engine->Initialize(service);
+        m_keyevent_sink->Advise(service);
+        m_preservedkeymgr->Initialize(service);
         InitCategoryMgr();
         InitDisplayAttributes();
         NotifyConfigChangeListeners();
+        SetEnabled(true);
         return S_OK;
     }
 
@@ -119,12 +119,6 @@ struct TextServiceImpl :
         Config::LoadFromFile(g_module, m_config.get());
     }
 
-    void InitTip() {
-        auto docmgr = winrt::com_ptr<ITfDocumentMgr>();
-        check_hresult(m_threadmgr->GetFocus(docmgr.put()));
-        EditSession::HandleFocusChange(this, docmgr.get());
-    }
-
     void NotifyConfigChangeListeners() {
         for (auto &listener : m_config_listeners) {
             if (listener) {
@@ -159,6 +153,8 @@ struct TextServiceImpl :
     TfGuidAtom m_input_attr = TF_INVALID_GUIDATOM;
     TfGuidAtom m_converted_attr = TF_INVALID_GUIDATOM;
     TfGuidAtom m_focused_attr = TF_INVALID_GUIDATOM;
+    bool m_on_off_lock = false;
+    com_ptr<ITfContext> m_current_context = nullptr;
 
     //+---------------------------------------------------------------------------
     //
@@ -202,8 +198,12 @@ struct TextServiceImpl :
         return m_config.get();
     }
 
-    winrt::com_ptr<ITfContext> top_context() override {
+    winrt::com_ptr<ITfContext> current_context() override {
         KHIIN_TRACE("");
+        if (m_current_context) {
+            return m_current_context;
+        }
+
         auto documentMgr = winrt::com_ptr<ITfDocumentMgr>();
         auto context = winrt::com_ptr<ITfContext>();
         check_hresult(m_threadmgr->GetFocus(documentMgr.put()));
@@ -224,7 +224,7 @@ struct TextServiceImpl :
     void OnCompositionTerminated(TfEditCookie ecWrite, ITfContext *context, ITfComposition *pComposition) override {
         KHIIN_TRACE("");
         KHIIN_DEBUG("OnCompositionTerminated");
-        m_compositionmgr->ClearComposition();
+        m_compositionmgr->ClearComposition(ecWrite);
         m_candidate_list_ui->Hide();
     }
 
@@ -242,28 +242,66 @@ struct TextServiceImpl :
 
     void OnCandidateSelected(int32_t candidate_id) override {
         auto command = m_engine->SelectCandidate(candidate_id);
-        auto context = top_context();
+        auto context = current_context();
         EditSession::HandleAction(this, context.get(), std::move(command));
     }
 
-    void TipOnOff() {
-        TipOnOff(!m_config->ime_enabled().value());
+    bool OnContextChange(ITfContext *context) override {
+        if (!m_current_context && context == nullptr) {
+            return false;
+        }
+
+        if (m_current_context && context == nullptr) {
+            m_current_context = nullptr;
+            return true;
+        }
+
+        if (m_current_context && context == m_current_context.get()) {
+            return false;
+        }
+
+        WINRT_ASSERT(context != nullptr);
+        m_current_context.copy_from(context);
+        EditSession::HandleFocusChange(this, context);
+        return true;
     }
 
-    void TipOnOff(bool on_off) {
-        m_config->mutable_ime_enabled()->set_value(on_off);
-        NotifyConfigChangeListeners();
+    bool Enabled() override {
+        return m_config->ime_enabled().value();
     }
 
-    void TipOpenClose(bool open_close) {
-        DWORD current = 0;
-        m_openclose_compartment.GetValue(&current);
+    void TipOnOff() override {
+        SetEnabled(!m_config->ime_enabled().value());
+    }
 
-        if ((open_close && current != 0) || (!open_close && current == 0)) {
+    void SetEnabled(bool on_off) override {
+        KHIIN_TRACE("");
+        if (m_on_off_lock) {
             return;
         }
 
-        m_openclose_compartment.SetValue(open_close ? 1 : 0);
+        if (m_config->ime_enabled().value() != on_off) {
+            KHIIN_TRACE("Setting enabled: {}", on_off);
+            m_config->mutable_ime_enabled()->set_value(on_off);
+            NotifyConfigChangeListeners();
+        }
+
+        if (!on_off) {
+            auto cmd = Command();
+            cmd.mutable_request()->set_type(CMD_COMMIT);
+            EditSession::HandleAction(this, current_context().get(), &cmd);
+        }
+    }
+
+    void SetLocked(bool locked) override {
+        KHIIN_TRACE("");
+        if (locked) {
+            SetEnabled(false);
+            m_on_off_lock = true;
+        } else {
+            m_on_off_lock = false;
+            SetEnabled(true);
+        }
     }
 
     void OnInputModeSelected(proto::InputMode mode) override {
@@ -402,6 +440,8 @@ struct TextServiceImpl :
                 m_engine->Reset();
                 m_candidate_list_ui->DestroyCandidateWindow();
             }
+
+            SetEnabled(true);
         }
 
         if (rguid == guids::kConfigChangedCompartment) {

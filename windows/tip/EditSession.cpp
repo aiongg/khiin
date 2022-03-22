@@ -141,31 +141,55 @@ struct HandleFocusEditSession : implements<HandleFocusEditSession, ITfEditSessio
         for (auto const &scope : input_scopes) {
             switch (scope) {
             case IS_URL:
-                [[fallthrough]];
+                KHIIN_DEBUG("IS_URL");
+                keyboard_enabled = false;
+                break;
             case IS_EMAIL_USERNAME:
-                [[fallthrough]];
+                KHIIN_DEBUG("IS_EMAIL_USERNAME");
+                keyboard_enabled = false;
+                break;
             case IS_EMAIL_SMTPEMAILADDRESS:
-                [[fallthrough]];
+                KHIIN_DEBUG("IS_EMAIL_SMTPEMAILADDRESS");
+                keyboard_enabled = false;
+                break;
             case IS_DIGITS:
-                [[fallthrough]];
+                KHIIN_DEBUG("IS_DIGITS");
+                keyboard_enabled = false;
+                break;
             case IS_NUMBER:
-                [[fallthrough]];
+                KHIIN_DEBUG("IS_NUMBER");
+                keyboard_enabled = false;
+                break;
             case IS_PASSWORD:
-                [[fallthrough]];
+                KHIIN_DEBUG("IS_PASSWORD");
+                keyboard_enabled = false;
+                break;
             case IS_TELEPHONE_FULLTELEPHONENUMBER:
-                [[fallthrough]];
+                KHIIN_DEBUG("IS_TELEPHONE_FULLTELEPHONENUMBER");
+                keyboard_enabled = false;
+                break;
             case IS_TELEPHONE_COUNTRYCODE:
-                [[fallthrough]];
+                KHIIN_DEBUG("IS_TELEPHONE_COUNTRYCODE");
+                keyboard_enabled = false;
+                break;
             case IS_TELEPHONE_AREACODE:
-                [[fallthrough]];
+                KHIIN_DEBUG("IS_TELEPHONE_AREACODE");
+                keyboard_enabled = false;
+                break;
             case IS_TELEPHONE_LOCALNUMBER:
-                [[fallthrough]];
+                KHIIN_DEBUG("IS_TELEPHONE_LOCALNUMBER");
+                keyboard_enabled = false;
+                break;
             case IS_TIME_FULLTIME:
-                [[fallthrough]];
+                KHIIN_DEBUG("IS_TIME_FULLTIME");
+                keyboard_enabled = false;
+                break;
             case IS_TIME_HOUR:
-                [[fallthrough]];
+                KHIIN_DEBUG("IS_TIME_HOUR");
+                keyboard_enabled = false;
+                break;
             case IS_TIME_MINORSEC:
-                KHIIN_DEBUG("input disabled");
+                KHIIN_DEBUG("IS_TIME_MINORSEC");
                 keyboard_enabled = false;
                 break;
             }
@@ -175,7 +199,12 @@ struct HandleFocusEditSession : implements<HandleFocusEditSession, ITfEditSessio
             }
         }
 
-        m_service->TipOpenClose(keyboard_enabled);
+        if (keyboard_enabled) {
+            KHIIN_DEBUG("input enabled");
+            m_service->SetLocked(false);
+        } else {
+            m_service->SetLocked(true);
+        }
         CATCH_FOR_HRESULT;
     }
 
@@ -207,6 +236,10 @@ struct HandleActionEditSession : winrt::implements<HandleActionEditSession, ITfE
         bool showing = candidate_ui->Showing();
         auto cmd_type = command->request().type();
         auto &response = command->response();
+
+        if (cmd_type == CMD_TEST_SEND_KEY) {
+            return S_OK;
+        }
 
         if (response.error() == ErrorCode::FAIL) {
             KHIIN_DEBUG("FAIL");
@@ -248,23 +281,21 @@ struct HandleActionEditSession : winrt::implements<HandleActionEditSession, ITfE
 
 } // namespace
 
-void EditSession::HandleFocusChange(TextService *service, ITfDocumentMgr *docmgr) {
-    if (docmgr == nullptr) {
-        return;
-    }
-    auto context = com_ptr<ITfContext>();
-    check_hresult(docmgr->GetBase(context.put()));
-    auto session = make_self<HandleFocusEditSession>(service, context.get());
+void EditSession::HandleFocusChange(TextService *service, ITfContext *context) {
+    auto hr = E_FAIL;
+    auto session = make_self<HandleFocusEditSession>(service, context);
     auto ses_hr = E_FAIL;
-    check_hresult(context->RequestEditSession(service->clientId(), session.get(), kAsyncRWFlag, &ses_hr));
-    check_hresult(ses_hr);
+    hr = context->RequestEditSession(service->clientId(), session.get(), kSyncRWFlag, &ses_hr);
+    CHECK_HRESULT(hr);
+    CHECK_HRESULT(ses_hr);
 }
 
 void EditSession::HandleAction(TextService *service, ITfContext *context, Command *command) {
     auto session = make_self<HandleActionEditSession>(service, context, command);
     auto ses_hr = E_FAIL;
-    check_hresult(context->RequestEditSession(service->clientId(), session.get(), kAsyncRWFlag, &ses_hr));
-    check_hresult(ses_hr);
+    auto hr = context->RequestEditSession(service->clientId(), session.get(), kSyncRWFlag, &ses_hr);
+    CHECK_HRESULT(hr);
+    CHECK_HRESULT(ses_hr);
 }
 
 } // namespace khiin::win32::tip

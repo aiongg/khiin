@@ -21,7 +21,7 @@ struct CompositionMgr : winrt::implements<CompositionMgr, IUnknown> {
     virtual void Initialize(TextService *pTextService) = 0;
     virtual void Uninitialize() = 0;
 
-    virtual void ClearComposition() = 0;
+    virtual void ClearComposition(TfEditCookie cookie) = 0;
 
     virtual bool composing() = 0;
 

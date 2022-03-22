@@ -91,7 +91,7 @@ struct EngineControllerImpl : winrt::implements<EngineControllerImpl, EngineCont
             Reset();
         }
 
-        return SendCommand(cmd);
+        return cmd;
     }
 
     Command *OnKey(KeyEvent win_key_event) override {
