@@ -49,6 +49,7 @@ class EngineImpl final : public Engine {
         m_dictionary = Dictionary::Create(this);
         m_buffer_mgr = BufferMgr::Create(this);
 
+        m_cmd_handlers[CMD_RESET] = &EngineImpl::HandleReset;
         m_cmd_handlers[CMD_COMMIT] = &EngineImpl::HandleCommit;
         m_cmd_handlers[CMD_TEST_SEND_KEY] = &EngineImpl::HandleTestSendKey;
         m_cmd_handlers[CMD_SEND_KEY] = &EngineImpl::HandleSendKey;
@@ -126,6 +127,10 @@ class EngineImpl final : public Engine {
     //----------------------------------------------------------------------------
 
     void HandleNone(Command *command) {}
+
+    void HandleReset(Command* command) {
+        m_buffer_mgr->Clear();
+    }
 
     void HandleSendKey(Command *command) {
         auto *req = command->mutable_request();
