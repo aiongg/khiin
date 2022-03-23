@@ -26,12 +26,10 @@
 #include <google/protobuf/generated_message_table_driven.h>
 #include <google/protobuf/generated_message_util.h>
 #include <google/protobuf/metadata_lite.h>
-#include <google/protobuf/generated_message_reflection.h>
-#include <google/protobuf/message.h>
+#include <google/protobuf/message_lite.h>
 #include <google/protobuf/repeated_field.h>  // IWYU pragma: export
 #include <google/protobuf/extension_set.h>  // IWYU pragma: export
-#include <google/protobuf/generated_enum_reflection.h>
-#include <google/protobuf/unknown_field_set.h>
+#include <google/protobuf/generated_enum_util.h>
 // @@protoc_insertion_point(includes)
 #include <google/protobuf/port_def.inc>
 #define PROTOBUF_INTERNAL_EXPORT_proto_2fconfig_2eproto
@@ -53,7 +51,6 @@ struct TableStruct_proto_2fconfig_2eproto {
   static const ::PROTOBUF_NAMESPACE_ID::internal::SerializationTable serialization_table[];
   static const ::PROTOBUF_NAMESPACE_ID::uint32 offsets[];
 };
-extern const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable descriptor_table_proto_2fconfig_2eproto;
 namespace khiin {
 namespace proto {
 class AppConfig;
@@ -88,20 +85,16 @@ constexpr InputMode InputMode_MIN = IM_UNSPECIFIED;
 constexpr InputMode InputMode_MAX = IM_PRO;
 constexpr int InputMode_ARRAYSIZE = InputMode_MAX + 1;
 
-const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor* InputMode_descriptor();
+const std::string& InputMode_Name(InputMode value);
 template<typename T>
 inline const std::string& InputMode_Name(T enum_t_value) {
   static_assert(::std::is_same<T, InputMode>::value ||
     ::std::is_integral<T>::value,
     "Incorrect type passed to function InputMode_Name.");
-  return ::PROTOBUF_NAMESPACE_ID::internal::NameOfEnum(
-    InputMode_descriptor(), enum_t_value);
+  return InputMode_Name(static_cast<InputMode>(enum_t_value));
 }
-inline bool InputMode_Parse(
-    ::PROTOBUF_NAMESPACE_ID::ConstStringParam name, InputMode* value) {
-  return ::PROTOBUF_NAMESPACE_ID::internal::ParseNamedEnum<InputMode>(
-    InputMode_descriptor(), name, value);
-}
+bool InputMode_Parse(
+    ::PROTOBUF_NAMESPACE_ID::ConstStringParam name, InputMode* value);
 enum DefaultPunctuation : int {
   PUNCT_UNSPECIFIED = 0,
   PUNCT_HALF = 1,
@@ -114,24 +107,20 @@ constexpr DefaultPunctuation DefaultPunctuation_MIN = PUNCT_UNSPECIFIED;
 constexpr DefaultPunctuation DefaultPunctuation_MAX = PUNCT_WHOLE;
 constexpr int DefaultPunctuation_ARRAYSIZE = DefaultPunctuation_MAX + 1;
 
-const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor* DefaultPunctuation_descriptor();
+const std::string& DefaultPunctuation_Name(DefaultPunctuation value);
 template<typename T>
 inline const std::string& DefaultPunctuation_Name(T enum_t_value) {
   static_assert(::std::is_same<T, DefaultPunctuation>::value ||
     ::std::is_integral<T>::value,
     "Incorrect type passed to function DefaultPunctuation_Name.");
-  return ::PROTOBUF_NAMESPACE_ID::internal::NameOfEnum(
-    DefaultPunctuation_descriptor(), enum_t_value);
+  return DefaultPunctuation_Name(static_cast<DefaultPunctuation>(enum_t_value));
 }
-inline bool DefaultPunctuation_Parse(
-    ::PROTOBUF_NAMESPACE_ID::ConstStringParam name, DefaultPunctuation* value) {
-  return ::PROTOBUF_NAMESPACE_ID::internal::ParseNamedEnum<DefaultPunctuation>(
-    DefaultPunctuation_descriptor(), name, value);
-}
+bool DefaultPunctuation_Parse(
+    ::PROTOBUF_NAMESPACE_ID::ConstStringParam name, DefaultPunctuation* value);
 // ===================================================================
 
 class BoolValue final :
-    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:khiin.proto.BoolValue) */ {
+    public ::PROTOBUF_NAMESPACE_ID::MessageLite /* @@protoc_insertion_point(class_definition:khiin.proto.BoolValue) */ {
  public:
   inline BoolValue() : BoolValue(nullptr) {}
   ~BoolValue() override;
@@ -161,15 +150,6 @@ class BoolValue final :
     return *this;
   }
 
-  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
-    return GetDescriptor();
-  }
-  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
-    return default_instance().GetMetadata().descriptor;
-  }
-  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
-    return default_instance().GetMetadata().reflection;
-  }
   static const BoolValue& default_instance() {
     return *internal_default_instance();
   }
@@ -206,13 +186,9 @@ class BoolValue final :
   BoolValue* New(::PROTOBUF_NAMESPACE_ID::Arena* arena) const final {
     return CreateMaybeMessage<BoolValue>(arena);
   }
-  using ::PROTOBUF_NAMESPACE_ID::Message::CopyFrom;
+  void CheckTypeAndMergeFrom(const ::PROTOBUF_NAMESPACE_ID::MessageLite& from)  final;
   void CopyFrom(const BoolValue& from);
-  using ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom;
   void MergeFrom(const BoolValue& from);
-  private:
-  static void MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to, const ::PROTOBUF_NAMESPACE_ID::Message& from);
-  public:
   PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
   bool IsInitialized() const final;
 
@@ -220,12 +196,13 @@ class BoolValue final :
   const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
   ::PROTOBUF_NAMESPACE_ID::uint8* _InternalSerialize(
       ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
+  void DiscardUnknownFields();
   int GetCachedSize() const final { return _cached_size_.Get(); }
 
   private:
   void SharedCtor();
   void SharedDtor();
-  void SetCachedSize(int size) const final;
+  void SetCachedSize(int size) const;
   void InternalSwap(BoolValue* other);
   friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
   static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
@@ -239,10 +216,7 @@ class BoolValue final :
   inline void RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   public:
 
-  static const ClassData _class_data_;
-  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*GetClassData() const final;
-
-  ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
+  std::string GetTypeName() const final;
 
   // nested types ----------------------------------------------------
 
@@ -274,7 +248,7 @@ class BoolValue final :
 // -------------------------------------------------------------------
 
 class KeyConfiguration final :
-    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:khiin.proto.KeyConfiguration) */ {
+    public ::PROTOBUF_NAMESPACE_ID::MessageLite /* @@protoc_insertion_point(class_definition:khiin.proto.KeyConfiguration) */ {
  public:
   inline KeyConfiguration() : KeyConfiguration(nullptr) {}
   ~KeyConfiguration() override;
@@ -304,15 +278,6 @@ class KeyConfiguration final :
     return *this;
   }
 
-  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
-    return GetDescriptor();
-  }
-  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
-    return default_instance().GetMetadata().descriptor;
-  }
-  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
-    return default_instance().GetMetadata().reflection;
-  }
   static const KeyConfiguration& default_instance() {
     return *internal_default_instance();
   }
@@ -349,13 +314,9 @@ class KeyConfiguration final :
   KeyConfiguration* New(::PROTOBUF_NAMESPACE_ID::Arena* arena) const final {
     return CreateMaybeMessage<KeyConfiguration>(arena);
   }
-  using ::PROTOBUF_NAMESPACE_ID::Message::CopyFrom;
+  void CheckTypeAndMergeFrom(const ::PROTOBUF_NAMESPACE_ID::MessageLite& from)  final;
   void CopyFrom(const KeyConfiguration& from);
-  using ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom;
   void MergeFrom(const KeyConfiguration& from);
-  private:
-  static void MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to, const ::PROTOBUF_NAMESPACE_ID::Message& from);
-  public:
   PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
   bool IsInitialized() const final;
 
@@ -363,12 +324,13 @@ class KeyConfiguration final :
   const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
   ::PROTOBUF_NAMESPACE_ID::uint8* _InternalSerialize(
       ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
+  void DiscardUnknownFields();
   int GetCachedSize() const final { return _cached_size_.Get(); }
 
   private:
   void SharedCtor();
   void SharedDtor();
-  void SetCachedSize(int size) const final;
+  void SetCachedSize(int size) const;
   void InternalSwap(KeyConfiguration* other);
   friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
   static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
@@ -382,10 +344,7 @@ class KeyConfiguration final :
   inline void RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   public:
 
-  static const ClassData _class_data_;
-  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*GetClassData() const final;
-
-  ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
+  std::string GetTypeName() const final;
 
   // nested types ----------------------------------------------------
 
@@ -638,7 +597,7 @@ class KeyConfiguration final :
 // -------------------------------------------------------------------
 
 class AppConfig final :
-    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:khiin.proto.AppConfig) */ {
+    public ::PROTOBUF_NAMESPACE_ID::MessageLite /* @@protoc_insertion_point(class_definition:khiin.proto.AppConfig) */ {
  public:
   inline AppConfig() : AppConfig(nullptr) {}
   ~AppConfig() override;
@@ -668,15 +627,6 @@ class AppConfig final :
     return *this;
   }
 
-  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
-    return GetDescriptor();
-  }
-  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
-    return default_instance().GetMetadata().descriptor;
-  }
-  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
-    return default_instance().GetMetadata().reflection;
-  }
   static const AppConfig& default_instance() {
     return *internal_default_instance();
   }
@@ -713,13 +663,9 @@ class AppConfig final :
   AppConfig* New(::PROTOBUF_NAMESPACE_ID::Arena* arena) const final {
     return CreateMaybeMessage<AppConfig>(arena);
   }
-  using ::PROTOBUF_NAMESPACE_ID::Message::CopyFrom;
+  void CheckTypeAndMergeFrom(const ::PROTOBUF_NAMESPACE_ID::MessageLite& from)  final;
   void CopyFrom(const AppConfig& from);
-  using ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom;
   void MergeFrom(const AppConfig& from);
-  private:
-  static void MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to, const ::PROTOBUF_NAMESPACE_ID::Message& from);
-  public:
   PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
   bool IsInitialized() const final;
 
@@ -727,12 +673,13 @@ class AppConfig final :
   const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
   ::PROTOBUF_NAMESPACE_ID::uint8* _InternalSerialize(
       ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
+  void DiscardUnknownFields();
   int GetCachedSize() const final { return _cached_size_.Get(); }
 
   private:
   void SharedCtor();
   void SharedDtor();
-  void SetCachedSize(int size) const final;
+  void SetCachedSize(int size) const;
   void InternalSwap(AppConfig* other);
   friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
   static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
@@ -746,10 +693,7 @@ class AppConfig final :
   inline void RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   public:
 
-  static const ClassData _class_data_;
-  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*GetClassData() const final;
-
-  ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
+  std::string GetTypeName() const final;
 
   // nested types ----------------------------------------------------
 
@@ -2386,15 +2330,7 @@ inline void AppConfig::set_allocated_uppercase_nasal(::khiin::proto::BoolValue* 
 PROTOBUF_NAMESPACE_OPEN
 
 template <> struct is_proto_enum< ::khiin::proto::InputMode> : ::std::true_type {};
-template <>
-inline const EnumDescriptor* GetEnumDescriptor< ::khiin::proto::InputMode>() {
-  return ::khiin::proto::InputMode_descriptor();
-}
 template <> struct is_proto_enum< ::khiin::proto::DefaultPunctuation> : ::std::true_type {};
-template <>
-inline const EnumDescriptor* GetEnumDescriptor< ::khiin::proto::DefaultPunctuation>() {
-  return ::khiin::proto::DefaultPunctuation_descriptor();
-}
 
 PROTOBUF_NAMESPACE_CLOSE
 

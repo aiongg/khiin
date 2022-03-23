@@ -14,6 +14,21 @@ namespace {
 using namespace winrt;
 using namespace khiin::proto;
 
+tip::SegmentStatus ConvertSS(proto::SegmentStatus s) {
+    switch (s) {
+    case SS_UNMARKED:
+        return SegmentStatus::Unmarked;
+    case SS_COMPOSING:
+        return SegmentStatus::Composing;
+    case SS_CONVERTED:
+        return SegmentStatus::Converted;
+    case SS_FOCUSED:
+        return SegmentStatus::Focused;
+    }
+
+    return SegmentStatus::Unmarked;
+}
+
 RECT ParentWindowTopLeft(ITfContextView *view) {
     RECT rect = {};
     HWND parent_hwnd = NULL;
@@ -179,7 +194,7 @@ WidePreedit const CompositionUtil::WidenPreedit(const Preedit &preedit) {
         KHIIN_INFO(L"Segment: {}, Start: {}, Size: {}", w, start_idx, wsize);
         ret.preedit_display += w;
         ret.segment_start_and_size.push_back(std::make_pair(start_idx, wsize));
-        ret.segment_status.push_back(segment.status());
+        ret.segment_status.push_back(ConvertSS(segment.status()));
         start_idx += static_cast<int>(w.size());
     }
 

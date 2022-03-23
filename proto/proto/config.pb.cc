@@ -8,10 +8,7 @@
 #include <google/protobuf/io/coded_stream.h>
 #include <google/protobuf/extension_set.h>
 #include <google/protobuf/wire_format_lite.h>
-#include <google/protobuf/descriptor.h>
-#include <google/protobuf/generated_message_reflection.h>
-#include <google/protobuf/reflection_ops.h>
-#include <google/protobuf/wire_format.h>
+#include <google/protobuf/io/zero_copy_stream_impl_lite.h>
 // @@protoc_insertion_point(includes)
 #include <google/protobuf/port_def.inc>
 
@@ -79,113 +76,8 @@ struct AppConfigDefaultTypeInternal {
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT AppConfigDefaultTypeInternal _AppConfig_default_instance_;
 }  // namespace proto
 }  // namespace khiin
-static ::PROTOBUF_NAMESPACE_ID::Metadata file_level_metadata_proto_2fconfig_2eproto[3];
-static const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor* file_level_enum_descriptors_proto_2fconfig_2eproto[2];
-static constexpr ::PROTOBUF_NAMESPACE_ID::ServiceDescriptor const** file_level_service_descriptors_proto_2fconfig_2eproto = nullptr;
-
-const ::PROTOBUF_NAMESPACE_ID::uint32 TableStruct_proto_2fconfig_2eproto::offsets[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) = {
-  ~0u,  // no _has_bits_
-  PROTOBUF_FIELD_OFFSET(::khiin::proto::BoolValue, _internal_metadata_),
-  ~0u,  // no _extensions_
-  ~0u,  // no _oneof_case_
-  ~0u,  // no _weak_field_map_
-  ~0u,  // no _inlined_string_donated_
-  PROTOBUF_FIELD_OFFSET(::khiin::proto::BoolValue, value_),
-  ~0u,  // no _has_bits_
-  PROTOBUF_FIELD_OFFSET(::khiin::proto::KeyConfiguration, _internal_metadata_),
-  ~0u,  // no _extensions_
-  ~0u,  // no _oneof_case_
-  ~0u,  // no _weak_field_map_
-  ~0u,  // no _inlined_string_donated_
-  PROTOBUF_FIELD_OFFSET(::khiin::proto::KeyConfiguration, telex_t2_),
-  PROTOBUF_FIELD_OFFSET(::khiin::proto::KeyConfiguration, telex_t3_),
-  PROTOBUF_FIELD_OFFSET(::khiin::proto::KeyConfiguration, telex_t5_),
-  PROTOBUF_FIELD_OFFSET(::khiin::proto::KeyConfiguration, telex_t6_),
-  PROTOBUF_FIELD_OFFSET(::khiin::proto::KeyConfiguration, telex_t7_),
-  PROTOBUF_FIELD_OFFSET(::khiin::proto::KeyConfiguration, telex_t8_),
-  PROTOBUF_FIELD_OFFSET(::khiin::proto::KeyConfiguration, telex_t9_),
-  PROTOBUF_FIELD_OFFSET(::khiin::proto::KeyConfiguration, telex_khin_),
-  PROTOBUF_FIELD_OFFSET(::khiin::proto::KeyConfiguration, alt_hyphen_),
-  PROTOBUF_FIELD_OFFSET(::khiin::proto::KeyConfiguration, nasal_),
-  PROTOBUF_FIELD_OFFSET(::khiin::proto::KeyConfiguration, dot_above_right_),
-  PROTOBUF_FIELD_OFFSET(::khiin::proto::KeyConfiguration, dots_below_),
-  PROTOBUF_FIELD_OFFSET(::khiin::proto::KeyConfiguration, enable_uppercase_nasal_),
-  PROTOBUF_FIELD_OFFSET(::khiin::proto::KeyConfiguration, use_digits_as_fallback_),
-  ~0u,  // no _has_bits_
-  PROTOBUF_FIELD_OFFSET(::khiin::proto::AppConfig, _internal_metadata_),
-  ~0u,  // no _extensions_
-  ~0u,  // no _oneof_case_
-  ~0u,  // no _weak_field_map_
-  ~0u,  // no _inlined_string_donated_
-  PROTOBUF_FIELD_OFFSET(::khiin::proto::AppConfig, ime_enabled_),
-  PROTOBUF_FIELD_OFFSET(::khiin::proto::AppConfig, key_config_),
-  PROTOBUF_FIELD_OFFSET(::khiin::proto::AppConfig, input_mode_),
-  PROTOBUF_FIELD_OFFSET(::khiin::proto::AppConfig, telex_enabled_),
-  PROTOBUF_FIELD_OFFSET(::khiin::proto::AppConfig, dotted_khin_),
-  PROTOBUF_FIELD_OFFSET(::khiin::proto::AppConfig, autokhin_),
-  PROTOBUF_FIELD_OFFSET(::khiin::proto::AppConfig, default_punctuation_),
-  PROTOBUF_FIELD_OFFSET(::khiin::proto::AppConfig, easy_ch_),
-  PROTOBUF_FIELD_OFFSET(::khiin::proto::AppConfig, uppercase_nasal_),
-};
-static const ::PROTOBUF_NAMESPACE_ID::internal::MigrationSchema schemas[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) = {
-  { 0, -1, -1, sizeof(::khiin::proto::BoolValue)},
-  { 7, -1, -1, sizeof(::khiin::proto::KeyConfiguration)},
-  { 27, -1, -1, sizeof(::khiin::proto::AppConfig)},
-};
-
-static ::PROTOBUF_NAMESPACE_ID::Message const * const file_default_instances[] = {
-  reinterpret_cast<const ::PROTOBUF_NAMESPACE_ID::Message*>(&::khiin::proto::_BoolValue_default_instance_),
-  reinterpret_cast<const ::PROTOBUF_NAMESPACE_ID::Message*>(&::khiin::proto::_KeyConfiguration_default_instance_),
-  reinterpret_cast<const ::PROTOBUF_NAMESPACE_ID::Message*>(&::khiin::proto::_AppConfig_default_instance_),
-};
-
-const char descriptor_table_protodef_proto_2fconfig_2eproto[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) =
-  "\n\022proto/config.proto\022\013khiin.proto\"\032\n\tBoo"
-  "lValue\022\r\n\005value\030\001 \001(\010\"\344\002\n\020KeyConfigurati"
-  "on\022\020\n\010telex_t2\030\001 \001(\t\022\020\n\010telex_t3\030\002 \001(\t\022\020"
-  "\n\010telex_t5\030\003 \001(\t\022\020\n\010telex_t6\030\004 \001(\t\022\020\n\010te"
-  "lex_t7\030\005 \001(\t\022\020\n\010telex_t8\030\006 \001(\t\022\020\n\010telex_"
-  "t9\030\007 \001(\t\022\022\n\ntelex_khin\030\010 \001(\t\022\022\n\nalt_hyph"
-  "en\030\t \001(\t\022\r\n\005nasal\030\n \001(\t\022\027\n\017dot_above_rig"
-  "ht\030\013 \001(\t\022\022\n\ndots_below\030\014 \001(\t\0226\n\026enable_u"
-  "ppercase_nasal\030\r \001(\0132\026.khiin.proto.BoolV"
-  "alue\0226\n\026use_digits_as_fallback\030\016 \001(\0132\026.k"
-  "hiin.proto.BoolValue\"\265\003\n\tAppConfig\022+\n\013im"
-  "e_enabled\030\001 \001(\0132\026.khiin.proto.BoolValue\022"
-  "1\n\nkey_config\030\002 \001(\0132\035.khiin.proto.KeyCon"
-  "figuration\022*\n\ninput_mode\030\003 \001(\0162\026.khiin.p"
-  "roto.InputMode\022-\n\rtelex_enabled\030\004 \001(\0132\026."
-  "khiin.proto.BoolValue\022+\n\013dotted_khin\030\005 \001"
-  "(\0132\026.khiin.proto.BoolValue\022(\n\010autokhin\030\006"
-  " \001(\0132\026.khiin.proto.BoolValue\022<\n\023default_"
-  "punctuation\030\007 \001(\0162\037.khiin.proto.DefaultP"
-  "unctuation\022\'\n\007easy_ch\030\010 \001(\0132\026.khiin.prot"
-  "o.BoolValue\022/\n\017uppercase_nasal\030\t \001(\0132\026.k"
-  "hiin.proto.BoolValue*L\n\tInputMode\022\022\n\016IM_"
-  "UNSPECIFIED\020\000\022\021\n\rIM_CONTINUOUS\020\001\022\014\n\010IM_B"
-  "ASIC\020\002\022\n\n\006IM_PRO\020\003*L\n\022DefaultPunctuation"
-  "\022\025\n\021PUNCT_UNSPECIFIED\020\000\022\016\n\nPUNCT_HALF\020\001\022"
-  "\017\n\013PUNCT_WHOLE\020\002b\006proto3"
-  ;
-static ::PROTOBUF_NAMESPACE_ID::internal::once_flag descriptor_table_proto_2fconfig_2eproto_once;
-const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable descriptor_table_proto_2fconfig_2eproto = {
-  false, false, 1024, descriptor_table_protodef_proto_2fconfig_2eproto, "proto/config.proto", 
-  &descriptor_table_proto_2fconfig_2eproto_once, nullptr, 0, 3,
-  schemas, file_default_instances, TableStruct_proto_2fconfig_2eproto::offsets,
-  file_level_metadata_proto_2fconfig_2eproto, file_level_enum_descriptors_proto_2fconfig_2eproto, file_level_service_descriptors_proto_2fconfig_2eproto,
-};
-PROTOBUF_ATTRIBUTE_WEAK const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable* descriptor_table_proto_2fconfig_2eproto_getter() {
-  return &descriptor_table_proto_2fconfig_2eproto;
-}
-
-// Force running AddDescriptors() at dynamic initialization time.
-PROTOBUF_ATTRIBUTE_INIT_PRIORITY static ::PROTOBUF_NAMESPACE_ID::internal::AddDescriptorsRunner dynamic_init_dummy_proto_2fconfig_2eproto(&descriptor_table_proto_2fconfig_2eproto);
 namespace khiin {
 namespace proto {
-const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor* InputMode_descriptor() {
-  ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&descriptor_table_proto_2fconfig_2eproto);
-  return file_level_enum_descriptors_proto_2fconfig_2eproto[0];
-}
 bool InputMode_IsValid(int value) {
   switch (value) {
     case 0:
@@ -198,9 +90,52 @@ bool InputMode_IsValid(int value) {
   }
 }
 
-const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor* DefaultPunctuation_descriptor() {
-  ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&descriptor_table_proto_2fconfig_2eproto);
-  return file_level_enum_descriptors_proto_2fconfig_2eproto[1];
+static ::PROTOBUF_NAMESPACE_ID::internal::ExplicitlyConstructed<std::string> InputMode_strings[4] = {};
+
+static const char InputMode_names[] =
+  "IM_BASIC"
+  "IM_CONTINUOUS"
+  "IM_PRO"
+  "IM_UNSPECIFIED";
+
+static const ::PROTOBUF_NAMESPACE_ID::internal::EnumEntry InputMode_entries[] = {
+  { {InputMode_names + 0, 8}, 2 },
+  { {InputMode_names + 8, 13}, 1 },
+  { {InputMode_names + 21, 6}, 3 },
+  { {InputMode_names + 27, 14}, 0 },
+};
+
+static const int InputMode_entries_by_number[] = {
+  3, // 0 -> IM_UNSPECIFIED
+  1, // 1 -> IM_CONTINUOUS
+  0, // 2 -> IM_BASIC
+  2, // 3 -> IM_PRO
+};
+
+const std::string& InputMode_Name(
+    InputMode value) {
+  static const bool dummy =
+      ::PROTOBUF_NAMESPACE_ID::internal::InitializeEnumStrings(
+          InputMode_entries,
+          InputMode_entries_by_number,
+          4, InputMode_strings);
+  (void) dummy;
+  int idx = ::PROTOBUF_NAMESPACE_ID::internal::LookUpEnumName(
+      InputMode_entries,
+      InputMode_entries_by_number,
+      4, value);
+  return idx == -1 ? ::PROTOBUF_NAMESPACE_ID::internal::GetEmptyString() :
+                     InputMode_strings[idx].get();
+}
+bool InputMode_Parse(
+    ::PROTOBUF_NAMESPACE_ID::ConstStringParam name, InputMode* value) {
+  int int_value;
+  bool success = ::PROTOBUF_NAMESPACE_ID::internal::LookUpEnumValue(
+      InputMode_entries, 4, name, &int_value);
+  if (success) {
+    *value = static_cast<InputMode>(int_value);
+  }
+  return success;
 }
 bool DefaultPunctuation_IsValid(int value) {
   switch (value) {
@@ -213,6 +148,50 @@ bool DefaultPunctuation_IsValid(int value) {
   }
 }
 
+static ::PROTOBUF_NAMESPACE_ID::internal::ExplicitlyConstructed<std::string> DefaultPunctuation_strings[3] = {};
+
+static const char DefaultPunctuation_names[] =
+  "PUNCT_HALF"
+  "PUNCT_UNSPECIFIED"
+  "PUNCT_WHOLE";
+
+static const ::PROTOBUF_NAMESPACE_ID::internal::EnumEntry DefaultPunctuation_entries[] = {
+  { {DefaultPunctuation_names + 0, 10}, 1 },
+  { {DefaultPunctuation_names + 10, 17}, 0 },
+  { {DefaultPunctuation_names + 27, 11}, 2 },
+};
+
+static const int DefaultPunctuation_entries_by_number[] = {
+  1, // 0 -> PUNCT_UNSPECIFIED
+  0, // 1 -> PUNCT_HALF
+  2, // 2 -> PUNCT_WHOLE
+};
+
+const std::string& DefaultPunctuation_Name(
+    DefaultPunctuation value) {
+  static const bool dummy =
+      ::PROTOBUF_NAMESPACE_ID::internal::InitializeEnumStrings(
+          DefaultPunctuation_entries,
+          DefaultPunctuation_entries_by_number,
+          3, DefaultPunctuation_strings);
+  (void) dummy;
+  int idx = ::PROTOBUF_NAMESPACE_ID::internal::LookUpEnumName(
+      DefaultPunctuation_entries,
+      DefaultPunctuation_entries_by_number,
+      3, value);
+  return idx == -1 ? ::PROTOBUF_NAMESPACE_ID::internal::GetEmptyString() :
+                     DefaultPunctuation_strings[idx].get();
+}
+bool DefaultPunctuation_Parse(
+    ::PROTOBUF_NAMESPACE_ID::ConstStringParam name, DefaultPunctuation* value) {
+  int int_value;
+  bool success = ::PROTOBUF_NAMESPACE_ID::internal::LookUpEnumValue(
+      DefaultPunctuation_entries, 3, name, &int_value);
+  if (success) {
+    *value = static_cast<DefaultPunctuation>(int_value);
+  }
+  return success;
+}
 
 // ===================================================================
 
@@ -222,7 +201,7 @@ class BoolValue::_Internal {
 
 BoolValue::BoolValue(::PROTOBUF_NAMESPACE_ID::Arena* arena,
                          bool is_message_owned)
-  : ::PROTOBUF_NAMESPACE_ID::Message(arena, is_message_owned) {
+  : ::PROTOBUF_NAMESPACE_ID::MessageLite(arena, is_message_owned) {
   SharedCtor();
   if (!is_message_owned) {
     RegisterArenaDtor(arena);
@@ -230,8 +209,8 @@ BoolValue::BoolValue(::PROTOBUF_NAMESPACE_ID::Arena* arena,
   // @@protoc_insertion_point(arena_constructor:khiin.proto.BoolValue)
 }
 BoolValue::BoolValue(const BoolValue& from)
-  : ::PROTOBUF_NAMESPACE_ID::Message() {
-  _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
+  : ::PROTOBUF_NAMESPACE_ID::MessageLite() {
+  _internal_metadata_.MergeFrom<std::string>(from._internal_metadata_);
   value_ = from.value_;
   // @@protoc_insertion_point(copy_constructor:khiin.proto.BoolValue)
 }
@@ -244,7 +223,7 @@ BoolValue::~BoolValue() {
   // @@protoc_insertion_point(destructor:khiin.proto.BoolValue)
   if (GetArenaForAllocation() != nullptr) return;
   SharedDtor();
-  _internal_metadata_.Delete<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
+  _internal_metadata_.Delete<std::string>();
 }
 
 inline void BoolValue::SharedDtor() {
@@ -268,7 +247,7 @@ void BoolValue::Clear() {
   (void) cached_has_bits;
 
   value_ = false;
-  _internal_metadata_.Clear<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
+  _internal_metadata_.Clear<std::string>();
 }
 
 const char* BoolValue::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
@@ -296,7 +275,7 @@ const char* BoolValue::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::
     }
     ptr = UnknownFieldParse(
         tag,
-        _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(),
+        _internal_metadata_.mutable_unknown_fields<std::string>(),
         ptr, ctx);
     CHK_(ptr != nullptr);
   }  // while
@@ -321,8 +300,8 @@ failure:
   }
 
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::InternalSerializeUnknownFieldsToArray(
-        _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
+    target = stream->WriteRaw(_internal_metadata_.unknown_fields<std::string>(::PROTOBUF_NAMESPACE_ID::internal::GetEmptyString).data(),
+        static_cast<int>(_internal_metadata_.unknown_fields<std::string>(::PROTOBUF_NAMESPACE_ID::internal::GetEmptyString).size()), target);
   }
   // @@protoc_insertion_point(serialize_to_array_end:khiin.proto.BoolValue)
   return target;
@@ -341,21 +320,19 @@ size_t BoolValue::ByteSizeLong() const {
     total_size += 1 + 1;
   }
 
-  return MaybeComputeUnknownFieldsSize(total_size, &_cached_size_);
+  if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
+    total_size += _internal_metadata_.unknown_fields<std::string>(::PROTOBUF_NAMESPACE_ID::internal::GetEmptyString).size();
+  }
+  int cached_size = ::PROTOBUF_NAMESPACE_ID::internal::ToCachedSize(total_size);
+  SetCachedSize(cached_size);
+  return total_size;
 }
 
-const ::PROTOBUF_NAMESPACE_ID::Message::ClassData BoolValue::_class_data_ = {
-    ::PROTOBUF_NAMESPACE_ID::Message::CopyWithSizeCheck,
-    BoolValue::MergeImpl
-};
-const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*BoolValue::GetClassData() const { return &_class_data_; }
-
-void BoolValue::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to,
-                      const ::PROTOBUF_NAMESPACE_ID::Message& from) {
-  static_cast<BoolValue *>(to)->MergeFrom(
-      static_cast<const BoolValue &>(from));
+void BoolValue::CheckTypeAndMergeFrom(
+    const ::PROTOBUF_NAMESPACE_ID::MessageLite& from) {
+  MergeFrom(*::PROTOBUF_NAMESPACE_ID::internal::DownCast<const BoolValue*>(
+      &from));
 }
-
 
 void BoolValue::MergeFrom(const BoolValue& from) {
 // @@protoc_insertion_point(class_specific_merge_from_start:khiin.proto.BoolValue)
@@ -366,7 +343,7 @@ void BoolValue::MergeFrom(const BoolValue& from) {
   if (from._internal_value() != 0) {
     _internal_set_value(from._internal_value());
   }
-  _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
+  _internal_metadata_.MergeFrom<std::string>(from._internal_metadata_);
 }
 
 void BoolValue::CopyFrom(const BoolValue& from) {
@@ -386,11 +363,10 @@ void BoolValue::InternalSwap(BoolValue* other) {
   swap(value_, other->value_);
 }
 
-::PROTOBUF_NAMESPACE_ID::Metadata BoolValue::GetMetadata() const {
-  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(
-      &descriptor_table_proto_2fconfig_2eproto_getter, &descriptor_table_proto_2fconfig_2eproto_once,
-      file_level_metadata_proto_2fconfig_2eproto[0]);
+std::string BoolValue::GetTypeName() const {
+  return "khiin.proto.BoolValue";
 }
+
 
 // ===================================================================
 
@@ -410,7 +386,7 @@ KeyConfiguration::_Internal::use_digits_as_fallback(const KeyConfiguration* msg)
 }
 KeyConfiguration::KeyConfiguration(::PROTOBUF_NAMESPACE_ID::Arena* arena,
                          bool is_message_owned)
-  : ::PROTOBUF_NAMESPACE_ID::Message(arena, is_message_owned) {
+  : ::PROTOBUF_NAMESPACE_ID::MessageLite(arena, is_message_owned) {
   SharedCtor();
   if (!is_message_owned) {
     RegisterArenaDtor(arena);
@@ -418,8 +394,8 @@ KeyConfiguration::KeyConfiguration(::PROTOBUF_NAMESPACE_ID::Arena* arena,
   // @@protoc_insertion_point(arena_constructor:khiin.proto.KeyConfiguration)
 }
 KeyConfiguration::KeyConfiguration(const KeyConfiguration& from)
-  : ::PROTOBUF_NAMESPACE_ID::Message() {
-  _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
+  : ::PROTOBUF_NAMESPACE_ID::MessageLite() {
+  _internal_metadata_.MergeFrom<std::string>(from._internal_metadata_);
   telex_t2_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
   if (!from._internal_telex_t2().empty()) {
     telex_t2_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, from._internal_telex_t2(), 
@@ -516,7 +492,7 @@ KeyConfiguration::~KeyConfiguration() {
   // @@protoc_insertion_point(destructor:khiin.proto.KeyConfiguration)
   if (GetArenaForAllocation() != nullptr) return;
   SharedDtor();
-  _internal_metadata_.Delete<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
+  _internal_metadata_.Delete<std::string>();
 }
 
 inline void KeyConfiguration::SharedDtor() {
@@ -573,7 +549,7 @@ void KeyConfiguration::Clear() {
     delete use_digits_as_fallback_;
   }
   use_digits_as_fallback_ = nullptr;
-  _internal_metadata_.Clear<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
+  _internal_metadata_.Clear<std::string>();
 }
 
 const char* KeyConfiguration::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
@@ -587,7 +563,7 @@ const char* KeyConfiguration::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPA
         if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 10)) {
           auto str = _internal_mutable_telex_t2();
           ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParser(str, ptr, ctx);
-          CHK_(::PROTOBUF_NAMESPACE_ID::internal::VerifyUTF8(str, "khiin.proto.KeyConfiguration.telex_t2"));
+          CHK_(::PROTOBUF_NAMESPACE_ID::internal::VerifyUTF8(str, nullptr));
           CHK_(ptr);
         } else
           goto handle_unusual;
@@ -597,7 +573,7 @@ const char* KeyConfiguration::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPA
         if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 18)) {
           auto str = _internal_mutable_telex_t3();
           ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParser(str, ptr, ctx);
-          CHK_(::PROTOBUF_NAMESPACE_ID::internal::VerifyUTF8(str, "khiin.proto.KeyConfiguration.telex_t3"));
+          CHK_(::PROTOBUF_NAMESPACE_ID::internal::VerifyUTF8(str, nullptr));
           CHK_(ptr);
         } else
           goto handle_unusual;
@@ -607,7 +583,7 @@ const char* KeyConfiguration::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPA
         if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 26)) {
           auto str = _internal_mutable_telex_t5();
           ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParser(str, ptr, ctx);
-          CHK_(::PROTOBUF_NAMESPACE_ID::internal::VerifyUTF8(str, "khiin.proto.KeyConfiguration.telex_t5"));
+          CHK_(::PROTOBUF_NAMESPACE_ID::internal::VerifyUTF8(str, nullptr));
           CHK_(ptr);
         } else
           goto handle_unusual;
@@ -617,7 +593,7 @@ const char* KeyConfiguration::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPA
         if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 34)) {
           auto str = _internal_mutable_telex_t6();
           ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParser(str, ptr, ctx);
-          CHK_(::PROTOBUF_NAMESPACE_ID::internal::VerifyUTF8(str, "khiin.proto.KeyConfiguration.telex_t6"));
+          CHK_(::PROTOBUF_NAMESPACE_ID::internal::VerifyUTF8(str, nullptr));
           CHK_(ptr);
         } else
           goto handle_unusual;
@@ -627,7 +603,7 @@ const char* KeyConfiguration::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPA
         if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 42)) {
           auto str = _internal_mutable_telex_t7();
           ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParser(str, ptr, ctx);
-          CHK_(::PROTOBUF_NAMESPACE_ID::internal::VerifyUTF8(str, "khiin.proto.KeyConfiguration.telex_t7"));
+          CHK_(::PROTOBUF_NAMESPACE_ID::internal::VerifyUTF8(str, nullptr));
           CHK_(ptr);
         } else
           goto handle_unusual;
@@ -637,7 +613,7 @@ const char* KeyConfiguration::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPA
         if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 50)) {
           auto str = _internal_mutable_telex_t8();
           ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParser(str, ptr, ctx);
-          CHK_(::PROTOBUF_NAMESPACE_ID::internal::VerifyUTF8(str, "khiin.proto.KeyConfiguration.telex_t8"));
+          CHK_(::PROTOBUF_NAMESPACE_ID::internal::VerifyUTF8(str, nullptr));
           CHK_(ptr);
         } else
           goto handle_unusual;
@@ -647,7 +623,7 @@ const char* KeyConfiguration::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPA
         if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 58)) {
           auto str = _internal_mutable_telex_t9();
           ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParser(str, ptr, ctx);
-          CHK_(::PROTOBUF_NAMESPACE_ID::internal::VerifyUTF8(str, "khiin.proto.KeyConfiguration.telex_t9"));
+          CHK_(::PROTOBUF_NAMESPACE_ID::internal::VerifyUTF8(str, nullptr));
           CHK_(ptr);
         } else
           goto handle_unusual;
@@ -657,7 +633,7 @@ const char* KeyConfiguration::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPA
         if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 66)) {
           auto str = _internal_mutable_telex_khin();
           ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParser(str, ptr, ctx);
-          CHK_(::PROTOBUF_NAMESPACE_ID::internal::VerifyUTF8(str, "khiin.proto.KeyConfiguration.telex_khin"));
+          CHK_(::PROTOBUF_NAMESPACE_ID::internal::VerifyUTF8(str, nullptr));
           CHK_(ptr);
         } else
           goto handle_unusual;
@@ -667,7 +643,7 @@ const char* KeyConfiguration::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPA
         if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 74)) {
           auto str = _internal_mutable_alt_hyphen();
           ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParser(str, ptr, ctx);
-          CHK_(::PROTOBUF_NAMESPACE_ID::internal::VerifyUTF8(str, "khiin.proto.KeyConfiguration.alt_hyphen"));
+          CHK_(::PROTOBUF_NAMESPACE_ID::internal::VerifyUTF8(str, nullptr));
           CHK_(ptr);
         } else
           goto handle_unusual;
@@ -677,7 +653,7 @@ const char* KeyConfiguration::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPA
         if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 82)) {
           auto str = _internal_mutable_nasal();
           ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParser(str, ptr, ctx);
-          CHK_(::PROTOBUF_NAMESPACE_ID::internal::VerifyUTF8(str, "khiin.proto.KeyConfiguration.nasal"));
+          CHK_(::PROTOBUF_NAMESPACE_ID::internal::VerifyUTF8(str, nullptr));
           CHK_(ptr);
         } else
           goto handle_unusual;
@@ -687,7 +663,7 @@ const char* KeyConfiguration::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPA
         if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 90)) {
           auto str = _internal_mutable_dot_above_right();
           ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParser(str, ptr, ctx);
-          CHK_(::PROTOBUF_NAMESPACE_ID::internal::VerifyUTF8(str, "khiin.proto.KeyConfiguration.dot_above_right"));
+          CHK_(::PROTOBUF_NAMESPACE_ID::internal::VerifyUTF8(str, nullptr));
           CHK_(ptr);
         } else
           goto handle_unusual;
@@ -697,7 +673,7 @@ const char* KeyConfiguration::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPA
         if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 98)) {
           auto str = _internal_mutable_dots_below();
           ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParser(str, ptr, ctx);
-          CHK_(::PROTOBUF_NAMESPACE_ID::internal::VerifyUTF8(str, "khiin.proto.KeyConfiguration.dots_below"));
+          CHK_(::PROTOBUF_NAMESPACE_ID::internal::VerifyUTF8(str, nullptr));
           CHK_(ptr);
         } else
           goto handle_unusual;
@@ -729,7 +705,7 @@ const char* KeyConfiguration::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPA
     }
     ptr = UnknownFieldParse(
         tag,
-        _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(),
+        _internal_metadata_.mutable_unknown_fields<std::string>(),
         ptr, ctx);
     CHK_(ptr != nullptr);
   }  // while
@@ -884,8 +860,8 @@ failure:
   }
 
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::InternalSerializeUnknownFieldsToArray(
-        _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
+    target = stream->WriteRaw(_internal_metadata_.unknown_fields<std::string>(::PROTOBUF_NAMESPACE_ID::internal::GetEmptyString).data(),
+        static_cast<int>(_internal_metadata_.unknown_fields<std::string>(::PROTOBUF_NAMESPACE_ID::internal::GetEmptyString).size()), target);
   }
   // @@protoc_insertion_point(serialize_to_array_end:khiin.proto.KeyConfiguration)
   return target;
@@ -997,21 +973,19 @@ size_t KeyConfiguration::ByteSizeLong() const {
         *use_digits_as_fallback_);
   }
 
-  return MaybeComputeUnknownFieldsSize(total_size, &_cached_size_);
+  if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
+    total_size += _internal_metadata_.unknown_fields<std::string>(::PROTOBUF_NAMESPACE_ID::internal::GetEmptyString).size();
+  }
+  int cached_size = ::PROTOBUF_NAMESPACE_ID::internal::ToCachedSize(total_size);
+  SetCachedSize(cached_size);
+  return total_size;
 }
 
-const ::PROTOBUF_NAMESPACE_ID::Message::ClassData KeyConfiguration::_class_data_ = {
-    ::PROTOBUF_NAMESPACE_ID::Message::CopyWithSizeCheck,
-    KeyConfiguration::MergeImpl
-};
-const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*KeyConfiguration::GetClassData() const { return &_class_data_; }
-
-void KeyConfiguration::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to,
-                      const ::PROTOBUF_NAMESPACE_ID::Message& from) {
-  static_cast<KeyConfiguration *>(to)->MergeFrom(
-      static_cast<const KeyConfiguration &>(from));
+void KeyConfiguration::CheckTypeAndMergeFrom(
+    const ::PROTOBUF_NAMESPACE_ID::MessageLite& from) {
+  MergeFrom(*::PROTOBUF_NAMESPACE_ID::internal::DownCast<const KeyConfiguration*>(
+      &from));
 }
-
 
 void KeyConfiguration::MergeFrom(const KeyConfiguration& from) {
 // @@protoc_insertion_point(class_specific_merge_from_start:khiin.proto.KeyConfiguration)
@@ -1061,7 +1035,7 @@ void KeyConfiguration::MergeFrom(const KeyConfiguration& from) {
   if (from._internal_has_use_digits_as_fallback()) {
     _internal_mutable_use_digits_as_fallback()->::khiin::proto::BoolValue::MergeFrom(from._internal_use_digits_as_fallback());
   }
-  _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
+  _internal_metadata_.MergeFrom<std::string>(from._internal_metadata_);
 }
 
 void KeyConfiguration::CopyFrom(const KeyConfiguration& from) {
@@ -1148,11 +1122,10 @@ void KeyConfiguration::InternalSwap(KeyConfiguration* other) {
           reinterpret_cast<char*>(&other->enable_uppercase_nasal_));
 }
 
-::PROTOBUF_NAMESPACE_ID::Metadata KeyConfiguration::GetMetadata() const {
-  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(
-      &descriptor_table_proto_2fconfig_2eproto_getter, &descriptor_table_proto_2fconfig_2eproto_once,
-      file_level_metadata_proto_2fconfig_2eproto[1]);
+std::string KeyConfiguration::GetTypeName() const {
+  return "khiin.proto.KeyConfiguration";
 }
+
 
 // ===================================================================
 
@@ -1197,7 +1170,7 @@ AppConfig::_Internal::uppercase_nasal(const AppConfig* msg) {
 }
 AppConfig::AppConfig(::PROTOBUF_NAMESPACE_ID::Arena* arena,
                          bool is_message_owned)
-  : ::PROTOBUF_NAMESPACE_ID::Message(arena, is_message_owned) {
+  : ::PROTOBUF_NAMESPACE_ID::MessageLite(arena, is_message_owned) {
   SharedCtor();
   if (!is_message_owned) {
     RegisterArenaDtor(arena);
@@ -1205,8 +1178,8 @@ AppConfig::AppConfig(::PROTOBUF_NAMESPACE_ID::Arena* arena,
   // @@protoc_insertion_point(arena_constructor:khiin.proto.AppConfig)
 }
 AppConfig::AppConfig(const AppConfig& from)
-  : ::PROTOBUF_NAMESPACE_ID::Message() {
-  _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
+  : ::PROTOBUF_NAMESPACE_ID::MessageLite() {
+  _internal_metadata_.MergeFrom<std::string>(from._internal_metadata_);
   if (from._internal_has_ime_enabled()) {
     ime_enabled_ = new ::khiin::proto::BoolValue(*from.ime_enabled_);
   } else {
@@ -1259,7 +1232,7 @@ AppConfig::~AppConfig() {
   // @@protoc_insertion_point(destructor:khiin.proto.AppConfig)
   if (GetArenaForAllocation() != nullptr) return;
   SharedDtor();
-  _internal_metadata_.Delete<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
+  _internal_metadata_.Delete<std::string>();
 }
 
 inline void AppConfig::SharedDtor() {
@@ -1320,7 +1293,7 @@ void AppConfig::Clear() {
   ::memset(&input_mode_, 0, static_cast<size_t>(
       reinterpret_cast<char*>(&default_punctuation_) -
       reinterpret_cast<char*>(&input_mode_)) + sizeof(default_punctuation_));
-  _internal_metadata_.Clear<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
+  _internal_metadata_.Clear<std::string>();
 }
 
 const char* AppConfig::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
@@ -1414,7 +1387,7 @@ const char* AppConfig::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::
     }
     ptr = UnknownFieldParse(
         tag,
-        _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(),
+        _internal_metadata_.mutable_unknown_fields<std::string>(),
         ptr, ctx);
     CHK_(ptr != nullptr);
   }  // while
@@ -1503,8 +1476,8 @@ failure:
   }
 
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::InternalSerializeUnknownFieldsToArray(
-        _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
+    target = stream->WriteRaw(_internal_metadata_.unknown_fields<std::string>(::PROTOBUF_NAMESPACE_ID::internal::GetEmptyString).data(),
+        static_cast<int>(_internal_metadata_.unknown_fields<std::string>(::PROTOBUF_NAMESPACE_ID::internal::GetEmptyString).size()), target);
   }
   // @@protoc_insertion_point(serialize_to_array_end:khiin.proto.AppConfig)
   return target;
@@ -1579,21 +1552,19 @@ size_t AppConfig::ByteSizeLong() const {
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::EnumSize(this->_internal_default_punctuation());
   }
 
-  return MaybeComputeUnknownFieldsSize(total_size, &_cached_size_);
+  if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
+    total_size += _internal_metadata_.unknown_fields<std::string>(::PROTOBUF_NAMESPACE_ID::internal::GetEmptyString).size();
+  }
+  int cached_size = ::PROTOBUF_NAMESPACE_ID::internal::ToCachedSize(total_size);
+  SetCachedSize(cached_size);
+  return total_size;
 }
 
-const ::PROTOBUF_NAMESPACE_ID::Message::ClassData AppConfig::_class_data_ = {
-    ::PROTOBUF_NAMESPACE_ID::Message::CopyWithSizeCheck,
-    AppConfig::MergeImpl
-};
-const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*AppConfig::GetClassData() const { return &_class_data_; }
-
-void AppConfig::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to,
-                      const ::PROTOBUF_NAMESPACE_ID::Message& from) {
-  static_cast<AppConfig *>(to)->MergeFrom(
-      static_cast<const AppConfig &>(from));
+void AppConfig::CheckTypeAndMergeFrom(
+    const ::PROTOBUF_NAMESPACE_ID::MessageLite& from) {
+  MergeFrom(*::PROTOBUF_NAMESPACE_ID::internal::DownCast<const AppConfig*>(
+      &from));
 }
-
 
 void AppConfig::MergeFrom(const AppConfig& from) {
 // @@protoc_insertion_point(class_specific_merge_from_start:khiin.proto.AppConfig)
@@ -1628,7 +1599,7 @@ void AppConfig::MergeFrom(const AppConfig& from) {
   if (from._internal_default_punctuation() != 0) {
     _internal_set_default_punctuation(from._internal_default_punctuation());
   }
-  _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
+  _internal_metadata_.MergeFrom<std::string>(from._internal_metadata_);
 }
 
 void AppConfig::CopyFrom(const AppConfig& from) {
@@ -1653,11 +1624,10 @@ void AppConfig::InternalSwap(AppConfig* other) {
           reinterpret_cast<char*>(&other->ime_enabled_));
 }
 
-::PROTOBUF_NAMESPACE_ID::Metadata AppConfig::GetMetadata() const {
-  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(
-      &descriptor_table_proto_2fconfig_2eproto_getter, &descriptor_table_proto_2fconfig_2eproto_once,
-      file_level_metadata_proto_2fconfig_2eproto[2]);
+std::string AppConfig::GetTypeName() const {
+  return "khiin.proto.AppConfig";
 }
+
 
 // @@protoc_insertion_point(namespace_scope)
 }  // namespace proto

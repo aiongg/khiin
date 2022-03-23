@@ -2,17 +2,23 @@
 
 namespace khiin::proto {
 class Preedit;
-enum SegmentStatus : int;
 } // namespace khiin::proto
 
 namespace khiin::win32::tip {
+
+enum class SegmentStatus {
+    Unmarked,
+    Composing,
+    Converted,
+    Focused,
+};
 
 struct WidePreedit {
     int caret = 0;
     int display_size = 0;
     std::wstring preedit_display;
     std::vector<std::pair<int, int>> segment_start_and_size;
-    std::vector<proto::SegmentStatus> segment_status;
+    std::vector<SegmentStatus> segment_status;
 };
 
 struct CompositionMgr;

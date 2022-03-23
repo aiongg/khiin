@@ -39,7 +39,8 @@ void HandleCommitImpl(TfEditCookie ec, TextService *service, ITfContext *context
     auto comp = service->composition_mgr();
 
     if (res.has_preedit()) {
-        comp->CommitComposition(ec, context, res.preedit());
+        auto preedit = CompositionUtil::WidenPreedit(res.preedit());
+        comp->CommitComposition(ec, context, std::move(preedit));
     } else {
         comp->CommitComposition(ec, context);
     }
@@ -49,7 +50,8 @@ void HandleCommitImpl(TfEditCookie ec, TextService *service, ITfContext *context
 
 void HandleDoCompositionImpl(TfEditCookie ec, TextService *service, ITfContext *context, Command *command) {
     KHIIN_DEBUG("CMD_SEND_KEY");
-    service->composition_mgr()->DoComposition(ec, context, command->response().preedit());
+    auto preedit = CompositionUtil::WidenPreedit(command->response().preedit());
+    service->composition_mgr()->DoComposition(ec, context, std::move(preedit));
 }
 
 void HandleUpdateCandidatesImpl(TfEditCookie ec, TextService *service, ITfContext *context, Command *command) {
@@ -126,7 +128,7 @@ void HandleUpdateCandidates(TextService *service, ITfContext *context, Command *
  * must be done in separate sessions.
  */
 struct CallbackEditSession : implements<CallbackEditSession, ITfEditSession> {
-    CallbackEditSession(EditSession::CallbackFn cb) : callback(cb) {}
+    CallbackEditSession(EditSession::CallbackFn callback) : callback(callback) {}
     STDMETHODIMP DoEditSession(TfEditCookie ec) override {
         TRY_FOR_HRESULT;
         callback(ec);

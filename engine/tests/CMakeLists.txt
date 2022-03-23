@@ -23,7 +23,7 @@ add_executable(test_khiin_engine
     "NgramTest.cpp"
  "UserDictionaryTest.cpp")
 
-target_link_libraries(test_khiin_engine khiin SQLiteCpp ${Protobuf_LIBRARY} GTest::gmock GTest::gtest GTest::gmock_main GTest::gtest_main)
+target_link_libraries(test_khiin_engine khiin SQLiteCpp protobuf::libprotobuf-lite GTest::gmock GTest::gtest GTest::gmock_main GTest::gtest_main)
 
 add_test(NAME test_khiin_engine COMMAND test_khiin_engine)
 

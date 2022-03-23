@@ -8,6 +8,7 @@
 #include "Compartment.h"
 #include "CompositionMgr.h"
 #include "CompositionSink.h"
+#include "CompositionUtil.h"
 #include "Config.h"
 #include "DisplayAttributeInfoEnum.h"
 #include "DllModule.h"
@@ -187,16 +188,17 @@ struct TextServiceImpl :
         return m_categorymgr;
     }
 
-    TfGuidAtom input_attribute() {
-        return m_input_attr;
-    }
-
-    TfGuidAtom converted_attribute() {
-        return m_converted_attr;
-    }
-
-    TfGuidAtom focused_attribute() {
-        return m_focused_attr;
+    TfGuidAtom DisplayAttributeAtom(SegmentStatus status) override {
+        switch (status) {
+        case SegmentStatus::Composing:
+            return m_input_attr;
+        case SegmentStatus::Focused:
+            return m_focused_attr;
+        case SegmentStatus::Converted:
+            return m_converted_attr;
+        default:
+            return TF_INVALID_GUIDATOM;
+        }
     }
 
     winrt::com_ptr<ITfCompositionSink> CreateCompositionSink(ITfContext *context) override {

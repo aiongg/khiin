@@ -5,9 +5,12 @@
 #include <filesystem>
 #include <fstream>
 #include <ios>
+#include <memory>
 #include <sstream>
 
-#include <google/protobuf/util/json_util.h>
+#define SI_NO_CONVERSION
+
+#include "simpleini/SimpleIni.h"
 
 #include "proto/proto.h"
 
@@ -24,13 +27,57 @@ namespace fs = std::filesystem;
 using namespace khiin::win32::tip;
 
 constexpr std::string_view kConfigFilename = "khiin_config.json";
+constexpr std::string_view kIniFilename = "khiin_config.ini";
 
-const std::wstring kSettingUiColors = L"UiColors";
-const std::wstring kSettingUiSize = L"UiSize";
-const std::wstring kSettingUiLanguage = L"UiLanguage";
-const std::wstring kSettingOnOffHotkey = L"OnOffHotkey";
-const std::wstring kSettingInputModeHotkey = L"InputModeHotkey";
+// Ini file settings
+namespace ini {
+constexpr const char *yes = "true";
+constexpr const char *no = "false";
+
+constexpr const char *engine = "engine";
+constexpr const char *input_mode = "input_mode";
+constexpr const char *continuous = "continuous";
+constexpr const char *basic = "basic";
+constexpr const char *manual = "manual";
+constexpr const char *enabled = "enabled";
+constexpr const char *dotted_khin = "dotted_khin";
+constexpr const char *autokhin = "autokhin";
+constexpr const char *easy_ch = "easy_ch";
+constexpr const char *uppercase_nasal = "uppercase_nasal";
+constexpr const char *user_dictionary = "user_dictionary";
+
+constexpr const char *ui = "ui";
+constexpr const char *theme = "theme";
+constexpr const char *light = "light";
+constexpr const char *dark = "dark";
+constexpr const char *language = "language";
+constexpr const char *hanlo = "hanlo";
+constexpr const char *loji = "loji";
+constexpr const char *english = "english";
+constexpr const char *size = "size";
+
+constexpr const char *shortcuts = "shortcuts";
+constexpr const char *on_off = "on_off";
+constexpr const char *shift = "shift";
+constexpr const char *alt_backtick = "alt+backtick";
+constexpr const char *ctrl_backtick = "ctrl+backtick";
+
+
+} // namespace ini
+
+// Registry settings
+namespace settings {
+const std::wstring kUiColors = L"UiColors";
+const std::wstring kUiSize = L"UiSize";
+const std::wstring kUiLanguage = L"UiLanguage";
+const std::wstring kOnOffHotkey = L"OnOffHotkey";
+const std::wstring kInputModeHotkey = L"InputModeHotkey";
 const std::wstring kUserDictionaryFile = L"UserDictionaryFile";
+} // namespace settings
+
+bool eq(const char *lhs, const char *rhs) {
+    return std::strcmp(lhs, rhs) == 0;
+}
 
 template <typename EnumT>
 int EnumInt(EnumT e) {
@@ -92,63 +139,111 @@ UiLanguage Config::GetSystemLang() {
     return UiLanguage::English;
 }
 
-void Config::LoadFromFile(HMODULE hmodule, AppConfig *config) {
-    auto conf_file = Files::GetFilePath(hmodule, kConfigFilename);
+std::unique_ptr<CSimpleIniA> GetIniFile(HMODULE hmodule) {
+    auto conf_file = Files::GetFilePath(hmodule, kIniFilename);
     if (fs::exists(conf_file)) {
-        auto f = std::ifstream(conf_file.string());
-        std::stringstream buf;
-        buf << f.rdbuf();
-        auto json_str = buf.str();
-        google::protobuf::util::JsonStringToMessage(json_str, config);
-        f.close();
+        auto ret = std::make_unique<CSimpleIniA>();
+        ret->SetUnicode();
+        SI_Error rc = ret->LoadFile(conf_file.c_str());
+        if (rc >= 0) {
+            return ret;
+        }
     }
 
-    // if (config->appearance().ui_language() == UIL_UNSPECIFIED) {
-    //    config->mutable_appearance()->set_ui_language(Config::GetSystemLang());
-    //}
+    return nullptr;
+}
 
-    if (!config->has_ime_enabled()) {
-        config->mutable_ime_enabled()->set_value(true);
+void Config::LoadFromFile(HMODULE hmodule, AppConfig *config) {
+    auto ini = GetIniFile(hmodule);
+    const char *value;
+
+    {
+        value = ini->GetValue(ini::engine, ini::input_mode, ini::continuous);
+        InputMode mode = IM_CONTINUOUS;
+        if (eq(value, ini::basic)) {
+            mode = IM_BASIC;
+        } else if (eq(value, ini::manual)) {
+            mode = IM_PRO;
+        }
+        config->set_input_mode(mode);
     }
 
-    if (config->input_mode() == IM_UNSPECIFIED) {
-        config->set_input_mode(IM_CONTINUOUS);
+    {
+        value = ini->GetValue(ini::engine, ini::enabled, ini::yes);
+        config->mutable_ime_enabled()->set_value(eq(value, ini::yes));
     }
 
-    if (!config->has_dotted_khin()) {
-        config->mutable_dotted_khin()->set_value(true);
+    {
+        value = ini->GetValue(ini::engine, ini::dotted_khin, ini::yes);
+        config->mutable_dotted_khin()->set_value(eq(value, ini::yes));
     }
 
-    if (!config->has_telex_enabled()) {
-        config->mutable_telex_enabled()->set_value(false);
+    {
+        value = ini->GetValue(ini::engine, ini::autokhin, ini::yes);
+        config->mutable_autokhin()->set_value(eq(value, ini::yes));
     }
 
-    if (!config->has_autokhin()) {
-        config->mutable_autokhin()->set_value(true);
+    {
+        value = ini->GetValue(ini::engine, ini::easy_ch, ini::no);
+        config->mutable_easy_ch()->set_value(eq(value, ini::yes));
     }
 
-    if (!config->has_easy_ch()) {
-        config->mutable_easy_ch()->set_value(false);
-    }
-
-    if (!config->has_uppercase_nasal()) {
-        config->mutable_uppercase_nasal()->set_value(true);
+    {
+        value = ini->GetValue(ini::engine, ini::uppercase_nasal, ini::yes);
+        config->mutable_uppercase_nasal()->set_value(eq(value, ini::yes));
     }
 }
 
 void Config::SaveToFile(HMODULE hmodule, AppConfig *config) {
-    auto conf_file = Files::GetFilePath(hmodule, kConfigFilename);
-    auto options = google::protobuf::util::JsonPrintOptions();
-    options.add_whitespace = true;
-    options.always_print_primitive_fields = true;
-    options.preserve_proto_field_names = true;
-    auto json_str = std::string();
-    google::protobuf::util::MessageToJsonString(*config, &json_str, options);
+    auto ini = GetIniFile(hmodule);
+    const char *value;
 
-    auto f = std::ofstream();
-    f.open(conf_file.c_str(), std::ios::out);
-    f << json_str;
-    f.close();
+    {
+        switch (config->input_mode()) {
+        case IM_BASIC:
+            value = ini::basic;
+            break;
+        case IM_PRO:
+            value = ini::manual;
+            break;
+        default:
+            value = ini::continuous;
+            break;
+        }
+
+        ini->SetValue(ini::engine, ini::input_mode, value);
+    }
+
+    {
+        value = config->mutable_ime_enabled()->value() ? ini::yes : ini::no;
+        ini->SetValue(ini::engine, ini::enabled, value);
+    }
+
+    {
+        value = config->mutable_dotted_khin()->value() ? ini::yes : ini::no;
+        ini->SetValue(ini::engine, ini::dotted_khin, value);
+    }
+
+    {
+        value = config->mutable_autokhin()->value() ? ini::yes : ini::no;
+        ini->SetValue(ini::engine, ini::autokhin, value);
+    }
+
+    {
+        value = config->mutable_easy_ch()->value() ? ini::yes : ini::no;
+        ini->SetValue(ini::engine, ini::easy_ch, value);
+    }
+
+    {
+        value = config->mutable_uppercase_nasal()->value() ? ini::yes : ini::no;
+        ini->SetValue(ini::engine, ini::uppercase_nasal, value);
+    }
+
+    auto conf_file = Files::GetFilePath(hmodule, kIniFilename);
+    auto ret = ini->SaveFile(conf_file.c_str());
+    if (ret < 0) {
+        auto x = 3;
+    }
 }
 
 void Config::NotifyChanged() {
@@ -168,53 +263,53 @@ void Config::CycleInputMode(proto::AppConfig *config) {
 }
 
 UiColors Config::GetUiColors() {
-    return EnumVal<UiColors>(Registrar::GetSettingsInt(kSettingUiColors));
+    return EnumVal<UiColors>(Registrar::GetSettingsInt(settings::kUiColors));
 }
 
 void Config::SetUiColors(UiColors colors) {
-    Registrar::SetSettingsInt(kSettingUiColors, EnumInt(colors));
+    Registrar::SetSettingsInt(settings::kUiColors, EnumInt(colors));
 }
 
 UiLanguage Config::GetUiLanguage() {
-    return EnumVal<UiLanguage>(Registrar::GetSettingsInt(kSettingUiLanguage));
+    return EnumVal<UiLanguage>(Registrar::GetSettingsInt(settings::kUiLanguage));
 }
 
 void Config::SetUiLanguage(UiLanguage lang) {
-    Registrar::SetSettingsInt(kSettingUiLanguage, EnumInt(lang));
+    Registrar::SetSettingsInt(settings::kUiLanguage, EnumInt(lang));
 }
 
 int Config::GetUiSize() {
-    return Registrar::GetSettingsInt(kSettingUiSize);
+    return Registrar::GetSettingsInt(settings::kUiSize);
 }
 
 void Config::SetUiSize(int size) {
-    Registrar::SetSettingsInt(kSettingUiSize, size);
+    Registrar::SetSettingsInt(settings::kUiSize, size);
 }
 
 Hotkey Config::GetOnOffHotkey() {
-    auto i = Registrar::GetSettingsInt(kSettingOnOffHotkey);
+    auto i = Registrar::GetSettingsInt(settings::kOnOffHotkey);
     return i > 0 ? EnumVal<Hotkey>(i) : Hotkey::Shift;
 }
 
 void Config::SetOnOffHotkey(Hotkey key) {
-    Registrar::SetSettingsInt(kSettingOnOffHotkey, EnumInt(key));
+    Registrar::SetSettingsInt(settings::kOnOffHotkey, EnumInt(key));
 }
 
 Hotkey Config::GetInputModeHotkey() {
-    auto i = Registrar::GetSettingsInt(kSettingInputModeHotkey);
+    auto i = Registrar::GetSettingsInt(settings::kInputModeHotkey);
     return i > 0 ? EnumVal<Hotkey>(i) : Hotkey::CtrlBacktick;
 }
 
 void Config::SetUserDictionaryFile(std::wstring file_path) {
-    Registrar::SetSettingsString(kUserDictionaryFile, file_path);
+    Registrar::SetSettingsString(settings::kUserDictionaryFile, file_path);
 }
 
 std::wstring Config::GetUserDictionaryFile() {
-    return Registrar::GetSettingsString(kUserDictionaryFile);
+    return Registrar::GetSettingsString(settings::kUserDictionaryFile);
 }
 
 void Config::SetInputModeHotkey(Hotkey key) {
-    Registrar::SetSettingsInt(kSettingInputModeHotkey, EnumInt(key));
+    Registrar::SetSettingsInt(settings::kInputModeHotkey, EnumInt(key));
 }
 
 bool Config::SystemUsesLightTheme() {

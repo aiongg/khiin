@@ -3,13 +3,10 @@
 #include "DisplayAttributeInfo.h"
 #include "DisplayAttributeInfoEnum.h"
 
-namespace khiin::proto {
-class Preedit;
-}
-
 namespace khiin::win32::tip {
 
 struct TextService;
+struct WidePreedit;
 
 struct CompositionMgr : winrt::implements<CompositionMgr, IUnknown> {
     CompositionMgr() = default;
@@ -23,9 +20,9 @@ struct CompositionMgr : winrt::implements<CompositionMgr, IUnknown> {
 
     virtual bool composing() = 0;
 
-    virtual void DoComposition(TfEditCookie cookie, ITfContext *context, proto::Preedit comp_data) = 0;
+    virtual void DoComposition(TfEditCookie cookie, ITfContext *context, WidePreedit comp_data) = 0;
     virtual void CommitComposition(TfEditCookie cookie, ITfContext *context) = 0;
-    virtual void CommitComposition(TfEditCookie cookie, ITfContext *context, proto::Preedit comp_data) = 0;
+    virtual void CommitComposition(TfEditCookie cookie, ITfContext *context, WidePreedit comp_data) = 0;
     virtual void CancelComposition(TfEditCookie cookie) = 0;
     virtual void ClearComposition(TfEditCookie cookie) = 0;
 
