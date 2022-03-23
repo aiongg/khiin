@@ -241,7 +241,7 @@ class KeyCfgImpl : public KeyConfig, ConfigChangeListener {
         }
     }
 
-    bool IsToneKey(char ch) override {
+    bool IsToneKey(unsigned char ch) override {
         // TODO: handle telex keys
         return isdigit(ch);
     }

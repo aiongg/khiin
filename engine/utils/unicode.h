@@ -49,6 +49,22 @@ inline constexpr bool is_khin(char32_t c) {
     return c == kKhinDot;
 }
 
+inline constexpr bool is_alnum(char32_t c) {
+    if (0 <= c && c < UCHAR_MAX) {
+        return isalnum(static_cast<int>(c)) != 0;
+    }
+
+    return false;
+}
+
+inline constexpr bool is_punct(char32_t c) {
+    if (0 <= c && c < UCHAR_MAX) {
+        return ispunct(static_cast<int>(c)) != 0;
+    }
+
+    return false;
+}
+
 enum class GlyphCategory {
     Other,
     Alnum,
@@ -59,16 +75,16 @@ enum class GlyphCategory {
 
 namespace {
 
-const inline GlyphCategory glyph_category_of_codepoint(char32_t cp) {
-    if ((cp <= kMaxAscii && isalnum(cp)) || is_nasal(cp)) {
+inline constexpr GlyphCategory glyph_category_of_codepoint(char32_t cp) {
+    if ((cp <= kMaxAscii && is_alnum(cp)) || is_nasal(cp)) {
         return GlyphCategory::Alnum;
     }
 
-    if (cp <= kMaxAscii && ispunct(cp)) {
+    if (cp <= kMaxAscii && is_punct(cp)) {
         return GlyphCategory::AsciiPunct;
     }
 
-    if (cp == 0x00b7) {
+    if (cp == kKhinDot) {
         return GlyphCategory::Khin;
     }
 

@@ -672,6 +672,14 @@ TEST_F(CandidateNavigationTest, Focus_boe) {
     ExpectCandidateSize(10);
 }
 
+TEST_F(CandidateNavigationTest, Focus_eboe) {
+    input("eboe");
+    spacebar(1);
+    curs_right(1);
+    curs_down(7);
+    ExpectBuffer("个無 e", 4);
+}
+
 TEST_F(CandidateNavigationTest, Focus_taichi) {
     input("taichi");
     curs_down(1);
@@ -682,6 +690,19 @@ TEST_F(CandidateNavigationTest, Focus_taichi) {
 TEST_F(CandidateNavigationTest, Focus_erase_e) {
     input("e");
     curs_down(1);
+    key_bksp(1);
+    EXPECT_TRUE(bufmgr->IsEmpty());
+}
+
+TEST_F(CandidateNavigationTest, Focus_erase_aa) {
+    input("aa");
+    spacebar(1);
+    curs_right(1);
+    curs_down(9);
+    enter();
+    ExpectBuffer("唖 ·a", 4);
+    key_bksp(1);
+    key_bksp(1);
     key_bksp(1);
     EXPECT_TRUE(bufmgr->IsEmpty());
 }

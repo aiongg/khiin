@@ -21,9 +21,10 @@ bool NeedsVirtualSpace(std::string const &lhs, std::string const &rhs) {
     auto right = start_glyph_type(rhs);
 
     return ((left == GlyphCategory::Alnum && right == GlyphCategory::Alnum) ||
-            (left == GlyphCategory::Alnum && right == GlyphCategory::Khin) ||
             (left == GlyphCategory::Alnum && right == GlyphCategory::Hanji) ||
-            (left == GlyphCategory::Hanji && right == GlyphCategory::Alnum));
+            (left == GlyphCategory::Hanji && right == GlyphCategory::Alnum) ||
+            (left == GlyphCategory::Alnum && right == GlyphCategory::Khin) ||
+            (left == GlyphCategory::Hanji && right == GlyphCategory::Khin));
 }
 
 } // namespace

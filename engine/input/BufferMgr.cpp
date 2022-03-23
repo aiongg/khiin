@@ -654,7 +654,7 @@ class BufferMgrImpl : public BufferMgr {
     }
 
     TaiToken *FocusLGram() {
-        if (m_focused_element == 0 && !m_precomp.Empty()) {
+        if (!m_precomp.Empty() && m_focused_element == m_precomp.Size()) {
             auto it = m_precomp.End() - 1;
 
             if (it->IsVirtualSpace() && it != m_precomp.Begin()) {
