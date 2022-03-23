@@ -73,7 +73,7 @@ bool HandleCandidatePage(TextService *service, ITfContext *context, CandidateLis
 
     if (id >= 0) {
         auto command = service->engine()->FocusCandidate(id);
-        EditSession::HandleAction(service, context, std::move(command));
+        EditSession::HandleAction(service, context, command);
         return true;
     }
 
@@ -84,7 +84,7 @@ bool HandleCandidatePage(TextService *service, ITfContext *context, CandidateLis
 
 void HandleKeyBasic(TextService *service, ITfContext *context, win32::KeyEvent const &key_event) {
     auto command = service->engine()->OnKey(key_event);
-    EditSession::HandleAction(service, context, std::move(command));
+    EditSession::HandleAction(service, context, command);
 }
 
 struct KeyEventSinkImpl : implements<KeyEventSinkImpl, ITfKeyEventSink, KeyEventSink> {
@@ -149,7 +149,8 @@ struct KeyEventSinkImpl : implements<KeyEventSinkImpl, ITfKeyEventSink, KeyEvent
         }
 
         KHIIN_DEBUG("Key is not consumable");
-        EditSession::HandleAction(service.get(), context, std::move(command));
+        *pfEaten = FALSE;
+        //EditSession::HandleAction(service.get(), context, command);
     }
 
     void HandleKey(ITfContext *pContext, win32::KeyEvent key_event, BOOL *pfEaten) {

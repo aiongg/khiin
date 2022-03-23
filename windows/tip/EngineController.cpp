@@ -119,15 +119,24 @@ struct EngineControllerImpl : winrt::implements<EngineControllerImpl, EngineCont
         return SendCommand(cmd);
     }
 
+    Command* Commit() override {
+        auto cmd = new Command();
+        auto request = cmd->mutable_request();
+        request->set_type(CMD_COMMIT);
+        return SendCommand(cmd);
+    }
+
+    void ResetUserData() override {
+        auto cmd = new Command();
+        cmd->mutable_request()->set_type(CMD_RESET_USER_DATA);
+        SendCommand(cmd);
+    }
+
     void Reset() override {
         auto cmd = new Command();
         auto request = cmd->mutable_request();
         request->set_type(CMD_RESET);
         SendCommand(cmd);
-    }
-
-    void SendCommand(Command command) override {
-        m_engine->SendCommand(&command);
     }
 
     CandidateList *LoadEmojis() override {

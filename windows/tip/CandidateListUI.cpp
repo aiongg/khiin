@@ -7,6 +7,7 @@
 #include "CandidatePager.h"
 #include "CandidateWindow.h"
 #include "Colors.h"
+#include "CompositionMgr.h"
 #include "Config.h"
 #include "EditSession.h"
 #include "Guids.h"
@@ -70,6 +71,26 @@ struct CandidateListUIImpl :
         }
 
         UpdateWindow();
+    }
+
+    void Move(TfEditCookie cookie) override {
+        auto view = winrt::com_ptr<ITfContextView>();
+        check_hresult(m_context->GetActiveView(view.put()));
+        auto range = m_service->composition_mgr()->GetTextRange(cookie);
+
+        if (!range) {
+            return;
+        }
+
+        check_hresult(range->Collapse(cookie, TF_ANCHOR_START));
+        LONG shifted;
+        check_hresult(range->ShiftStart(cookie, 0, &shifted, nullptr));
+        check_hresult(range->ShiftEnd(cookie, 1, &shifted, nullptr));
+        auto rect = RECT();
+        BOOL clipped = FALSE;
+        check_hresult(view->GetTextExt(cookie, range.get(), &rect, &clipped));
+        m_candidate_window->Move(rect);
+        KHIIN_DEBUG("after update: {} {}", rect.left, rect.top);
     }
 
     bool Showing() override {
@@ -362,18 +383,14 @@ struct CandidateListUIImpl :
     STDMETHODIMP Finalize(void) override {
         TRY_FOR_HRESULT;
         KHIIN_TRACE("");
-        auto cmd = Command::default_instance().New();
-        cmd->mutable_request()->set_type(CMD_COMMIT);
-        EditSession::HandleAction(m_service.get(), m_context.get(), cmd);
+        m_service->CommitComposition();
         CATCH_FOR_HRESULT;
     }
 
     STDMETHODIMP Abort(void) override {
         TRY_FOR_HRESULT;
         KHIIN_TRACE("");
-        auto cmd = Command::default_instance().New();
-        cmd->mutable_request()->set_type(CMD_RESET);
-        EditSession::HandleAction(m_service.get(), m_context.get(), cmd);
+        m_service->Reset();
         return S_OK;
         CATCH_FOR_HRESULT;
     }

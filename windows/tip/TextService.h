@@ -39,6 +39,9 @@ struct TextService : winrt::implements<TextService, IUnknown> {
 
     virtual proto::AppConfig *config() = 0;
 
+    virtual void Reset() = 0;
+    virtual void CommitComposition() = 0;
+    virtual void UpdateCandidateWindow(TfEditCookie cookie) = 0;
     virtual bool OnContextChange(ITfContext *context) = 0;
     virtual bool Enabled() = 0;
     virtual void SetEnabled(bool enable) = 0;

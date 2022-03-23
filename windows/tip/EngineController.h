@@ -28,7 +28,8 @@ struct EngineController : winrt::implements<EngineController, IUnknown> {
     virtual proto::Command *OnKey(win32::KeyEvent keyEvent) = 0;
     virtual proto::Command *SelectCandidate(int32_t candidate_id) = 0;
     virtual proto::Command *FocusCandidate(int32_t candidate_id) = 0;
-    virtual void SendCommand(proto::Command command) = 0;
+    virtual proto::Command *Commit() = 0;
+    virtual void ResetUserData() = 0;
     virtual void Reset() = 0;
     virtual proto::CandidateList *LoadEmojis() = 0;
 };

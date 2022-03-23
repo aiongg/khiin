@@ -266,6 +266,19 @@ struct TextServiceImpl :
         return true;
     }
 
+    void UpdateCandidateWindow(TfEditCookie cookie) override {
+        m_candidate_list_ui->Move(cookie);
+    }
+
+    void CommitComposition() override {
+        auto command = m_engine->Commit();
+        EditSession::HandleAction(this, current_context().get(), command);
+    }
+
+    void Reset() override {
+        m_engine->Reset();
+    }
+
     bool Enabled() override {
         return m_config->ime_enabled().value();
     }
@@ -287,9 +300,8 @@ struct TextServiceImpl :
         }
 
         if (!on_off) {
-            auto cmd = Command();
-            cmd.mutable_request()->set_type(CMD_COMMIT);
-            EditSession::HandleAction(this, current_context().get(), &cmd);
+            auto command = m_engine->Commit();
+            EditSession::HandleAction(this, current_context().get(), command);
         }
     }
 
@@ -450,9 +462,7 @@ struct TextServiceImpl :
         }
 
         if (rguid == guids::kResetUserdataCompartment) {
-            auto cmd = Command();
-            cmd.mutable_request()->set_type(CMD_RESET_USER_DATA);
-            m_engine->SendCommand(std::move(cmd));
+            m_engine->ResetUserData();
         }
 
         CATCH_FOR_HRESULT;

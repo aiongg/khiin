@@ -69,6 +69,11 @@ class CandidateWindow2Impl : public CandidateWindow {
         CalculateLayout();
     }
 
+    void Move(RECT rect) override {
+        ::SetWindowPos(m_hwnd, NULL, rect.left - m_metrics.qs_col_w, rect.bottom, 0, 0,
+                       SWP_NOACTIVATE | SWP_NOZORDER | SWP_NOSIZE);
+    }
+
     void OnConfigChanged(AppConfig *config) override {
         GuiWindow::OnConfigChanged(config);
         m_metrics = GetMetricsScaled(Config::GetUiSize());
@@ -163,7 +168,7 @@ class CandidateWindow2Impl : public CandidateWindow {
 
     void CalculateLayout() {
         KHIIN_TRACE("");
-        if (!m_factory || !m_candidate_grid) {
+        if (!m_factory || m_candidate_grid == nullptr || m_candidate_grid->empty()) {
             return;
         }
 

@@ -26,7 +26,7 @@ struct CandidateListUI : winrt::implements<CandidateListUI, IUnknown> {
     virtual void DestroyCandidateWindow() = 0;
     virtual void Update(ITfContext *pContext, proto::EditState edit_state, const proto::CandidateList &candidate_list,
                         RECT text_rect) = 0;
-
+    virtual void Move(TfEditCookie cookie) = 0;
     virtual bool Showing() = 0;
     virtual bool Selecting() = 0;
     virtual bool MultiColumn() = 0;

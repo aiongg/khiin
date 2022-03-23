@@ -247,6 +247,7 @@
     <ClInclude Include="Geometry.h" />
     <ClInclude Include="Guids.h" />
     <ClInclude Include="PreservedKeyMgr.h" />
+    <ClInclude Include="CompositionUtil.h" />
     <ClInclude Include="RenderFactory.h" />
     <ClInclude Include="GridLayout.h" />
     <ClInclude Include="GuiWindow.h" />
@@ -288,6 +289,7 @@
     <ClCompile Include="DisplayAttributeInfoEnum.cpp" />
     <ClCompile Include="Files.cpp" />
     <ClCompile Include="PreservedKeyMgr.cpp" />
+    <ClCompile Include="CompositionUtil.cpp" />
     <ClCompile Include="RenderFactory.cpp" />
     <ClCompile Include="GuiWindow.cpp" />
     <ClCompile Include="KeyEvent.cpp" />

@@ -4,9 +4,11 @@
 
 #include "CandidateListUI.h"
 #include "CompositionMgr.h"
+#include "CompositionUtil.h"
 #include "EditSession.h"
 #include "EngineController.h"
 #include "Guids.h"
+#include "KeyEvent.h"
 #include "TextService.h"
 
 namespace khiin::win32::tip {
@@ -14,286 +16,143 @@ namespace {
 using namespace winrt;
 using namespace khiin::proto;
 
-RECT ParentWindowTopLeft(ITfContextView *view) {
-    RECT rect = {};
-    HWND parent_hwnd = NULL;
-    check_hresult(view->GetWnd(&parent_hwnd));
-
-    if (parent_hwnd == NULL) {
-        parent_hwnd = ::GetFocus();
-    }
-
-    auto found = ::GetWindowRect(parent_hwnd, &rect);
-
-    if (found != 0) {
-        return RECT{rect.left, rect.top, rect.left + 1, rect.top + 1};
-    }
-
-    return rect;
-}
-
-HRESULT TextExtFromRange(TfEditCookie cookie, ITfContextView *view, ITfRange *range, RECT &rc) {
-    LONG shifted = 0;
-    BOOL noregion = FALSE;
-    range->Collapse(cookie, TF_ANCHOR_START);
-    range->ShiftStart(cookie, 0, &shifted, nullptr);
-    range->ShiftEnd(cookie, 1, &shifted, nullptr);
-    RECT rect{};
-    BOOL clipped = FALSE;
-    auto hr = view->GetTextExt(cookie, range, &rect, &clipped);
-    rc = rect;
-    return hr;
-}
-
-com_ptr<ITfRange> GetDefaultSelectionRange(TfEditCookie cookie, ITfContext *context) {
-    TF_SELECTION selection = {};
-    ULONG fetched = 0;
-    check_hresult(context->GetSelection(cookie, TF_DEFAULT_SELECTION, 1, &selection, &fetched));
-
-    auto range = com_ptr<ITfRange>();
-    check_hresult(selection.range->Clone(range.put()));
-    selection.range->Release();
-    return range;
-}
-
-RECT GetEditRect(TfEditCookie ec, CompositionMgr *composition_mgr, ITfContext *context) {
-    RECT rect = {};
-    HRESULT hr = E_FAIL;
-    auto view = winrt::com_ptr<ITfContextView>();
-    check_hresult(context->GetActiveView(view.put()));
-
-    if (composition_mgr) {
-        auto range = composition_mgr->GetTextRange(ec);
-        hr = TextExtFromRange(ec, view.get(), range.get(), rect);
-        KHIIN_DEBUG("From composition range {} {} {} {}", rect.left, rect.top, rect.right, rect.bottom);
-        CHECK_HRESULT(hr);
-        if (hr == S_OK) {
-            return rect;
-        }
-    }
-
-    // Try default selection range
-    auto range = GetDefaultSelectionRange(ec, context);
-    hr = TextExtFromRange(ec, view.get(), range.get(), rect);
-    KHIIN_DEBUG("From default selection {} {} {} {}", rect.left, rect.top, rect.right, rect.bottom);
-    CHECK_HRESULT(hr);
-    if (hr == S_OK) {
-        return rect;
-    }
-
-    return ParentWindowTopLeft(view.get());
-}
-
-std::vector<InputScope> GetInputScopes(TfEditCookie cookie, ITfContext *context) {
-    auto default_range = GetDefaultSelectionRange(cookie, context);
-    auto prop = com_ptr<ITfReadOnlyProperty>();
-    check_hresult(context->GetAppProperty(guids::kPropInputScope, prop.put()));
-    VARIANT var{};
-    ::VariantInit(&var);
-    check_hresult(prop->GetValue(cookie, default_range.get(), &var));
-
-    if (var.vt != VT_UNKNOWN) {
-        return std::vector<InputScope>();
-    }
-
-    auto unk = com_ptr<IUnknown>();
-    unk.copy_from(var.punkVal);
-    auto input_scope = unk.as<ITfInputScope>();
-    InputScope *buffer = nullptr;
-    UINT num_scopes = 0;
-    check_hresult(input_scope->GetInputScopes(&buffer, &num_scopes));
-    auto ret = std::vector<InputScope>();
-    ret.assign(buffer, buffer + num_scopes);
-    ::CoTaskMemFree(buffer);
-    return ret;
-}
-
 constexpr auto kAsyncRWFlag = TF_ES_ASYNCDONTCARE | TF_ES_READWRITE;
 constexpr auto kSyncRWFlag = TF_ES_SYNC | TF_ES_READWRITE;
 
-struct HandleFocusEditSession : implements<HandleFocusEditSession, ITfEditSession> {
-    HandleFocusEditSession(TextService *service, ITfContext *context) {
-        m_service.copy_from(service);
-        m_context.copy_from(context);
-    }
-
-    ~HandleFocusEditSession() = default;
-
-  private:
-    //+---------------------------------------------------------------------------
-    //
-    // ITfEditSession
-    //
-    //----------------------------------------------------------------------------
-
-    STDMETHODIMP DoEditSession(TfEditCookie cookie) override {
-        TRY_FOR_HRESULT;
-        KHIIN_DEBUG("checking input scopes");
-        auto input_scopes = GetInputScopes(cookie, m_context.get());
-
-        if (input_scopes.empty()) {
-            KHIIN_DEBUG("no input scopes");
-            return S_OK;
-        }
-
-        auto keyboard_enabled = true;
-
-        for (auto const &scope : input_scopes) {
-            switch (scope) {
-            case IS_URL:
-                KHIIN_DEBUG("IS_URL");
-                keyboard_enabled = false;
-                break;
-            case IS_EMAIL_USERNAME:
-                KHIIN_DEBUG("IS_EMAIL_USERNAME");
-                keyboard_enabled = false;
-                break;
-            case IS_EMAIL_SMTPEMAILADDRESS:
-                KHIIN_DEBUG("IS_EMAIL_SMTPEMAILADDRESS");
-                keyboard_enabled = false;
-                break;
-            case IS_DIGITS:
-                KHIIN_DEBUG("IS_DIGITS");
-                keyboard_enabled = false;
-                break;
-            case IS_NUMBER:
-                KHIIN_DEBUG("IS_NUMBER");
-                keyboard_enabled = false;
-                break;
-            case IS_PASSWORD:
-                KHIIN_DEBUG("IS_PASSWORD");
-                keyboard_enabled = false;
-                break;
-            case IS_TELEPHONE_FULLTELEPHONENUMBER:
-                KHIIN_DEBUG("IS_TELEPHONE_FULLTELEPHONENUMBER");
-                keyboard_enabled = false;
-                break;
-            case IS_TELEPHONE_COUNTRYCODE:
-                KHIIN_DEBUG("IS_TELEPHONE_COUNTRYCODE");
-                keyboard_enabled = false;
-                break;
-            case IS_TELEPHONE_AREACODE:
-                KHIIN_DEBUG("IS_TELEPHONE_AREACODE");
-                keyboard_enabled = false;
-                break;
-            case IS_TELEPHONE_LOCALNUMBER:
-                KHIIN_DEBUG("IS_TELEPHONE_LOCALNUMBER");
-                keyboard_enabled = false;
-                break;
-            case IS_TIME_FULLTIME:
-                KHIIN_DEBUG("IS_TIME_FULLTIME");
-                keyboard_enabled = false;
-                break;
-            case IS_TIME_HOUR:
-                KHIIN_DEBUG("IS_TIME_HOUR");
-                keyboard_enabled = false;
-                break;
-            case IS_TIME_MINORSEC:
-                KHIIN_DEBUG("IS_TIME_MINORSEC");
-                keyboard_enabled = false;
-                break;
-            }
-
-            if (!keyboard_enabled) {
-                break;
-            }
-        }
-
-        if (keyboard_enabled) {
-            KHIIN_DEBUG("input enabled");
-            m_service->SetLocked(false);
-        } else {
-            m_service->SetLocked(true);
-        }
-        CATCH_FOR_HRESULT;
-    }
-
-    com_ptr<TextService> m_service;
-    com_ptr<ITfContext> m_context;
+const std::vector<InputScope> kUnallowedInputScopes = {
+    IS_EMAIL_USERNAME,
+    IS_EMAIL_SMTPEMAILADDRESS,
+    IS_DIGITS,
+    IS_NUMBER,
+    IS_PASSWORD,
+    IS_TELEPHONE_FULLTELEPHONENUMBER,
+    IS_TELEPHONE_COUNTRYCODE,
+    IS_TELEPHONE_AREACODE,
+    IS_TELEPHONE_LOCALNUMBER,
+    IS_TIME_FULLTIME,
+    IS_TIME_HOUR,
+    IS_TIME_MINORSEC,
 };
 
-struct HandleActionEditSession : winrt::implements<HandleActionEditSession, ITfEditSession> {
-    HandleActionEditSession(TextService *service, ITfContext *context, Command *command) : command(command) {
-        KHIIN_TRACE("");
-        m_service.copy_from(service);
-        m_context.copy_from(context);
+void HandleCommitImpl(TfEditCookie ec, TextService *service, ITfContext *context, Command *command) {
+    auto &res = command->response();
+    auto comp = service->composition_mgr();
+
+    if (res.has_preedit()) {
+        comp->CommitComposition(ec, context, res.preedit());
+    } else {
+        comp->CommitComposition(ec, context);
     }
-    ~HandleActionEditSession() = default;
 
-  private:
-    //+---------------------------------------------------------------------------
-    //
-    // ITfEditSession
-    //
-    //----------------------------------------------------------------------------
+    service->candidate_ui()->Hide();
+}
 
+void HandleDoCompositionImpl(TfEditCookie ec, TextService *service, ITfContext *context, Command *command) {
+    KHIIN_DEBUG("CMD_SEND_KEY");
+    service->composition_mgr()->DoComposition(ec, context, command->response().preedit());
+}
+
+void HandleUpdateCandidatesImpl(TfEditCookie ec, TextService *service, ITfContext *context, Command *command) {
+    auto &res = command->response();
+    auto ui = service->candidate_ui();
+    auto comp = service->composition_mgr();
+
+    if (res.has_candidate_list() && res.candidate_list().candidates_size() > 0) {
+        auto rect = CompositionUtil::TextPosition(ec, context);
+        ui->Update(context, res.edit_state(), res.candidate_list(), rect);
+        ui->Show();
+    } else {
+        ui->Hide();
+    }
+}
+
+void HandleFocusChangeImpl(TfEditCookie ec, TextService *service, ITfContext *context) {
+    KHIIN_DEBUG("checking input scopes");
+    auto input_scopes = CompositionUtil::InputScopes(ec, context);
+
+    if (input_scopes.empty()) {
+        KHIIN_DEBUG("no input scopes");
+        return;
+    }
+
+    auto keyboard_enabled = true;
+
+    auto begin = kUnallowedInputScopes.cbegin();
+    auto end = kUnallowedInputScopes.cend();
+
+    for (auto const &scope : input_scopes) {
+        if (std::find(begin, end, scope) != end) {
+            keyboard_enabled = false;
+            break;
+        }
+    }
+
+    if (keyboard_enabled) {
+        KHIIN_DEBUG("input enabled");
+        service->SetLocked(false);
+    } else {
+        service->SetLocked(true);
+    }
+}
+
+void HandleCommit(TextService *service, ITfContext *context, Command *command) {
+    EditSession::ReadWriteSync(service, context, [&](TfEditCookie cookie) {
+        HandleCommitImpl(cookie, service, context, command);
+    });
+}
+
+void HandleDoComposition(TextService *service, ITfContext *context, Command *command) {
+    EditSession::ReadWriteSync(service, context, [&](TfEditCookie cookie) {
+        HandleDoCompositionImpl(cookie, service, context, command);
+    });
+}
+
+void HandleUpdateCandidates(TextService *service, ITfContext *context, Command *command) {
+    EditSession::ReadWriteSync(service, context, [&](TfEditCookie cookie) {
+        HandleUpdateCandidatesImpl(cookie, service, context, command);
+    });
+}
+
+struct CallbackEditSession : implements<CallbackEditSession, ITfEditSession> {
+    CallbackEditSession(EditSession::CallbackFn cb) : callback(cb) {}
     STDMETHODIMP DoEditSession(TfEditCookie ec) override {
-        KHIIN_TRACE("");
         TRY_FOR_HRESULT;
-        auto composition_mgr = m_service->composition_mgr();
-        auto candidate_ui = m_service->candidate_ui();
-        bool composing = composition_mgr->composing();
-        bool showing = candidate_ui->Showing();
-        auto cmd_type = command->request().type();
-        auto &response = command->response();
-
-        if (cmd_type == CMD_TEST_SEND_KEY) {
-            return S_OK;
-        }
-
-        if (response.error() == ErrorCode::FAIL) {
-            KHIIN_DEBUG("FAIL");
-            composition_mgr->CommitComposition(ec, m_context.get());
-            candidate_ui->Hide();
-        } else if (cmd_type == CMD_COMMIT) {
-            KHIIN_DEBUG("CMD_COMMIT");
-            if (response.preedit().segments().size() == 0) {
-                composition_mgr->CommitComposition(ec, m_context.get());
-            } else {
-                composition_mgr->CommitComposition(ec, m_context.get(), response.preedit());
-            }
-            if (showing) {
-                candidate_ui->Hide();
-            }
-        } else if (cmd_type == CMD_SEND_KEY || cmd_type == CMD_SELECT_CANDIDATE || cmd_type == CMD_FOCUS_CANDIDATE) {
-            KHIIN_DEBUG("CMD_SEND_KEY");
-            composition_mgr->DoComposition(ec, m_context.get(), response.preedit());
-
-            if (response.candidate_list().candidates().size() > 0) {
-                candidate_ui->Update(m_context.get(), response.edit_state(), response.candidate_list(),
-                                     GetEditRect(ec, composition_mgr.get(), m_context.get()));
-                if (!showing) {
-                    candidate_ui->Show();
-                }
-            } else {
-                candidate_ui->Hide();
-            }
-        }
-
-        return S_OK;
+        callback(ec);
         CATCH_FOR_HRESULT;
     }
-
-    winrt::com_ptr<TextService> m_service = nullptr;
-    winrt::com_ptr<ITfContext> m_context = nullptr;
-    Command *command;
+    EditSession::CallbackFn callback;
 };
 
 } // namespace
 
 void EditSession::HandleFocusChange(TextService *service, ITfContext *context) {
-    auto hr = E_FAIL;
-    auto session = make_self<HandleFocusEditSession>(service, context);
-    auto ses_hr = E_FAIL;
-    hr = context->RequestEditSession(service->clientId(), session.get(), kSyncRWFlag, &ses_hr);
-    CHECK_HRESULT(hr);
-    CHECK_HRESULT(ses_hr);
+    ReadWriteSync(service, context, [&](TfEditCookie cookie) {
+        HandleFocusChangeImpl(cookie, service, context);
+    });
 }
 
 void EditSession::HandleAction(TextService *service, ITfContext *context, Command *command) {
-    auto session = make_self<HandleActionEditSession>(service, context, command);
+    switch (command->request().type()) {
+    case CMD_COMMIT:
+        HandleCommit(service, context, command);
+        return;
+    case CMD_SEND_KEY:
+        [[fallthrough]];
+    case CMD_FOCUS_CANDIDATE:
+        [[fallthrough]];
+    case CMD_SELECT_CANDIDATE:
+        HandleDoComposition(service, context, command);
+        HandleUpdateCandidates(service, context, command);
+        return;
+    default:
+        return;
+    }
+}
+
+void EditSession::ReadWriteSync(TextService *service, ITfContext *context, EditSession::CallbackFn callback) {
+    auto ses = make_self<CallbackEditSession>(callback);
     auto ses_hr = E_FAIL;
-    auto hr = context->RequestEditSession(service->clientId(), session.get(), kSyncRWFlag, &ses_hr);
+    auto hr = context->RequestEditSession(service->clientId(), ses.get(), kSyncRWFlag, &ses_hr);
     CHECK_HRESULT(hr);
     CHECK_HRESULT(ses_hr);
 }

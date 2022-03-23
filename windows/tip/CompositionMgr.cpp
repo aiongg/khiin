@@ -200,9 +200,9 @@ struct CompositionMgrImpl : implements<CompositionMgrImpl, CompositionMgr> {
             return nullptr;
         }
 
-        auto range = winrt::com_ptr<ITfRange>();
+        auto range = com_ptr<ITfRange>();
         check_hresult(composition->GetRange(range.put()));
-        auto clone = winrt::com_ptr<ITfRange>();
+        auto clone = com_ptr<ITfRange>();
         check_hresult(range->Clone(clone.put()));
         return clone;
     }
@@ -210,15 +210,17 @@ struct CompositionMgrImpl : implements<CompositionMgrImpl, CompositionMgr> {
   private:
     void StartComposition(TfEditCookie cookie, ITfContext *pContext) {
         KHIIN_TRACE("");
-        auto context = winrt::com_ptr<ITfContext>();
+        auto context = com_ptr<ITfContext>();
         context.copy_from(pContext);
         auto insert_selection = context.as<ITfInsertAtSelection>();
-        auto insert_position = winrt::com_ptr<ITfRange>();
+        auto insert_position = com_ptr<ITfRange>();
         check_hresult(
             insert_selection->InsertTextAtSelection(cookie, TF_IAS_QUERYONLY, nullptr, 0, insert_position.put()));
         auto composition_context = context.as<ITfContextComposition>();
         check_hresult(composition_context->StartComposition(
             cookie, insert_position.get(), service->CreateCompositionSink(context.get()).get(), composition.put()));
+        //insert_position->SetText(cookie, TF_ST_CORRECTION, L" ", 1);
+        //insert_position->Collapse(cookie, TF_ANCHOR_START);
         SetSelection(cookie, pContext, insert_position.get(), TF_AE_NONE);
     }
 
