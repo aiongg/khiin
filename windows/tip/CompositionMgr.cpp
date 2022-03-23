@@ -8,7 +8,6 @@
 #include "DisplayAttributeInfoEnum.h"
 #include "EditSession.h"
 #include "TextService.h"
-#include "Utils.h"
 #include "common.h"
 
 namespace khiin::win32::tip {
@@ -17,6 +16,7 @@ using namespace winrt;
 using namespace khiin::proto;
 
 struct CompositionMgrImpl : implements<CompositionMgrImpl, CompositionMgr> {
+  private:
     void Initialize(TextService *service) override {
         KHIIN_TRACE("");
         m_service.copy_from(service);
@@ -42,7 +42,7 @@ struct CompositionMgrImpl : implements<CompositionMgrImpl, CompositionMgr> {
     void DoComposition(TfEditCookie cookie, ITfContext *context, Preedit preedit) override {
         KHIIN_TRACE("");
 
-        auto w_preedit = Utils::WidenPreedit(preedit);
+        m_preedit = CompositionUtil::WidenPreedit(preedit);
 
         if (m_composition) {
             // clear existing composition
@@ -64,14 +64,14 @@ struct CompositionMgrImpl : implements<CompositionMgrImpl, CompositionMgr> {
         auto comp_range = com_ptr<ITfRange>();
         check_hresult(m_composition->GetRange(comp_range.put()));
         check_hresult(
-            comp_range->SetText(cookie, TF_ST_CORRECTION, w_preedit.preedit_display.c_str(), w_preedit.display_size));
+            comp_range->SetText(cookie, TF_ST_CORRECTION, m_preedit.preedit_display.c_str(), m_preedit.display_size));
 
         // here we do each segment's attributes, but for now just one
         auto display_attribute = com_ptr<ITfProperty>();
         check_hresult(context->GetProperty(GUID_PROP_ATTRIBUTE, display_attribute.put()));
-        auto n_segments = w_preedit.segment_start_and_size.size();
+        auto n_segments = m_preedit.segment_start_and_size.size();
         for (size_t i = 0; i < n_segments; ++i) {
-            auto &status = w_preedit.segment_status[i];
+            auto &status = m_preedit.segment_status[i];
             TfGuidAtom attribute_atom = TF_INVALID_GUIDATOM;
 
             if (status == SS_COMPOSING) {
@@ -84,7 +84,7 @@ struct CompositionMgrImpl : implements<CompositionMgrImpl, CompositionMgr> {
                 continue;
             }
 
-            auto &[segment_start, size] = w_preedit.segment_start_and_size[i];
+            auto &[segment_start, size] = m_preedit.segment_start_and_size[i];
             auto segment_end = segment_start + size;
             auto segment_range = com_ptr<ITfRange>();
             check_hresult(comp_range->Clone(segment_range.put()));
@@ -99,10 +99,10 @@ struct CompositionMgrImpl : implements<CompositionMgrImpl, CompositionMgr> {
             check_hresult(display_attribute->SetValue(cookie, segment_range.get(), &var));
         }
 
-        // update cursor
+        // update caret
         auto cursor_range = com_ptr<ITfRange>();
         check_hresult(comp_range->Clone(cursor_range.put()));
-        auto cursor_pos = w_preedit.cursor;
+        auto cursor_pos = m_preedit.caret;
         check_hresult(cursor_range->Collapse(cookie, TF_ANCHOR_START));
         LONG shifted = 0;
         check_hresult(cursor_range->ShiftEnd(cookie, cursor_pos, &shifted, nullptr));
@@ -132,8 +132,7 @@ struct CompositionMgrImpl : implements<CompositionMgrImpl, CompositionMgr> {
         check_hresult(next_range->Collapse(cookie, TF_ANCHOR_START));
         check_hresult(m_composition->ShiftStart(cookie, next_range.get()));
         SetSelection(cookie, context, next_range.get(), TF_AE_END);
-        m_composition->EndComposition(cookie);
-        m_composition = nullptr;
+        Cleanup(cookie);
     }
 
     void CommitComposition(TfEditCookie cookie, ITfContext *context, Preedit preedit) override try {
@@ -146,7 +145,7 @@ struct CompositionMgrImpl : implements<CompositionMgrImpl, CompositionMgr> {
             return;
         }
 
-        auto w_preedit = Utils::WidenPreedit(preedit);
+        auto w_preedit = CompositionUtil::WidenPreedit(preedit);
         auto comp_range = com_ptr<ITfRange>();
         check_hresult(m_composition->GetRange(comp_range.put()));
         // Clone the range and move to the end
@@ -161,8 +160,7 @@ struct CompositionMgrImpl : implements<CompositionMgrImpl, CompositionMgr> {
         check_hresult(m_composition->ShiftStart(cookie, end_range.get()));
 
         SetSelection(cookie, context, end_range.get(), TF_AE_END);
-        m_composition->EndComposition(cookie);
-        m_composition = nullptr;
+        Cleanup(cookie);
     } catch (...) {
         // Composition was ended
         return;
@@ -170,8 +168,13 @@ struct CompositionMgrImpl : implements<CompositionMgrImpl, CompositionMgr> {
 
     void CancelComposition(TfEditCookie cookie) override {
         KHIIN_TRACE("");
+        Cleanup(cookie);
+    }
+
+    void Cleanup(TfEditCookie cookie) {
         if (m_composition) {
             m_composition->EndComposition(cookie);
+            m_preedit = WidePreedit();
             m_composition = nullptr;
         }
     }
@@ -189,7 +192,6 @@ struct CompositionMgrImpl : implements<CompositionMgrImpl, CompositionMgr> {
         return clone;
     }
 
-  private:
     void StartComposition(TfEditCookie cookie, ITfContext *context) {
         KHIIN_TRACE("");
         auto ctx = com_ptr<ITfContext>();
@@ -219,6 +221,7 @@ struct CompositionMgrImpl : implements<CompositionMgrImpl, CompositionMgr> {
 
     com_ptr<TextService> m_service = nullptr;
     com_ptr<ITfComposition> m_composition = nullptr;
+    WidePreedit m_preedit;
 };
 
 } // namespace

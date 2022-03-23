@@ -58,7 +58,7 @@ void HandleUpdateCandidatesImpl(TfEditCookie ec, TextService *service, ITfContex
     auto comp = service->composition_mgr();
 
     if (res.has_candidate_list() && res.candidate_list().candidates_size() > 0) {
-        auto rect = CompositionUtil::TextPosition(ec, context);
+        auto rect = CompositionUtil::TextPosition(ec, context, res.preedit().focused_caret());
         ui->Update(context, res.edit_state(), res.candidate_list(), rect);
         ui->Show();
     } else {

@@ -91,7 +91,7 @@ std::string BufferMgrTestBase::display() {
 size_t BufferMgrTestBase::caret() {
     auto preedit = new Preedit();
     bufmgr->BuildPreedit(preedit);
-    return preedit->cursor_position();
+    return preedit->caret();
 }
 
 std::vector<std::string> BufferMgrTestBase::get_cand_strings() {

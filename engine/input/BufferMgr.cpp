@@ -77,7 +77,8 @@ class BufferMgrImpl : public BufferMgr {
             }
         }
 
-        preedit->set_cursor_position(static_cast<int32_t>(m_caret));
+        preedit->set_caret(static_cast<int32_t>(m_caret));
+        preedit->set_focused_caret(FocusedCaret());
     }
 
     void GetCandidates(proto::CandidateList *candidate_list) override {
@@ -682,6 +683,22 @@ class BufferMgrImpl : public BufferMgr {
         }
 
         return nullptr;
+    }
+
+    int FocusedCaret() {
+        if (m_focused_element == 0) {
+            return 0;
+        }
+
+        auto begin = m_composition.CBegin();
+        auto end = m_composition.CBegin() + static_cast<int>(m_focused_element) - 1;
+
+        while (end != begin && end->IsVirtualSpace()) {
+            --end;
+        }
+
+        auto last_elem_size = end->size();
+        return static_cast<int>(Buffer::TextSize(begin, end) + last_elem_size);
     }
 
     InputMode input_mode() {

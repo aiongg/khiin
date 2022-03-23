@@ -68,7 +68,8 @@ PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT Preedit_SegmentDefaultTypeInter
 constexpr Preedit::Preedit(
   ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
   : segments_()
-  , cursor_position_(0){}
+  , caret_(0)
+  , focused_caret_(0){}
 struct PreeditDefaultTypeInternal {
   constexpr PreeditDefaultTypeInternal()
     : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
@@ -181,7 +182,8 @@ const ::PROTOBUF_NAMESPACE_ID::uint32 TableStruct_proto_2fcommand_2eproto::offse
   ~0u,  // no _weak_field_map_
   ~0u,  // no _inlined_string_donated_
   PROTOBUF_FIELD_OFFSET(::khiin::proto::Preedit, segments_),
-  PROTOBUF_FIELD_OFFSET(::khiin::proto::Preedit, cursor_position_),
+  PROTOBUF_FIELD_OFFSET(::khiin::proto::Preedit, caret_),
+  PROTOBUF_FIELD_OFFSET(::khiin::proto::Preedit, focused_caret_),
   ~0u,  // no _has_bits_
   PROTOBUF_FIELD_OFFSET(::khiin::proto::Candidate, _internal_metadata_),
   ~0u,  // no _extensions_
@@ -226,10 +228,10 @@ static const ::PROTOBUF_NAMESPACE_ID::internal::MigrationSchema schemas[] PROTOB
   { 9, -1, -1, sizeof(::khiin::proto::Request)},
   { 20, -1, -1, sizeof(::khiin::proto::Preedit_Segment)},
   { 28, -1, -1, sizeof(::khiin::proto::Preedit)},
-  { 36, -1, -1, sizeof(::khiin::proto::Candidate)},
-  { 47, -1, -1, sizeof(::khiin::proto::CandidateList)},
-  { 55, -1, -1, sizeof(::khiin::proto::Response)},
-  { 66, -1, -1, sizeof(::khiin::proto::Command)},
+  { 37, -1, -1, sizeof(::khiin::proto::Candidate)},
+  { 48, -1, -1, sizeof(::khiin::proto::CandidateList)},
+  { 56, -1, -1, sizeof(::khiin::proto::Response)},
+  { 67, -1, -1, sizeof(::khiin::proto::Command)},
 };
 
 static ::PROTOBUF_NAMESPACE_ID::Message const * const file_default_instances[] = {
@@ -253,52 +255,52 @@ const char descriptor_table_protodef_proto_2fcommand_2eproto[] PROTOBUF_SECTION_
   "vent\030\002 \001(\0132\025.khiin.proto.KeyEvent\022\024\n\014can"
   "didate_id\030\003 \001(\005\022\027\n\017cursor_position\030\004 \001(\005"
   "\022&\n\006config\030\005 \001(\0132\026.khiin.proto.AppConfig"
-  "\"\230\001\n\007Preedit\022.\n\010segments\030\001 \003(\0132\034.khiin.p"
-  "roto.Preedit.Segment\022\027\n\017cursor_position\030"
-  "\002 \001(\005\032D\n\007Segment\022*\n\006status\030\001 \001(\0162\032.khiin"
-  ".proto.SegmentStatus\022\r\n\005value\030\002 \001(\t\"\274\001\n\t"
-  "Candidate\022\n\n\002id\030\001 \001(\005\022\r\n\005value\030\002 \001(\t\022\013\n\003"
-  "key\030\003 \001(\t\022\022\n\nannotation\030\004 \001(\t\0221\n\010categor"
-  "y\030\005 \001(\0162\037.khiin.proto.Candidate.Category"
-  "\"@\n\010Category\022\016\n\nCCAT_BASIC\020\000\022\021\n\rCCAT_EXT"
-  "ENDED\020\001\022\021\n\rCCAT_FALLBACK\020\002\"L\n\rCandidateL"
-  "ist\022*\n\ncandidates\030\001 \003(\0132\026.khiin.proto.Ca"
-  "ndidate\022\017\n\007focused\030\002 \001(\005\"\314\001\n\010Response\022%\n"
-  "\005error\030\001 \001(\0162\026.khiin.proto.ErrorCode\022%\n\007"
-  "preedit\030\002 \001(\0132\024.khiin.proto.Preedit\0222\n\016c"
-  "andidate_list\030\003 \001(\0132\032.khiin.proto.Candid"
-  "ateList\022*\n\nedit_state\030\004 \001(\0162\026.khiin.prot"
-  "o.EditState\022\022\n\nconsumable\030\005 \001(\010\"Y\n\007Comma"
-  "nd\022%\n\007request\030\001 \001(\0132\024.khiin.proto.Reques"
-  "t\022\'\n\010response\030\002 \001(\0132\025.khiin.proto.Respon"
-  "se*\321\001\n\nSpecialKey\022\013\n\007SK_NONE\020\000\022\014\n\010SK_SPA"
-  "CE\020\001\022\014\n\010SK_ENTER\020\002\022\n\n\006SK_ESC\020\003\022\020\n\014SK_BAC"
-  "KSPACE\020\004\022\n\n\006SK_TAB\020\005\022\013\n\007SK_LEFT\020\006\022\t\n\005SK_"
-  "UP\020\007\022\014\n\010SK_RIGHT\020\010\022\013\n\007SK_DOWN\020\t\022\013\n\007SK_PG"
-  "UP\020\n\022\013\n\007SK_PGDN\020\013\022\013\n\007SK_HOME\020\014\022\n\n\006SK_END"
-  "\020\r\022\n\n\006SK_DEL\020\016*I\n\013ModifierKey\022\r\n\tMODK_NO"
-  "NE\020\000\022\r\n\tMODK_CTRL\020\001\022\014\n\010MODK_ALT\020\002\022\016\n\nMOD"
-  "K_SHIFT\020\003*\301\002\n\013CommandType\022\023\n\017CMD_UNSPECI"
-  "FIED\020\000\022\020\n\014CMD_SEND_KEY\020\001\022\016\n\nCMD_REVERT\020\002"
-  "\022\r\n\tCMD_RESET\020\003\022\016\n\nCMD_COMMIT\020\004\022\030\n\024CMD_S"
-  "ELECT_CANDIDATE\020\005\022\027\n\023CMD_FOCUS_CANDIDATE"
-  "\020\006\022\031\n\025CMD_SWITCH_INPUT_MODE\020\007\022\024\n\020CMD_PLA"
-  "CE_CURSOR\020\010\022\017\n\013CMD_DISABLE\020\t\022\016\n\nCMD_ENAB"
-  "LE\020\n\022\022\n\016CMD_SET_CONFIG\020\013\022\025\n\021CMD_TEST_SEN"
-  "D_KEY\020\014\022\023\n\017CMD_LIST_EMOJIS\020\r\022\027\n\023CMD_RESE"
-  "T_USER_DATA\020\016*T\n\rSegmentStatus\022\017\n\013SS_UNM"
-  "ARKED\020\000\022\020\n\014SS_COMPOSING\020\001\022\020\n\014SS_CONVERTE"
-  "D\020\002\022\016\n\nSS_FOCUSED\020\003*\035\n\tErrorCode\022\006\n\002OK\020\000"
-  "\022\010\n\004FAIL\020\001*O\n\tEditState\022\014\n\010ES_EMPTY\020\000\022\020\n"
-  "\014ES_COMPOSING\020\001\022\020\n\014ES_CONVERTED\020\002\022\020\n\014ES_"
-  "SELECTING\020\003b\006proto3"
+  "\"\245\001\n\007Preedit\022.\n\010segments\030\001 \003(\0132\034.khiin.p"
+  "roto.Preedit.Segment\022\r\n\005caret\030\002 \001(\005\022\025\n\rf"
+  "ocused_caret\030\003 \001(\005\032D\n\007Segment\022*\n\006status\030"
+  "\001 \001(\0162\032.khiin.proto.SegmentStatus\022\r\n\005val"
+  "ue\030\002 \001(\t\"\274\001\n\tCandidate\022\n\n\002id\030\001 \001(\005\022\r\n\005va"
+  "lue\030\002 \001(\t\022\013\n\003key\030\003 \001(\t\022\022\n\nannotation\030\004 \001"
+  "(\t\0221\n\010category\030\005 \001(\0162\037.khiin.proto.Candi"
+  "date.Category\"@\n\010Category\022\016\n\nCCAT_BASIC\020"
+  "\000\022\021\n\rCCAT_EXTENDED\020\001\022\021\n\rCCAT_FALLBACK\020\002\""
+  "L\n\rCandidateList\022*\n\ncandidates\030\001 \003(\0132\026.k"
+  "hiin.proto.Candidate\022\017\n\007focused\030\002 \001(\005\"\314\001"
+  "\n\010Response\022%\n\005error\030\001 \001(\0162\026.khiin.proto."
+  "ErrorCode\022%\n\007preedit\030\002 \001(\0132\024.khiin.proto"
+  ".Preedit\0222\n\016candidate_list\030\003 \001(\0132\032.khiin"
+  ".proto.CandidateList\022*\n\nedit_state\030\004 \001(\016"
+  "2\026.khiin.proto.EditState\022\022\n\nconsumable\030\005"
+  " \001(\010\"Y\n\007Command\022%\n\007request\030\001 \001(\0132\024.khiin"
+  ".proto.Request\022\'\n\010response\030\002 \001(\0132\025.khiin"
+  ".proto.Response*\321\001\n\nSpecialKey\022\013\n\007SK_NON"
+  "E\020\000\022\014\n\010SK_SPACE\020\001\022\014\n\010SK_ENTER\020\002\022\n\n\006SK_ES"
+  "C\020\003\022\020\n\014SK_BACKSPACE\020\004\022\n\n\006SK_TAB\020\005\022\013\n\007SK_"
+  "LEFT\020\006\022\t\n\005SK_UP\020\007\022\014\n\010SK_RIGHT\020\010\022\013\n\007SK_DO"
+  "WN\020\t\022\013\n\007SK_PGUP\020\n\022\013\n\007SK_PGDN\020\013\022\013\n\007SK_HOM"
+  "E\020\014\022\n\n\006SK_END\020\r\022\n\n\006SK_DEL\020\016*I\n\013ModifierK"
+  "ey\022\r\n\tMODK_NONE\020\000\022\r\n\tMODK_CTRL\020\001\022\014\n\010MODK"
+  "_ALT\020\002\022\016\n\nMODK_SHIFT\020\003*\301\002\n\013CommandType\022\023"
+  "\n\017CMD_UNSPECIFIED\020\000\022\020\n\014CMD_SEND_KEY\020\001\022\016\n"
+  "\nCMD_REVERT\020\002\022\r\n\tCMD_RESET\020\003\022\016\n\nCMD_COMM"
+  "IT\020\004\022\030\n\024CMD_SELECT_CANDIDATE\020\005\022\027\n\023CMD_FO"
+  "CUS_CANDIDATE\020\006\022\031\n\025CMD_SWITCH_INPUT_MODE"
+  "\020\007\022\024\n\020CMD_PLACE_CURSOR\020\010\022\017\n\013CMD_DISABLE\020"
+  "\t\022\016\n\nCMD_ENABLE\020\n\022\022\n\016CMD_SET_CONFIG\020\013\022\025\n"
+  "\021CMD_TEST_SEND_KEY\020\014\022\023\n\017CMD_LIST_EMOJIS\020"
+  "\r\022\027\n\023CMD_RESET_USER_DATA\020\016*T\n\rSegmentSta"
+  "tus\022\017\n\013SS_UNMARKED\020\000\022\020\n\014SS_COMPOSING\020\001\022\020"
+  "\n\014SS_CONVERTED\020\002\022\016\n\nSS_FOCUSED\020\003*\035\n\tErro"
+  "rCode\022\006\n\002OK\020\000\022\010\n\004FAIL\020\001*O\n\tEditState\022\014\n\010"
+  "ES_EMPTY\020\000\022\020\n\014ES_COMPOSING\020\001\022\020\n\014ES_CONVE"
+  "RTED\020\002\022\020\n\014ES_SELECTING\020\003b\006proto3"
   ;
 static const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable*const descriptor_table_proto_2fcommand_2eproto_deps[1] = {
   &::descriptor_table_proto_2fconfig_2eproto,
 };
 static ::PROTOBUF_NAMESPACE_ID::internal::once_flag descriptor_table_proto_2fcommand_2eproto_once;
 const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable descriptor_table_proto_2fcommand_2eproto = {
-  false, false, 1899, descriptor_table_protodef_proto_2fcommand_2eproto, "proto/command.proto", 
+  false, false, 1912, descriptor_table_protodef_proto_2fcommand_2eproto, "proto/command.proto", 
   &descriptor_table_proto_2fcommand_2eproto_once, descriptor_table_proto_2fcommand_2eproto_deps, 1, 8,
   schemas, file_default_instances, TableStruct_proto_2fcommand_2eproto::offsets,
   file_level_metadata_proto_2fcommand_2eproto, file_level_enum_descriptors_proto_2fcommand_2eproto, file_level_service_descriptors_proto_2fcommand_2eproto,
@@ -1281,12 +1283,17 @@ Preedit::Preedit(const Preedit& from)
   : ::PROTOBUF_NAMESPACE_ID::Message(),
       segments_(from.segments_) {
   _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
-  cursor_position_ = from.cursor_position_;
+  ::memcpy(&caret_, &from.caret_,
+    static_cast<size_t>(reinterpret_cast<char*>(&focused_caret_) -
+    reinterpret_cast<char*>(&caret_)) + sizeof(focused_caret_));
   // @@protoc_insertion_point(copy_constructor:khiin.proto.Preedit)
 }
 
 void Preedit::SharedCtor() {
-cursor_position_ = 0;
+::memset(reinterpret_cast<char*>(this) + static_cast<size_t>(
+    reinterpret_cast<char*>(&caret_) - reinterpret_cast<char*>(this)),
+    0, static_cast<size_t>(reinterpret_cast<char*>(&focused_caret_) -
+    reinterpret_cast<char*>(&caret_)) + sizeof(focused_caret_));
 }
 
 Preedit::~Preedit() {
@@ -1317,7 +1324,9 @@ void Preedit::Clear() {
   (void) cached_has_bits;
 
   segments_.Clear();
-  cursor_position_ = 0;
+  ::memset(&caret_, 0, static_cast<size_t>(
+      reinterpret_cast<char*>(&focused_caret_) -
+      reinterpret_cast<char*>(&caret_)) + sizeof(focused_caret_));
   _internal_metadata_.Clear<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
 
@@ -1340,10 +1349,18 @@ const char* Preedit::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::in
         } else
           goto handle_unusual;
         continue;
-      // int32 cursor_position = 2;
+      // int32 caret = 2;
       case 2:
         if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 16)) {
-          cursor_position_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
+          caret_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
+          CHK_(ptr);
+        } else
+          goto handle_unusual;
+        continue;
+      // int32 focused_caret = 3;
+      case 3:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 24)) {
+          focused_caret_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
           CHK_(ptr);
         } else
           goto handle_unusual;
@@ -1385,10 +1402,16 @@ failure:
       InternalWriteMessage(1, this->_internal_segments(i), target, stream);
   }
 
-  // int32 cursor_position = 2;
-  if (this->_internal_cursor_position() != 0) {
+  // int32 caret = 2;
+  if (this->_internal_caret() != 0) {
     target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteInt32ToArray(2, this->_internal_cursor_position(), target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteInt32ToArray(2, this->_internal_caret(), target);
+  }
+
+  // int32 focused_caret = 3;
+  if (this->_internal_focused_caret() != 0) {
+    target = stream->EnsureSpace(target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteInt32ToArray(3, this->_internal_focused_caret(), target);
   }
 
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
@@ -1414,9 +1437,14 @@ size_t Preedit::ByteSizeLong() const {
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(msg);
   }
 
-  // int32 cursor_position = 2;
-  if (this->_internal_cursor_position() != 0) {
-    total_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32SizePlusOne(this->_internal_cursor_position());
+  // int32 caret = 2;
+  if (this->_internal_caret() != 0) {
+    total_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32SizePlusOne(this->_internal_caret());
+  }
+
+  // int32 focused_caret = 3;
+  if (this->_internal_focused_caret() != 0) {
+    total_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32SizePlusOne(this->_internal_focused_caret());
   }
 
   return MaybeComputeUnknownFieldsSize(total_size, &_cached_size_);
@@ -1442,8 +1470,11 @@ void Preedit::MergeFrom(const Preedit& from) {
   (void) cached_has_bits;
 
   segments_.MergeFrom(from.segments_);
-  if (from._internal_cursor_position() != 0) {
-    _internal_set_cursor_position(from._internal_cursor_position());
+  if (from._internal_caret() != 0) {
+    _internal_set_caret(from._internal_caret());
+  }
+  if (from._internal_focused_caret() != 0) {
+    _internal_set_focused_caret(from._internal_focused_caret());
   }
   _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
 }
@@ -1463,7 +1494,12 @@ void Preedit::InternalSwap(Preedit* other) {
   using std::swap;
   _internal_metadata_.InternalSwap(&other->_internal_metadata_);
   segments_.InternalSwap(&other->segments_);
-  swap(cursor_position_, other->cursor_position_);
+  ::PROTOBUF_NAMESPACE_ID::internal::memswap<
+      PROTOBUF_FIELD_OFFSET(Preedit, focused_caret_)
+      + sizeof(Preedit::focused_caret_)
+      - PROTOBUF_FIELD_OFFSET(Preedit, caret_)>(
+          reinterpret_cast<char*>(&caret_),
+          reinterpret_cast<char*>(&other->caret_));
 }
 
 ::PROTOBUF_NAMESPACE_ID::Metadata Preedit::GetMetadata() const {

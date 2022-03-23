@@ -966,7 +966,8 @@ class Preedit final :
 
   enum : int {
     kSegmentsFieldNumber = 1,
-    kCursorPositionFieldNumber = 2,
+    kCaretFieldNumber = 2,
+    kFocusedCaretFieldNumber = 3,
   };
   // repeated .khiin.proto.Preedit.Segment segments = 1;
   int segments_size() const;
@@ -986,13 +987,22 @@ class Preedit final :
   const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::khiin::proto::Preedit_Segment >&
       segments() const;
 
-  // int32 cursor_position = 2;
-  void clear_cursor_position();
-  ::PROTOBUF_NAMESPACE_ID::int32 cursor_position() const;
-  void set_cursor_position(::PROTOBUF_NAMESPACE_ID::int32 value);
+  // int32 caret = 2;
+  void clear_caret();
+  ::PROTOBUF_NAMESPACE_ID::int32 caret() const;
+  void set_caret(::PROTOBUF_NAMESPACE_ID::int32 value);
   private:
-  ::PROTOBUF_NAMESPACE_ID::int32 _internal_cursor_position() const;
-  void _internal_set_cursor_position(::PROTOBUF_NAMESPACE_ID::int32 value);
+  ::PROTOBUF_NAMESPACE_ID::int32 _internal_caret() const;
+  void _internal_set_caret(::PROTOBUF_NAMESPACE_ID::int32 value);
+  public:
+
+  // int32 focused_caret = 3;
+  void clear_focused_caret();
+  ::PROTOBUF_NAMESPACE_ID::int32 focused_caret() const;
+  void set_focused_caret(::PROTOBUF_NAMESPACE_ID::int32 value);
+  private:
+  ::PROTOBUF_NAMESPACE_ID::int32 _internal_focused_caret() const;
+  void _internal_set_focused_caret(::PROTOBUF_NAMESPACE_ID::int32 value);
   public:
 
   // @@protoc_insertion_point(class_scope:khiin.proto.Preedit)
@@ -1003,7 +1013,8 @@ class Preedit final :
   typedef void InternalArenaConstructable_;
   typedef void DestructorSkippable_;
   ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::khiin::proto::Preedit_Segment > segments_;
-  ::PROTOBUF_NAMESPACE_ID::int32 cursor_position_;
+  ::PROTOBUF_NAMESPACE_ID::int32 caret_;
+  ::PROTOBUF_NAMESPACE_ID::int32 focused_caret_;
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   friend struct ::TableStruct_proto_2fcommand_2eproto;
 };
@@ -2229,24 +2240,44 @@ Preedit::segments() const {
   return segments_;
 }
 
-// int32 cursor_position = 2;
-inline void Preedit::clear_cursor_position() {
-  cursor_position_ = 0;
+// int32 caret = 2;
+inline void Preedit::clear_caret() {
+  caret_ = 0;
 }
-inline ::PROTOBUF_NAMESPACE_ID::int32 Preedit::_internal_cursor_position() const {
-  return cursor_position_;
+inline ::PROTOBUF_NAMESPACE_ID::int32 Preedit::_internal_caret() const {
+  return caret_;
 }
-inline ::PROTOBUF_NAMESPACE_ID::int32 Preedit::cursor_position() const {
-  // @@protoc_insertion_point(field_get:khiin.proto.Preedit.cursor_position)
-  return _internal_cursor_position();
+inline ::PROTOBUF_NAMESPACE_ID::int32 Preedit::caret() const {
+  // @@protoc_insertion_point(field_get:khiin.proto.Preedit.caret)
+  return _internal_caret();
 }
-inline void Preedit::_internal_set_cursor_position(::PROTOBUF_NAMESPACE_ID::int32 value) {
+inline void Preedit::_internal_set_caret(::PROTOBUF_NAMESPACE_ID::int32 value) {
   
-  cursor_position_ = value;
+  caret_ = value;
 }
-inline void Preedit::set_cursor_position(::PROTOBUF_NAMESPACE_ID::int32 value) {
-  _internal_set_cursor_position(value);
-  // @@protoc_insertion_point(field_set:khiin.proto.Preedit.cursor_position)
+inline void Preedit::set_caret(::PROTOBUF_NAMESPACE_ID::int32 value) {
+  _internal_set_caret(value);
+  // @@protoc_insertion_point(field_set:khiin.proto.Preedit.caret)
+}
+
+// int32 focused_caret = 3;
+inline void Preedit::clear_focused_caret() {
+  focused_caret_ = 0;
+}
+inline ::PROTOBUF_NAMESPACE_ID::int32 Preedit::_internal_focused_caret() const {
+  return focused_caret_;
+}
+inline ::PROTOBUF_NAMESPACE_ID::int32 Preedit::focused_caret() const {
+  // @@protoc_insertion_point(field_get:khiin.proto.Preedit.focused_caret)
+  return _internal_focused_caret();
+}
+inline void Preedit::_internal_set_focused_caret(::PROTOBUF_NAMESPACE_ID::int32 value) {
+  
+  focused_caret_ = value;
+}
+inline void Preedit::set_focused_caret(::PROTOBUF_NAMESPACE_ID::int32 value) {
+  _internal_set_focused_caret(value);
+  // @@protoc_insertion_point(field_set:khiin.proto.Preedit.focused_caret)
 }
 
 // -------------------------------------------------------------------

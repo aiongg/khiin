@@ -2,13 +2,17 @@
 
 #include "CompositionUtil.h"
 
+#include "proto/proto.h"
+
 #include "CompositionMgr.h"
 #include "Guids.h"
+#include "Utils.h"
 
 namespace khiin::win32::tip {
 
 namespace {
 using namespace winrt;
+using namespace khiin::proto;
 
 RECT ParentWindowTopLeft(ITfContextView *view) {
     RECT rect = {};
@@ -109,20 +113,23 @@ std::vector<InputScope> CompositionUtil::InputScopes(TfEditCookie cookie, ITfCon
 /**
  * Getting the position of composition text on screen with |ITfContextView::GetTextExt|
  * seems rather unreliable in some applications, so we include some fallbacks.
- * 
+ *
  * 1. Try to obtain the ITfRange from the ITfCompositionView directly
  * 2. Try to obtain the ITfRange from the default selection
- * 
+ *
  * In case both 1 and 2 fail, we fall back to the upper left corner of the parent
  * window, which not ideal but better than falling back to the upper left corner
  * of the entire screen.
  */
-RECT CompositionUtil::TextPosition(TfEditCookie ec, ITfContext *context) {
+RECT CompositionUtil::TextPosition(TfEditCookie ec, ITfContext *context, int caret) {
     auto context_view = com_ptr<ITfContextView>();
     check_hresult(context->GetActiveView(context_view.put()));
 
     auto range = CompositionRange(ec, context);
+    LONG shifted = 0;
     check_hresult(range->Collapse(ec, TF_ANCHOR_START));
+    check_hresult(range->ShiftEnd(ec, caret, &shifted, nullptr));
+    check_hresult(range->ShiftStart(ec, caret, &shifted, nullptr));
 
     RECT rect = {};
     BOOL clipped = FALSE;
@@ -158,6 +165,26 @@ std::wstring CompositionUtil::TextFromRange(TfEditCookie cookie, ITfRange *range
     ULONG fetched = 0;
     check_hresult(copy->GetText(cookie, TF_TF_MOVESTART, buffer.get(), buf_size, &fetched));
     ret.append(buffer.get(), fetched);
+    return ret;
+}
+
+WidePreedit const CompositionUtil::WidenPreedit(const Preedit &preedit) {
+    auto ret = WidePreedit{};
+    auto &segments = preedit.segments();
+    auto start_idx = 0;
+
+    for (auto &segment : segments) {
+        auto w = Utils::Widen(segment.value());
+        auto wsize = static_cast<int>(w.size());
+        KHIIN_INFO(L"Segment: {}, Start: {}, Size: {}", w, start_idx, wsize);
+        ret.preedit_display += w;
+        ret.segment_start_and_size.push_back(std::make_pair(start_idx, wsize));
+        ret.segment_status.push_back(segment.status());
+        start_idx += static_cast<int>(w.size());
+    }
+
+    ret.caret = preedit.caret();
+    ret.display_size = static_cast<int>(ret.preedit_display.size());
     return ret;
 }
 

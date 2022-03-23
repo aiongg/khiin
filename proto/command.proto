@@ -95,7 +95,14 @@ message Preedit {
     }
 
     repeated Segment segments = 1;
-    int32 cursor_position = 2;
+
+    // Position of the cursor in unicode code points
+    int32 caret = 2;
+
+    // Postion in unicode codepoints of the beginning of
+    // the focused segment, usually where the candidate
+    // window should align text
+    int32 focused_caret = 3;
 }
 
 // All candidates for the current |Composition|
