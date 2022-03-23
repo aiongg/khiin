@@ -28,13 +28,8 @@ RECT ParentWindowTopLeft(ITfContextView *view) {
     return rect;
 }
 
-HRESULT TextExtFromRange(TfEditCookie cookie, ITfContextView *view, ITfRange *range, RECT &rc) {
-    range->Collapse(cookie, TF_ANCHOR_START);
-    RECT rect{};
-    BOOL clipped = FALSE;
-    auto hr = view->GetTextExt(cookie, range, &rect, &clipped);
-    rc = rect;
-    return hr;
+bool EmptyRect(RECT rect) {
+    return rect.left == 0 && rect.top == 0 && rect.right == 0 && rect.bottom == 0;
 }
 
 } // namespace
@@ -67,15 +62,24 @@ com_ptr<ITfCompositionView> CompositionUtil::CompositionView(TfEditCookie cookie
     }
 }
 
+com_ptr<ITfRange> CompositionUtil::CompositionRange(TfEditCookie cookie, ITfContext *context) {
+    auto range = com_ptr<ITfRange>();
+    auto composition_view = CompositionView(cookie, context);
+    check_hresult(composition_view->GetRange(range.put()));
+    auto clone = com_ptr<ITfRange>();
+    check_hresult(range->Clone(clone.put()));
+    return clone;
+}
+
 com_ptr<ITfRange> CompositionUtil::DefaultSelectionRange(TfEditCookie cookie, ITfContext *context) {
     TF_SELECTION selection = {};
     ULONG fetched = 0;
     check_hresult(context->GetSelection(cookie, TF_DEFAULT_SELECTION, 1, &selection, &fetched));
 
-    auto range = com_ptr<ITfRange>();
-    check_hresult(selection.range->Clone(range.put()));
+    auto clone = com_ptr<ITfRange>();
+    check_hresult(selection.range->Clone(clone.put()));
     selection.range->Release();
-    return range;
+    return clone;
 }
 
 std::vector<InputScope> CompositionUtil::InputScopes(TfEditCookie cookie, ITfContext *context) {
@@ -102,23 +106,43 @@ std::vector<InputScope> CompositionUtil::InputScopes(TfEditCookie cookie, ITfCon
     return ret;
 }
 
+/**
+ * Getting the position of composition text on screen with |ITfContextView::GetTextExt|
+ * seems rather unreliable in some applications, so we include some fallbacks.
+ * 
+ * 1. Try to obtain the ITfRange from the ITfCompositionView directly
+ * 2. Try to obtain the ITfRange from the default selection
+ * 
+ * In case both 1 and 2 fail, we fall back to the upper left corner of the parent
+ * window, which not ideal but better than falling back to the upper left corner
+ * of the entire screen.
+ */
 RECT CompositionUtil::TextPosition(TfEditCookie ec, ITfContext *context) {
-    RECT rect = {};
-    HRESULT hr = E_FAIL;
-    auto range = com_ptr<ITfRange>();
-    auto composition_view = CompositionView(ec, context);
-    composition_view->GetRange(range.put());
-
     auto context_view = com_ptr<ITfContextView>();
-    context->GetActiveView(context_view.put());
-    hr = TextExtFromRange(ec, context_view.get(), range.get(), rect);
-    KHIIN_DEBUG("From composition range {} {} {} {}", rect.left, rect.top, rect.right, rect.bottom);
-    CHECK_HRESULT(hr);
-    if (hr == S_OK) {
+    check_hresult(context->GetActiveView(context_view.put()));
+
+    auto range = CompositionRange(ec, context);
+    check_hresult(range->Collapse(ec, TF_ANCHOR_START));
+
+    RECT rect = {};
+    BOOL clipped = FALSE;
+    if (context_view->GetTextExt(ec, range.get(), &rect, &clipped) == S_OK && !EmptyRect(rect)) {
+        KHIIN_DEBUG("From composition range {} {}", rect.left, rect.top);
         return rect;
     }
 
-    return ParentWindowTopLeft(context_view.get());
+    range = nullptr;
+    range = DefaultSelectionRange(ec, context);
+    check_hresult(range->Collapse(ec, TF_ANCHOR_START));
+
+    if (context_view->GetTextExt(ec, range.get(), &rect, &clipped) == S_OK && !EmptyRect(rect)) {
+        KHIIN_DEBUG("From default selection {} {}", rect.left, rect.top);
+        return rect;
+    }
+
+    rect = ParentWindowTopLeft(context_view.get());
+    KHIIN_DEBUG("From parent window: {} {}", rect.left, rect.top);
+    return rect;
 }
 
 } // namespace khiin::win32::tip

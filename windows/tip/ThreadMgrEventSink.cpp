@@ -39,8 +39,8 @@ struct ThreadMgrEventSinkImpl : implements<ThreadMgrEventSinkImpl, ITfThreadMgrE
 
         if (docmgr) {
             auto context = com_ptr<ITfContext>();
-            check_hresult(docmgr->GetTop(context.put()));
-            m_service->OnContextChange(context.get());
+            check_hresult(docmgr->GetBase(context.put()));
+            m_service->UpdateContext(context.get());
         }
 
         return S_OK;

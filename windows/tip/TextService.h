@@ -31,7 +31,7 @@ struct TextService : winrt::implements<TextService, IUnknown> {
     virtual winrt::com_ptr<ITfThreadMgr> thread_mgr() = 0;
     virtual winrt::com_ptr<ITfKeystrokeMgr> keystroke_mgr() = 0;
     virtual winrt::com_ptr<ITfCategoryMgr> category_mgr() = 0;
-    virtual winrt::com_ptr<ITfContext> current_context() = 0;
+    virtual winrt::com_ptr<ITfContext> context() = 0;
     virtual winrt::com_ptr<EngineController> engine() = 0;
     virtual winrt::com_ptr<CompositionMgr> composition_mgr() = 0;
     virtual winrt::com_ptr<CandidateListUI> candidate_ui() = 0;
@@ -42,7 +42,7 @@ struct TextService : winrt::implements<TextService, IUnknown> {
     virtual void Reset() = 0;
     virtual void CommitComposition() = 0;
     virtual void UpdateCandidateWindow(TfEditCookie cookie) = 0;
-    virtual bool OnContextChange(ITfContext *context) = 0;
+    virtual bool UpdateContext(ITfContext *context) = 0;
     virtual bool Enabled() = 0;
     virtual void SetEnabled(bool enable) = 0;
     virtual void TipOnOff() = 0;

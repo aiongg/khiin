@@ -113,6 +113,18 @@ void HandleUpdateCandidates(TextService *service, ITfContext *context, Command *
     });
 }
 
+/**
+ * A simple helper class for obtaining the TfEditCookie (session cookie)
+ * All operations that require an edit cookie should pass a callback receiving
+ * the cookie into this class, which may be the be called with
+ * |ITfContext::RequestEditSession|.
+ * 
+ * Note that some operations must be performed with separate tokens, or they
+ * will fail in certain cases. For example, requesting the screen coordinates
+ * of composing text fails in some applications if the composition session
+ * is not yet completed. Therefore, composition and requesting screen coordinates
+ * must be done in separate sessions.
+ */
 struct CallbackEditSession : implements<CallbackEditSession, ITfEditSession> {
     CallbackEditSession(EditSession::CallbackFn cb) : callback(cb) {}
     STDMETHODIMP DoEditSession(TfEditCookie ec) override {
@@ -133,9 +145,6 @@ void EditSession::HandleFocusChange(TextService *service, ITfContext *context) {
 
 void EditSession::HandleAction(TextService *service, ITfContext *context, Command *command) {
     switch (command->request().type()) {
-    case CMD_COMMIT:
-        HandleCommit(service, context, command);
-        return;
     case CMD_SEND_KEY:
         [[fallthrough]];
     case CMD_FOCUS_CANDIDATE:
@@ -143,6 +152,9 @@ void EditSession::HandleAction(TextService *service, ITfContext *context, Comman
     case CMD_SELECT_CANDIDATE:
         HandleDoComposition(service, context, command);
         HandleUpdateCandidates(service, context, command);
+        return;
+    case CMD_COMMIT:
+        HandleCommit(service, context, command);
         return;
     default:
         return;

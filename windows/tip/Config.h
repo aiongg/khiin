@@ -36,6 +36,7 @@ class Config {
     static void SaveToFile(HMODULE hmodule, proto::AppConfig *config);
     static void NotifyChanged();
     static void ClearUserHistory();
+    static void CycleInputMode(proto::AppConfig *config);
     static UiLanguage GetSystemLang();
     static UiColors GetUiColors();
     static void SetUiColors(UiColors colors);

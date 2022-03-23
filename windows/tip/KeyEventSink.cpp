@@ -115,7 +115,7 @@ struct KeyEventSinkImpl : implements<KeyEventSinkImpl, ITfKeyEventSink, KeyEvent
         WINRT_ASSERT(context);
         KHIIN_DEBUG("TestKey: {}", std::string(1, key_event.ascii()));
 
-        auto changed = service->OnContextChange(context);
+        auto changed = service->UpdateContext(context);
         KHIIN_DEBUG("Context changed? {}", changed);
 
         if (!service->Enabled()) {

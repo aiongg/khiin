@@ -68,6 +68,19 @@ void NotifyGlobalCompartment(GUID compartment_guid, DWORD value) {
     check_hresult(compartment->SetValue(client_id, &var));
 }
 
+InputMode NextInputMode(InputMode current_mode) {
+    switch (current_mode) {
+    case IM_CONTINUOUS:
+        return IM_BASIC;
+    case IM_BASIC:
+        return IM_PRO;
+    case IM_PRO:
+        return IM_CONTINUOUS;
+    default:
+        return current_mode;
+    }
+}
+
 } // namespace
 
 UiLanguage Config::GetSystemLang() {
@@ -144,6 +157,14 @@ void Config::NotifyChanged() {
 
 void Config::ClearUserHistory() {
     NotifyGlobalCompartment(guids::kResetUserdataCompartment, Timestamp());
+}
+
+void Config::CycleInputMode(proto::AppConfig *config) {
+    if (!config->ime_enabled().value()) {
+        config->mutable_ime_enabled()->set_value(true);
+    } else {
+        config->set_input_mode(NextInputMode(config->input_mode()));
+    }
 }
 
 UiColors Config::GetUiColors() {

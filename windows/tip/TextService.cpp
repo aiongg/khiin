@@ -127,35 +127,6 @@ struct TextServiceImpl :
         }
     }
 
-    com_ptr<ITfThreadMgr> m_threadmgr = nullptr;
-    TfClientId m_clientid = TF_CLIENTID_NULL;
-    DWORD m_activate_flags = 0;
-    Compartment m_openclose_compartment;
-    Compartment m_kbd_disabled_compartment;
-    Compartment m_config_compartment;
-    Compartment m_userdata_compartment;
-    SinkManager<ITfCompartmentEventSink> m_openclose_sinkmgr;
-    SinkManager<ITfCompartmentEventSink> m_config_sinkmgr;
-    SinkManager<ITfCompartmentEventSink> m_userdata_sinkmgr;
-    std::unique_ptr<AppConfig> m_config = nullptr;
-    std::vector<ConfigChangeListener *> m_config_listeners = {};
-    std::unique_ptr<PreservedKeyMgr> m_preservedkeymgr = nullptr;
-
-    com_ptr<ITfCategoryMgr> m_categorymgr = nullptr;
-    com_ptr<CandidateListUI> m_candidate_list_ui = nullptr;
-    com_ptr<CompositionMgr> m_compositionmgr = nullptr;
-    com_ptr<DisplayAttributeInfoEnum> m_displayattrs = nullptr;
-    com_ptr<ThreadMgrEventSink> m_threadmgr_sink = nullptr;
-    com_ptr<KeyEventSink> m_keyevent_sink = nullptr;
-    com_ptr<EngineController> m_engine = nullptr;
-    com_ptr<LangBarIndicator> m_indicator = nullptr;
-
-    TfGuidAtom m_input_attr = TF_INVALID_GUIDATOM;
-    TfGuidAtom m_converted_attr = TF_INVALID_GUIDATOM;
-    TfGuidAtom m_focused_attr = TF_INVALID_GUIDATOM;
-    bool m_on_off_lock = false;
-    com_ptr<ITfContext> m_current_context = nullptr;
-
     //+---------------------------------------------------------------------------
     //
     // TextService
@@ -172,6 +143,10 @@ struct TextServiceImpl :
 
     DWORD activateFlags() override {
         return m_activate_flags;
+    }
+
+    AppConfig *config() override {
+        return m_config.get();
     }
 
     com_ptr<ITfThreadMgr> thread_mgr() override {
@@ -194,38 +169,22 @@ struct TextServiceImpl :
         return m_candidate_list_ui;
     }
 
-    AppConfig *config() override {
-        return m_config.get();
-    }
-
-    winrt::com_ptr<ITfContext> current_context() override {
+    com_ptr<ITfContext> context() override {
         KHIIN_TRACE("");
-        if (m_current_context) {
-            return m_current_context;
+        if (m_context) {
+            return m_context;
         }
 
         auto documentMgr = winrt::com_ptr<ITfDocumentMgr>();
-        auto context = winrt::com_ptr<ITfContext>();
+        auto base_context = winrt::com_ptr<ITfContext>();
         check_hresult(m_threadmgr->GetFocus(documentMgr.put()));
-        check_hresult(documentMgr->GetTop(context.put()));
-        return context;
+        check_hresult(documentMgr->GetBase(base_context.put()));
+        return base_context;
     }
 
     winrt::com_ptr<ITfCategoryMgr> category_mgr() override {
         KHIIN_TRACE("");
         return m_categorymgr;
-    }
-
-    winrt::com_ptr<ITfCompositionSink> CreateCompositionSink(ITfContext *context) override {
-        KHIIN_TRACE("");
-        return winrt::make<CompositionSink>(this, context);
-    }
-
-    void OnCompositionTerminated(TfEditCookie ecWrite, ITfContext *context, ITfComposition *pComposition) override {
-        KHIIN_TRACE("");
-        KHIIN_DEBUG("OnCompositionTerminated");
-        m_compositionmgr->ClearComposition(ecWrite);
-        m_candidate_list_ui->Hide();
     }
 
     TfGuidAtom input_attribute() {
@@ -240,30 +199,49 @@ struct TextServiceImpl :
         return m_focused_attr;
     }
 
-    void OnCandidateSelected(int32_t candidate_id) override {
-        auto command = m_engine->SelectCandidate(candidate_id);
-        auto context = current_context();
-        EditSession::HandleAction(this, context.get(), std::move(command));
+    winrt::com_ptr<ITfCompositionSink> CreateCompositionSink(ITfContext *context) override {
+        KHIIN_TRACE("");
+        return winrt::make<CompositionSink>(this, context);
     }
 
-    bool OnContextChange(ITfContext *context) override {
-        if (!m_current_context && context == nullptr) {
+    void OnCompositionTerminated(TfEditCookie ecWrite, ITfContext *context, ITfComposition *pComposition) override {
+        KHIIN_TRACE("");
+        KHIIN_DEBUG("OnCompositionTerminated");
+        m_engine->Reset();
+        m_compositionmgr->ClearComposition(ecWrite);
+        m_candidate_list_ui->Hide();
+    }
+
+    /**
+     * Khiin IME can only handle one context at a time.
+     * A new context is first received in |ThreadMgrEventSink::OnInitDocumentMgr|
+     * and stored in the TextService while it is active.
+     * We also test if the context has changed in |KeyEventSink|, in case
+     * |OnInitDocumentMgr| was not called.
+     */
+    bool UpdateContext(ITfContext *context) override {
+        if (!m_context && context == nullptr) {
             return false;
         }
 
-        if (m_current_context && context == nullptr) {
-            m_current_context = nullptr;
+        if (m_context && context == nullptr) {
+            m_context = nullptr;
             return true;
         }
 
-        if (m_current_context && context == m_current_context.get()) {
+        if (m_context && context == m_context.get()) {
             return false;
         }
 
         WINRT_ASSERT(context != nullptr);
-        m_current_context.copy_from(context);
+        m_context.copy_from(context);
         EditSession::HandleFocusChange(this, context);
         return true;
+    }
+
+    void OnCandidateSelected(int32_t candidate_id) override {
+        auto command = m_engine->SelectCandidate(candidate_id);
+        EditSession::HandleAction(this, context().get(), std::move(command));
     }
 
     void UpdateCandidateWindow(TfEditCookie cookie) override {
@@ -272,7 +250,7 @@ struct TextServiceImpl :
 
     void CommitComposition() override {
         auto command = m_engine->Commit();
-        EditSession::HandleAction(this, current_context().get(), command);
+        EditSession::HandleAction(this, context().get(), command);
     }
 
     void Reset() override {
@@ -301,7 +279,7 @@ struct TextServiceImpl :
 
         if (!on_off) {
             auto command = m_engine->Commit();
-            EditSession::HandleAction(this, current_context().get(), command);
+            EditSession::HandleAction(this, context().get(), command);
         }
     }
 
@@ -322,22 +300,7 @@ struct TextServiceImpl :
     }
 
     void CycleInputMode() override {
-        if (!m_config->ime_enabled().value()) {
-            m_config->mutable_ime_enabled()->set_value(true);
-        } else {
-            switch (m_config->input_mode()) {
-            case IM_CONTINUOUS:
-                m_config->set_input_mode(IM_BASIC);
-                break;
-            case IM_BASIC:
-                m_config->set_input_mode(IM_PRO);
-                break;
-            case IM_PRO:
-                m_config->set_input_mode(IM_CONTINUOUS);
-                break;
-            }
-        }
-
+        Config::CycleInputMode(m_config.get());
         NotifyConfigChangeListeners();
     }
 
@@ -351,6 +314,39 @@ struct TextServiceImpl :
             m_config_listeners.push_back(config_listener);
         }
     }
+
+    // Provided by TSF in |ITfTextInputProcessorEx::ActivateEx|
+    com_ptr<ITfThreadMgr> m_threadmgr = nullptr;
+    TfClientId m_clientid = TF_CLIENTID_NULL;
+    DWORD m_activate_flags = 0;
+
+    // Compartments and comparment sinks (event listeners)
+    Compartment m_openclose_compartment;
+    Compartment m_kbd_disabled_compartment;
+    Compartment m_config_compartment;
+    Compartment m_userdata_compartment;
+    SinkManager<ITfCompartmentEventSink> m_openclose_sinkmgr;
+    SinkManager<ITfCompartmentEventSink> m_config_sinkmgr;
+    SinkManager<ITfCompartmentEventSink> m_userdata_sinkmgr;
+
+    std::unique_ptr<AppConfig> m_config = nullptr;
+    std::vector<ConfigChangeListener *> m_config_listeners = {};
+    std::unique_ptr<PreservedKeyMgr> m_preservedkeymgr = nullptr;
+
+    com_ptr<ITfCategoryMgr> m_categorymgr = nullptr;
+    com_ptr<CandidateListUI> m_candidate_list_ui = nullptr;
+    com_ptr<CompositionMgr> m_compositionmgr = nullptr;
+    com_ptr<DisplayAttributeInfoEnum> m_displayattrs = nullptr;
+    com_ptr<ThreadMgrEventSink> m_threadmgr_sink = nullptr;
+    com_ptr<KeyEventSink> m_keyevent_sink = nullptr;
+    com_ptr<EngineController> m_engine = nullptr;
+    com_ptr<LangBarIndicator> m_indicator = nullptr;
+    com_ptr<ITfContext> m_context = nullptr;
+
+    TfGuidAtom m_input_attr = TF_INVALID_GUIDATOM;
+    TfGuidAtom m_converted_attr = TF_INVALID_GUIDATOM;
+    TfGuidAtom m_focused_attr = TF_INVALID_GUIDATOM;
+    bool m_on_off_lock = false;
 
     //+---------------------------------------------------------------------------
     //
