@@ -25,18 +25,18 @@ PreservedKey kPreKeySwitchMode = {guids::kPreservedKeySwitchMode, {kVkBacktick, 
 PreservedKey kPrekeyFWS = {guids::kPreservedKeyFullWidthSpace, {VK_SPACE, MOD_SHIFT}, L"Full width space"};
 
 class PreservedKeyMgrImpl : public PreservedKeyMgr, ConfigChangeListener {
-    virtual void Initialize(TextService *service) override {
+    void Initialize(TextService *service) override {
         m_service.copy_from(service);
         m_service->RegisterConfigChangeListener(this);
         m_switch_mode_key = kPreKeySwitchMode;
     }
 
-    virtual void OnConfigChanged(proto::AppConfig *config) override {
+    void OnConfigChanged(proto::AppConfig *config) override {
         UnpreserveKeys();
         PreserveKeys();
     }
 
-    virtual void Shutdown() override {
+    void Shutdown() override {
         auto keystroke_mgr = KeystrokeMgr();
         UnpreserveKeys();
         m_service = nullptr;

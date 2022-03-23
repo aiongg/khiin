@@ -15,7 +15,7 @@ class RenderFactoryImpl : public RenderFactory {
         CreateWicFactory();
     }
 
-    virtual com_ptr<ID2D1DCRenderTarget> CreateDCRenderTarget() override {
+    com_ptr<ID2D1DCRenderTarget> CreateDCRenderTarget() override {
         auto props = D2D1::RenderTargetProperties(D2D1_RENDER_TARGET_TYPE_DEFAULT,
                                                   D2D1::PixelFormat(DXGI_FORMAT_B8G8R8A8_UNORM, D2D1_ALPHA_MODE_IGNORE),
                                                   0, 0, D2D1_RENDER_TARGET_USAGE_NONE, D2D1_FEATURE_LEVEL_DEFAULT);
@@ -25,7 +25,7 @@ class RenderFactoryImpl : public RenderFactory {
         return ret;
     }
 
-    virtual com_ptr<IDWriteTextFormat> CreateTextFormat(std::string const &font_name, float font_size) override {
+    com_ptr<IDWriteTextFormat> CreateTextFormat(std::string const &font_name, float font_size) override {
         auto ret = com_ptr<IDWriteTextFormat>();
         auto wfont = Utils::Widen(font_name);
         check_hresult(m_dwrite->CreateTextFormat(wfont.c_str(), NULL, DWRITE_FONT_WEIGHT_REGULAR, DWRITE_FONT_STYLE_NORMAL,
@@ -35,7 +35,7 @@ class RenderFactoryImpl : public RenderFactory {
         return ret;
     }
 
-    virtual com_ptr<IDWriteTextLayout> CreateTextLayout(std::string const &value, com_ptr<IDWriteTextFormat> const &format,
+    com_ptr<IDWriteTextLayout> CreateTextLayout(std::string const &value, com_ptr<IDWriteTextFormat> const &format,
                                                                uint32_t max_width, uint32_t max_height) override {
         auto ret = com_ptr<IDWriteTextLayout>();
         auto wvalue = Utils::Widen(value);
@@ -45,7 +45,7 @@ class RenderFactoryImpl : public RenderFactory {
         return ret;
     }
 
-    virtual winrt::com_ptr<ID2D1Bitmap> CreateBitmap(com_ptr<ID2D1DCRenderTarget> const &target, HICON hicon) override {
+    winrt::com_ptr<ID2D1Bitmap> CreateBitmap(com_ptr<ID2D1DCRenderTarget> const &target, HICON hicon) override {
         auto wic_bmp = com_ptr<IWICBitmap>();
         check_hresult(m_wic->CreateBitmapFromHICON(hicon, wic_bmp.put()));
         auto converter = com_ptr<IWICFormatConverter>();

@@ -204,12 +204,12 @@ struct KeyEventSinkImpl : implements<KeyEventSinkImpl, ITfKeyEventSink, KeyEvent
     //
     //----------------------------------------------------------------------------
 
-    virtual STDMETHODIMP OnSetFocus(BOOL fForeground) override {
+    STDMETHODIMP OnSetFocus(BOOL fForeground) override {
         KHIIN_DEBUG("OnSetFocus");
         return S_OK;
     }
 
-    virtual STDMETHODIMP OnTestKeyDown(ITfContext *context, WPARAM wparam, LPARAM lparam, BOOL *eaten) override {
+    STDMETHODIMP OnTestKeyDown(ITfContext *context, WPARAM wparam, LPARAM lparam, BOOL *eaten) override {
         TRY_FOR_HRESULT;
 
         *eaten = FALSE;
@@ -219,7 +219,7 @@ struct KeyEventSinkImpl : implements<KeyEventSinkImpl, ITfKeyEventSink, KeyEvent
         CATCH_FOR_HRESULT;
     }
 
-    virtual STDMETHODIMP OnTestKeyUp(ITfContext *context, WPARAM wparam, LPARAM lparam, BOOL *eaten) override {
+    STDMETHODIMP OnTestKeyUp(ITfContext *context, WPARAM wparam, LPARAM lparam, BOOL *eaten) override {
         TRY_FOR_HRESULT;
 
         *eaten = FALSE;
@@ -229,7 +229,7 @@ struct KeyEventSinkImpl : implements<KeyEventSinkImpl, ITfKeyEventSink, KeyEvent
         CATCH_FOR_HRESULT;
     }
 
-    virtual STDMETHODIMP OnKeyDown(ITfContext *context, WPARAM wparam, LPARAM lparam, BOOL *eaten) override {
+    STDMETHODIMP OnKeyDown(ITfContext *context, WPARAM wparam, LPARAM lparam, BOOL *eaten) override {
         TRY_FOR_HRESULT;
 
         *eaten = FALSE;
@@ -239,7 +239,7 @@ struct KeyEventSinkImpl : implements<KeyEventSinkImpl, ITfKeyEventSink, KeyEvent
         CATCH_FOR_HRESULT;
     }
 
-    virtual STDMETHODIMP OnKeyUp(ITfContext *context, WPARAM wparam, LPARAM lparam, BOOL *eaten) override {
+    STDMETHODIMP OnKeyUp(ITfContext *context, WPARAM wparam, LPARAM lparam, BOOL *eaten) override {
         TRY_FOR_HRESULT;
 
         *eaten = FALSE;
@@ -249,7 +249,7 @@ struct KeyEventSinkImpl : implements<KeyEventSinkImpl, ITfKeyEventSink, KeyEvent
         CATCH_FOR_HRESULT;
     }
 
-    virtual STDMETHODIMP OnPreservedKey(ITfContext *context, REFGUID rguid, BOOL *eaten) override {
+    STDMETHODIMP OnPreservedKey(ITfContext *context, REFGUID rguid, BOOL *eaten) override {
         TRY_FOR_HRESULT;
 
         if (rguid == guids::kPreservedKeyOnOff) {

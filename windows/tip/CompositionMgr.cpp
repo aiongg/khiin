@@ -128,7 +128,7 @@ struct CompositionMgrImpl : implements<CompositionMgrImpl, CompositionMgr> {
         check_hresult(comp_range->Clone(next_range.put()));
 
         LONG shifted = 0;
-        check_hresult(next_range->ShiftStart(cookie, text.size(), &shifted, nullptr));
+        check_hresult(next_range->ShiftStart(cookie, static_cast<LONG>(text.size()), &shifted, nullptr));
         check_hresult(next_range->Collapse(cookie, TF_ANCHOR_START));
         check_hresult(m_composition->ShiftStart(cookie, next_range.get()));
         SetSelection(cookie, context, next_range.get(), TF_AE_END);

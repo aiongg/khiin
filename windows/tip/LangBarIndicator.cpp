@@ -30,7 +30,7 @@ struct LangBarIndicatorImpl :
         m_info.ulSort = 0;
     }
 
-    virtual void Initialize(TextService *service) override {
+    void Initialize(TextService *service) override {
         m_service.copy_from(service);
         auto langbarmgr = langbar_item_mgr();
         check_hresult(langbarmgr->AddItem(this));
@@ -39,7 +39,7 @@ struct LangBarIndicatorImpl :
         m_service->RegisterConfigChangeListener(this);
     }
 
-    virtual void Shutdown() override {
+    void Shutdown() override {
         auto langbarmgr = langbar_item_mgr();
         check_hresult(langbarmgr->RemoveItem(this));
         m_service = nullptr;
@@ -62,7 +62,7 @@ struct LangBarIndicatorImpl :
     //
     //----------------------------------------------------------------------------
 
-    virtual void OnConfigChanged(AppConfig *config) override {
+    void OnConfigChanged(AppConfig *config) override {
         for (auto &sink : m_sinks) {
             sink.second->OnUpdate(TF_LBI_ICON);
         }
@@ -77,7 +77,7 @@ struct LangBarIndicatorImpl :
     //
     //----------------------------------------------------------------------------
 
-    virtual STDMETHODIMP AdviseSink(REFIID riid, IUnknown *unknown, DWORD *cookie) override {
+    STDMETHODIMP AdviseSink(REFIID riid, IUnknown *unknown, DWORD *cookie) override {
         TRY_FOR_HRESULT;
 
         if (::IsEqualIID(riid, IID_ITfLangBarItemSink)) {
@@ -92,7 +92,7 @@ struct LangBarIndicatorImpl :
         CATCH_FOR_HRESULT;
     }
 
-    virtual STDMETHODIMP UnadviseSink(DWORD dwCookie) override {
+    STDMETHODIMP UnadviseSink(DWORD dwCookie) override {
         TRY_FOR_HRESULT;
 
         if (auto it = m_sinks.find(dwCookie); it != m_sinks.end()) {
@@ -108,25 +108,25 @@ struct LangBarIndicatorImpl :
     //
     //----------------------------------------------------------------------------
 
-    virtual STDMETHODIMP GetInfo(TF_LANGBARITEMINFO *pInfo) override {
+    STDMETHODIMP GetInfo(TF_LANGBARITEMINFO *pInfo) override {
         *pInfo = m_info;
         return S_OK;
     }
 
-    virtual STDMETHODIMP GetStatus(DWORD *pdwStatus) override {
+    STDMETHODIMP GetStatus(DWORD *pdwStatus) override {
         *pdwStatus = m_status;
         return S_OK;
     }
 
-    virtual STDMETHODIMP Show(BOOL fShow) override {
+    STDMETHODIMP Show(BOOL fShow) override {
         return E_NOTIMPL;
     }
 
-    virtual STDMETHODIMP GetTooltipString(BSTR *pbstrToolTip) override {
+    STDMETHODIMP GetTooltipString(BSTR *pbstrToolTip) override {
         return E_NOTIMPL;
     }
 
-    virtual STDMETHODIMP OnClick(TfLBIClick click, POINT pt, const RECT *prcArea) override {
+    STDMETHODIMP OnClick(TfLBIClick click, POINT pt, const RECT *prcArea) override {
         if (click == TF_LBI_CLK_LEFT) {
             m_service->TipOnOff();
         } else {
@@ -136,15 +136,15 @@ struct LangBarIndicatorImpl :
         return S_OK;
     }
 
-    virtual STDMETHODIMP InitMenu(ITfMenu *pMenu) override {
+    STDMETHODIMP InitMenu(ITfMenu *pMenu) override {
         return E_NOTIMPL;
     }
 
-    virtual STDMETHODIMP OnMenuSelect(UINT wID) override {
+    STDMETHODIMP OnMenuSelect(UINT wID) override {
         return E_NOTIMPL;
     }
 
-    virtual STDMETHODIMP GetIcon(HICON *phIcon) override {
+    STDMETHODIMP GetIcon(HICON *phIcon) override {
         TRY_FOR_HRESULT
         using namespace proto;
 
@@ -175,7 +175,7 @@ struct LangBarIndicatorImpl :
         CATCH_FOR_HRESULT;
     }
 
-    virtual STDMETHODIMP GetText(BSTR *pbstrText) override {
+    STDMETHODIMP GetText(BSTR *pbstrText) override {
         return E_NOTIMPL;
     }
 

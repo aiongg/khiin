@@ -139,7 +139,7 @@ class PopupMenuImpl : public PopupMenu {
         m_items = GetMenuItems();
     }
 
-    virtual void Show(POINT pt) override {
+    void Show(POINT pt) override {
         if (!DpiAware()) {
             m_origin = Point{ToDp(pt.x), ToDp(pt.y)};
         } else {
@@ -150,7 +150,7 @@ class PopupMenuImpl : public PopupMenu {
         GuiWindow::Show();
     }
 
-    virtual std::wstring const &ClassName() const override {
+    std::wstring const &ClassName() const override {
         return kMenuWindowClassName;
     }
 
@@ -184,12 +184,12 @@ class PopupMenuImpl : public PopupMenu {
         return ret;
     }
 
-    virtual void OnConfigChanged(AppConfig *config) override {
+    void OnConfigChanged(AppConfig *config) override {
         GuiWindow::OnConfigChanged(config);
         Redraw();
     }
 
-    virtual void OnMouseMove(Point pt) override {
+    void OnMouseMove(Point pt) override {
         auto idx = ItemHitTest(pt);
         auto redraw = idx != m_highlighted_index;
         m_highlighted_index = idx;
@@ -199,7 +199,7 @@ class PopupMenuImpl : public PopupMenu {
         }
     }
 
-    virtual bool OnClick(Point pt) override {
+    bool OnClick(Point pt) override {
         auto idx = ItemHitTest(pt);
         Hide();
 
@@ -394,7 +394,7 @@ class PopupMenuImpl : public PopupMenu {
         }
     }
 
-    virtual void Render() override {
+    void Render() override {
         try {
             EnsureGraphicsResources();
 

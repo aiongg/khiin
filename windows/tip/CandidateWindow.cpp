@@ -59,7 +59,7 @@ class CandidateWindow2Impl : public CandidateWindow {
     }
 
     void SetCandidates(DisplayMode display_mode, CandidateGrid *candidate_grid, int focused_id, size_t qs_col,
-                               bool qs_active, RECT text_position) override {
+                       bool qs_active, RECT text_position) override {
         m_candidate_grid = candidate_grid;
         m_display_mode = display_mode;
         m_focused_id = focused_id;
@@ -77,7 +77,7 @@ class CandidateWindow2Impl : public CandidateWindow {
     void OnConfigChanged(AppConfig *config) override {
         GuiWindow::OnConfigChanged(config);
         m_metrics = GetMetricsScaled(Config::GetUiSize());
-        //m_metrics = GetMetricsForSize(static_cast<DisplaySize>(Config::GetUiSize()));
+        // m_metrics = GetMetricsForSize(static_cast<DisplaySize>(Config::GetUiSize()));
         DiscardGraphicsResources();
     }
 
@@ -190,27 +190,27 @@ class CandidateWindow2Impl : public CandidateWindow {
 
         m_metrics.row_height = static_cast<float>(m_layout_grid.row_height());
         auto grid_size = m_layout_grid.GetGridSize();
-        auto left = m_text_rect.left - m_metrics.qs_col_w;
-        auto top = m_text_rect.bottom * 1.0f;
-        auto width = grid_size.width;
-        auto height = grid_size.height;
+        int left = m_text_rect.left - m_metrics.qs_col_w;
+        int top = m_text_rect.bottom;
+        int width = grid_size.width;
+        int height = grid_size.height;
 
         if (DpiAware()) {
             width = ToPx(width);
             height = ToPx(height);
         }
 
-        if (left + width > m_max_width) {
-            left = static_cast<float>(m_max_width) - static_cast<float>(width);
+        if (left + width > static_cast<int>(m_max_width)) {
+            left = static_cast<int>(m_max_width) - width;
         }
-        if (top + height > m_max_height) {
-            top = static_cast<float>(m_text_rect.top) - static_cast<float>(height);
+        if (top + height > static_cast<int>(m_max_height)) {
+            top = static_cast<int>(m_text_rect.top) - height;
         }
         if (left < 0) {
-            left = m_metrics.padding;
+            left = static_cast<int>(m_metrics.padding);
         }
         if (top < 0) {
-            top = m_metrics.padding;
+            top = static_cast<int>(m_metrics.padding);
         }
 
         auto l = static_cast<int>(left);
@@ -247,7 +247,7 @@ class CandidateWindow2Impl : public CandidateWindow {
     }
 
     void DrawQuickSelect(std::string label, float left, float top) {
-        auto layout = m_factory->CreateTextLayout(label, m_textformat_sm, m_metrics.qs_col_w, m_metrics.row_height);
+        auto layout = m_factory->CreateTextLayout(label, m_textformat_sm, m_metrics.qs_col_w, static_cast<uint32_t>(m_metrics.row_height));
         auto x = left + m_metrics.marker_w * 2 + m_metrics.padding;
         auto y = top + CenterTextLayoutY(layout.get(), m_metrics.row_height);
         if (m_quickselect_active) {

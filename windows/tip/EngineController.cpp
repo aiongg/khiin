@@ -155,7 +155,7 @@ struct EngineControllerImpl : winrt::implements<EngineControllerImpl, EngineCont
     //
     //----------------------------------------------------------------------------
 
-    virtual void OnConfigChanged(proto::AppConfig *config) override {
+    void OnConfigChanged(proto::AppConfig *config) override {
         if (auto wfile = Config::GetUserDictionaryFile(); !wfile.empty()) {
             auto file = Utils::Narrow(wfile);
             m_engine->LoadUserDictionary(file);

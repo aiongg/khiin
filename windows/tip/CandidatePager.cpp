@@ -20,7 +20,7 @@ inline constexpr uint32_t kLongColSize = 9;
 
 class CandidatePagerImpl : public CandidatePager {
   public:
-    void SetCandidateList(CandidateList *candidate_list) {
+    void SetCandidateList(CandidateList *candidate_list) override {
         Reset();
         m_candidate_list = candidate_list;
     }
