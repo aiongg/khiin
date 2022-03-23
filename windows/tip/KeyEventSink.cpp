@@ -89,25 +89,25 @@ void HandleKeyBasic(TextService *service, ITfContext *context, win32::KeyEvent c
 
 struct KeyEventSinkImpl : implements<KeyEventSinkImpl, ITfKeyEventSink, KeyEventSink> {
 
-    void Advise(TextService *pTextService) override {
-        service.copy_from(pTextService);
-        keystrokeMgr = service->keystroke_mgr();
+    void Advise(TextService *service) override {
+        m_service.copy_from(service);
+        m_keystroke_mgr = m_service->keystroke_mgr();
 
-        winrt::check_hresult(keystrokeMgr->AdviseKeyEventSink(service->clientId(), this, TRUE));
+        winrt::check_hresult(m_keystroke_mgr->AdviseKeyEventSink(m_service->client_id(), this, TRUE));
     }
 
     void Unadvise() override {
         KHIIN_TRACE("");
-        if (keystrokeMgr) {
-            winrt::check_hresult(keystrokeMgr->UnadviseKeyEventSink(service->clientId()));
+        if (m_keystroke_mgr) {
+            winrt::check_hresult(m_keystroke_mgr->UnadviseKeyEventSink(m_service->client_id()));
         }
 
-        keystrokeMgr = nullptr;
-        service = nullptr;
+        m_keystroke_mgr = nullptr;
+        m_service = nullptr;
     }
 
     void Reset() override {
-        shift_pressed = false;
+        m_shift_pressed = false;
     }
 
     void TestKey(ITfContext *context, win32::KeyEvent key_event, BOOL *pfEaten) {
@@ -115,32 +115,32 @@ struct KeyEventSinkImpl : implements<KeyEventSinkImpl, ITfKeyEventSink, KeyEvent
         WINRT_ASSERT(context);
         KHIIN_DEBUG("TestKey: {}", std::string(1, key_event.ascii()));
 
-        auto changed = service->UpdateContext(context);
+        auto changed = m_service->UpdateContext(context);
         KHIIN_DEBUG("Context changed? {}", changed);
 
-        if (!service->Enabled()) {
+        if (!m_service->Enabled()) {
             *pfEaten = FALSE;
             return;
         }
 
-        shift_pressed = false;
+        m_shift_pressed = false;
 
         if (ShiftOnOff() && key_event.keycode() == VK_SHIFT) {
-            shift_pressed = true;
+            m_shift_pressed = true;
             *pfEaten = TRUE;
             return;
         }
 
-        if (TestKeyForCandidateUI(service->candidate_ui().get(), key_event)) {
+        if (TestKeyForCandidateUI(m_service->candidate_ui().get(), key_event)) {
             *pfEaten = TRUE;
             return;
         }
 
-        if (!service->composition_mgr()->composing()) {
-            service->engine()->Reset();
+        if (!m_service->composition_mgr()->composing()) {
+            m_service->engine()->Reset();
         }
 
-        auto command = service->engine()->TestKey(key_event);
+        auto command = m_service->engine()->TestKey(key_event);
 
         if (command->response().consumable()) {
             KHIIN_DEBUG("Key is consumable");
@@ -150,51 +150,51 @@ struct KeyEventSinkImpl : implements<KeyEventSinkImpl, ITfKeyEventSink, KeyEvent
 
         KHIIN_DEBUG("Key is not consumable");
         *pfEaten = FALSE;
-        //EditSession::HandleAction(service.get(), context, command);
+        //EditSession::HandleAction(m_service.get(), context, command);
     }
 
-    void HandleKey(ITfContext *pContext, win32::KeyEvent key_event, BOOL *pfEaten) {
+    void HandleKey(ITfContext *context, win32::KeyEvent key_event, BOOL *eaten) {
         KHIIN_DEBUG("HandleKey: {}", std::string(1, key_event.ascii()));
-        auto cui = service->candidate_ui().get();
+        auto cui = m_service->candidate_ui().get();
 
-        if (!service->Enabled()) {
-            *pfEaten = FALSE;
+        if (!m_service->Enabled()) {
+            *eaten = FALSE;
             return;
         }
 
         if (TestQuickSelectForCandidateUI(cui, key_event)) {
-            HandleQuickSelect(service.get(), pContext, cui, key_event);
-            *pfEaten = TRUE;
+            HandleQuickSelect(m_service.get(), context, cui, key_event);
+            *eaten = TRUE;
             return;
         } else if (TestPageKeyForCandidateUI(cui, key_event)) {
-            HandleCandidatePage(service.get(), pContext, cui, key_event);
-            *pfEaten = TRUE;
+            HandleCandidatePage(m_service.get(), context, cui, key_event);
+            *eaten = TRUE;
             return;
         }
 
-        TestKey(pContext, key_event, pfEaten);
+        TestKey(context, key_event, eaten);
 
-        if (*pfEaten == 0 || shift_pressed) {
+        if (*eaten == 0 || m_shift_pressed) {
             return;
         }
 
-        shift_pressed = false;
+        m_shift_pressed = false;
 
-        HandleKeyBasic(service.get(), pContext, key_event);
+        HandleKeyBasic(m_service.get(), context, key_event);
     }
 
-    void TestKeyUp(ITfContext *context, win32::KeyEvent key_event, BOOL *pfEaten) {
+    void TestKeyUp(ITfContext *context, win32::KeyEvent key_event, BOOL *eaten) {
         KHIIN_DEBUG("TestKeyUp: {}", std::string(1, key_event.ascii()));
-        if (ShiftOnOff() && shift_pressed && key_event.keycode() == VK_SHIFT) {
-            *pfEaten = TRUE;
+        if (ShiftOnOff() && m_shift_pressed && key_event.keycode() == VK_SHIFT) {
+            *eaten = TRUE;
         }
     }
 
-    void HandleKeyUp(ITfContext *context, win32::KeyEvent key_event, BOOL *pfEaten) {
+    void HandleKeyUp(ITfContext *context, win32::KeyEvent key_event, BOOL *eaten) {
         KHIIN_DEBUG("HandleKeyUp: {}", std::string(1, key_event.ascii()));
-        if (ShiftOnOff() && shift_pressed && key_event.keycode() == VK_SHIFT) {
-            service->TipOnOff();
-            *pfEaten = TRUE;
+        if (ShiftOnOff() && m_shift_pressed && key_event.keycode() == VK_SHIFT) {
+            m_service->TipOnOff();
+            *eaten = TRUE;
         }
     }
 
@@ -209,57 +209,57 @@ struct KeyEventSinkImpl : implements<KeyEventSinkImpl, ITfKeyEventSink, KeyEvent
         return S_OK;
     }
 
-    virtual STDMETHODIMP OnTestKeyDown(ITfContext *context, WPARAM wParam, LPARAM lParam, BOOL *pfEaten) override {
+    virtual STDMETHODIMP OnTestKeyDown(ITfContext *context, WPARAM wparam, LPARAM lparam, BOOL *eaten) override {
         TRY_FOR_HRESULT;
 
-        *pfEaten = FALSE;
-        auto keyEvent = win32::KeyEvent(WM_KEYDOWN, wParam, lParam);
-        TestKey(context, keyEvent, pfEaten);
+        *eaten = FALSE;
+        auto keyEvent = win32::KeyEvent(WM_KEYDOWN, wparam, lparam);
+        TestKey(context, keyEvent, eaten);
 
         CATCH_FOR_HRESULT;
     }
 
-    virtual STDMETHODIMP OnTestKeyUp(ITfContext *context, WPARAM wParam, LPARAM lParam, BOOL *pfEaten) override {
+    virtual STDMETHODIMP OnTestKeyUp(ITfContext *context, WPARAM wparam, LPARAM lparam, BOOL *eaten) override {
         TRY_FOR_HRESULT;
 
-        *pfEaten = FALSE;
-        auto keyEvent = win32::KeyEvent(WM_KEYUP, wParam, lParam);
-        TestKeyUp(context, keyEvent, pfEaten);
+        *eaten = FALSE;
+        auto keyEvent = win32::KeyEvent(WM_KEYUP, wparam, lparam);
+        TestKeyUp(context, keyEvent, eaten);
 
         CATCH_FOR_HRESULT;
     }
 
-    virtual STDMETHODIMP OnKeyDown(ITfContext *context, WPARAM wParam, LPARAM lParam, BOOL *pfEaten) override {
+    virtual STDMETHODIMP OnKeyDown(ITfContext *context, WPARAM wparam, LPARAM lparam, BOOL *eaten) override {
         TRY_FOR_HRESULT;
 
-        *pfEaten = FALSE;
-        auto keyEvent = win32::KeyEvent(WM_KEYDOWN, wParam, lParam);
-        HandleKey(context, keyEvent, pfEaten);
+        *eaten = FALSE;
+        auto keyEvent = win32::KeyEvent(WM_KEYDOWN, wparam, lparam);
+        HandleKey(context, keyEvent, eaten);
 
         CATCH_FOR_HRESULT;
     }
 
-    virtual STDMETHODIMP OnKeyUp(ITfContext *context, WPARAM wParam, LPARAM lParam, BOOL *pfEaten) override {
+    virtual STDMETHODIMP OnKeyUp(ITfContext *context, WPARAM wparam, LPARAM lparam, BOOL *eaten) override {
         TRY_FOR_HRESULT;
 
-        *pfEaten = FALSE;
-        auto keyEvent = win32::KeyEvent(WM_KEYUP, wParam, lParam);
-        HandleKeyUp(context, keyEvent, pfEaten);
+        *eaten = FALSE;
+        auto keyEvent = win32::KeyEvent(WM_KEYUP, wparam, lparam);
+        HandleKeyUp(context, keyEvent, eaten);
 
         CATCH_FOR_HRESULT;
     }
 
-    virtual STDMETHODIMP OnPreservedKey(ITfContext *context, REFGUID rguid, BOOL *pfEaten) override {
+    virtual STDMETHODIMP OnPreservedKey(ITfContext *context, REFGUID rguid, BOOL *eaten) override {
         TRY_FOR_HRESULT;
 
         if (rguid == guids::kPreservedKeyOnOff) {
-            service->TipOnOff();
-            *pfEaten = TRUE;
+            m_service->TipOnOff();
+            *eaten = TRUE;
         }
 
         if (rguid == guids::kPreservedKeySwitchMode) {
-            service->CycleInputMode();
-            *pfEaten = TRUE;
+            m_service->CycleInputMode();
+            *eaten = TRUE;
         }
 
         if (rguid == guids::kPreservedKeyFullWidthSpace) {
@@ -268,10 +268,10 @@ struct KeyEventSinkImpl : implements<KeyEventSinkImpl, ITfKeyEventSink, KeyEvent
         CATCH_FOR_HRESULT;
     }
 
-    winrt::com_ptr<TextService> service = nullptr;
+    winrt::com_ptr<TextService> m_service = nullptr;
     winrt::com_ptr<ITfThreadMgr> thread_mgr = nullptr;
-    winrt::com_ptr<ITfKeystrokeMgr> keystrokeMgr = nullptr;
-    bool shift_pressed = false;
+    winrt::com_ptr<ITfKeystrokeMgr> m_keystroke_mgr = nullptr;
+    bool m_shift_pressed = false;
 };
 
 } // namespace

@@ -14,7 +14,7 @@ struct KeyEventSink : winrt::implements<KeyEventSink, IUnknown> {
     ~KeyEventSink() = default;
 
     static winrt::com_ptr<KeyEventSink> Create();
-    virtual void Advise(TextService *pTextService) = 0;
+    virtual void Advise(TextService *service) = 0;
     virtual void Unadvise() = 0;
     virtual void Reset() = 0;
 };

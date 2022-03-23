@@ -67,8 +67,8 @@ struct EngineControllerImpl : winrt::implements<EngineControllerImpl, EngineCont
     EngineControllerImpl &operator=(const EngineControllerImpl &) = delete;
     ~EngineControllerImpl() = default;
     
-    void Initialize(TextService *pService) override {
-        m_service.copy_from(pService);
+    void Initialize(TextService *service) override {
+        m_service.copy_from(service);
         auto dbfile = Files::GetFilePath(g_module, kDbFilename);
         m_engine = Engine::Create(dbfile.string());
         m_service->RegisterConfigChangeListener(this);

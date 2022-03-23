@@ -3,18 +3,19 @@
 #include "TextEditSink.h"
 
 namespace khiin::win32::tip {
+using namespace winrt;
 
-HRESULT TextEditSink::Initialize(ITfDocumentMgr *pDocumentMgr) {
-    WINRT_ASSERT(pDocumentMgr != nullptr);
+HRESULT TextEditSink::Initialize(ITfDocumentMgr *docmgr) {
+    WINRT_ASSERT(docmgr != nullptr);
 
-    winrt::check_hresult(pDocumentMgr->GetTop(context.put()));
-    textEditSinkMgr.Advise(context.get(), this);
+    check_hresult(docmgr->GetTop(context.put()));
+    m_sink_mgr.Advise(context.get(), this);
 
     return S_OK;
 }
 
 HRESULT TextEditSink::Uninitialize() {
-    textEditSinkMgr.Unadvise();
+    m_sink_mgr.Unadvise();
     context = nullptr;
     return S_OK;
 }
@@ -29,4 +30,4 @@ STDMETHODIMP TextEditSink::OnEndEdit(ITfContext *pic, TfEditCookie ecReadOnly, I
     return S_OK;
 }
 
-} // namespace khiin::win32
+} // namespace khiin::win32::tip

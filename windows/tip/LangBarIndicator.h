@@ -11,7 +11,7 @@ struct LangBarIndicator : winrt::implements<LangBarIndicator, IUnknown> {
     ~LangBarIndicator() = default;
 
     static winrt::com_ptr<LangBarIndicator> Create();
-    virtual void Initialize(TextService *pTextService) = 0;
+    virtual void Initialize(TextService *service) = 0;
     virtual void Shutdown() = 0;
 };
 

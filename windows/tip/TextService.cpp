@@ -137,11 +137,11 @@ struct TextServiceImpl :
         return g_module;
     }
 
-    TfClientId clientId() override {
+    TfClientId client_id() override {
         return m_clientid;
     }
 
-    DWORD activateFlags() override {
+    DWORD activate_flags() override {
         return m_activate_flags;
     }
 
@@ -406,7 +406,7 @@ struct TextServiceImpl :
     //
     //----------------------------------------------------------------------------
 
-    STDMETHODIMP OnLayoutChange(ITfContext *pContext, TfLayoutCode lcode, ITfContextView *pView) {
+    STDMETHODIMP OnLayoutChange(ITfContext *context, TfLayoutCode lcode, ITfContextView *pView) {
         KHIIN_TRACE("");
         return E_NOTIMPL;
     }

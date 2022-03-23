@@ -145,4 +145,20 @@ RECT CompositionUtil::TextPosition(TfEditCookie ec, ITfContext *context) {
     return rect;
 }
 
+std::wstring CompositionUtil::TextFromRange(TfEditCookie cookie, ITfRange *range) {
+    auto ret = std::wstring();
+    if (!range) {
+        return ret;
+    }
+
+    auto copy = com_ptr<ITfRange>();
+    check_hresult(range->Clone(copy.put()));
+    static constexpr size_t buf_size = 1000;
+    std::unique_ptr<wchar_t[]> buffer(new wchar_t[buf_size]);
+    ULONG fetched = 0;
+    check_hresult(copy->GetText(cookie, TF_TF_MOVESTART, buffer.get(), buf_size, &fetched));
+    ret.append(buffer.get(), fetched);
+    return ret;
+}
+
 } // namespace khiin::win32::tip

@@ -21,7 +21,7 @@ struct EngineController : winrt::implements<EngineController, IUnknown> {
     static void OnDllProcessDetach(HMODULE module);
     static winrt::com_ptr<EngineController> Create();
 
-    virtual void Initialize(TextService *pService) = 0;
+    virtual void Initialize(TextService *service) = 0;
     virtual void Uninitialize() = 0;
 
     virtual proto::Command *TestKey(win32::KeyEvent keyEvent) = 0;

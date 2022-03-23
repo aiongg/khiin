@@ -6,7 +6,7 @@ namespace khiin::win32::tip {
 
 using namespace winrt;
 
-void Compartment::Initialize(TfClientId clientId, IUnknown *compartment_provider, const GUID &guid, bool global) {
+void Compartment::Initialize(TfClientId client_id, IUnknown *compartment_provider, const GUID &guid, bool global) {
     KHIIN_TRACE("");
     WINRT_ASSERT(compartment_provider != nullptr);
     auto compartmentMgr = com_ptr<ITfCompartmentMgr>();
@@ -20,14 +20,14 @@ void Compartment::Initialize(TfClientId clientId, IUnknown *compartment_provider
     }
 
     winrt::check_hresult(compartmentMgr->GetCompartment(guid, compartment.put()));
-    this->clientId = clientId;
+    this->client_id = client_id;
     this->guid = guid;
 }
 
 void Compartment::Uninitialize() {
     KHIIN_TRACE("");
     compartment = nullptr;
-    clientId = TF_CLIENTID_NULL;
+    client_id = TF_CLIENTID_NULL;
     guid = GUID{};
 }
 
@@ -49,7 +49,7 @@ void Compartment::SetValue(_In_ const DWORD &val) {
     ::VariantInit(&var);
     var.vt = VT_I4;
     var.lVal = val;
-    winrt::check_hresult(compartment->SetValue(clientId, &var));
+    winrt::check_hresult(compartment->SetValue(client_id, &var));
 }
 
 ITfCompartment* Compartment::get() {

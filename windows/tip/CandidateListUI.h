@@ -21,10 +21,10 @@ struct CandidateListUI : winrt::implements<CandidateListUI, IUnknown> {
 
     static winrt::com_ptr<CandidateListUI> Create();
 
-    virtual void Initialize(TextService *pTextService) = 0;
+    virtual void Initialize(TextService *service) = 0;
     virtual void Uninitialize() = 0;
     virtual void DestroyCandidateWindow() = 0;
-    virtual void Update(ITfContext *pContext, proto::EditState edit_state, const proto::CandidateList &candidate_list,
+    virtual void Update(ITfContext *context, proto::EditState edit_state, const proto::CandidateList &candidate_list,
                         RECT text_rect) = 0;
     virtual void Move(TfEditCookie cookie) = 0;
     virtual bool Showing() = 0;

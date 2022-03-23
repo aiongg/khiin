@@ -67,7 +67,7 @@ class PreservedKeyMgrImpl : public PreservedKeyMgr, ConfigChangeListener {
     }
 
     void PreserveKey(PreservedKey const &pk) {
-        auto hr = KeystrokeMgr()->PreserveKey(m_service->clientId(), pk.guid, &pk.prekey, pk.desc.data(),
+        auto hr = KeystrokeMgr()->PreserveKey(m_service->client_id(), pk.guid, &pk.prekey, pk.desc.data(),
                                     static_cast<ULONG>(pk.desc.size()));
         
         CHECK_HRESULT(hr);

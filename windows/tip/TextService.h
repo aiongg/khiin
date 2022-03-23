@@ -25,8 +25,8 @@ struct TextService : winrt::implements<TextService, IUnknown> {
     static winrt::com_ptr<TextService> Create();
 
     virtual HMODULE hmodule() = 0;
-    virtual TfClientId clientId() = 0;
-    virtual DWORD activateFlags() = 0;
+    virtual TfClientId client_id() = 0;
+    virtual DWORD activate_flags() = 0;
 
     virtual winrt::com_ptr<ITfThreadMgr> thread_mgr() = 0;
     virtual winrt::com_ptr<ITfKeystrokeMgr> keystroke_mgr() = 0;

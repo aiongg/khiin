@@ -11,6 +11,7 @@ class CompositionUtil {
     static winrt::com_ptr<ITfRange> DefaultSelectionRange(TfEditCookie cookie, ITfContext *context);
     static std::vector<InputScope> InputScopes(TfEditCookie cookie, ITfContext *context);
     static RECT TextPosition(TfEditCookie cookie, ITfContext *context);
+    static std::wstring TextFromRange(TfEditCookie cookie, ITfRange *range);
 };
 
 } // namespace khiin::win32::tip

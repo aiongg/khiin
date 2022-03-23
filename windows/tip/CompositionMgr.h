@@ -18,17 +18,17 @@ struct CompositionMgr : winrt::implements<CompositionMgr, IUnknown> {
     ~CompositionMgr() = default;
 
     static winrt::com_ptr<CompositionMgr> Create();
-    virtual void Initialize(TextService *pTextService) = 0;
+    virtual void Initialize(TextService *service) = 0;
     virtual void Uninitialize() = 0;
-
-    virtual void ClearComposition(TfEditCookie cookie) = 0;
 
     virtual bool composing() = 0;
 
-    virtual void DoComposition(TfEditCookie cookie, ITfContext *pContext, proto::Preedit comp_data) = 0;
-    virtual void CommitComposition(TfEditCookie cookie, ITfContext *pContext) = 0;
-    virtual void CommitComposition(TfEditCookie cookie, ITfContext *pContext, proto::Preedit comp_data) = 0;
+    virtual void DoComposition(TfEditCookie cookie, ITfContext *context, proto::Preedit comp_data) = 0;
+    virtual void CommitComposition(TfEditCookie cookie, ITfContext *context) = 0;
+    virtual void CommitComposition(TfEditCookie cookie, ITfContext *context, proto::Preedit comp_data) = 0;
     virtual void CancelComposition(TfEditCookie cookie) = 0;
+    virtual void ClearComposition(TfEditCookie cookie) = 0;
+
     virtual winrt::com_ptr<ITfRange> GetTextRange(TfEditCookie cookie) = 0;
 };
 

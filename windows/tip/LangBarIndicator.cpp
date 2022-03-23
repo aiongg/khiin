@@ -30,8 +30,8 @@ struct LangBarIndicatorImpl :
         m_info.ulSort = 0;
     }
 
-    virtual void Initialize(TextService *pService) override {
-        m_service.copy_from(pService);
+    virtual void Initialize(TextService *service) override {
+        m_service.copy_from(service);
         auto langbarmgr = langbar_item_mgr();
         check_hresult(langbarmgr->AddItem(this));
         m_popup = std::unique_ptr<PopupMenu>(PopupMenu::Create(m_service.get()));

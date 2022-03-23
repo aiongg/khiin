@@ -164,7 +164,7 @@ void EditSession::HandleAction(TextService *service, ITfContext *context, Comman
 void EditSession::ReadWriteSync(TextService *service, ITfContext *context, EditSession::CallbackFn callback) {
     auto ses = make_self<CallbackEditSession>(callback);
     auto ses_hr = E_FAIL;
-    auto hr = context->RequestEditSession(service->clientId(), ses.get(), kSyncRWFlag, &ses_hr);
+    auto hr = context->RequestEditSession(service->client_id(), ses.get(), kSyncRWFlag, &ses_hr);
     CHECK_HRESULT(hr);
     CHECK_HRESULT(ses_hr);
 }

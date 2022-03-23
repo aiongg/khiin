@@ -27,9 +27,9 @@ struct CandidateListUIImpl :
     public implements<CandidateListUIImpl, ITfCandidateListUIElementBehavior, CandidateListUI>,
     CandidateSelectListener,
     ConfigChangeListener {
-    void Initialize(TextService *pTextService) override {
+    void Initialize(TextService *service) override {
         KHIIN_TRACE("");
-        m_service.copy_from(pTextService);
+        m_service.copy_from(service);
         m_service->RegisterConfigChangeListener(this);
         m_pager = std::unique_ptr<CandidatePager>(CandidatePager::Create());
         BeginUIElement();
@@ -52,10 +52,10 @@ struct CandidateListUIImpl :
         }
     }
 
-    void Update(ITfContext *pContext, EditState edit_state, const CandidateList &candidate_list,
+    void Update(ITfContext *context, EditState edit_state, const CandidateList &candidate_list,
                 RECT text_rect) override {
         KHIIN_TRACE("");
-        m_context.copy_from(pContext);
+        m_context.copy_from(context);
         m_candidate_list.CopyFrom(candidate_list);
         m_edit_state = edit_state;
         m_text_rect = text_rect;
