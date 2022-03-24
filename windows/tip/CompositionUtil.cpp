@@ -126,15 +126,13 @@ std::vector<InputScope> CompositionUtil::InputScopes(TfEditCookie cookie, ITfCon
 }
 
 /**
- * Getting the position of composition text on screen with |ITfContextView::GetTextExt|
+ * Getting the position of composition text on screen with ITfContextView::GetTextExt
  * seems rather unreliable in some applications, so we include some fallbacks.
- *
- * 1. Try to obtain the ITfRange from the ITfCompositionView directly
- * 2. Try to obtain the ITfRange from the default selection
- *
- * In case both 1 and 2 fail, we fall back to the upper left corner of the parent
- * window, which not ideal but better than falling back to the upper left corner
- * of the entire screen.
+ * If everything works as expected, we will get the range from the ITfContext
+ * directly (via the ITfCompositionView). If not, we try the default selection.
+ * Finally, if both fail, we put the window in the upper left corner of the parent
+ * window, which is not ideal but still better than falling back to 0,0 at the
+ * upper left corner of the entire screen.
  */
 RECT CompositionUtil::TextPosition(TfEditCookie ec, ITfContext *context, int caret) {
     auto context_view = com_ptr<ITfContextView>();
@@ -146,20 +144,30 @@ RECT CompositionUtil::TextPosition(TfEditCookie ec, ITfContext *context, int car
     check_hresult(range->ShiftEnd(ec, caret, &shifted, nullptr));
     check_hresult(range->ShiftStart(ec, caret, &shifted, nullptr));
 
+    auto hr = E_FAIL;
     RECT rect = {};
     BOOL clipped = FALSE;
-    if (context_view->GetTextExt(ec, range.get(), &rect, &clipped) == S_OK && !EmptyRect(rect)) {
+    hr = context_view->GetTextExt(ec, range.get(), &rect, &clipped);
+    if (hr == S_OK && !EmptyRect(rect)) {
         KHIIN_DEBUG("From composition range {} {}", rect.left, rect.top);
         return rect;
+    } else {
+        CHECK_HRESULT(hr);
+        KHIIN_DEBUG("From composition range {} {}", rect.left, rect.top);
     }
 
     range = nullptr;
     range = DefaultSelectionRange(ec, context);
+    range->SetText(ec, TF_ST_CORRECTION, L" ", 1);
     check_hresult(range->Collapse(ec, TF_ANCHOR_START));
+    hr = context_view->GetTextExt(ec, range.get(), &rect, &clipped);
 
-    if (context_view->GetTextExt(ec, range.get(), &rect, &clipped) == S_OK && !EmptyRect(rect)) {
+    if (hr == S_OK && !EmptyRect(rect)) {
         KHIIN_DEBUG("From default selection {} {}", rect.left, rect.top);
         return rect;
+    } else {
+        CHECK_HRESULT(hr);
+        KHIIN_DEBUG("From default selection {} {}", rect.left, rect.top);
     }
 
     rect = ParentWindowTopLeft(context_view.get());

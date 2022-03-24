@@ -210,6 +210,7 @@ struct TextServiceImpl :
         KHIIN_TRACE("");
         KHIIN_DEBUG("OnCompositionTerminated");
         m_engine->Reset();
+        pComposition->EndComposition(ecWrite);
         m_compositionmgr->ClearComposition(ecWrite);
         m_candidate_list_ui->Hide();
     }

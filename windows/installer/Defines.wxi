@@ -46,6 +46,6 @@
     <?define DB_SOURCE_PATH = "$(var.ResourceDir)/khiin.db" ?>
     <?define DB_DEST_FILE = "khiin.db" ?>
 
-    <?define CONF_FILE_SRC = "$(var.ResourceDir)/khiin_config.json" ?>
-    <?define CONF_FILE_DEST = "khiin_config.json" ?>
+    <?define CONF_FILE_SRC = "$(var.ResourceDir)/khiin_config.ini" ?>
+    <?define CONF_FILE_DEST = "khiin_config.ini" ?>
 </Include>

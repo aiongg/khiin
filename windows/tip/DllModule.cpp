@@ -145,9 +145,11 @@ LONG WINAPI TopLevelExceptionFilter(LPEXCEPTION_POINTERS e) {
 }
 
 BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserved) {
+    //MessageBox(NULL, (LPCWSTR)L"Waiting for debugger...", (LPCWSTR)L"OK", MB_DEFBUTTON2);
+    
     switch (ul_reason_for_call) {
     case DLL_PROCESS_ATTACH:
-        ::SetUnhandledExceptionFilter(TopLevelExceptionFilter);
+        //::SetUnhandledExceptionFilter(TopLevelExceptionFilter);
         ::DisableThreadLibraryCalls(hModule);
         return ModuleImpl::OnDllProcessAttach(hModule, lpReserved != nullptr);
     case DLL_PROCESS_DETACH:

@@ -33,6 +33,21 @@ struct CompositionMgrImpl : implements<CompositionMgrImpl, CompositionMgr> {
         return bool(m_composition);
     }
 
+    void StartComposition(TfEditCookie cookie, ITfContext *context) {
+        KHIIN_TRACE("");
+        auto ctx = com_ptr<ITfContext>();
+        ctx.copy_from(context);
+        auto insert_selection = ctx.as<ITfInsertAtSelection>();
+        auto insert_position = com_ptr<ITfRange>();
+        check_hresult(
+            insert_selection->InsertTextAtSelection(cookie, TF_IAS_QUERYONLY, nullptr, 0, insert_position.put()));
+        auto composition_context = ctx.as<ITfContextComposition>();
+        check_hresult(composition_context->StartComposition(
+            cookie, insert_position.get(), m_service->CreateCompositionSink(context).get(), m_composition.put()));
+
+        SetSelection(cookie, context, insert_position.get(), TF_AE_NONE);
+    }
+
     void DoComposition(TfEditCookie cookie, ITfContext *context, WidePreedit preedit) override {
         KHIIN_TRACE("");
 
@@ -78,6 +93,7 @@ struct CompositionMgrImpl : implements<CompositionMgrImpl, CompositionMgr> {
         check_hresult(cursor_range->ShiftStart(cookie, cursor_pos, &shifted, nullptr));
 
         SetSelection(cookie, context, cursor_range.get(), TF_AE_END);
+        InitGetTextExt(cookie, context, cursor_range.get());
     }
 
     void CommitComposition(TfEditCookie cookie, ITfContext *context) override {
@@ -159,20 +175,6 @@ struct CompositionMgrImpl : implements<CompositionMgrImpl, CompositionMgr> {
         return clone;
     }
 
-    void StartComposition(TfEditCookie cookie, ITfContext *context) {
-        KHIIN_TRACE("");
-        auto ctx = com_ptr<ITfContext>();
-        ctx.copy_from(context);
-        auto insert_selection = ctx.as<ITfInsertAtSelection>();
-        auto insert_position = com_ptr<ITfRange>();
-        check_hresult(
-            insert_selection->InsertTextAtSelection(cookie, TF_IAS_QUERYONLY, nullptr, 0, insert_position.put()));
-        auto composition_context = ctx.as<ITfContextComposition>();
-        check_hresult(composition_context->StartComposition(
-            cookie, insert_position.get(), m_service->CreateCompositionSink(context).get(), m_composition.put()));
-        SetSelection(cookie, context, insert_position.get(), TF_AE_NONE);
-    }
-
     void ApplyDisplayAttribute(TfEditCookie cookie, ITfProperty *attribute_property, ITfRange *composition_range,
                                int start, int size, SegmentStatus status) {
         KHIIN_TRACE("");
@@ -203,6 +205,23 @@ struct CompositionMgrImpl : implements<CompositionMgrImpl, CompositionMgr> {
         sel.style.ase = ase;
         sel.style.fInterimChar = FALSE;
         check_hresult(context->SetSelection(cookie, 1, &sel));
+
+        /**
+         * For unknown reasons, in some cases the first time GetTextExt is
+         * called after SetSelection, it returns an error code. We call it here
+         * every time and discard the result, so that when it is later called
+         * by the candidate window we get the correct result.
+         */
+        // InitGetTextExt(cookie, context, range);
+    }
+
+    void InitGetTextExt(TfEditCookie cookie, ITfContext *context, ITfRange *range) {
+        RECT rc{};
+        BOOL clipped = FALSE;
+        auto view = com_ptr<ITfContextView>();
+        context->GetActiveView(view.put());
+        view->GetTextExt(cookie, range, &rc, &clipped);
+        KHIIN_DEBUG("SetSelection: {} {}", rc.left, rc.top);
     }
 
     com_ptr<TextService> m_service = nullptr;

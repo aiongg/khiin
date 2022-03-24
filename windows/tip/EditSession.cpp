@@ -120,7 +120,7 @@ void HandleUpdateCandidates(TextService *service, ITfContext *context, Command *
  * All operations that require an edit cookie should pass a callback receiving
  * the cookie into this class, which may be the be called with
  * |ITfContext::RequestEditSession|.
- * 
+ *
  * Note that some operations must be performed with separate tokens, or they
  * will fail in certain cases. For example, requesting the screen coordinates
  * of composing text fails in some applications if the composition session
@@ -166,7 +166,7 @@ void EditSession::HandleAction(TextService *service, ITfContext *context, Comman
 void EditSession::ReadWriteSync(TextService *service, ITfContext *context, EditSession::CallbackFn callback) {
     auto ses = make_self<CallbackEditSession>(callback);
     auto ses_hr = E_FAIL;
-    auto hr = context->RequestEditSession(service->client_id(), ses.get(), kSyncRWFlag, &ses_hr);
+    auto hr = context->RequestEditSession(service->client_id(), ses.get(), kAsyncRWFlag, &ses_hr);
     CHECK_HRESULT(hr);
     CHECK_HRESULT(ses_hr);
 }
