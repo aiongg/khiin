@@ -24,6 +24,11 @@
             <UIRef Id="WixUI_Minimal"/>
             <UIRef Id="WixUI_ErrorProgressText" />
         </UI>
+
+        <WixVariable Id="WixUILicenseRtf" Value="$(var.LicenseFile)"/>
+        <WixVariable Id="WixUIDialogBmp" Value="$(var.KhiinUIDialogBmp)"/>
+        <Icon Id="icon.ico" SourceFile="$(var.IconSourceFile)"/>
+        <Property Id="ARPPRODUCTICON" Value="icon.ico" />
     </Product>
 
     <Fragment>
@@ -46,9 +51,10 @@
     <Fragment>
         <ComponentGroup Id="Files_64" Directory="INSTALLDIR64">
             <Component Id="KhiinPJH_64" Guid="$(var.GUID_Dll64Component)" Win64="yes">
-                <File Id="KhiinDLL_64" Name="$(var.DLL_64_DEST_FILE)" DiskId="1" Source="$(var.DLL_64_SOURCE_PATH)" KeyPath="yes"/>
-                <File Id="KhiinSettingsExe" Name="$(var.SETTINGS_DEST)" DiskId="1" Source="$(var.SETTINGS_SOURCE)" />
-                <File Id="KhiinDbFile2" Name="$(var.DB_DEST_FILE)" DiskId="1" Source="$(var.DB_SOURCE_PATH)" />
+                <File Id="KhiinDLL_64" Name="$(var.DllOutputFile64)" DiskId="1" Source="$(var.DllSourceFile64)" KeyPath="yes"/>
+                <File Id="KhiinSettingsExe" Name="$(var.SettingsExeOutputFile)" DiskId="1" Source="$(var.SettingsExeSourceFile)" />
+                <File Id="KhiinDbFile2" Name="$(var.DatabaseOutputFile)" DiskId="1" Source="$(var.DatabaseSourceFile)" />
+                <File Id="UserDbFile2" Source="$(var.UserDbSourceFile)" Name="$(var.UserDbOutputFile)" DiskId="1" />
             </Component>
         </ComponentGroup>
     </Fragment>
@@ -56,8 +62,7 @@
     <Fragment>
         <ComponentGroup Id="Files_32" Directory="INSTALLDIR32">
             <Component Id="KhiinPJH_32" Guid="$(var.GUID_Dll32Component)" Win64="no">
-                <File Id="KhiinDLL_32" Name="$(var.DLL_32_DEST_FILE)" DiskId="1" Source="$(var.DLL_32_SOURCE_PATH)" KeyPath="yes"/>
-                <File Id="KhiinDbFile3" Name="$(var.DB_DEST_FILE)" DiskId="1" Source="$(var.DB_SOURCE_PATH)" />
+                <File Id="KhiinDLL_32" Name="$(var.DllOutputFile32)" DiskId="1" Source="$(var.DllSourceFile32)" KeyPath="yes"/>
             </Component>
         </ComponentGroup>
     </Fragment>
@@ -69,8 +74,9 @@
                 <RegistryKey Root="HKCU" Key="Software\$(var.Manufacturer_EN)">
                     <RegistryValue Name="KhiinAppData" Type="integer" Value="1" KeyPath="yes" />
                 </RegistryKey>
-                <File Id="KhiinDbFile1" Name="$(var.DB_DEST_FILE)" DiskId="1" Source="$(var.DB_SOURCE_PATH)" />
-                <File Id="KhiinConfFile1" Name="$(var.CONF_FILE_DEST)" DiskId="1" Source="$(var.CONF_FILE_SRC)" />
+                <File Id="KhiinDbFile1" Source="$(var.DatabaseSourceFile)" Name="$(var.DatabaseOutputFile)" DiskId="1" />
+                <File Id="KhiinConfFile1" Source="$(var.ConfigSourceFile)" Name="$(var.ConfigOutputFile)" DiskId="1" />
+                <File Id="UserDbFile1" Source="$(var.UserDbSourceFile)" Name="$(var.UserDbOutputFile)" DiskId="1" />
             </Component>
         </ComponentGroup>
     </Fragment>
@@ -88,7 +94,7 @@
                     <RegistryValue Name="installed" Type="integer" Value="1" KeyPath="yes"/>
                 </RegistryKey>
                 <RegistryKey Root="HKCU" Key="Software\$(var.Manufacturer_EN)\Settings">
-                    <RegistryValue Name="SettingsApplicationPath" Type="string" Value="[INSTALLDIR64]$(var.SETTINGS_DEST)" />
+                    <RegistryValue Name="SettingsApplicationPath" Type="string" Value="[INSTALLDIR64]$(var.SettingsExeOutputFile)" />
                 </RegistryKey>
             </Component>
         </ComponentGroup>

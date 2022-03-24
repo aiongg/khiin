@@ -12,7 +12,7 @@
 namespace khiin::engine {
 using namespace proto;
 
-constexpr auto kUserDictionaryFile = "khiin_user.txt";
+constexpr auto kUserDictionaryFile = "khiin_userdb.txt";
 
 TEST(UserDictionaryParserTest, ParseFile) {
     auto udp = UserDictionaryParser::LoadFile(kUserDictionaryFile);

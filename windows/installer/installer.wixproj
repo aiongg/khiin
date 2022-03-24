@@ -14,13 +14,13 @@
         <OutputPath>$(SolutionDir)\out\build\$(Platform)-$(Configuration)\</OutputPath>
         <IntermediateOutputPath>$(SolutionDir)\out\obj\installer-$(Platform)-$(Configuration)\</IntermediateOutputPath>
         <DefineConstants>Debug</DefineConstants>
-        <OutputName>Khiin PJH (64 bit - Debug)</OutputName>
+        <OutputName>Khiin PJH (Debug)</OutputName>
         <LinkerAdditionalOptions>-ext WixUIExtension</LinkerAdditionalOptions>
     </PropertyGroup>
     <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x64' ">
         <OutputPath>$(SolutionDir)\out\build\$(Platform)-$(Configuration)\</OutputPath>
         <IntermediateOutputPath>$(SolutionDir)\out\obj\installer-$(Platform)-$(Configuration)\</IntermediateOutputPath>
-        <OutputName>Khiin PJH (64 bit)</OutputName>
+        <OutputName>Khiin PJH</OutputName>
         <LinkerAdditionalOptions>-ext WixUIExtension</LinkerAdditionalOptions>
     </PropertyGroup>
     <ItemGroup>
