@@ -205,14 +205,6 @@ HRESULT Registrar::SetProfileEnabled(BOOL enable) {
     return E_NOTIMPL;
 }
 
-std::wstring Registrar::GetSettingsString(std::wstring const &name) {
-    return GetStringValue(SettingsRoot(), name);
-}
-
-void Registrar::SetSettingsString(std::wstring const &name, std::wstring const &value) {
-    return SetStringValue(SettingsRoot(), name, value);
-}
-
 bool Registrar::SystemUsesLightTheme() {
     auto key = registry_key(HKEY_CURRENT_USER);
     auto subkey = L"Software\\Microsoft\\Windows\\CurrentVersion\\Themes\\Personalize";
@@ -228,12 +220,36 @@ bool Registrar::SystemUsesLightTheme() {
     return data == 1;
 }
 
+std::wstring Registrar::GetSettingsString(std::wstring const &name) {
+    try {
+        return GetStringValue(SettingsRoot(), name);
+    } catch (...) {
+        return std::wstring();
+    }
+}
+
+void Registrar::SetSettingsString(std::wstring const &name, std::wstring const &value) {
+    try {
+        return SetStringValue(SettingsRoot(), name, value);
+    } catch (...) {
+        return;
+    }
+}
+
 int Registrar::GetSettingsInt(std::wstring const &name) {
-    return GetIntValue(SettingsRoot(), name);
+    try {
+        return GetIntValue(SettingsRoot(), name);
+    } catch (...) {
+        return 0;
+    }
 }
 
 void Registrar::SetSettingsInt(std::wstring const &name, int value) {
-    return SetIntValue(SettingsRoot(), name, value);
+    try {
+        return SetIntValue(SettingsRoot(), name, value);
+    } catch (...) {
+        return;
+    }
 }
 
 } // namespace khiin::win32::tip
