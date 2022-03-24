@@ -26,7 +26,7 @@ class Buffer {
 
     // Adds virtual spacer elements where required
     // (e.g., between loji and hanji).
-    static void AdjustVirtualSpacing(BufferElementList &elements);
+    //static void AdjustVirtualSpacing(BufferElementList &elements);
 
     Buffer() = default;
     Buffer(BufferElementList &&elements);
@@ -69,6 +69,8 @@ class Buffer {
 
     std::string RawTextFrom(size_t element_index) const;
 
+    bool AllComposing() const;
+
     // Returns true if there are any non-converted elements in the compostion
     bool HasComposing() const;
 
@@ -86,27 +88,19 @@ class Buffer {
     void SplitAtElement(size_t index, Buffer *pre, Buffer *post);
 
     void Join(Buffer *pre, Buffer *post);
+    void RemoveVirtualSpacing();
     void AdjustVirtualSpacing();
     void StripVirtualSpacing();
 
-    // Append all elements of |rhs| to this Buffer
-    void Append(Buffer &rhs);
-
-    void Append(Buffer &&rhs);
-
-    void Append(BufferElement &&rhs);
-
-    // Append a plain text string as a new buffer element
-    void Append(std::string &&rhs);
-
-    // Append a TaiText as a new buffer element
-    void Append(TaiText &&rhs);
-
-    // Append a Punctuation as a new buffer element
-    void Append(Punctuation &&rhs);
-
+    // Creates the appropriate variant internally
     void Append(SyllableParser *parser, std::string const &input, TaiToken *match = nullptr, bool set_candidate = false,
                 bool set_converted = false);
+    void Append(Buffer &rhs);
+    void Append(Buffer &&rhs);
+    void Append(BufferElement &&rhs);
+    void Append(std::string &&rhs);
+    void Append(TaiText &&rhs);
+    void Append(Punctuation &&rhs);
 
     // Replace element at |index| in this Buffer with all elements from |replace|
     iterator Replace(iterator first, iterator last, Buffer &other);

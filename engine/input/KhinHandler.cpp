@@ -12,12 +12,9 @@ namespace khiin::engine {
 namespace {
 
 bool is_all_hyphens(std::string_view str) {
-    for (auto c : str) {
-        if (c != '-') {
-            return false;
-        }
-    }
-    return true;
+    return std::all_of(str.cbegin(), str.cend(), [](auto c) {
+        return c == '-';
+    });
 }
 
 void AutokhinBufferImpl(SyllableParser *parser, bool autokhin_enabled, BufferElementList &buffer) {

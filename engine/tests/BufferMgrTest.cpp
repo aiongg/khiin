@@ -716,6 +716,14 @@ TEST_F(CandidateNavigationTest, Focus_prev_e) {
     ExpectSegment(3, 2, SS_CONVERTED, "x", 3);
 }
 
+TEST_F(CandidateNavigationTest, Focus_erase_abo) {
+    input("abo");
+    curs_down(6);
+    enter();
+    key_bksp(2);
+    ExpectBuffer("唖", 1);
+}
+
 TEST_F(CandidateNavigationTest, Focus_xyz) {
     input("boxyz");
     spacebar(1);

@@ -9,13 +9,6 @@ namespace khiin::engine {
 namespace {
 using namespace unicode;
 
-void RemoveVirtualSpaces(BufferElementList &elements) {
-    auto it = std::remove_if(elements.begin(), elements.end(), [](BufferElement const &el) {
-        return el.IsVirtualSpace();
-    });
-    elements.erase(it, elements.end());
-}
-
 bool NeedsVirtualSpace(std::string const &lhs, std::string const &rhs) {
     auto left = end_glyph_type(lhs);
     auto right = start_glyph_type(rhs);
@@ -63,31 +56,31 @@ std::string Buffer::RawText(const_iterator const &from, const_iterator const &to
     return ret;
 }
 
-void Buffer::AdjustVirtualSpacing(BufferElementList &elements) {
-    if (elements.empty()) {
-        return;
-    }
-
-    RemoveVirtualSpaces(elements);
-
-    for (auto i = elements.size() - 1; i != 0; --i) {
-        auto &lhs_elem = elements.at(i - 1);
-        auto &rhs_elem = elements.at(i);
-        auto lhs_converted = lhs_elem.IsConverted();
-        auto rhs_converted = rhs_elem.IsConverted();
-
-        std::string lhs = lhs_converted ? lhs_elem.converted() : lhs_elem.composed();
-        std::string rhs = rhs_converted ? rhs_elem.converted() : rhs_elem.composed();
-
-        if (NeedsVirtualSpace(lhs, rhs)) {
-            auto vs = BufferElement(VirtualSpace());
-            if (lhs_converted && rhs_converted) {
-                vs.SetConverted(true);
-            }
-            elements.insert(elements.begin() + static_cast<int>(i), std::move(vs));
-        }
-    }
-}
+//void Buffer::AdjustVirtualSpacing(BufferElementList &elements) {
+//    if (elements.empty()) {
+//        return;
+//    }
+//
+//    RemoveVirtualSpaces(elements);
+//
+//    for (auto i = elements.size() - 1; i != 0; --i) {
+//        auto &lhs_elem = elements.at(i - 1);
+//        auto &rhs_elem = elements.at(i);
+//        auto lhs_converted = lhs_elem.IsConverted();
+//        auto rhs_converted = rhs_elem.IsConverted();
+//
+//        std::string lhs = lhs_converted ? lhs_elem.converted() : lhs_elem.composed();
+//        std::string rhs = rhs_converted ? rhs_elem.converted() : rhs_elem.composed();
+//
+//        if (NeedsVirtualSpace(lhs, rhs)) {
+//            auto vs = BufferElement(VirtualSpace());
+//            if (lhs_converted && rhs_converted) {
+//                vs.SetConverted(true);
+//            }
+//            elements.insert(elements.begin() + static_cast<int>(i), std::move(vs));
+//        }
+//    }
+//}
 
 // Not currently used
 void Buffer::StripVirtualSpacing() {
@@ -300,6 +293,12 @@ std::string Buffer::Text() const {
     return ret;
 }
 
+bool Buffer::AllComposing() const {
+    return std::all_of(m_elements.cbegin(), m_elements.cend(), [](auto const &el) {
+        return !el.IsConverted();
+    });
+}
+
 bool Buffer::HasComposing() const {
     return std::any_of(m_elements.cbegin(), m_elements.cend(), [](auto const &el) {
         return !el.IsConverted();
@@ -428,12 +427,19 @@ std::string ConvertedOrComposedText(BufferElement &element) {
     return element.composed();
 }
 
+void Buffer::RemoveVirtualSpacing() {
+    auto it = std::remove_if(m_elements.begin(), m_elements.end(), [](BufferElement const &el) {
+        return el.IsVirtualSpace();
+    });
+    m_elements.erase(it, m_elements.end());
+}
+
 void Buffer::AdjustVirtualSpacing() {
     if (m_elements.empty()) {
         return;
     }
 
-    RemoveVirtualSpaces(m_elements);
+    RemoveVirtualSpacing();
 
     for (auto i = m_elements.size() - 1; i != 0; --i) {
         auto &lhs_elem = m_elements.at(i - 1);

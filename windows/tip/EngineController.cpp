@@ -59,6 +59,18 @@ void TranslateKeyEvent(win32::KeyEvent *e1, proto::KeyEvent *e2) {
     if (auto idx = kWindowsToKhiinKeyCode.find(e1->keycode()); idx != kWindowsToKhiinKeyCode.end()) {
         e2->set_special_key(idx->second);
     }
+
+    if (e1->key_down(VK_SHIFT)) {
+        e2->add_modifier_keys(ModifierKey::MODK_SHIFT);
+    }
+
+    if (e1->key_down(VK_CONTROL)) {
+        e2->add_modifier_keys(ModifierKey::MODK_CTRL);
+    }
+
+    if (e1->key_down(VK_MENU)) {
+        e2->add_modifier_keys(ModifierKey::MODK_ALT);
+    }
 }
 
 struct EngineControllerImpl : winrt::implements<EngineControllerImpl, EngineController>, ConfigChangeListener {

@@ -29,6 +29,13 @@ namespace {
 using namespace khiin::proto;
 namespace fs = std::filesystem;
 
+bool ModKeyPressed(KeyEvent key_event, ModifierKey modifier) {
+    auto const &mods = key_event.modifier_keys();
+    return std::any_of(mods.cbegin(), mods.cend(), [&](auto m) {
+        return m == modifier;
+    });
+}
+
 class EngineImpl final : public Engine {
   public:
     EngineImpl() {}
@@ -107,7 +114,7 @@ class EngineImpl final : public Engine {
         return m_dictionary.get();
     }
 
-    UserDictionary* user_dict() override {
+    UserDictionary *user_dict() override {
         return m_userdict.get();
     }
 
@@ -128,7 +135,7 @@ class EngineImpl final : public Engine {
 
     void HandleNone(Command *command) {}
 
-    void HandleReset(Command* command) {
+    void HandleReset(Command *command) {
         m_buffer_mgr->Clear();
     }
 
@@ -153,6 +160,13 @@ class EngineImpl final : public Engine {
             m_buffer_mgr->HandleLeftRight(CursorDirection::L);
             break;
         }
+        case SK_TAB:
+            if (ModKeyPressed(key, MODK_SHIFT)) {
+                m_buffer_mgr->FocusPrevCandidate();
+            } else {
+                m_buffer_mgr->FocusNextCandidate();
+            }
+            break;
         case SK_DOWN: {
             m_buffer_mgr->FocusNextCandidate();
             break;
@@ -190,6 +204,10 @@ class EngineImpl final : public Engine {
             } else {
                 m_buffer_mgr->HandleSelectOrFocus();
             }
+            break;
+        }
+        case SK_ESC: {
+            m_buffer_mgr->Revert();
             break;
         }
         default: {

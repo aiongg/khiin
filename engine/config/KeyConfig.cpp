@@ -10,32 +10,37 @@ namespace {
 
 using namespace khiin::proto;
 
-constexpr char kDisallowedTelexKeys[] = {'a', 'e', 'h', 'i', 'k', 'm', 'n', 'o', 'p', 't', 'u'};
-constexpr char kAllowedTelexKeys[] = {'b', 'c', 'd', 'f', 'g', 'j', 'l', 'q', 'r', 's', 'v', 'w', 'x', 'y', 'z'};
-constexpr char kAllowedOtherKeys[] = {'d', 'f', 'q', 'r', 'v', 'w', 'x', 'y', 'z'};
+constexpr std::array<char, 11> kDisallowedTelexKeys = {'a', 'e', 'h', 'i', 'k', 'm', 'n', 'o', 'p', 't', 'u'};
+constexpr std::array<char, 15> kAllowedTelexKeys = {'b', 'c', 'd', 'f', 'g', 'j', 'l', 'q',
+                                                    'r', 's', 'v', 'w', 'x', 'y', 'z'};
+constexpr std::array<char, 9> kAllowedOtherKeys = {'d', 'f', 'q', 'r', 'v', 'w', 'x', 'y', 'z'};
 
-static inline const std::string kNasalStr = u8"\u207f";
-static inline const std::string kNasalUpperStr = u8"\u1d3a";
-static inline const std::string kODotStr = u8"o\u0358";
-static inline const std::string kODotUpperStr = u8"O\u0358";
-static inline const std::string kODotsBelowStr = u8"o\u0324";
-static inline const std::string kODotsBelowUpperStr = u8"O\u0324";
-static inline const std::string kUDotsBelowStr = u8"u\u0324";
-static inline const std::string kUDotsBelowUpperStr = u8"U\u0324";
+inline const std::string kNasalStr = u8"\u207f";
+inline const std::string kNasalUpperStr = u8"\u1d3a";
+inline const std::string kODotStr = u8"o\u0358";
+inline const std::string kODotUpperStr = u8"O\u0358";
+inline const std::string kODotsBelowStr = u8"o\u0324";
+inline const std::string kODotsBelowUpperStr = u8"O\u0324";
+inline const std::string kUDotsBelowStr = u8"u\u0324";
+inline const std::string kUDotsBelowUpperStr = u8"U\u0324";
 
 constexpr char kDefaultNasal = 'n';
 
-static inline bool is_allowed_other_key(char key) {
-    for (auto &c : kAllowedOtherKeys) {
-        if (key == c) {
-            return true;
-        }
-    }
-
-    return false;
+inline char to_lower(char c) {
+    return static_cast<char>(tolower(static_cast<int>(c)));
 }
 
-static inline bool is_allowed_nasal_key(char key, bool standalone) {
+inline char to_upper(char c) {
+    return static_cast<char>(toupper(static_cast<int>(c)));
+}
+
+inline bool is_allowed_other_key(char key) {
+    return std::any_of(kAllowedOtherKeys.begin(), kAllowedOtherKeys.end(), [&](auto c) {
+        return key == c;
+    });
+}
+
+inline bool is_allowed_nasal_key(char key, bool standalone) {
     if (!is_allowed_other_key(key)) {
         if (standalone || key != 'n') {
             return false;
@@ -44,7 +49,7 @@ static inline bool is_allowed_nasal_key(char key, bool standalone) {
     return true;
 }
 
-static inline bool is_allowed_dotaboveright_key(char key, bool standalone) {
+inline bool is_allowed_dotaboveright_key(char key, bool standalone) {
     if (!is_allowed_other_key(key)) {
         if (standalone || (key != 'o' && key != 'u')) {
             return false;
@@ -56,18 +61,17 @@ static inline bool is_allowed_dotaboveright_key(char key, bool standalone) {
 class KeyCfgImpl : public KeyConfig, ConfigChangeListener {
   public:
     KeyCfgImpl(Engine *engine) : m_engine(engine) {
-        if (m_engine) {
+        if (m_engine != nullptr) {
             m_engine->RegisterConfigChangedListener(this);
         }
     };
 
     // Inherited via ConfigChangeListener
-    virtual void OnConfigChanged(Config *config) {
+    void OnConfigChanged(Config *config) override {
         ReloadEngineConfig();
     }
 
     bool SetKey(char key, VKey vkey, bool standalone = false) override {
-        auto set = false;
         switch (vkey) {
         case VKey::Nasal:
             return SetNasal(key, standalone);
@@ -104,26 +108,26 @@ class KeyCfgImpl : public KeyConfig, ConfigChangeListener {
         }
 
         Reset();
-        auto config = m_engine->config();
+        auto *config = m_engine->config();
 
         if (auto key = config->nasal(); key.size() == 1) {
-            SetKey(tolower(key.front()), VKey::Nasal, true);
+            SetKey(to_lower(key.front()), VKey::Nasal, true);
         } else if (key.size() == 2 && tolower(key.front()) == 'n') {
-            SetKey(tolower(key.back()), VKey::Nasal, false);
+            SetKey(to_lower(key.back()), VKey::Nasal, false);
         } else {
             SetKey('n', VKey::Nasal, false);
         }
 
         if (auto key = config->dot_above_right(); key.size() == 1) {
-            SetKey(tolower(key.front()), VKey::DotAboveRight, true);
+            SetKey(to_lower(key.front()), VKey::DotAboveRight, true);
         } else if (key.size() == 2 && tolower(key.front()) == 'o') {
-            SetKey(tolower(key.back()), VKey::DotAboveRight, false);
+            SetKey(to_lower(key.back()), VKey::DotAboveRight, false);
         } else {
             SetKey('u', VKey::DotAboveRight, false);
         }
 
         if (auto key = config->dots_below(); key != 0) {
-            SetKey(tolower(key), VKey::DotsBelow, false);
+            SetKey(to_lower(key), VKey::DotsBelow, false);
         } else {
             SetKey('r', VKey::DotsBelow);
         }
@@ -141,9 +145,9 @@ class KeyCfgImpl : public KeyConfig, ConfigChangeListener {
 
     std::string Convert(std::string const &input) override {
         std::string ret = input;
-        auto &rules = ConversionRules();
+        auto const &rules = ConversionRules();
 
-        for (auto &rule : rules) {
+        for (auto const &rule : rules) {
             if (auto pos = ret.find(rule.first); pos != std::string::npos) {
                 ret.replace(pos, rule.first.size(), rule.second);
             }
@@ -153,9 +157,9 @@ class KeyCfgImpl : public KeyConfig, ConfigChangeListener {
 
     std::string Deconvert(std::string const &input) override {
         std::string ret = input;
-        auto &rules = ConversionRules();
+        auto const &rules = ConversionRules();
 
-        for (auto &rule : rules) {
+        for (auto const &rule : rules) {
             if (auto pos = ret.find(rule.second); pos != std::string::npos) {
                 ret.replace(pos, rule.second.size(), rule.first);
             }
@@ -211,6 +215,8 @@ class KeyCfgImpl : public KeyConfig, ConfigChangeListener {
         case Tone::T9:
             digit_key = '9';
             break;
+        default:
+            digit_key = 0;
         }
     }
 
@@ -243,21 +249,19 @@ class KeyCfgImpl : public KeyConfig, ConfigChangeListener {
 
     bool IsToneKey(unsigned char ch) override {
         // TODO: handle telex keys
-        return isdigit(ch);
+        return isdigit(ch) != 0;
     }
 
     void EnableToneDigitFallback(bool enabled) override {
-        return;
+        // TODO
     }
 
     bool IsHyphen(char ch) override {
         auto hyphen_keys = GetHyphenKeys();
-        for (auto key : hyphen_keys) {
-            if (ch == key) {
-                return true;
-            }
-        }
-        return false;
+
+        return std::any_of(hyphen_keys.cbegin(), hyphen_keys.cend(), [&](auto key) {
+            return ch == key;
+        });
     }
 
     bool SetNasal(char key, bool standalone) {
@@ -273,7 +277,7 @@ class KeyCfgImpl : public KeyConfig, ConfigChangeListener {
         standalone_nasal = standalone;
 
         auto key_lc = std::string(1, key);
-        auto key_uc = std::string(1, toupper(key));
+        auto key_uc = std::string(1, to_upper(key));
 
         if (standalone) {
             rule_set.conversion_rules.push_back(std::make_pair(key_lc, kNasalStr));
@@ -301,7 +305,7 @@ class KeyCfgImpl : public KeyConfig, ConfigChangeListener {
         standalone_dotaboveright = standalone;
 
         auto key_lc = std::string(1, key);
-        auto key_uc = std::string(1, toupper(key));
+        auto key_uc = std::string(1, to_upper(key));
 
         if (standalone) {
             rule_set.conversion_rules.push_back(std::make_pair(key_lc, kODotStr));
@@ -328,7 +332,7 @@ class KeyCfgImpl : public KeyConfig, ConfigChangeListener {
         m_key_map[VKey::DotsBelow] = key;
 
         auto key_lc = std::string(1, key);
-        auto key_uc = std::string(1, toupper(key));
+        auto key_uc = std::string(1, to_upper(key));
 
         rule_set.conversion_rules.push_back(std::make_pair("o" + key_lc, kODotsBelowStr));
         rule_set.conversion_rules.push_back(std::make_pair("o" + key_uc, kODotsBelowStr));
@@ -375,20 +379,17 @@ class KeyCfgImpl : public KeyConfig, ConfigChangeListener {
         if (auto it = m_key_map.find(vkey); it != m_key_map.end()) {
             m_key_map.erase(it);
         }
-        m_conversion_rule_sets.erase(
-            std::remove_if(m_conversion_rule_sets.begin(), m_conversion_rule_sets.end(), [&](ConversionRuleSet &ea) {
-                return ea.vkey == vkey;
-            }));
+        m_conversion_rule_sets.erase(std::remove_if(m_conversion_rule_sets.begin(), m_conversion_rule_sets.end(),
+                                                    [&](ConversionRuleSet &ea) {
+                                                        return ea.vkey == vkey;
+                                                    }),
+                                     m_conversion_rule_sets.end());
     }
 
     bool is_key_available(char key, VKey vkey) {
-        for (auto &[used_vkey, used_key] : m_key_map) {
-            if (key == used_key && vkey != used_vkey) {
-                return false;
-            }
-        }
-
-        return true;
+        return std::all_of(m_key_map.cbegin(), m_key_map.cend(), [&](auto const &p) {
+            return key == p.second ? vkey == p.first : true;
+        });
     }
 
     Engine *m_engine = nullptr;

@@ -142,6 +142,39 @@ class BufferMgrImpl : public BufferMgr {
         Clear();
     }
 
+    void Revert() override {
+        switch (m_edit_state) {
+        case EditState::Composing:
+            if (m_composition.AllComposing()) {
+                Clear();
+            } else {
+                m_composition.SetConverted(false);
+                AdjustKhinAndSpacing(m_composition);
+                SetCaretToEnd();
+                m_focused_element = 0;
+            }
+
+            return;
+        case EditState::Converted: {
+            auto it = m_composition.Begin() + static_cast<int>(m_focused_element);
+            it->SetConverted(false);
+            ++it;
+            auto raw_caret = Buffer::RawTextSize(m_composition.Begin(), it);
+            AdjustKhinAndSpacing(m_composition);
+            SetCaretFromRaw(raw_caret);
+            FocusElement(m_composition.CIterCaret(m_caret));
+            m_edit_state = EditState::Composing;
+            return;
+        }
+        case EditState::Selecting: {
+            m_edit_state = EditState::Converted;
+            return;
+        }
+        case EditState::Empty:
+            return;
+        }
+    }
+
     void Insert(char ch) override {
         if (m_edit_state != EditState::Composing) {
             m_edit_state = EditState::Composing;
@@ -325,11 +358,11 @@ class BufferMgrImpl : public BufferMgr {
         auto it = begin + static_cast<int>(new_focused_element_idx);
         auto end = m_composition.End();
 
-        while (it != end && it->IsVirtualSpace()) {
+        while (it != end - 1 && it->IsVirtualSpace()) {
             ++it;
         }
 
-        m_focused_element = std::distance(m_composition.Begin(), it);
+        SetFocusedElement(std::distance(m_composition.Begin(), it));
 
         if (m_edit_state == EditState::Converted) {
             UpdateCandidatesForFocusedElement();
@@ -362,6 +395,13 @@ class BufferMgrImpl : public BufferMgr {
         }
     }
 
+    void AdjustThenUpdateCaretAndFocus(size_t raw_caret, size_t focus_caret) {
+        focus_caret = (std::min)(focus_caret, m_composition.RawTextSize());
+        AdjustKhinAndSpacing(m_composition);
+        FocusElement(m_composition.CIterRawCaret(focus_caret));
+        SetCaretFromRaw(raw_caret);
+    }
+
     void JoinBufferUpdateCaretAndFocus(utf8_size_t raw_caret) {
         // After joining, focus moves to the first element past m_precomp
         // Save this position as a virtual raw caret, since its actual
@@ -369,12 +409,7 @@ class BufferMgrImpl : public BufferMgr {
         auto focus_raw_caret = m_composition.Empty() ? m_precomp.RawTextSize() : m_precomp.RawTextSize() + 1;
 
         m_composition.Join(&m_precomp, &m_postcomp);
-        AdjustKhinAndSpacing(m_composition);
-
-        focus_raw_caret = (std::min)(focus_raw_caret, m_composition.RawTextSize());
-
-        FocusElement(m_composition.CIterRawCaret(focus_raw_caret));
-        SetCaretFromRaw(raw_caret);
+        AdjustThenUpdateCaretAndFocus(raw_caret, focus_raw_caret);
     }
 
     std::pair<std::string, size_t> BeginInsertion(char ch) {
@@ -591,7 +626,7 @@ class BufferMgrImpl : public BufferMgr {
             ++focused_elem;
         }
 
-        m_focused_element = std::distance(comp_begin, focused_elem);
+        SetFocusedElement(std::distance(comp_begin, focused_elem));
         UpdateCandidatesForFocusedElement();
         BeginSegmentNavigation();
     }
@@ -635,9 +670,15 @@ class BufferMgrImpl : public BufferMgr {
 
     void EnsureCaretAndFocusInBounds() {
         SetCaret(m_caret);
+        SetFocusedElement(m_focused_element);
+    }
 
-        if (m_focused_element > m_composition.Size() - 1) {
-            OnFocusElementChange(m_composition.Size() - 1);
+    void SetFocusedElement(size_t index) {
+        auto comp_size = m_composition.Size();
+        if (comp_size == 0) {
+            m_focused_element = 0;
+        } else {
+            m_focused_element = (std::min)(index, comp_size - 1);
         }
     }
 
@@ -651,6 +692,12 @@ class BufferMgrImpl : public BufferMgr {
 
     void SetCaretToEnd() {
         m_caret = m_composition.TextSize();
+    }
+
+    void SetCaretToElementEnd() {
+        if (m_focused_element == m_composition.Size() - 1) {
+            SetCaretToEnd();
+        }
     }
 
     TaiToken *FocusLGram() {

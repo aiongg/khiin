@@ -72,6 +72,13 @@ class BufferMgr {
     virtual void Commit() = 0;
 
     /**
+     * When fully composing, clears the buffer
+     * When partially converted, reverts all converted elements
+     * When fully converted, reverts the focused element
+     */
+    virtual void Revert() = 0;
+
+    /**
      * Insert one ascii character into the raw buffer. If possible,
      * the composition will be displayed as Lomaji directly.
      *
