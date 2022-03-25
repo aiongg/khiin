@@ -195,7 +195,7 @@ WidePreedit const CompositionUtil::WidenPreedit(const Preedit &preedit) {
     auto ret = WidePreedit{};
     auto &segments = preedit.segments();
     auto start_idx = 0;
-
+     
     for (auto &segment : segments) {
         auto w = Utils::Widen(segment.value());
         auto wsize = static_cast<int>(w.size());

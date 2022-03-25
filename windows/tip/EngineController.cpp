@@ -182,6 +182,9 @@ struct EngineControllerImpl : winrt::implements<EngineControllerImpl, EngineCont
 
   private:
     Command *SendCommand(Command *cmd) {
+        if (cmd->request().key_event().special_key() == SK_BACKSPACE) {
+            auto x = 3;
+        }
         m_engine->SendCommand(cmd);
         m_prev_command = std::unique_ptr<Command>(cmd);
         return m_prev_command.get();

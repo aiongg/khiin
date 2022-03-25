@@ -244,7 +244,7 @@ struct TextServiceImpl :
 
     void OnCandidateSelected(int32_t candidate_id) override {
         auto command = m_engine->SelectCandidate(candidate_id);
-        EditSession::HandleAction(this, context().get(), std::move(command));
+        EditSession::HandleAction(this, context().get(), command);
     }
 
     void UpdateCandidateWindow(TfEditCookie cookie) override {

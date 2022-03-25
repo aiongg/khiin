@@ -51,15 +51,25 @@ void HandleCommitImpl(TfEditCookie ec, TextService *service, ITfContext *context
 void HandleDoCompositionImpl(TfEditCookie ec, TextService *service, ITfContext *context, Command *command) {
     KHIIN_DEBUG("CMD_SEND_KEY");
     auto preedit = CompositionUtil::WidenPreedit(command->response().preedit());
-    service->composition_mgr()->DoComposition(ec, context, std::move(preedit));
+    service->composition_mgr()->DoComposition(ec, context, preedit);
 }
 
 void HandleUpdateCandidatesImpl(TfEditCookie ec, TextService *service, ITfContext *context, Command *command) {
-    auto &res = command->response();
+    WINRT_ASSERT(command != nullptr);
+    WINRT_ASSERT(service != nullptr);
+    WINRT_ASSERT(context != nullptr);
+
     auto ui = service->candidate_ui();
     auto comp = service->composition_mgr();
 
-    if (res.has_candidate_list() && res.candidate_list().candidates_size() > 0) {
+    if (!command->has_response()) {
+        ui->Hide();
+        return;
+    }
+
+    auto &res = command->response();
+
+    if (res.candidate_list().candidates().size() > 0) {
         auto rect = CompositionUtil::TextPosition(ec, context, res.preedit().focused_caret());
         ui->Update(context, res.edit_state(), res.candidate_list(), rect);
         ui->Show();
@@ -166,7 +176,7 @@ void EditSession::HandleAction(TextService *service, ITfContext *context, Comman
 void EditSession::ReadWriteSync(TextService *service, ITfContext *context, EditSession::CallbackFn callback) {
     auto ses = make_self<CallbackEditSession>(callback);
     auto ses_hr = E_FAIL;
-    auto hr = context->RequestEditSession(service->client_id(), ses.get(), kAsyncRWFlag, &ses_hr);
+    auto hr = context->RequestEditSession(service->client_id(), ses.get(), kSyncRWFlag, &ses_hr);
     CHECK_HRESULT(hr);
     CHECK_HRESULT(ses_hr);
 }
