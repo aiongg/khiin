@@ -29,6 +29,10 @@
         <WixVariable Id="WixUIDialogBmp" Value="$(var.KhiinUIDialogBmp)"/>
         <Icon Id="icon.ico" SourceFile="$(var.IconSourceFile)"/>
         <Property Id="ARPPRODUCTICON" Value="icon.ico" />
+
+        <InstallExecuteSequence>
+            <Custom Action="RunUpdaterExe" After="InstallFiles" />
+        </InstallExecuteSequence>
     </Product>
 
     <Fragment>
@@ -74,7 +78,7 @@
                 <RegistryKey Root="HKCU" Key="Software\$(var.Manufacturer_EN)">
                     <RegistryValue Name="KhiinAppData" Type="integer" Value="1" KeyPath="yes" />
                 </RegistryKey>
-                <File Id="KhiinDbFile1" Source="$(var.DatabaseSourceFile)" Name="$(var.DatabaseOutputFile)" DiskId="1" />
+                <!-- <File Id="KhiinDbFile1" Source="$(var.DatabaseSourceFile)" Name="$(var.DatabaseOutputFile)" DiskId="1" /> -->
                 <File Id="KhiinConfFile1" Source="$(var.ConfigSourceFile)" Name="$(var.ConfigOutputFile)" DiskId="1" />
                 <File Id="UserDbFile1" Source="$(var.UserDbSourceFile)" Name="$(var.UserDbOutputFile)" DiskId="1" />
             </Component>

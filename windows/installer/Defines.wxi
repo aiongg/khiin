@@ -24,24 +24,29 @@
     <?endif ?>
 
     <?if $(var.Configuration) = Debug ?>
-    <?define DllOutputFile64 = "Khiin PJH (64 bit - Debug).dll" ?>
-    <?define DllOutputFile32 = "Khiin PJH (32 bit - Debug).dll" ?>
-    <?define DllSourceFile64 = "$(var.BuildDir)/x64-Debug/KhiinPJH.dll" ?>
-    <?define DllSourceFile32 = "$(var.BuildDir)/x86-Debug/KhiinPJH.dll" ?>
-    <?define SettingsExeSourceFile = "$(var.BuildDir)/x64-Debug/KhiinSettings.exe" ?>
-    <?define SettingsExeOutputFile = "KhiinSettings (Debug).exe" ?>
+        <?define DllOutputFile64 = "Khiin PJH (64 bit - Debug).dll" ?>
+        <?define DllOutputFile32 = "Khiin PJH (32 bit - Debug).dll" ?>
+        <?define DllSourceFile64 = "$(var.BuildDir)/x64-Debug/KhiinPJH.dll" ?>
+        <?define DllSourceFile32 = "$(var.BuildDir)/x86-Debug/KhiinPJH.dll" ?>
+        <?define SettingsExeSourceFile = "$(var.BuildDir)/x64-Debug/KhiinSettings.exe" ?>
+        <?define SettingsExeOutputFile = "KhiinSettings (Debug).exe" ?>
+        <?define UpdaterSource = "$(var.BuildDir)/x64-Debug/updater.exe" ?>
+        <?define UpdaterOutput = "KhiinUpdater (Debug).exe" ?>
     <?else ?>
-    <?define DllOutputFile64 = "Khiin PJH (64 bit).dll" ?>
-    <?define DllOutputFile32 = "Khiin PJH (32 bit).dll" ?>
-    <?define DllSourceFile64 = "$(var.BuildDir)/x64-Release/KhiinPJH.dll" ?>
-    <?define DllSourceFile32 = "$(var.BuildDir)/x86-Release/KhiinPJH.dll" ?>
-    <?define SettingsExeSourceFile = "$(var.BuildDir)/x64-Release/KhiinSettings.exe" ?>
-    <?define SettingsExeOutputFile = "KhiinSettings.exe" ?>
+        <?define DllOutputFile64 = "Khiin PJH (64 bit).dll" ?>
+        <?define DllOutputFile32 = "Khiin PJH (32 bit).dll" ?>
+        <?define DllSourceFile64 = "$(var.BuildDir)/x64-Release/KhiinPJH.dll" ?>
+        <?define DllSourceFile32 = "$(var.BuildDir)/x86-Release/KhiinPJH.dll" ?>
+        <?define SettingsExeSourceFile = "$(var.BuildDir)/x64-Release/KhiinSettings.exe" ?>
+        <?define SettingsExeOutputFile = "KhiinSettings.exe" ?>
+        <?define UpdaterSource = "$(var.BuildDir)/x64-Release/updater.exe" ?>
+        <?define UpdaterOutput = "KhiinUpdater.exe" ?>
     <?endif ?>
     
     <?define KhiinDll64InstalledPath = "[ProgramFiles64Folder]Khiin PJH\$(var.DllOutputFile64)" ?>
     <?define KhiinDll32InstalledPath = "[ProgramFilesFolder]Khiin PJH\$(var.DllOutputFile32)" ?>
     <?define KhiinSettingsInstalledPath = "[ProgramFiles64Folder]Khiin PJH\$(var.SettingsExeOutputFile)" ?>
+    
     
     <?define DatabaseSourceFile = "$(var.ResourceDir)/khiin.db" ?>
     <?define DatabaseOutputFile = "khiin.db" ?>

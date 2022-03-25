@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+
+    <?include Defines.wxi ?>
+
+    <Fragment>
+        <CustomAction Id="RunUpdaterExe"
+                      Directory="INSTALLDIR64"
+                      ExeCommand="&quot;[INSTALLDIR64]$(var.UpdaterOutput)&quot; -old &quot;[APPDATADIR]$(var.DatabaseOutputFile)&quot; -new &quot;[INSTALLDIR64]$(var.DatabaseOutputFile)&quot;"
+                      Execute="immediate"
+                      Return="ignore"
+                      Impersonate="no"
+                      />
+    </Fragment>
+</Wix>
