@@ -78,11 +78,15 @@ struct EngineControllerImpl : winrt::implements<EngineControllerImpl, EngineCont
     EngineControllerImpl(const EngineControllerImpl &) = delete;
     EngineControllerImpl &operator=(const EngineControllerImpl &) = delete;
     ~EngineControllerImpl() = default;
-    
+
     void Initialize(TextService *service) override {
         m_service.copy_from(service);
         auto dbfile = Files::GetFilePath(g_module, kDbFilename);
-        m_engine = Engine::Create(dbfile.string());
+        try {
+            m_engine = Engine::Create(dbfile.string());
+        } catch (...) {
+            m_engine = Engine::Create();
+        }
         m_service->RegisterConfigChangeListener(this);
     }
 
@@ -131,7 +135,7 @@ struct EngineControllerImpl : winrt::implements<EngineControllerImpl, EngineCont
         return SendCommand(cmd);
     }
 
-    Command* Commit() override {
+    Command *Commit() override {
         auto cmd = new Command();
         auto request = cmd->mutable_request();
         request->set_type(CMD_COMMIT);

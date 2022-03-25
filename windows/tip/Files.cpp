@@ -43,10 +43,17 @@ fs::path Files::GetFilePath(HMODULE hmodule, std::string_view filename) {
         auto path = fs::path(module_path);
         path.replace_filename(kModuleFolderDataFolder);
         path /= filename;
-        return path;
+
+        if (fs::exists(path)) {
+            return path;
+        }
     }
 
-    return fs::path(filename);
+    if (fs::exists(filename)) {
+        return fs::path(filename);
+    }
+
+    return fs::path();
 };
 
 fs::path Files::GetSettingsAppPath(HMODULE hmodule) {

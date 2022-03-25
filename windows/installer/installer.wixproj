@@ -35,6 +35,32 @@
     <EmbeddedResource Include="en-us.wxl" />
     <EmbeddedResource Include="zh-tw.wxl" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\settings\settings.vcxproj">
+      <Name>settings</Name>
+      <Project>{c93d7cb4-dad2-4dce-b5da-0822fa803448}</Project>
+      <Private>True</Private>
+      <DoNotHarvest>True</DoNotHarvest>
+      <RefProjectOutputGroups>Binaries;Content;Satellites</RefProjectOutputGroups>
+      <RefTargetDir>INSTALLFOLDER</RefTargetDir>
+    </ProjectReference>
+    <ProjectReference Include="..\tip\tip.vcxproj">
+      <Name>tip</Name>
+      <Project>{bdbb7fc7-9d1d-485f-a5e1-5605f41bd015}</Project>
+      <Private>True</Private>
+      <DoNotHarvest>True</DoNotHarvest>
+      <RefProjectOutputGroups>Binaries;Content;Satellites</RefProjectOutputGroups>
+      <RefTargetDir>INSTALLFOLDER</RefTargetDir>
+    </ProjectReference>
+    <ProjectReference Include="..\updater\updater.vcxproj">
+      <Name>updater</Name>
+      <Project>{c99df499-37f6-41fe-8390-9a235ff67a08}</Project>
+      <Private>True</Private>
+      <DoNotHarvest>True</DoNotHarvest>
+      <RefProjectOutputGroups>Binaries;Content;Satellites</RefProjectOutputGroups>
+      <RefTargetDir>INSTALLFOLDER</RefTargetDir>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(WixTargetsPath)" Condition=" '$(WixTargetsPath)' != '' " />
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\WiX\v3.x\Wix.targets" Condition=" '$(WixTargetsPath)' == '' AND Exists('$(MSBuildExtensionsPath32)\Microsoft\WiX\v3.x\Wix.targets') " />
   <Target Name="EnsureWixToolsetInstalled" Condition=" '$(WixTargetsImported)' != 'true' ">

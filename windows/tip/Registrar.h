@@ -36,10 +36,13 @@ struct Registrar {
     static HRESULT SetProfileEnabled(BOOL enable);
 
     // Retrieve settings stored in the HKCU hive
+    static std::wstring GetAppString(std::wstring const &name);
+    static void SetAppString(std::wstring const &name, std::wstring const &value);
     static int GetSettingsInt(std::wstring const &name);
     static void SetSettingsInt(std::wstring const &name, int value);
     static std::wstring GetSettingsString(std::wstring const &name);
     static void SetSettingsString(std::wstring const &name, std::wstring const &value);
+
     static bool SystemUsesLightTheme();
 };
 

@@ -24,13 +24,13 @@ using registry_key = handle_type<registry_traits>;
 const std::wstring kTextServiceGuidString = guids::String(guids::kTextService);
 
 const auto kSupportedCategories = std::vector<GUID>{
-    GUID_TFCAT_DISPLAYATTRIBUTEPROVIDER,    // It supports inline input.
-    GUID_TFCAT_TIPCAP_COMLESS,              // It's a COM-Less module.
-    GUID_TFCAT_TIPCAP_INPUTMODECOMPARTMENT, // It supports input mode.
-    GUID_TFCAT_TIPCAP_UIELEMENTENABLED,     // It supports UI less mode.
-    GUID_TFCAT_TIP_KEYBOARD,                // It's a keyboard input method.
-    GUID_TFCAT_TIPCAP_IMMERSIVESUPPORT,     // It supports Metro mode.
-    GUID_TFCAT_TIPCAP_SYSTRAYSUPPORT,       // It supports Win8 systray.
+    GUID_TFCAT_DISPLAYATTRIBUTEPROVIDER,
+    GUID_TFCAT_TIPCAP_COMLESS,
+    GUID_TFCAT_TIPCAP_INPUTMODECOMPARTMENT,
+    GUID_TFCAT_TIPCAP_UIELEMENTENABLED,
+    GUID_TFCAT_TIP_KEYBOARD,
+    GUID_TFCAT_TIPCAP_IMMERSIVESUPPORT,
+    GUID_TFCAT_TIPCAP_SYSTRAYSUPPORT,
 };
 
 const std::wstring kClsidPrefix = L"CLSID\\";
@@ -102,6 +102,11 @@ registry_key ClassesRoot() {
 
 registry_key CurrentUser() {
     return registry_key(HKEY_CURRENT_USER);
+}
+
+registry_key AppRoot() {
+    auto hkcu = CurrentUser();
+    return CreateKey(hkcu, kHkcuAppPath);
 }
 
 registry_key SettingsRoot() {
@@ -218,6 +223,22 @@ bool Registrar::SystemUsesLightTheme() {
     }
 
     return data == 1;
+}
+
+std::wstring Registrar::GetAppString(std::wstring const &name) {
+    try {
+        return GetStringValue(AppRoot(), name);
+    } catch (...) {
+        return std::wstring();
+    }
+}
+
+void Registrar::SetAppString(std::wstring const &name, std::wstring const &value) {
+    try {
+        return SetStringValue(AppRoot(), name, value);
+    } catch (...) {
+        return;
+    }
 }
 
 std::wstring Registrar::GetSettingsString(std::wstring const &name) {

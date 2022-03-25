@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Include>
     <?define Manufacturer_EN = "Khiin PJH" ?>
-    <?define VersionNumber = "0.0.0.2" ?>
+    <?define VersionNumber = "0.0.1" ?>
     
     <?define GUID_ProductId = "82989410-728d-11ec-8c6e-e0d46491b35a" ?>
     <?define GUID_UpgradeCode = "82989411-728d-11ec-8c6e-e0d46491b35a" ?>
@@ -30,8 +30,8 @@
         <?define DllSourceFile32 = "$(var.BuildDir)/x86-Debug/KhiinPJH.dll" ?>
         <?define SettingsExeSourceFile = "$(var.BuildDir)/x64-Debug/KhiinSettings.exe" ?>
         <?define SettingsExeOutputFile = "KhiinSettings (Debug).exe" ?>
-        <?define UpdaterSource = "$(var.BuildDir)/x64-Debug/updater.exe" ?>
-        <?define UpdaterOutput = "KhiinUpdater (Debug).exe" ?>
+        <?define UpdaterExeSource = "$(var.BuildDir)/x64-Debug/updater.exe" ?>
+        <?define UpdaterExeOutput = "KhiinUpdater (Debug).exe" ?>
     <?else ?>
         <?define DllOutputFile64 = "Khiin PJH (64 bit).dll" ?>
         <?define DllOutputFile32 = "Khiin PJH (32 bit).dll" ?>
@@ -39,8 +39,8 @@
         <?define DllSourceFile32 = "$(var.BuildDir)/x86-Release/KhiinPJH.dll" ?>
         <?define SettingsExeSourceFile = "$(var.BuildDir)/x64-Release/KhiinSettings.exe" ?>
         <?define SettingsExeOutputFile = "KhiinSettings.exe" ?>
-        <?define UpdaterSource = "$(var.BuildDir)/x64-Release/updater.exe" ?>
-        <?define UpdaterOutput = "KhiinUpdater.exe" ?>
+        <?define UpdaterExeSource = "$(var.BuildDir)/x64-Release/updater.exe" ?>
+        <?define UpdaterExeOutput = "KhiinUpdater.exe" ?>
     <?endif ?>
     
     <?define KhiinDll64InstalledPath = "[ProgramFiles64Folder]Khiin PJH\$(var.DllOutputFile64)" ?>

@@ -6,10 +6,14 @@
     <Fragment>
         <CustomAction Id="RunUpdaterExe"
                       Directory="INSTALLDIR64"
-                      ExeCommand="&quot;[INSTALLDIR64]$(var.UpdaterOutput)&quot; -old &quot;[APPDATADIR]$(var.DatabaseOutputFile)&quot; -new &quot;[INSTALLDIR64]$(var.DatabaseOutputFile)&quot;"
-                      Execute="immediate"
-                      Return="ignore"
+                      ExeCommand="&quot;[INSTALLDIR64]$(var.UpdaterExeOutput)&quot; -old &quot;[APPDATADIR]$(var.DatabaseOutputFile)&quot; -new &quot;[INSTALLDIR64]$(var.DatabaseOutputFile)&quot;"
+                      Execute="deferred"
+                      Return="check"
                       Impersonate="no"
                       />
+
+        <InstallExecuteSequence>
+            <Custom Action="RunUpdaterExe" After="InstallFiles">NOT Installed</Custom>
+        </InstallExecuteSequence>
     </Fragment>
 </Wix>

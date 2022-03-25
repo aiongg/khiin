@@ -87,7 +87,7 @@ class SQL {
     static Statement DeleteBigrams(DbHandle &db);
 
     // DummyDb
-    static Statement CreateDummyDb(DbHandle &db);
+    static int CreateDummyDb(DbHandle &db);
 };
 
 } // namespace khiin::engine

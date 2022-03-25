@@ -274,57 +274,154 @@ SQLite::Statement SQL::DeleteBigrams(DbHandle &db) {
     return Statement(db, "DELETE FROM bigram_freq");
 }
 
-constexpr auto kCreateDummyDb = R"(BEGIN TRANSACTION;
-    DROP TABLE IF EXISTS "version";
-    DROP TABLE IF EXISTS "syllables";
-    DROP TABLE IF EXISTS "unigram_freq";
-    DROP TABLE IF EXISTS "bigram_freq";
-    DROP TABLE IF EXISTS "conversions";
-    DROP TABLE IF EXISTS "frequency";
-    DROP TABLE IF EXISTS "punctuation";
-    CREATE TABLE IF NOT EXISTS "version" ("key" TEXT, "value" INTEGER);
-    CREATE TABLE "syllables" ("id" INTEGER PRIMARY KEY, "input" TEXT NOT NULL, UNIQUE("input"));
-    CREATE TABLE IF NOT EXISTS "unigram_freq" ("id" INTEGER, "gram" TEXT NOT NULL UNIQUE, "n" INTEGER NOT NULL, PRIMARY KEY("id"));
-    CREATE TABLE IF NOT EXISTS "bigram_freq" ("id" INTEGER, "lgram" TEXT, "rgram" TEXT, "n" INTEGER NOT NULL, PRIMARY KEY("id"), UNIQUE("lgram","rgram"));
-    CREATE TABLE "frequency" ("id" INTEGER PRIMARY KEY, "input" TEXT NOT NULL, "freq" INTEGER, "chhan_id" INTEGER, UNIQUE("input"));
-    CREATE TABLE "conversions" (
-     "id"           INTEGER PRIMARY KEY,
-     "input_id"     INTEGER,
-     "output"       TEXT NOT NULL,
-     "weight"       INTEGER,
-     "category"     INTEGER,
-     "annotation"   TEXT,
-     UNIQUE("input_id","output"),
-        FOREIGN KEY("input_id") REFERENCES "frequency"("id")
-    );
-    INSERT INTO "version" VALUES ('id',1), ('created_at',1639838788), ('last_updated',1639839434);
-    INSERT INTO "syllables" VALUES (1,'e'), (2,'a'), (3,'si'), (4,'bo'), (5,'lang'), (6,'chit'), (7,'chiah'), (8,'m'), (9,'i'), (10,'khi');
-    INSERT INTO "frequency" VALUES (1, "ê", 100, 1), (2, "bô", 50, 2), (3, "tio̍h", 20, 3);
-    INSERT INTO "conversions" VALUES
-     (1,1,'个',1000,1,NULL), (2,1,'兮',900,1,NULL), (3,1,'ê',800,1,NULL),
-     (4,2,'無',1000,1,NULL), (5,2,'bô',900,1,NULL),
-     (6,3,'着',1000,1,NULL), (7,3,'tio̍h',900,1,NULL);
-    DROP INDEX IF EXISTS "unigram_freq_gram_idx";
-    CREATE INDEX IF NOT EXISTS "unigram_freq_gram_idx" ON "unigram_freq" (
-     "gram"
-    );
-    DROP INDEX IF EXISTS "bigram_freq_gram_index";
-    CREATE INDEX IF NOT EXISTS "bigram_freq_gram_index" ON "bigram_freq" (
-     "lgram",
-     "rgram"
-    );
-    CREATE TABLE "punctuation" (
-	    "id"           INTEGER PRIMARY KEY,
-	    "input"        TEXT NOT NULL,
-	    "output"       TEXT NOT NULL,
-	    "annotation"   TEXT,
-	    UNIQUE("input","output")
-    );
-    COMMIT;
-    )";
+constexpr auto kCreateDummyDb = R"(
+BEGIN TRANSACTION;
+DROP TABLE IF EXISTS "version";
+CREATE TABLE IF NOT EXISTS "version" (
+	"key"	TEXT,
+	"value"	INTEGER
+);
+DROP TABLE IF EXISTS "frequency";
+CREATE TABLE IF NOT EXISTS "frequency" (
+	"id"	INTEGER,
+	"input"	TEXT NOT NULL,
+	"freq"	INTEGER,
+	"chhan_id"	INTEGER,
+	PRIMARY KEY("id"),
+	UNIQUE("input")
+);
+DROP TABLE IF EXISTS "conversions";
+CREATE TABLE IF NOT EXISTS "conversions" (
+	"id"	INTEGER,
+	"input_id"	INTEGER,
+	"output"	TEXT NOT NULL,
+	"weight"	INTEGER,
+	"category"	INTEGER,
+	"annotation"	TEXT,
+	PRIMARY KEY("id"),
+	FOREIGN KEY("input_id") REFERENCES "frequency"("id"),
+	UNIQUE("input_id","output")
+);
+DROP TABLE IF EXISTS "syllables";
+CREATE TABLE IF NOT EXISTS "syllables" (
+	"id"	INTEGER,
+	"input"	TEXT NOT NULL,
+	PRIMARY KEY("id"),
+	UNIQUE("input")
+);
+DROP TABLE IF EXISTS "unigram_freq";
+CREATE TABLE IF NOT EXISTS "unigram_freq" (
+	"id"	INTEGER,
+	"gram"	TEXT NOT NULL UNIQUE,
+	"n"	INTEGER NOT NULL,
+	PRIMARY KEY("id")
+);
+DROP TABLE IF EXISTS "bigram_freq";
+CREATE TABLE IF NOT EXISTS "bigram_freq" (
+	"id"	INTEGER,
+	"lgram"	TEXT,
+	"rgram"	TEXT,
+	"n"	INTEGER NOT NULL,
+	PRIMARY KEY("id"),
+	UNIQUE("lgram","rgram")
+);
+DROP TABLE IF EXISTS "symbols";
+CREATE TABLE IF NOT EXISTS "symbols" (
+	"id"	INTEGER,
+	"input"	TEXT NOT NULL,
+	"output"	TEXT NOT NULL,
+	"category"	INTEGER,
+	"annotation"	TEXT,
+	PRIMARY KEY("id")
+);
+DROP TABLE IF EXISTS "emoji";
+CREATE TABLE IF NOT EXISTS "emoji" (
+	"id"	INTEGER,
+	"emoji"	TEXT NOT NULL,
+	"short_name"	TEXT NOT NULL,
+	"category"	INTEGER NOT NULL,
+	"code"	TEXT NOT NULL,
+	PRIMARY KEY("id")
+);
+INSERT INTO "frequency" VALUES (1,'ê',33807,32),
+ (2,'góa',15113,36),
+ (3,'lí',13744,44),
+ (4,'bô',12353,40),
+ (5,'i',12275,34),
+ (6,'ū',12082,35),
+ (7,'sī',10206,33),
+ (8,'lâng',9492,7),
+ (9,'lâi',9429,3),
+ (10,'tio̍h',8871,10);
+INSERT INTO "conversions" VALUES (97,4,'無',1000,NULL,NULL),
+ (98,4,'bô',900,NULL,NULL),
+ (460,2,'我',1000,NULL,NULL),
+ (461,2,'góa',900,NULL,NULL),
+ (593,5,'伊',1000,NULL,NULL),
+ (594,5,'i',900,NULL,NULL),
+ (1136,9,'來',1000,NULL,NULL),
+ (1137,9,'lâi',900,NULL,NULL),
+ (1140,8,'人',1000,NULL,NULL),
+ (1141,8,'籠',1000,NULL,NULL),
+ (1142,8,'lâng',900,NULL,NULL),
+ (1167,3,'李',1000,NULL,NULL),
+ (1168,3,'汝',1000,NULL,NULL),
+ (1169,3,'Lí',900,NULL,NULL),
+ (1170,3,'lí',900,NULL,NULL),
+ (1714,7,'是',1000,NULL,NULL),
+ (1715,7,'示',1000,NULL,NULL),
+ (1716,7,'sī',900,NULL,NULL),
+ (1813,10,'着',1000,NULL,NULL),
+ (1814,10,'tio̍h',900,NULL,NULL),
+ (2074,1,'个',1000,NULL,NULL),
+ (2075,1,'兮',1000,NULL,NULL),
+ (2076,1,'鞋',1000,NULL,NULL),
+ (2077,1,'ê',900,NULL,NULL),
+ (2148,6,'有',1000,NULL,NULL),
+ (2149,6,'ū',900,NULL,NULL);
+INSERT INTO "syllables" VALUES (1,'a'),
+ (2,'ah'),
+ (3,'ahⁿ'),
+ (4,'ai'),
+ (5,'aih'),
+ (6,'aihⁿ'),
+ (7,'aiⁿ'),
+ (8,'ak'),
+ (9,'am'),
+ (10,'an');
+INSERT INTO "symbols" VALUES (1,'!','!',0,NULL),
+ (2,'!','！',1,NULL),
+ (3,'"','"',0,NULL),
+ (4,'"','＂',1,NULL),
+ (5,'"','“”',0,NULL),
+ (6,'"','‘’',0,NULL),
+ (7,'#','#',0,NULL),
+ (8,'#','＃',1,NULL),
+ (9,'$','$',0,NULL),
+ (10,'$','¢',0,NULL);
+INSERT INTO "emoji" VALUES (1,'😀','grinning face',1,'U+1F600'),
+ (2,'😃','grinning face with big eyes',1,'U+1F603'),
+ (3,'😄','grinning face with smiling eyes',1,'U+1F604'),
+ (4,'😁','beaming face with smiling eyes',1,'U+1F601'),
+ (5,'😆','grinning squinting face',1,'U+1F606'),
+ (6,'😅','grinning face with sweat',1,'U+1F605'),
+ (7,'🤣','rolling on the floor laughing',1,'U+1F923'),
+ (8,'😂','face with tears of joy',1,'U+1F602'),
+ (9,'🙂','slightly smiling face',1,'U+1F642'),
+ (10,'🙃','upside-down face',1,'U+1F643');
+DROP INDEX IF EXISTS "unigram_freq_gram_idx";
+CREATE INDEX IF NOT EXISTS "unigram_freq_gram_idx" ON "unigram_freq" (
+	"gram"
+);
+DROP INDEX IF EXISTS "bigram_freq_gram_index";
+CREATE INDEX IF NOT EXISTS "bigram_freq_gram_index" ON "bigram_freq" (
+	"lgram",
+	"rgram"
+);
+COMMIT;)";
 
-SQLite::Statement SQL::CreateDummyDb(DbHandle &db) {
-    return Statement(db, kCreateDummyDb);
+int SQL::CreateDummyDb(DbHandle &db) {
+    return db.exec(kCreateDummyDb);
 }
 
 } // namespace khiin::engine

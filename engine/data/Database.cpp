@@ -208,7 +208,8 @@ Database::~Database() = default;
 
 std::unique_ptr<Database> Database::TestDb() {
     auto handle = std::make_unique<SQLite::Database>(":memory:", SQLite::OPEN_READWRITE);
-    SQL::CreateDummyDb(*handle).exec();
+    auto query = SQL::CreateDummyDb(*handle);
+    //query.exec();
     return std::make_unique<DatabaseImpl>(std::move(handle));
 }
 

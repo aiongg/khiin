@@ -30,9 +30,7 @@
         <Icon Id="icon.ico" SourceFile="$(var.IconSourceFile)"/>
         <Property Id="ARPPRODUCTICON" Value="icon.ico" />
 
-        <InstallExecuteSequence>
-            <Custom Action="RunUpdaterExe" After="InstallFiles" />
-        </InstallExecuteSequence>
+        <CustomActionRef Id="RunUpdaterExe"/>
     </Product>
 
     <Fragment>
@@ -57,6 +55,7 @@
             <Component Id="KhiinPJH_64" Guid="$(var.GUID_Dll64Component)" Win64="yes">
                 <File Id="KhiinDLL_64" Name="$(var.DllOutputFile64)" DiskId="1" Source="$(var.DllSourceFile64)" KeyPath="yes"/>
                 <File Id="KhiinSettingsExe" Name="$(var.SettingsExeOutputFile)" DiskId="1" Source="$(var.SettingsExeSourceFile)" />
+                <File Id="KhiinUpdaterExe" Name="$(var.UpdaterExeOutput)" DiskId="1" Source="$(var.UpdaterExeSource)" />
                 <File Id="KhiinDbFile2" Name="$(var.DatabaseOutputFile)" DiskId="1" Source="$(var.DatabaseSourceFile)" />
                 <File Id="UserDbFile2" Source="$(var.UserDbSourceFile)" Name="$(var.UserDbOutputFile)" DiskId="1" />
             </Component>
