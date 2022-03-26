@@ -53,7 +53,7 @@ struct TextServiceImpl :
         auto hr = E_FAIL;
         auto service = cast_as<TextService>(this);
         auto threadmgr = m_threadmgr.get();
-
+         
         InitConfig();
         DisplayAttributeInfoEnum::load(m_displayattrs.put());
         m_indicator->Initialize(service);

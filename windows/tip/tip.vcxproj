@@ -137,6 +137,12 @@
     <Manifest>
       <AdditionalManifestFiles>$(SolutionDir)dpi.manifest;%(AdditionalManifestFiles)</AdditionalManifestFiles>
     </Manifest>
+    <ResourceCompile>
+      <AdditionalIncludeDirectories>$(SolutionDir)../</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <PreBuildEvent>
+      <Command>powershell.exe -ExecutionPolicy Bypass -NoProfile -NonInteractive -File ..\..\version-bump.ps1 "..\..\version.h"</Command>
+    </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -167,6 +173,9 @@
     <Manifest>
       <AdditionalManifestFiles>$(SolutionDir)dpi.manifest;%(AdditionalManifestFiles)</AdditionalManifestFiles>
     </Manifest>
+    <ResourceCompile>
+      <AdditionalIncludeDirectories>$(SolutionDir)../</AdditionalIncludeDirectories>
+    </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -198,6 +207,12 @@
     <PostBuildEvent>
       <Command>python3 $(SolutionDir)..\post-build.py</Command>
     </PostBuildEvent>
+    <ResourceCompile>
+      <AdditionalIncludeDirectories>$(SolutionDir)../</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <PreBuildEvent>
+      <Command>powershell.exe -ExecutionPolicy Bypass -NoProfile -NonInteractive -File ..\..\version-bump.ps1 "..\..\version.h"</Command>
+    </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -228,6 +243,9 @@
     <Manifest>
       <AdditionalManifestFiles>$(SolutionDir)dpi.manifest;%(AdditionalManifestFiles)</AdditionalManifestFiles>
     </Manifest>
+    <ResourceCompile>
+      <AdditionalIncludeDirectories>$(SolutionDir)../</AdditionalIncludeDirectories>
+    </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="BaseWindow.h" />
@@ -322,9 +340,15 @@
     <ResourceCompile Include="tip.rc" />
   </ItemGroup>
   <ItemGroup>
+    <Image Include="cog-white.ico" />
+    <Image Include="cog.ico" />
     <Image Include="mainicon.ico" />
+    <Image Include="mode-alpha-white.ico" />
     <Image Include="mode-alpha.ico" />
+    <Image Include="mode-basic-white.ico" />
+    <Image Include="mode-cont-white.ico" />
     <Image Include="mode-cont.ico" />
+    <Image Include="mode-pro-white.ico" />
     <Image Include="mode-pro.ico" />
     <Image Include="mode-basic.ico" />
   </ItemGroup>

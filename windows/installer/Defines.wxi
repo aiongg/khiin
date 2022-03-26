@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Include>
-    <?define Manufacturer_EN = "Khiin PJH" ?>
-    <?define VersionNumber = "0.0.1" ?>
+    <?define MfrName = "Khiin PJH" ?>
+    <?define VersionNumber = "!(bind.FileVersion.KhiinDLL_64)" ?>
     
     <?define GUID_ProductId = "82989410-728d-11ec-8c6e-e0d46491b35a" ?>
     <?define GUID_UpgradeCode = "82989411-728d-11ec-8c6e-e0d46491b35a" ?>
@@ -9,6 +9,7 @@
     <?define GUID_Dll32Component = "82989413-728d-11ec-8c6e-e0d46491b35a" ?>
     <?define GUID_DatabaseFile = "82989414-728d-11ec-8c6e-e0d46491b35a" ?>
     <?define GUID_StartMenuShortcut = "82989415-728d-11ec-8c6e-e0d46491b35a" ?>
+    <?define GUID_RegistrySettings = "82989416-728d-11ec-8c6e-e0d46491b35a" ?>
     
     <?define BuildDir = "../out/build" ?>
     <?define ResourceDir = "../../resources" ?>
@@ -22,42 +23,35 @@
     <?define Win64 = "no" ?>
     <?define PlatformProgramFilesFolder = "ProgramFilesFolder" ?>
     <?endif ?>
+    
+    <?define DllSourceFile64 = "$(var.BuildDir)/x64-$(var.tip.Configuration)/$(var.tip.TargetFileName)" ?>
+    <?define DllSourceFile32 = "$(var.BuildDir)/x86-$(var.tip.Configuration)/$(var.tip.TargetFileName)" ?>
+    <?define KhiinSettingsExeSrc = "$(var.BuildDir)/x64-$(var.settings.Configuration)/$(var.settings.TargetFileName)" ?>
 
     <?if $(var.Configuration) = Debug ?>
-        <?define DllOutputFile64 = "Khiin PJH (64 bit - Debug).dll" ?>
-        <?define DllOutputFile32 = "Khiin PJH (32 bit - Debug).dll" ?>
-        <?define DllSourceFile64 = "$(var.BuildDir)/x64-Debug/KhiinPJH.dll" ?>
-        <?define DllSourceFile32 = "$(var.BuildDir)/x86-Debug/KhiinPJH.dll" ?>
-        <?define SettingsExeSourceFile = "$(var.BuildDir)/x64-Debug/KhiinSettings.exe" ?>
-        <?define SettingsExeOutputFile = "KhiinSettings (Debug).exe" ?>
-        <?define UpdaterExeSource = "$(var.BuildDir)/x64-Debug/updater.exe" ?>
-        <?define UpdaterExeOutput = "KhiinUpdater (Debug).exe" ?>
+        <?define KhiinTipDll64Trg = "Khiin PJH (64 bit - Debug).dll" ?>
+        <?define KhiinTipDll32Trg = "Khiin PJH (32 bit - Debug).dll" ?>
+        <?define KhiinSettingsExeTrg = "KhiinSettings (Debug).exe" ?>
     <?else ?>
-        <?define DllOutputFile64 = "Khiin PJH (64 bit).dll" ?>
-        <?define DllOutputFile32 = "Khiin PJH (32 bit).dll" ?>
-        <?define DllSourceFile64 = "$(var.BuildDir)/x64-Release/KhiinPJH.dll" ?>
-        <?define DllSourceFile32 = "$(var.BuildDir)/x86-Release/KhiinPJH.dll" ?>
-        <?define SettingsExeSourceFile = "$(var.BuildDir)/x64-Release/KhiinSettings.exe" ?>
-        <?define SettingsExeOutputFile = "KhiinSettings.exe" ?>
-        <?define UpdaterExeSource = "$(var.BuildDir)/x64-Release/updater.exe" ?>
-        <?define UpdaterExeOutput = "KhiinUpdater.exe" ?>
+        <?define KhiinTipDll64Trg = "Khiin PJH (64 bit).dll" ?>
+        <?define KhiinTipDll32Trg = "Khiin PJH (32 bit).dll" ?>
+        <?define KhiinSettingsExeTrg = "KhiinSettings.exe" ?>
     <?endif ?>
     
-    <?define KhiinDll64InstalledPath = "[ProgramFiles64Folder]Khiin PJH\$(var.DllOutputFile64)" ?>
-    <?define KhiinDll32InstalledPath = "[ProgramFilesFolder]Khiin PJH\$(var.DllOutputFile32)" ?>
-    <?define KhiinSettingsInstalledPath = "[ProgramFiles64Folder]Khiin PJH\$(var.SettingsExeOutputFile)" ?>
+    <?define KhiinDll64InstalledPath = "[ProgramFiles64Folder]$(var.MfrName)\$(var.KhiinTipDll64Trg)" ?>
+    <?define KhiinDll32InstalledPath = "[ProgramFilesFolder]$(var.MfrName)\$(var.KhiinTipDll32Trg)" ?>
+    <?define KhiinSettingsInstalledPath = "[ProgramFiles64Folder]$(var.MfrName)\$(var.KhiinSettingsExeTrg)" ?>
     
-    
-    <?define DatabaseSourceFile = "$(var.ResourceDir)/khiin.db" ?>
-    <?define DatabaseOutputFile = "khiin.db" ?>
+    <?define DatabaseSourceFile = "$(var.ResourceDir)/migration_test_old.db" ?>
+    <?define KhiinDatabaseTrg = "khiin.db" ?>
 
     <?define ConfigSourceFile = "$(var.ResourceDir)/khiin_config.ini" ?>
-    <?define ConfigOutputFile = "khiin_config.ini" ?>
+    <?define KhiinConfigTrg = "khiin_config.ini" ?>
 
     <?define UserDbSourceFile = "$(var.ResourceDir)/khiin_userdb.txt" ?>
-    <?define UserDbOutputFile = "khiin_userdb.txt" ?>
+    <?define KhiinUserDbTrg = "khiin_userdb.txt" ?>
     
-    <?define LicenseFile = "$(var.ResourceDir)/license.rtf" ?>
+    <?define KhiinLicense.rtf = "$(var.ResourceDir)/license.rtf" ?>
     <?define KhiinUIDialogBmp = "../../design/graphic-01.png" ?>
     
     <?define IconSourceFile = "../../design/icon.ico" ?>

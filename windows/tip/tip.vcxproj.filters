@@ -277,5 +277,23 @@
     <Image Include="mode-basic.ico">
       <Filter>resources</Filter>
     </Image>
+    <Image Include="mode-alpha-white.ico">
+      <Filter>resources</Filter>
+    </Image>
+    <Image Include="mode-cont-white.ico">
+      <Filter>resources</Filter>
+    </Image>
+    <Image Include="mode-pro-white.ico">
+      <Filter>resources</Filter>
+    </Image>
+    <Image Include="mode-basic-white.ico">
+      <Filter>resources</Filter>
+    </Image>
+    <Image Include="cog.ico">
+      <Filter>resources</Filter>
+    </Image>
+    <Image Include="cog-white.ico">
+      <Filter>resources</Filter>
+    </Image>
   </ItemGroup>
 </Project>

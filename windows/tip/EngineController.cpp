@@ -81,18 +81,31 @@ struct EngineControllerImpl : winrt::implements<EngineControllerImpl, EngineCont
 
     void Initialize(TextService *service) override {
         m_service.copy_from(service);
-        auto dbfile = Files::GetFilePath(g_module, kDbFilename);
-        try {
-            m_engine = Engine::Create(dbfile.string());
-        } catch (...) {
-            m_engine = Engine::Create();
-        }
+        ReloadEngine();
         m_service->RegisterConfigChangeListener(this);
     }
 
     void Uninitialize() override {
         m_engine.reset(nullptr);
         m_service = nullptr;
+    }
+
+    void ReloadEngine() {
+        auto db = fs::path();
+
+        if (auto dbfile = Utils::Narrow(Config::GetDatabaseFile()); !dbfile.empty() && fs::exists(dbfile)) {
+            db = fs::path(dbfile);
+        } else if (auto tmp = Files::GetFilePath(g_module, kDbFilename); !tmp.empty() && fs::exists(tmp)) {
+            db = tmp;
+        }
+
+        if (db.empty()) {
+            m_engine = Engine::Create();
+        } else {
+            m_engine = Engine::Create(db.string());
+        }
+
+        m_dbfile = db;
     }
 
     Command *TestKey(KeyEvent win_key_event) override {
@@ -198,6 +211,7 @@ struct EngineControllerImpl : winrt::implements<EngineControllerImpl, EngineCont
     std::unique_ptr<Engine> m_engine = nullptr;
     std::unique_ptr<Command> m_prev_command = nullptr;
     CandidateList m_emojis;
+    fs::path m_dbfile;
 };
 
 void EngineController::OnDllProcessAttach(HMODULE module) {

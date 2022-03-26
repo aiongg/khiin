@@ -60,6 +60,11 @@ TEST(UserDictionaryTest, LoadDictionary) {
     EXPECT_EQ(result[0].token->output, "の");
 }
 
+TEST(UserDictionaryTest, InvalidFile) {
+    auto ud = UserDictionary::Create("random-invalid-filename.txt");
+    EXPECT_EQ(ud, nullptr);
+}
+
 struct UserDictionaryBufferTest : ::testing::Test, BufferMgrTestBase {
     void SetUp() override {
         bufmgr = engine()->buffer_mgr();

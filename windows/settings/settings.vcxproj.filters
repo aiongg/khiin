@@ -38,6 +38,12 @@
     <ClInclude Include="UserProps.h">
       <Filter>settings</Filter>
     </ClInclude>
+    <ClInclude Include="DatabaseMgr.h">
+      <Filter>settings</Filter>
+    </ClInclude>
+    <ClInclude Include="ArgParse.h">
+      <Filter>settings</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -71,6 +77,9 @@
       <Filter>tip</Filter>
     </ClCompile>
     <ClCompile Include="UserProps.cpp">
+      <Filter>settings</Filter>
+    </ClCompile>
+    <ClCompile Include="DatabaseMgr.cpp">
       <Filter>settings</Filter>
     </ClCompile>
   </ItemGroup>

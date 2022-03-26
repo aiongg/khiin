@@ -15,6 +15,7 @@
             <ComponentGroupRef Id="AppDataFiles"/>
             <ComponentGroupRef Id="DllRegistration"/>
             <ComponentGroupRef Id="StartMenuShortcut"/>
+            <ComponentGroupRef Id="RegistryEntries" />
         </Feature>
 
         <UI>
@@ -25,12 +26,12 @@
             <UIRef Id="WixUI_ErrorProgressText" />
         </UI>
 
-        <WixVariable Id="WixUILicenseRtf" Value="$(var.LicenseFile)"/>
-        <WixVariable Id="WixUIDialogBmp" Value="$(var.KhiinUIDialogBmp)"/>
+        <WixVariable Id="WixUILicenseRtf" Value="$(var.KhiinLicense.rtf)"/>
+        <WixVariable Id="WixUIDialogBmp" Value="$(var.KhiinUIDialogBmp)"/> 
         <Icon Id="icon.ico" SourceFile="$(var.IconSourceFile)"/>
         <Property Id="ARPPRODUCTICON" Value="icon.ico" />
 
-        <CustomActionRef Id="RunUpdaterExe"/>
+        <CustomActionRef Id="UpdateDatabaseCA"/>
     </Product>
 
     <Fragment>
@@ -53,11 +54,10 @@
     <Fragment>
         <ComponentGroup Id="Files_64" Directory="INSTALLDIR64">
             <Component Id="KhiinPJH_64" Guid="$(var.GUID_Dll64Component)" Win64="yes">
-                <File Id="KhiinDLL_64" Name="$(var.DllOutputFile64)" DiskId="1" Source="$(var.DllSourceFile64)" KeyPath="yes"/>
-                <File Id="KhiinSettingsExe" Name="$(var.SettingsExeOutputFile)" DiskId="1" Source="$(var.SettingsExeSourceFile)" />
-                <File Id="KhiinUpdaterExe" Name="$(var.UpdaterExeOutput)" DiskId="1" Source="$(var.UpdaterExeSource)" />
-                <File Id="KhiinDbFile2" Name="$(var.DatabaseOutputFile)" DiskId="1" Source="$(var.DatabaseSourceFile)" />
-                <File Id="UserDbFile2" Source="$(var.UserDbSourceFile)" Name="$(var.UserDbOutputFile)" DiskId="1" />
+                <File Id="KhiinDLL_64" Name="$(var.KhiinTipDll64Trg)" DiskId="1" Source="$(var.DllSourceFile64)" KeyPath="yes"/>
+                <File Id="KhiinSettingsExe" Name="$(var.KhiinSettingsExeTrg)" DiskId="1" Source="$(var.KhiinSettingsExeSrc)" />
+                <File Id="KhiinDbFile2" Name="$(var.KhiinDatabaseTrg)" DiskId="1" Source="$(var.DatabaseSourceFile)" />
+                <File Id="UserDbFile2" Source="$(var.UserDbSourceFile)" Name="$(var.KhiinUserDbTrg)" DiskId="1" />
             </Component>
         </ComponentGroup>
     </Fragment>
@@ -65,21 +65,20 @@
     <Fragment>
         <ComponentGroup Id="Files_32" Directory="INSTALLDIR32">
             <Component Id="KhiinPJH_32" Guid="$(var.GUID_Dll32Component)" Win64="no">
-                <File Id="KhiinDLL_32" Name="$(var.DllOutputFile32)" DiskId="1" Source="$(var.DllSourceFile32)" KeyPath="yes"/>
+                <File Id="KhiinDLL_32" Name="$(var.KhiinTipDll32Trg)" DiskId="1" Source="$(var.DllSourceFile32)" KeyPath="yes"/>
             </Component>
         </ComponentGroup>
     </Fragment>
 
     <Fragment>
         <ComponentGroup Id="AppDataFiles" Directory="APPDATADIR">
-            <Component Id="DatabaseFile" Guid="$(var.GUID_DatabaseFile)">
+            <Component Id="AppDataFileId" Guid="$(var.GUID_DatabaseFile)">
                 <RemoveFolder Id="APPDATADIR" On="uninstall"/>
-                <RegistryKey Root="HKCU" Key="Software\$(var.Manufacturer_EN)">
-                    <RegistryValue Name="KhiinAppData" Type="integer" Value="1" KeyPath="yes" />
+                <RegistryKey Root="HKCU" Key="Software\$(var.MfrName)">
+                    <RegistryValue Name="appdata" Type="integer" Value="1" KeyPath="yes" /> 
                 </RegistryKey>
-                <!-- <File Id="KhiinDbFile1" Source="$(var.DatabaseSourceFile)" Name="$(var.DatabaseOutputFile)" DiskId="1" /> -->
-                <File Id="KhiinConfFile1" Source="$(var.ConfigSourceFile)" Name="$(var.ConfigOutputFile)" DiskId="1" />
-                <File Id="UserDbFile1" Source="$(var.UserDbSourceFile)" Name="$(var.UserDbOutputFile)" DiskId="1" />
+                <File Id="KhiinConfFile1" Source="$(var.ConfigSourceFile)" Name="$(var.KhiinConfigTrg)" DiskId="1" />
+                <File Id="UserDbFile1" Source="$(var.UserDbSourceFile)" Name="$(var.KhiinUserDbTrg)" DiskId="1" />
             </Component>
         </ComponentGroup>
     </Fragment>
@@ -90,14 +89,22 @@
                 <Shortcut Id="ApplicationStartMenuShortcut"
                           Name="Khiin PJH"
                           Description="Khiin Phah Ji Hoat"
-                          Target="[#KhiinSettingsExe]"
+                          Target="[!KhiinSettingsExe]"
                           WorkingDirectory="INSTALLDIR64"/>
                 <RemoveFolder Id="ApplicationProgramsFolder" On="uninstall"/>
-                <RegistryKey Root="HKCU" Key="Software\$(var.Manufacturer_EN)">
+                <RegistryKey Root="HKCU" Key="Software\$(var.MfrName)">
                     <RegistryValue Name="installed" Type="integer" Value="1" KeyPath="yes"/>
                 </RegistryKey>
-                <RegistryKey Root="HKCU" Key="Software\$(var.Manufacturer_EN)\Settings">
-                    <RegistryValue Name="SettingsApplicationPath" Type="string" Value="[INSTALLDIR64]$(var.SettingsExeOutputFile)" />
+            </Component>
+        </ComponentGroup>
+    </Fragment>
+
+    <Fragment>
+        <ComponentGroup Id="RegistryEntries" Directory="TARGETDIR">
+            <Component Id="RegistrySettings" Guid="$(var.GUID_RegistrySettings)">
+                <RegistryKey Root="HKCU" Key="Software\$(var.MfrName)\Settings">
+                    <RegistryValue Name="settings_exe" Type="string" Value="[INSTALLDIR64]$(var.KhiinSettingsExeTrg)" />
+                    <RegistryValue Name="database" Type="string" Value="[APPDATADIR]$(var.KhiinDatabaseTrg)" />
                 </RegistryKey>
             </Component>
         </ComponentGroup>

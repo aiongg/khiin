@@ -12,6 +12,8 @@
 #include "tip/Config.h"
 
 #include "AppearanceProps.h"
+#include "ArgParse.h"
+#include "DatabaseMgr.h"
 #include "InputProps.h"
 #include "Strings.h"
 #include "UserProps.h"
@@ -186,7 +188,19 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
         return 1;
     }
 
+    using namespace khiin::data;
+    using namespace khiin::win32;
     using namespace khiin::win32::settings;
+
+    auto parser = ArgParse(__argc, __wargv);
+    if (parser.HasOptions("-old", "-new")) {
+        auto ret = DatabaseMgr::ApplyUpdateToExisting(parser.GetOption("-old"), parser.GetOption("-new"));
+        if (ret == 0) {
+            //Config::NotifyChanged();
+        }
+        return ret;
+    }
+
     g_app = new ApplicationImpl(hInstance);
     return g_app->ShowDialog();
 }

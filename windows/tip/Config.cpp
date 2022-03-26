@@ -62,11 +62,11 @@ constexpr const char *shift = "shift";
 constexpr const char *alt_backtick = "alt+backtick";
 constexpr const char *ctrl_backtick = "ctrl+backtick";
 
-
 } // namespace ini
 
 // Registry settings
 namespace settings {
+const std::wstring database = L"database";
 const std::wstring kUiColors = L"UiColors";
 const std::wstring kUiSize = L"UiSize";
 const std::wstring kUiLanguage = L"UiLanguage";
@@ -140,9 +140,10 @@ UiLanguage Config::GetSystemLang() {
 }
 
 std::unique_ptr<CSimpleIniA> GetIniFile(HMODULE hmodule) {
+    auto ret = std::make_unique<CSimpleIniA>();
     auto conf_file = Files::GetFilePath(hmodule, kIniFilename);
+
     if (fs::exists(conf_file)) {
-        auto ret = std::make_unique<CSimpleIniA>();
         ret->SetUnicode();
         SI_Error rc = ret->LoadFile(conf_file.c_str());
         if (rc >= 0) {
@@ -150,7 +151,7 @@ std::unique_ptr<CSimpleIniA> GetIniFile(HMODULE hmodule) {
         }
     }
 
-    return nullptr;
+    return ret;
 }
 
 void Config::LoadFromFile(HMODULE hmodule, AppConfig *config) {
@@ -241,9 +242,6 @@ void Config::SaveToFile(HMODULE hmodule, AppConfig *config) {
 
     auto conf_file = Files::GetFilePath(hmodule, kIniFilename);
     auto ret = ini->SaveFile(conf_file.c_str());
-    if (ret < 0) {
-        auto x = 3;
-    }
 }
 
 void Config::NotifyChanged() {
@@ -300,16 +298,24 @@ Hotkey Config::GetInputModeHotkey() {
     return i > 0 ? EnumVal<Hotkey>(i) : Hotkey::CtrlBacktick;
 }
 
-void Config::SetUserDictionaryFile(std::wstring file_path) {
-    Registrar::SetSettingsString(settings::kUserDictionaryFile, file_path);
+void Config::SetInputModeHotkey(Hotkey key) {
+    Registrar::SetSettingsInt(settings::kInputModeHotkey, EnumInt(key));
+}
+
+std::wstring Config::GetDatabaseFile() {
+    return Registrar::GetSettingsString(settings::database);
+}
+
+void Config::SetDatabaseFile(std::wstring file_path) {
+    Registrar::SetSettingsString(settings::database, file_path);
 }
 
 std::wstring Config::GetUserDictionaryFile() {
     return Registrar::GetSettingsString(settings::kUserDictionaryFile);
 }
 
-void Config::SetInputModeHotkey(Hotkey key) {
-    Registrar::SetSettingsInt(settings::kInputModeHotkey, EnumInt(key));
+void Config::SetUserDictionaryFile(std::wstring file_path) {
+    Registrar::SetSettingsString(settings::kUserDictionaryFile, file_path);
 }
 
 bool Config::SystemUsesLightTheme() {

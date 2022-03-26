@@ -4,16 +4,16 @@
     <?include Defines.wxi ?>
 
     <Fragment>
-        <CustomAction Id="RunUpdaterExe"
+        <CustomAction Id="UpdateDatabaseCA"
                       Directory="INSTALLDIR64"
-                      ExeCommand="&quot;[INSTALLDIR64]$(var.UpdaterExeOutput)&quot; -old &quot;[APPDATADIR]$(var.DatabaseOutputFile)&quot; -new &quot;[INSTALLDIR64]$(var.DatabaseOutputFile)&quot;"
+                      ExeCommand="&quot;[INSTALLDIR64]$(var.KhiinSettingsExeTrg)&quot; -old &quot;[APPDATADIR]$(var.KhiinDatabaseTrg)&quot; -new &quot;[INSTALLDIR64]$(var.KhiinDatabaseTrg)&quot;"
                       Execute="deferred"
                       Return="check"
                       Impersonate="no"
                       />
 
         <InstallExecuteSequence>
-            <Custom Action="RunUpdaterExe" After="InstallFiles">NOT Installed</Custom>
+            <Custom Action="UpdateDatabaseCA" After="InstallFiles">NOT Installed</Custom>
         </InstallExecuteSequence>
     </Fragment>
 </Wix>

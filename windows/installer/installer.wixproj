@@ -1,20 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" DefaultTargets="Build" InitialTargets="EnsureWixToolsetInstalled" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">x64</Platform>
-    <ProductVersion>3.10</ProductVersion>
+    <ProductVersion>$(VersionNumber)</ProductVersion>
     <ProjectGuid>b56815e1-1fc1-48b2-a8cd-cc08886dd26d</ProjectGuid>
     <SchemaVersion>2.0</SchemaVersion>
     <OutputType>Package</OutputType>
-    <OutputName>Khiin PJH</OutputName>
+    <OutputName>起引打字法 Khíín PJH</OutputName>
     <Name>installer</Name>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x64' ">
     <OutputPath>$(SolutionDir)\out\build\$(Platform)-$(Configuration)\</OutputPath>
     <IntermediateOutputPath>$(SolutionDir)\out\obj\installer-$(Platform)-$(Configuration)\</IntermediateOutputPath>
     <DefineConstants>Debug</DefineConstants>
-    <OutputName>Khiin PJH (Debug)</OutputName>
+    <OutputName>起引打字法 Khíín PJH %28Debug%29</OutputName>
     <LinkerAdditionalOptions>-ext WixUIExtension</LinkerAdditionalOptions>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x64' ">
@@ -52,26 +50,28 @@
       <RefProjectOutputGroups>Binaries;Content;Satellites</RefProjectOutputGroups>
       <RefTargetDir>INSTALLFOLDER</RefTargetDir>
     </ProjectReference>
-    <ProjectReference Include="..\updater\updater.vcxproj">
-      <Name>updater</Name>
-      <Project>{c99df499-37f6-41fe-8390-9a235ff67a08}</Project>
-      <Private>True</Private>
-      <DoNotHarvest>True</DoNotHarvest>
-      <RefProjectOutputGroups>Binaries;Content;Satellites</RefProjectOutputGroups>
-      <RefTargetDir>INSTALLFOLDER</RefTargetDir>
-    </ProjectReference>
   </ItemGroup>
   <Import Project="$(WixTargetsPath)" Condition=" '$(WixTargetsPath)' != '' " />
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\WiX\v3.x\Wix.targets" Condition=" '$(WixTargetsPath)' == '' AND Exists('$(MSBuildExtensionsPath32)\Microsoft\WiX\v3.x\Wix.targets') " />
   <Target Name="EnsureWixToolsetInstalled" Condition=" '$(WixTargetsImported)' != 'true' ">
     <Error Text="The WiX Toolset v3.11 (or newer) build tools must be installed to build this project. To download the WiX Toolset, see http://wixtoolset.org/releases/" />
   </Target>
-  <!--
-	To modify your build process, add your task inside one of the targets below and uncomment it.
-	Other similar extension points exist, see Wix.targets.
-	<Target Name="BeforeBuild">
-	</Target>
-	<Target Name="AfterBuild">
-	</Target>
-	-->
+  <UsingTask TaskName="GetFileVersionTask" TaskFactory="CodeTaskFactory" AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.v4.0.dll">
+    <ParameterGroup>
+      <AssemblyPath ParameterType="System.String" Required="true" />
+      <VersionNumber ParameterType="System.String" Output="true" />
+    </ParameterGroup>
+    <Task>
+      <Using Namespace="System.Diagnostics" />
+      <Code Type="Fragment" Language="cs"><![CDATA[this.VersionNumber = FileVersionInfo.GetVersionInfo(this.AssemblyPath).FileVersion;]]></Code>
+    </Task>
+  </UsingTask>
+  <Target Name="BeforeBuild">
+    <GetFileVersionTask AssemblyPath="$(SolutionDir)out\build\$(Platform)-$(Configuration)\KhiinPJH.dll">
+      <Output TaskParameter="VersionNumber" PropertyName="VersionNumber" />
+    </GetFileVersionTask>
+    <CreateProperty Value="$(OutputName) $(VersionNumber)">
+      <Output TaskParameter="Value" PropertyName="TargetName" />
+    </CreateProperty>
+  </Target>
 </Project>

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <WixLocalization Culture="zh-tw" Codepage="65001" xmlns="http://schemas.microsoft.com/wix/2006/localization">
+
     <String Id="WixUIBack" Overridable="yes">{\Font_Normal}返去</String>
     <String Id="WixUINext" Overridable="yes">{\Font_Normal}閣來</String>
     <String Id="WixUICancel" Overridable="yes">{\Font_Normal}血捔</String>
@@ -14,6 +15,6 @@
     <String Id="WelcomeEulaDlgTitle" Overridable="yes">{\Font_Title}請看[ProductName]个授權條件</String>
     <String Id="WelcomeEulaDlgInstall" Overridable="yes">{\Font_Normal}裝落去</String>
 
-    <String Id="ApplicationName">起引打字法 - pre-alpha</String>
+    <String Id="ApplicationName">起引打字法</String>
     <String Id="ManufacturerName">起引</String>
 </WixLocalization>
