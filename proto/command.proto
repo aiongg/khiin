@@ -158,9 +158,10 @@ message Response {
     Preedit preedit = 2;
     CandidateList candidate_list = 3;
     EditState edit_state = 4;
+    bool committed = 5;
 
     // Used with Windows TSF OnTestKeyDown method
-    bool consumable = 5;
+    bool consumable = 6;
 }
 
 // A full command bundle, passed between app and engine

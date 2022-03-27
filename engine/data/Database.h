@@ -26,6 +26,8 @@ class Database {
     static std::unique_ptr<Database> TestDb();
     static std::unique_ptr<Database> Connect(std::string const &db_filename);
 
+    virtual std::string CurrentConnection() = 0;
+
     virtual void ClearNGramsData() = 0;
     virtual void RecordUnigrams(std::vector<std::string> const &grams) = 0;
     virtual void RecordBigrams(std::vector<Bigram> const &grams) = 0;

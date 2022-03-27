@@ -26,47 +26,50 @@ using namespace proto;
 namespace fs = std::filesystem;
 using namespace khiin::win32::tip;
 
-constexpr std::string_view kConfigFilename = "khiin_config.json";
-constexpr std::string_view kIniFilename = "khiin_config.ini";
+constexpr std::wstring_view kIniFilename = L"khiin_config.ini";
+constexpr std::wstring_view kSettingsAppFilename = L"KhiinSettings.exe";
+constexpr std::wstring_view kServerAppFilename = L"KhiinServer.exe";
 
 // Ini file settings
 namespace ini {
-constexpr const char *yes = "true";
-constexpr const char *no = "false";
+constexpr auto yes = "true";
+constexpr auto no = "false";
 
-constexpr const char *engine = "engine";
-constexpr const char *input_mode = "input_mode";
-constexpr const char *continuous = "continuous";
-constexpr const char *basic = "basic";
-constexpr const char *manual = "manual";
-constexpr const char *enabled = "enabled";
-constexpr const char *dotted_khin = "dotted_khin";
-constexpr const char *autokhin = "autokhin";
-constexpr const char *easy_ch = "easy_ch";
-constexpr const char *uppercase_nasal = "uppercase_nasal";
-constexpr const char *user_dictionary = "user_dictionary";
+constexpr auto engine = "engine";
+constexpr auto input_mode = "input_mode";
+constexpr auto continuous = "continuous";
+constexpr auto basic = "basic";
+constexpr auto manual = "manual";
+constexpr auto enabled = "enabled";
+constexpr auto dotted_khin = "dotted_khin";
+constexpr auto autokhin = "autokhin";
+constexpr auto easy_ch = "easy_ch";
+constexpr auto uppercase_nasal = "uppercase_nasal";
+constexpr auto user_dictionary = "user_dictionary";
 
-constexpr const char *ui = "ui";
-constexpr const char *theme = "theme";
-constexpr const char *light = "light";
-constexpr const char *dark = "dark";
-constexpr const char *language = "language";
-constexpr const char *hanlo = "hanlo";
-constexpr const char *loji = "loji";
-constexpr const char *english = "english";
-constexpr const char *size = "size";
+constexpr auto ui = "ui";
+constexpr auto theme = "theme";
+constexpr auto light = "light";
+constexpr auto dark = "dark";
+constexpr auto language = "language";
+constexpr auto hanlo = "hanlo";
+constexpr auto loji = "loji";
+constexpr auto english = "english";
+constexpr auto size = "size";
 
-constexpr const char *shortcuts = "shortcuts";
-constexpr const char *on_off = "on_off";
-constexpr const char *shift = "shift";
-constexpr const char *alt_backtick = "alt+backtick";
-constexpr const char *ctrl_backtick = "ctrl+backtick";
+constexpr auto shortcuts = "shortcuts";
+constexpr auto on_off = "on_off";
+constexpr auto shift = "shift";
+constexpr auto alt_backtick = "alt+backtick";
+constexpr auto ctrl_backtick = "ctrl+backtick";
 
 } // namespace ini
 
 // Registry settings
 namespace settings {
-const std::wstring database = L"database";
+const std::wstring settings_path = L"settings_exe";
+const std::wstring server_path = L"server_exe";
+const std::wstring database_path = L"database";
 const std::wstring kUiColors = L"UiColors";
 const std::wstring kUiSize = L"UiSize";
 const std::wstring kUiLanguage = L"UiLanguage";
@@ -248,6 +251,42 @@ void Config::NotifyChanged() {
     NotifyGlobalCompartment(guids::kConfigChangedCompartment, Timestamp());
 }
 
+std::wstring Config::GetSettingsAppPath(HMODULE hmodule) {
+    if (auto path = Registrar::GetSettingsString(settings::settings_path); !path.empty() && fs::exists(path)) {
+        return path;
+    }
+
+    return Files::GetFilePath(hmodule, kSettingsAppFilename);
+}
+
+std::wstring Config::GetServerAppPath(HMODULE hmodule) {
+    if (auto path = Registrar::GetSettingsString(settings::server_path); !path.empty() && fs::exists(path)) {
+        return path;
+    }
+
+    return Files::GetFilePath(hmodule, kServerAppFilename);
+}
+
+std::wstring Config::GetDatabaseFile(HMODULE hmodule, std::wstring_view filename) {
+    if (auto path = Registrar::GetSettingsString(settings::database_path); !path.empty() && fs::exists(path)) {
+        return path;
+    }
+
+    return Files::GetFilePath(hmodule, filename);
+}
+
+void Config::SetDatabaseFile(std::wstring file_path) {
+    Registrar::SetSettingsString(settings::database_path, file_path);
+}
+
+std::wstring Config::GetUserDictionaryFile(HMODULE hmodule) {
+    return Registrar::GetSettingsString(settings::kUserDictionaryFile);
+}
+
+void Config::SetUserDictionaryFile(std::wstring file_path) {
+    Registrar::SetSettingsString(settings::kUserDictionaryFile, file_path);
+}
+
 void Config::ClearUserHistory() {
     NotifyGlobalCompartment(guids::kResetUserdataCompartment, Timestamp());
 }
@@ -300,22 +339,6 @@ Hotkey Config::GetInputModeHotkey() {
 
 void Config::SetInputModeHotkey(Hotkey key) {
     Registrar::SetSettingsInt(settings::kInputModeHotkey, EnumInt(key));
-}
-
-std::wstring Config::GetDatabaseFile() {
-    return Registrar::GetSettingsString(settings::database);
-}
-
-void Config::SetDatabaseFile(std::wstring file_path) {
-    Registrar::SetSettingsString(settings::database, file_path);
-}
-
-std::wstring Config::GetUserDictionaryFile() {
-    return Registrar::GetSettingsString(settings::kUserDictionaryFile);
-}
-
-void Config::SetUserDictionaryFile(std::wstring file_path) {
-    Registrar::SetSettingsString(settings::kUserDictionaryFile, file_path);
 }
 
 bool Config::SystemUsesLightTheme() {

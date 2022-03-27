@@ -156,6 +156,11 @@ void EditSession::HandleFocusChange(TextService *service, ITfContext *context) {
 }
 
 void EditSession::HandleAction(TextService *service, ITfContext *context, Command *command) {
+    if (command->response().committed()) {
+        HandleCommit(service, context, command);
+        return;
+    }
+
     switch (command->request().type()) {
     case CMD_SEND_KEY:
         [[fallthrough]];

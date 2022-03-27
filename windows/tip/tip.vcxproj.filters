@@ -122,7 +122,7 @@
     <ClInclude Include="UiStrings.h">
       <Filter>win32</Filter>
     </ClInclude>
-    <ClInclude Include="SettingsApp.h">
+    <ClInclude Include="Process.h">
       <Filter>win32::tip</Filter>
     </ClInclude>
     <ClInclude Include="DllModule.h">
@@ -232,7 +232,7 @@
     <ClCompile Include="UiStrings.cpp">
       <Filter>win32</Filter>
     </ClCompile>
-    <ClCompile Include="SettingsApp.cpp">
+    <ClCompile Include="Process.cpp">
       <Filter>win32::tip</Filter>
     </ClCompile>
     <ClCompile Include="DllModule.cpp">

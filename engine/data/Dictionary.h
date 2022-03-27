@@ -24,6 +24,7 @@ class Dictionary : public ConfigChangeListener {
 
     static std::unique_ptr<Dictionary> Create(Engine *engine);
     virtual void Initialize() = 0;
+    virtual void Uninitialize() = 0;
 
     virtual std::vector<std::string> const &AllInputsByFreq() = 0;
     virtual std::vector<TokenResult> WordSearch(std::string const &query) = 0;

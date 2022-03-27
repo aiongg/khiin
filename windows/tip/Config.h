@@ -35,6 +35,16 @@ class Config {
     static void LoadFromFile(HMODULE hmodule, proto::AppConfig *config);
     static void SaveToFile(HMODULE hmodule, proto::AppConfig *config);
     static void NotifyChanged();
+
+    static std::wstring GetSettingsAppPath(HMODULE hmodule);
+    static std::wstring GetServerAppPath(HMODULE hmodule);
+
+    static std::wstring GetDatabaseFile(HMODULE hmodule, std::wstring_view filename);
+    static void SetDatabaseFile(std::wstring file_path);
+
+    static std::wstring GetUserDictionaryFile(HMODULE hmodule);
+    static void SetUserDictionaryFile(std::wstring file_path);
+
     static void ClearUserHistory();
     static void CycleInputMode(proto::AppConfig *config);
     static UiLanguage GetSystemLang();
@@ -48,10 +58,6 @@ class Config {
     static void SetOnOffHotkey(Hotkey key);
     static Hotkey GetInputModeHotkey();
     static void SetInputModeHotkey(Hotkey key);
-    static std::wstring GetDatabaseFile();
-    static void SetDatabaseFile(std::wstring file_path);
-    static std::wstring GetUserDictionaryFile();
-    static void SetUserDictionaryFile(std::wstring file_path);
     static bool SystemUsesLightTheme();
 };
 

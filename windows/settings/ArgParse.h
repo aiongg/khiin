@@ -7,10 +7,16 @@
 #include <string>
 #include <vector>
 
-namespace khiin::win32::settings {
+namespace khiin::win32 {
 
 class ArgParse {
   public:
+    inline ArgParse(int &argc, char **argv) {
+        for (auto i = 1; i < argc; ++i) {
+            m_args.push_back(std::string(argv[i]));
+        }
+    }
+
     inline ArgParse(int &argc, wchar_t **argv) {
         for (auto i = 1; i < argc; ++i) {
             m_args.push_back(Utils::Narrow(argv[i]));

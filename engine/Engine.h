@@ -5,6 +5,8 @@
 
 namespace khiin::proto {
 class Command;
+class Request;
+class Response;
 }
 
 namespace khiin::engine {
@@ -26,6 +28,8 @@ class Engine {
     static std::unique_ptr<Engine> Create(std::string dbfile);
 
     virtual void SendCommand(proto::Command *command) = 0;
+    virtual void SendCommand(const proto::Request *request, proto::Response *response) = 0;
+    virtual void LoadDictionary(std::string const &file_path) = 0;
     virtual void LoadUserDictionary(std::string file_path) = 0;
     virtual void RegisterConfigChangedListener(ConfigChangeListener *listener) = 0;
 

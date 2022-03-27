@@ -114,6 +114,7 @@ constexpr Response::Response(
 
   , edit_state_(0)
 
+  , committed_(false)
   , consumable_(false){}
 struct ResponseDefaultTypeInternal {
   constexpr ResponseDefaultTypeInternal()
@@ -2367,9 +2368,17 @@ const char* Response::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::i
         } else
           goto handle_unusual;
         continue;
-      // bool consumable = 5;
+      // bool committed = 5;
       case 5:
         if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 40)) {
+          committed_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
+          CHK_(ptr);
+        } else
+          goto handle_unusual;
+        continue;
+      // bool consumable = 6;
+      case 6:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 48)) {
           consumable_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
           CHK_(ptr);
         } else
@@ -2434,10 +2443,16 @@ failure:
       4, this->_internal_edit_state(), target);
   }
 
-  // bool consumable = 5;
+  // bool committed = 5;
+  if (this->_internal_committed() != 0) {
+    target = stream->EnsureSpace(target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteBoolToArray(5, this->_internal_committed(), target);
+  }
+
+  // bool consumable = 6;
   if (this->_internal_consumable() != 0) {
     target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteBoolToArray(5, this->_internal_consumable(), target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteBoolToArray(6, this->_internal_consumable(), target);
   }
 
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
@@ -2482,7 +2497,12 @@ size_t Response::ByteSizeLong() const {
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::EnumSize(this->_internal_edit_state());
   }
 
-  // bool consumable = 5;
+  // bool committed = 5;
+  if (this->_internal_committed() != 0) {
+    total_size += 1 + 1;
+  }
+
+  // bool consumable = 6;
   if (this->_internal_consumable() != 0) {
     total_size += 1 + 1;
   }
@@ -2518,6 +2538,9 @@ void Response::MergeFrom(const Response& from) {
   }
   if (from._internal_edit_state() != 0) {
     _internal_set_edit_state(from._internal_edit_state());
+  }
+  if (from._internal_committed() != 0) {
+    _internal_set_committed(from._internal_committed());
   }
   if (from._internal_consumable() != 0) {
     _internal_set_consumable(from._internal_consumable());

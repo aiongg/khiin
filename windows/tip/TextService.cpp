@@ -18,7 +18,7 @@
 #include "KeyEventSink.h"
 #include "LangBarIndicator.h"
 #include "PreservedKeyMgr.h"
-#include "SettingsApp.h"
+#include "Process.h"
 #include "TextEditSink.h"
 #include "ThreadMgrEventSink.h"
 #include "Utils.h"
@@ -50,10 +50,11 @@ struct TextServiceImpl :
 
   private:
     HRESULT OnActivate() {
-        auto hr = E_FAIL;
+        Process::StartServerApp(g_module);
+
         auto service = cast_as<TextService>(this);
         auto threadmgr = m_threadmgr.get();
-         
+
         InitConfig();
         DisplayAttributeInfoEnum::load(m_displayattrs.put());
         m_indicator->Initialize(service);
@@ -308,7 +309,7 @@ struct TextServiceImpl :
     }
 
     void OpenSettingsApplication() override {
-        SettingsApp::Launch(g_module);
+        Process::OpenSettingsApp(g_module);
     }
 
     void RegisterConfigChangeListener(ConfigChangeListener *config_listener) override {

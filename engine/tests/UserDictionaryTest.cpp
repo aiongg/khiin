@@ -62,7 +62,7 @@ TEST(UserDictionaryTest, LoadDictionary) {
 
 TEST(UserDictionaryTest, InvalidFile) {
     auto ud = UserDictionary::Create("random-invalid-filename.txt");
-    EXPECT_EQ(ud, nullptr);
+    EXPECT_TRUE(ud != nullptr);
 }
 
 struct UserDictionaryBufferTest : ::testing::Test, BufferMgrTestBase {

@@ -1400,7 +1400,8 @@ class Response final :
     kCandidateListFieldNumber = 3,
     kErrorFieldNumber = 1,
     kEditStateFieldNumber = 4,
-    kConsumableFieldNumber = 5,
+    kCommittedFieldNumber = 5,
+    kConsumableFieldNumber = 6,
   };
   // .khiin.proto.Preedit preedit = 2;
   bool has_preedit() const;
@@ -1456,7 +1457,16 @@ class Response final :
   void _internal_set_edit_state(::khiin::proto::EditState value);
   public:
 
-  // bool consumable = 5;
+  // bool committed = 5;
+  void clear_committed();
+  bool committed() const;
+  void set_committed(bool value);
+  private:
+  bool _internal_committed() const;
+  void _internal_set_committed(bool value);
+  public:
+
+  // bool consumable = 6;
   void clear_consumable();
   bool consumable() const;
   void set_consumable(bool value);
@@ -1476,6 +1486,7 @@ class Response final :
   ::khiin::proto::CandidateList* candidate_list_;
   int error_;
   int edit_state_;
+  bool committed_;
   bool consumable_;
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   friend struct ::TableStruct_proto_2fcommand_2eproto;
@@ -2595,7 +2606,27 @@ inline void Response::set_edit_state(::khiin::proto::EditState value) {
   // @@protoc_insertion_point(field_set:khiin.proto.Response.edit_state)
 }
 
-// bool consumable = 5;
+// bool committed = 5;
+inline void Response::clear_committed() {
+  committed_ = false;
+}
+inline bool Response::_internal_committed() const {
+  return committed_;
+}
+inline bool Response::committed() const {
+  // @@protoc_insertion_point(field_get:khiin.proto.Response.committed)
+  return _internal_committed();
+}
+inline void Response::_internal_set_committed(bool value) {
+  
+  committed_ = value;
+}
+inline void Response::set_committed(bool value) {
+  _internal_set_committed(value);
+  // @@protoc_insertion_point(field_set:khiin.proto.Response.committed)
+}
+
+// bool consumable = 6;
 inline void Response::clear_consumable() {
   consumable_ = false;
 }

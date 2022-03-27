@@ -8,8 +8,15 @@
 
 #include <cstdlib>
 #include <filesystem>
+#include <iostream>
+#include <mutex>
 #include <unordered_map>
 #include <unordered_set>
+
+#ifdef _DEBUG
+#include "spdlog/sinks/stdout_color_sinks.h"
+#include "spdlog/spdlog.h"
+#endif
 
 #include "proto/proto.h"
 #include "utf8cpp/utf8.h"
@@ -29,6 +36,19 @@ namespace {
 using namespace khiin::proto;
 namespace fs = std::filesystem;
 
+void StartLogger() {
+#ifdef _DEBUG
+    spdlog::set_level(spdlog::level::debug);
+    auto console_sink = std::make_shared<spdlog::sinks::stdout_color_sink_mt>();
+    auto logger = std::make_shared<spdlog::logger>("khiin_engine", console_sink);
+    logger->set_pattern("%s(%#) : [%l] [%t] [%H:%M:%S.%e] %v");
+    logger->set_level(spdlog::level::debug);
+
+    spdlog::register_logger(logger);
+    spdlog::set_default_logger(logger);
+#endif
+}
+
 bool ModKeyPressed(KeyEvent key_event, ModifierKey modifier) {
     auto const &mods = key_event.modifier_keys();
     return std::any_of(mods.cbegin(), mods.cend(), [&](auto m) {
@@ -43,48 +63,43 @@ class EngineImpl final : public Engine {
     EngineImpl(std::string dbfile) : m_dbfilename(dbfile) {}
 
     void Initialize() {
-        auto db_path = fs::path(m_dbfilename);
-        if (fs::exists(db_path)) {
-            m_database = Database::Connect(db_path.string());
-        } else {
-            m_database = Database::TestDb();
-        }
+        std::lock_guard<std::mutex> lock(m_mutex);
 
-        m_config = Config::Default();
-        m_keyconfig = KeyConfig::Create(this);
-        m_syllable_parser = SyllableParser::Create(this);
-        m_dictionary = Dictionary::Create(this);
-        m_buffer_mgr = BufferMgr::Create(this);
-
-        m_cmd_handlers[CMD_RESET] = &EngineImpl::HandleReset;
-        m_cmd_handlers[CMD_COMMIT] = &EngineImpl::HandleCommit;
-        m_cmd_handlers[CMD_TEST_SEND_KEY] = &EngineImpl::HandleTestSendKey;
-        m_cmd_handlers[CMD_SEND_KEY] = &EngineImpl::HandleSendKey;
-        m_cmd_handlers[CMD_SELECT_CANDIDATE] = &EngineImpl::HandleSelectCandidate;
-        m_cmd_handlers[CMD_FOCUS_CANDIDATE] = &EngineImpl::HandleFocusCandidate;
-        m_cmd_handlers[CMD_SET_CONFIG] = &EngineImpl::HandleSetConfig;
-        m_cmd_handlers[CMD_LIST_EMOJIS] = &EngineImpl::HandleListEmojis;
-        m_cmd_handlers[CMD_RESET_USER_DATA] = &EngineImpl::HandleResetUserData;
-
-        NotifyConfigChangeListeners();
-        m_dictionary->Initialize();
+        spdlog::info("Initialize Engine");
+        Reinit();
     }
 
-    void SendCommand(Command *pCommand) override {
-        auto *req = pCommand->mutable_request();
-        // auto *res = pCommand->mutable_response();
+    void SendCommand(Command *command) override {
+        SendCommand(command->mutable_request(), command->mutable_response());
+    }
+
+    void SendCommand(const Request *request, Response *response) override {
+        std::lock_guard<std::mutex> lock(m_mutex);
+
         decltype(&EngineImpl::HandleNone) handler;
 
-        if (auto it = m_cmd_handlers.find(req->type()); it != m_cmd_handlers.end()) {
+        if (auto it = m_cmd_handlers.find(request->type()); it != m_cmd_handlers.end()) {
             handler = it->second;
         } else {
             handler = &EngineImpl::HandleNone;
         }
 
-        (this->*handler)(pCommand);
+        (this->*handler)(request, response);
+    }
+
+    void LoadDictionary(std::string const &file_path) override {
+        std::lock_guard<std::mutex> lock(m_mutex);
+
+        if (auto curr_db = m_database->CurrentConnection(); curr_db != file_path) {
+            m_dbfilename = file_path;
+            m_config_change_listeners.clear();
+            Reinit();
+        }
     }
 
     void LoadUserDictionary(std::string file_path) override {
+        std::lock_guard<std::mutex> lock(m_mutex);
+
         if (file_path.empty()) {
             m_userdict = nullptr;
         } else {
@@ -127,26 +142,56 @@ class EngineImpl final : public Engine {
     }
 
   private:
+    void Reinit() {
+        auto db_path = fs::path(m_dbfilename);
+        if (fs::exists(db_path)) {
+            m_database = Database::Connect(db_path.string());
+        } else {
+            m_database = Database::TestDb();
+        }
+
+        m_config = Config::Default();
+        m_keyconfig = KeyConfig::Create(this);
+        m_syllable_parser = SyllableParser::Create(this);
+        m_dictionary = Dictionary::Create(this);
+        m_buffer_mgr = BufferMgr::Create(this);
+
+        if (m_cmd_handlers.empty()) {
+            m_cmd_handlers[CMD_RESET] = &EngineImpl::HandleReset;
+            m_cmd_handlers[CMD_COMMIT] = &EngineImpl::HandleCommit;
+            m_cmd_handlers[CMD_TEST_SEND_KEY] = &EngineImpl::HandleTestSendKey;
+            m_cmd_handlers[CMD_SEND_KEY] = &EngineImpl::HandleSendKey;
+            m_cmd_handlers[CMD_SELECT_CANDIDATE] = &EngineImpl::HandleSelectCandidate;
+            m_cmd_handlers[CMD_FOCUS_CANDIDATE] = &EngineImpl::HandleFocusCandidate;
+            m_cmd_handlers[CMD_SET_CONFIG] = &EngineImpl::HandleSetConfig;
+            m_cmd_handlers[CMD_LIST_EMOJIS] = &EngineImpl::HandleListEmojis;
+            m_cmd_handlers[CMD_RESET_USER_DATA] = &EngineImpl::HandleResetUserData;
+        }
+
+        NotifyConfigChangeListeners();
+        m_dictionary->Initialize();
+    }
+
     //+---------------------------------------------------------------------------
     //
     // Command-type handlers
     //
     //----------------------------------------------------------------------------
 
-    void HandleNone(Command *command) {}
+    void HandleNone(const Request *request, Response *response) {}
 
-    void HandleReset(Command *command) {
+    void HandleReset(const Request *request, Response *response) {
+        spdlog::debug("HandleReset");
         m_buffer_mgr->Clear();
     }
 
-    void HandleSendKey(Command *command) {
-        auto *req = command->mutable_request();
-        auto *res = command->mutable_response();
-        auto const &key = req->key_event();
+    void HandleSendKey(const Request *request, Response *response) {
+        spdlog::debug("HandleSendKey");
+        auto const &key = request->key_event();
 
         switch (key.special_key()) {
         case SK_NONE: {
-            auto key_code = req->key_event().key_code();
+            auto key_code = request->key_event().key_code();
             if (isprint(key_code) != 0) {
                 m_buffer_mgr->Insert(static_cast<char>(key_code));
             }
@@ -177,14 +222,14 @@ class EngineImpl final : public Engine {
         }
         case SK_ENTER: {
             if (m_buffer_mgr->HandleSelectOrCommit()) {
-                HandleCommit(command);
+                HandleCommit(request, response);
                 return;
             }
             break;
         }
         case SK_BACKSPACE: {
             if (m_buffer_mgr->IsEmpty()) {
-                res->set_consumable(false);
+                response->set_consumable(false);
             } else {
                 m_buffer_mgr->Erase(CursorDirection::L);
             }
@@ -192,7 +237,7 @@ class EngineImpl final : public Engine {
         }
         case SK_DEL: {
             if (m_buffer_mgr->IsEmpty()) {
-                res->set_consumable(false);
+                response->set_consumable(false);
             } else {
                 m_buffer_mgr->Erase(CursorDirection::R);
             }
@@ -200,7 +245,7 @@ class EngineImpl final : public Engine {
         }
         case SK_SPACE: {
             if (m_buffer_mgr->IsEmpty()) {
-                res->set_consumable(false);
+                response->set_consumable(false);
             } else {
                 m_buffer_mgr->HandleSelectOrFocus();
             }
@@ -215,69 +260,62 @@ class EngineImpl final : public Engine {
         }
         }
 
-        AttachPreeditWithCandidates(command);
+        AttachPreeditWithCandidates(request, response);
     }
 
-    void HandleCommit(Command *command) {
-        // command->input().set_type(CommandType::COMMIT);
-        auto *req = command->mutable_request();
-        req->set_type(CMD_COMMIT);
-        // auto res = command->mutable_response();
-        // auto preedit = res->mutable_preedit();
-        // preedit->set_cursor_position(buffer_mgr->caret_position());
-        // auto segment = preedit->add_segments();
-        // segment->set_status(SegmentStatus::UNMARKED);
-        // segment->set_value(buffer_mgr->getDisplayBuffer());
+    void HandleCommit(const Request *request, Response *response) {
+        spdlog::debug("HandleCommit");
         m_buffer_mgr->Clear();
+        response->set_committed(true);
     }
 
-    void HandleTestSendKey(Command *command) {
-        auto const &request = command->request();
-        auto *res = command->mutable_response();
-
+    void HandleTestSendKey(const Request *request, Response *response) {
+        spdlog::debug("HandleTestSendKey");
         if (!m_config->ime_enabled()) {
             // Direct input mode, skip all processing
-            res->set_consumable(false);
+            response->set_consumable(false);
             return;
         }
 
-        res->set_consumable(true);
+        response->set_consumable(true);
 
-        auto const &key_event = request.key_event();
+        auto const &key_event = request->key_event();
         auto key = key_event.key_code();
         auto const &mods = key_event.modifier_keys();
 
         if (!mods.empty()) {
             if (mods.size() > 1 || mods.at(0) != MODK_SHIFT) {
-                res->set_consumable(false);
+                response->set_consumable(false);
             }
         } else if (m_buffer_mgr->IsEmpty() && isgraph(key) == 0) {
-            res->set_consumable(false);
+            response->set_consumable(false);
         }
     }
 
-    void AttachPreeditWithCandidates(Command *command) {
-        auto *res = command->mutable_response();
-        auto *preedit = res->mutable_preedit();
+    void AttachPreeditWithCandidates(const Request *request, Response *response) {
+        auto *preedit = response->mutable_preedit();
         m_buffer_mgr->BuildPreedit(preedit);
-        auto *candidate_list = command->mutable_response()->mutable_candidate_list();
+        auto *candidate_list = response->mutable_candidate_list();
         m_buffer_mgr->GetCandidates(candidate_list);
-        res->set_edit_state(m_buffer_mgr->edit_state());
+        response->set_edit_state(m_buffer_mgr->edit_state());
     }
 
-    void HandleSelectCandidate(Command *command) {
-        m_buffer_mgr->SelectCandidate(command->request().candidate_id());
-        AttachPreeditWithCandidates(command);
+    void HandleSelectCandidate(const Request *request, Response *response) {
+        spdlog::debug("HandleSelectCandidate");
+        m_buffer_mgr->SelectCandidate(request->candidate_id());
+        AttachPreeditWithCandidates(request, response);
     }
 
-    void HandleFocusCandidate(Command *command) {
-        m_buffer_mgr->FocusCandidate(command->request().candidate_id());
-        AttachPreeditWithCandidates(command);
+    void HandleFocusCandidate(const Request *request, Response *response) {
+        spdlog::debug("HandleFocusCandidate");
+        m_buffer_mgr->FocusCandidate(request->candidate_id());
+        AttachPreeditWithCandidates(request, response);
     }
 
-    void HandleSetConfig(Command *command) {
-        if (command->request().has_config()) {
-            m_config->UpdateAppConfig(command->request().config());
+    void HandleSetConfig(const Request *request, Response *response) {
+        spdlog::debug("HandleSetConfig");
+        if (request->has_config()) {
+            m_config->UpdateAppConfig(request->config());
             NotifyConfigChangeListeners();
         }
     }
@@ -294,9 +332,10 @@ class EngineImpl final : public Engine {
         }
     }
 
-    void HandleListEmojis(Command *command) {
+    void HandleListEmojis(const Request *request, Response *response) {
+        spdlog::debug("HandleListEmojis");
         auto emojis = m_database->GetEmojis();
-        auto *candidates = command->mutable_response()->mutable_candidate_list();
+        auto *candidates = response->mutable_candidate_list();
         for (auto &emoji : emojis) {
             auto *cand = candidates->add_candidates();
             cand->set_id(emoji.category);
@@ -304,7 +343,8 @@ class EngineImpl final : public Engine {
         }
     }
 
-    void HandleResetUserData(Command *command) {
+    void HandleResetUserData(const Request *request, Response *response) {
+        spdlog::debug("HandleResetUserData");
         m_database->ClearNGramsData();
     }
 
@@ -326,17 +366,25 @@ class EngineImpl final : public Engine {
     std::unordered_map<CommandType, decltype(&EngineImpl::HandleNone)> m_cmd_handlers = {};
     std::vector<ConfigChangeListener *> m_config_change_listeners;
     std::unique_ptr<Config> m_config = nullptr;
+
+    mutable std::mutex m_mutex;
 };
 
 } // namespace
 
 std::unique_ptr<Engine> Engine::Create() {
+    StartLogger();
+
+    // Logger::Initialize();
     auto engine = std::make_unique<EngineImpl>();
     engine->Initialize();
     return engine;
 }
 
 std::unique_ptr<Engine> Engine::Create(std::string dbfile) {
+    StartLogger();
+
+    // Logger::Initialize();
     auto engine = std::make_unique<EngineImpl>(dbfile);
     engine->Initialize();
     return engine;

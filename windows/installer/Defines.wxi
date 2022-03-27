@@ -40,9 +40,8 @@
     
     <?define KhiinDll64InstalledPath = "[ProgramFiles64Folder]$(var.MfrName)\$(var.KhiinTipDll64Trg)" ?>
     <?define KhiinDll32InstalledPath = "[ProgramFilesFolder]$(var.MfrName)\$(var.KhiinTipDll32Trg)" ?>
-    <?define KhiinSettingsInstalledPath = "[ProgramFiles64Folder]$(var.MfrName)\$(var.KhiinSettingsExeTrg)" ?>
     
-    <?define DatabaseSourceFile = "$(var.ResourceDir)/migration_test_old.db" ?>
+    <?define DatabaseSourceFile = "$(var.ResourceDir)/khiin.db" ?>
     <?define KhiinDatabaseTrg = "khiin.db" ?>
 
     <?define ConfigSourceFile = "$(var.ResourceDir)/khiin_config.ini" ?>

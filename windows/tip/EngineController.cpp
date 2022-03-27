@@ -26,9 +26,9 @@ using namespace khiin::proto;
 volatile HMODULE g_module = nullptr;
 
 #ifdef _DEBUG
-constexpr std::string_view kDbFilename = "khiin_test.db";
+constexpr std::wstring_view kDbFilename = L"khiin_test.db";
 #else
-constexpr std::string_view kDbFilename = "khiin.db";
+constexpr std::wstring_view kDbFilename = L"khiin.db";
 #endif
 
 const std::unordered_map<int, SpecialKey> kWindowsToKhiinKeyCode = {
@@ -47,6 +47,10 @@ const std::unordered_map<int, SpecialKey> kWindowsToKhiinKeyCode = {
     {VK_DELETE, SpecialKey::SK_DEL}
     // clang-format on
 };
+
+std::string GetDatabaseFile() {
+    return Utils::Narrow(Config::GetDatabaseFile(g_module, kDbFilename));
+}
 
 } // namespace
 
@@ -81,31 +85,12 @@ struct EngineControllerImpl : winrt::implements<EngineControllerImpl, EngineCont
 
     void Initialize(TextService *service) override {
         m_service.copy_from(service);
-        ReloadEngine();
         m_service->RegisterConfigChangeListener(this);
+        m_engine = Engine::Create(GetDatabaseFile());
     }
 
     void Uninitialize() override {
-        m_engine.reset(nullptr);
         m_service = nullptr;
-    }
-
-    void ReloadEngine() {
-        auto db = fs::path();
-
-        if (auto dbfile = Utils::Narrow(Config::GetDatabaseFile()); !dbfile.empty() && fs::exists(dbfile)) {
-            db = fs::path(dbfile);
-        } else if (auto tmp = Files::GetFilePath(g_module, kDbFilename); !tmp.empty() && fs::exists(tmp)) {
-            db = tmp;
-        }
-
-        if (db.empty()) {
-            m_engine = Engine::Create();
-        } else {
-            m_engine = Engine::Create(db.string());
-        }
-
-        m_dbfile = db;
     }
 
     Command *TestKey(KeyEvent win_key_event) override {
@@ -115,6 +100,8 @@ struct EngineControllerImpl : winrt::implements<EngineControllerImpl, EngineCont
         auto key_event = request->mutable_key_event();
         TranslateKeyEvent(&win_key_event, key_event);
         m_engine->SendCommand(cmd);
+
+        KHIIN_DEBUG("error code: {}", cmd->response().error() == ErrorCode::FAIL);
 
         if (!cmd->response().consumable()) {
             Reset();
@@ -185,7 +172,7 @@ struct EngineControllerImpl : winrt::implements<EngineControllerImpl, EngineCont
     //----------------------------------------------------------------------------
 
     void OnConfigChanged(proto::AppConfig *config) override {
-        if (auto wfile = Config::GetUserDictionaryFile(); !wfile.empty()) {
+        if (auto wfile = Config::GetUserDictionaryFile(g_module); !wfile.empty() && fs::exists(wfile)) {
             auto file = Utils::Narrow(wfile);
             m_engine->LoadUserDictionary(file);
         }
@@ -207,11 +194,10 @@ struct EngineControllerImpl : winrt::implements<EngineControllerImpl, EngineCont
         return m_prev_command.get();
     }
 
-    com_ptr<TextService> m_service = nullptr;
     std::unique_ptr<Engine> m_engine = nullptr;
+    com_ptr<TextService> m_service = nullptr;
     std::unique_ptr<Command> m_prev_command = nullptr;
     CandidateList m_emojis;
-    fs::path m_dbfile;
 };
 
 void EngineController::OnDllProcessAttach(HMODULE module) {

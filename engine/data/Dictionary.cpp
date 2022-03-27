@@ -39,6 +39,18 @@ class DictionaryImpl : public Dictionary {
         m_engine->RegisterConfigChangedListener(this);
     }
 
+    void Uninitialize() override {
+        m_word_trie.reset(nullptr);
+        m_word_splitter.reset(nullptr);
+        m_syllable_trie.reset(nullptr);
+        m_input_ids.clear();
+        m_user_inputs.clear();
+        m_token_cache.clear();
+        m_input_id_token_cache.clear();
+        m_inputs_by_freq.clear();
+        m_punctuation.clear();
+    }
+
     bool StartsWithWord(std::string_view query) const override {
         return m_word_trie->StartsWithKey(query);
     }

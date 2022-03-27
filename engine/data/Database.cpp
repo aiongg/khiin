@@ -18,6 +18,13 @@ class DatabaseImpl : public Database {
     DatabaseImpl(std::unique_ptr<SQLite::Database> &&handle) : db_handle(std::move(handle)) {}
 
   private:
+    std::string CurrentConnection() override {
+        if (db_handle) {
+            return db_handle->getFilename();
+        }
+        return std::string();
+    }
+
     void AllWordsByFreq(std::vector<InputByFreq> &output) override {
         auto query = SQL::SelectInputsByFreq(*db_handle);
         while (query.executeStep()) {
@@ -209,7 +216,7 @@ Database::~Database() = default;
 std::unique_ptr<Database> Database::TestDb() {
     auto handle = std::make_unique<SQLite::Database>(":memory:", SQLite::OPEN_READWRITE);
     auto query = SQL::CreateDummyDb(*handle);
-    //query.exec();
+    // query.exec();
     return std::make_unique<DatabaseImpl>(std::move(handle));
 }
 
