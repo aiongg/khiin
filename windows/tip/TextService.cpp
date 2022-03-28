@@ -50,8 +50,6 @@ struct TextServiceImpl :
 
   private:
     HRESULT OnActivate() {
-        Process::StartServerApp(g_module);
-
         auto service = cast_as<TextService>(this);
         auto threadmgr = m_threadmgr.get();
 

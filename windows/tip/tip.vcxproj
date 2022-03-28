@@ -141,7 +141,8 @@
       <AdditionalIncludeDirectories>$(SolutionDir)../</AdditionalIncludeDirectories>
     </ResourceCompile>
     <PreBuildEvent>
-      <Command>powershell.exe -ExecutionPolicy Bypass -NoProfile -NonInteractive -File ..\..\version-bump.ps1 "..\..\version.h"</Command>
+      <Command>
+      </Command>
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -246,6 +247,9 @@
     <ResourceCompile>
       <AdditionalIncludeDirectories>$(SolutionDir)../</AdditionalIncludeDirectories>
     </ResourceCompile>
+    <PreBuildEvent>
+      <Command>powershell.exe -ExecutionPolicy Bypass -NoProfile -NonInteractive -File ..\..\version-bump.ps1 "..\..\version.h"</Command>
+    </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="BaseWindow.h" />
@@ -261,7 +265,6 @@
     <ClInclude Include="CompositionMgr.h" />
     <ClInclude Include="DllModule.h" />
     <ClInclude Include="DisplayAttributeInfoEnum.h" />
-    <ClInclude Include="Files.h" />
     <ClInclude Include="Geometry.h" />
     <ClInclude Include="Guids.h" />
     <ClInclude Include="PreservedKeyMgr.h" />
@@ -305,7 +308,6 @@
     <ClCompile Include="Compartment.cpp" />
     <ClCompile Include="CompositionMgr.cpp" />
     <ClCompile Include="DisplayAttributeInfoEnum.cpp" />
-    <ClCompile Include="Files.cpp" />
     <ClCompile Include="PreservedKeyMgr.cpp" />
     <ClCompile Include="CompositionUtil.cpp" />
     <ClCompile Include="RenderFactory.cpp" />

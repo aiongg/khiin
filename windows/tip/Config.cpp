@@ -14,7 +14,6 @@
 
 #include "proto/proto.h"
 
-#include "Files.h"
 #include "Guids.h"
 #include "Registrar.h"
 
@@ -26,9 +25,12 @@ using namespace proto;
 namespace fs = std::filesystem;
 using namespace khiin::win32::tip;
 
-constexpr std::wstring_view kIniFilename = L"khiin_config.ini";
-constexpr std::wstring_view kSettingsAppFilename = L"KhiinSettings.exe";
-constexpr std::wstring_view kServerAppFilename = L"KhiinServer.exe";
+const std::wstring kAppDataFolder = L"Khiin PJH";
+const std::wstring kModuleFolderDataFolder = L"resources";
+const std::wstring kIniFilename = L"khiin_config.ini";
+const std::wstring kDatabaseFilename = L"khiin.db";
+const std::wstring kSettingsAppFilename = L"KhiinSettings.exe";
+const std::wstring kUserDbFilename = L"khiin_userdb.txt";
 
 // Ini file settings
 namespace ini {
@@ -67,9 +69,11 @@ constexpr auto ctrl_backtick = "ctrl+backtick";
 
 // Registry settings
 namespace settings {
-const std::wstring settings_path = L"settings_exe";
-const std::wstring server_path = L"server_exe";
-const std::wstring database_path = L"database";
+const std::wstring settings_app = L"settings_exe";
+const std::wstring database_file = L"database";
+const std::wstring config_file = L"config_ini";
+const std::wstring user_db_file = L"user_db";
+
 const std::wstring kUiColors = L"UiColors";
 const std::wstring kUiSize = L"UiSize";
 const std::wstring kUiLanguage = L"UiLanguage";
@@ -90,6 +94,84 @@ int EnumInt(EnumT e) {
 template <typename EnumT>
 EnumT EnumVal(std::underlying_type_t<EnumT> e) {
     return static_cast<EnumT>(e);
+}
+
+const std::wstring DefaultFilename(KhiinFile file) {
+    switch (file) {
+    case KhiinFile::Config:
+        return kIniFilename;
+    case KhiinFile::Database:
+        return kDatabaseFilename;
+    case KhiinFile::SettingsApp:
+        return kSettingsAppFilename;
+    case KhiinFile::UserDb:
+        return kUserDbFilename;
+    }
+
+    // should never reach here
+    assert("Invalid KhiinFile");
+    return std::wstring();
+}
+
+const std::wstring FilenameRegistryKey(KhiinFile file) {
+    switch (file) {
+    case KhiinFile::Config:
+        return settings::config_file;
+    case KhiinFile::Database:
+        return settings::database_file;
+    case KhiinFile::SettingsApp:
+        return settings::settings_app;
+    case KhiinFile::UserDb:
+        return settings::user_db_file;
+    }
+
+    // should never reach here
+    assert("Invalid KhiinFile");
+    return std::wstring();
+}
+
+const std::wstring FindFileInRoamingAppData(std::wstring_view filename) {
+    wchar_t *tmp;
+    if (::SHGetKnownFolderPath(FOLDERID_RoamingAppData, 0, NULL, &tmp) == S_OK) {
+        auto path = fs::path(tmp);
+        ::CoTaskMemFree(tmp);
+        path /= kAppDataFolder;
+        path /= filename;
+        if (fs::exists(path)) {
+            return path.wstring();
+        }
+    } else {
+        ::CoTaskMemFree(tmp);
+    }
+
+    return std::wstring();
+}
+
+const std::wstring FindFileInModulePath(HMODULE hmodule, std::wstring_view filename) {
+    if (hmodule == NULL) {
+        return std::wstring();
+    }
+
+    wchar_t module_path[MAX_PATH] = {};
+    auto len = ::GetModuleFileName(hmodule, &module_path[0], MAX_PATH);
+    auto mod_path = fs::path(module_path);
+    mod_path.remove_filename();
+
+    fs::path res_path = mod_path;
+    res_path /= kModuleFolderDataFolder;
+    res_path /= filename;
+
+    if (fs::exists(res_path)) {
+        return res_path.wstring();
+    }
+
+    mod_path /= filename;
+
+    if (fs::exists(mod_path)) {
+        return mod_path.wstring();
+    }
+
+    return std::wstring();
 }
 
 DWORD Timestamp() {
@@ -144,7 +226,7 @@ UiLanguage Config::GetSystemLang() {
 
 std::unique_ptr<CSimpleIniA> GetIniFile(HMODULE hmodule) {
     auto ret = std::make_unique<CSimpleIniA>();
-    auto conf_file = Files::GetFilePath(hmodule, kIniFilename);
+    auto conf_file = Config::GetKnownFile(KhiinFile::Config, hmodule);
 
     if (fs::exists(conf_file)) {
         ret->SetUnicode();
@@ -243,7 +325,7 @@ void Config::SaveToFile(HMODULE hmodule, AppConfig *config) {
         ini->SetValue(ini::engine, ini::uppercase_nasal, value);
     }
 
-    auto conf_file = Files::GetFilePath(hmodule, kIniFilename);
+    auto conf_file = Config::GetKnownFile(KhiinFile::Config, hmodule);
     auto ret = ini->SaveFile(conf_file.c_str());
 }
 
@@ -251,40 +333,32 @@ void Config::NotifyChanged() {
     NotifyGlobalCompartment(guids::kConfigChangedCompartment, Timestamp());
 }
 
-std::wstring Config::GetSettingsAppPath(HMODULE hmodule) {
-    if (auto path = Registrar::GetSettingsString(settings::settings_path); !path.empty() && fs::exists(path)) {
-        return path;
+std::wstring Config::GetKnownFile(KhiinFile file, HMODULE hmodule, std::wstring const &file_path_override) {
+    auto ret = Registrar::GetSettingsString(FilenameRegistryKey(file));
+
+    if (!ret.empty() && fs::exists(ret)) {
+        return ret;
     }
 
-    return Files::GetFilePath(hmodule, kSettingsAppFilename);
-}
+    const auto filename = file_path_override.empty() ? DefaultFilename(file) : file_path_override;
 
-std::wstring Config::GetServerAppPath(HMODULE hmodule) {
-    if (auto path = Registrar::GetSettingsString(settings::server_path); !path.empty() && fs::exists(path)) {
-        return path;
+    ret = FindFileInRoamingAppData(filename);
+    if (!ret.empty() && fs::exists(ret)) {
+        return ret;
     }
 
-    return Files::GetFilePath(hmodule, kServerAppFilename);
-}
-
-std::wstring Config::GetDatabaseFile(HMODULE hmodule, std::wstring_view filename) {
-    if (auto path = Registrar::GetSettingsString(settings::database_path); !path.empty() && fs::exists(path)) {
-        return path;
+    ret = FindFileInModulePath(hmodule, filename);
+    if (!ret.empty() && fs::exists(ret)) {
+        return ret;
     }
 
-    return Files::GetFilePath(hmodule, filename);
+    return std::wstring();
 }
 
-void Config::SetDatabaseFile(std::wstring file_path) {
-    Registrar::SetSettingsString(settings::database_path, file_path);
-}
-
-std::wstring Config::GetUserDictionaryFile(HMODULE hmodule) {
-    return Registrar::GetSettingsString(settings::kUserDictionaryFile);
-}
-
-void Config::SetUserDictionaryFile(std::wstring file_path) {
-    Registrar::SetSettingsString(settings::kUserDictionaryFile, file_path);
+void Config::SetKnownFilePath(KhiinFile file, std::wstring const &file_path) {
+    if (!file_path.empty() && fs::exists(file_path)) {
+        Registrar::SetSettingsString(FilenameRegistryKey(file), file_path);
+    }
 }
 
 void Config::ClearUserHistory() {

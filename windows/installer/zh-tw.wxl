@@ -17,6 +17,7 @@
 
     <String Id="ApplicationName">起引打字法</String>
     <String Id="ManufacturerName">起引</String>
+    <String Id="DowngradeErrorMessage">Khah 新个版本以經安好 ·a。</String>
 
     <!-- Firewall extension fix -->
     <String Id="msierrFirewallCannotConnect" Overridable="yes">Cannot connect to Windows Firewall.  ([2]   [3]   [4]   [5])</String>

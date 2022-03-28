@@ -1,14 +1,14 @@
 #include "pch.h"
 
+#include "engine/utils/logger.h"
+
 #include "Logger.h"
 
-#include <spdlog/sinks/basic_file_sink.h>
-#include <spdlog/sinks/msvc_sink.h>
-#include <spdlog/sinks/rotating_file_sink.h>
+#include "spdlog/sinks/basic_file_sink.h"
+#include "spdlog/sinks/msvc_sink.h"
+#include "spdlog/sinks/rotating_file_sink.h"
 
-#include "Files.h"
-
-namespace khiin {
+namespace khiin::win32 {
 namespace {
 
 const std::string kLogFilename = "khiin_debug_log.txt";
@@ -26,19 +26,17 @@ void Logger::Initialize(std::filesystem::path log_folder) {
     auto msvc_sink = std::make_shared<spdlog::sinks::msvc_sink_mt>();
     msvc_sink->set_pattern("%s(%#) : [%l] [%H:%M:%S.%e] %v");
     msvc_sink->set_level(spdlog::level::debug);
-
+    
     auto sinks = std::vector<spdlog::sink_ptr>{file_sink, msvc_sink};
-    auto logger = std::make_shared<spdlog::logger>(KHIIN_DEFAULT_LOGGER_NAME, sinks.begin(), sinks.end());
+    auto logger = khiin::logger::setup(sinks);
     logger->set_level(spdlog::level::trace);
     logger->flush_on(spdlog::level::trace);
-    spdlog::register_logger(logger);
     spdlog::set_default_logger(logger);
-
     logger->info("Log started: {}", log_folder.string());
 }
 
 void Logger::Uninitialize() {
-    spdlog::shutdown();
+    khiin::logger::shutdown();
 }
 
 } // namespace khiin

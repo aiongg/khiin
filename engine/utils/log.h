@@ -12,7 +12,7 @@
 
 #include <spdlog/fmt/ostr.h>
 
-#define KHIIN_DEFAULT_LOGGER_NAME "khiin_engine_logger"
+#define KHIIN_DEFAULT_LOGGER_NAME "khiin_logger"
 #define KHIIN_TRACE(...) SPDLOG_TRACE(__VA_ARGS__)
 #define KHIIN_DEBUG(...) SPDLOG_DEBUG(__VA_ARGS__)
 #define KHIIN_INFO(...) SPDLOG_INFO(__VA_ARGS__)

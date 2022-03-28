@@ -14,6 +14,8 @@
     <DefineConstants>Debug</DefineConstants>
     <OutputName>起引打字法 Khíín PJH %28Debug%29</OutputName>
     <LinkerAdditionalOptions>-ext WixUIExtension</LinkerAdditionalOptions>
+    <SuppressValidation>False</SuppressValidation>
+    <SuppressIces>ICE61;ICE91</SuppressIces>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x64' ">
     <OutputPath>$(SolutionDir)\out\build\$(Platform)-$(Configuration)\</OutputPath>
@@ -22,7 +24,6 @@
     <LinkerAdditionalOptions>-ext WixUIExtension</LinkerAdditionalOptions>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="Updater.wxs" />
     <Compile Include="Product.wxs" />
     <Compile Include="Registry.wxs" />
   </ItemGroup>

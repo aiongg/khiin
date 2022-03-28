@@ -2,6 +2,9 @@ target_sources(khiin
     PRIVATE
         "common.h"
         "errors.h"
+        "logger.cpp"
+        "logger.h"
+        "log.h"
         "unicode.cpp"
         "unicode.h"
         "utils.cpp"

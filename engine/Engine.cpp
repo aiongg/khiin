@@ -13,11 +13,6 @@
 #include <unordered_map>
 #include <unordered_set>
 
-#ifdef _DEBUG
-#include "spdlog/sinks/stdout_color_sinks.h"
-#include "spdlog/spdlog.h"
-#endif
-
 #include "proto/proto.h"
 #include "utf8cpp/utf8.h"
 
@@ -28,6 +23,7 @@
 #include "data/UserDictionary.h"
 #include "input/BufferMgr.h"
 #include "input/SyllableParser.h"
+#include "utils/logger.h"
 #include "utils/utils.h"
 
 namespace khiin::engine {
@@ -35,19 +31,6 @@ namespace {
 
 using namespace khiin::proto;
 namespace fs = std::filesystem;
-
-void StartLogger() {
-#ifdef _DEBUG
-    spdlog::set_level(spdlog::level::debug);
-    auto console_sink = std::make_shared<spdlog::sinks::stdout_color_sink_mt>();
-    auto logger = std::make_shared<spdlog::logger>("khiin_engine", console_sink);
-    logger->set_pattern("%s(%#) : [%l] [%t] [%H:%M:%S.%e] %v");
-    logger->set_level(spdlog::level::debug);
-
-    spdlog::register_logger(logger);
-    spdlog::set_default_logger(logger);
-#endif
-}
 
 bool ModKeyPressed(KeyEvent key_event, ModifierKey modifier) {
     auto const &mods = key_event.modifier_keys();
@@ -58,14 +41,16 @@ bool ModKeyPressed(KeyEvent key_event, ModifierKey modifier) {
 
 class EngineImpl final : public Engine {
   public:
-    EngineImpl() {}
-
+    EngineImpl() = default;
     EngineImpl(std::string dbfile) : m_dbfilename(dbfile) {}
+    EngineImpl(EngineImpl const &rhs) = delete;
+    EngineImpl &operator=(EngineImpl const &rhs) = delete;
+    ~EngineImpl() = default;
 
     void Initialize() {
+        logger::info("Test logging Initialize {}", "x");
         std::lock_guard<std::mutex> lock(m_mutex);
 
-        spdlog::info("Initialize Engine");
         Reinit();
     }
 
@@ -373,18 +358,12 @@ class EngineImpl final : public Engine {
 } // namespace
 
 std::unique_ptr<Engine> Engine::Create() {
-    StartLogger();
-
-    // Logger::Initialize();
     auto engine = std::make_unique<EngineImpl>();
     engine->Initialize();
     return engine;
 }
 
 std::unique_ptr<Engine> Engine::Create(std::string dbfile) {
-    StartLogger();
-
-    // Logger::Initialize();
     auto engine = std::make_unique<EngineImpl>(dbfile);
     engine->Initialize();
     return engine;

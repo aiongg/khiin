@@ -11,7 +11,6 @@
 #include "Config.h"
 #include "DllModule.h"
 #include "EditSession.h"
-#include "Files.h"
 #include "TextService.h"
 #include "Utils.h"
 #include "common.h"
@@ -26,9 +25,9 @@ using namespace khiin::proto;
 volatile HMODULE g_module = nullptr;
 
 #ifdef _DEBUG
-constexpr std::wstring_view kDbFilename = L"khiin_test.db";
+const std::wstring kDbFilename = L"khiin_test.db";
 #else
-constexpr std::wstring_view kDbFilename = L"khiin.db";
+const std::wstring kDbFilename = L"khiin.db";
 #endif
 
 const std::unordered_map<int, SpecialKey> kWindowsToKhiinKeyCode = {
@@ -49,7 +48,7 @@ const std::unordered_map<int, SpecialKey> kWindowsToKhiinKeyCode = {
 };
 
 std::string GetDatabaseFile() {
-    return Utils::Narrow(Config::GetDatabaseFile(g_module, kDbFilename));
+    return Utils::Narrow(Config::GetKnownFile(KhiinFile::Database, g_module, kDbFilename));
 }
 
 } // namespace
@@ -172,7 +171,7 @@ struct EngineControllerImpl : winrt::implements<EngineControllerImpl, EngineCont
     //----------------------------------------------------------------------------
 
     void OnConfigChanged(proto::AppConfig *config) override {
-        if (auto wfile = Config::GetUserDictionaryFile(g_module); !wfile.empty() && fs::exists(wfile)) {
+        if (auto wfile = Config::GetKnownFile(KhiinFile::UserDb, g_module); !wfile.empty() && fs::exists(wfile)) {
             auto file = Utils::Narrow(wfile);
             m_engine->LoadUserDictionary(file);
         }

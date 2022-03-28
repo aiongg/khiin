@@ -61,9 +61,6 @@
     <ClCompile Include="InputProps.cpp">
       <Filter>settings</Filter>
     </ClCompile>
-    <ClCompile Include="..\tip\Files.cpp">
-      <Filter>tip</Filter>
-    </ClCompile>
     <ClCompile Include="Strings.cpp">
       <Filter>settings</Filter>
     </ClCompile>

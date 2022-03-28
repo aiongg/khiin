@@ -98,9 +98,6 @@
     <ClInclude Include="pch.h">
       <Filter>win32</Filter>
     </ClInclude>
-    <ClInclude Include="Files.h">
-      <Filter>win32</Filter>
-    </ClInclude>
     <ClInclude Include="resource.h">
       <Filter>win32</Filter>
     </ClInclude>
@@ -183,9 +180,6 @@
     </ClCompile>
     <ClCompile Include="EditSession.cpp">
       <Filter>win32::tip</Filter>
-    </ClCompile>
-    <ClCompile Include="Files.cpp">
-      <Filter>win32</Filter>
     </ClCompile>
     <ClCompile Include="Logger.cpp">
       <Filter>win32</Filter>

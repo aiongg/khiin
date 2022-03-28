@@ -287,6 +287,13 @@ void BufferElement::Erase(utf8_size_t index) {
         elem->erased = true;
         return;
     }
+
+    if (auto *elem = std::get_if<UserToken>(&m_element)) {
+        auto str = elem->Input();
+        safe_erase(str, index, 1);
+        Replace(str);
+        return;
+    }
 }
 
 bool BufferElement::IsVirtualSpace() const {

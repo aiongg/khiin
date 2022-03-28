@@ -2,13 +2,13 @@
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
     <?include Defines.wxi ?>
     <Fragment>
-        <ComponentGroup Id="DllRegistration" Directory="TARGETDIR">
+        <ComponentGroup Id="CG_DllRegistration" Directory="TARGETDIR">
             <Component Id="Khiin64CLSIDRegistration" Guid="{F8FF075C-0CC4-403D-8A6F-26044A1057AC}" KeyPath="yes" Win64="yes">
                 <RegistryKey Key="Software\Classes\CLSID\{829893F6-728D-11EC-8C6E-E0D46491B35A}" Root="HKLM">
                     <RegistryValue Value="Khiin Taiwanese IME" Type="string" />
                 </RegistryKey>
                 <RegistryKey Key="Software\Classes\CLSID\{829893F6-728D-11EC-8C6E-E0D46491B35A}\InprocServer32" Root="HKLM">
-                    <RegistryValue Value="$(var.KhiinDll64InstalledPath)" Type="string" />
+                    <RegistryValue Value="[INSTALLDIR64]$(var.Target_TipDll64)" Type="string" />
                     <RegistryValue Name="ThreadingModel" Value="Apartment" Type="string" />
                 </RegistryKey>
             </Component>
@@ -17,7 +17,7 @@
                     <RegistryValue Value="Khiin Taiwanese IME" Type="string" />
                 </RegistryKey>
                 <RegistryKey Key="Software\Classes\CLSID\{829893F6-728D-11EC-8C6E-E0D46491B35A}\InprocServer32" Root="HKLM">
-                    <RegistryValue Value="$(var.KhiinDll32InstalledPath)" Type="string" />
+                    <RegistryValue Value="[INSTALLDIR32]$(var.Target_TipDll32)" Type="string" />
                     <RegistryValue Name="ThreadingModel" Value="Apartment" Type="string" />
                 </RegistryKey>
             </Component>
@@ -53,9 +53,9 @@
                 <RegistryKey ForceCreateOnInstall="yes" Key="Software\Microsoft\CTF\TIP\{829893F6-728D-11EC-8C6E-E0D46491B35A}\LanguageProfile" Root="HKLM" />
                 <RegistryKey ForceCreateOnInstall="yes" Key="Software\Microsoft\CTF\TIP\{829893F6-728D-11EC-8C6E-E0D46491B35A}\LanguageProfile\0x00000404" Root="HKLM" />
                 <RegistryKey Key="Software\Microsoft\CTF\TIP\{829893F6-728D-11EC-8C6E-E0D46491B35A}\LanguageProfile\0x00000404\{829893F7-728D-11EC-8C6E-E0D46491B35A}" Root="HKLM">
-                    <RegistryValue Name="IconFile" Value="$(var.KhiinDll64InstalledPath)" Type="string" />
+                    <RegistryValue Name="IconFile" Value="[INSTALLDIR64]$(var.Target_TipDll64)" Type="string" />
                     <RegistryValue Name="IconIndex" Value="0" Type="integer" />
-                    <RegistryValue Name="Display Description" Value="@$(var.KhiinDll64InstalledPath),-101" Type="string" />
+                    <RegistryValue Name="Display Description" Value="@[INSTALLDIR64]$(var.Target_TipDll64),-101" Type="string" />
                     <RegistryValue Name="Description" Value="Khiin Taiwanese IME" Type="string" />
                 </RegistryKey>
             </Component>

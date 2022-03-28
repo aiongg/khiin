@@ -123,9 +123,9 @@ void UserProps::HandleClearUserData() {
 
 void UserProps::HandleChooseUserDictionaryFile() {
     auto file_path = SelectUserDictionaryFile(m_hwnd);
+
     if (!file_path.empty()) {
-        Config::SetUserDictionaryFile(file_path);
-        Config::NotifyChanged();
+        Config::SetKnownFilePath(KhiinFile::UserDb, file_path);
     }
 }
 

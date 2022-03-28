@@ -6,6 +6,13 @@ class AppConfig;
 
 namespace khiin::win32 {
 
+enum class KhiinFile {
+    Database,
+    Config,
+    SettingsApp,
+    UserDb,
+};
+
 enum class UiLanguage {
     English,
     HanloTai,
@@ -35,16 +42,9 @@ class Config {
     static void LoadFromFile(HMODULE hmodule, proto::AppConfig *config);
     static void SaveToFile(HMODULE hmodule, proto::AppConfig *config);
     static void NotifyChanged();
-
-    static std::wstring GetSettingsAppPath(HMODULE hmodule);
-    static std::wstring GetServerAppPath(HMODULE hmodule);
-
-    static std::wstring GetDatabaseFile(HMODULE hmodule, std::wstring_view filename);
-    static void SetDatabaseFile(std::wstring file_path);
-
-    static std::wstring GetUserDictionaryFile(HMODULE hmodule);
-    static void SetUserDictionaryFile(std::wstring file_path);
-
+    static std::wstring GetKnownFile(KhiinFile file, HMODULE hmodule = NULL,
+                                     std::wstring const &file_path_override = L"");
+    static void SetKnownFilePath(KhiinFile file, std::wstring const &file_path);
     static void ClearUserHistory();
     static void CycleInputMode(proto::AppConfig *config);
     static UiLanguage GetSystemLang();

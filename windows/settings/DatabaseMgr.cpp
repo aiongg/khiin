@@ -101,7 +101,7 @@ int DatabaseMgr::ApplyUpdateToExisting(std::string const &existing_file, std::st
 
     if (ret == 0) {
         auto abspath = fs::absolute(existing);
-        Config::SetDatabaseFile(Utils::Widen(abspath.string()));
+        Config::SetKnownFilePath(KhiinFile::Database, Utils::Widen(abspath.string()));
     }
 
     return ret;

@@ -40,7 +40,7 @@
 #pragma comment(lib, "shcore")
 
 #include "hresult.h"
-#include "log.h"
+#include "engine/utils/log.h"
 #include "resource.h"
 
 namespace winrt {

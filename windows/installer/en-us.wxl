@@ -3,12 +3,9 @@
 
     <String Id="ApplicationName">Khíín PJH</String>
     <String Id="ManufacturerName">Khíín</String>
+    <String Id="DowngradeErrorMessage">A newer version of Khíín PJH is already installed.</String>
 
     <String Id="WelcomeEulaDlgTitle" Overridable="yes">Install [ProductName]</String>
-    
-    
-    
-    
     
     <!-- Firewall extension fix -->
     <String Id="msierrFirewallCannotConnect" Overridable="yes">Cannot connect to Windows Firewall.  ([2]   [3]   [4]   [5])</String>

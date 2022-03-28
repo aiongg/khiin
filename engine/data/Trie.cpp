@@ -32,7 +32,7 @@ struct SplitCost {
  * replace/re-sort only if it is cheaper.
  */
 void SaveIfCheaper(std::vector<SplitCost> &vec, int limit, uint64_t split, float cost) {
-    if (vec.size() < limit) {
+    if (static_cast<int>(vec.size()) < limit) {
         vec.push_back(SplitCost{split, cost});
         std::sort(vec.begin(), vec.end());
     } else {
@@ -328,7 +328,7 @@ class TrieImpl : public Trie {
             if (node->end_of_word) {
                 result.push_back(prefix + suffix);
 
-                if (limit && result.size() >= limit) {
+                if (limit != 0 && static_cast<int>(result.size()) >= limit) {
                     return;
                 }
             }

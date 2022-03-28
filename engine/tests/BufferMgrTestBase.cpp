@@ -110,9 +110,9 @@ std::string BufferMgrTestBase::CandidateAt(int candidate_index) {
 
 int BufferMgrTestBase::CandidateIndexOf(std::string candidate) {
     auto cands = get_cand_strings();
-    for (auto i = 0; i < cands.size(); ++i) {
+    for (size_t i = 0; i < cands.size(); ++i) {
         if (cands[i] == candidate) {
-            return i;
+            return static_cast<int>(i);
         }
     }
 

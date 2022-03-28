@@ -13,11 +13,13 @@ namespace khiin::engine {
 namespace {
 using WordSet = std::unordered_set<std::string>;
 
+constexpr float kBigNumber = 9e9F;
+
 inline auto isDigit(std::string const &str) {
     std::stringstream s;
     s << str;
     double d = 0;
-    char c;
+    char c = 0;
     return (s >> d) ? !(s >> c) : false;
 }
 
@@ -27,15 +29,15 @@ struct SplitCheckResult {
 };
 
 SplitCheckResult CheckSplittable(WordSet const &words, std::string_view query) {
-    auto size = query.size();
+    auto const size = static_cast<int>(query.size());
     std::vector<bool> splits_at(size + 1, false);
     std::vector<int> split_indices;
     split_indices.push_back(-1);
 
-    for (auto i = 0; i < size; ++i) {
+    for (int i = 0; i < size; ++i) {
         auto n_splits = static_cast<int>(split_indices.size());
 
-        for (auto j = n_splits - 1; j >= 0; j--) {
+        for (int j = n_splits - 1; j >= 0; j--) {
             auto substrv =
                 query.substr(static_cast<size_t>(split_indices[j] + 1), static_cast<size_t>(i - split_indices[j]));
 
@@ -60,8 +62,8 @@ Splitter::Splitter(std::vector<std::string> const &words_by_frequency) {
     auto log_size = static_cast<float>(std::log(words_by_frequency.size()));
 
     auto idx = 0;
-    for (auto &it : words_by_frequency) {
-        m_cost_map[it] = static_cast<float>(std::log((idx + 1) * log_size));
+    for (auto const &it : words_by_frequency) {
+        m_cost_map[it] = std::log(static_cast<float>(idx + 1) * log_size);
         m_max_word_length = std::max(m_max_word_length, (int)it.size());
         ++idx;
     }
@@ -91,16 +93,16 @@ void Splitter::Split(std::string const &input, std::vector<std::string> &result)
         return;
     }
 
-    const auto len = input.size();
+    auto const len = static_cast<int>(input.size());
 
     std::vector<std::pair<float, int>> cost;
     cost.reserve(len + 1);
-    cost.push_back(std::make_pair(0.0f, -1));
+    cost.push_back(std::make_pair(0.0F, -1));
     auto chunk = std::string();
-    auto curr_cost = 0.0f;
+    auto curr_cost = 0.0F;
 
     for (auto i = 1; i < len + 1; i++) {
-        auto min_cost = cost[i - 1].first + 9e9f;
+        auto min_cost = cost[i - 1].first + kBigNumber;
         auto min_cost_idx = i - 1;
 
         for (auto j = i - m_max_word_length > 0 ? i - m_max_word_length : 0; j < i; j++) {
@@ -122,7 +124,7 @@ void Splitter::Split(std::string const &input, std::vector<std::string> &result)
     }
 
     size_t n = len;
-    size_t preIndex;
+    size_t preIndex = 0;
 
     while (n > 0) {
         preIndex = cost[n].second;

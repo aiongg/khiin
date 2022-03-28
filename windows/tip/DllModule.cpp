@@ -4,16 +4,23 @@
 
 #include "BaseWindow.h"
 #include "EngineController.h"
-#include "Files.h"
 #include "KhiinClassFactory.h"
 #include "Logger.h"
 #include "Registrar.h"
 #include "TextService.h"
+#include "Utils.h"
 
 namespace {
-using namespace khiin;
+namespace fs = std::filesystem;
 using namespace khiin::win32;
 using namespace khiin::win32::tip;
+
+fs::path GetTempFolder() {
+    wchar_t tmp[MAX_PATH];
+    ::GetTempPath(MAX_PATH, tmp);
+    auto path = fs::path(Utils::Narrow(std::wstring(tmp)));
+    return path;
+}
 
 std::atomic_int count;
 
@@ -37,7 +44,7 @@ class ModuleImpl {
     }
 
     static BOOL OnDllProcessAttach(HINSTANCE instance, bool static_loading) {
-        khiin::Logger::Initialize(khiin::win32::Files::GetTempFolder());
+        Logger::Initialize(GetTempFolder());
         TextService::OnDllProcessAttach(instance);
         WindowSetup::OnDllProcessAttach(instance);
         EngineController::OnDllProcessAttach(instance);
@@ -46,6 +53,7 @@ class ModuleImpl {
     }
 
     static BOOL OnDllProcessDetach(HINSTANCE instance, bool process_shutdown) {
+        KHIIN_TRACE("Shutting down...");
         TextService::OnDllProcessDetach(instance);
         WindowSetup::OnDllProcessDetach(instance);
         EngineController::OnDllProcessDetach(instance);
@@ -112,15 +120,16 @@ STDMETHODIMP DllUnregisterServer() {
 // 2. Register this COM server as a TSF text m_service, and;
 // 3. Register this text m_service as a TSF text-input processor.
 STDMETHODIMP DllRegisterServer() {
-     MessageBox(NULL, (LPCWSTR)L"Waiting for debugger...", (LPCWSTR)L"OK", MB_DEFBUTTON2);
+    MessageBox(NULL, (LPCWSTR)L"Waiting for debugger...", (LPCWSTR)L"OK", MB_DEFBUTTON2);
 
     auto dllPath = ModuleImpl::module_path();
 
     try {
-        khiin::win32::tip::Registrar::RegisterComServer(dllPath);
-        khiin::win32::tip::Registrar::RegisterProfiles(dllPath);
-        khiin::win32::tip::Registrar::RegisterCategories();
-        khiin::win32::tip::Registrar::GetSettingsString(L"");
+        using namespace khiin::win32::tip;
+        Registrar::RegisterComServer(dllPath);
+        Registrar::RegisterProfiles(dllPath);
+        Registrar::RegisterCategories();
+        Registrar::GetSettingsString(L"");
     } catch (...) {
         DllUnregisterServer();
         return winrt::to_hresult();
@@ -145,8 +154,8 @@ LONG WINAPI TopLevelExceptionFilter(LPEXCEPTION_POINTERS e) {
 }
 
 BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserved) {
-    //MessageBox(NULL, (LPCWSTR)L"Waiting for debugger...", (LPCWSTR)L"OK", MB_DEFBUTTON2);
-    
+    // MessageBox(NULL, (LPCWSTR)L"Waiting for debugger...", (LPCWSTR)L"OK", MB_DEFBUTTON2);
+
     switch (ul_reason_for_call) {
     case DLL_PROCESS_ATTACH:
         //::SetUnhandledExceptionFilter(TopLevelExceptionFilter);

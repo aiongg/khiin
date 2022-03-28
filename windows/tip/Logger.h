@@ -2,7 +2,7 @@
 
 #include <filesystem>
 
-namespace khiin {
+namespace khiin::win32 {
 
 class Logger {
   public:
