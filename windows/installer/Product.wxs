@@ -3,10 +3,10 @@
 
     <?include Defines.wxi ?>
 
-    <Product Id="*" Name="!(loc.ApplicationName)" Language="1033" Version="$(var.VersionNumber)" Manufacturer="!(loc.ManufacturerName)" UpgradeCode="$(var.GUID_UpgradeCode)">
+    <Product Id="*" Name="KhiinPJH" Language="1033" Version="$(var.VersionNumber)" Manufacturer="!(loc.ManufacturerName)" UpgradeCode="$(var.GUID_UpgradeCode)">
         <Package InstallerVersion="200" Compressed="yes" InstallScope="perMachine" />
 
-        <MajorUpgrade AllowSameVersionUpgrades="yes" Schedule="afterInstallExecute" DowngradeErrorMessage="!(loc.DowngradeErrorMessage)" />
+        <MajorUpgrade AllowSameVersionUpgrades="yes" DowngradeErrorMessage="!(loc.DowngradeErrorMessage)" />
         <MediaTemplate EmbedCab="yes" />
 
         <Feature Id="ProductFeature" Title="KhiinInstaller" Level="1">
@@ -59,7 +59,7 @@
             <Component Id="Comp_SettingsExe" Guid="$(var.GUID_SettingsExe)" Win64="yes">
                 <File Id="File_SettingsExe" Source="$(var.Source_SettingsExe)" Name="$(var.Target_SettingsExe)" DiskId="1" KeyPath="yes" />
             </Component>
-            <Component Id="Comp_Database" Guid="$(var.GUID_Database)" Win64="yes">
+            <Component Id="Comp_Database" Guid="$(var.GUID_Database1)" Win64="yes">
                 <File Id="File_Database" Source="$(var.Source_Database)" Name="$(var.Target_Database)" DiskId="1" KeyPath="yes" />
             </Component>
             <Component Id="Comp_Config1" Guid="$(var.GUID_Config1)" Win64="yes">
@@ -81,12 +81,18 @@
 
     <Fragment>
         <ComponentGroup Id="CG_AppDataFiles" Directory="APPDATADIR">
+            <Component Id="Comp_Database2" Guid="$(var.GUID_Database2)" NeverOverwrite="yes">
+                <RegistryKey Root="HKCU" Key="Software\$(var.MfrName)\Settings">
+                    <RegistryValue Name="database" Type="string" Value="[APPDATADIR]$(var.Target_Database)" KeyPath="yes" />
+                </RegistryKey>
+                <File Id="File_Database2" Source="$(var.Source_Database)" Name="$(var.Target_Database)" DiskId="1" />
+                <RemoveFolder Id="Remove_AppDataDir" On="uninstall"/>
+            </Component>
             <Component Id="Comp_Config2" Guid="$(var.GUID_Config2)" NeverOverwrite="yes">
                 <RegistryKey Root="HKCU" Key="Software\$(var.MfrName)\Settings">
                     <RegistryValue Name="config_ini" Type="string" Value="[APPDATADIR]$(var.Target_Config)" KeyPath="yes"/>
                 </RegistryKey>
                 <File Id="File_Config2" Source="$(var.Source_Config)" Name="$(var.Target_Config)" DiskId="1" />
-                <RemoveFolder Id="Remove_AppDataDir" On="uninstall"/>
             </Component>
             <Component Id="Comp_UserDb2" Guid="$(var.GUID_UserDb2)" NeverOverwrite="yes">
                 <RegistryKey Root="HKCU" Key="Software\$(var.MfrName)\Settings">
@@ -118,7 +124,6 @@
             <Component Id="RegistrySettings" Guid="$(var.GUID_RegistrySettings)">
                 <RegistryKey Root="HKCU" Key="Software\$(var.MfrName)\Settings">
                     <RegistryValue Name="settings_exe" Type="string" Value="[INSTALLDIR64]$(var.Target_SettingsExe)" />
-                    <RegistryValue Name="database" Type="string" Value="[APPDATADIR]$(var.Target_Database)" />
                 </RegistryKey>
             </Component>
         </ComponentGroup>

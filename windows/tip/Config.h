@@ -43,8 +43,9 @@ class Config {
     static void SaveToFile(HMODULE hmodule, proto::AppConfig *config);
     static void NotifyChanged();
     static std::wstring GetKnownFile(KhiinFile file, HMODULE hmodule = NULL,
-                                     std::wstring const &file_path_override = L"");
+                                     std::wstring const &filename_override = L"");
     static void SetKnownFilePath(KhiinFile file, std::wstring const &file_path);
+    static std::vector<std::wstring> GetFontFiles();
     static void ClearUserHistory();
     static void CycleInputMode(proto::AppConfig *config);
     static UiLanguage GetSystemLang();

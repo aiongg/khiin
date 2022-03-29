@@ -21,7 +21,8 @@ add_executable(test_khiin_engine
     "BufferMgrTestBase.cpp"
     "BasicModeTest.cpp"
     "NgramTest.cpp"
- "UserDictionaryTest.cpp")
+    "UserDictionaryTest.cpp"
+)
 
 target_link_libraries(test_khiin_engine khiin SQLiteCpp protobuf::libprotobuf-lite GTest::gmock GTest::gtest GTest::gmock_main GTest::gtest_main)
 

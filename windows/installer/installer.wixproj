@@ -5,15 +5,16 @@
     <ProjectGuid>b56815e1-1fc1-48b2-a8cd-cc08886dd26d</ProjectGuid>
     <SchemaVersion>2.0</SchemaVersion>
     <OutputType>Package</OutputType>
-    <OutputName>起引打字法 Khíín PJH</OutputName>
+    <OutputName>Khiin PJH</OutputName>
     <Name>installer</Name>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x64' ">
     <OutputPath>$(SolutionDir)\out\build\$(Platform)-$(Configuration)\</OutputPath>
     <IntermediateOutputPath>$(SolutionDir)\out\obj\installer-$(Platform)-$(Configuration)\</IntermediateOutputPath>
     <DefineConstants>Debug</DefineConstants>
-    <OutputName>起引打字法 Khíín PJH %28Debug%29</OutputName>
-    <LinkerAdditionalOptions>-ext WixUIExtension</LinkerAdditionalOptions>
+    <OutputName>Khiin PJH %28Debug%29</OutputName>
+    <LinkerAdditionalOptions>-ext WixUIExtension
+-ext WixBalExtension</LinkerAdditionalOptions>
     <SuppressValidation>False</SuppressValidation>
     <SuppressIces>ICE61;ICE91</SuppressIces>
   </PropertyGroup>
@@ -21,7 +22,9 @@
     <OutputPath>$(SolutionDir)\out\build\$(Platform)-$(Configuration)\</OutputPath>
     <IntermediateOutputPath>$(SolutionDir)\out\obj\installer-$(Platform)-$(Configuration)\</IntermediateOutputPath>
     <OutputName>Khiin PJH</OutputName>
-    <LinkerAdditionalOptions>-ext WixUIExtension</LinkerAdditionalOptions>
+    <LinkerAdditionalOptions>-ext WixUIExtension
+-ext WixBalExtension</LinkerAdditionalOptions>
+    <SuppressIces>ICE61;ICE91</SuppressIces>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="Product.wxs" />

@@ -26,11 +26,13 @@ namespace fs = std::filesystem;
 using namespace khiin::win32::tip;
 
 const std::wstring kAppDataFolder = L"Khiin PJH";
-const std::wstring kModuleFolderDataFolder = L"resources";
+const std::wstring kModuleDirDataFolder = L"resources";
+const std::wstring kModuleDirFontFolder = L"fonts";
 const std::wstring kIniFilename = L"khiin_config.ini";
 const std::wstring kDatabaseFilename = L"khiin.db";
 const std::wstring kSettingsAppFilename = L"KhiinSettings.exe";
 const std::wstring kUserDbFilename = L"khiin_userdb.txt";
+const std::vector<std::wstring> kFontFiles = {L"SourceHanSansTW-Normal.otf"};
 
 // Ini file settings
 namespace ini {
@@ -73,6 +75,7 @@ const std::wstring settings_app = L"settings_exe";
 const std::wstring database_file = L"database";
 const std::wstring config_file = L"config_ini";
 const std::wstring user_db_file = L"user_db";
+const std::wstring font_dir = L"font_dir";
 
 const std::wstring kUiColors = L"UiColors";
 const std::wstring kUiSize = L"UiSize";
@@ -130,45 +133,95 @@ const std::wstring FilenameRegistryKey(KhiinFile file) {
     return std::wstring();
 }
 
-const std::wstring FindFileInRoamingAppData(std::wstring_view filename) {
+const void LoadModuleHandle(HMODULE &hmodule) {
+    if (hmodule != NULL) {
+        return;
+    }
+
+    if (::GetModuleHandleEx(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS | GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT,
+                            reinterpret_cast<wchar_t *>(LoadModuleHandle), &hmodule) != 0) {
+        return;
+    }
+
+    hmodule = NULL;
+}
+
+const fs::path GetRoamingAppDataDir() {
+    auto ret = fs::path();
+
     wchar_t *tmp;
     if (::SHGetKnownFolderPath(FOLDERID_RoamingAppData, 0, NULL, &tmp) == S_OK) {
         auto path = fs::path(tmp);
         ::CoTaskMemFree(tmp);
         path /= kAppDataFolder;
+
+        if (fs::exists(path)) {
+            ret = path;
+        }
+    } else {
+        ::CoTaskMemFree(tmp);
+    }
+
+    return ret;
+}
+
+const fs::path GetModuleDir(HMODULE hmodule) {
+    LoadModuleHandle(hmodule);
+
+    if (hmodule == NULL) {
+        return fs::path();
+    }
+
+    wchar_t tmp[MAX_PATH] = {};
+    auto len = ::GetModuleFileName(hmodule, &tmp[0], MAX_PATH);
+    auto path = fs::path(tmp);
+    path.remove_filename();
+
+    if (fs::exists(path)) {
+        return path;
+    }
+
+    return fs::path();
+}
+
+const std::wstring FindFileInRoamingAppData(std::wstring_view filename) {
+    if (auto path = GetRoamingAppDataDir(); !path.empty()) {
         path /= filename;
         if (fs::exists(path)) {
             return path.wstring();
         }
-    } else {
-        ::CoTaskMemFree(tmp);
     }
 
     return std::wstring();
 }
 
 const std::wstring FindFileInModulePath(HMODULE hmodule, std::wstring_view filename) {
-    if (hmodule == NULL) {
-        return std::wstring();
+    if (auto path = GetModuleDir(hmodule); !path.empty()) {
+        fs::path res_path = path;
+        res_path /= kModuleDirDataFolder;
+        res_path /= filename;
+
+        if (fs::exists(res_path)) {
+            return res_path.wstring();
+        }
+
+        path /= filename;
+
+        if (fs::exists(path)) {
+            return path.wstring();
+        }
     }
 
-    wchar_t module_path[MAX_PATH] = {};
-    auto len = ::GetModuleFileName(hmodule, &module_path[0], MAX_PATH);
-    auto mod_path = fs::path(module_path);
-    mod_path.remove_filename();
+    return std::wstring();
+}
 
-    fs::path res_path = mod_path;
-    res_path /= kModuleFolderDataFolder;
-    res_path /= filename;
+const std::wstring FindFontDir(HMODULE hmodule) {
+    if (auto path = GetModuleDir(hmodule); !path.empty()) {
+        path /= kModuleDirFontFolder;
 
-    if (fs::exists(res_path)) {
-        return res_path.wstring();
-    }
-
-    mod_path /= filename;
-
-    if (fs::exists(mod_path)) {
-        return mod_path.wstring();
+        if (fs::exists(path)) {
+            return path.wstring();
+        }
     }
 
     return std::wstring();
@@ -214,6 +267,60 @@ InputMode NextInputMode(InputMode current_mode) {
 }
 
 } // namespace
+
+std::wstring Config::GetKnownFile(KhiinFile file, HMODULE hmodule, std::wstring const &file_path_override) {
+    auto ret = Registrar::GetSettingsString(FilenameRegistryKey(file));
+
+    if (!ret.empty() && fs::exists(ret)) {
+        return ret;
+    }
+
+    const auto filename = file_path_override.empty() ? DefaultFilename(file) : file_path_override;
+
+    ret = FindFileInRoamingAppData(filename);
+    if (!ret.empty() && fs::exists(ret)) {
+        return ret;
+    }
+
+    ret = FindFileInModulePath(hmodule, filename);
+    if (!ret.empty() && fs::exists(ret)) {
+        return ret;
+    }
+
+    return std::wstring();
+}
+
+void Config::SetKnownFilePath(KhiinFile file, std::wstring const &file_path) {
+    if (!file_path.empty() && fs::exists(file_path)) {
+        Registrar::SetSettingsString(FilenameRegistryKey(file), file_path);
+    }
+}
+
+const inline bool IsFontFile(fs::path const &path) {
+    return path.has_extension() && (path.extension() == ".otf" || path.extension() == ".ttf");
+}
+
+std::vector<std::wstring> Config::GetFontFiles() {
+    auto ret = std::vector<std::wstring>();
+
+    auto font_dir = Registrar::GetSettingsString(settings::font_dir);
+
+    if (font_dir.empty()) {
+        font_dir = FindFontDir(NULL);
+    }
+
+    for (const auto &file : fs::directory_iterator(font_dir)) {
+        if (file.is_regular_file()) {
+            auto const &path = file.path();
+
+            if (IsFontFile(path)) {
+                ret.push_back(path.wstring());
+            }
+        }
+    }
+
+    return ret;
+}
 
 UiLanguage Config::GetSystemLang() {
     if (auto lang = PRIMARYLANGID(::GetUserDefaultUILanguage());
@@ -331,34 +438,6 @@ void Config::SaveToFile(HMODULE hmodule, AppConfig *config) {
 
 void Config::NotifyChanged() {
     NotifyGlobalCompartment(guids::kConfigChangedCompartment, Timestamp());
-}
-
-std::wstring Config::GetKnownFile(KhiinFile file, HMODULE hmodule, std::wstring const &file_path_override) {
-    auto ret = Registrar::GetSettingsString(FilenameRegistryKey(file));
-
-    if (!ret.empty() && fs::exists(ret)) {
-        return ret;
-    }
-
-    const auto filename = file_path_override.empty() ? DefaultFilename(file) : file_path_override;
-
-    ret = FindFileInRoamingAppData(filename);
-    if (!ret.empty() && fs::exists(ret)) {
-        return ret;
-    }
-
-    ret = FindFileInModulePath(hmodule, filename);
-    if (!ret.empty() && fs::exists(ret)) {
-        return ret;
-    }
-
-    return std::wstring();
-}
-
-void Config::SetKnownFilePath(KhiinFile file, std::wstring const &file_path) {
-    if (!file_path.empty() && fs::exists(file_path)) {
-        Registrar::SetSettingsString(FilenameRegistryKey(file), file_path);
-    }
 }
 
 void Config::ClearUserHistory() {

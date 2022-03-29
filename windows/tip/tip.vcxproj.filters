@@ -143,6 +143,9 @@
     <ClInclude Include="CompositionUtil.h">
       <Filter>win32::tip</Filter>
     </ClInclude>
+    <ClInclude Include="FontLoader.h">
+      <Filter>renderer</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="RenderFactory.cpp">
@@ -243,6 +246,9 @@
     </ClCompile>
     <ClCompile Include="CompositionUtil.cpp">
       <Filter>win32::tip</Filter>
+    </ClCompile>
+    <ClCompile Include="FontLoader.cpp">
+      <Filter>renderer</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

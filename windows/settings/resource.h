@@ -2,6 +2,10 @@
 // Microsoft Visual C++ generated include file.
 // Used by Settings.rc
 //
+#define VERSION_MAJOR                   0
+#define VERSION_MINOR                   0
+#define VERSION_PATCH                   0
+#define VERSION_BUILD                   92
 #define IDI_KHIINSETTINGS               101
 #define IDD_ABOUTTAB                    102
 #define IDS_LIGHT_THEME                 500
@@ -60,14 +64,12 @@
 #define IDS_HYPHEN_KEY_HYPHEN           2038
 #define IDS_HYPHEN_KEY_V                2039
 #define IDD_DICTIONARYTAB               3000
-#define IDL_RESET_USERDATA             3001
+#define IDL_RESET_USERDATA              3001
 #define IDC_RESET_USERDATA_BTN          3002
 #define IDL_RESET_USERDATA_BTN_DONE     3003
-#define IDL_CHOOSE_USERDICT             3004
-#define IDC_RESET_USERDICT_BTN          3005
-#define IDL_RESET_USERDICT_BTN_DONE     3006
-#define IDC_CHOOSE_USEDICT_BTN          3007
-#define IDL_CHOOSE_USEDICT_BTN_DONE     3008
+#define IDL_EDIT_USERDICT             3004
+#define IDC_EDIT_USEDICT_BTN          3007
+#define IDC_EDIT1                       10028
 #define IDC_STATIC                      -1
 
 // Next default values for new objects
@@ -77,7 +79,7 @@
 #define _APS_NO_MFC                     1
 #define _APS_NEXT_RESOURCE_VALUE        128
 #define _APS_NEXT_COMMAND_VALUE         32771
-#define _APS_NEXT_CONTROL_VALUE         10028
+#define _APS_NEXT_CONTROL_VALUE         10029
 #define _APS_NEXT_SYMED_VALUE           110
 #endif
 #endif

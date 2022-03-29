@@ -5,6 +5,7 @@ cmake_minimum_required (VERSION 3.13)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED)
 set(VCPKG_FEATURE_FLAGS "versions")
+
 if(UNIX)
 link_libraries(stdc++fs)
 endif()
@@ -37,9 +38,9 @@ add_subdirectory("input")
 add_subdirectory("utils")
 target_include_directories(khiin PUBLIC "../third_party" "../proto")
 
-# Debug
+if (CMAKE_BUILD_TYPE STREQUAL "Debug")
 target_link_options(khiin PRIVATE "/MAP")
-# target_include_directories (khiin PUBLIC "engine")
+endif ()
 
 enable_testing()
 add_subdirectory ("tests")

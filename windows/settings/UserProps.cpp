@@ -2,12 +2,15 @@
 
 #include "UserProps.h"
 
+#include <filesystem>
+
 #include "tip/Config.h"
 
 #include "Strings.h"
 
 namespace khiin::win32::settings {
 namespace {
+namespace fs = std::filesystem;
 using namespace winrt;
 
 struct FileDialogEvents : implements<FileDialogEvents, IFileDialogEvents> {
@@ -65,7 +68,10 @@ std::wstring SelectUserDictionaryFile(HWND parent) {
 }
 
 auto kControlIds = std::vector<uint32_t>{
-    IDL_CHOOSE_USERDICT, IDC_RESET_USERDICT_BTN, IDC_CHOOSE_USEDICT_BTN, IDL_RESET_USERDATA, IDC_RESET_USERDATA_BTN,
+    IDL_EDIT_USERDICT,
+    IDC_EDIT_USEDICT_BTN,
+    IDL_RESET_USERDATA,
+    IDC_RESET_USERDATA_BTN,
 };
 
 } // namespace
@@ -89,11 +95,8 @@ INT_PTR UserProps::DlgProc(UINT msg, WPARAM wparam, LPARAM lparam) {
         case IDC_RESET_USERDATA_BTN:
             HandleClearUserData();
             return 0;
-        case IDC_CHOOSE_USEDICT_BTN:
+        case IDC_EDIT_USEDICT_BTN:
             HandleChooseUserDictionaryFile();
-            return 0;
-        case IDC_RESET_USERDICT_BTN:
-            HandleUnloadUserDictionaryFile();
             return 0;
         }
         break;
@@ -122,10 +125,14 @@ void UserProps::HandleClearUserData() {
 }
 
 void UserProps::HandleChooseUserDictionaryFile() {
-    auto file_path = SelectUserDictionaryFile(m_hwnd);
+    // auto file_path = SelectUserDictionaryFile(m_hwnd);
+    // if (!file_path.empty()) {
+    //    Config::SetKnownFilePath(KhiinFile::UserDb, file_path);
+    //}
 
-    if (!file_path.empty()) {
-        Config::SetKnownFilePath(KhiinFile::UserDb, file_path);
+    auto file_path = Config::GetKnownFile(KhiinFile::UserDb);
+    if (!file_path.empty() && fs::exists(file_path)) {
+        ShellExecute(NULL, L"open", file_path.c_str(), NULL, NULL, SW_SHOW);
     }
 }
 

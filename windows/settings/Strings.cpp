@@ -74,14 +74,11 @@ StrMap kStringsEn = {
 
     // Dictionary tab
     {IDD_DICTIONARYTAB,              L"Dictionary"},
-    {IDL_RESET_USERDATA,            L"Clear input history. WARNING: cannot be undone."},
+    {IDL_RESET_USERDATA,             L"Clear input history:\n\nKhíín uses your typing history to improve candidate prediction.\n\nWARNING: clearing this history cannot be undone!"},
     {IDC_RESET_USERDATA_BTN,         L"Clear Now"},
     {IDL_RESET_USERDATA_BTN_DONE,    L"Cleared!"},
-    {IDL_CHOOSE_USERDICT,            L"Load a custom dictionary file"},
-    {IDC_RESET_USERDICT_BTN,         L"Unload"},
-    {IDL_RESET_USERDICT_BTN_DONE,    L"Unloaded!"},
-    {IDC_CHOOSE_USEDICT_BTN,         L"Choose File"},
-    {IDL_CHOOSE_USEDICT_BTN_DONE,    L"Done!"},
+    {IDL_EDIT_USERDICT,              L"Custom dictionary:\n\n • One entry per line.\n • Format as <input output> (space between).\n • Input must be letters or numbers.\n • Output can be any words or symbols."},
+    {IDC_EDIT_USEDICT_BTN,           L"Open File"},
 
     // About tab
     {IDD_ABOUTTAB,                   L"About"},
@@ -146,14 +143,11 @@ StrMap kStringsHanlo = {
 
     // Dictionary tab
     {IDD_DICTIONARYTAB,              L"詞庫"},
-    {IDL_RESET_USERDATA,            L"清使用者打字統計。注！袂使 UNDO。"},
+    {IDL_RESET_USERDATA,             L"清使用者打字統計。注！袂使 UNDO。"},
     {IDC_RESET_USERDATA_BTN,         L"Liâm-mi 清掉"},
     {IDL_RESET_USERDATA_BTN_DONE,    L"清好啞"},
-    {IDL_CHOOSE_USERDICT,            L"Load a custom dictionary file"},
-    {IDC_RESET_USERDICT_BTN,         L"Unload"},
-    {IDL_RESET_USERDICT_BTN_DONE,    L"Unloaded!"},
-    {IDC_CHOOSE_USEDICT_BTN,         L"Choose File"},
-    {IDL_CHOOSE_USEDICT_BTN_DONE,    L"Done!"},
+    {IDL_EDIT_USERDICT,              L"使用者 ka-kī ê 資料庫"},
+    {IDC_EDIT_USEDICT_BTN,           L"編輯"},
 
     // About tab
     {IDD_ABOUTTAB,                   L"起引"},

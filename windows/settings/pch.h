@@ -11,6 +11,7 @@
 #include <commctrl.h>
 #include <msctf.h>
 #include <prsht.h>
+#include <shellapi.h>
 #include <windows.h>
 #include <windowsx.h>
 #include <winrt/base.h>
@@ -18,6 +19,7 @@
 #include "resource.h"
 
 #pragma comment(lib, "comctl32.lib")
+#pragma comment(lib, "Shell32.lib")
 
 #define ID_APPLY_NOW 0x3021
 #define PCSB_INITIALIZED 1

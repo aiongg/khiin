@@ -10,14 +10,16 @@
     <?define GUID_TipDll64 = "82989414-728d-11ec-8c6e-e0d46491b35a" ?>
     <?define GUID_TipDll32 = "82989415-728d-11ec-8c6e-e0d46491b35a" ?>
     <?define GUID_SettingsExe = "82989416-728d-11ec-8c6e-e0d46491b35a" ?>
-    <?define GUID_Database = "82989417-728d-11ec-8c6e-e0d46491b35a" ?>
-    <?define GUID_Config1 = "82989418-728d-11ec-8c6e-e0d46491b35a" ?>
-    <?define GUID_Config2 = "82989419-728d-11ec-8c6e-e0d46491b35a" ?>
-    <?define GUID_UserDb1 = "8298941a-728d-11ec-8c6e-e0d46491b35a" ?>
-    <?define GUID_UserDb2 = "8298941b-728d-11ec-8c6e-e0d46491b35a" ?>
+    <?define GUID_Database1 = "82989417-728d-11ec-8c6e-e0d46491b35a" ?>
+    <?define GUID_Database2 = "82989418-728d-11ec-8c6e-e0d46491b35a" ?>
+    <?define GUID_Config1 = "82989419-728d-11ec-8c6e-e0d46491b35a" ?>
+    <?define GUID_Config2 = "8298941a-728d-11ec-8c6e-e0d46491b35a" ?>
+    <?define GUID_UserDb1 = "8298941b-728d-11ec-8c6e-e0d46491b35a" ?>
+    <?define GUID_UserDb2 = "8298941c-728d-11ec-8c6e-e0d46491b35a" ?>
     
-    <?define BuildDir = "../out/build" ?>
-    <?define ResourceDir = "../../resources" ?>
+    <?define BuildDir64 = "$(var.SolutionDir)out\build\x64-$(var.tip.Configuration)" ?>
+    <?define BuildDir32 = "$(var.SolutionDir)out\build\x86-$(var.tip.Configuration)" ?>
+    <?define ResourceDir = "$(var.SolutionDir)..\resources" ?>
     
     <?if $(var.Platform) = x64 ?>
     <?define Bitness = "(64 bit)" ?>
@@ -29,9 +31,9 @@
     <?define PlatformProgramFilesFolder = "ProgramFilesFolder" ?>
     <?endif ?>
     
-    <?define Source_TipDll64 = "$(var.BuildDir)/x64-$(var.tip.Configuration)/$(var.tip.TargetFileName)" ?>
-    <?define Source_TipDll32 = "$(var.BuildDir)/x86-$(var.tip.Configuration)/$(var.tip.TargetFileName)" ?>
-    <?define Source_SettingsExe = "$(var.BuildDir)/x64-$(var.settings.Configuration)/$(var.settings.TargetFileName)" ?>
+    <?define Source_TipDll64 = "$(var.BuildDir64)/$(var.tip.TargetFileName)" ?>
+    <?define Source_TipDll32 = "$(var.BuildDir32)/$(var.tip.TargetFileName)" ?>
+    <?define Source_SettingsExe = "$(var.BuildDir64)/$(var.settings.TargetFileName)" ?>
 
     <?if $(var.Configuration) = Debug ?>
         <?define Target_TipDll64 = "Khiin PJH (64 bit - Debug).dll" ?>

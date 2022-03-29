@@ -11,7 +11,7 @@ class AppConfig;
 
 namespace khiin::win32 {
 
-class RenderFactory;
+struct RenderFactory;
 enum class UiLanguage;
 
 enum class DpiAwarenessContext {
@@ -67,7 +67,7 @@ class GuiWindow : public BaseWindow<GuiWindow> {
     uint32_t m_dpi_parent = USER_DEFAULT_SCREEN_DPI;
     uint32_t m_dpi = USER_DEFAULT_SCREEN_DPI;
     float m_scale = 1.0f;
-    std::unique_ptr<RenderFactory> m_factory = nullptr;
+    winrt::com_ptr<RenderFactory> m_factory;
     winrt::com_ptr<ID2D1DCRenderTarget> m_target = nullptr;
     proto::AppConfig *m_config = nullptr;
     ColorScheme m_colors;

@@ -19,6 +19,7 @@
 #include "LangBarIndicator.h"
 #include "PreservedKeyMgr.h"
 #include "Process.h"
+#include "RenderFactory.h"
 #include "TextEditSink.h"
 #include "ThreadMgrEventSink.h"
 #include "Utils.h"
@@ -98,6 +99,7 @@ struct TextServiceImpl :
         m_categorymgr = nullptr;
         m_config = nullptr;
         m_config_listeners.clear();
+        RenderFactory::Shutdown();
         return S_OK;
     }
 
