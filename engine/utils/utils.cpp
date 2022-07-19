@@ -47,13 +47,13 @@ std::vector<std::string> split_string(std::string_view str, char delimiter) {
 std::vector<std::string> split_string_multi(std::string_view str, std::string_view delimiters) {
     auto ret = std::vector<std::string>();
 
-    auto start = str.cbegin();
+    //auto start = str.cbegin();
     auto end = str.cbegin();
 
     while (end != str.cend()) {
         for (auto delim = delimiters.cbegin(); delim != delimiters.cend(); ++delim) {
             if (*end == *delim) {
-                start = end;
+                //start = end;
                 ++end;
                 break;
             }

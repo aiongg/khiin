@@ -26,7 +26,7 @@ void SortAndDedupe(std::vector<T> &vec) {
 
 class DictionaryImpl : public Dictionary {
   public:
-    DictionaryImpl(Engine *engine) : m_engine(engine) {}
+    explicit DictionaryImpl(Engine *engine) : m_engine(engine) {}
 
   private:
     void Initialize() override {
@@ -139,11 +139,11 @@ class DictionaryImpl : public Dictionary {
 
     std::vector<Punctuation> SearchPunctuation(std::string const &query) override {
         auto ret = std::vector<Punctuation>();
-        for (auto &p : m_punctuation) {
-            if (query == p.input) {
-                ret.push_back(p);
-            }
-        }
+
+        std::copy_if(std::begin(m_punctuation), std::end(m_punctuation), std::back_inserter(ret), [&](const auto &p) {
+            return query == p.input;
+        });
+
         return ret;
     }
 
@@ -250,9 +250,9 @@ class DictionaryImpl : public Dictionary {
 
     void GetOrCacheTokens(int input_id, std::vector<TokenResult> &output) {
         if (auto cached = m_input_id_token_cache.find(input_id); cached != m_input_id_token_cache.end()) {
-            for (auto *token : cached->second) {
+            std::for_each(std::begin(cached->second), std::end(cached->second), [&](TaiToken *token) {
                 output.push_back(TokenResult{token});
-            }
+            });
             return;
         }
 

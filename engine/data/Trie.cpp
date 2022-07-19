@@ -1,5 +1,8 @@
 #include "Trie.h"
 
+#include "utils/common.h"
+#include "utils/utils.h"
+#include <algorithm>
 #include <array>
 #include <assert.h>
 #include <bitset>
@@ -7,9 +10,6 @@
 #include <iterator>
 #include <queue>
 #include <unordered_map>
-#include <algorithm>
-#include "utils/common.h"
-#include "utils/utils.h"
 
 #include "Splitter.h"
 
@@ -57,9 +57,10 @@ struct Node {
 class TrieImpl : public Trie {
   public:
     TrieImpl() = default;
-    TrieImpl(std::vector<std::string> const &words) {
+
+    void Insert(std::vector<std::string> const &words) override {
         for (auto const &word : words) {
-            Insert(word);
+            Insert(std::string_view(word));
         }
     }
 
@@ -68,7 +69,8 @@ class TrieImpl : public Trie {
 
         for (auto ch : key) {
             if (curr->children.find(ch) == curr->children.end()) {
-                curr->children[ch] = std::make_unique<Node>();
+                curr->children.try_emplace(ch, std::make_unique<Node>());
+                //curr->children[ch] = std::make_unique<Node>();
             }
 
             curr = curr->children[ch].get();
@@ -198,7 +200,7 @@ class TrieImpl : public Trie {
         return ret;
     }
 
-    void FindKeys(std::string_view query, std::vector<std::string> &results) {
+    void FindKeys(std::string_view query, std::vector<std::string> &results) override {
         results.clear();
 
         if (query.empty()) {
@@ -368,7 +370,9 @@ std::unique_ptr<Trie> Trie::Create() {
 }
 
 std::unique_ptr<Trie> Create(std::vector<std::string> const &words) {
-    return std::make_unique<TrieImpl>(words);
+    auto trie = std::make_unique<TrieImpl>();
+    trie->Insert(words);
+    return trie;
 }
 
 } // namespace khiin::engine

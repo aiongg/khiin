@@ -60,7 +60,7 @@ inline bool is_allowed_dotaboveright_key(char key, bool standalone) {
 
 class KeyCfgImpl : public KeyConfig, ConfigChangeListener {
   public:
-    KeyCfgImpl(Engine *engine) : m_engine(engine) {
+    explicit KeyCfgImpl(Engine *engine) : m_engine(engine) {
         if (m_engine != nullptr) {
             m_engine->RegisterConfigChangedListener(this);
         }
@@ -380,7 +380,7 @@ class KeyCfgImpl : public KeyConfig, ConfigChangeListener {
             m_key_map.erase(it);
         }
         m_conversion_rule_sets.erase(std::remove_if(m_conversion_rule_sets.begin(), m_conversion_rule_sets.end(),
-                                                    [&](ConversionRuleSet &ea) {
+                                                    [&](ConversionRuleSet const &ea) {
                                                         return ea.vkey == vkey;
                                                     }),
                                      m_conversion_rule_sets.end());

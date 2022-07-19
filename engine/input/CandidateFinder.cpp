@@ -26,9 +26,10 @@ inline bool IsHigherFrequency(TaiToken *a, TaiToken *b) {
 
 void LoadUnigramCounts(Engine *engine, std::vector<TokenResult> &options) {
     auto grams = std::vector<std::string>();
-    for (auto const &option : options) {
+    std::for_each(std::begin(options), std::end(options), [&](TokenResult &option) {
         grams.push_back(option.token->output);
-    }
+    });
+
     auto result = engine->database()->UnigramCounts(grams);
 
     for (auto &option : options) {
@@ -47,9 +48,9 @@ void LoadBigramCounts(Engine *engine, TaiToken *lgram, std::vector<TokenResult> 
     }
 
     auto rgrams = std::vector<std::string>();
-    for (auto const &option : options) {
+    std::for_each(std::begin(options), std::end(options), [&](TokenResult &option) {
         rgrams.push_back(option.token->output);
-    }
+    });
     auto result = engine->database()->BigramCounts(lgram->output, rgrams);
 
     for (auto &option : options) {
@@ -124,21 +125,23 @@ TaiToken *BestMatchNgram(Engine *engine, TaiToken *lgram, std::vector<TaiToken *
     return nullptr;
 }
 
+void CopyTokenOptions(std::vector<TokenResult> &options, std::vector<TaiToken *> &tokens) {
+    std::for_each(std::begin(options), std::end(options), [&](TokenResult &option) {
+        tokens.push_back(option.token);
+    });
+}
+
 TaiToken *BestAutocomplete(Engine *engine, TaiToken *lgram, std::string const &query) {
     auto options = engine->dictionary()->Autocomplete(copy_str_tolower(query));
     auto tokens = std::vector<TaiToken *>();
-    for (auto &opt : options) {
-        tokens.push_back(opt.token);
-    }
+    CopyTokenOptions(options, tokens);
     return BestMatchNgram(engine, lgram, tokens);
 }
 
 TaiToken *BestSingleTokenMatch(Engine *engine, TaiToken *lgram, std::string const &input) {
     auto options = engine->dictionary()->WordSearch(copy_str_tolower(input));
     auto tokens = std::vector<TaiToken *>();
-    for (auto &opt : options) {
-        tokens.push_back(opt.token);
-    }
+    CopyTokenOptions(options, tokens);
     return BestMatchNgram(engine, lgram, tokens);
 }
 
@@ -148,7 +151,7 @@ std::vector<Buffer> TokensToBuffers(Engine *engine, std::vector<TokenResult> con
 
     for (auto const &option : options) {
         auto elem = BufferElement::Build(parser, query.substr(0, option.input_size), option.token, true, true);
-        ret.push_back(std::move(elem));
+        ret.push_back(Buffer(std::move(elem)));
     }
 
     return ret;
@@ -186,7 +189,7 @@ void DedupeAndSortTokenResultSet(Engine *engine, TaiToken *lgram, std::string co
 }
 
 std::vector<Buffer> AllWordsFromStart(Engine *engine, TaiToken *lgram, std::string const &query) {
-    auto ret = std::vector<Buffer>();
+    //auto ret = std::vector<Buffer>();
     auto query_lc = unicode::copy_str_tolower(query);
     auto options = engine->dictionary()->AllWordsFromStart(query_lc);
 
@@ -195,7 +198,7 @@ std::vector<Buffer> AllWordsFromStart(Engine *engine, TaiToken *lgram, std::stri
     return TokensToBuffers(engine, options, query);
 }
 
-Buffer WordsToBuffer(Engine *engine, std::vector<std::string> &words) {
+Buffer WordsToBuffer(Engine *engine, std::vector<std::string> const &words) {
     auto *parser = engine->syllable_parser();
     auto ret = Buffer();
     TaiToken *prev_best_match = nullptr;
@@ -219,7 +222,7 @@ std::vector<Buffer> AllPunctuation(Engine *engine, TaiToken *lgram, std::string 
     auto ret = std::vector<Buffer>();
     auto options = engine->dictionary()->SearchPunctuation(query);
     for (auto &p : options) {
-        ret.push_back(Buffer(p));
+        ret.push_back(Buffer(BufferElement(p)));
         ret.back().SetConverted(true);
     }
     return ret;
@@ -236,7 +239,7 @@ Buffer OneSplittable(Engine *engine, TaiToken *lgram, std::string_view query) {
 }
 
 std::vector<Buffer> AllSplittables(Engine *engine, TaiToken *lgram, std::string const &query) {
-    auto all_cands = std::vector<Buffer>();
+    //auto all_cands = std::vector<Buffer>();
     auto segmentations = engine->dictionary()->Segment(query, kNumberOfContinuousCandidates);
     auto seen = std::unordered_set<std::string>();
     auto ret = std::vector<Buffer>();
@@ -272,7 +275,7 @@ Buffer OneUserItem(Engine *engine, TaiToken *lgram, std::string const &query) {
         }
     }
 
-    return Buffer(query);
+    return Buffer(BufferElement(query));
 }
 
 std::vector<Buffer> AllUserItems(Engine *engine, TaiToken *lgram, std::string const &query) {
@@ -288,7 +291,7 @@ std::vector<Buffer> AllUserItems(Engine *engine, TaiToken *lgram, std::string co
     return std::vector<Buffer>();
 }
 
-//void AddUserItems(Engine *engine, TaiToken *lgram, std::string const &query, std::vector<Buffer> &candidates) {
+// void AddUserItems(Engine *engine, TaiToken *lgram, std::string const &query, std::vector<Buffer> &candidates) {
 //    auto items = AllUserItems(engine, lgram, query);
 //    if (!items.empty()) {
 //        candidates.insert(candidates.end(), items.begin(), items.end());
@@ -312,7 +315,7 @@ std::vector<Buffer> CandidateFinder::MultiMatch(Engine *engine, TaiToken *lgram,
     case SegmentType::UserItem:
         return AllUserItems(engine, lgram, query);
     default: {
-        auto ret = std::vector<Buffer>{Buffer(query)};
+        auto ret = std::vector<Buffer>{Buffer(BufferElement(query))};
         ret.back().SetConverted(true);
         return ret;
     }

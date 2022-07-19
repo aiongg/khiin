@@ -10,11 +10,11 @@ namespace khiin::engine {
 
 class Trie {
   public:
-    // Trie();
+    //Trie();
     // Trie(const string_vector &keys);
     static std::unique_ptr<Trie> Create();
-    static std::unique_ptr<Trie> Create(std::vector<std::string> const &words);
 
+    virtual void Insert(std::vector<std::string> const &words) = 0;
     virtual void Insert(std::string_view key) = 0;
     virtual bool Remove(std::string_view key) = 0;
 

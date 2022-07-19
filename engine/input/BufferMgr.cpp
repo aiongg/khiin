@@ -34,7 +34,7 @@ enum class NavMode {
 
 class BufferMgrImpl : public BufferMgr {
   public:
-    BufferMgrImpl(Engine *engine) : m_engine(engine) {}
+    explicit BufferMgrImpl(Engine *engine) : m_engine(engine) {}
 
   private:
     //+---------------------------------------------------------------------------
@@ -156,7 +156,8 @@ class BufferMgrImpl : public BufferMgr {
 
             return;
         case EditState::Converted: {
-            auto it = m_composition.Begin() + static_cast<int>(m_focused_element);
+            auto it = m_composition.Begin();
+            safe_advance(it, m_composition.End(), m_focused_element);
             it->SetConverted(false);
             ++it;
             auto raw_caret = Buffer::RawTextSize(m_composition.Begin(), it);
@@ -176,9 +177,7 @@ class BufferMgrImpl : public BufferMgr {
     }
 
     void Insert(char ch) override {
-        if (m_edit_state != EditState::Composing) {
-            m_edit_state = EditState::Composing;
-        }
+        m_edit_state = EditState::Composing;
 
         switch (input_mode()) {
         case InputMode::Continuous:
@@ -321,8 +320,8 @@ class BufferMgrImpl : public BufferMgr {
     }
 
     void MoveFocus(CursorDirection direction) {
-        auto begin = m_composition.CBegin();
-        auto it = begin + static_cast<int>(m_focused_element);
+        auto it = m_composition.CBegin();
+        safe_advance(it, m_composition.CEnd(), m_focused_element);
 
         if (direction == CursorDirection::R) {
             if (m_focused_element >= m_composition.Size() - 1) {
@@ -354,11 +353,11 @@ class BufferMgrImpl : public BufferMgr {
     void OnFocusElementChange(size_t new_focused_element_idx) {
         assert(new_focused_element_idx < m_composition.Size());
 
-        auto begin = m_composition.Begin();
-        auto it = begin + static_cast<int>(new_focused_element_idx);
+        auto it = m_composition.Begin();
         auto end = m_composition.End();
+        safe_advance(it, end, new_focused_element_idx);
 
-        while (it != end - 1 && it->IsVirtualSpace()) {
+        while (it != end && it != end - 1 && it->IsVirtualSpace()) {
             ++it;
         }
 
@@ -370,6 +369,11 @@ class BufferMgrImpl : public BufferMgr {
     }
 
     void UpdateCandidatesForFocusedElement() {
+        if (m_composition.Empty()) {
+            m_candidates.clear();
+            return;
+        }
+
         auto raw_text = m_composition.RawTextFrom(m_focused_element);
         m_candidates = CandidateFinder::MultiMatch(m_engine, FocusLGram(), raw_text);
         SetFocusedCandidateIndexToCurrent();
@@ -496,6 +500,7 @@ class BufferMgrImpl : public BufferMgr {
         }
 
         EnsureCaretAndFocusInBounds();
+        UpdateCandidatesForFocusedElement();
     }
 
     void EraseComposing(CursorDirection direction) {
@@ -521,6 +526,7 @@ class BufferMgrImpl : public BufferMgr {
         it->Erase(pos);
         if (it->size() == 0) {
             m_composition.Erase(it);
+            m_composition.StripVirtualSpacing();
             EnsureCaretAndFocusInBounds();
         }
 
@@ -557,7 +563,9 @@ class BufferMgrImpl : public BufferMgr {
 
         auto begin = m_composition.Begin();
         auto raw_candidate_size = candidate.RawTextSize();
-        auto it = m_composition.IterRawCaret(raw_candidate_size) + 1;
+        auto it = m_composition.IterRawCaret(raw_candidate_size);
+        assert(it != m_composition.End());
+        ++it;
         auto raw_buffer_size = Buffer::RawTextSize(begin, it);
         auto end = m_composition.End();
 
@@ -632,7 +640,7 @@ class BufferMgrImpl : public BufferMgr {
     }
 
     void SetFocusedCandidateIndexToCurrent() {
-        auto &current = m_composition.At(m_focused_element);
+        auto const &current = m_composition.At(m_focused_element);
 
         for (size_t i = 0; i < m_candidates.size(); ++i) {
             auto &check = m_candidates.at(i).At(0);
@@ -694,11 +702,11 @@ class BufferMgrImpl : public BufferMgr {
         m_caret = m_composition.TextSize();
     }
 
-    void SetCaretToElementEnd() {
-        if (m_focused_element == m_composition.Size() - 1) {
-            SetCaretToEnd();
-        }
-    }
+    // void SetCaretToElementEnd() {
+    //    if (m_focused_element == m_composition.Size() - 1) {
+    //        SetCaretToEnd();
+    //    }
+    //}
 
     TaiToken *FocusLGram() {
         if (!m_precomp.Empty() && m_focused_element == m_precomp.Size()) {
@@ -712,7 +720,15 @@ class BufferMgrImpl : public BufferMgr {
                 return it->candidate();
             }
         } else if (m_focused_element > 0) {
-            auto it = m_composition.Begin() + static_cast<int>(m_focused_element) - 1;
+            auto it = m_composition.Begin();
+            auto end = m_composition.End();
+            safe_advance(it, end, m_focused_element - 1);
+
+            if (it == end) {
+                return nullptr;
+            }
+
+            // auto it = m_composition.Begin() + static_cast<int>(m_focused_element) - 1;
 
             if (it->IsVirtualSpace()) {
                 if (it == m_composition.Begin()) {
@@ -738,7 +754,8 @@ class BufferMgrImpl : public BufferMgr {
         }
 
         auto begin = m_composition.CBegin();
-        auto end = m_composition.CBegin() + static_cast<int>(m_focused_element) - 1;
+        auto end = m_composition.CBegin();
+        safe_advance(end, m_composition.CEnd(), m_focused_element - 1);
 
         while (end != begin && end->IsVirtualSpace()) {
             --end;
@@ -752,9 +769,9 @@ class BufferMgrImpl : public BufferMgr {
         return m_engine->config()->input_mode();
     }
 
-    SyllableParser *parser() {
-        return m_engine->syllable_parser();
-    }
+    // SyllableParser *parser() {
+    //    return m_engine->syllable_parser();
+    //}
 
     enum class NavMode {
         ByCharacter,

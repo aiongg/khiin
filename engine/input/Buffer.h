@@ -29,8 +29,8 @@ class Buffer {
     //static void AdjustVirtualSpacing(BufferElementList &elements);
 
     Buffer() = default;
-    Buffer(BufferElementList &&elements);
-    Buffer(BufferElement &&element);
+    explicit Buffer(BufferElementList &&elements);
+    explicit Buffer(BufferElement &&element);
 
     iterator Begin() noexcept;
     iterator End() noexcept;

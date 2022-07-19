@@ -98,7 +98,6 @@ void Splitter::Split(std::string const &input, std::vector<std::string> &result)
     std::vector<std::pair<float, int>> cost;
     cost.reserve(len + 1);
     cost.push_back(std::make_pair(0.0F, -1));
-    auto chunk = std::string();
     auto curr_cost = 0.0F;
 
     for (auto i = 1; i < len + 1; i++) {
@@ -107,7 +106,7 @@ void Splitter::Split(std::string const &input, std::vector<std::string> &result)
 
         for (auto j = i - m_max_word_length > 0 ? i - m_max_word_length : 0; j < i; j++) {
 
-            chunk = input.substr(j, i - j);
+            auto chunk = input.substr(j, i - j);
 
             if (m_cost_map.find(chunk) == m_cost_map.end()) {
                 continue;
@@ -124,10 +123,9 @@ void Splitter::Split(std::string const &input, std::vector<std::string> &result)
     }
 
     size_t n = len;
-    size_t preIndex = 0;
 
     while (n > 0) {
-        preIndex = cost[n].second;
+        size_t preIndex = cost[n].second;
         auto insertStr = input.substr(preIndex, n - preIndex);
 
         if (!result.empty() && isDigit(insertStr + result[0])) {

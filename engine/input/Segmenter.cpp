@@ -49,7 +49,6 @@ size_t CheckSplittableWithTrailingPrefix(Engine *engine, std::string_view str) {
     auto dictionary = engine->dictionary();
     auto splitter = dictionary->word_splitter();
     auto start = str.begin();
-    auto it = str.end();
     auto end = str.end();
 
     for (auto it = str.end(); it != start; --it) {

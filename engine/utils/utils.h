@@ -29,7 +29,7 @@ auto to_const_char_ptr(T &&t) {
 template <typename... Args>
 std::string format_internal(const std::string &format, Args &&...args) {
     size_t size = snprintf(nullptr, 0, format.c_str(), std::forward<Args>(args)...) + 1;
-    if (size <= 0) {
+    if (size == 0) {
         throw std::runtime_error("Error during formatting.");
     }
     std::unique_ptr<char[]> buf(new char[size]);

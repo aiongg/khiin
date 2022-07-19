@@ -42,7 +42,6 @@ utf8_size_t Syllable::RawToComposedCaret(size_t raw_caret) const {
     auto ret = std::string::npos;
 
     auto raw_size = u8_size(m_raw_input);
-    auto composed_size = u8_size(m_composed);
 
     if (raw_caret == raw_size) {
         ret = u8_size(m_composed);
@@ -208,23 +207,27 @@ void Syllable::ExtractRawKhin() {
 
     if (str.size() > 1) {
         auto hyphen_keys = m_keyconfig->GetHyphenKeys();
-        for (auto key : hyphen_keys) {
-            if (str[0] == key && str[1] == key) {
-                str.erase(0, 2);
-                m_khin_pos = KhinKeyPosition::Start;
-                m_khin_key = key;
-                return;
-            }
+        auto found_key = std::find_if(hyphen_keys.cbegin(), hyphen_keys.cend(), [&](char key) {
+            return str[0] == key && str[1] == key;
+        });
+
+        if (found_key != hyphen_keys.cend()) {
+            str.erase(0, 2);
+            m_khin_pos = KhinKeyPosition::Start;
+            m_khin_key = *found_key;
+            return;
         }
 
         auto khin_keys = m_keyconfig->GetKhinKeys();
-        for (auto key : khin_keys) {
-            if (str.back() == key) {
-                str.pop_back();
-                m_khin_pos = KhinKeyPosition::End;
-                m_khin_key = key;
-                return;
-            }
+        found_key = std::find_if(std::cbegin(khin_keys), std::cend(khin_keys), [&](char key) {
+            return str.back() == key;
+        });
+
+        if (found_key != khin_keys.cend()) {
+            str.pop_back();
+            m_khin_pos = KhinKeyPosition::End;
+            m_khin_key = *found_key;
+            return;
         }
     }
 }
@@ -267,7 +270,7 @@ void Syllable::EnsureKhinKey() {
             m_khin_pos = KhinKeyPosition::Start;
         } else {
             auto khin_keys = m_keyconfig->GetKhinKeys();
-            if (auto it = std::find(khin_keys.begin(), khin_keys.end(), m_khin_key); it != khin_keys.end()) {
+            if (auto it2 = std::find(khin_keys.begin(), khin_keys.end(), m_khin_key); it2 != khin_keys.end()) {
                 m_khin_pos = KhinKeyPosition::End;
             }
         }
@@ -282,13 +285,13 @@ void Syllable::EnsureToneKey() {
 }
 
 void Syllable::BuildComposed() {
-    auto composed = m_keyconfig->Convert(m_raw_body);
-    Lomaji::ApplyToneDiacritic(m_tone, composed);
+    auto composed_str = m_keyconfig->Convert(m_raw_body);
+    Lomaji::ApplyToneDiacritic(m_tone, composed_str);
     if (m_khin_pos != KhinKeyPosition::None) {
-        auto &khinstr = m_dotted_khin ? kKhinDotStr : kKhinHyphenStr;
-        composed.insert(0, khinstr);
+        const auto &khinstr = m_dotted_khin ? kKhinDotStr : kKhinHyphenStr;
+        composed_str.insert(0, khinstr);
     }
-    m_composed = to_nfc(composed);
+    m_composed = to_nfc(composed_str);
 }
 
 void Syllable::BuildRaw() {

@@ -82,7 +82,6 @@ std::string Buffer::RawText(const_iterator const &from, const_iterator const &to
 //    }
 //}
 
-// Not currently used
 void Buffer::StripVirtualSpacing() {
     if (m_elements.empty()) {
         return;
@@ -419,7 +418,7 @@ iterator Buffer::Replace(iterator first, iterator last, Buffer &other) {
     return m_elements.insert(it, other.Begin(), other.End());
 }
 
-std::string ConvertedOrComposedText(BufferElement &element) {
+std::string ConvertedOrComposedText(BufferElement const &element) {
     if (element.IsConverted()) {
         return element.converted();
     }

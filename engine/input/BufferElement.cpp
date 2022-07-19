@@ -24,7 +24,7 @@ BufferElement BufferElement::Build(SyllableParser *parser, std::string const &in
         return elem;
     }
 
-    auto tt = TaiText();
+    TaiText tt;
 
     if (match == nullptr) {
         tt = TaiText::FromRawSyllable(parser, input);
@@ -92,11 +92,11 @@ void BufferElement::Replace(VirtualSpace elem) {
 }
 
 utf8_size_t BufferElement::size() const {
-    if (auto *elem = std::get_if<std::string>(&m_element)) {
+    if (const auto *elem = std::get_if<std::string>(&m_element)) {
         return u8_size(*elem);
     }
 
-    if (auto *elem = std::get_if<TaiText>(&m_element)) {
+    if (const auto *elem = std::get_if<TaiText>(&m_element)) {
         if (is_converted && elem->candidate() != nullptr) {
             return u8_size(elem->candidate()->output);
         }
@@ -104,15 +104,15 @@ utf8_size_t BufferElement::size() const {
         return elem->ComposedSize();
     }
 
-    if (auto *elem = std::get_if<Punctuation>(&m_element)) {
+    if (const auto *elem = std::get_if<Punctuation>(&m_element)) {
         return u8_size(elem->output);
     }
 
-    if (auto *elem = std::get_if<VirtualSpace>(&m_element)) {
+    if (std::holds_alternative<VirtualSpace>(m_element)) {
         return 1;
     }
 
-    if (auto *elem = std::get_if<UserToken>(&m_element)) {
+    if (const auto *elem = std::get_if<UserToken>(&m_element)) {
         if (is_converted && elem->candidate() != nullptr) {
             return elem->OutputSize();
         }
@@ -152,28 +152,28 @@ utf8_size_t BufferElement::RawToComposedCaret(size_t raw_caret) const {
         return 0;
     }
 
-    if (auto *elem = std::get_if<std::string>(&m_element)) {
+    if (std::holds_alternative<std::string>(m_element)) {
         return raw_caret;
     }
 
-    if (auto *elem = std::get_if<TaiText>(&m_element)) {
-        if (is_converted && elem->candidate()) {
+    if (const auto *elem = std::get_if<TaiText>(&m_element)) {
+        if (is_converted && elem->candidate() != nullptr) {
             return u8_size(elem->candidate()->output);
         }
 
         return elem->RawToComposedCaret(raw_caret);
     }
 
-    if (auto *elem = std::get_if<Punctuation>(&m_element)) {
+    if (const auto *elem = std::get_if<Punctuation>(&m_element)) {
         return u8_size(elem->output);
     }
 
-    if (auto *elem = std::get_if<VirtualSpace>(&m_element)) {
+    if (std::holds_alternative<VirtualSpace>(m_element)) {
         return utf8_size_t(1);
     }
 
-    if (auto *elem = std::get_if<UserToken>(&m_element)) {
-        if (is_converted && elem->candidate()) {
+    if (const auto *elem = std::get_if<UserToken>(&m_element)) {
+        if (is_converted && elem->candidate() != nullptr) {
             return elem->OutputSize();
         }
 
@@ -188,11 +188,11 @@ size_t BufferElement::ComposedToRawCaret(utf8_size_t caret) const {
         return 0;
     }
 
-    if (auto *elem = std::get_if<std::string>(&m_element)) {
+    if (std::holds_alternative<std::string>(m_element)) {
         return caret;
     }
 
-    if (auto *elem = std::get_if<TaiText>(&m_element)) {
+    if (const auto *elem = std::get_if<TaiText>(&m_element)) {
         if (is_converted) {
             return elem->ConvertedToRawCaret(caret);
         }
@@ -200,11 +200,11 @@ size_t BufferElement::ComposedToRawCaret(utf8_size_t caret) const {
         return elem->ComposedToRawCaret(caret);
     }
 
-    if (auto *elem = std::get_if<Punctuation>(&m_element)) {
+    if (const auto *elem = std::get_if<Punctuation>(&m_element)) {
         return u8_size(elem->input);
     }
 
-    if (auto *elem = std::get_if<UserToken>(&m_element)) {
+    if (const auto *elem = std::get_if<UserToken>(&m_element)) {
         return elem->InputSize();
     }
 
@@ -212,23 +212,23 @@ size_t BufferElement::ComposedToRawCaret(utf8_size_t caret) const {
 }
 
 std::string BufferElement::composed() const {
-    if (auto *elem = std::get_if<std::string>(&m_element)) {
+    if (const auto *elem = std::get_if<std::string>(&m_element)) {
         return *elem;
     }
 
-    if (auto *elem = std::get_if<TaiText>(&m_element)) {
+    if (const auto *elem = std::get_if<TaiText>(&m_element)) {
         return elem->ComposedText();
     }
 
-    if (auto *elem = std::get_if<Punctuation>(&m_element)) {
+    if (const auto *elem = std::get_if<Punctuation>(&m_element)) {
         return elem->output;
     }
 
-    if (auto *elem = std::get_if<VirtualSpace>(&m_element)) {
+    if (std::holds_alternative<VirtualSpace>(m_element)) {
         return std::string(1, ' ');
     }
 
-    if (auto *elem = std::get_if<UserToken>(&m_element)) {
+    if (const auto *elem = std::get_if<UserToken>(&m_element)) {
         return elem->Input();
     }
 
@@ -236,23 +236,23 @@ std::string BufferElement::composed() const {
 }
 
 std::string BufferElement::converted() const {
-    if (auto elem = std::get_if<std::string>(&m_element)) {
+    if (const auto elem = std::get_if<std::string>(&m_element)) {
         return *elem;
     }
 
-    if (auto *elem = std::get_if<TaiText>(&m_element)) {
+    if (const auto *elem = std::get_if<TaiText>(&m_element)) {
         return elem->ConvertedText();
     }
 
-    if (auto *elem = std::get_if<Punctuation>(&m_element)) {
+    if (const auto *elem = std::get_if<Punctuation>(&m_element)) {
         return elem->output;
     }
 
-    if (auto *elem = std::get_if<VirtualSpace>(&m_element)) {
+    if (std::holds_alternative<VirtualSpace>(m_element)) {
         return std::string(1, ' ');
     }
 
-    if (auto *elem = std::get_if<UserToken>(&m_element)) {
+    if (const auto *elem = std::get_if<UserToken>(&m_element)) {
         return elem->Output();
     }
 
@@ -278,7 +278,7 @@ void BufferElement::Erase(utf8_size_t index) {
         return;
     }
 
-    if (auto *elem = std::get_if<Punctuation>(&m_element)) {
+    if (std::holds_alternative<Punctuation>(m_element)) {
         Replace(std::string());
         return;
     }

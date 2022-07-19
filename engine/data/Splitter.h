@@ -17,7 +17,7 @@ using WordCostMap = std::unordered_map<std::string, float>;
 class Splitter {
   public:
     Splitter();
-    Splitter(std::vector<std::string> const &words);
+    explicit Splitter(std::vector<std::string> const &words);
     size_t MaxSplitSize(std::string_view input) const;
     bool CanSplit(std::string_view input) const;
     void Split(std::string const &input, std::vector<std::string> &result) const;

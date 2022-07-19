@@ -124,7 +124,7 @@ void ComposedToRawWithAlternates(KeyConfig *keyconfig, const std::string &input,
 
 class SyllableParserImpl : public SyllableParser {
   public:
-    SyllableParserImpl(Engine *engine) : m_engine(engine) {}
+    explicit SyllableParserImpl(Engine *engine) : m_engine(engine) {}
 
     bool DottedKhin() {
         return m_engine->config()->dotted_khin();

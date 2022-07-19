@@ -68,4 +68,9 @@ TEST_F(BasicModeTest, Insert_u7h) {
     ExpectBuffer("ū h", 3);
 }
 
+TEST_F(BasicModeTest, Insert_ou2) {
+    input("ou2");
+    ExpectBuffer("ó\u0358", 2);
+}
+
 } // namespace khiin::engine

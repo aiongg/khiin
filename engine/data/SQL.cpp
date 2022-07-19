@@ -7,7 +7,7 @@ namespace {
 using namespace SQLite;
 using namespace khiin::engine::utils;
 
-std::string sql_binder(size_t n, std::string sep) {
+std::string sql_binder(size_t n, std::string &&sep) {
     std::string res;
 
     if (n == 0) {

@@ -15,7 +15,7 @@ constexpr size_t kReservedSyllables = 1500;
 
 class DatabaseImpl : public Database {
   public:
-    DatabaseImpl(std::unique_ptr<SQLite::Database> &&handle) : db_handle(std::move(handle)) {}
+    explicit DatabaseImpl(std::unique_ptr<SQLite::Database> &&handle) : db_handle(std::move(handle)) {}
 
   private:
     std::string CurrentConnection() override {
@@ -121,20 +121,29 @@ class DatabaseImpl : public Database {
         }
 
         auto grams = std::vector<std::string *>();
-        for (auto const &token : tokens) {
+        std::for_each(tokens.begin(), tokens.end(), [&](TaiToken *token) {
             grams.push_back(&token->output);
-        }
+        });
 
         auto query = SQL::SelectBestUnigram(*db_handle, grams);
 
         if (query.executeStep()) {
             auto result = query.getColumn(unigram_freq::gram).getString();
-            for (auto const &token : tokens) {
-                if (result == token->output) {
-                    ret = token;
-                    break;
-                }
+
+            auto found = std::find_if(tokens.cbegin(), tokens.cend(), [&](TaiToken *token) {
+                return result == token->output;
+            });
+
+            if (found != tokens.cend()) {
+                ret = *found;
             }
+
+            // for (auto const &token : tokens) {
+            //    if (result == token->output) {
+            //        ret = token;
+            //        break;
+            //    }
+            //}
         }
 
         return ret;
@@ -148,18 +157,18 @@ class DatabaseImpl : public Database {
         }
 
         auto rgrams = std::vector<std::string *>();
-        for (auto const &token : rgram_tokens) {
+        std::for_each(rgram_tokens.begin(), rgram_tokens.end(), [&](TaiToken *token) {
             rgrams.push_back(&token->output);
-        }
+        });
 
         auto query = SQL::SelectBestBigram(*db_handle, lgram, rgrams);
         if (query.executeStep()) {
             auto result = query.getColumn(bigram_freq::rgram).getString();
-            for (auto const &token : rgram_tokens) {
-                if (result == token->output) {
-                    ret = token;
-                    break;
-                }
+            auto found = std::find_if(rgram_tokens.cbegin(), rgram_tokens.cend(), [&](TaiToken *token) {
+                return result == token->output;
+            });
+            if (found != rgram_tokens.cend()) {
+                ret = *found;
             }
         }
 

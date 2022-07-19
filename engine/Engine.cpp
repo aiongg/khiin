@@ -42,14 +42,14 @@ bool ModKeyPressed(KeyEvent key_event, ModifierKey modifier) {
 class EngineImpl final : public Engine {
   public:
     EngineImpl() = default;
-    EngineImpl(std::string dbfile) : m_dbfilename(dbfile) {}
+    explicit EngineImpl(std::string dbfile) : m_dbfilename(dbfile) {}
     EngineImpl(EngineImpl const &rhs) = delete;
     EngineImpl &operator=(EngineImpl const &rhs) = delete;
     ~EngineImpl() = default;
 
     void Initialize() {
         logger::info("Test logging Initialize {}", "x");
-        std::lock_guard<std::mutex> lock(m_mutex);
+        //std::lock_guard<std::mutex> lock(m_mutex);
 
         Reinit();
     }
@@ -59,7 +59,7 @@ class EngineImpl final : public Engine {
     }
 
     void SendCommand(const Request *request, Response *response) override {
-        std::lock_guard<std::mutex> lock(m_mutex);
+        //std::lock_guard<std::mutex> lock(m_mutex);
 
         decltype(&EngineImpl::HandleNone) handler;
 
@@ -73,7 +73,7 @@ class EngineImpl final : public Engine {
     }
 
     void LoadDictionary(std::string const &file_path) override {
-        std::lock_guard<std::mutex> lock(m_mutex);
+        //std::lock_guard<std::mutex> lock(m_mutex);
 
         if (auto curr_db = m_database->CurrentConnection(); curr_db != file_path) {
             m_dbfilename = file_path;
@@ -83,7 +83,7 @@ class EngineImpl final : public Engine {
     }
 
     void LoadUserDictionary(std::string file_path) override {
-        std::lock_guard<std::mutex> lock(m_mutex);
+        //std::lock_guard<std::mutex> lock(m_mutex);
 
         if (file_path.empty()) {
             m_userdict = nullptr;
@@ -352,7 +352,7 @@ class EngineImpl final : public Engine {
     std::vector<ConfigChangeListener *> m_config_change_listeners;
     std::unique_ptr<Config> m_config = nullptr;
 
-    mutable std::mutex m_mutex;
+    //mutable std::mutex m_mutex;
 };
 
 } // namespace

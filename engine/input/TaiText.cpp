@@ -198,7 +198,7 @@ utf8_size_t TaiText::RawToComposedCaret(size_t raw_caret) const {
                     caret += elem->RawToComposedCaret(remainder);
                     remainder = 0;
                 }
-            } else if (auto *elem = std::get_if<VirtualSpace>(&v_elem)) {
+            } else if (std::holds_alternative<VirtualSpace>(v_elem)) {
                 caret += 1;
             }
         } else {
@@ -228,7 +228,7 @@ size_t TaiText::ComposedToRawCaret(utf8_size_t caret) const {
             }
         }
 
-        if (auto *elem = std::get_if<VirtualSpace>(&v_elem)) {
+        if (std::holds_alternative<VirtualSpace>(v_elem)) {
             remainder -= 1;
         }
     }
@@ -265,7 +265,7 @@ size_t TaiText::ConvertedToRawCaret(utf8_size_t caret) const {
             }
         }
 
-        if (auto *elem = std::get_if<VirtualSpace>(&v_elem)) {
+        if (std::holds_alternative<VirtualSpace>(v_elem)) {
             remainder -= 1;
         }
     }
@@ -276,7 +276,8 @@ size_t TaiText::ConvertedToRawCaret(utf8_size_t caret) const {
 void TaiText::Erase(utf8_size_t index) {
     auto remainder = index;
     auto it = m_elements.begin();
-    for (; it != m_elements.end(); ++it) {
+    auto end = m_elements.end();
+    for (; it != end; ++it) {
         auto size = std::visit(composed_size_visitor, *it);
         if (remainder >= size) {
             remainder -= size;
@@ -285,7 +286,11 @@ void TaiText::Erase(utf8_size_t index) {
         }
     }
 
-    if (auto *elem = std::get_if<VirtualSpace>(&*it)) {
+    if (it == end) {
+        return;
+    }
+
+    if (std::holds_alternative<VirtualSpace>(*it)) {
         m_elements.erase(it);
     } else if (auto *elem = std::get_if<Syllable>(&*it)) {
         elem->Erase(remainder);
@@ -295,7 +300,8 @@ void TaiText::Erase(utf8_size_t index) {
 bool TaiText::IsVirtualSpace(utf8_size_t index) const {
     auto remainder = index;
     auto it = m_elements.begin();
-    for (; it != m_elements.end(); ++it) {
+    auto end = m_elements.end();
+    for (; it != end; ++it) {
         auto size = std::visit(composed_size_visitor, *it);
         if (remainder >= size) {
             remainder -= size;
@@ -304,11 +310,11 @@ bool TaiText::IsVirtualSpace(utf8_size_t index) const {
         }
     }
 
-    if (auto const *elem = std::get_if<VirtualSpace>(&*it)) {
-        return true;
+    if (it == end) {
+        return false;
     }
 
-    return false;
+    return std::holds_alternative<VirtualSpace>(*it);
 }
 
 void TaiText::SetKhin(KhinKeyPosition khin_pos, char khin_key) {

@@ -197,15 +197,11 @@ std::string Lomaji::MatchCapitalization(std::string_view pattern, std::string_vi
 }
 
 bool Lomaji::HasToneable(std::string_view str) {
-    for (auto &c1 : str) {
-        for (auto &c2 : kToneableLetters) {
-            if (tolower(c1) == c2) {
-                return true;
-            }
-        }
-    }
-
-    return false;
+    return std::any_of(std::cbegin(str), std::cend(str), [&](char c1) {
+        return std::any_of(std::cbegin(kToneableLetters), std::cend(kToneableLetters), [&](char c2) {
+            return tolower(c1) == c2;
+        });
+    });
 }
 
 bool Lomaji::HasToneDiacritic(std::string_view str) {

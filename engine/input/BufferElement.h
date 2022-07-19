@@ -17,14 +17,14 @@ class BufferElement {
                                bool set_converted);
 
     BufferElement();
-    BufferElement(TaiText const &elem);
-    BufferElement(TaiText &&elem);
-    BufferElement(Punctuation const &elem);
-    BufferElement(Punctuation &&elem);
-    BufferElement(std::string const &elem);
-    BufferElement(std::string &&elem);
-    BufferElement(VirtualSpace elem);
-    BufferElement(UserToken &&elem);
+    explicit BufferElement(TaiText const &elem);
+    explicit BufferElement(TaiText &&elem);
+    explicit BufferElement(Punctuation const &elem);
+    explicit BufferElement(Punctuation &&elem);
+    explicit BufferElement(std::string const &elem);
+    explicit BufferElement(std::string &&elem);
+    explicit BufferElement(VirtualSpace elem);
+    explicit BufferElement(UserToken &&elem);
 
     bool operator==(BufferElement const &rhs) const;
 
