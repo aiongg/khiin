@@ -365,6 +365,11 @@ class BufferMgrImpl : public BufferMgr {
 
         if (m_edit_state == EditState::Converted) {
             UpdateCandidatesForFocusedElement();
+
+            if (input_mode() == InputMode::Basic && !it->IsConverted()) {
+                m_edit_state = EditState::Selecting;
+                FocusCandidate(0);
+            }
         }
     }
 

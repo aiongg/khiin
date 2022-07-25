@@ -19,6 +19,7 @@ class Splitter {
     Splitter();
     explicit Splitter(std::vector<std::string> const &words);
     size_t MaxSplitSize(std::string_view input) const;
+    size_t MaxSplitSize(std::string_view input, std::set<size_t> const &invalid_indices) const;
     bool CanSplit(std::string_view input) const;
     void Split(std::string const &input, std::vector<std::string> &result) const;
     WordCostMap const &cost_map() const;

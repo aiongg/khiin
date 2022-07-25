@@ -157,11 +157,27 @@ std::vector<Buffer> TokensToBuffers(Engine *engine, std::vector<TokenResult> con
     return ret;
 }
 
+std::set<size_t> InvalidSplitIndices(Engine *engine, std::string const &query) {
+    auto ret = std::set<size_t>();
+
+    if (query.size() <= 1) {
+        return ret;
+    }
+
+    for (auto i = 1; i < query.size(); ++i) {
+        if (engine->keyconfig()->IsToneKey(query.at(i))) {
+            ret.insert(i);
+        }
+    }
+
+    return ret;
+}
+
 void DedupeAndSortTokenResultSet(Engine *engine, TaiToken *lgram, std::string const &query,
                                  std::vector<TokenResult> &options) {
     auto *keyconfig = engine->keyconfig();
     auto seen = std::set<std::string>();
-    auto invalid_sizes = std::set<size_t>();
+    auto invalid_sizes = InvalidSplitIndices(engine, query);
 
     auto it = options.begin();
     while (it != options.end()) {
@@ -171,11 +187,11 @@ void DedupeAndSortTokenResultSet(Engine *engine, TaiToken *lgram, std::string co
         }
 
         // Don't allow dangling tones
-        if (auto i = it->input_size; i < query.size() && keyconfig->IsToneKey(query[i])) {
-            invalid_sizes.insert(it->input_size);
-            it = options.erase(it);
-            continue;
-        }
+        //if (auto i = it->input_size; i < query.size() && keyconfig->IsToneKey(query[i])) {
+        //    invalid_sizes.insert(it->input_size);
+        //    it = options.erase(it);
+        //    continue;
+        //}
 
         if (!seen.insert(it->token->output).second) {
             it = options.erase(it);
@@ -189,7 +205,7 @@ void DedupeAndSortTokenResultSet(Engine *engine, TaiToken *lgram, std::string co
 }
 
 std::vector<Buffer> AllWordsFromStart(Engine *engine, TaiToken *lgram, std::string const &query) {
-    //auto ret = std::vector<Buffer>();
+    // auto ret = std::vector<Buffer>();
     auto query_lc = unicode::copy_str_tolower(query);
     auto options = engine->dictionary()->AllWordsFromStart(query_lc);
 
@@ -239,7 +255,7 @@ Buffer OneSplittable(Engine *engine, TaiToken *lgram, std::string_view query) {
 }
 
 std::vector<Buffer> AllSplittables(Engine *engine, TaiToken *lgram, std::string const &query) {
-    //auto all_cands = std::vector<Buffer>();
+    // auto all_cands = std::vector<Buffer>();
     auto segmentations = engine->dictionary()->Segment(query, kNumberOfContinuousCandidates);
     auto seen = std::unordered_set<std::string>();
     auto ret = std::vector<Buffer>();
@@ -305,6 +321,8 @@ std::vector<Buffer> CandidateFinder::MultiMatch(Engine *engine, TaiToken *lgram,
         return std::vector<Buffer>();
     }
 
+    auto invalid_split_indices = InvalidSplitIndices(engine, query);
+
     auto segment = Segmenter::LongestSegmentFromStart(engine, query);
 
     switch (segment.type) {
@@ -314,6 +332,9 @@ std::vector<Buffer> CandidateFinder::MultiMatch(Engine *engine, TaiToken *lgram,
         return AllWordsFromStart(engine, lgram, query);
     case SegmentType::UserItem:
         return AllUserItems(engine, lgram, query);
+    case SegmentType::SyllablePrefix:
+        return std::vector<Buffer>{
+            Buffer(BufferElement::Build(engine->syllable_parser(), query, nullptr, false, true))};
     default: {
         auto ret = std::vector<Buffer>{Buffer(BufferElement(query))};
         ret.back().SetConverted(true);

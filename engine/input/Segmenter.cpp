@@ -81,8 +81,25 @@ size_t MaxSyllable(Engine *engine, std::string_view str) {
     return --i;
 }
 
+std::set<size_t> InvalidSplitIndices(Engine *engine, std::string_view query) {
+    auto ret = std::set<size_t>();
+
+    if (query.size() <= 1) {
+        return ret;
+    }
+
+    for (size_t i = 0; i < query.size() - 1; ++i) {
+        if (engine->keyconfig()->IsToneKey(query.at(i + 1))) {
+            ret.insert(i);
+        }
+    }
+
+    return ret;
+}
+
 size_t MaxSplitSize(Engine *engine, std::string_view str) {
-    return engine->dictionary()->word_splitter()->MaxSplitSize(str);
+    auto invalid_indices = InvalidSplitIndices(engine, str);
+    return engine->dictionary()->word_splitter()->MaxSplitSize(str, invalid_indices);
 }
 
 std::pair<size_t, SegmentType> CheckSyllableOrSplittable(Engine *engine, std::string_view str) {

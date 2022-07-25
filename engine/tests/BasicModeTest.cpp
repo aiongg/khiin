@@ -73,4 +73,12 @@ TEST_F(BasicModeTest, Insert_ou2) {
     ExpectBuffer("ó\u0358", 2);
 }
 
+TEST_F(BasicModeTest, Select_hobo) {
+    input("hobo");
+    spacebar(1);
+    ExpectBuffer("好 bo", 4);
+    curs_right(1);
+    ExpectBuffer("好無", 2);
+}
+
 } // namespace khiin::engine

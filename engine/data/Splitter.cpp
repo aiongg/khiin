@@ -1,9 +1,9 @@
 #include <algorithm>
 #include <cctype>
+#include <cmath>
 #include <sstream>
 #include <string>
 #include <utility>
-#include <cmath>
 
 #include "Splitter.h"
 
@@ -28,13 +28,18 @@ struct SplitCheckResult {
     std::vector<int> split_indices;
 };
 
-SplitCheckResult CheckSplittable(WordSet const &words, std::string_view query) {
+SplitCheckResult CheckSplittable(WordSet const &words, std::set<size_t> const &invalid_indices,
+                                 std::string_view query) {
     auto const size = static_cast<int>(query.size());
     std::vector<bool> splits_at(size + 1, false);
     std::vector<int> split_indices;
     split_indices.push_back(-1);
 
     for (int i = 0; i < size; ++i) {
+        if (invalid_indices.count(i) > 0) {
+            continue;
+        }
+
         auto n_splits = static_cast<int>(split_indices.size());
 
         for (int j = n_splits - 1; j >= 0; j--) {
@@ -70,11 +75,15 @@ Splitter::Splitter(std::vector<std::string> const &words_by_frequency) {
 }
 
 size_t Splitter::MaxSplitSize(std::string_view input) const {
+    return MaxSplitSize(input, std::set<size_t>());
+}
+
+size_t Splitter::MaxSplitSize(std::string_view input, std::set<size_t> const &invalid_indices) const {
     if (input.empty()) {
         return 0;
     }
 
-    auto result = CheckSplittable(m_word_set, input);
+    auto result = CheckSplittable(m_word_set, invalid_indices, input);
     return static_cast<size_t>(result.split_indices.back() + 1);
 }
 
@@ -83,7 +92,7 @@ bool Splitter::CanSplit(std::string_view input) const {
         return true;
     }
 
-    auto result = CheckSplittable(m_word_set, input);
+    auto result = CheckSplittable(m_word_set, std::set<size_t>(), input);
     return result.splits_at[input.size() - 1];
 }
 
@@ -137,7 +146,7 @@ void Splitter::Split(std::string const &input, std::vector<std::string> &result)
     }
 }
 
-WordCostMap const & Splitter::cost_map() const {
+WordCostMap const &Splitter::cost_map() const {
     return m_cost_map;
 }
 
