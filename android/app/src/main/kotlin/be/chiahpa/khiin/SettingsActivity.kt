@@ -28,7 +28,6 @@ class SettingsActivity : ComponentActivity() {
     external fun stringFromJNI(): String
 
     companion object {
-        // Used to load the 'myapplication' library on application startup.
         init {
             System.loadLibrary("khiindroid")
         }
