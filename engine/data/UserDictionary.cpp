@@ -80,7 +80,7 @@ class UserDictionaryImpl : public UserDictionary {
     }
 
     std::vector<UserDictionaryEntry> m_entries;
-    std::list<TaiToken> m_token_cache;
+    std::vector<TaiToken> m_token_cache;
     UserDictionaryCache m_cache;
     std::unique_ptr<Trie> m_trie = nullptr;
 };

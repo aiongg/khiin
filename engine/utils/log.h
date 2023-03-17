@@ -6,7 +6,9 @@
 #define SPDLOG_ACTIVE_LEVEL SPDLOG_LEVEL_OFF
 #endif
 
+#ifdef _WIN32
 #define SPDLOG_WCHAR_TO_UTF8_SUPPORT
+#endif
 
 #include <spdlog/spdlog.h>
 

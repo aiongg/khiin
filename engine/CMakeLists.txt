@@ -1,7 +1,7 @@
 # CMakeList.txt : Top-level CMake project file, do global configuration
 # and include sub-projects here.
 #
-cmake_minimum_required (VERSION 3.13)
+cmake_minimum_required (VERSION 3.14)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED)
 set(VCPKG_FEATURE_FLAGS "versions")
@@ -10,17 +10,40 @@ if(UNIX)
 link_libraries(stdc++fs)
 endif()
 
+if(VCPKG_TARGET_ANDROID)
+  if (ANDROID_ABI STREQUAL "x86")
+    set(VCPKG_ABI_PREFIX "x86")
+  elseif(ANDROID_ABI STREQUAL "x86_64")
+    set(VCPKG_ABI_PREFIX "x64")
+  elseif(ANDROID_ABI STREQUAL "arm64-v8a")
+    set(VCPKG_ABI_PREFIX "arm64")
+  elseif(ANDROID_ABI STREQUAL "armeabi-v7a")
+    set(VCPKG_ABI_PREFIX "arm-neon")
+  endif()
+
+  set(SQLiteCpp_DIR "$ENV{VCPKG_ROOT}/installed/${VCPKG_ABI_PREFIX}-android/share/SQLiteCpp")
+  set(unofficial-sqlite3_DIR "$ENV{VCPKG_ROOT}/installed/${VCPKG_ABI_PREFIX}-android/share/unofficial-sqlite3")
+  set(VCPKG_INCLUDE_DIR "$ENV{VCPKG_ROOT}/installed/${VCPKG_ABI_PREFIX}-android/include")
+  set(Protobuf_DIR "$ENV{VCPKG_ROOT}/installed/${VCPKG_ABI_PREFIX}-android/share/protobuf")
+  set(Protobuf_PROTOC_EXECUTABLE "$ENV{PROTOBUF_PROTOC}")
+  set(Protobuf_INCLUDE_DIR "$ENV{PROTOBUF_SRC}")
+endif()
+
 message(STATUS "Begin ${CMAKE_BUILD_TYPE} Build")
 
 project ("KhiinEngine" CXX)
 
 set(PROTOS_DIR "${PROJECT_SOURCE_DIR}/../proto/proto")
 
-find_package(GTest CONFIG REQUIRED)
+if(WIN32)
+    find_package(GTest CONFIG REQUIRED)
+    find_package(Protobuf REQUIRED)
+else()
+    find_package(Protobuf CONFIG REQUIRED)
+endif()
 find_package(SQLiteCpp REQUIRED)
-find_package(Protobuf REQUIRED)
 
-include_directories(${PROJECT_SOURCE_DIR} ${PROTOBUF_INCLUDE_DIR})
+include_directories(${PROJECT_SOURCE_DIR} ${PROTOBUF_INCLUDE_DIR} ${VCPKG_INCLUDE_DIR})
 
 add_library(khiin STATIC
     "${PROTOS_DIR}/config.pb.h"
@@ -39,16 +62,15 @@ add_subdirectory("utils")
 target_include_directories(khiin PUBLIC "../third_party" "../proto")
 
 if (CMAKE_BUILD_TYPE STREQUAL "Debug")
-target_link_options(khiin PRIVATE "/MAP")
+  target_link_options(khiin PRIVATE "/MAP")
 endif ()
 
-enable_testing()
-add_subdirectory ("tests")
-
 if(WIN32)
-add_compile_options(/FAcs)
-add_compile_options("$<$<C_COMPILER_ID:MSVC>:/utf-8>")
-add_compile_options("$<$<CXX_COMPILER_ID:MSVC>:/utf-8>")
+  enable_testing()
+  add_subdirectory ("tests")
+  add_compile_options(/FAcs)
+  add_compile_options("$<$<C_COMPILER_ID:MSVC>:/utf-8>")
+  add_compile_options("$<$<CXX_COMPILER_ID:MSVC>:/utf-8>")
 endif()
 
 # Add Analyze with CppCheck target if CppCheck is installed

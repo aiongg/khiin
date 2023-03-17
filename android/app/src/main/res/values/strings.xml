@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">Khiin IME</string>
+    <string name="title_activity_settings">SettingsActivity</string>
 </resources>
