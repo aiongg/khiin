@@ -13,131 +13,137 @@
 #include <google/protobuf/port_def.inc>
 
 PROTOBUF_PRAGMA_INIT_SEG
+
+namespace _pb = ::PROTOBUF_NAMESPACE_ID;
+namespace _pbi = _pb::internal;
+
 namespace khiin {
 namespace proto {
-constexpr KeyEvent::KeyEvent(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
-  : modifier_keys_()
-  , _modifier_keys_cached_byte_size_(0)
-  , key_code_(0)
-  , special_key_(0)
-{}
+PROTOBUF_CONSTEXPR KeyEvent::KeyEvent(
+    ::_pbi::ConstantInitialized): _impl_{
+    /*decltype(_impl_.modifier_keys_)*/{}
+  , /*decltype(_impl_._modifier_keys_cached_byte_size_)*/{0}
+  , /*decltype(_impl_.key_code_)*/0
+  , /*decltype(_impl_.special_key_)*/0
+  , /*decltype(_impl_._cached_size_)*/{}} {}
 struct KeyEventDefaultTypeInternal {
-  constexpr KeyEventDefaultTypeInternal()
-    : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
+  PROTOBUF_CONSTEXPR KeyEventDefaultTypeInternal()
+      : _instance(::_pbi::ConstantInitialized{}) {}
   ~KeyEventDefaultTypeInternal() {}
   union {
     KeyEvent _instance;
   };
 };
-PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT KeyEventDefaultTypeInternal _KeyEvent_default_instance_;
-constexpr Request::Request(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
-  : key_event_(nullptr)
-  , config_(nullptr)
-  , type_(0)
-
-  , candidate_id_(0)
-  , cursor_position_(0){}
+PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 KeyEventDefaultTypeInternal _KeyEvent_default_instance_;
+PROTOBUF_CONSTEXPR Request::Request(
+    ::_pbi::ConstantInitialized): _impl_{
+    /*decltype(_impl_.key_event_)*/nullptr
+  , /*decltype(_impl_.config_)*/nullptr
+  , /*decltype(_impl_.type_)*/0
+  , /*decltype(_impl_.candidate_id_)*/0
+  , /*decltype(_impl_.cursor_position_)*/0
+  , /*decltype(_impl_._cached_size_)*/{}} {}
 struct RequestDefaultTypeInternal {
-  constexpr RequestDefaultTypeInternal()
-    : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
+  PROTOBUF_CONSTEXPR RequestDefaultTypeInternal()
+      : _instance(::_pbi::ConstantInitialized{}) {}
   ~RequestDefaultTypeInternal() {}
   union {
     Request _instance;
   };
 };
-PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT RequestDefaultTypeInternal _Request_default_instance_;
-constexpr Preedit_Segment::Preedit_Segment(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
-  : value_(&::PROTOBUF_NAMESPACE_ID::internal::fixed_address_empty_string)
-  , status_(0)
-{}
+PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 RequestDefaultTypeInternal _Request_default_instance_;
+PROTOBUF_CONSTEXPR Preedit_Segment::Preedit_Segment(
+    ::_pbi::ConstantInitialized): _impl_{
+    /*decltype(_impl_.value_)*/{&::_pbi::fixed_address_empty_string, ::_pbi::ConstantInitialized{}}
+  , /*decltype(_impl_.status_)*/0
+  , /*decltype(_impl_._cached_size_)*/{}} {}
 struct Preedit_SegmentDefaultTypeInternal {
-  constexpr Preedit_SegmentDefaultTypeInternal()
-    : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
+  PROTOBUF_CONSTEXPR Preedit_SegmentDefaultTypeInternal()
+      : _instance(::_pbi::ConstantInitialized{}) {}
   ~Preedit_SegmentDefaultTypeInternal() {}
   union {
     Preedit_Segment _instance;
   };
 };
-PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT Preedit_SegmentDefaultTypeInternal _Preedit_Segment_default_instance_;
-constexpr Preedit::Preedit(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
-  : segments_()
-  , caret_(0)
-  , focused_caret_(0){}
+PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 Preedit_SegmentDefaultTypeInternal _Preedit_Segment_default_instance_;
+PROTOBUF_CONSTEXPR Preedit::Preedit(
+    ::_pbi::ConstantInitialized): _impl_{
+    /*decltype(_impl_.segments_)*/{}
+  , /*decltype(_impl_.caret_)*/0
+  , /*decltype(_impl_.focused_caret_)*/0
+  , /*decltype(_impl_._cached_size_)*/{}} {}
 struct PreeditDefaultTypeInternal {
-  constexpr PreeditDefaultTypeInternal()
-    : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
+  PROTOBUF_CONSTEXPR PreeditDefaultTypeInternal()
+      : _instance(::_pbi::ConstantInitialized{}) {}
   ~PreeditDefaultTypeInternal() {}
   union {
     Preedit _instance;
   };
 };
-PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT PreeditDefaultTypeInternal _Preedit_default_instance_;
-constexpr Candidate::Candidate(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
-  : value_(&::PROTOBUF_NAMESPACE_ID::internal::fixed_address_empty_string)
-  , key_(&::PROTOBUF_NAMESPACE_ID::internal::fixed_address_empty_string)
-  , annotation_(&::PROTOBUF_NAMESPACE_ID::internal::fixed_address_empty_string)
-  , id_(0)
-  , category_(0)
-{}
+PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 PreeditDefaultTypeInternal _Preedit_default_instance_;
+PROTOBUF_CONSTEXPR Candidate::Candidate(
+    ::_pbi::ConstantInitialized): _impl_{
+    /*decltype(_impl_.value_)*/{&::_pbi::fixed_address_empty_string, ::_pbi::ConstantInitialized{}}
+  , /*decltype(_impl_.key_)*/{&::_pbi::fixed_address_empty_string, ::_pbi::ConstantInitialized{}}
+  , /*decltype(_impl_.annotation_)*/{&::_pbi::fixed_address_empty_string, ::_pbi::ConstantInitialized{}}
+  , /*decltype(_impl_.id_)*/0
+  , /*decltype(_impl_.category_)*/0
+  , /*decltype(_impl_._cached_size_)*/{}} {}
 struct CandidateDefaultTypeInternal {
-  constexpr CandidateDefaultTypeInternal()
-    : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
+  PROTOBUF_CONSTEXPR CandidateDefaultTypeInternal()
+      : _instance(::_pbi::ConstantInitialized{}) {}
   ~CandidateDefaultTypeInternal() {}
   union {
     Candidate _instance;
   };
 };
-PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT CandidateDefaultTypeInternal _Candidate_default_instance_;
-constexpr CandidateList::CandidateList(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
-  : candidates_()
-  , focused_(0){}
+PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 CandidateDefaultTypeInternal _Candidate_default_instance_;
+PROTOBUF_CONSTEXPR CandidateList::CandidateList(
+    ::_pbi::ConstantInitialized): _impl_{
+    /*decltype(_impl_.candidates_)*/{}
+  , /*decltype(_impl_.focused_)*/0
+  , /*decltype(_impl_._cached_size_)*/{}} {}
 struct CandidateListDefaultTypeInternal {
-  constexpr CandidateListDefaultTypeInternal()
-    : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
+  PROTOBUF_CONSTEXPR CandidateListDefaultTypeInternal()
+      : _instance(::_pbi::ConstantInitialized{}) {}
   ~CandidateListDefaultTypeInternal() {}
   union {
     CandidateList _instance;
   };
 };
-PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT CandidateListDefaultTypeInternal _CandidateList_default_instance_;
-constexpr Response::Response(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
-  : preedit_(nullptr)
-  , candidate_list_(nullptr)
-  , error_(0)
-
-  , edit_state_(0)
-
-  , committed_(false)
-  , consumable_(false){}
+PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 CandidateListDefaultTypeInternal _CandidateList_default_instance_;
+PROTOBUF_CONSTEXPR Response::Response(
+    ::_pbi::ConstantInitialized): _impl_{
+    /*decltype(_impl_.preedit_)*/nullptr
+  , /*decltype(_impl_.candidate_list_)*/nullptr
+  , /*decltype(_impl_.error_)*/0
+  , /*decltype(_impl_.edit_state_)*/0
+  , /*decltype(_impl_.committed_)*/false
+  , /*decltype(_impl_.consumable_)*/false
+  , /*decltype(_impl_._cached_size_)*/{}} {}
 struct ResponseDefaultTypeInternal {
-  constexpr ResponseDefaultTypeInternal()
-    : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
+  PROTOBUF_CONSTEXPR ResponseDefaultTypeInternal()
+      : _instance(::_pbi::ConstantInitialized{}) {}
   ~ResponseDefaultTypeInternal() {}
   union {
     Response _instance;
   };
 };
-PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT ResponseDefaultTypeInternal _Response_default_instance_;
-constexpr Command::Command(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
-  : request_(nullptr)
-  , response_(nullptr){}
+PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 ResponseDefaultTypeInternal _Response_default_instance_;
+PROTOBUF_CONSTEXPR Command::Command(
+    ::_pbi::ConstantInitialized): _impl_{
+    /*decltype(_impl_.request_)*/nullptr
+  , /*decltype(_impl_.response_)*/nullptr
+  , /*decltype(_impl_._cached_size_)*/{}} {}
 struct CommandDefaultTypeInternal {
-  constexpr CommandDefaultTypeInternal()
-    : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
+  PROTOBUF_CONSTEXPR CommandDefaultTypeInternal()
+      : _instance(::_pbi::ConstantInitialized{}) {}
   ~CommandDefaultTypeInternal() {}
   union {
     Command _instance;
   };
 };
-PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT CommandDefaultTypeInternal _Command_default_instance_;
+PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 CommandDefaultTypeInternal _Command_default_instance_;
 }  // namespace proto
 }  // namespace khiin
 namespace khiin {
@@ -197,14 +203,14 @@ bool Candidate_Category_Parse(
   }
   return success;
 }
-#if (__cplusplus < 201703) && (!defined(_MSC_VER) || _MSC_VER >= 1900)
+#if (__cplusplus < 201703) && (!defined(_MSC_VER) || (_MSC_VER >= 1900 && _MSC_VER < 1912))
 constexpr Candidate_Category Candidate::CCAT_BASIC;
 constexpr Candidate_Category Candidate::CCAT_EXTENDED;
 constexpr Candidate_Category Candidate::CCAT_FALLBACK;
 constexpr Candidate_Category Candidate::Category_MIN;
 constexpr Candidate_Category Candidate::Category_MAX;
 constexpr int Candidate::Category_ARRAYSIZE;
-#endif  // (__cplusplus < 201703) && (!defined(_MSC_VER) || _MSC_VER >= 1900)
+#endif  // (__cplusplus < 201703) && (!defined(_MSC_VER) || (_MSC_VER >= 1900 && _MSC_VER < 1912))
 bool SpecialKey_IsValid(int value) {
   switch (value) {
     case 0:
@@ -648,83 +654,89 @@ class KeyEvent::_Internal {
 
 KeyEvent::KeyEvent(::PROTOBUF_NAMESPACE_ID::Arena* arena,
                          bool is_message_owned)
-  : ::PROTOBUF_NAMESPACE_ID::MessageLite(arena, is_message_owned),
-  modifier_keys_(arena) {
-  SharedCtor();
-  if (!is_message_owned) {
-    RegisterArenaDtor(arena);
-  }
+  : ::PROTOBUF_NAMESPACE_ID::MessageLite(arena, is_message_owned) {
+  SharedCtor(arena, is_message_owned);
   // @@protoc_insertion_point(arena_constructor:khiin.proto.KeyEvent)
 }
 KeyEvent::KeyEvent(const KeyEvent& from)
-  : ::PROTOBUF_NAMESPACE_ID::MessageLite(),
-      modifier_keys_(from.modifier_keys_) {
+  : ::PROTOBUF_NAMESPACE_ID::MessageLite() {
+  KeyEvent* const _this = this; (void)_this;
+  new (&_impl_) Impl_{
+      decltype(_impl_.modifier_keys_){from._impl_.modifier_keys_}
+    , /*decltype(_impl_._modifier_keys_cached_byte_size_)*/{0}
+    , decltype(_impl_.key_code_){}
+    , decltype(_impl_.special_key_){}
+    , /*decltype(_impl_._cached_size_)*/{}};
+
   _internal_metadata_.MergeFrom<std::string>(from._internal_metadata_);
-  ::memcpy(&key_code_, &from.key_code_,
-    static_cast<size_t>(reinterpret_cast<char*>(&special_key_) -
-    reinterpret_cast<char*>(&key_code_)) + sizeof(special_key_));
+  ::memcpy(&_impl_.key_code_, &from._impl_.key_code_,
+    static_cast<size_t>(reinterpret_cast<char*>(&_impl_.special_key_) -
+    reinterpret_cast<char*>(&_impl_.key_code_)) + sizeof(_impl_.special_key_));
   // @@protoc_insertion_point(copy_constructor:khiin.proto.KeyEvent)
 }
 
-void KeyEvent::SharedCtor() {
-::memset(reinterpret_cast<char*>(this) + static_cast<size_t>(
-    reinterpret_cast<char*>(&key_code_) - reinterpret_cast<char*>(this)),
-    0, static_cast<size_t>(reinterpret_cast<char*>(&special_key_) -
-    reinterpret_cast<char*>(&key_code_)) + sizeof(special_key_));
+inline void KeyEvent::SharedCtor(
+    ::_pb::Arena* arena, bool is_message_owned) {
+  (void)arena;
+  (void)is_message_owned;
+  new (&_impl_) Impl_{
+      decltype(_impl_.modifier_keys_){arena}
+    , /*decltype(_impl_._modifier_keys_cached_byte_size_)*/{0}
+    , decltype(_impl_.key_code_){0}
+    , decltype(_impl_.special_key_){0}
+    , /*decltype(_impl_._cached_size_)*/{}
+  };
 }
 
 KeyEvent::~KeyEvent() {
   // @@protoc_insertion_point(destructor:khiin.proto.KeyEvent)
-  if (GetArenaForAllocation() != nullptr) return;
+  if (auto *arena = _internal_metadata_.DeleteReturnArena<std::string>()) {
+  (void)arena;
+    return;
+  }
   SharedDtor();
-  _internal_metadata_.Delete<std::string>();
 }
 
 inline void KeyEvent::SharedDtor() {
   GOOGLE_DCHECK(GetArenaForAllocation() == nullptr);
+  _impl_.modifier_keys_.~RepeatedField();
 }
 
-void KeyEvent::ArenaDtor(void* object) {
-  KeyEvent* _this = reinterpret_cast< KeyEvent* >(object);
-  (void)_this;
-}
-void KeyEvent::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {
-}
 void KeyEvent::SetCachedSize(int size) const {
-  _cached_size_.Set(size);
+  _impl_._cached_size_.Set(size);
 }
 
 void KeyEvent::Clear() {
 // @@protoc_insertion_point(message_clear_start:khiin.proto.KeyEvent)
-  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+  uint32_t cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
-  modifier_keys_.Clear();
-  ::memset(&key_code_, 0, static_cast<size_t>(
-      reinterpret_cast<char*>(&special_key_) -
-      reinterpret_cast<char*>(&key_code_)) + sizeof(special_key_));
+  _impl_.modifier_keys_.Clear();
+  ::memset(&_impl_.key_code_, 0, static_cast<size_t>(
+      reinterpret_cast<char*>(&_impl_.special_key_) -
+      reinterpret_cast<char*>(&_impl_.key_code_)) + sizeof(_impl_.special_key_));
   _internal_metadata_.Clear<std::string>();
 }
 
-const char* KeyEvent::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
+const char* KeyEvent::_InternalParse(const char* ptr, ::_pbi::ParseContext* ctx) {
 #define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
   while (!ctx->Done(&ptr)) {
-    ::PROTOBUF_NAMESPACE_ID::uint32 tag;
-    ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
+    uint32_t tag;
+    ptr = ::_pbi::ReadTag(ptr, &tag);
     switch (tag >> 3) {
       // int32 key_code = 1;
       case 1:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 8)) {
-          key_code_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 8)) {
+          _impl_.key_code_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint32(&ptr);
           CHK_(ptr);
         } else
           goto handle_unusual;
         continue;
       // .khiin.proto.SpecialKey special_key = 2;
       case 2:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 16)) {
-          ::PROTOBUF_NAMESPACE_ID::uint64 val = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 16)) {
+          uint64_t val = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
           CHK_(ptr);
           _internal_set_special_key(static_cast<::khiin::proto::SpecialKey>(val));
         } else
@@ -732,11 +744,11 @@ const char* KeyEvent::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::i
         continue;
       // repeated .khiin.proto.ModifierKey modifier_keys = 3;
       case 3:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 26)) {
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 26)) {
           ptr = ::PROTOBUF_NAMESPACE_ID::internal::PackedEnumParser(_internal_mutable_modifier_keys(), ptr, ctx);
           CHK_(ptr);
-        } else if (static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 24) {
-          ::PROTOBUF_NAMESPACE_ID::uint64 val = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
+        } else if (static_cast<uint8_t>(tag) == 24) {
+          uint64_t val = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
           CHK_(ptr);
           _internal_add_modifier_keys(static_cast<::khiin::proto::ModifierKey>(val));
         } else
@@ -765,31 +777,31 @@ failure:
 #undef CHK_
 }
 
-::PROTOBUF_NAMESPACE_ID::uint8* KeyEvent::_InternalSerialize(
-    ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const {
+uint8_t* KeyEvent::_InternalSerialize(
+    uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const {
   // @@protoc_insertion_point(serialize_to_array_start:khiin.proto.KeyEvent)
-  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+  uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
 
   // int32 key_code = 1;
   if (this->_internal_key_code() != 0) {
     target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteInt32ToArray(1, this->_internal_key_code(), target);
+    target = ::_pbi::WireFormatLite::WriteInt32ToArray(1, this->_internal_key_code(), target);
   }
 
   // .khiin.proto.SpecialKey special_key = 2;
   if (this->_internal_special_key() != 0) {
     target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteEnumToArray(
+    target = ::_pbi::WireFormatLite::WriteEnumToArray(
       2, this->_internal_special_key(), target);
   }
 
   // repeated .khiin.proto.ModifierKey modifier_keys = 3;
   {
-    int byte_size = _modifier_keys_cached_byte_size_.load(std::memory_order_relaxed);
+    int byte_size = _impl_._modifier_keys_cached_byte_size_.load(std::memory_order_relaxed);
     if (byte_size > 0) {
       target = stream->WriteEnumPacked(
-          3, modifier_keys_, byte_size, target);
+          3, _impl_.modifier_keys_, byte_size, target);
     }
   }
 
@@ -805,7 +817,7 @@ size_t KeyEvent::ByteSizeLong() const {
 // @@protoc_insertion_point(message_byte_size_start:khiin.proto.KeyEvent)
   size_t total_size = 0;
 
-  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+  uint32_t cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
@@ -813,59 +825,59 @@ size_t KeyEvent::ByteSizeLong() const {
   {
     size_t data_size = 0;
     unsigned int count = static_cast<unsigned int>(this->_internal_modifier_keys_size());for (unsigned int i = 0; i < count; i++) {
-      data_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::EnumSize(
+      data_size += ::_pbi::WireFormatLite::EnumSize(
         this->_internal_modifier_keys(static_cast<int>(i)));
     }
     if (data_size > 0) {
       total_size += 1 +
-        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32Size(
-            static_cast<::PROTOBUF_NAMESPACE_ID::int32>(data_size));
+        ::_pbi::WireFormatLite::Int32Size(static_cast<int32_t>(data_size));
     }
-    int cached_size = ::PROTOBUF_NAMESPACE_ID::internal::ToCachedSize(data_size);
-    _modifier_keys_cached_byte_size_.store(cached_size,
+    int cached_size = ::_pbi::ToCachedSize(data_size);
+    _impl_._modifier_keys_cached_byte_size_.store(cached_size,
                                     std::memory_order_relaxed);
     total_size += data_size;
   }
 
   // int32 key_code = 1;
   if (this->_internal_key_code() != 0) {
-    total_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32SizePlusOne(this->_internal_key_code());
+    total_size += ::_pbi::WireFormatLite::Int32SizePlusOne(this->_internal_key_code());
   }
 
   // .khiin.proto.SpecialKey special_key = 2;
   if (this->_internal_special_key() != 0) {
     total_size += 1 +
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::EnumSize(this->_internal_special_key());
+      ::_pbi::WireFormatLite::EnumSize(this->_internal_special_key());
   }
 
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
     total_size += _internal_metadata_.unknown_fields<std::string>(::PROTOBUF_NAMESPACE_ID::internal::GetEmptyString).size();
   }
-  int cached_size = ::PROTOBUF_NAMESPACE_ID::internal::ToCachedSize(total_size);
+  int cached_size = ::_pbi::ToCachedSize(total_size);
   SetCachedSize(cached_size);
   return total_size;
 }
 
 void KeyEvent::CheckTypeAndMergeFrom(
     const ::PROTOBUF_NAMESPACE_ID::MessageLite& from) {
-  MergeFrom(*::PROTOBUF_NAMESPACE_ID::internal::DownCast<const KeyEvent*>(
+  MergeFrom(*::_pbi::DownCast<const KeyEvent*>(
       &from));
 }
 
 void KeyEvent::MergeFrom(const KeyEvent& from) {
-// @@protoc_insertion_point(class_specific_merge_from_start:khiin.proto.KeyEvent)
-  GOOGLE_DCHECK_NE(&from, this);
-  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+  KeyEvent* const _this = this;
+  // @@protoc_insertion_point(class_specific_merge_from_start:khiin.proto.KeyEvent)
+  GOOGLE_DCHECK_NE(&from, _this);
+  uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
 
-  modifier_keys_.MergeFrom(from.modifier_keys_);
+  _this->_impl_.modifier_keys_.MergeFrom(from._impl_.modifier_keys_);
   if (from._internal_key_code() != 0) {
-    _internal_set_key_code(from._internal_key_code());
+    _this->_internal_set_key_code(from._internal_key_code());
   }
   if (from._internal_special_key() != 0) {
-    _internal_set_special_key(from._internal_special_key());
+    _this->_internal_set_special_key(from._internal_special_key());
   }
-  _internal_metadata_.MergeFrom<std::string>(from._internal_metadata_);
+  _this->_internal_metadata_.MergeFrom<std::string>(from._internal_metadata_);
 }
 
 void KeyEvent::CopyFrom(const KeyEvent& from) {
@@ -882,13 +894,13 @@ bool KeyEvent::IsInitialized() const {
 void KeyEvent::InternalSwap(KeyEvent* other) {
   using std::swap;
   _internal_metadata_.InternalSwap(&other->_internal_metadata_);
-  modifier_keys_.InternalSwap(&other->modifier_keys_);
+  _impl_.modifier_keys_.InternalSwap(&other->_impl_.modifier_keys_);
   ::PROTOBUF_NAMESPACE_ID::internal::memswap<
-      PROTOBUF_FIELD_OFFSET(KeyEvent, special_key_)
-      + sizeof(KeyEvent::special_key_)
-      - PROTOBUF_FIELD_OFFSET(KeyEvent, key_code_)>(
-          reinterpret_cast<char*>(&key_code_),
-          reinterpret_cast<char*>(&other->key_code_));
+      PROTOBUF_FIELD_OFFSET(KeyEvent, _impl_.special_key_)
+      + sizeof(KeyEvent::_impl_.special_key_)
+      - PROTOBUF_FIELD_OFFSET(KeyEvent, _impl_.key_code_)>(
+          reinterpret_cast<char*>(&_impl_.key_code_),
+          reinterpret_cast<char*>(&other->_impl_.key_code_));
 }
 
 std::string KeyEvent::GetTypeName() const {
@@ -906,106 +918,111 @@ class Request::_Internal {
 
 const ::khiin::proto::KeyEvent&
 Request::_Internal::key_event(const Request* msg) {
-  return *msg->key_event_;
+  return *msg->_impl_.key_event_;
 }
 const ::khiin::proto::AppConfig&
 Request::_Internal::config(const Request* msg) {
-  return *msg->config_;
+  return *msg->_impl_.config_;
 }
 void Request::clear_config() {
-  if (GetArenaForAllocation() == nullptr && config_ != nullptr) {
-    delete config_;
+  if (GetArenaForAllocation() == nullptr && _impl_.config_ != nullptr) {
+    delete _impl_.config_;
   }
-  config_ = nullptr;
+  _impl_.config_ = nullptr;
 }
 Request::Request(::PROTOBUF_NAMESPACE_ID::Arena* arena,
                          bool is_message_owned)
   : ::PROTOBUF_NAMESPACE_ID::MessageLite(arena, is_message_owned) {
-  SharedCtor();
-  if (!is_message_owned) {
-    RegisterArenaDtor(arena);
-  }
+  SharedCtor(arena, is_message_owned);
   // @@protoc_insertion_point(arena_constructor:khiin.proto.Request)
 }
 Request::Request(const Request& from)
   : ::PROTOBUF_NAMESPACE_ID::MessageLite() {
+  Request* const _this = this; (void)_this;
+  new (&_impl_) Impl_{
+      decltype(_impl_.key_event_){nullptr}
+    , decltype(_impl_.config_){nullptr}
+    , decltype(_impl_.type_){}
+    , decltype(_impl_.candidate_id_){}
+    , decltype(_impl_.cursor_position_){}
+    , /*decltype(_impl_._cached_size_)*/{}};
+
   _internal_metadata_.MergeFrom<std::string>(from._internal_metadata_);
   if (from._internal_has_key_event()) {
-    key_event_ = new ::khiin::proto::KeyEvent(*from.key_event_);
-  } else {
-    key_event_ = nullptr;
+    _this->_impl_.key_event_ = new ::khiin::proto::KeyEvent(*from._impl_.key_event_);
   }
   if (from._internal_has_config()) {
-    config_ = new ::khiin::proto::AppConfig(*from.config_);
-  } else {
-    config_ = nullptr;
+    _this->_impl_.config_ = new ::khiin::proto::AppConfig(*from._impl_.config_);
   }
-  ::memcpy(&type_, &from.type_,
-    static_cast<size_t>(reinterpret_cast<char*>(&cursor_position_) -
-    reinterpret_cast<char*>(&type_)) + sizeof(cursor_position_));
+  ::memcpy(&_impl_.type_, &from._impl_.type_,
+    static_cast<size_t>(reinterpret_cast<char*>(&_impl_.cursor_position_) -
+    reinterpret_cast<char*>(&_impl_.type_)) + sizeof(_impl_.cursor_position_));
   // @@protoc_insertion_point(copy_constructor:khiin.proto.Request)
 }
 
-void Request::SharedCtor() {
-::memset(reinterpret_cast<char*>(this) + static_cast<size_t>(
-    reinterpret_cast<char*>(&key_event_) - reinterpret_cast<char*>(this)),
-    0, static_cast<size_t>(reinterpret_cast<char*>(&cursor_position_) -
-    reinterpret_cast<char*>(&key_event_)) + sizeof(cursor_position_));
+inline void Request::SharedCtor(
+    ::_pb::Arena* arena, bool is_message_owned) {
+  (void)arena;
+  (void)is_message_owned;
+  new (&_impl_) Impl_{
+      decltype(_impl_.key_event_){nullptr}
+    , decltype(_impl_.config_){nullptr}
+    , decltype(_impl_.type_){0}
+    , decltype(_impl_.candidate_id_){0}
+    , decltype(_impl_.cursor_position_){0}
+    , /*decltype(_impl_._cached_size_)*/{}
+  };
 }
 
 Request::~Request() {
   // @@protoc_insertion_point(destructor:khiin.proto.Request)
-  if (GetArenaForAllocation() != nullptr) return;
+  if (auto *arena = _internal_metadata_.DeleteReturnArena<std::string>()) {
+  (void)arena;
+    return;
+  }
   SharedDtor();
-  _internal_metadata_.Delete<std::string>();
 }
 
 inline void Request::SharedDtor() {
   GOOGLE_DCHECK(GetArenaForAllocation() == nullptr);
-  if (this != internal_default_instance()) delete key_event_;
-  if (this != internal_default_instance()) delete config_;
+  if (this != internal_default_instance()) delete _impl_.key_event_;
+  if (this != internal_default_instance()) delete _impl_.config_;
 }
 
-void Request::ArenaDtor(void* object) {
-  Request* _this = reinterpret_cast< Request* >(object);
-  (void)_this;
-}
-void Request::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {
-}
 void Request::SetCachedSize(int size) const {
-  _cached_size_.Set(size);
+  _impl_._cached_size_.Set(size);
 }
 
 void Request::Clear() {
 // @@protoc_insertion_point(message_clear_start:khiin.proto.Request)
-  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+  uint32_t cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
-  if (GetArenaForAllocation() == nullptr && key_event_ != nullptr) {
-    delete key_event_;
+  if (GetArenaForAllocation() == nullptr && _impl_.key_event_ != nullptr) {
+    delete _impl_.key_event_;
   }
-  key_event_ = nullptr;
-  if (GetArenaForAllocation() == nullptr && config_ != nullptr) {
-    delete config_;
+  _impl_.key_event_ = nullptr;
+  if (GetArenaForAllocation() == nullptr && _impl_.config_ != nullptr) {
+    delete _impl_.config_;
   }
-  config_ = nullptr;
-  ::memset(&type_, 0, static_cast<size_t>(
-      reinterpret_cast<char*>(&cursor_position_) -
-      reinterpret_cast<char*>(&type_)) + sizeof(cursor_position_));
+  _impl_.config_ = nullptr;
+  ::memset(&_impl_.type_, 0, static_cast<size_t>(
+      reinterpret_cast<char*>(&_impl_.cursor_position_) -
+      reinterpret_cast<char*>(&_impl_.type_)) + sizeof(_impl_.cursor_position_));
   _internal_metadata_.Clear<std::string>();
 }
 
-const char* Request::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
+const char* Request::_InternalParse(const char* ptr, ::_pbi::ParseContext* ctx) {
 #define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
   while (!ctx->Done(&ptr)) {
-    ::PROTOBUF_NAMESPACE_ID::uint32 tag;
-    ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
+    uint32_t tag;
+    ptr = ::_pbi::ReadTag(ptr, &tag);
     switch (tag >> 3) {
       // .khiin.proto.CommandType type = 1;
       case 1:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 8)) {
-          ::PROTOBUF_NAMESPACE_ID::uint64 val = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 8)) {
+          uint64_t val = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
           CHK_(ptr);
           _internal_set_type(static_cast<::khiin::proto::CommandType>(val));
         } else
@@ -1013,7 +1030,7 @@ const char* Request::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::in
         continue;
       // .khiin.proto.KeyEvent key_event = 2;
       case 2:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 18)) {
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 18)) {
           ptr = ctx->ParseMessage(_internal_mutable_key_event(), ptr);
           CHK_(ptr);
         } else
@@ -1021,23 +1038,23 @@ const char* Request::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::in
         continue;
       // int32 candidate_id = 3;
       case 3:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 24)) {
-          candidate_id_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 24)) {
+          _impl_.candidate_id_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint32(&ptr);
           CHK_(ptr);
         } else
           goto handle_unusual;
         continue;
       // int32 cursor_position = 4;
       case 4:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 32)) {
-          cursor_position_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 32)) {
+          _impl_.cursor_position_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint32(&ptr);
           CHK_(ptr);
         } else
           goto handle_unusual;
         continue;
       // .khiin.proto.AppConfig config = 5;
       case 5:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 42)) {
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 42)) {
           ptr = ctx->ParseMessage(_internal_mutable_config(), ptr);
           CHK_(ptr);
         } else
@@ -1066,45 +1083,43 @@ failure:
 #undef CHK_
 }
 
-::PROTOBUF_NAMESPACE_ID::uint8* Request::_InternalSerialize(
-    ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const {
+uint8_t* Request::_InternalSerialize(
+    uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const {
   // @@protoc_insertion_point(serialize_to_array_start:khiin.proto.Request)
-  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+  uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
 
   // .khiin.proto.CommandType type = 1;
   if (this->_internal_type() != 0) {
     target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteEnumToArray(
+    target = ::_pbi::WireFormatLite::WriteEnumToArray(
       1, this->_internal_type(), target);
   }
 
   // .khiin.proto.KeyEvent key_event = 2;
   if (this->_internal_has_key_event()) {
-    target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
-      InternalWriteMessage(
-        2, _Internal::key_event(this), target, stream);
+      InternalWriteMessage(2, _Internal::key_event(this),
+        _Internal::key_event(this).GetCachedSize(), target, stream);
   }
 
   // int32 candidate_id = 3;
   if (this->_internal_candidate_id() != 0) {
     target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteInt32ToArray(3, this->_internal_candidate_id(), target);
+    target = ::_pbi::WireFormatLite::WriteInt32ToArray(3, this->_internal_candidate_id(), target);
   }
 
   // int32 cursor_position = 4;
   if (this->_internal_cursor_position() != 0) {
     target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteInt32ToArray(4, this->_internal_cursor_position(), target);
+    target = ::_pbi::WireFormatLite::WriteInt32ToArray(4, this->_internal_cursor_position(), target);
   }
 
   // .khiin.proto.AppConfig config = 5;
   if (this->_internal_has_config()) {
-    target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
-      InternalWriteMessage(
-        5, _Internal::config(this), target, stream);
+      InternalWriteMessage(5, _Internal::config(this),
+        _Internal::config(this).GetCachedSize(), target, stream);
   }
 
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
@@ -1119,7 +1134,7 @@ size_t Request::ByteSizeLong() const {
 // @@protoc_insertion_point(message_byte_size_start:khiin.proto.Request)
   size_t total_size = 0;
 
-  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+  uint32_t cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
@@ -1127,68 +1142,71 @@ size_t Request::ByteSizeLong() const {
   if (this->_internal_has_key_event()) {
     total_size += 1 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
-        *key_event_);
+        *_impl_.key_event_);
   }
 
   // .khiin.proto.AppConfig config = 5;
   if (this->_internal_has_config()) {
     total_size += 1 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
-        *config_);
+        *_impl_.config_);
   }
 
   // .khiin.proto.CommandType type = 1;
   if (this->_internal_type() != 0) {
     total_size += 1 +
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::EnumSize(this->_internal_type());
+      ::_pbi::WireFormatLite::EnumSize(this->_internal_type());
   }
 
   // int32 candidate_id = 3;
   if (this->_internal_candidate_id() != 0) {
-    total_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32SizePlusOne(this->_internal_candidate_id());
+    total_size += ::_pbi::WireFormatLite::Int32SizePlusOne(this->_internal_candidate_id());
   }
 
   // int32 cursor_position = 4;
   if (this->_internal_cursor_position() != 0) {
-    total_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32SizePlusOne(this->_internal_cursor_position());
+    total_size += ::_pbi::WireFormatLite::Int32SizePlusOne(this->_internal_cursor_position());
   }
 
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
     total_size += _internal_metadata_.unknown_fields<std::string>(::PROTOBUF_NAMESPACE_ID::internal::GetEmptyString).size();
   }
-  int cached_size = ::PROTOBUF_NAMESPACE_ID::internal::ToCachedSize(total_size);
+  int cached_size = ::_pbi::ToCachedSize(total_size);
   SetCachedSize(cached_size);
   return total_size;
 }
 
 void Request::CheckTypeAndMergeFrom(
     const ::PROTOBUF_NAMESPACE_ID::MessageLite& from) {
-  MergeFrom(*::PROTOBUF_NAMESPACE_ID::internal::DownCast<const Request*>(
+  MergeFrom(*::_pbi::DownCast<const Request*>(
       &from));
 }
 
 void Request::MergeFrom(const Request& from) {
-// @@protoc_insertion_point(class_specific_merge_from_start:khiin.proto.Request)
-  GOOGLE_DCHECK_NE(&from, this);
-  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+  Request* const _this = this;
+  // @@protoc_insertion_point(class_specific_merge_from_start:khiin.proto.Request)
+  GOOGLE_DCHECK_NE(&from, _this);
+  uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
 
   if (from._internal_has_key_event()) {
-    _internal_mutable_key_event()->::khiin::proto::KeyEvent::MergeFrom(from._internal_key_event());
+    _this->_internal_mutable_key_event()->::khiin::proto::KeyEvent::MergeFrom(
+        from._internal_key_event());
   }
   if (from._internal_has_config()) {
-    _internal_mutable_config()->::khiin::proto::AppConfig::MergeFrom(from._internal_config());
+    _this->_internal_mutable_config()->::khiin::proto::AppConfig::MergeFrom(
+        from._internal_config());
   }
   if (from._internal_type() != 0) {
-    _internal_set_type(from._internal_type());
+    _this->_internal_set_type(from._internal_type());
   }
   if (from._internal_candidate_id() != 0) {
-    _internal_set_candidate_id(from._internal_candidate_id());
+    _this->_internal_set_candidate_id(from._internal_candidate_id());
   }
   if (from._internal_cursor_position() != 0) {
-    _internal_set_cursor_position(from._internal_cursor_position());
+    _this->_internal_set_cursor_position(from._internal_cursor_position());
   }
-  _internal_metadata_.MergeFrom<std::string>(from._internal_metadata_);
+  _this->_internal_metadata_.MergeFrom<std::string>(from._internal_metadata_);
 }
 
 void Request::CopyFrom(const Request& from) {
@@ -1206,11 +1224,11 @@ void Request::InternalSwap(Request* other) {
   using std::swap;
   _internal_metadata_.InternalSwap(&other->_internal_metadata_);
   ::PROTOBUF_NAMESPACE_ID::internal::memswap<
-      PROTOBUF_FIELD_OFFSET(Request, cursor_position_)
-      + sizeof(Request::cursor_position_)
-      - PROTOBUF_FIELD_OFFSET(Request, key_event_)>(
-          reinterpret_cast<char*>(&key_event_),
-          reinterpret_cast<char*>(&other->key_event_));
+      PROTOBUF_FIELD_OFFSET(Request, _impl_.cursor_position_)
+      + sizeof(Request::_impl_.cursor_position_)
+      - PROTOBUF_FIELD_OFFSET(Request, _impl_.key_event_)>(
+          reinterpret_cast<char*>(&_impl_.key_event_),
+          reinterpret_cast<char*>(&other->_impl_.key_event_));
 }
 
 std::string Request::GetTypeName() const {
@@ -1227,72 +1245,84 @@ class Preedit_Segment::_Internal {
 Preedit_Segment::Preedit_Segment(::PROTOBUF_NAMESPACE_ID::Arena* arena,
                          bool is_message_owned)
   : ::PROTOBUF_NAMESPACE_ID::MessageLite(arena, is_message_owned) {
-  SharedCtor();
-  if (!is_message_owned) {
-    RegisterArenaDtor(arena);
-  }
+  SharedCtor(arena, is_message_owned);
   // @@protoc_insertion_point(arena_constructor:khiin.proto.Preedit.Segment)
 }
 Preedit_Segment::Preedit_Segment(const Preedit_Segment& from)
   : ::PROTOBUF_NAMESPACE_ID::MessageLite() {
+  Preedit_Segment* const _this = this; (void)_this;
+  new (&_impl_) Impl_{
+      decltype(_impl_.value_){}
+    , decltype(_impl_.status_){}
+    , /*decltype(_impl_._cached_size_)*/{}};
+
   _internal_metadata_.MergeFrom<std::string>(from._internal_metadata_);
-  value_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  _impl_.value_.InitDefault();
+  #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
+    _impl_.value_.Set("", GetArenaForAllocation());
+  #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
   if (!from._internal_value().empty()) {
-    value_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, from._internal_value(), 
-      GetArenaForAllocation());
+    _this->_impl_.value_.Set(from._internal_value(), 
+      _this->GetArenaForAllocation());
   }
-  status_ = from.status_;
+  _this->_impl_.status_ = from._impl_.status_;
   // @@protoc_insertion_point(copy_constructor:khiin.proto.Preedit.Segment)
 }
 
-void Preedit_Segment::SharedCtor() {
-value_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
-status_ = 0;
+inline void Preedit_Segment::SharedCtor(
+    ::_pb::Arena* arena, bool is_message_owned) {
+  (void)arena;
+  (void)is_message_owned;
+  new (&_impl_) Impl_{
+      decltype(_impl_.value_){}
+    , decltype(_impl_.status_){0}
+    , /*decltype(_impl_._cached_size_)*/{}
+  };
+  _impl_.value_.InitDefault();
+  #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
+    _impl_.value_.Set("", GetArenaForAllocation());
+  #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
 }
 
 Preedit_Segment::~Preedit_Segment() {
   // @@protoc_insertion_point(destructor:khiin.proto.Preedit.Segment)
-  if (GetArenaForAllocation() != nullptr) return;
+  if (auto *arena = _internal_metadata_.DeleteReturnArena<std::string>()) {
+  (void)arena;
+    return;
+  }
   SharedDtor();
-  _internal_metadata_.Delete<std::string>();
 }
 
 inline void Preedit_Segment::SharedDtor() {
   GOOGLE_DCHECK(GetArenaForAllocation() == nullptr);
-  value_.DestroyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  _impl_.value_.Destroy();
 }
 
-void Preedit_Segment::ArenaDtor(void* object) {
-  Preedit_Segment* _this = reinterpret_cast< Preedit_Segment* >(object);
-  (void)_this;
-}
-void Preedit_Segment::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {
-}
 void Preedit_Segment::SetCachedSize(int size) const {
-  _cached_size_.Set(size);
+  _impl_._cached_size_.Set(size);
 }
 
 void Preedit_Segment::Clear() {
 // @@protoc_insertion_point(message_clear_start:khiin.proto.Preedit.Segment)
-  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+  uint32_t cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
-  value_.ClearToEmpty();
-  status_ = 0;
+  _impl_.value_.ClearToEmpty();
+  _impl_.status_ = 0;
   _internal_metadata_.Clear<std::string>();
 }
 
-const char* Preedit_Segment::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
+const char* Preedit_Segment::_InternalParse(const char* ptr, ::_pbi::ParseContext* ctx) {
 #define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
   while (!ctx->Done(&ptr)) {
-    ::PROTOBUF_NAMESPACE_ID::uint32 tag;
-    ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
+    uint32_t tag;
+    ptr = ::_pbi::ReadTag(ptr, &tag);
     switch (tag >> 3) {
       // .khiin.proto.SegmentStatus status = 1;
       case 1:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 8)) {
-          ::PROTOBUF_NAMESPACE_ID::uint64 val = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 8)) {
+          uint64_t val = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
           CHK_(ptr);
           _internal_set_status(static_cast<::khiin::proto::SegmentStatus>(val));
         } else
@@ -1300,11 +1330,11 @@ const char* Preedit_Segment::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPAC
         continue;
       // string value = 2;
       case 2:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 18)) {
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 18)) {
           auto str = _internal_mutable_value();
-          ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParser(str, ptr, ctx);
-          CHK_(::PROTOBUF_NAMESPACE_ID::internal::VerifyUTF8(str, nullptr));
+          ptr = ::_pbi::InlineGreedyStringParser(str, ptr, ctx);
           CHK_(ptr);
+          CHK_(::_pbi::VerifyUTF8(str, nullptr));
         } else
           goto handle_unusual;
         continue;
@@ -1331,16 +1361,16 @@ failure:
 #undef CHK_
 }
 
-::PROTOBUF_NAMESPACE_ID::uint8* Preedit_Segment::_InternalSerialize(
-    ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const {
+uint8_t* Preedit_Segment::_InternalSerialize(
+    uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const {
   // @@protoc_insertion_point(serialize_to_array_start:khiin.proto.Preedit.Segment)
-  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+  uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
 
   // .khiin.proto.SegmentStatus status = 1;
   if (this->_internal_status() != 0) {
     target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteEnumToArray(
+    target = ::_pbi::WireFormatLite::WriteEnumToArray(
       1, this->_internal_status(), target);
   }
 
@@ -1366,7 +1396,7 @@ size_t Preedit_Segment::ByteSizeLong() const {
 // @@protoc_insertion_point(message_byte_size_start:khiin.proto.Preedit.Segment)
   size_t total_size = 0;
 
-  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+  uint32_t cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
@@ -1380,36 +1410,37 @@ size_t Preedit_Segment::ByteSizeLong() const {
   // .khiin.proto.SegmentStatus status = 1;
   if (this->_internal_status() != 0) {
     total_size += 1 +
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::EnumSize(this->_internal_status());
+      ::_pbi::WireFormatLite::EnumSize(this->_internal_status());
   }
 
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
     total_size += _internal_metadata_.unknown_fields<std::string>(::PROTOBUF_NAMESPACE_ID::internal::GetEmptyString).size();
   }
-  int cached_size = ::PROTOBUF_NAMESPACE_ID::internal::ToCachedSize(total_size);
+  int cached_size = ::_pbi::ToCachedSize(total_size);
   SetCachedSize(cached_size);
   return total_size;
 }
 
 void Preedit_Segment::CheckTypeAndMergeFrom(
     const ::PROTOBUF_NAMESPACE_ID::MessageLite& from) {
-  MergeFrom(*::PROTOBUF_NAMESPACE_ID::internal::DownCast<const Preedit_Segment*>(
+  MergeFrom(*::_pbi::DownCast<const Preedit_Segment*>(
       &from));
 }
 
 void Preedit_Segment::MergeFrom(const Preedit_Segment& from) {
-// @@protoc_insertion_point(class_specific_merge_from_start:khiin.proto.Preedit.Segment)
-  GOOGLE_DCHECK_NE(&from, this);
-  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+  Preedit_Segment* const _this = this;
+  // @@protoc_insertion_point(class_specific_merge_from_start:khiin.proto.Preedit.Segment)
+  GOOGLE_DCHECK_NE(&from, _this);
+  uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
 
   if (!from._internal_value().empty()) {
-    _internal_set_value(from._internal_value());
+    _this->_internal_set_value(from._internal_value());
   }
   if (from._internal_status() != 0) {
-    _internal_set_status(from._internal_status());
+    _this->_internal_set_status(from._internal_status());
   }
-  _internal_metadata_.MergeFrom<std::string>(from._internal_metadata_);
+  _this->_internal_metadata_.MergeFrom<std::string>(from._internal_metadata_);
 }
 
 void Preedit_Segment::CopyFrom(const Preedit_Segment& from) {
@@ -1429,11 +1460,10 @@ void Preedit_Segment::InternalSwap(Preedit_Segment* other) {
   auto* rhs_arena = other->GetArenaForAllocation();
   _internal_metadata_.InternalSwap(&other->_internal_metadata_);
   ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(
-      &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
-      &value_, lhs_arena,
-      &other->value_, rhs_arena
+      &_impl_.value_, lhs_arena,
+      &other->_impl_.value_, rhs_arena
   );
-  swap(status_, other->status_);
+  swap(_impl_.status_, other->_impl_.status_);
 }
 
 std::string Preedit_Segment::GetTypeName() const {
@@ -1449,74 +1479,78 @@ class Preedit::_Internal {
 
 Preedit::Preedit(::PROTOBUF_NAMESPACE_ID::Arena* arena,
                          bool is_message_owned)
-  : ::PROTOBUF_NAMESPACE_ID::MessageLite(arena, is_message_owned),
-  segments_(arena) {
-  SharedCtor();
-  if (!is_message_owned) {
-    RegisterArenaDtor(arena);
-  }
+  : ::PROTOBUF_NAMESPACE_ID::MessageLite(arena, is_message_owned) {
+  SharedCtor(arena, is_message_owned);
   // @@protoc_insertion_point(arena_constructor:khiin.proto.Preedit)
 }
 Preedit::Preedit(const Preedit& from)
-  : ::PROTOBUF_NAMESPACE_ID::MessageLite(),
-      segments_(from.segments_) {
+  : ::PROTOBUF_NAMESPACE_ID::MessageLite() {
+  Preedit* const _this = this; (void)_this;
+  new (&_impl_) Impl_{
+      decltype(_impl_.segments_){from._impl_.segments_}
+    , decltype(_impl_.caret_){}
+    , decltype(_impl_.focused_caret_){}
+    , /*decltype(_impl_._cached_size_)*/{}};
+
   _internal_metadata_.MergeFrom<std::string>(from._internal_metadata_);
-  ::memcpy(&caret_, &from.caret_,
-    static_cast<size_t>(reinterpret_cast<char*>(&focused_caret_) -
-    reinterpret_cast<char*>(&caret_)) + sizeof(focused_caret_));
+  ::memcpy(&_impl_.caret_, &from._impl_.caret_,
+    static_cast<size_t>(reinterpret_cast<char*>(&_impl_.focused_caret_) -
+    reinterpret_cast<char*>(&_impl_.caret_)) + sizeof(_impl_.focused_caret_));
   // @@protoc_insertion_point(copy_constructor:khiin.proto.Preedit)
 }
 
-void Preedit::SharedCtor() {
-::memset(reinterpret_cast<char*>(this) + static_cast<size_t>(
-    reinterpret_cast<char*>(&caret_) - reinterpret_cast<char*>(this)),
-    0, static_cast<size_t>(reinterpret_cast<char*>(&focused_caret_) -
-    reinterpret_cast<char*>(&caret_)) + sizeof(focused_caret_));
+inline void Preedit::SharedCtor(
+    ::_pb::Arena* arena, bool is_message_owned) {
+  (void)arena;
+  (void)is_message_owned;
+  new (&_impl_) Impl_{
+      decltype(_impl_.segments_){arena}
+    , decltype(_impl_.caret_){0}
+    , decltype(_impl_.focused_caret_){0}
+    , /*decltype(_impl_._cached_size_)*/{}
+  };
 }
 
 Preedit::~Preedit() {
   // @@protoc_insertion_point(destructor:khiin.proto.Preedit)
-  if (GetArenaForAllocation() != nullptr) return;
+  if (auto *arena = _internal_metadata_.DeleteReturnArena<std::string>()) {
+  (void)arena;
+    return;
+  }
   SharedDtor();
-  _internal_metadata_.Delete<std::string>();
 }
 
 inline void Preedit::SharedDtor() {
   GOOGLE_DCHECK(GetArenaForAllocation() == nullptr);
+  _impl_.segments_.~RepeatedPtrField();
 }
 
-void Preedit::ArenaDtor(void* object) {
-  Preedit* _this = reinterpret_cast< Preedit* >(object);
-  (void)_this;
-}
-void Preedit::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {
-}
 void Preedit::SetCachedSize(int size) const {
-  _cached_size_.Set(size);
+  _impl_._cached_size_.Set(size);
 }
 
 void Preedit::Clear() {
 // @@protoc_insertion_point(message_clear_start:khiin.proto.Preedit)
-  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+  uint32_t cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
-  segments_.Clear();
-  ::memset(&caret_, 0, static_cast<size_t>(
-      reinterpret_cast<char*>(&focused_caret_) -
-      reinterpret_cast<char*>(&caret_)) + sizeof(focused_caret_));
+  _impl_.segments_.Clear();
+  ::memset(&_impl_.caret_, 0, static_cast<size_t>(
+      reinterpret_cast<char*>(&_impl_.focused_caret_) -
+      reinterpret_cast<char*>(&_impl_.caret_)) + sizeof(_impl_.focused_caret_));
   _internal_metadata_.Clear<std::string>();
 }
 
-const char* Preedit::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
+const char* Preedit::_InternalParse(const char* ptr, ::_pbi::ParseContext* ctx) {
 #define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
   while (!ctx->Done(&ptr)) {
-    ::PROTOBUF_NAMESPACE_ID::uint32 tag;
-    ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
+    uint32_t tag;
+    ptr = ::_pbi::ReadTag(ptr, &tag);
     switch (tag >> 3) {
       // repeated .khiin.proto.Preedit.Segment segments = 1;
       case 1:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 10)) {
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 10)) {
           ptr -= 1;
           do {
             ptr += 1;
@@ -1529,16 +1563,16 @@ const char* Preedit::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::in
         continue;
       // int32 caret = 2;
       case 2:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 16)) {
-          caret_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 16)) {
+          _impl_.caret_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint32(&ptr);
           CHK_(ptr);
         } else
           goto handle_unusual;
         continue;
       // int32 focused_caret = 3;
       case 3:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 24)) {
-          focused_caret_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 24)) {
+          _impl_.focused_caret_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint32(&ptr);
           CHK_(ptr);
         } else
           goto handle_unusual;
@@ -1566,30 +1600,30 @@ failure:
 #undef CHK_
 }
 
-::PROTOBUF_NAMESPACE_ID::uint8* Preedit::_InternalSerialize(
-    ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const {
+uint8_t* Preedit::_InternalSerialize(
+    uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const {
   // @@protoc_insertion_point(serialize_to_array_start:khiin.proto.Preedit)
-  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+  uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
 
   // repeated .khiin.proto.Preedit.Segment segments = 1;
-  for (unsigned int i = 0,
-      n = static_cast<unsigned int>(this->_internal_segments_size()); i < n; i++) {
-    target = stream->EnsureSpace(target);
+  for (unsigned i = 0,
+      n = static_cast<unsigned>(this->_internal_segments_size()); i < n; i++) {
+    const auto& repfield = this->_internal_segments(i);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
-      InternalWriteMessage(1, this->_internal_segments(i), target, stream);
+        InternalWriteMessage(1, repfield, repfield.GetCachedSize(), target, stream);
   }
 
   // int32 caret = 2;
   if (this->_internal_caret() != 0) {
     target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteInt32ToArray(2, this->_internal_caret(), target);
+    target = ::_pbi::WireFormatLite::WriteInt32ToArray(2, this->_internal_caret(), target);
   }
 
   // int32 focused_caret = 3;
   if (this->_internal_focused_caret() != 0) {
     target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteInt32ToArray(3, this->_internal_focused_caret(), target);
+    target = ::_pbi::WireFormatLite::WriteInt32ToArray(3, this->_internal_focused_caret(), target);
   }
 
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
@@ -1604,55 +1638,56 @@ size_t Preedit::ByteSizeLong() const {
 // @@protoc_insertion_point(message_byte_size_start:khiin.proto.Preedit)
   size_t total_size = 0;
 
-  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+  uint32_t cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
   // repeated .khiin.proto.Preedit.Segment segments = 1;
   total_size += 1UL * this->_internal_segments_size();
-  for (const auto& msg : this->segments_) {
+  for (const auto& msg : this->_impl_.segments_) {
     total_size +=
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(msg);
   }
 
   // int32 caret = 2;
   if (this->_internal_caret() != 0) {
-    total_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32SizePlusOne(this->_internal_caret());
+    total_size += ::_pbi::WireFormatLite::Int32SizePlusOne(this->_internal_caret());
   }
 
   // int32 focused_caret = 3;
   if (this->_internal_focused_caret() != 0) {
-    total_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32SizePlusOne(this->_internal_focused_caret());
+    total_size += ::_pbi::WireFormatLite::Int32SizePlusOne(this->_internal_focused_caret());
   }
 
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
     total_size += _internal_metadata_.unknown_fields<std::string>(::PROTOBUF_NAMESPACE_ID::internal::GetEmptyString).size();
   }
-  int cached_size = ::PROTOBUF_NAMESPACE_ID::internal::ToCachedSize(total_size);
+  int cached_size = ::_pbi::ToCachedSize(total_size);
   SetCachedSize(cached_size);
   return total_size;
 }
 
 void Preedit::CheckTypeAndMergeFrom(
     const ::PROTOBUF_NAMESPACE_ID::MessageLite& from) {
-  MergeFrom(*::PROTOBUF_NAMESPACE_ID::internal::DownCast<const Preedit*>(
+  MergeFrom(*::_pbi::DownCast<const Preedit*>(
       &from));
 }
 
 void Preedit::MergeFrom(const Preedit& from) {
-// @@protoc_insertion_point(class_specific_merge_from_start:khiin.proto.Preedit)
-  GOOGLE_DCHECK_NE(&from, this);
-  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+  Preedit* const _this = this;
+  // @@protoc_insertion_point(class_specific_merge_from_start:khiin.proto.Preedit)
+  GOOGLE_DCHECK_NE(&from, _this);
+  uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
 
-  segments_.MergeFrom(from.segments_);
+  _this->_impl_.segments_.MergeFrom(from._impl_.segments_);
   if (from._internal_caret() != 0) {
-    _internal_set_caret(from._internal_caret());
+    _this->_internal_set_caret(from._internal_caret());
   }
   if (from._internal_focused_caret() != 0) {
-    _internal_set_focused_caret(from._internal_focused_caret());
+    _this->_internal_set_focused_caret(from._internal_focused_caret());
   }
-  _internal_metadata_.MergeFrom<std::string>(from._internal_metadata_);
+  _this->_internal_metadata_.MergeFrom<std::string>(from._internal_metadata_);
 }
 
 void Preedit::CopyFrom(const Preedit& from) {
@@ -1669,13 +1704,13 @@ bool Preedit::IsInitialized() const {
 void Preedit::InternalSwap(Preedit* other) {
   using std::swap;
   _internal_metadata_.InternalSwap(&other->_internal_metadata_);
-  segments_.InternalSwap(&other->segments_);
+  _impl_.segments_.InternalSwap(&other->_impl_.segments_);
   ::PROTOBUF_NAMESPACE_ID::internal::memswap<
-      PROTOBUF_FIELD_OFFSET(Preedit, focused_caret_)
-      + sizeof(Preedit::focused_caret_)
-      - PROTOBUF_FIELD_OFFSET(Preedit, caret_)>(
-          reinterpret_cast<char*>(&caret_),
-          reinterpret_cast<char*>(&other->caret_));
+      PROTOBUF_FIELD_OFFSET(Preedit, _impl_.focused_caret_)
+      + sizeof(Preedit::_impl_.focused_caret_)
+      - PROTOBUF_FIELD_OFFSET(Preedit, _impl_.caret_)>(
+          reinterpret_cast<char*>(&_impl_.caret_),
+          reinterpret_cast<char*>(&other->_impl_.caret_));
 }
 
 std::string Preedit::GetTypeName() const {
@@ -1692,133 +1727,160 @@ class Candidate::_Internal {
 Candidate::Candidate(::PROTOBUF_NAMESPACE_ID::Arena* arena,
                          bool is_message_owned)
   : ::PROTOBUF_NAMESPACE_ID::MessageLite(arena, is_message_owned) {
-  SharedCtor();
-  if (!is_message_owned) {
-    RegisterArenaDtor(arena);
-  }
+  SharedCtor(arena, is_message_owned);
   // @@protoc_insertion_point(arena_constructor:khiin.proto.Candidate)
 }
 Candidate::Candidate(const Candidate& from)
   : ::PROTOBUF_NAMESPACE_ID::MessageLite() {
+  Candidate* const _this = this; (void)_this;
+  new (&_impl_) Impl_{
+      decltype(_impl_.value_){}
+    , decltype(_impl_.key_){}
+    , decltype(_impl_.annotation_){}
+    , decltype(_impl_.id_){}
+    , decltype(_impl_.category_){}
+    , /*decltype(_impl_._cached_size_)*/{}};
+
   _internal_metadata_.MergeFrom<std::string>(from._internal_metadata_);
-  value_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  _impl_.value_.InitDefault();
+  #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
+    _impl_.value_.Set("", GetArenaForAllocation());
+  #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
   if (!from._internal_value().empty()) {
-    value_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, from._internal_value(), 
-      GetArenaForAllocation());
+    _this->_impl_.value_.Set(from._internal_value(), 
+      _this->GetArenaForAllocation());
   }
-  key_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  _impl_.key_.InitDefault();
+  #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
+    _impl_.key_.Set("", GetArenaForAllocation());
+  #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
   if (!from._internal_key().empty()) {
-    key_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, from._internal_key(), 
-      GetArenaForAllocation());
+    _this->_impl_.key_.Set(from._internal_key(), 
+      _this->GetArenaForAllocation());
   }
-  annotation_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  _impl_.annotation_.InitDefault();
+  #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
+    _impl_.annotation_.Set("", GetArenaForAllocation());
+  #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
   if (!from._internal_annotation().empty()) {
-    annotation_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, from._internal_annotation(), 
-      GetArenaForAllocation());
+    _this->_impl_.annotation_.Set(from._internal_annotation(), 
+      _this->GetArenaForAllocation());
   }
-  ::memcpy(&id_, &from.id_,
-    static_cast<size_t>(reinterpret_cast<char*>(&category_) -
-    reinterpret_cast<char*>(&id_)) + sizeof(category_));
+  ::memcpy(&_impl_.id_, &from._impl_.id_,
+    static_cast<size_t>(reinterpret_cast<char*>(&_impl_.category_) -
+    reinterpret_cast<char*>(&_impl_.id_)) + sizeof(_impl_.category_));
   // @@protoc_insertion_point(copy_constructor:khiin.proto.Candidate)
 }
 
-void Candidate::SharedCtor() {
-value_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
-key_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
-annotation_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
-::memset(reinterpret_cast<char*>(this) + static_cast<size_t>(
-    reinterpret_cast<char*>(&id_) - reinterpret_cast<char*>(this)),
-    0, static_cast<size_t>(reinterpret_cast<char*>(&category_) -
-    reinterpret_cast<char*>(&id_)) + sizeof(category_));
+inline void Candidate::SharedCtor(
+    ::_pb::Arena* arena, bool is_message_owned) {
+  (void)arena;
+  (void)is_message_owned;
+  new (&_impl_) Impl_{
+      decltype(_impl_.value_){}
+    , decltype(_impl_.key_){}
+    , decltype(_impl_.annotation_){}
+    , decltype(_impl_.id_){0}
+    , decltype(_impl_.category_){0}
+    , /*decltype(_impl_._cached_size_)*/{}
+  };
+  _impl_.value_.InitDefault();
+  #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
+    _impl_.value_.Set("", GetArenaForAllocation());
+  #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
+  _impl_.key_.InitDefault();
+  #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
+    _impl_.key_.Set("", GetArenaForAllocation());
+  #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
+  _impl_.annotation_.InitDefault();
+  #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
+    _impl_.annotation_.Set("", GetArenaForAllocation());
+  #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
 }
 
 Candidate::~Candidate() {
   // @@protoc_insertion_point(destructor:khiin.proto.Candidate)
-  if (GetArenaForAllocation() != nullptr) return;
+  if (auto *arena = _internal_metadata_.DeleteReturnArena<std::string>()) {
+  (void)arena;
+    return;
+  }
   SharedDtor();
-  _internal_metadata_.Delete<std::string>();
 }
 
 inline void Candidate::SharedDtor() {
   GOOGLE_DCHECK(GetArenaForAllocation() == nullptr);
-  value_.DestroyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
-  key_.DestroyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
-  annotation_.DestroyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  _impl_.value_.Destroy();
+  _impl_.key_.Destroy();
+  _impl_.annotation_.Destroy();
 }
 
-void Candidate::ArenaDtor(void* object) {
-  Candidate* _this = reinterpret_cast< Candidate* >(object);
-  (void)_this;
-}
-void Candidate::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {
-}
 void Candidate::SetCachedSize(int size) const {
-  _cached_size_.Set(size);
+  _impl_._cached_size_.Set(size);
 }
 
 void Candidate::Clear() {
 // @@protoc_insertion_point(message_clear_start:khiin.proto.Candidate)
-  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+  uint32_t cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
-  value_.ClearToEmpty();
-  key_.ClearToEmpty();
-  annotation_.ClearToEmpty();
-  ::memset(&id_, 0, static_cast<size_t>(
-      reinterpret_cast<char*>(&category_) -
-      reinterpret_cast<char*>(&id_)) + sizeof(category_));
+  _impl_.value_.ClearToEmpty();
+  _impl_.key_.ClearToEmpty();
+  _impl_.annotation_.ClearToEmpty();
+  ::memset(&_impl_.id_, 0, static_cast<size_t>(
+      reinterpret_cast<char*>(&_impl_.category_) -
+      reinterpret_cast<char*>(&_impl_.id_)) + sizeof(_impl_.category_));
   _internal_metadata_.Clear<std::string>();
 }
 
-const char* Candidate::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
+const char* Candidate::_InternalParse(const char* ptr, ::_pbi::ParseContext* ctx) {
 #define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
   while (!ctx->Done(&ptr)) {
-    ::PROTOBUF_NAMESPACE_ID::uint32 tag;
-    ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
+    uint32_t tag;
+    ptr = ::_pbi::ReadTag(ptr, &tag);
     switch (tag >> 3) {
       // int32 id = 1;
       case 1:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 8)) {
-          id_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 8)) {
+          _impl_.id_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint32(&ptr);
           CHK_(ptr);
         } else
           goto handle_unusual;
         continue;
       // string value = 2;
       case 2:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 18)) {
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 18)) {
           auto str = _internal_mutable_value();
-          ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParser(str, ptr, ctx);
-          CHK_(::PROTOBUF_NAMESPACE_ID::internal::VerifyUTF8(str, nullptr));
+          ptr = ::_pbi::InlineGreedyStringParser(str, ptr, ctx);
           CHK_(ptr);
+          CHK_(::_pbi::VerifyUTF8(str, nullptr));
         } else
           goto handle_unusual;
         continue;
       // string key = 3;
       case 3:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 26)) {
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 26)) {
           auto str = _internal_mutable_key();
-          ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParser(str, ptr, ctx);
-          CHK_(::PROTOBUF_NAMESPACE_ID::internal::VerifyUTF8(str, nullptr));
+          ptr = ::_pbi::InlineGreedyStringParser(str, ptr, ctx);
           CHK_(ptr);
+          CHK_(::_pbi::VerifyUTF8(str, nullptr));
         } else
           goto handle_unusual;
         continue;
       // string annotation = 4;
       case 4:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 34)) {
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 34)) {
           auto str = _internal_mutable_annotation();
-          ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParser(str, ptr, ctx);
-          CHK_(::PROTOBUF_NAMESPACE_ID::internal::VerifyUTF8(str, nullptr));
+          ptr = ::_pbi::InlineGreedyStringParser(str, ptr, ctx);
           CHK_(ptr);
+          CHK_(::_pbi::VerifyUTF8(str, nullptr));
         } else
           goto handle_unusual;
         continue;
       // .khiin.proto.Candidate.Category category = 5;
       case 5:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 40)) {
-          ::PROTOBUF_NAMESPACE_ID::uint64 val = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 40)) {
+          uint64_t val = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
           CHK_(ptr);
           _internal_set_category(static_cast<::khiin::proto::Candidate_Category>(val));
         } else
@@ -1847,16 +1909,16 @@ failure:
 #undef CHK_
 }
 
-::PROTOBUF_NAMESPACE_ID::uint8* Candidate::_InternalSerialize(
-    ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const {
+uint8_t* Candidate::_InternalSerialize(
+    uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const {
   // @@protoc_insertion_point(serialize_to_array_start:khiin.proto.Candidate)
-  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+  uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
 
   // int32 id = 1;
   if (this->_internal_id() != 0) {
     target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteInt32ToArray(1, this->_internal_id(), target);
+    target = ::_pbi::WireFormatLite::WriteInt32ToArray(1, this->_internal_id(), target);
   }
 
   // string value = 2;
@@ -1892,7 +1954,7 @@ failure:
   // .khiin.proto.Candidate.Category category = 5;
   if (this->_internal_category() != 0) {
     target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteEnumToArray(
+    target = ::_pbi::WireFormatLite::WriteEnumToArray(
       5, this->_internal_category(), target);
   }
 
@@ -1908,7 +1970,7 @@ size_t Candidate::ByteSizeLong() const {
 // @@protoc_insertion_point(message_byte_size_start:khiin.proto.Candidate)
   size_t total_size = 0;
 
-  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+  uint32_t cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
@@ -1935,51 +1997,52 @@ size_t Candidate::ByteSizeLong() const {
 
   // int32 id = 1;
   if (this->_internal_id() != 0) {
-    total_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32SizePlusOne(this->_internal_id());
+    total_size += ::_pbi::WireFormatLite::Int32SizePlusOne(this->_internal_id());
   }
 
   // .khiin.proto.Candidate.Category category = 5;
   if (this->_internal_category() != 0) {
     total_size += 1 +
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::EnumSize(this->_internal_category());
+      ::_pbi::WireFormatLite::EnumSize(this->_internal_category());
   }
 
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
     total_size += _internal_metadata_.unknown_fields<std::string>(::PROTOBUF_NAMESPACE_ID::internal::GetEmptyString).size();
   }
-  int cached_size = ::PROTOBUF_NAMESPACE_ID::internal::ToCachedSize(total_size);
+  int cached_size = ::_pbi::ToCachedSize(total_size);
   SetCachedSize(cached_size);
   return total_size;
 }
 
 void Candidate::CheckTypeAndMergeFrom(
     const ::PROTOBUF_NAMESPACE_ID::MessageLite& from) {
-  MergeFrom(*::PROTOBUF_NAMESPACE_ID::internal::DownCast<const Candidate*>(
+  MergeFrom(*::_pbi::DownCast<const Candidate*>(
       &from));
 }
 
 void Candidate::MergeFrom(const Candidate& from) {
-// @@protoc_insertion_point(class_specific_merge_from_start:khiin.proto.Candidate)
-  GOOGLE_DCHECK_NE(&from, this);
-  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+  Candidate* const _this = this;
+  // @@protoc_insertion_point(class_specific_merge_from_start:khiin.proto.Candidate)
+  GOOGLE_DCHECK_NE(&from, _this);
+  uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
 
   if (!from._internal_value().empty()) {
-    _internal_set_value(from._internal_value());
+    _this->_internal_set_value(from._internal_value());
   }
   if (!from._internal_key().empty()) {
-    _internal_set_key(from._internal_key());
+    _this->_internal_set_key(from._internal_key());
   }
   if (!from._internal_annotation().empty()) {
-    _internal_set_annotation(from._internal_annotation());
+    _this->_internal_set_annotation(from._internal_annotation());
   }
   if (from._internal_id() != 0) {
-    _internal_set_id(from._internal_id());
+    _this->_internal_set_id(from._internal_id());
   }
   if (from._internal_category() != 0) {
-    _internal_set_category(from._internal_category());
+    _this->_internal_set_category(from._internal_category());
   }
-  _internal_metadata_.MergeFrom<std::string>(from._internal_metadata_);
+  _this->_internal_metadata_.MergeFrom<std::string>(from._internal_metadata_);
 }
 
 void Candidate::CopyFrom(const Candidate& from) {
@@ -1999,26 +2062,23 @@ void Candidate::InternalSwap(Candidate* other) {
   auto* rhs_arena = other->GetArenaForAllocation();
   _internal_metadata_.InternalSwap(&other->_internal_metadata_);
   ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(
-      &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
-      &value_, lhs_arena,
-      &other->value_, rhs_arena
+      &_impl_.value_, lhs_arena,
+      &other->_impl_.value_, rhs_arena
   );
   ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(
-      &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
-      &key_, lhs_arena,
-      &other->key_, rhs_arena
+      &_impl_.key_, lhs_arena,
+      &other->_impl_.key_, rhs_arena
   );
   ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(
-      &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
-      &annotation_, lhs_arena,
-      &other->annotation_, rhs_arena
+      &_impl_.annotation_, lhs_arena,
+      &other->_impl_.annotation_, rhs_arena
   );
   ::PROTOBUF_NAMESPACE_ID::internal::memswap<
-      PROTOBUF_FIELD_OFFSET(Candidate, category_)
-      + sizeof(Candidate::category_)
-      - PROTOBUF_FIELD_OFFSET(Candidate, id_)>(
-          reinterpret_cast<char*>(&id_),
-          reinterpret_cast<char*>(&other->id_));
+      PROTOBUF_FIELD_OFFSET(Candidate, _impl_.category_)
+      + sizeof(Candidate::_impl_.category_)
+      - PROTOBUF_FIELD_OFFSET(Candidate, _impl_.id_)>(
+          reinterpret_cast<char*>(&_impl_.id_),
+          reinterpret_cast<char*>(&other->_impl_.id_));
 }
 
 std::string Candidate::GetTypeName() const {
@@ -2034,67 +2094,72 @@ class CandidateList::_Internal {
 
 CandidateList::CandidateList(::PROTOBUF_NAMESPACE_ID::Arena* arena,
                          bool is_message_owned)
-  : ::PROTOBUF_NAMESPACE_ID::MessageLite(arena, is_message_owned),
-  candidates_(arena) {
-  SharedCtor();
-  if (!is_message_owned) {
-    RegisterArenaDtor(arena);
-  }
+  : ::PROTOBUF_NAMESPACE_ID::MessageLite(arena, is_message_owned) {
+  SharedCtor(arena, is_message_owned);
   // @@protoc_insertion_point(arena_constructor:khiin.proto.CandidateList)
 }
 CandidateList::CandidateList(const CandidateList& from)
-  : ::PROTOBUF_NAMESPACE_ID::MessageLite(),
-      candidates_(from.candidates_) {
+  : ::PROTOBUF_NAMESPACE_ID::MessageLite() {
+  CandidateList* const _this = this; (void)_this;
+  new (&_impl_) Impl_{
+      decltype(_impl_.candidates_){from._impl_.candidates_}
+    , decltype(_impl_.focused_){}
+    , /*decltype(_impl_._cached_size_)*/{}};
+
   _internal_metadata_.MergeFrom<std::string>(from._internal_metadata_);
-  focused_ = from.focused_;
+  _this->_impl_.focused_ = from._impl_.focused_;
   // @@protoc_insertion_point(copy_constructor:khiin.proto.CandidateList)
 }
 
-void CandidateList::SharedCtor() {
-focused_ = 0;
+inline void CandidateList::SharedCtor(
+    ::_pb::Arena* arena, bool is_message_owned) {
+  (void)arena;
+  (void)is_message_owned;
+  new (&_impl_) Impl_{
+      decltype(_impl_.candidates_){arena}
+    , decltype(_impl_.focused_){0}
+    , /*decltype(_impl_._cached_size_)*/{}
+  };
 }
 
 CandidateList::~CandidateList() {
   // @@protoc_insertion_point(destructor:khiin.proto.CandidateList)
-  if (GetArenaForAllocation() != nullptr) return;
+  if (auto *arena = _internal_metadata_.DeleteReturnArena<std::string>()) {
+  (void)arena;
+    return;
+  }
   SharedDtor();
-  _internal_metadata_.Delete<std::string>();
 }
 
 inline void CandidateList::SharedDtor() {
   GOOGLE_DCHECK(GetArenaForAllocation() == nullptr);
+  _impl_.candidates_.~RepeatedPtrField();
 }
 
-void CandidateList::ArenaDtor(void* object) {
-  CandidateList* _this = reinterpret_cast< CandidateList* >(object);
-  (void)_this;
-}
-void CandidateList::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {
-}
 void CandidateList::SetCachedSize(int size) const {
-  _cached_size_.Set(size);
+  _impl_._cached_size_.Set(size);
 }
 
 void CandidateList::Clear() {
 // @@protoc_insertion_point(message_clear_start:khiin.proto.CandidateList)
-  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+  uint32_t cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
-  candidates_.Clear();
-  focused_ = 0;
+  _impl_.candidates_.Clear();
+  _impl_.focused_ = 0;
   _internal_metadata_.Clear<std::string>();
 }
 
-const char* CandidateList::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
+const char* CandidateList::_InternalParse(const char* ptr, ::_pbi::ParseContext* ctx) {
 #define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
   while (!ctx->Done(&ptr)) {
-    ::PROTOBUF_NAMESPACE_ID::uint32 tag;
-    ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
+    uint32_t tag;
+    ptr = ::_pbi::ReadTag(ptr, &tag);
     switch (tag >> 3) {
       // repeated .khiin.proto.Candidate candidates = 1;
       case 1:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 10)) {
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 10)) {
           ptr -= 1;
           do {
             ptr += 1;
@@ -2107,8 +2172,8 @@ const char* CandidateList::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_
         continue;
       // int32 focused = 2;
       case 2:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 16)) {
-          focused_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 16)) {
+          _impl_.focused_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint32(&ptr);
           CHK_(ptr);
         } else
           goto handle_unusual;
@@ -2136,24 +2201,24 @@ failure:
 #undef CHK_
 }
 
-::PROTOBUF_NAMESPACE_ID::uint8* CandidateList::_InternalSerialize(
-    ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const {
+uint8_t* CandidateList::_InternalSerialize(
+    uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const {
   // @@protoc_insertion_point(serialize_to_array_start:khiin.proto.CandidateList)
-  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+  uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
 
   // repeated .khiin.proto.Candidate candidates = 1;
-  for (unsigned int i = 0,
-      n = static_cast<unsigned int>(this->_internal_candidates_size()); i < n; i++) {
-    target = stream->EnsureSpace(target);
+  for (unsigned i = 0,
+      n = static_cast<unsigned>(this->_internal_candidates_size()); i < n; i++) {
+    const auto& repfield = this->_internal_candidates(i);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
-      InternalWriteMessage(1, this->_internal_candidates(i), target, stream);
+        InternalWriteMessage(1, repfield, repfield.GetCachedSize(), target, stream);
   }
 
   // int32 focused = 2;
   if (this->_internal_focused() != 0) {
     target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteInt32ToArray(2, this->_internal_focused(), target);
+    target = ::_pbi::WireFormatLite::WriteInt32ToArray(2, this->_internal_focused(), target);
   }
 
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
@@ -2168,47 +2233,48 @@ size_t CandidateList::ByteSizeLong() const {
 // @@protoc_insertion_point(message_byte_size_start:khiin.proto.CandidateList)
   size_t total_size = 0;
 
-  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+  uint32_t cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
   // repeated .khiin.proto.Candidate candidates = 1;
   total_size += 1UL * this->_internal_candidates_size();
-  for (const auto& msg : this->candidates_) {
+  for (const auto& msg : this->_impl_.candidates_) {
     total_size +=
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(msg);
   }
 
   // int32 focused = 2;
   if (this->_internal_focused() != 0) {
-    total_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32SizePlusOne(this->_internal_focused());
+    total_size += ::_pbi::WireFormatLite::Int32SizePlusOne(this->_internal_focused());
   }
 
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
     total_size += _internal_metadata_.unknown_fields<std::string>(::PROTOBUF_NAMESPACE_ID::internal::GetEmptyString).size();
   }
-  int cached_size = ::PROTOBUF_NAMESPACE_ID::internal::ToCachedSize(total_size);
+  int cached_size = ::_pbi::ToCachedSize(total_size);
   SetCachedSize(cached_size);
   return total_size;
 }
 
 void CandidateList::CheckTypeAndMergeFrom(
     const ::PROTOBUF_NAMESPACE_ID::MessageLite& from) {
-  MergeFrom(*::PROTOBUF_NAMESPACE_ID::internal::DownCast<const CandidateList*>(
+  MergeFrom(*::_pbi::DownCast<const CandidateList*>(
       &from));
 }
 
 void CandidateList::MergeFrom(const CandidateList& from) {
-// @@protoc_insertion_point(class_specific_merge_from_start:khiin.proto.CandidateList)
-  GOOGLE_DCHECK_NE(&from, this);
-  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+  CandidateList* const _this = this;
+  // @@protoc_insertion_point(class_specific_merge_from_start:khiin.proto.CandidateList)
+  GOOGLE_DCHECK_NE(&from, _this);
+  uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
 
-  candidates_.MergeFrom(from.candidates_);
+  _this->_impl_.candidates_.MergeFrom(from._impl_.candidates_);
   if (from._internal_focused() != 0) {
-    _internal_set_focused(from._internal_focused());
+    _this->_internal_set_focused(from._internal_focused());
   }
-  _internal_metadata_.MergeFrom<std::string>(from._internal_metadata_);
+  _this->_internal_metadata_.MergeFrom<std::string>(from._internal_metadata_);
 }
 
 void CandidateList::CopyFrom(const CandidateList& from) {
@@ -2225,8 +2291,8 @@ bool CandidateList::IsInitialized() const {
 void CandidateList::InternalSwap(CandidateList* other) {
   using std::swap;
   _internal_metadata_.InternalSwap(&other->_internal_metadata_);
-  candidates_.InternalSwap(&other->candidates_);
-  swap(focused_, other->focused_);
+  _impl_.candidates_.InternalSwap(&other->_impl_.candidates_);
+  swap(_impl_.focused_, other->_impl_.focused_);
 }
 
 std::string CandidateList::GetTypeName() const {
@@ -2244,100 +2310,107 @@ class Response::_Internal {
 
 const ::khiin::proto::Preedit&
 Response::_Internal::preedit(const Response* msg) {
-  return *msg->preedit_;
+  return *msg->_impl_.preedit_;
 }
 const ::khiin::proto::CandidateList&
 Response::_Internal::candidate_list(const Response* msg) {
-  return *msg->candidate_list_;
+  return *msg->_impl_.candidate_list_;
 }
 Response::Response(::PROTOBUF_NAMESPACE_ID::Arena* arena,
                          bool is_message_owned)
   : ::PROTOBUF_NAMESPACE_ID::MessageLite(arena, is_message_owned) {
-  SharedCtor();
-  if (!is_message_owned) {
-    RegisterArenaDtor(arena);
-  }
+  SharedCtor(arena, is_message_owned);
   // @@protoc_insertion_point(arena_constructor:khiin.proto.Response)
 }
 Response::Response(const Response& from)
   : ::PROTOBUF_NAMESPACE_ID::MessageLite() {
+  Response* const _this = this; (void)_this;
+  new (&_impl_) Impl_{
+      decltype(_impl_.preedit_){nullptr}
+    , decltype(_impl_.candidate_list_){nullptr}
+    , decltype(_impl_.error_){}
+    , decltype(_impl_.edit_state_){}
+    , decltype(_impl_.committed_){}
+    , decltype(_impl_.consumable_){}
+    , /*decltype(_impl_._cached_size_)*/{}};
+
   _internal_metadata_.MergeFrom<std::string>(from._internal_metadata_);
   if (from._internal_has_preedit()) {
-    preedit_ = new ::khiin::proto::Preedit(*from.preedit_);
-  } else {
-    preedit_ = nullptr;
+    _this->_impl_.preedit_ = new ::khiin::proto::Preedit(*from._impl_.preedit_);
   }
   if (from._internal_has_candidate_list()) {
-    candidate_list_ = new ::khiin::proto::CandidateList(*from.candidate_list_);
-  } else {
-    candidate_list_ = nullptr;
+    _this->_impl_.candidate_list_ = new ::khiin::proto::CandidateList(*from._impl_.candidate_list_);
   }
-  ::memcpy(&error_, &from.error_,
-    static_cast<size_t>(reinterpret_cast<char*>(&consumable_) -
-    reinterpret_cast<char*>(&error_)) + sizeof(consumable_));
+  ::memcpy(&_impl_.error_, &from._impl_.error_,
+    static_cast<size_t>(reinterpret_cast<char*>(&_impl_.consumable_) -
+    reinterpret_cast<char*>(&_impl_.error_)) + sizeof(_impl_.consumable_));
   // @@protoc_insertion_point(copy_constructor:khiin.proto.Response)
 }
 
-void Response::SharedCtor() {
-::memset(reinterpret_cast<char*>(this) + static_cast<size_t>(
-    reinterpret_cast<char*>(&preedit_) - reinterpret_cast<char*>(this)),
-    0, static_cast<size_t>(reinterpret_cast<char*>(&consumable_) -
-    reinterpret_cast<char*>(&preedit_)) + sizeof(consumable_));
+inline void Response::SharedCtor(
+    ::_pb::Arena* arena, bool is_message_owned) {
+  (void)arena;
+  (void)is_message_owned;
+  new (&_impl_) Impl_{
+      decltype(_impl_.preedit_){nullptr}
+    , decltype(_impl_.candidate_list_){nullptr}
+    , decltype(_impl_.error_){0}
+    , decltype(_impl_.edit_state_){0}
+    , decltype(_impl_.committed_){false}
+    , decltype(_impl_.consumable_){false}
+    , /*decltype(_impl_._cached_size_)*/{}
+  };
 }
 
 Response::~Response() {
   // @@protoc_insertion_point(destructor:khiin.proto.Response)
-  if (GetArenaForAllocation() != nullptr) return;
+  if (auto *arena = _internal_metadata_.DeleteReturnArena<std::string>()) {
+  (void)arena;
+    return;
+  }
   SharedDtor();
-  _internal_metadata_.Delete<std::string>();
 }
 
 inline void Response::SharedDtor() {
   GOOGLE_DCHECK(GetArenaForAllocation() == nullptr);
-  if (this != internal_default_instance()) delete preedit_;
-  if (this != internal_default_instance()) delete candidate_list_;
+  if (this != internal_default_instance()) delete _impl_.preedit_;
+  if (this != internal_default_instance()) delete _impl_.candidate_list_;
 }
 
-void Response::ArenaDtor(void* object) {
-  Response* _this = reinterpret_cast< Response* >(object);
-  (void)_this;
-}
-void Response::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {
-}
 void Response::SetCachedSize(int size) const {
-  _cached_size_.Set(size);
+  _impl_._cached_size_.Set(size);
 }
 
 void Response::Clear() {
 // @@protoc_insertion_point(message_clear_start:khiin.proto.Response)
-  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+  uint32_t cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
-  if (GetArenaForAllocation() == nullptr && preedit_ != nullptr) {
-    delete preedit_;
+  if (GetArenaForAllocation() == nullptr && _impl_.preedit_ != nullptr) {
+    delete _impl_.preedit_;
   }
-  preedit_ = nullptr;
-  if (GetArenaForAllocation() == nullptr && candidate_list_ != nullptr) {
-    delete candidate_list_;
+  _impl_.preedit_ = nullptr;
+  if (GetArenaForAllocation() == nullptr && _impl_.candidate_list_ != nullptr) {
+    delete _impl_.candidate_list_;
   }
-  candidate_list_ = nullptr;
-  ::memset(&error_, 0, static_cast<size_t>(
-      reinterpret_cast<char*>(&consumable_) -
-      reinterpret_cast<char*>(&error_)) + sizeof(consumable_));
+  _impl_.candidate_list_ = nullptr;
+  ::memset(&_impl_.error_, 0, static_cast<size_t>(
+      reinterpret_cast<char*>(&_impl_.consumable_) -
+      reinterpret_cast<char*>(&_impl_.error_)) + sizeof(_impl_.consumable_));
   _internal_metadata_.Clear<std::string>();
 }
 
-const char* Response::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
+const char* Response::_InternalParse(const char* ptr, ::_pbi::ParseContext* ctx) {
 #define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
   while (!ctx->Done(&ptr)) {
-    ::PROTOBUF_NAMESPACE_ID::uint32 tag;
-    ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
+    uint32_t tag;
+    ptr = ::_pbi::ReadTag(ptr, &tag);
     switch (tag >> 3) {
       // .khiin.proto.ErrorCode error = 1;
       case 1:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 8)) {
-          ::PROTOBUF_NAMESPACE_ID::uint64 val = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 8)) {
+          uint64_t val = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
           CHK_(ptr);
           _internal_set_error(static_cast<::khiin::proto::ErrorCode>(val));
         } else
@@ -2345,7 +2418,7 @@ const char* Response::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::i
         continue;
       // .khiin.proto.Preedit preedit = 2;
       case 2:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 18)) {
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 18)) {
           ptr = ctx->ParseMessage(_internal_mutable_preedit(), ptr);
           CHK_(ptr);
         } else
@@ -2353,7 +2426,7 @@ const char* Response::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::i
         continue;
       // .khiin.proto.CandidateList candidate_list = 3;
       case 3:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 26)) {
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 26)) {
           ptr = ctx->ParseMessage(_internal_mutable_candidate_list(), ptr);
           CHK_(ptr);
         } else
@@ -2361,8 +2434,8 @@ const char* Response::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::i
         continue;
       // .khiin.proto.EditState edit_state = 4;
       case 4:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 32)) {
-          ::PROTOBUF_NAMESPACE_ID::uint64 val = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 32)) {
+          uint64_t val = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
           CHK_(ptr);
           _internal_set_edit_state(static_cast<::khiin::proto::EditState>(val));
         } else
@@ -2370,16 +2443,16 @@ const char* Response::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::i
         continue;
       // bool committed = 5;
       case 5:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 40)) {
-          committed_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 40)) {
+          _impl_.committed_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
           CHK_(ptr);
         } else
           goto handle_unusual;
         continue;
       // bool consumable = 6;
       case 6:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 48)) {
-          consumable_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 48)) {
+          _impl_.consumable_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
           CHK_(ptr);
         } else
           goto handle_unusual;
@@ -2407,52 +2480,50 @@ failure:
 #undef CHK_
 }
 
-::PROTOBUF_NAMESPACE_ID::uint8* Response::_InternalSerialize(
-    ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const {
+uint8_t* Response::_InternalSerialize(
+    uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const {
   // @@protoc_insertion_point(serialize_to_array_start:khiin.proto.Response)
-  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+  uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
 
   // .khiin.proto.ErrorCode error = 1;
   if (this->_internal_error() != 0) {
     target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteEnumToArray(
+    target = ::_pbi::WireFormatLite::WriteEnumToArray(
       1, this->_internal_error(), target);
   }
 
   // .khiin.proto.Preedit preedit = 2;
   if (this->_internal_has_preedit()) {
-    target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
-      InternalWriteMessage(
-        2, _Internal::preedit(this), target, stream);
+      InternalWriteMessage(2, _Internal::preedit(this),
+        _Internal::preedit(this).GetCachedSize(), target, stream);
   }
 
   // .khiin.proto.CandidateList candidate_list = 3;
   if (this->_internal_has_candidate_list()) {
-    target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
-      InternalWriteMessage(
-        3, _Internal::candidate_list(this), target, stream);
+      InternalWriteMessage(3, _Internal::candidate_list(this),
+        _Internal::candidate_list(this).GetCachedSize(), target, stream);
   }
 
   // .khiin.proto.EditState edit_state = 4;
   if (this->_internal_edit_state() != 0) {
     target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteEnumToArray(
+    target = ::_pbi::WireFormatLite::WriteEnumToArray(
       4, this->_internal_edit_state(), target);
   }
 
   // bool committed = 5;
   if (this->_internal_committed() != 0) {
     target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteBoolToArray(5, this->_internal_committed(), target);
+    target = ::_pbi::WireFormatLite::WriteBoolToArray(5, this->_internal_committed(), target);
   }
 
   // bool consumable = 6;
   if (this->_internal_consumable() != 0) {
     target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteBoolToArray(6, this->_internal_consumable(), target);
+    target = ::_pbi::WireFormatLite::WriteBoolToArray(6, this->_internal_consumable(), target);
   }
 
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
@@ -2467,7 +2538,7 @@ size_t Response::ByteSizeLong() const {
 // @@protoc_insertion_point(message_byte_size_start:khiin.proto.Response)
   size_t total_size = 0;
 
-  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+  uint32_t cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
@@ -2475,26 +2546,26 @@ size_t Response::ByteSizeLong() const {
   if (this->_internal_has_preedit()) {
     total_size += 1 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
-        *preedit_);
+        *_impl_.preedit_);
   }
 
   // .khiin.proto.CandidateList candidate_list = 3;
   if (this->_internal_has_candidate_list()) {
     total_size += 1 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
-        *candidate_list_);
+        *_impl_.candidate_list_);
   }
 
   // .khiin.proto.ErrorCode error = 1;
   if (this->_internal_error() != 0) {
     total_size += 1 +
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::EnumSize(this->_internal_error());
+      ::_pbi::WireFormatLite::EnumSize(this->_internal_error());
   }
 
   // .khiin.proto.EditState edit_state = 4;
   if (this->_internal_edit_state() != 0) {
     total_size += 1 +
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::EnumSize(this->_internal_edit_state());
+      ::_pbi::WireFormatLite::EnumSize(this->_internal_edit_state());
   }
 
   // bool committed = 5;
@@ -2510,42 +2581,45 @@ size_t Response::ByteSizeLong() const {
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
     total_size += _internal_metadata_.unknown_fields<std::string>(::PROTOBUF_NAMESPACE_ID::internal::GetEmptyString).size();
   }
-  int cached_size = ::PROTOBUF_NAMESPACE_ID::internal::ToCachedSize(total_size);
+  int cached_size = ::_pbi::ToCachedSize(total_size);
   SetCachedSize(cached_size);
   return total_size;
 }
 
 void Response::CheckTypeAndMergeFrom(
     const ::PROTOBUF_NAMESPACE_ID::MessageLite& from) {
-  MergeFrom(*::PROTOBUF_NAMESPACE_ID::internal::DownCast<const Response*>(
+  MergeFrom(*::_pbi::DownCast<const Response*>(
       &from));
 }
 
 void Response::MergeFrom(const Response& from) {
-// @@protoc_insertion_point(class_specific_merge_from_start:khiin.proto.Response)
-  GOOGLE_DCHECK_NE(&from, this);
-  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+  Response* const _this = this;
+  // @@protoc_insertion_point(class_specific_merge_from_start:khiin.proto.Response)
+  GOOGLE_DCHECK_NE(&from, _this);
+  uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
 
   if (from._internal_has_preedit()) {
-    _internal_mutable_preedit()->::khiin::proto::Preedit::MergeFrom(from._internal_preedit());
+    _this->_internal_mutable_preedit()->::khiin::proto::Preedit::MergeFrom(
+        from._internal_preedit());
   }
   if (from._internal_has_candidate_list()) {
-    _internal_mutable_candidate_list()->::khiin::proto::CandidateList::MergeFrom(from._internal_candidate_list());
+    _this->_internal_mutable_candidate_list()->::khiin::proto::CandidateList::MergeFrom(
+        from._internal_candidate_list());
   }
   if (from._internal_error() != 0) {
-    _internal_set_error(from._internal_error());
+    _this->_internal_set_error(from._internal_error());
   }
   if (from._internal_edit_state() != 0) {
-    _internal_set_edit_state(from._internal_edit_state());
+    _this->_internal_set_edit_state(from._internal_edit_state());
   }
   if (from._internal_committed() != 0) {
-    _internal_set_committed(from._internal_committed());
+    _this->_internal_set_committed(from._internal_committed());
   }
   if (from._internal_consumable() != 0) {
-    _internal_set_consumable(from._internal_consumable());
+    _this->_internal_set_consumable(from._internal_consumable());
   }
-  _internal_metadata_.MergeFrom<std::string>(from._internal_metadata_);
+  _this->_internal_metadata_.MergeFrom<std::string>(from._internal_metadata_);
 }
 
 void Response::CopyFrom(const Response& from) {
@@ -2563,11 +2637,11 @@ void Response::InternalSwap(Response* other) {
   using std::swap;
   _internal_metadata_.InternalSwap(&other->_internal_metadata_);
   ::PROTOBUF_NAMESPACE_ID::internal::memswap<
-      PROTOBUF_FIELD_OFFSET(Response, consumable_)
-      + sizeof(Response::consumable_)
-      - PROTOBUF_FIELD_OFFSET(Response, preedit_)>(
-          reinterpret_cast<char*>(&preedit_),
-          reinterpret_cast<char*>(&other->preedit_));
+      PROTOBUF_FIELD_OFFSET(Response, _impl_.consumable_)
+      + sizeof(Response::_impl_.consumable_)
+      - PROTOBUF_FIELD_OFFSET(Response, _impl_.preedit_)>(
+          reinterpret_cast<char*>(&_impl_.preedit_),
+          reinterpret_cast<char*>(&other->_impl_.preedit_));
 }
 
 std::string Response::GetTypeName() const {
@@ -2585,93 +2659,92 @@ class Command::_Internal {
 
 const ::khiin::proto::Request&
 Command::_Internal::request(const Command* msg) {
-  return *msg->request_;
+  return *msg->_impl_.request_;
 }
 const ::khiin::proto::Response&
 Command::_Internal::response(const Command* msg) {
-  return *msg->response_;
+  return *msg->_impl_.response_;
 }
 Command::Command(::PROTOBUF_NAMESPACE_ID::Arena* arena,
                          bool is_message_owned)
   : ::PROTOBUF_NAMESPACE_ID::MessageLite(arena, is_message_owned) {
-  SharedCtor();
-  if (!is_message_owned) {
-    RegisterArenaDtor(arena);
-  }
+  SharedCtor(arena, is_message_owned);
   // @@protoc_insertion_point(arena_constructor:khiin.proto.Command)
 }
 Command::Command(const Command& from)
   : ::PROTOBUF_NAMESPACE_ID::MessageLite() {
+  Command* const _this = this; (void)_this;
+  new (&_impl_) Impl_{
+      decltype(_impl_.request_){nullptr}
+    , decltype(_impl_.response_){nullptr}
+    , /*decltype(_impl_._cached_size_)*/{}};
+
   _internal_metadata_.MergeFrom<std::string>(from._internal_metadata_);
   if (from._internal_has_request()) {
-    request_ = new ::khiin::proto::Request(*from.request_);
-  } else {
-    request_ = nullptr;
+    _this->_impl_.request_ = new ::khiin::proto::Request(*from._impl_.request_);
   }
   if (from._internal_has_response()) {
-    response_ = new ::khiin::proto::Response(*from.response_);
-  } else {
-    response_ = nullptr;
+    _this->_impl_.response_ = new ::khiin::proto::Response(*from._impl_.response_);
   }
   // @@protoc_insertion_point(copy_constructor:khiin.proto.Command)
 }
 
-void Command::SharedCtor() {
-::memset(reinterpret_cast<char*>(this) + static_cast<size_t>(
-    reinterpret_cast<char*>(&request_) - reinterpret_cast<char*>(this)),
-    0, static_cast<size_t>(reinterpret_cast<char*>(&response_) -
-    reinterpret_cast<char*>(&request_)) + sizeof(response_));
+inline void Command::SharedCtor(
+    ::_pb::Arena* arena, bool is_message_owned) {
+  (void)arena;
+  (void)is_message_owned;
+  new (&_impl_) Impl_{
+      decltype(_impl_.request_){nullptr}
+    , decltype(_impl_.response_){nullptr}
+    , /*decltype(_impl_._cached_size_)*/{}
+  };
 }
 
 Command::~Command() {
   // @@protoc_insertion_point(destructor:khiin.proto.Command)
-  if (GetArenaForAllocation() != nullptr) return;
+  if (auto *arena = _internal_metadata_.DeleteReturnArena<std::string>()) {
+  (void)arena;
+    return;
+  }
   SharedDtor();
-  _internal_metadata_.Delete<std::string>();
 }
 
 inline void Command::SharedDtor() {
   GOOGLE_DCHECK(GetArenaForAllocation() == nullptr);
-  if (this != internal_default_instance()) delete request_;
-  if (this != internal_default_instance()) delete response_;
+  if (this != internal_default_instance()) delete _impl_.request_;
+  if (this != internal_default_instance()) delete _impl_.response_;
 }
 
-void Command::ArenaDtor(void* object) {
-  Command* _this = reinterpret_cast< Command* >(object);
-  (void)_this;
-}
-void Command::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {
-}
 void Command::SetCachedSize(int size) const {
-  _cached_size_.Set(size);
+  _impl_._cached_size_.Set(size);
 }
 
 void Command::Clear() {
 // @@protoc_insertion_point(message_clear_start:khiin.proto.Command)
-  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+  uint32_t cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
-  if (GetArenaForAllocation() == nullptr && request_ != nullptr) {
-    delete request_;
+  if (GetArenaForAllocation() == nullptr && _impl_.request_ != nullptr) {
+    delete _impl_.request_;
   }
-  request_ = nullptr;
-  if (GetArenaForAllocation() == nullptr && response_ != nullptr) {
-    delete response_;
+  _impl_.request_ = nullptr;
+  if (GetArenaForAllocation() == nullptr && _impl_.response_ != nullptr) {
+    delete _impl_.response_;
   }
-  response_ = nullptr;
+  _impl_.response_ = nullptr;
   _internal_metadata_.Clear<std::string>();
 }
 
-const char* Command::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
+const char* Command::_InternalParse(const char* ptr, ::_pbi::ParseContext* ctx) {
 #define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
   while (!ctx->Done(&ptr)) {
-    ::PROTOBUF_NAMESPACE_ID::uint32 tag;
-    ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
+    uint32_t tag;
+    ptr = ::_pbi::ReadTag(ptr, &tag);
     switch (tag >> 3) {
       // .khiin.proto.Request request = 1;
       case 1:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 10)) {
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 10)) {
           ptr = ctx->ParseMessage(_internal_mutable_request(), ptr);
           CHK_(ptr);
         } else
@@ -2679,7 +2752,7 @@ const char* Command::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::in
         continue;
       // .khiin.proto.Response response = 2;
       case 2:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 18)) {
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 18)) {
           ptr = ctx->ParseMessage(_internal_mutable_response(), ptr);
           CHK_(ptr);
         } else
@@ -2708,26 +2781,24 @@ failure:
 #undef CHK_
 }
 
-::PROTOBUF_NAMESPACE_ID::uint8* Command::_InternalSerialize(
-    ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const {
+uint8_t* Command::_InternalSerialize(
+    uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const {
   // @@protoc_insertion_point(serialize_to_array_start:khiin.proto.Command)
-  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+  uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
 
   // .khiin.proto.Request request = 1;
   if (this->_internal_has_request()) {
-    target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
-      InternalWriteMessage(
-        1, _Internal::request(this), target, stream);
+      InternalWriteMessage(1, _Internal::request(this),
+        _Internal::request(this).GetCachedSize(), target, stream);
   }
 
   // .khiin.proto.Response response = 2;
   if (this->_internal_has_response()) {
-    target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
-      InternalWriteMessage(
-        2, _Internal::response(this), target, stream);
+      InternalWriteMessage(2, _Internal::response(this),
+        _Internal::response(this).GetCachedSize(), target, stream);
   }
 
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
@@ -2742,7 +2813,7 @@ size_t Command::ByteSizeLong() const {
 // @@protoc_insertion_point(message_byte_size_start:khiin.proto.Command)
   size_t total_size = 0;
 
-  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+  uint32_t cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
@@ -2750,43 +2821,46 @@ size_t Command::ByteSizeLong() const {
   if (this->_internal_has_request()) {
     total_size += 1 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
-        *request_);
+        *_impl_.request_);
   }
 
   // .khiin.proto.Response response = 2;
   if (this->_internal_has_response()) {
     total_size += 1 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
-        *response_);
+        *_impl_.response_);
   }
 
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
     total_size += _internal_metadata_.unknown_fields<std::string>(::PROTOBUF_NAMESPACE_ID::internal::GetEmptyString).size();
   }
-  int cached_size = ::PROTOBUF_NAMESPACE_ID::internal::ToCachedSize(total_size);
+  int cached_size = ::_pbi::ToCachedSize(total_size);
   SetCachedSize(cached_size);
   return total_size;
 }
 
 void Command::CheckTypeAndMergeFrom(
     const ::PROTOBUF_NAMESPACE_ID::MessageLite& from) {
-  MergeFrom(*::PROTOBUF_NAMESPACE_ID::internal::DownCast<const Command*>(
+  MergeFrom(*::_pbi::DownCast<const Command*>(
       &from));
 }
 
 void Command::MergeFrom(const Command& from) {
-// @@protoc_insertion_point(class_specific_merge_from_start:khiin.proto.Command)
-  GOOGLE_DCHECK_NE(&from, this);
-  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+  Command* const _this = this;
+  // @@protoc_insertion_point(class_specific_merge_from_start:khiin.proto.Command)
+  GOOGLE_DCHECK_NE(&from, _this);
+  uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
 
   if (from._internal_has_request()) {
-    _internal_mutable_request()->::khiin::proto::Request::MergeFrom(from._internal_request());
+    _this->_internal_mutable_request()->::khiin::proto::Request::MergeFrom(
+        from._internal_request());
   }
   if (from._internal_has_response()) {
-    _internal_mutable_response()->::khiin::proto::Response::MergeFrom(from._internal_response());
+    _this->_internal_mutable_response()->::khiin::proto::Response::MergeFrom(
+        from._internal_response());
   }
-  _internal_metadata_.MergeFrom<std::string>(from._internal_metadata_);
+  _this->_internal_metadata_.MergeFrom<std::string>(from._internal_metadata_);
 }
 
 void Command::CopyFrom(const Command& from) {
@@ -2804,11 +2878,11 @@ void Command::InternalSwap(Command* other) {
   using std::swap;
   _internal_metadata_.InternalSwap(&other->_internal_metadata_);
   ::PROTOBUF_NAMESPACE_ID::internal::memswap<
-      PROTOBUF_FIELD_OFFSET(Command, response_)
-      + sizeof(Command::response_)
-      - PROTOBUF_FIELD_OFFSET(Command, request_)>(
-          reinterpret_cast<char*>(&request_),
-          reinterpret_cast<char*>(&other->request_));
+      PROTOBUF_FIELD_OFFSET(Command, _impl_.response_)
+      + sizeof(Command::_impl_.response_)
+      - PROTOBUF_FIELD_OFFSET(Command, _impl_.request_)>(
+          reinterpret_cast<char*>(&_impl_.request_),
+          reinterpret_cast<char*>(&other->_impl_.request_));
 }
 
 std::string Command::GetTypeName() const {
@@ -2820,28 +2894,36 @@ std::string Command::GetTypeName() const {
 }  // namespace proto
 }  // namespace khiin
 PROTOBUF_NAMESPACE_OPEN
-template<> PROTOBUF_NOINLINE ::khiin::proto::KeyEvent* Arena::CreateMaybeMessage< ::khiin::proto::KeyEvent >(Arena* arena) {
+template<> PROTOBUF_NOINLINE ::khiin::proto::KeyEvent*
+Arena::CreateMaybeMessage< ::khiin::proto::KeyEvent >(Arena* arena) {
   return Arena::CreateMessageInternal< ::khiin::proto::KeyEvent >(arena);
 }
-template<> PROTOBUF_NOINLINE ::khiin::proto::Request* Arena::CreateMaybeMessage< ::khiin::proto::Request >(Arena* arena) {
+template<> PROTOBUF_NOINLINE ::khiin::proto::Request*
+Arena::CreateMaybeMessage< ::khiin::proto::Request >(Arena* arena) {
   return Arena::CreateMessageInternal< ::khiin::proto::Request >(arena);
 }
-template<> PROTOBUF_NOINLINE ::khiin::proto::Preedit_Segment* Arena::CreateMaybeMessage< ::khiin::proto::Preedit_Segment >(Arena* arena) {
+template<> PROTOBUF_NOINLINE ::khiin::proto::Preedit_Segment*
+Arena::CreateMaybeMessage< ::khiin::proto::Preedit_Segment >(Arena* arena) {
   return Arena::CreateMessageInternal< ::khiin::proto::Preedit_Segment >(arena);
 }
-template<> PROTOBUF_NOINLINE ::khiin::proto::Preedit* Arena::CreateMaybeMessage< ::khiin::proto::Preedit >(Arena* arena) {
+template<> PROTOBUF_NOINLINE ::khiin::proto::Preedit*
+Arena::CreateMaybeMessage< ::khiin::proto::Preedit >(Arena* arena) {
   return Arena::CreateMessageInternal< ::khiin::proto::Preedit >(arena);
 }
-template<> PROTOBUF_NOINLINE ::khiin::proto::Candidate* Arena::CreateMaybeMessage< ::khiin::proto::Candidate >(Arena* arena) {
+template<> PROTOBUF_NOINLINE ::khiin::proto::Candidate*
+Arena::CreateMaybeMessage< ::khiin::proto::Candidate >(Arena* arena) {
   return Arena::CreateMessageInternal< ::khiin::proto::Candidate >(arena);
 }
-template<> PROTOBUF_NOINLINE ::khiin::proto::CandidateList* Arena::CreateMaybeMessage< ::khiin::proto::CandidateList >(Arena* arena) {
+template<> PROTOBUF_NOINLINE ::khiin::proto::CandidateList*
+Arena::CreateMaybeMessage< ::khiin::proto::CandidateList >(Arena* arena) {
   return Arena::CreateMessageInternal< ::khiin::proto::CandidateList >(arena);
 }
-template<> PROTOBUF_NOINLINE ::khiin::proto::Response* Arena::CreateMaybeMessage< ::khiin::proto::Response >(Arena* arena) {
+template<> PROTOBUF_NOINLINE ::khiin::proto::Response*
+Arena::CreateMaybeMessage< ::khiin::proto::Response >(Arena* arena) {
   return Arena::CreateMessageInternal< ::khiin::proto::Response >(arena);
 }
-template<> PROTOBUF_NOINLINE ::khiin::proto::Command* Arena::CreateMaybeMessage< ::khiin::proto::Command >(Arena* arena) {
+template<> PROTOBUF_NOINLINE ::khiin::proto::Command*
+Arena::CreateMaybeMessage< ::khiin::proto::Command >(Arena* arena) {
   return Arena::CreateMessageInternal< ::khiin::proto::Command >(arena);
 }
 PROTOBUF_NAMESPACE_CLOSE

@@ -237,3 +237,47 @@ The installer comes in two language varieties, Taiwanese (HanLo) and
 English. They install the exact same application binaries, and the application
 itself supports Taiwanese (HanLo), Taiwanese (Lomaji), and English. The
 application language is user-configurable from the Settings app.
+
+### Android Development
+
+#### Setting up the NDK toolchain
+
+The Android IME application uses the khiin engine via the Android NDK. The first step to
+working on the Android application is to make sure you can build khiin for the platform.
+You can use vcpkg with the 4 android triplets:
+
+Install the android packages with vcpkg:
+
+```
+./vcpkg install sqlitecpp:x86-android sqlitecpp:x64-android sqlitecpp:arm-neon-android sqlitecpp:arm64-android
+./vcpkg install protobuf:x86-android protobuf:x64-android protobuf:arm-neon-android protobuf:arm64-android
+./vcpkg install abseil:x86-android abseil:x64-android abseil:arm-neon-android abseil:arm64-android
+```
+
+You also need the protocolbuffers source repository and `protoc` or `protoc.exe` binary executable.
+You can use the [precompiled protoc v21.12](https://github.com/protocolbuffers/protobuf/releases/tag/v21.12)
+and [source code for C++ v3.21.12](https://github.com/protocolbuffers/protobuf/releases/tag/v3.21.12):
+
+Or from git:
+
+```
+git clone --depth 1 --branch v3.21.12 https://github.com/protocolbuffers/protobuf.git
+```
+
+You must set these environment variables:
+
+```
+ANDROID_NDK_HOME=/path/to/Android/Sdk/ndk/25.2.9519653
+VCPKG_ROOT=/path/to/vcpkg
+PROTOBUF_PROTOC=/path/to/protoc(.exe)
+PROTOBUF_SRC=/path/to/protobuf/src
+
+# Not sure if these need to be set
+ANDROID_TOOLCHAIN_FILE=/path/to/Android/Sdk/ndk/25.2.9519653/build/cmake/android.toolchain.cmake
+VCPKG_TOOLCHAIN_FILE=/path/to/vcpkg/scripts/buildsystems/vcpkg.cmake
+```
+
+When all of these steps are complete, cross your fingers and check if Android Studio
+can build the project.
+
+
