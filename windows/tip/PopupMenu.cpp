@@ -269,12 +269,12 @@ class PopupMenuImpl : public PopupMenu {
                 m_factory->CreateTextLayout(T(item.text_rid, m_language), m_textformat, m_max_width, m_max_height);
             DWRITE_TEXT_METRICS metrics{};
             check_hresult(item.layout->GetMetrics(&metrics));
-            max_item_width = std::max(max_item_width, static_cast<int>(metrics.width));
-            max_row_height = std::max(max_row_height, static_cast<int>(metrics.height));
+            max_item_width = max(max_item_width, static_cast<int>(metrics.width));
+            max_row_height = max(max_row_height, static_cast<int>(metrics.height));
         }
 
         auto width = kBulletColWidth + kIconColWidth + max_item_width;
-        auto row_height = std::max(kRowHeight, max_row_height + kVPad);
+        auto row_height = max(kRowHeight, max_row_height + kVPad);
 
         auto total_width = width + kHPad * 2;
         auto total_height = kVPad;

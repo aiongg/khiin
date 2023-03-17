@@ -124,19 +124,19 @@ utf8_size_t BufferElement::size() const {
 }
 
 std::string BufferElement::raw() const {
-    if (auto *elem = std::get_if<std::string>(&m_element)) {
+    if (const auto *elem = std::get_if<std::string>(&m_element)) {
         return *elem;
     }
 
-    if (auto *elem = std::get_if<TaiText>(&m_element)) {
+    if (const auto *elem = std::get_if<TaiText>(&m_element)) {
         return elem->RawText();
     }
 
-    if (auto *elem = std::get_if<Punctuation>(&m_element)) {
+    if (const auto *elem = std::get_if<Punctuation>(&m_element)) {
         return elem->input;
     }
 
-    if (auto *elem = std::get_if<UserToken>(&m_element)) {
+    if (const auto *elem = std::get_if<UserToken>(&m_element)) {
         return elem->Input();
     } // VirtualSpace && std::Monostate
 
@@ -301,7 +301,7 @@ bool BufferElement::IsVirtualSpace() const {
 }
 
 bool BufferElement::IsVirtualSpace(utf8_size_t index) const {
-    if (auto *elem = std::get_if<TaiText>(&m_element)) {
+    if (const auto *elem = std::get_if<TaiText>(&m_element)) {
         return elem->IsVirtualSpace(index);
     }
 
@@ -320,7 +320,9 @@ bool BufferElement::SetKhin(KhinKeyPosition khin_pos, char khin_key) {
     if (auto *elem = std::get_if<TaiText>(&m_element)) {
         elem->SetKhin(khin_pos, khin_key);
         return true;
-    } else if (auto *elem = std::get_if<std::string>(&m_element)) {
+    }
+    
+    if (auto *elem = std::get_if<std::string>(&m_element)) {
         if (khin_pos == KhinKeyPosition::Start) {
             elem->insert(0, 2, khin_key);
         } else if (khin_pos == KhinKeyPosition::End) {

@@ -30,7 +30,7 @@ inline constexpr char32_t kToneLowerBound = kTone3;
 inline constexpr char32_t kToneUpperBound = kTone8;
 
 inline constexpr bool valid_ascii_range(char ch) {
-    return -1 < ch && ch < kMaxAscii;
+    return -1 < (int) ch && ch < kMaxAscii;
 }
 
 inline constexpr bool is_tone(char32_t c) {

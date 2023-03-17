@@ -24,6 +24,7 @@ class UserDictionary;
 
 class Engine {
   public:
+    virtual ~Engine() = default;
     static std::unique_ptr<Engine> Create();
     static std::unique_ptr<Engine> Create(std::string dbfile);
 

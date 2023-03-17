@@ -245,7 +245,6 @@ void Syllable::ExtractRawTone() {
 
     m_tone_key = str.back();
     str.pop_back();
-    return;
 }
 
 void Syllable::EnsureKhinKey() {
@@ -260,6 +259,8 @@ void Syllable::EnsureKhinKey() {
             break;
         case KhinKeyPosition::End:
             m_khin_key = m_keyconfig->GetKhinKeys()[0];
+            break;
+        case KhinKeyPosition::Virtual:
             break;
         }
     }

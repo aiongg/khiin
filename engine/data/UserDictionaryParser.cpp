@@ -18,6 +18,8 @@ bool is_separator(char ch) {
 
 class UserDictionaryParserImpl : public UserDictionaryParser {
   public:
+    ~UserDictionaryParserImpl() override = default;
+
     void Open(std::string filename) {
         file = std::ifstream(filename);
     }

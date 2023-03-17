@@ -10,7 +10,8 @@ namespace khiin::engine {
 
 class Trie {
   public:
-    //Trie();
+    //Trie() = default;
+    virtual ~Trie() = default;
     // Trie(const string_vector &keys);
     static std::unique_ptr<Trie> Create();
 

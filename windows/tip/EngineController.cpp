@@ -25,7 +25,7 @@ using namespace khiin::proto;
 volatile HMODULE g_module = nullptr;
 
 #ifdef _DEBUG
-const std::wstring kDbFilename = L"khiin_test.db";
+const std::wstring kDbFilename = L"khiin.db";
 #else
 const std::wstring kDbFilename = L"khiin.db";
 #endif

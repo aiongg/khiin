@@ -60,7 +60,7 @@ inline bool is_guid_of<ITfCandidateListUIElementBehavior>(guid const &id) noexce
 } // namespace winrt
 
 // Windows 11 polyfill
-
+#ifndef DWMWA_WINDOW_CORNER_PREFERENCE
 #define DWMWA_WINDOW_CORNER_PREFERENCE (33)
 
 typedef enum {
@@ -69,3 +69,4 @@ typedef enum {
     DWMWCP_ROUND = 2,
     DWMWCP_ROUNDSMALL = 3,
 } DWM_WINDOW_CORNER_PREFERENCE;
+#endif

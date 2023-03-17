@@ -13,7 +13,7 @@ namespace khiin::win32 {
 namespace {
 using namespace winrt;
 
-constexpr const wchar_t *kHanjiFontName = L"Source Han Serif TC";
+constexpr const wchar_t *kHanjiFontName = L"Source Han Sans TW";
 constexpr const wchar_t *kLomajiFontName = L"Chuigoan Serif 4";
 
 const std::vector<DWRITE_UNICODE_RANGE> kGlyphRanges = {
@@ -130,16 +130,25 @@ struct RenderFactoryImpl : implements<RenderFactoryImpl, RenderFactory> {
             auto hr = ::DWriteCreateFactory(DWRITE_FACTORY_TYPE_SHARED, __uuidof(IDWriteFactory3),
                                             reinterpret_cast<IUnknown **>(m_dwrite.put()));
             CHECK_HRESULT(hr);
+            if (FAILED(hr)) {
+                return;
+            }
 
-            m_loader = FontLoader::Create();
+            if (!m_loader) {
+                m_loader = FontLoader::Create();
 
-            hr = m_dwrite->RegisterFontCollectionLoader(m_loader.get());
-            CHECK_HRESULT(hr);
+                hr = m_dwrite->RegisterFontCollectionLoader(m_loader.get());
+                CHECK_HRESULT(hr);
 
-            hr = m_dwrite->CreateCustomFontCollection(m_loader.get(), FontLoader::collection_key,
-                                                      static_cast<UINT32>(strlen(FontLoader::collection_key)),
-                                                      m_fontcollection.put());
-            CHECK_HRESULT(hr);
+                if (FAILED(hr)) {
+                    return;
+                }
+
+                hr = m_dwrite->CreateCustomFontCollection(m_loader.get(), FontLoader::collection_key,
+                                                          static_cast<UINT32>(strlen(FontLoader::collection_key)),
+                                                          m_fontcollection.put());
+                CHECK_HRESULT(hr);
+            }
         }
     }
 

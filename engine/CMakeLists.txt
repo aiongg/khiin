@@ -10,25 +10,6 @@ if(UNIX)
 link_libraries(stdc++fs)
 endif()
 
-if(VCPKG_TARGET_ANDROID)
-  if (ANDROID_ABI STREQUAL "x86")
-    set(VCPKG_ABI_PREFIX "x86")
-  elseif(ANDROID_ABI STREQUAL "x86_64")
-    set(VCPKG_ABI_PREFIX "x64")
-  elseif(ANDROID_ABI STREQUAL "arm64-v8a")
-    set(VCPKG_ABI_PREFIX "arm64")
-  elseif(ANDROID_ABI STREQUAL "armeabi-v7a")
-    set(VCPKG_ABI_PREFIX "arm-neon")
-  endif()
-
-  set(SQLiteCpp_DIR "$ENV{VCPKG_ROOT}/installed/${VCPKG_ABI_PREFIX}-android/share/SQLiteCpp")
-  set(unofficial-sqlite3_DIR "$ENV{VCPKG_ROOT}/installed/${VCPKG_ABI_PREFIX}-android/share/unofficial-sqlite3")
-  set(VCPKG_INCLUDE_DIR "$ENV{VCPKG_ROOT}/installed/${VCPKG_ABI_PREFIX}-android/include")
-  set(Protobuf_DIR "$ENV{VCPKG_ROOT}/installed/${VCPKG_ABI_PREFIX}-android/share/protobuf")
-  set(Protobuf_PROTOC_EXECUTABLE "$ENV{PROTOBUF_PROTOC}")
-  set(Protobuf_INCLUDE_DIR "$ENV{PROTOBUF_SRC}")
-endif()
-
 message(STATUS "Begin ${CMAKE_BUILD_TYPE} Build")
 
 project ("KhiinEngine" CXX)
@@ -43,7 +24,7 @@ else()
 endif()
 find_package(SQLiteCpp REQUIRED)
 
-include_directories(${PROJECT_SOURCE_DIR} ${PROTOBUF_INCLUDE_DIR} ${VCPKG_INCLUDE_DIR})
+include_directories(${PROJECT_SOURCE_DIR} ${PROTOBUF_INCLUDE_DIR})
 
 add_library(khiin STATIC
     "${PROTOS_DIR}/config.pb.h"

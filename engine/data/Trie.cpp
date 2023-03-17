@@ -57,6 +57,7 @@ struct Node {
 class TrieImpl : public Trie {
   public:
     TrieImpl() = default;
+    ~TrieImpl() override = default;
 
     void Insert(std::vector<std::string> const &words) override {
         for (auto const &word : words) {

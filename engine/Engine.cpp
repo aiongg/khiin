@@ -45,7 +45,7 @@ class EngineImpl final : public Engine {
     explicit EngineImpl(std::string dbfile) : m_dbfilename(dbfile) {}
     EngineImpl(EngineImpl const &rhs) = delete;
     EngineImpl &operator=(EngineImpl const &rhs) = delete;
-    ~EngineImpl() = default;
+    ~EngineImpl() override = default;
 
     void Initialize() {
         logger::info("Test logging Initialize {}", "x");

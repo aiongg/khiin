@@ -67,8 +67,8 @@ struct Rect {
 
   private:
     Point o; // Top-left
-    int w;
-    int h;
+    int w = 0;
+    int h = 0;
 };
 
 } // namespace khiin::geometry

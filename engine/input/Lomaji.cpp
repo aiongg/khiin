@@ -13,8 +13,8 @@ namespace {
 namespace u8u = utf8::unchecked;
 using namespace unicode;
 
-inline constexpr std::array<char *, 7> kOrderedToneablesIndex1 = {{"o", "a", "e", "u", "i", "ng", "m"}};
-inline constexpr std::array<char *, 2> kOrderedToneablesIndex2 = {{"oa", "oe"}};
+inline constexpr std::array<const char *, 7> kOrderedToneablesIndex1 = {{"o", "a", "e", "u", "i", "ng", "m"}};
+inline constexpr std::array<const char *, 2> kOrderedToneablesIndex2 = {{"oa", "oe"}};
 inline constexpr std::array<char, 7> kToneableLetters = {'a', 'e', 'i', 'm', 'n', 'o', 'u'};
 const std::string kKhinDotStr = u8"\u00b7";
 const std::string kKhinHyphenStr = "--";

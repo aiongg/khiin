@@ -464,6 +464,15 @@ class BufferMgrImpl : public BufferMgr {
         assert(m_composition.RawText() == raw_composition);
     }
 
+    void SetCompositionManual(std::string const& raw_composition) {
+        m_candidates = CandidateFinder::MultiMatch(m_engine, FocusLGram(), raw_composition);
+
+        if (!m_candidates.empty()) {
+        }
+
+        assert(m_composition.RawText() == raw_composition);
+    }
+
     void InsertContinuous(char ch) {
         auto [raw_composition, raw_caret] = BeginInsertion(ch);
         SetCompositionAndCandidatesContinuous(raw_composition);
@@ -476,7 +485,11 @@ class BufferMgrImpl : public BufferMgr {
         FinalizeInsertion(raw_caret);
     }
 
-    void InsertManual(char ch) {}
+    void InsertManual(char ch) {
+        auto [raw_composition, raw_caret] = BeginInsertion(ch);
+        SetCompositionManual(raw_composition);
+        FinalizeInsertion(raw_caret);    
+    }
 
     //+----------------------------------
     // Erasing
@@ -527,7 +540,7 @@ class BufferMgrImpl : public BufferMgr {
             HandleLeftRight(CursorDirection::R);
             return;
         }
-
+        
         it->Erase(pos);
         if (it->size() == 0) {
             m_composition.Erase(it);
