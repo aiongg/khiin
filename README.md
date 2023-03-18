@@ -26,14 +26,12 @@ Khiin consists of separate projects in the following folders:
 
 #### Additional installation required:
 
-- [SQLiteCpp 3.1.1 (MIT)](https://github.com/SRombauts/SQLiteCpp)
+- [SQLiteCpp 3.40.1#1 (MIT)](https://github.com/SRombauts/SQLiteCpp)
     - sqlite3 (included with SQLiteCpp)
-- [protobuf v3.18.0](https://github.com/protocolbuffers/protobuf/releases/tag/v3.18.0)
-- [GTest v1.11.0](https://github.com/google/googletest)
+- [protobuf v3.21.12](https://github.com/protocolbuffers/protobuf/releases/tag/v3.18.0)
+- [GTest v1.13.0](https://github.com/google/googletest)
 
-These packages can be installed with `vcpkg`, and should be installed
-automatically using the `vcpkg.json` manifest file. If you need to do
-manual install, on Windows, use triplet `x64-windows-static-md`.
+These packages can be installed with `vcpkg`.
 
 ```
 git clone --depth 1 --branch 2023.02.24 https://github.com/microsoft/vcpkg
@@ -50,7 +48,8 @@ For release you will also need the x86 packages:
 
 Notes:
 
-- Don't forget to integrate vcpkg, e.g. `./vcpkg integrate install`
+- For Visual Studio integration: `./vcpkg integrate install`
+- Set the environment variable VCPKG_ROOT=/path/to/vcpkg
 
 #### Protobuf
 
@@ -255,30 +254,12 @@ Install the android packages with vcpkg:
 ./vcpkg install abseil:x86-android abseil:x64-android abseil:arm-neon-android abseil:arm64-android
 ```
 
-You also need the protocolbuffers source repository and `protoc` or `protoc.exe` binary executable.
-You can use the [precompiled protoc v21.12](https://github.com/protocolbuffers/protobuf/releases/tag/v21.12)
-and [source code for C++ v3.21.12](https://github.com/protocolbuffers/protobuf/releases/tag/v3.21.12):
-
-Or from git:
-
-```
-git clone --depth 1 --branch v3.21.12 https://github.com/protocolbuffers/protobuf.git
-```
-
-You must set these environment variables:
+You must also have set these environment variables:
 
 ```
 ANDROID_NDK_HOME=/path/to/Android/Sdk/ndk/25.2.9519653
 VCPKG_ROOT=/path/to/vcpkg
-PROTOBUF_PROTOC=/path/to/protoc(.exe)
-PROTOBUF_SRC=/path/to/protobuf/src
-
-# Not sure if these need to be set
-ANDROID_TOOLCHAIN_FILE=/path/to/Android/Sdk/ndk/25.2.9519653/build/cmake/android.toolchain.cmake
-VCPKG_TOOLCHAIN_FILE=/path/to/vcpkg/scripts/buildsystems/vcpkg.cmake
 ```
 
 When all of these steps are complete, cross your fingers and check if Android Studio
 can build the project.
-
-
