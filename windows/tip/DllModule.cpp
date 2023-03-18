@@ -28,27 +28,30 @@ class ModuleImpl {
   public:
     static void AddRef() {
         ++count;
+        KHIIN_TRACE("AddRef: count={}", count);
     }
 
     static void Release() {
         --count;
+        KHIIN_TRACE("Release: count={}", count);
     }
 
     static bool IsUnloaded() {
+        KHIIN_TRACE("IsUnloaded: unloaded={}", unloaded);
         return unloaded;
     }
 
     static bool CanUnload() {
-        KHIIN_TRACE("Count: {}", count);
+        KHIIN_TRACE("CanUnload: count={}", count);
         return count <= 0;
     }
 
     static BOOL OnDllProcessAttach(HINSTANCE instance, bool static_loading) {
+        moduleHandle = instance;
         Logger::Initialize(GetTempFolder());
         TextService::OnDllProcessAttach(instance);
         WindowSetup::OnDllProcessAttach(instance);
         EngineController::OnDllProcessAttach(instance);
-        moduleHandle = instance;
         return TRUE;
     }
 
@@ -159,9 +162,22 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserv
     switch (ul_reason_for_call) {
     case DLL_PROCESS_ATTACH:
         //::SetUnhandledExceptionFilter(TopLevelExceptionFilter);
+#if defined(_DLL)
         ::DisableThreadLibraryCalls(hModule);
+#endif
         return ModuleImpl::OnDllProcessAttach(hModule, lpReserved != nullptr);
+#if defined(_DLL) && defined(_DEBUG)
+    case DLL_THREAD_ATTACH:
+        ::DebugBreak();
+        return FALSE;
+    case DLL_THREAD_DETACH:
+        ::DebugBreak();
+        return FALSE;
+#endif
     case DLL_PROCESS_DETACH:
+        if (lpReserved != nullptr) {
+            break;
+        }
         return ModuleImpl::OnDllProcessDetach(hModule, lpReserved != nullptr);
     }
     return TRUE;
