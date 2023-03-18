@@ -1,15 +1,32 @@
 # Khíín Tâigí Phah Jī Hoat
 
-## Development
 
-Khiin consists of separate projects in the following folders:
 
-- `engine`: The cross-platform IME engine that plugs in to each app. (c++17)
-- `windows`: A win32 Text Services Framework [TSF] application. (c++17)
+## Installation
+
+
+
+## Usage
+
+
+
+## Help
+
+---
+
+# Development
+
+Khíín consists of separate projects in the following folders:
+
+- `engine`: The cross-platform IME engine that plugs in to each app (`libkhiin`). (c++17)
+- `windows`: A win32 Text Services Framework [TSF](https://learn.microsoft.com/en-us/windows/win32/tsf/text-services-framework-reference) application. (c++17)
+- `android`: A Jetpack Compose based Android Input Method Service application. (kotlin)
+
+## Engine (`khiin.lib` / `libkhiin.a`)
 
 ### Dependencies
 
-#### Included in the `third_party` folder:
+The following dependencies are included in the source tree (`third_party`) and do not need to be installed separately:
 
 - utf8cpp v3.2.1 (BSL-1.0)
     - Header only, included in `third_party/utf8cpp`
@@ -24,14 +41,14 @@ Khiin consists of separate projects in the following folders:
     - Header only, included in `third_party/spdlog`
     - [gabime/spdlog](https://github.com/gabime/spdlog)
 
-#### Additional installation required:
+The following dependencies require additional installation:
 
 - [SQLiteCpp 3.40.1#1 (MIT)](https://github.com/SRombauts/SQLiteCpp)
     - sqlite3 (included with SQLiteCpp)
-- [protobuf v3.21.12](https://github.com/protocolbuffers/protobuf/releases/tag/v3.18.0)
+- [protobuf v3.21.12](https://github.com/protocolbuffers/protobuf/releases/tag/v3.21.12)
 - [GTest v1.13.0](https://github.com/google/googletest)
 
-These packages can be installed with `vcpkg`.
+These packages can be installed with [`vcpkg`](https://github.com/microsoft/vcpkg/#getting-started):
 
 ```
 git clone --depth 1 --branch 2023.02.24 https://github.com/microsoft/vcpkg
@@ -46,12 +63,17 @@ For release you will also need the x86 packages:
 ./vcpkg install sqlitecpp protobuf gtest --triplet=x86-windows-static-md
 ```
 
-Notes:
+For Visual Studio integration:
 
-- For Visual Studio integration: `./vcpkg integrate install`
-- Set the environment variable VCPKG_ROOT=/path/to/vcpkg
+```
+./vcpkg integrate install
+```
 
-#### Protobuf
+You must also set the environment variable `VCPKG_ROOT=/path/to/vcpkg`.
+
+### Protobuf
+
+- [protobuf v3.21.12](https://github.com/protocolbuffers/protobuf/releases/tag/v3.21.12). 
 
 Supports protobuf-lite. Full protobuf is not needed.
 
@@ -63,10 +85,16 @@ To re-build protobuf generated files after modification, install `protoc`
 and use the following command from the root folder:
 
 ```
-protoc.exe --cpp_out=proto proto/*.proto
+/path/to/protoc.exe --cpp_out=proto proto/*.proto
 ```
 
-### Engine (`khiin.lib` / `libkhiin.a`)
+If you are using `vcpkg` on Windows, you will find this tool at:
+
+```
+/path/to/vcpkg/installed/x64-windows/tools/protobuf/protoc.exe
+```
+
+### Cmake
 
 The `engine` folder contains a `cmake` project. For building in
 Visual Studio, update `CmakeSettings.json::cmakeToolchain`
@@ -82,15 +110,17 @@ At present, the engine only supports one client app at a time, but it
 should be possible to extend this to multiple clients to make at least
 the basic features available in an online demo.
 
-#### Database
+### Database
 
 The `khiin.db` SQLite database contains all of the information required
-for default input conversion and character selection (ordering).
+for default input conversion and character selection (ordering). This
+database is generated from the data provided by Tâijī Siā, and may be
+found in the [khiin-data](https://github.com/aiongg/khiin-data) repository.
 
 The database is continually updated with user data during use, to
-improve candidate prediction based on a simple N-gram model (using
-only 1-gram and 2-grams at present, but perhaps you would like to
-extend this to 3-grams?).
+improve candidate prediction based on a simple N-gram model that
+currently uses 1-gram and 2-gram frequencies. In the future this may be
+extended to other precition algorithms for better results.
 
 Users may provide an additional custom dictionary file, which
 is simply a text file listing rows of space-delimited `input output`
@@ -101,18 +131,22 @@ to the default database.
 At present, data is not shared at all, and is strictly used within
 the application itself. In future we would like to add an option
 to sync user's data across devices, and an option to allow users
-to share their data with us for improving our corpus.
+to share their (anonymized) data with us for improving our corpus.
 
-### Windows
+---
 
-See the `windows/KhiinWindows.sln` Visual Studio solution. Built using
+## Windows IME
+
+The Windows TSF `TextInputProcessor` DLL application is found in the
+`windows/KhiinWindows.sln` Visual Studio solution. Built using
 Visual Studio Community 2022.
 
-#### Development Environment
+### DLL Registration
 
-During development, you should first uninstall any previously installed
-version of the IME from the system. After building, you can manually register
-the DLL file in an administrator powershell as follows:
+Prior to deveopment, you must uninstall any previously installed
+version of the IME from the system. After building both `libkhiin` and
+the `KhiinWindows.sln` solution, you can manually register the DLL file
+in an elevated PowerShell as follows:
 
 ```
 cd windows\out\build\x64-Debug
@@ -120,14 +154,14 @@ regsvr32.exe /s KhiinPJH.dll    # /s for silent install
 ```
 
 To register the x86 (32-bit) DLL, use an elevated 32-bit `cmd.exe`
-prompt (`C:\Windows\SysWOW64\cmd.exe`, not powershell), then run:
+prompt (`C:\Windows\SysWOW64\cmd.exe`, not PowerShell), then run:
 
 ```
-cd windows\out\build\x64-Debug
+cd windows\out\build\x86-Debug
 C:\Windows\SysWOW64\regsvr32.exe /s KhiinPJH.dll
 ```
 
-You should unregister when you are not actively developing:
+You should unregister these DLLs when you are not actively developing:
 
 ```
 regsvr32.exe /s /u KhiinPJH.dll     # /u to unregister
@@ -136,7 +170,13 @@ regsvr32.exe /s /u KhiinPJH.dll     # /u to unregister
 C:\Windows\SysWOW64\regsvr32.exe /u /s KhiinPJH.dll
 ```
 
-#### TIP (Text Input Processor)
+The registration command will run the DLL using the entry point
+`tip/DllModule.cpp#DllRegisterServer`, which delegates all
+of the registration commands to `Registrar.cpp`. The main requirement
+is simply to write the registry entries needed for the IME show up in
+the Windows taskbar and language settings pages.
+
+### TIP (Text Input Processor)
 
 The Windows TSF (Text Services Framework) is an expansive and highly
 over-engineered tool, at least for our use case. However, we need good
@@ -195,7 +235,7 @@ to work on it but it might be a big project for a small (and shrinking)
 user base. The Windows app includes a 32-bit DLL only to support
 32-bit applications on 64-bit Windows 10.
 
-#### Settings App
+### Settings App
 
 The settings app is a basic [property sheet](https://docs.microsoft.com/en-us/windows/win32/controls/property-sheets)
 application, with a few dialog boxes and standard Win32 controls.
@@ -206,9 +246,9 @@ by the DLL to load the configuration options.
 Some settings are saved in the registry, but we will migrate
 these so that everything is saved in the `ini`.
 
-#### Installer
+### WiX Installer
 
-In the KhiinInstaller package, `Registry.wxs` enables proper Windows installation
+In the `KhiinInstaller` package, `Registry.wxs` enables proper Windows installation
 and uninstallation support. Many other IMEs use the DLL's own self-registration,
 but this may leave behind unneeded / unwated registry data upon uninstallation.
 
@@ -216,10 +256,10 @@ The recommended solution is to provide all necessary registration information di
 in the `.msi` installation package. In order to obtain this information, you may
 use the self-registering DLL and take a diff of the registry before and after
 registration. Export the diff to a `.reg` file, which can then be consumed by WiX.
-Below is a step-by-step guide:
+Below is a step-by-step guide to recreating `Registry.wxs`:
 
 1. Prepare builds of both 64-bit and 32-bit DLLs.
-2. Download the [`RegistryChangesView`](https://www.nirsoft.net/utils/registry_changes_view.html) tool.
+2. Download the [RegistryChangesView](https://www.nirsoft.net/utils/registry_changes_view.html) tool.
 3. Open the tool and take a registry snapshot.
 4. Use both 64- and 32-bit `regsvr32.exe` to install both DLLs.
 5. Press OK to begin comparison.
@@ -238,28 +278,37 @@ English. They install the exact same application binaries, and the application
 itself supports Taiwanese (HanLo), Taiwanese (Lomaji), and English. The
 application language is user-configurable from the Settings app.
 
-### Android Development
+---
 
-#### Setting up the NDK toolchain
+## Android App
 
-The Android IME application uses the khiin engine via the Android NDK. The first step to
-working on the Android application is to make sure you can build khiin for the platform.
-You can use vcpkg with the 4 android triplets:
+The Android IME is currently in progress. It is a modern Jetpack Compose app written
+in Kotlin, and uses the Android NDK / JNI to load and communicate with `libkhiin`.
 
-Install the android packages with vcpkg:
+### Setting up the NDK toolchain
+
+`libkhiin` needs to be cross-compiled for the four Android platforms:
+
+- arm
+- arm64
+- x86
+- x86-64
+
+You may install the platform specific `libkhiin` dependencies again using `vcpkg`:
 
 ```
 ./vcpkg install sqlitecpp:x86-android sqlitecpp:x64-android sqlitecpp:arm-neon-android sqlitecpp:arm64-android
 ./vcpkg install protobuf:x86-android protobuf:x64-android protobuf:arm-neon-android protobuf:arm64-android
-./vcpkg install abseil:x86-android abseil:x64-android abseil:arm-neon-android abseil:arm64-android
 ```
 
-You must also have set these environment variables:
+You must also set these environment variables:
 
-```
-ANDROID_NDK_HOME=/path/to/Android/Sdk/ndk/25.2.9519653
-VCPKG_ROOT=/path/to/vcpkg
-```
+- `ANDROID_NDK_HOME=/path/to/Android/Sdk/ndk/25.2.9519653`
+- `VCPKG_ROOT=/path/to/vcpkg`
 
-When all of these steps are complete, cross your fingers and check if Android Studio
-can build the project.
+For build details, refer to `android/app/build.gradle.kts` sections `externalNativeBuild`
+(there are two), and the associated `CMakeLists.txt` in the same folder.
+
+Currently, the libkhiin and android cmake workflows are not very well structured.
+They should probably be improved to use `find_package` in the future
+(or a different build system altogether, like Bazel).
