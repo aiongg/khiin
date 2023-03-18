@@ -1,0 +1,16 @@
+{
+  "$schema": "https://raw.githubusercontent.com/microsoft/vcpkg-tool/main/docs/vcpkg.schema.json",
+  "name": "khiin-engine",
+  "version-string": "0.0.1",
+  "dependencies": [
+    {
+      "name": "sqlitecpp"
+    },
+    {
+      "name": "protobuf"
+    },
+    {
+      "name": "gtest"
+    }
+  ]
+}

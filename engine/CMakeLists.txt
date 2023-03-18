@@ -24,7 +24,7 @@ else()
 endif()
 find_package(SQLiteCpp REQUIRED)
 
-include_directories(${PROJECT_SOURCE_DIR} ${PROTOBUF_INCLUDE_DIR})
+include_directories(${PROJECT_SOURCE_DIR} ${Protobuf_INCLUDE_DIR})
 
 add_library(khiin STATIC
     "${PROTOS_DIR}/config.pb.h"
