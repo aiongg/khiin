@@ -31,13 +31,14 @@ Khiin consists of separate projects in the following folders:
 - [protobuf v3.18.0](https://github.com/protocolbuffers/protobuf/releases/tag/v3.18.0)
 - [GTest v1.11.0](https://github.com/google/googletest)
 
-These packages can be installed with `vcpkg`. On Windows, use triplet
-`x64-windows-static-md`:
+These packages can be installed with `vcpkg`, and should be installed
+automatically using the `vcpkg.json` manifest file. If you need to do
+manual install, on Windows, use triplet `x64-windows-static-md`.
 
 ```
-git clone https://github.com/Microsoft/vcpkg.git
+git clone --depth 1 --branch 2023.02.24 https://github.com/microsoft/vcpkg
 cd vcpkg
-bootstrap-vcpkg.bat
+bootstrap-vcpkg.bat -disableMetrics
 ./vcpkg install sqlitecpp protobuf gtest --triplet=x64-windows-static-md
 ```
 
