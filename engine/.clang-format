@@ -1,7 +1,7 @@
-BasedOnStyle: LLVM
+BasedOnStyle: Google
 IndentWidth: 4
-ColumnLimit: 120
-AlignAfterOpenBracket: Align
+ColumnLimit: 80
+AlignAfterOpenBracket: AlwaysBreak
 AllowShortFunctionsOnASingleLine: Empty
 AlwaysBreakTemplateDeclarations: Yes
 BreakConstructorInitializers: AfterColon

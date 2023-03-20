@@ -46,18 +46,18 @@ TEST(UserDictionaryTest, LoadDictionary) {
     auto ud = UserDictionary::Create(kUserDictionaryFile);
     auto result = ud->Search("khiin");
     EXPECT_EQ(result.size(), 1);
-    EXPECT_EQ(result[0].token->input, "khiin");
-    EXPECT_EQ(result[0].token->output, "起引");
+    EXPECT_EQ(result[0].input, "khiin");
+    EXPECT_EQ(result[0].output, "起引");
     
     result = ud->Search("dog");
     EXPECT_EQ(result.size(), 1);
-    EXPECT_EQ(result[0].token->input, "dog");
-    EXPECT_EQ(result[0].token->output, "káu-á");
+    EXPECT_EQ(result[0].input, "dog");
+    EXPECT_EQ(result[0].output, "káu-á");
 
     result = ud->Search("no");
     EXPECT_EQ(result.size(), 1);
-    EXPECT_EQ(result[0].token->input, "no");
-    EXPECT_EQ(result[0].token->output, "の");
+    EXPECT_EQ(result[0].input, "no");
+    EXPECT_EQ(result[0].output, "の");
 }
 
 TEST(UserDictionaryTest, InvalidFile) {

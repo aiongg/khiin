@@ -25,13 +25,10 @@ class DatabaseImpl : public Database {
         return std::string();
     }
 
-    void AllWordsByFreq(std::vector<InputByFreq> &output) override {
-        auto query = SQL::SelectInputsByFreq(*db_handle);
+    void AllWordsByFreq(std::vector<std::string>& output, InputType inputType) override {
+        auto query = SQL::SelectAllKeySequences(*db_handle, inputType);
         while (query.executeStep()) {
-            auto tmp = InputByFreq();
-            tmp.id = query.getColumn(frequencies::id).getInt();
-            tmp.input = query.getColumn(frequencies::input).getString();
-            output.push_back(std::move(tmp));
+            output.push_back(query.getColumn("key_sequence").getString());
         }
     }
 
@@ -65,131 +62,81 @@ class DatabaseImpl : public Database {
         SQL::IncrementBigrams(*db_handle, grams).exec();
     }
 
-    int UnigramCount(std::string const &gram) override {
-        auto ret = 0;
-
-        if (auto query = SQL::SelectUnigramCount(*db_handle, gram); query.executeStep()) {
-            ret = query.getColumn(unigram_freq::count).getInt();
-        }
-
-        return ret;
-    }
-
-    int BigramCount(Bigram const &gram) override {
-        auto ret = 0;
-
-        if (auto query = SQL::SelectBigramCount(*db_handle, gram.first, gram.second); query.executeStep()) {
-            ret = query.getColumn(bigram_freq::count).getInt();
-        }
-
-        return ret;
-    }
-
-    std::vector<Gram> UnigramCounts(std::vector<std::string> const &grams) override {
-        auto ret = std::vector<Gram>();
-        auto query = SQL::SelectUnigramCounts(*db_handle, grams);
+    void AddUnigramData(std::vector<std::string *> const &grams, std::vector<TaiToken> &tokens) {
+        auto query = SQL::SelectUnigrams(*db_handle, grams);
 
         while (query.executeStep()) {
-            Gram gram{};
-            gram.value = query.getColumn(unigram_freq::gram).getString();
-            gram.count = query.getColumn(unigram_freq::count).getInt();
-            ret.push_back(std::move(gram));
+            auto gram = query.getColumn(unigram_freq::gram).getString();
+            auto found = std::find_if(tokens.begin(), tokens.end(), [&gram](TaiToken const &token) {
+                return gram == token.output;
+            });
+            if (found != tokens.end()) {
+                found->unigram_count = query.getColumn(unigram_freq::count).getInt();
+            }
         }
-
-        return ret;
     }
 
-    std::vector<Gram> BigramCounts(std::string const &lgram, std::vector<std::string> const &rgrams) override {
-        auto ret = std::vector<Gram>();
-        auto query = SQL::SelectBigramCounts(*db_handle, lgram, rgrams);
-
+    void AddBigramData(std::string const &lgram, std::vector<std::string *> const &rgrams,
+                       std::vector<TaiToken> &tokens) {
+        auto query = SQL::SelectBigrams(*db_handle, lgram, rgrams);
         while (query.executeStep()) {
-            Gram gram{};
-            gram.value = query.getColumn(bigram_freq::rgram).getString();
-            gram.count = query.getColumn(bigram_freq::count).getInt();
-            ret.push_back(std::move(gram));
+            auto gram = query.getColumn(bigram_freq::rgram).getString();
+            auto found = std::find_if(tokens.begin(), tokens.end(), [&gram](TaiToken const &token) {
+                return gram == token.output;
+            });
+            if (found != tokens.end()) {
+                found->bigram_count = query.getColumn(bigram_freq::count).getInt();
+            }
         }
-
-        return ret;
     }
 
-    TaiToken *HighestUnigramCount(std::vector<TaiToken *> const &tokens) override {
-        TaiToken *ret = nullptr;
-
+    void AddNGramsData(std::optional<std::string> const &lgram, std::vector<TaiToken> &tokens) override {
         if (tokens.empty()) {
-            return ret;
+            return;
         }
 
-        auto grams = std::vector<std::string *>();
-        std::for_each(tokens.begin(), tokens.end(), [&](TaiToken *token) {
-            grams.push_back(&token->output);
-        });
-
-        auto query = SQL::SelectBestUnigram(*db_handle, grams);
-
-        if (query.executeStep()) {
-            auto result = query.getColumn(unigram_freq::gram).getString();
-
-            auto found = std::find_if(tokens.cbegin(), tokens.cend(), [&](TaiToken *token) {
-                return result == token->output;
-            });
-
-            if (found != tokens.cend()) {
-                ret = *found;
-            }
-
-            // for (auto const &token : tokens) {
-            //    if (result == token->output) {
-            //        ret = token;
-            //        break;
-            //    }
-            //}
+        auto rgrams = std::vector<std::string *>{};
+        for (auto it = tokens.begin(); it != tokens.end(); ++it) {
+            rgrams.push_back(&it->output);
         }
 
-        return ret;
+        AddUnigramData(rgrams, tokens);
+        if (lgram) {
+            AddBigramData(lgram.value(), rgrams, tokens);
+        }
     }
 
-    TaiToken *HighestBigramCount(std::string const &lgram, std::vector<TaiToken *> const &rgram_tokens) override {
-        TaiToken *ret = nullptr;
-
-        if (lgram.empty() || rgram_tokens.empty()) {
-            return ret;
-        }
-
-        auto rgrams = std::vector<std::string *>();
-        std::for_each(rgram_tokens.begin(), rgram_tokens.end(), [&](TaiToken *token) {
-            rgrams.push_back(&token->output);
-        });
-
-        auto query = SQL::SelectBestBigram(*db_handle, lgram, rgrams);
-        if (query.executeStep()) {
-            auto result = query.getColumn(bigram_freq::rgram).getString();
-            auto found = std::find_if(rgram_tokens.cbegin(), rgram_tokens.cend(), [&](TaiToken *token) {
-                return result == token->output;
-            });
-            if (found != rgram_tokens.cend()) {
-                ret = *found;
-            }
-        }
-
-        return ret;
-    }
-
-    void ConversionsByInputId(int input_id, std::vector<TaiToken> &conversions) override {
-        auto query = SQL::SelectConversions(*db_handle, input_id);
+    void LoadConversions(std::vector<std::string> &inputs, InputType inputType,
+                         std::vector<TaiToken> &outputs) override {
+        auto query = SQL::SelectConversions(*db_handle, inputs, inputType);
 
         while (query.executeStep()) {
             auto token = TaiToken();
-            token.id = query.getColumn(conversions::id).getInt();
-            token.input_id = input_id;
+            token.input_id = query.getColumn(conversions::input_id).getInt();
             token.input = query.getColumn(frequencies::input).getString();
             token.output = query.getColumn(conversions::output).getString();
             token.annotation = query.getColumn(conversions::annotation).getString();
             token.category = query.getColumn(conversions::category).getInt();
             token.weight = query.getColumn(conversions::weight).getInt();
-            conversions.push_back(std::move(token));
+            outputs.emplace_back(token);
         }
     }
+
+    //void ConversionsByInputId(int input_id, std::vector<TaiToken> &conversions) override {
+    //    auto query = SQL::SelectConversions(*db_handle, input_id);
+
+    //    while (query.executeStep()) {
+    //        auto token = TaiToken();
+    //        token.id = query.getColumn(conversions::id).getInt();
+    //        token.input_id = input_id;
+    //        token.input = query.getColumn(frequencies::input).getString();
+    //        token.output = query.getColumn(conversions::output).getString();
+    //        token.annotation = query.getColumn(conversions::annotation).getString();
+    //        token.category = query.getColumn(conversions::category).getInt();
+    //        token.weight = query.getColumn(conversions::weight).getInt();
+    //        conversions.push_back(std::move(token));
+    //    }
+    //}
 
     void LoadPunctuation(std::vector<Punctuation> &output) override {
         auto query = SQL::SelectSymbols(*db_handle);

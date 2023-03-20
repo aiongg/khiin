@@ -1,5 +1,6 @@
 #pragma once
 
+#include <optional>
 #include <variant>
 #include <vector>
 
@@ -19,13 +20,13 @@ class TaiText {
   public:
     using Chunk = std::variant<Syllable, VirtualSpace>;
     static TaiText FromRawSyllable(SyllableParser *parser, std::string const &syllable);
-    static TaiText FromMatching(SyllableParser *parser, std::string const &input, TaiToken *match);
+    static TaiText FromMatching(SyllableParser *parser, std::string const &input, TaiToken const &match);
 
     bool operator==(TaiText const &rhs) const;
 
     void AddItem(Syllable syllable);
     void AddItem(VirtualSpace spacer);
-    void SetCandidate(TaiToken *candidate);
+    void SetCandidate(TaiToken const &candidate);
 
     std::string RawText() const;
     utf8_size_t RawSize() const;
@@ -34,8 +35,6 @@ class TaiText {
     std::string ConvertedText() const;
     utf8_size_t ConvertedSize() const;
     size_t SyllableSize() const;
-    TaiToken *candidate() const;
-
 
     utf8_size_t RawToComposedCaret(size_t raw_caret) const;
     size_t ComposedToRawCaret(utf8_size_t caret) const;
@@ -45,9 +44,10 @@ class TaiText {
     bool IsVirtualSpace(utf8_size_t index) const;
     void SetKhin(KhinKeyPosition khin_pos, char khin_key);
 
+    std::optional<TaiToken> candidate;
+
   private:
     std::vector<Chunk> m_elements;
-    TaiToken *m_candidate = nullptr;
 };
 
 } // namespace khiin::engine

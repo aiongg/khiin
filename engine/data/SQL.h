@@ -6,6 +6,7 @@
 
 #include <SQLiteCpp/SQLiteCpp.h>
 
+#include "config/Config.h"
 #include "utils/common.h"
 #include "utils/utils.h"
 
@@ -60,26 +61,19 @@ class SQL {
   public:
     using Statement = SQLite::Statement;
     using DbHandle = SQLite::Database;
-    static Statement SelectInputsByFreq(DbHandle &db);
+    static Statement SelectAllKeySequences(DbHandle &db, InputType inputType);
     static Statement SelectSyllables(DbHandle &db);
     static Statement SelectConversions(DbHandle &db, int input_id);
-    static Statement SelectConversions(DbHandle &db, std::vector<std::string *> const &inputs);
+    static Statement SelectConversions(DbHandle &db, std::vector<std::string> const &inputs,
+                                       InputType input_type);
+
     static Statement SelectSymbols(DbHandle &db);
     static Statement SelectEmojis(DbHandle &db);
 
     // Ngrams
-    static Statement SelectBestUnigram(DbHandle &db, std::vector<std::string *> const &grams);
-    static Statement SelectBestBigram(DbHandle &db, std::string const &lgram,
-                                              std::vector<std::string *> const &rgrams);
     static Statement SelectUnigrams(DbHandle &db, std::vector<std::string *> const &grams);
     static Statement SelectBigrams(DbHandle &db, std::string const &lgram,
                                            std::vector<std::string *> const &rgrams);
-    static Statement SelectUnigramCount(DbHandle &db, std::string const &gram);
-    static Statement SelectUnigramCounts(DbHandle &db, std::vector<std::string> const &grams);
-    static Statement SelectBigramCount(DbHandle &db, std::string const &lgram,
-                                               std::string const &rgram);
-    static Statement SelectBigramCounts(DbHandle &db, std::string const &lgram,
-                                                std::vector<std::string> const &rgrams);
     static Statement IncrementUnigrams(DbHandle &db, std::vector<std::string> const &grams);
     static Statement IncrementBigrams(DbHandle &db,
                                               std::vector<std::pair<std::string, std::string>> const &bigrams);

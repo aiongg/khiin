@@ -24,6 +24,11 @@ enum class InputMode {
     Manual,
 };
 
+enum class InputType {
+    Numeric,
+    Telex,
+};
+
 class Config {
   public:
     Config() = default;

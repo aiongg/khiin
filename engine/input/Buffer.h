@@ -93,14 +93,14 @@ class Buffer {
     void StripVirtualSpacing();
 
     // Creates the appropriate variant internally
-    void Append(SyllableParser *parser, std::string const &input, TaiToken *match = nullptr, bool set_candidate = false,
-                bool set_converted = false);
+    //void Append(SyllableParser *parser, std::string const &input, TaiToken *match = nullptr, bool set_candidate = false,
+    //            bool set_converted = false);
     void Append(Buffer &rhs);
     void Append(Buffer &&rhs);
     void Append(BufferElement &&rhs);
-    void Append(std::string &&rhs);
-    void Append(TaiText &&rhs);
-    void Append(Punctuation &&rhs);
+    //void Append(std::string &&rhs);
+    //void Append(TaiText &&rhs);
+    //void Append(Punctuation &&rhs);
 
     // Replace element at |index| in this Buffer with all elements from |replace|
     iterator Replace(iterator first, iterator last, Buffer &other);

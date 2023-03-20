@@ -2,16 +2,15 @@
 
 #include <assert.h>
 
+#include "SyllableParser.h"
 #include "utils/common.h"
 #include "utils/unicode.h"
-
-#include "SyllableParser.h"
 
 namespace khiin::engine {
 namespace {
 namespace u8u = utf8::unchecked;
 
-const auto composed_size_visitor = overloaded //
+const auto composed_size_visitor = overloaded  //
     {[](Syllable const &elem) {
          return elem.composed_size();
      },
@@ -19,7 +18,7 @@ const auto composed_size_visitor = overloaded //
          return size_t(1);
      }};
 
-const auto to_raw_visitor = overloaded //
+const auto to_raw_visitor = overloaded  //
     {[](Syllable const &elem) {
          return elem.raw_input();
      },
@@ -27,7 +26,7 @@ const auto to_raw_visitor = overloaded //
          return std::string();
      }};
 
-const auto to_composed_visitor = overloaded //
+const auto to_composed_visitor = overloaded  //
     {[](Syllable const &elem) {
          return elem.composed();
      },
@@ -58,7 +57,8 @@ std::vector<std::string> SplitConvertedToSyllables(std::string_view str) {
 
         if (cat == GlyphCategory::Alnum) {
             u8u::advance(end, 1);
-            while (end != str.end() && glyph_type(end) == GlyphCategory::Alnum) {
+            while (end != str.end() &&
+                   glyph_type(end) == GlyphCategory::Alnum) {
                 u8u::advance(end, 1);
             }
             ret.push_back(std::string(start, end));
@@ -70,7 +70,7 @@ std::vector<std::string> SplitConvertedToSyllables(std::string_view str) {
     return ret;
 }
 
-} // namespace
+}  // namespace
 
 bool TaiText::operator==(TaiText const &rhs) const {
     if (m_elements.size() != rhs.m_elements.size()) {
@@ -83,15 +83,15 @@ bool TaiText::operator==(TaiText const &rhs) const {
         auto const &l = m_elements[i];
         auto const &r = rhs.m_elements[i];
 
-        auto *lvs = std::get_if<VirtualSpace>(&l);
-        auto *rvs = std::get_if<VirtualSpace>(&r);
+        auto const *lvs = std::get_if<VirtualSpace>(&l);
+        auto const *rvs = std::get_if<VirtualSpace>(&r);
 
         if (lvs != nullptr && rvs != nullptr) {
             continue;
         }
 
-        auto *lsyl = std::get_if<Syllable>(&l);
-        auto *rsyl = std::get_if<Syllable>(&r);
+        auto const *lsyl = std::get_if<Syllable>(&l);
+        auto const *rsyl = std::get_if<Syllable>(&r);
 
         if (lsyl != nullptr && rsyl != nullptr && *lsyl == *rsyl) {
             continue;
@@ -111,8 +111,8 @@ void TaiText::AddItem(VirtualSpace spacer) {
     m_elements.push_back(Chunk{spacer});
 }
 
-void TaiText::SetCandidate(TaiToken *candidate) {
-    m_candidate = candidate;
+void TaiText::SetCandidate(TaiToken const &candidate) {
+    this->candidate = candidate;
 }
 
 std::string TaiText::RawText() const {
@@ -150,15 +150,15 @@ utf8_size_t TaiText::ComposedSize() const {
 }
 
 std::string TaiText::ConvertedText() const {
-    if (m_candidate != nullptr) {
-        if (Lomaji::IsLomaji(m_candidate->output)) {
+    if (candidate) {
+        if (Lomaji::IsLomaji(candidate->output)) {
             auto raw = RawText();
             if (!unicode::all_lower(raw)) {
-                return Lomaji::MatchCapitalization(raw, m_candidate->output);
+                return Lomaji::MatchCapitalization(raw, candidate->output);
             }
         }
 
-        return m_candidate->output;
+        return candidate->output;
     }
 
     return ComposedText();
@@ -180,10 +180,6 @@ size_t TaiText::SyllableSize() const {
     return ret;
 }
 
-TaiToken *TaiText::candidate() const {
-    return m_candidate;
-}
-
 utf8_size_t TaiText::RawToComposedCaret(size_t raw_caret) const {
     auto remainder = raw_caret;
     utf8_size_t caret = 0;
@@ -191,7 +187,8 @@ utf8_size_t TaiText::RawToComposedCaret(size_t raw_caret) const {
     for (auto const &v_elem : m_elements) {
         if (remainder > 0) {
             if (auto *elem = std::get_if<Syllable>(&v_elem)) {
-                if (auto raw_size = elem->raw_input_size(); remainder > raw_size) {
+                if (auto raw_size = elem->raw_input_size();
+                    remainder > raw_size) {
                     remainder -= raw_size;
                     caret += elem->composed_size();
                 } else {
@@ -244,7 +241,7 @@ size_t TaiText::ConvertedToRawCaret(utf8_size_t caret) const {
         return RawSize();
     }
 
-    if (m_candidate == nullptr) {
+    if (!candidate) {
         return ComposedToRawCaret(caret);
     }
 
@@ -328,15 +325,17 @@ void TaiText::SetKhin(KhinKeyPosition khin_pos, char khin_key) {
     }
 }
 
-TaiText TaiText::FromRawSyllable(SyllableParser *parser, std::string const &syllable) {
+TaiText TaiText::FromRawSyllable(
+    SyllableParser *parser, std::string const &syllable) {
     auto syl = parser->ParseRaw(syllable);
     TaiText ret;
     ret.AddItem(syl);
     return ret;
 }
 
-TaiText TaiText::FromMatching(SyllableParser *parser, std::string const &input, TaiToken *match) {
-    return parser->AsTaiText(input, match->input);
+TaiText TaiText::FromMatching(
+    SyllableParser *parser, std::string const &input, TaiToken const &match) {
+    return parser->AsTaiText(input, match.input);
 }
 
-} // namespace khiin::engine
+}  // namespace khiin::engine
