@@ -31,7 +31,6 @@ class DictionaryImpl : public Dictionary {
   private:
     void Initialize() override {
         LoadKeySequences();
-        //LoadInputSequences();
         BuildWordTrie();
         BuildSyllableTrie();
         BuildWordSplitter();
@@ -170,24 +169,6 @@ class DictionaryImpl : public Dictionary {
         m_engine->database()->AllWordsByFreq(m_key_sequences, InputType::Numeric);
     }
 
-    void LoadInputSequences() {
-        //m_input_ids.clear();
-        //m_user_inputs.clear();
-        //auto *parser = m_engine->syllable_parser();
-        //auto seen = std::unordered_set<std::string>();
-
-        //for (auto &row : m_key_sequences) {
-        //    auto input_sequences = parser->AsInputSequences(row.input);
-        //    for (auto &input_seq : input_sequences) {
-        //        auto &key = input_seq.input;
-        //        CacheId(key, row.id);
-        //        if (seen.insert(key).second) {
-        //            m_user_inputs.push_back(key);
-        //        }
-        //    }
-        //}
-    }
-
     void BuildWordTrie() {
         m_word_trie = Trie::Create();
 
@@ -229,49 +210,6 @@ class DictionaryImpl : public Dictionary {
             m_input_ids.insert(std::make_pair(input, std::vector<int>{input_id}));
         }
     }
-
-    //void GetOrCacheTokens(std::vector<std::string> const &inputs, std::vector<TokenResult> &output) {
-    //    for (auto const &input : inputs) {
-    //        GetOrCacheTokens(input, output);
-    //    }
-    //}
-
-    //void GetOrCacheTokens(std::string const &input, std::vector<TokenResult> &output) {
-    //    auto input_size = unicode::u8_size(input);
-    //    auto tmp = std::vector<TokenResult>();
-    //    if (auto ids = m_input_ids.find(input); ids != m_input_ids.end()) {
-    //        GetOrCacheTokens(ids->second, tmp);
-    //        for (auto &each : tmp) {
-    //            each.input_size = input_size;
-    //            output.push_back(std::move(each));
-    //        }
-    //    }
-    //}
-
-    //void GetOrCacheTokens(std::vector<int> const &input_ids, std::vector<TokenResult> &output) {
-    //    for (auto id : input_ids) {
-    //        GetOrCacheTokens(id, output);
-    //    }
-    //}
-
-    //void GetOrCacheTokens(int input_id, std::vector<TokenResult> &output) {
-    //    if (auto cached = m_input_id_token_cache.find(input_id); cached != m_input_id_token_cache.end()) {
-    //        std::for_each(std::begin(cached->second), std::end(cached->second), [&](TaiToken *token) {
-    //            output.push_back(TokenResult{token});
-    //        });
-    //        return;
-    //    }
-
-    //    m_input_id_token_cache[input_id] = std::vector<TaiToken *>();
-    //    auto &ptr_cache = m_input_id_token_cache[input_id];
-    //    auto tokens = std::vector<TaiToken>();
-    //    m_engine->database()->ConversionsByInputId(input_id, tokens);
-    //    for (auto &token : tokens) {
-    //        auto inserted = m_token_cache.insert(std::make_pair(token.id, std::move(token)));
-    //        ptr_cache.push_back(&inserted.first->second);
-    //        output.push_back(TokenResult{&inserted.first->second});
-    //    }
-    //}
 
     void RecordNGrams(Buffer const &buffer) override {
         if (buffer.Empty()) {
