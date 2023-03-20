@@ -104,7 +104,7 @@ class DictionaryImpl : public Dictionary {
         m_engine->database()->LoadConversions(words, InputType::Numeric, ret);
         AddUserDictionaryCandidates(query, ret);
         for (auto &token : ret) {
-            token.input_size = input_size;
+            token.input_size = unicode::u8_size(token.key_sequence);
         }
         return ret;
     }
