@@ -13,6 +13,7 @@ struct TaiToken {
     bool custom = false;
     int chhan_id = 0;
     int input_id = 0;
+    std::string key_sequence;
     std::string input;
     std::string output;
     int weight = 0;

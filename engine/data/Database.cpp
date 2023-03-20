@@ -113,6 +113,7 @@ class DatabaseImpl : public Database {
         while (query.executeStep()) {
             auto token = TaiToken();
             token.input_id = query.getColumn(conversions::input_id).getInt();
+            token.key_sequence = query.getColumn("key_sequence").getString();
             token.input = query.getColumn(frequencies::input).getString();
             token.output = query.getColumn(conversions::output).getString();
             token.annotation = query.getColumn(conversions::annotation).getString();

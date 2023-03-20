@@ -44,9 +44,9 @@ std::string gram_triple(size_t n) {
 Statement SQL::SelectAllKeySequences(DbHandle &db, InputType inputType) {
     switch (inputType) {
     case InputType::Telex:
-        return Statement(db, "SELECT DISTINCT input_id, key_sequence FROM lookup_telex");
+        return Statement(db, "SELECT DISTINCT key_sequence FROM lookup_telex");
     default:
-        return Statement(db, "SELECT DISTINCT input_id, key_sequence FROM lookup_numeric");
+        return Statement(db, "SELECT DISTINCT key_sequence FROM lookup_numeric");
     }
 }
 
