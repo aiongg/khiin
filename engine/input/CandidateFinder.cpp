@@ -20,8 +20,14 @@ using namespace unicode;
 constexpr uint32_t kNumberOfContinuousCandidates = 5;
 
 inline bool IsHigherFrequency(TaiToken const& a, TaiToken const& b) {
-    return a.input_id == b.input_id ? a.weight > b.weight
-                                    : a.input_id < b.input_id;
+    //return a.input_id == b.input_id ? a.weight > b.weight
+    //                                : a.input_id < b.input_id;
+
+    if (a.weight != b.weight) {
+        return a.weight > b.weight;
+    }
+
+    return a.input_id < b.input_id;
 }
 
 bool CompareTokenResultsByLengthFirst(TaiToken const& a, TaiToken const& b) {
@@ -59,7 +65,7 @@ inline void SortTokensByDefault(std::vector<TaiToken>& tokens) {
     if (tokens.empty()) {
         return;
     }
-    std::sort(tokens.begin(), tokens.end(), IsHigherFrequency);
+    std::stable_sort(tokens.begin(), tokens.end(), IsHigherFrequency);
 }
 
 std::optional<TaiToken> BestMatchNgram(
