@@ -2,11 +2,10 @@
 
 #include <string>
 
-#include "config/Config.h"
-
 #include "Buffer.h"
 #include "Engine.h"
 #include "SyllableParser.h"
+#include "config/Config.h"
 
 namespace khiin::engine {
 namespace {
@@ -17,7 +16,8 @@ bool is_all_hyphens(std::string_view str) {
     });
 }
 
-void AutokhinBufferImpl(SyllableParser *parser, bool autokhin_enabled, BufferElementList &buffer) {
+void AutokhinBufferImpl(
+    SyllableParser *parser, bool autokhin_enabled, BufferElementList &buffer) {
     bool autokhin = false;
     auto it = buffer.begin();
 
@@ -29,16 +29,22 @@ void AutokhinBufferImpl(SyllableParser *parser, bool autokhin_enabled, BufferEle
             if (raw.size() == 2) {
                 it = buffer.erase(it);
                 if (it == buffer.end()) {
-                    auto elem = TaiText::FromRawSyllable(parser, "--");
-                    buffer.insert(it, BufferElement(elem));
+                    buffer.insert(
+                        it, BufferElement::Builder()
+                                .Parser(parser)
+                                .FromInput("--")
+                                .Build());
                     break;
                 }
             } else {
                 raw.erase(raw.end() - 2, raw.end());
                 it->Replace(std::string(raw));
                 if (auto next = std::next(it); next == buffer.end()) {
-                    auto elem = TaiText::FromRawSyllable(parser, "--");
-                    buffer.insert(it, BufferElement(elem));
+                    buffer.insert(
+                        it, BufferElement::Builder()
+                                .Parser(parser)
+                                .FromInput("--")
+                                .Build());
                     break;
                 }
                 it = std::next(it, 1);
@@ -55,7 +61,8 @@ void AutokhinBufferImpl(SyllableParser *parser, bool autokhin_enabled, BufferEle
             continue;
         }
 
-        if (autokhin_enabled && autokhin && !it->SetKhin(KhinKeyPosition::Virtual, 0)) {
+        if (autokhin_enabled && autokhin &&
+            !it->SetKhin(KhinKeyPosition::Virtual, 0)) {
             autokhin = false;
         }
 
@@ -63,10 +70,11 @@ void AutokhinBufferImpl(SyllableParser *parser, bool autokhin_enabled, BufferEle
     }
 }
 
-} // namespace
+}  // namespace
 
 void KhinHandler::AutokhinBuffer(Engine *engine, Buffer &buffer) {
-    AutokhinBufferImpl(engine->syllable_parser(), engine->config()->autokhin(), buffer.get());
+    AutokhinBufferImpl(
+        engine->syllable_parser(), engine->config()->autokhin(), buffer.get());
 }
 
-} // namespace khiin::engine
+}  // namespace khiin::engine

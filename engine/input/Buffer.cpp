@@ -13,19 +13,21 @@ bool NeedsVirtualSpace(std::string const &lhs, std::string const &rhs) {
     auto left = end_glyph_type(lhs);
     auto right = start_glyph_type(rhs);
 
-    return ((left == GlyphCategory::Alnum && right == GlyphCategory::Alnum) ||
-            (left == GlyphCategory::Alnum && right == GlyphCategory::Hanji) ||
-            (left == GlyphCategory::Hanji && right == GlyphCategory::Alnum) ||
-            (left == GlyphCategory::Alnum && right == GlyphCategory::Khin) ||
-            (left == GlyphCategory::Hanji && right == GlyphCategory::Khin));
+    return (
+        (left == GlyphCategory::Alnum && right == GlyphCategory::Alnum) ||
+        (left == GlyphCategory::Alnum && right == GlyphCategory::Hanji) ||
+        (left == GlyphCategory::Hanji && right == GlyphCategory::Alnum) ||
+        (left == GlyphCategory::Alnum && right == GlyphCategory::Khin) ||
+        (left == GlyphCategory::Hanji && right == GlyphCategory::Khin));
 }
 
-} // namespace
+}  // namespace
 
 using iterator = Buffer::iterator;
 using const_iterator = Buffer::const_iterator;
 
-utf8_size_t Buffer::TextSize(const_iterator const &from, const_iterator const &to) {
+utf8_size_t Buffer::TextSize(
+    const_iterator const &from, const_iterator const &to) {
     auto it = from;
     utf8_size_t size = 0;
 
@@ -36,7 +38,8 @@ utf8_size_t Buffer::TextSize(const_iterator const &from, const_iterator const &t
     return size;
 }
 
-utf8_size_t Buffer::RawTextSize(const_iterator const &from, const_iterator const &to) {
+utf8_size_t Buffer::RawTextSize(
+    const_iterator const &from, const_iterator const &to) {
     auto it = from;
     utf8_size_t size = 0;
 
@@ -47,7 +50,8 @@ utf8_size_t Buffer::RawTextSize(const_iterator const &from, const_iterator const
     return size;
 }
 
-std::string Buffer::RawText(const_iterator const &from, const_iterator const &to) {
+std::string Buffer::RawText(
+    const_iterator const &from, const_iterator const &to) {
     auto ret = std::string();
     auto it = from;
     for (; it != to; ++it) {
@@ -56,31 +60,33 @@ std::string Buffer::RawText(const_iterator const &from, const_iterator const &to
     return ret;
 }
 
-//void Buffer::AdjustVirtualSpacing(BufferElementList &elements) {
-//    if (elements.empty()) {
-//        return;
-//    }
+// void Buffer::AdjustVirtualSpacing(BufferElementList &elements) {
+//     if (elements.empty()) {
+//         return;
+//     }
 //
-//    RemoveVirtualSpaces(elements);
+//     RemoveVirtualSpaces(elements);
 //
-//    for (auto i = elements.size() - 1; i != 0; --i) {
-//        auto &lhs_elem = elements.at(i - 1);
-//        auto &rhs_elem = elements.at(i);
-//        auto lhs_converted = lhs_elem.IsConverted();
-//        auto rhs_converted = rhs_elem.IsConverted();
+//     for (auto i = elements.size() - 1; i != 0; --i) {
+//         auto &lhs_elem = elements.at(i - 1);
+//         auto &rhs_elem = elements.at(i);
+//         auto lhs_converted = lhs_elem.IsConverted();
+//         auto rhs_converted = rhs_elem.IsConverted();
 //
-//        std::string lhs = lhs_converted ? lhs_elem.converted() : lhs_elem.composed();
-//        std::string rhs = rhs_converted ? rhs_elem.converted() : rhs_elem.composed();
+//         std::string lhs = lhs_converted ? lhs_elem.converted() :
+//         lhs_elem.composed(); std::string rhs = rhs_converted ?
+//         rhs_elem.converted() : rhs_elem.composed();
 //
-//        if (NeedsVirtualSpace(lhs, rhs)) {
-//            auto vs = BufferElement(VirtualSpace());
-//            if (lhs_converted && rhs_converted) {
-//                vs.SetConverted(true);
-//            }
-//            elements.insert(elements.begin() + static_cast<int>(i), std::move(vs));
-//        }
-//    }
-//}
+//         if (NeedsVirtualSpace(lhs, rhs)) {
+//             auto vs = BufferElement(VirtualSpace());
+//             if (lhs_converted && rhs_converted) {
+//                 vs.SetConverted(true);
+//             }
+//             elements.insert(elements.begin() + static_cast<int>(i),
+//             std::move(vs));
+//         }
+//     }
+// }
 
 void Buffer::StripVirtualSpacing() {
     if (m_elements.empty()) {
@@ -142,29 +148,33 @@ void Buffer::Append(Buffer &rhs) {
 }
 
 void Buffer::Append(Buffer &&rhs) {
-    m_elements.insert(m_elements.end(), std::make_move_iterator(rhs.Begin()), std::make_move_iterator(rhs.End()));
+    m_elements.insert(
+        m_elements.end(), std::make_move_iterator(rhs.Begin()),
+        std::make_move_iterator(rhs.End()));
 }
 
 void Buffer::Append(BufferElement &&rhs) {
     m_elements.push_back(std::move(rhs));
 }
 
-void Buffer::Append(std::string &&rhs) {
-    m_elements.push_back(BufferElement(std::move(rhs)));
-}
-
-void Buffer::Append(TaiText &&rhs) {
-    m_elements.push_back(BufferElement(std::move(rhs)));
-}
-
-void Buffer::Append(Punctuation &&rhs) {
-    m_elements.push_back(BufferElement(std::move(rhs)));
-}
-
-void Buffer::Append(SyllableParser *parser, std::string const &input, TaiToken *match, bool set_candidate,
-                    bool set_converted) {
-    m_elements.push_back(BufferElement::Build(parser, input, match, set_candidate, set_converted));
-}
+// void Buffer::Append(std::string &&rhs) {
+//     m_elements.push_back(BufferElement(std::move(rhs)));
+// }
+//
+// void Buffer::Append(TaiText &&rhs) {
+//     m_elements.push_back(BufferElement(std::move(rhs)));
+// }
+//
+// void Buffer::Append(Punctuation &&rhs) {
+//     m_elements.push_back(BufferElement(std::move(rhs)));
+// }
+//
+// void Buffer::Append(SyllableParser *parser, std::string const &input,
+// TaiToken *match, bool set_candidate,
+//                     bool set_converted) {
+//     m_elements.push_back(BufferElement::Build(parser, input, match,
+//     set_candidate, set_converted));
+// }
 
 iterator Buffer::Erase(iterator it) {
     return m_elements.erase(it);
@@ -232,7 +242,9 @@ utf8_size_t Buffer::TextSize() const {
 
 std::string Buffer::RawTextFrom(size_t element_index) const {
     assert(element_index < m_elements.size());
-    return RawText(m_elements.cbegin() + static_cast<int>(element_index), m_elements.cend());
+    return RawText(
+        m_elements.cbegin() + static_cast<int>(element_index),
+        m_elements.cend());
 }
 
 size_t Buffer::RawTextSize() const {
@@ -293,15 +305,17 @@ std::string Buffer::Text() const {
 }
 
 bool Buffer::AllComposing() const {
-    return std::all_of(m_elements.cbegin(), m_elements.cend(), [](auto const &el) {
-        return !el.IsConverted();
-    });
+    return std::all_of(
+        m_elements.cbegin(), m_elements.cend(), [](auto const &el) {
+            return !el.IsConverted();
+        });
 }
 
 bool Buffer::HasComposing() const {
-    return std::any_of(m_elements.cbegin(), m_elements.cend(), [](auto const &el) {
-        return !el.IsConverted();
-    });
+    return std::any_of(
+        m_elements.cbegin(), m_elements.cend(), [](auto const &el) {
+            return !el.IsConverted();
+        });
 }
 
 // Moves converted sections before and after composition
@@ -358,22 +372,27 @@ void Buffer::SplitForComposition(utf8_size_t caret, Buffer &pre, Buffer &post) {
 
     // Only one element remaining: if Hanji we split it and
     // start a new composition buffer, if Lomaji we keep it as-is
-    if (auto converted = Begin()->converted(); unicode::contains_hanji(converted)) {
+    if (auto converted = Begin()->converted();
+        unicode::contains_hanji(converted)) {
         auto remainder = caret - pre.TextSize();
 
         auto it = converted.begin();
         utf8::unchecked::advance(it, remainder);
         if (it != converted.begin()) {
-            auto tmp = BufferElement(std::string(converted.begin(), it));
-            tmp.SetConverted(true);
-            tmp.SetSelected(true);
-            pre.get().push_back(std::move(tmp));
+            pre.get().push_back(
+                BufferElement::Builder()
+                    .FromInput(std::string(converted.begin(), it))
+                    .SetConverted()
+                    .SetSelected()
+                    .Build());
         }
         if (it != converted.end()) {
-            auto tmp = BufferElement(std::string(it, converted.end()));
-            tmp.SetConverted(true);
-            tmp.SetSelected(true);
-            post.get().insert(post.Begin(), std::move(tmp));
+            post.get().insert(
+                post.Begin(), BufferElement::Builder()
+                                  .FromInput(std::string(it, converted.end()))
+                                  .SetConverted()
+                                  .SetSelected()
+                                  .Build());
         }
         Clear();
     }
@@ -427,9 +446,10 @@ std::string ConvertedOrComposedText(BufferElement const &element) {
 }
 
 void Buffer::RemoveVirtualSpacing() {
-    auto it = std::remove_if(m_elements.begin(), m_elements.end(), [](BufferElement const &el) {
-        return el.IsVirtualSpace();
-    });
+    auto it = std::remove_if(
+        m_elements.begin(), m_elements.end(), [](BufferElement const &el) {
+            return el.IsVirtualSpace();
+        });
     m_elements.erase(it, m_elements.end());
 }
 
@@ -447,13 +467,14 @@ void Buffer::AdjustVirtualSpacing() {
         auto rhs = ConvertedOrComposedText(rhs_elem);
 
         if (NeedsVirtualSpace(lhs, rhs)) {
-            auto vs = BufferElement(VirtualSpace());
+            auto vs = BufferElement::Builder().WithVirtualSpace();
             if (lhs_elem.IsConverted() && rhs_elem.IsConverted()) {
-                vs.SetConverted(true);
+                vs.SetConverted();
             } else if (lhs_elem.IsSelected() && rhs_elem.IsSelected()) {
-                vs.SetSelected(true);
+                vs.SetSelected();
             }
-            m_elements.insert(m_elements.begin() + static_cast<int>(i), std::move(vs));
+            m_elements.insert(
+                m_elements.begin() + static_cast<int>(i), vs.Build());
         }
     }
     // caret = CaretFrom(raw_caret);
@@ -475,4 +496,4 @@ BufferElementList &Buffer::get() {
     return m_elements;
 }
 
-} // namespace khiin::engine
+}  // namespace khiin::engine

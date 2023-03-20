@@ -41,8 +41,13 @@ std::string gram_triple(size_t n) {
 
 } // namespace
 
-Statement SQL::SelectInputsByFreq(DbHandle &db) {
-    return Statement(db, "SELECT * FROM frequency ORDER BY id");
+Statement SQL::SelectAllKeySequences(DbHandle &db, InputType inputType) {
+    switch (inputType) {
+    case InputType::Telex:
+        return Statement(db, "SELECT DISTINCT input_id, key_sequence FROM lookup_telex");
+    default:
+        return Statement(db, "SELECT DISTINCT input_id, key_sequence FROM lookup_numeric");
+    }
 }
 
 Statement SQL::SelectSyllables(DbHandle &db) {
@@ -78,62 +83,33 @@ SQLite::Statement SQL::SelectConversions(DbHandle &db, int input_id) {
     return ret;
 }
 
-SQLite::Statement SQL::SelectConversions(DbHandle &db, std::vector<std::string *> const &inputs) {
-    static constexpr auto sql = R"(
-        SELECT
-            c.id,
-            f.input,
-            c.output,
-            c.category,
-            c.annotation
-        FROM conversions AS c
-        INNER JOIN frequency AS f
-        ON c.input_id = f.id
-        WHERE f.input IN (%s)
-        ORDER BY c.id
-    )";
-
-    auto ret = Statement(db, format(sql, qmarks(inputs.size())));
-    auto i = 1;
-    for (auto *input : inputs) {
-        ret.bind(i, *input);
-        ++i;
-    }
-    return ret;
-}
-
-SQLite::Statement SQL::SelectBestUnigram(DbHandle &db, std::vector<std::string *> const &grams) {
-    static constexpr auto sql = R"(
-        SELECT gram, n
-        FROM unigram_freq
-        WHERE gram in (%s)
-        ORDER BY n DESC LIMIT 1
-    )";
-
-    auto ret = Statement(db, format(sql, qmarks(grams.size())));
-    auto i = 1;
-    for (auto *gram : grams) {
-        ret.bind(i, *gram);
-        ++i;
-    }
-    return ret;
-}
-
-SQLite::Statement SQL::SelectBestBigram(DbHandle &db, std::string const &lgram,
-                                        std::vector<std::string *> const &rgrams) {
-    static constexpr auto sql = R"(
+SQLite::Statement SQL::SelectConversions(DbHandle &db, std::vector<std::string> const &inputs, const InputType input_type) {
+    static constexpr auto sql_numeric = R"(
         SELECT *
-        FROM bigram_freq
-        WHERE lgram = ?
-        AND rgram in (%s)
-        ORDER BY n DESC LIMIT 1
+        FROM lookup_numeric
+        WHERE key_sequence IN (%s)
     )";
 
-    auto ret = Statement(db, format(sql, qmarks(rgrams.size())));
-    ret.bind(1, lgram);
-    auto i = 2;
-    for (auto *gram : rgrams) {
-        ret.bind(i, *gram);
+    static constexpr auto sql_telex = R"(
+        SELECT *
+        FROM lookup_telex
+        WHERE key_sequence IN (%s)
+    )";
+
+    auto ret = Statement(db, "");
+
+    switch (input_type) {
+    case InputType::Numeric:
+        ret = Statement(db, format(sql_numeric, qmarks(inputs.size())));
+        break;
+    case InputType::Telex:
+        ret = Statement(db, format(sql_telex, qmarks(inputs.size())));
+        break;
+    }
+
+    auto i = 1;
+    for (const auto &input : inputs) {
+        ret.bind(i, input);
         ++i;
     }
     return ret;
@@ -168,54 +144,6 @@ SQLite::Statement SQL::SelectBigrams(DbHandle &db, std::string const &lgram, std
     auto i = 2;
     for (auto *gram : rgrams) {
         ret.bind(i, *gram);
-        ++i;
-    }
-    return ret;
-}
-
-SQLite::Statement SQL::SelectUnigramCount(DbHandle &db, std::string const &gram) {
-    auto ret = Statement(db, "SELECT n FROM unigram_freq WHERE gram = ?");
-    ret.bind(1, gram);
-    return ret;
-}
-
-Statement SQL::SelectUnigramCounts(DbHandle &db, std::vector<std::string> const &grams) {
-    static constexpr auto sql = R"(
-        SELECT gram, n
-        FROM unigram_freq
-        WHERE gram in (%s)
-    )";
-
-    auto ret = Statement(db, format(sql, qmarks(grams.size())));
-    auto i = 1;
-    for (auto const &gram : grams) {
-        ret.bind(i, gram);
-        ++i;
-    }
-    return ret;
-}
-
-SQLite::Statement SQL::SelectBigramCount(DbHandle &db, std::string const &lgram, std::string const &rgram) {
-    auto ret = Statement(db, "SELECT n FROM bigram_freq WHERE lgram = ? AND rgram = ?");
-    ret.bind(1, lgram);
-    ret.bind(2, rgram);
-    return ret;
-}
-
-SQLite::Statement SQL::SelectBigramCounts(DbHandle &db, std::string const &lgram,
-                                          std::vector<std::string> const &rgrams) {
-    static constexpr auto sql = R"(
-        SELECT n, rgram
-        FROM bigram_freq
-        WHERE lgram = ?
-        AND rgram in (%s)
-    )";
-
-    auto ret = Statement(db, format(sql, qmarks(rgrams.size())));
-    ret.bind(1, lgram);
-    auto i = 2;
-    for (auto const &rgram : rgrams) {
-        ret.bind(i, rgram);
         ++i;
     }
     return ret;
