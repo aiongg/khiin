@@ -30,7 +30,7 @@ set(Protobuf_PROTOC_EXECUTABLE "${VCPKG_PLATFORM_DIR}/tools/protobuf/protoc.exe"
 set(Protobuf_LIBRARIES "${VCPKG_PLATFORM_DIR}/lib")
 set(Protobuf_INCLUDE_DIR ${VCPKG_INCLUDE_DIR})
 
-include_directories("../../engine")
+include_directories("../..")
 add_subdirectory("../../engine" "khiin")
 
 # Declares and names the project.
@@ -53,6 +53,7 @@ add_library( # Sets the name of the library.
         SHARED
 
         # Provides a relative path to your source file(s).
+        src/main/cpp/EngineController.cpp
         src/main/cpp/test.cpp)
 
 # Searches for a specified prebuilt library and stores the path as a

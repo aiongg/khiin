@@ -2,15 +2,15 @@
 #include <memory>
 #include <string>
 
-#include "../../../../../engine/Engine.h"
+#include "engine/Engine.h"
 
 using namespace khiin::engine;
 
 extern "C"
 JNIEXPORT jstring JNICALL
 Java_be_chiahpa_khiin_SettingsActivity_stringFromJNI(
-    JNIEnv* env,
-    jobject
+        JNIEnv *env,
+        jobject
 ) {
     std::unique_ptr<Engine> engine = Engine::Create();
 

@@ -1,7 +1,8 @@
 syntax = "proto3";
 option optimize_for = LITE_RUNTIME;
+option java_multiple_files = true;
 
-import "proto/config.proto";
+import "config.proto";
 
 package khiin.proto;
 

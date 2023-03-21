@@ -82,7 +82,7 @@ regenerated unless you make any changes. For building, you only need to
 link to the `libprotobuf-lite[d].lib` (`d` for Debug version).
 
 To re-build protobuf generated files after modification, install `protoc`
-and use the following command from the root folder:
+and use the following command from the `proto` folder:
 
 ```
 /path/to/protoc.exe --cpp_out=proto proto/*.proto
