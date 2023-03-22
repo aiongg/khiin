@@ -1,52 +1,101 @@
 package be.chiahpa.khiin.ui
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import be.chiahpa.khiin.keyboard.KeyboardLayout
+import be.chiahpa.khiin.utils.loggerFor
+import khiin.proto.Command
 
-val layout = listOf(
-    "qwertyuiop".split(""),
-    "asdfghjkl".split(""),
-    "zxcvbnm".split("")
-)
+val log = loggerFor("KeyboardScreen")
 
 @Composable
-fun KeyboardScreen(rowHeight: Dp = 56.dp) {
+fun KeyboardScreen(rowHeight: Dp = 60.dp, command: Command) {
+    var size by remember { mutableStateOf(IntSize.Zero) }
+
     Surface(
         Modifier
             .fillMaxWidth()
+            .onGloballyPositioned { size = it.size }
     ) {
         Column(Modifier.fillMaxWidth()) {
-            Row(
-                Modifier
-                    .fillMaxWidth()
-                    .height(rowHeight)) {
-                Text("Candidates shown here")
-            }
-            layout.forEach {
-                Row(Modifier
-                    .fillMaxWidth()
-                    .height(rowHeight)) {
-                    it.forEach {
-                        Key(it)
+            CandidatesBar(height = rowHeight)
+
+            Column(Modifier.fillMaxWidth()) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceAround
+                ) {
+                    command.response.candidateList.candidatesList.forEach {
+                        Text(it.value, fontSize = 28.sp)
                     }
                 }
             }
-        }
-    }
-}
 
-@Composable
-fun Key(label: String) {
-    TextButton(onClick = {}) {
-        Text(label)
+            KeyboardLayout(
+                rowHeight = rowHeight
+            ) {
+                row {
+                    key("q")
+                    key("w")
+                    key("e")
+                    key("r")
+                    key("t")
+                    key("y")
+                    key("u")
+                    key("i")
+                    key("o")
+                    key("p")
+                }
+
+                row {
+                    key("a", 1.5f)
+                    key("s")
+                    key("d")
+                    key("f")
+                    key("g")
+                    key("h")
+                    key("j")
+                    key("k")
+                    key("l", 1.5f)
+                }
+
+                row {
+                    shift(1.5f)
+                    key("z")
+                    key("x")
+                    key("c")
+                    key("v")
+                    key("b")
+                    key("n")
+                    key("m")
+                    backspace(1.5f)
+                }
+
+                row {
+                    symbols(1.5f)
+                    key(",")
+                    spacebar(5f)
+                    key(".")
+                    enter(1.5f)
+                }
+            }
+        }
     }
 }

@@ -4,13 +4,14 @@ import android.content.Context
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.AbstractComposeView
 import be.chiahpa.khiin.ui.theme.KhiinTheme
+import khiin.proto.Command
 
-class ComposeKeyboardView constructor(context: Context) :
+class ComposeKeyboardView constructor(context: Context, val command: Command) :
     AbstractComposeView(context) {
     @Composable
     override fun Content() {
         KhiinTheme {
-            KeyboardScreen()
+            KeyboardScreen(command = command)
         }
     }
 }

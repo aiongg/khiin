@@ -14,35 +14,23 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import be.chiahpa.khiin.utils.loggerFor
 import khiin.proto.Command
-
-fun loggerFor(tag: String): (String) -> Unit {
-    return { android.util.Log.d(tag, it) }
-}
 
 private val log = loggerFor("SettingsScreen")
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SettingsScreen(command: Command) {
+fun SettingsScreen() {
     var input by remember {
-        mutableStateOf("")
+        mutableStateOf("a")
     }
-
-    log("here")
 
     Surface(
         modifier = Modifier.fillMaxSize(),
         color = MaterialTheme.colorScheme.background
     ) {
         Column {
-            Row {
-                command.response.candidateList.candidatesList.forEach {
-                    Text(it.value)
-                }
-            }
-
-
             Row {
                 TextField(value = input, onValueChange = { input = it })
             }

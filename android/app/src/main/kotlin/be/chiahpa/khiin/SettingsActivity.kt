@@ -15,29 +15,15 @@ class SettingsActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        copyAssetToFiles(this, "khiin.db")
-
-        engineManager = EngineManager(File(filesDir, "khiin.db").absolutePath)
-
-        val cmd = request {
-                type = CommandType.CMD_SEND_KEY
-                keyEvent = keyEvent {
-                    keyCode = 97
-                }
-            }
-
-        val ok = engineManager.sendCommand(cmd)
-
         setContent {
             KhiinTheme {
-                SettingsScreen(ok)
+                SettingsScreen()
             }
         }
     }
 
     override fun onDestroy() {
         super.onDestroy()
-        engineManager.shutdown()
     }
 
     private lateinit var engineManager: EngineManager

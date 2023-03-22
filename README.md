@@ -81,8 +81,9 @@ Generated files are checked in to the `proto` folder, and do not need to be
 regenerated unless you make any changes. For building, you only need to
 link to the `libprotobuf-lite[d].lib` (`d` for Debug version).
 
-To re-build protobuf generated files after modification, install `protoc`
-and use the following command from the `proto` folder:
+Protobuf C++ files are not currently automatically generated. This should
+be fixed in the future. In the meantime, to re-build protobuf generated files
+after modification, go to the `proto` folder and run:
 
 ```
 /path/to/protoc.exe --cpp_out=proto proto/*.proto
