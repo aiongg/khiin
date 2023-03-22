@@ -33,28 +33,28 @@ Java_be_chiahpa_khiin_EngineManager_sendCommand(
         JNIEnv *env,
         jobject thiz,
         jlong engine_ptr,
-        jbyteArray cmd_bytes
+        jbyteArray req_bytes
 ) {
     khiin::proto::Command cmd;
 
-    jbyte *bufferElems = env->GetByteArrayElements(cmd_bytes, nullptr);
-    int len = env->GetArrayLength(cmd_bytes);
+    auto *req_buf = env->GetByteArrayElements(req_bytes, nullptr);
+    auto req_size = env->GetArrayLength(req_bytes);
     try {
-        cmd.ParseFromArray(reinterpret_cast<unsigned char *>(bufferElems), len);
-    } catch (...) {}
-    env->ReleaseByteArrayElements(cmd_bytes, bufferElems, JNI_ABORT);
+        cmd.mutable_request()->ParseFromArray(
+                reinterpret_cast<unsigned char *>(req_buf), req_size);
+    } catch (...) { /* TODO: Handle parsing error? */ }
+
+    env->ReleaseByteArrayElements(req_bytes, req_buf, JNI_ABORT);
 
     auto *engine = reinterpret_cast<Engine *>(engine_ptr);
     engine->SendCommand(&cmd);
 
-    auto bytes = cmd.SerializeAsString();
-    const char* buffer = bytes.data();
-    auto size = (int) bytes.size();
-//    auto size = cmd.ByteSize();
-//    auto *buffer = new char[size];
-//    cmd.SerializeToArray(buffer, size);
-    auto ret = env->NewByteArray(size);
-    env->SetByteArrayRegion(ret, 0, size, (jbyte *) buffer);
+    auto res_bytes = cmd.response().SerializeAsString();
+    auto *res_buf = res_bytes.data();
+    auto res_size = (int) res_bytes.size();
+
+    auto ret = env->NewByteArray(res_size);
+    env->SetByteArrayRegion(ret, 0, res_size, (jbyte *) res_buf);
 
     return ret;
 }
@@ -66,5 +66,5 @@ Java_be_chiahpa_khiin_EngineManager_shutdown(
         jobject thiz,
         jlong engine_ptr
 ) {
-    delete reinterpret_cast<Engine*>(engine_ptr);
+    delete reinterpret_cast<Engine *>(engine_ptr);
 }

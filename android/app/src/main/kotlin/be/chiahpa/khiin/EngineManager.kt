@@ -1,6 +1,8 @@
 package be.chiahpa.khiin
 
 import khiin.proto.Command
+import khiin.proto.Request
+import khiin.proto.Response
 import khiin.proto.command
 
 const val KHIIN_ANDROID_NATIVE_LIBRARY = "khiindroid"
@@ -15,10 +17,12 @@ class EngineManager() {
         enginePtr = load(dbFileName)
     }
 
-    fun sendCommand(cmd: Command): Command {
-        val ret = sendCommand(enginePtr, cmd.toByteArray())
-        val x = Command.parseFrom(ret)
-        return x
+    fun sendCommand(req: Request): Command {
+        val res = sendCommand(enginePtr, req.toByteArray())
+        return command {
+            request = req
+            response = Response.parseFrom(res)
+        }
     }
 
     fun shutdown() {

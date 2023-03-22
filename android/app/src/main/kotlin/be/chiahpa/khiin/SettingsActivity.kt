@@ -72,14 +72,12 @@ class SettingsActivity : ComponentActivity() {
 
         engineManager = EngineManager(File(filesDir, "khiin.db").absolutePath)
 
-        val cmd = command {
-            request = request {
+        val cmd = request {
                 type = CommandType.CMD_SEND_KEY
                 keyEvent = keyEvent {
                     keyCode = 97
                 }
             }
-        }
 
         val ok = engineManager.sendCommand(cmd)
 

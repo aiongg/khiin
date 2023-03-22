@@ -53,8 +53,7 @@ add_library( # Sets the name of the library.
         SHARED
 
         # Provides a relative path to your source file(s).
-        src/main/cpp/EngineController.cpp
-        src/main/cpp/test.cpp)
+        src/main/cpp/EngineController.cpp)
 
 # Searches for a specified prebuilt library and stores the path as a
 # variable. Because CMake includes system libraries in the search path by
