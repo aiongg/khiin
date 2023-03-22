@@ -119,12 +119,5 @@ protobuf {
                 }
             }
         }
-//        ofSourceSet("main").forEach {
-//            it.builtins {
-//                getByName("java") {
-//                    option("lite")
-//                }
-//            }
-//        }
     }
 }
