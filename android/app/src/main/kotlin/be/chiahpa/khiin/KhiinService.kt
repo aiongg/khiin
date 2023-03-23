@@ -3,6 +3,7 @@ package be.chiahpa.khiin
 import android.inputmethodservice.InputMethodService
 import android.view.View
 import android.view.inputmethod.EditorInfo
+import be.chiahpa.khiin.keyboard.KeyboardViewModel
 import be.chiahpa.khiin.service.KhiinServiceLifecycleOwner
 import be.chiahpa.khiin.service.copyAssetToFiles
 import be.chiahpa.khiin.ui.ComposeKeyboardView
@@ -14,6 +15,7 @@ import java.io.File
 class KhiinService : InputMethodService() {
     private val lifecycleOwner = KhiinServiceLifecycleOwner()
     private lateinit var engineManager: EngineManager
+    private lateinit var keyboardViewModel: KeyboardViewModel
 
     override fun onCreate() {
         super.onCreate()

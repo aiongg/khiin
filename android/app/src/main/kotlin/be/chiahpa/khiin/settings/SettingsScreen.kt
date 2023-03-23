@@ -2,9 +2,15 @@ package be.chiahpa.khiin.settings
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Slider
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
@@ -14,6 +20,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
+import be.chiahpa.khiin.keyboard.KeyboardViewModel
 import be.chiahpa.khiin.utils.loggerFor
 import khiin.proto.Command
 
@@ -21,19 +31,43 @@ private val log = loggerFor("SettingsScreen")
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SettingsScreen() {
+fun SettingsScreen(
+    keyboardViewModel: KeyboardViewModel = viewModel()
+) {
     var input by remember {
-        mutableStateOf("a")
+        mutableStateOf("")
     }
 
+    val sliderPositionState  = Settings.rowHeightFlow.collectAsStateWithLifecycle(
+        initialValue = 60f
+    )
+
+    val sliderPosition = sliderPositionState.value
+
     Surface(
-        modifier = Modifier.fillMaxSize(),
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp),
         color = MaterialTheme.colorScheme.background
     ) {
         Column {
-            Row {
-                TextField(value = input, onValueChange = { input = it })
-            }
+            OutlinedTextField(
+                modifier = Modifier.fillMaxWidth(),
+                value = input,
+                label = { Text("Test Input") },
+                onValueChange = { input = it }
+            )
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            Text(text = "Keyboard height")
+            Slider(
+                value = sliderPosition,
+                onValueChange = {
+                    keyboardViewModel.changeRowHeight(it)
+                },
+                valueRange = 48f..72f,
+            )
         }
     }
 }

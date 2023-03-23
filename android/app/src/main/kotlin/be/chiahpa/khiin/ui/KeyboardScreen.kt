@@ -14,25 +14,36 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.onGloballyPositioned
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
 import be.chiahpa.khiin.keyboard.KeyboardLayout
+import be.chiahpa.khiin.keyboard.KeyboardViewModel
+import be.chiahpa.khiin.settings.Settings
 import be.chiahpa.khiin.utils.loggerFor
 import khiin.proto.Command
 
 val log = loggerFor("KeyboardScreen")
 
 @Composable
-fun KeyboardScreen(rowHeight: Dp = 60.dp, command: Command) {
-    var size by remember { mutableStateOf(IntSize.Zero) }
+fun KeyboardScreen(
+    command: Command,
+    viewModel: KeyboardViewModel = viewModel()
+) {
+//    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+//    val rowHeight = uiState.rowHeight
+
+    val rowHeightDp = Settings.rowHeightFlow.collectAsStateWithLifecycle(
+        initialValue = 60f
+    )
+    val rowHeight = rowHeightDp.value.dp
 
     Surface(
         Modifier
             .fillMaxWidth()
-            .onGloballyPositioned { size = it.size }
     ) {
         Column(Modifier.fillMaxWidth()) {
             CandidatesBar(height = rowHeight)
