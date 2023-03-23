@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -17,11 +18,9 @@ import khiin.proto.Command
 
 @Composable
 fun KeyboardScreen(
-    command: Command,
-    viewModel: KeyboardViewModel = viewModel()
+    viewModel: KeyboardViewModel
 ) {
-//    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-//    val rowHeight = uiState.rowHeight
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     val rowHeightDp = Settings.rowHeightFlow.collectAsStateWithLifecycle(
         initialValue = 60f
@@ -40,13 +39,14 @@ fun KeyboardScreen(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceAround
                 ) {
-                    command.response.candidateList.candidatesList.forEach {
-                        Text(it.value, fontSize = 28.sp)
+                    uiState.candidates.forEach {
+                        Text(it, fontSize = 28.sp)
                     }
                 }
             }
 
             KeyboardLayout(
+                viewModel = viewModel,
                 rowHeight = rowHeight
             ) {
                 row {

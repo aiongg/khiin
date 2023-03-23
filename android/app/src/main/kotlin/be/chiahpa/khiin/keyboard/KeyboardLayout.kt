@@ -18,6 +18,7 @@ private val log = loggerFor("KeyboardLayout")
 
 @Composable
 fun KeyboardLayout(
+    viewModel: KeyboardViewModel,
     rowHeight: Dp,
     fontSize: TextUnit = 28.sp,
     content: KeyboardLayoutScope.() -> Unit
@@ -36,7 +37,10 @@ fun KeyboardLayout(
                         LetterKey(
                             label = it,
                             fontSize = fontSize,
-                            weight = key.weight
+                            weight = key.weight,
+                            onClick = {
+                                viewModel.sendKey(key.label[0].code)
+                            }
                         )
                     }
 

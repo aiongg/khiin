@@ -22,6 +22,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -31,13 +32,13 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import be.chiahpa.khiin.keyboard.KeyboardViewModel
 import be.chiahpa.khiin.utils.loggerFor
 import khiin.proto.Command
+import kotlinx.coroutines.launch
 
 private val log = loggerFor("SettingsScreen")
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingsScreen(
-    keyboardViewModel: KeyboardViewModel = viewModel()
 ) {
     val context = LocalContext.current
 
@@ -50,6 +51,7 @@ fun SettingsScreen(
     )
 
     val sliderPosition = sliderPositionState.value
+    val coroutinescope = rememberCoroutineScope()
 
     Surface(
         modifier = Modifier
@@ -86,7 +88,9 @@ fun SettingsScreen(
             Slider(
                 value = sliderPosition,
                 onValueChange = {
-                    keyboardViewModel.changeRowHeight(it)
+                    coroutinescope.launch {
+                        Settings.setRowHeight(it)
+                    }
                 },
                 valueRange = 48f..72f,
             )

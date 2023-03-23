@@ -3,6 +3,7 @@ package be.chiahpa.khiin.keyboard.components
 import android.view.MotionEvent
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -26,21 +27,24 @@ fun RowScope.LetterKey(
     label: String,
     modifier: Modifier = Modifier,
     weight: Float = 1f,
-    fontSize: TextUnit = 28.sp
+    fontSize: TextUnit = 28.sp,
+    onClick: () -> Unit = {}
 ) {
-    Box(contentAlignment = Alignment.Center,
+    Box(
+        contentAlignment = Alignment.Center,
         modifier = modifier
             .weight(weight)
             .fillMaxHeight()
             .border(BorderStroke(1.dp, Color.Red))
-            .pointerInteropFilter {
-                when (it.action) {
-                    MotionEvent.ACTION_MOVE -> {
-                        log("Moved to: ${it.rawX.toString()}, ${it.rawY.toString()}")
-                    }
-                }
-                true
-            }
+            .clickable { onClick() }
+//            .pointerInteropFilter {
+//                when (it.action) {
+//                    MotionEvent.ACTION_MOVE -> {
+//                        log("Moved to: ${it.rawX.toString()}, ${it.rawY.toString()}")
+//                    }
+//                }
+//                true
+//            }
     ) {
         Text(
             text = label,
