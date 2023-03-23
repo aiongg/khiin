@@ -14,7 +14,7 @@ import be.chiahpa.khiin.keyboard.components.LetterKey
 import be.chiahpa.khiin.keyboard.components.SymbolsKey
 import be.chiahpa.khiin.utils.loggerFor
 
-val log = loggerFor("KeyboardLayout")
+private val log = loggerFor("KeyboardLayout")
 
 @Composable
 fun KeyboardLayout(

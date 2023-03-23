@@ -6,13 +6,13 @@ import android.view.inputmethod.EditorInfo
 import be.chiahpa.khiin.keyboard.KeyboardViewModel
 import be.chiahpa.khiin.service.KhiinServiceLifecycleOwner
 import be.chiahpa.khiin.service.copyAssetToFiles
-import be.chiahpa.khiin.ui.ComposeKeyboardView
+import be.chiahpa.khiin.keyboard.ComposeKeyboardView
 import khiin.proto.CommandType
 import khiin.proto.keyEvent
 import khiin.proto.request
 import java.io.File
 
-class KhiinService : InputMethodService() {
+class KhiinInputMethodService : InputMethodService() {
     private val lifecycleOwner = KhiinServiceLifecycleOwner()
     private lateinit var engineManager: EngineManager
     private lateinit var keyboardViewModel: KeyboardViewModel

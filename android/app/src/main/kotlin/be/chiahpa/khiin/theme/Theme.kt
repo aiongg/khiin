@@ -1,4 +1,4 @@
-package be.chiahpa.khiin.ui.theme
+package be.chiahpa.khiin.theme
 
 import android.app.Activity
 import android.os.Build

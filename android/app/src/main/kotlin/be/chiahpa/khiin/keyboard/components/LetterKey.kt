@@ -16,7 +16,9 @@ import androidx.compose.ui.input.pointer.pointerInteropFilter
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import be.chiahpa.khiin.keyboard.log
+import be.chiahpa.khiin.utils.loggerFor
+
+private val log = loggerFor("LetterKey")
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable

@@ -3,13 +3,8 @@ package be.chiahpa.khiin
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import be.chiahpa.khiin.service.copyAssetToFiles
 import be.chiahpa.khiin.settings.SettingsScreen
-import be.chiahpa.khiin.ui.theme.KhiinTheme
-import khiin.proto.CommandType
-import khiin.proto.keyEvent
-import khiin.proto.request
-import java.io.File
+import be.chiahpa.khiin.theme.KhiinTheme
 
 class SettingsActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {

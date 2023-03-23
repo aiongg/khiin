@@ -1,32 +1,19 @@
-package be.chiahpa.khiin.ui
+package be.chiahpa.khiin.keyboard
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.layout.onGloballyPositioned
-import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
-import be.chiahpa.khiin.keyboard.KeyboardLayout
-import be.chiahpa.khiin.keyboard.KeyboardViewModel
 import be.chiahpa.khiin.settings.Settings
-import be.chiahpa.khiin.utils.loggerFor
 import khiin.proto.Command
-
-val log = loggerFor("KeyboardScreen")
 
 @Composable
 fun KeyboardScreen(

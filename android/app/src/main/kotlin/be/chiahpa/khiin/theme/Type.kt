@@ -1,4 +1,4 @@
-package be.chiahpa.khiin.ui.theme
+package be.chiahpa.khiin.theme
 
 import androidx.compose.material3.Typography
 import androidx.compose.ui.text.TextStyle

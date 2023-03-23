@@ -1,4 +1,4 @@
-package be.chiahpa.khiin.ui
+package be.chiahpa.khiin.keyboard
 
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
