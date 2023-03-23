@@ -1,5 +1,7 @@
 package be.chiahpa.khiin.keyboard
 
+import be.chiahpa.khiin.keyboard.components.KeyPosition
+
 interface KeyboardLayoutScope {
     fun row(content: KeyboardRowScope.() -> Unit)
 }
@@ -14,7 +16,11 @@ class KeyboardLayoutScopeImpl : KeyboardLayoutScope {
 }
 
 interface KeyboardRowScope {
-    fun key(label: String, weight: Float = 1f)
+    fun key(
+        label: String,
+        weight: Float = 1f,
+        position: KeyPosition = KeyPosition.FULL_WEIGHT
+    )
 
     fun shift(weight: Float = 1f)
 
@@ -30,8 +36,8 @@ interface KeyboardRowScope {
 class KeyboardRowScopeImpl : KeyboardRowScope {
     val keys: MutableList<KeyData> = mutableListOf()
 
-    override fun key(label: String, weight: Float) {
-        keys.add(KeyData(weight = weight, label = label))
+    override fun key(label: String, weight: Float, position: KeyPosition) {
+        keys.add(KeyData(weight = weight, label = label, position = position))
     }
 
     override fun shift(weight: Float) {

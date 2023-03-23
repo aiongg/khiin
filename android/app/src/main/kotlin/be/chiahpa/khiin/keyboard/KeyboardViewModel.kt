@@ -10,6 +10,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import be.chiahpa.khiin.EngineManager
 import be.chiahpa.khiin.settings.Settings
+import be.chiahpa.khiin.utils.loggerFor
 import khiin.proto.Command
 import khiin.proto.CommandType
 import khiin.proto.keyEvent
@@ -18,6 +19,8 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+
+private val log = loggerFor("KeyboardViewModel")
 
 inline fun <VM : ViewModel> viewModelFactory(crossinline f: () -> VM) =
     object : ViewModelProvider.Factory {
@@ -29,7 +32,9 @@ data class KeyboardUiState(
 )
 
 class KeyboardViewModel(dbPath: String) : ViewModel() {
-    private val engineManager: EngineManager = EngineManager(dbPath)
+    init {
+        EngineManager.startup(dbPath)
+    }
 
     private val _uiState = MutableStateFlow(KeyboardUiState())
     val uiState: StateFlow<KeyboardUiState> = _uiState.asStateFlow()
@@ -43,7 +48,7 @@ class KeyboardViewModel(dbPath: String) : ViewModel() {
                 }
             }
 
-            val res = engineManager.sendCommand(req)
+            val res = EngineManager.sendCommand(req)
 
             _uiState.value = uiState.value.copy(
                 candidates =
@@ -54,7 +59,8 @@ class KeyboardViewModel(dbPath: String) : ViewModel() {
     }
 
     override fun onCleared() {
+        log("Viewmodel cleared")
         super.onCleared()
-        engineManager.shutdown()
+        EngineManager.shutdown()
     }
 }

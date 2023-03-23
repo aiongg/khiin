@@ -1,20 +1,29 @@
 package be.chiahpa.khiin
 
+import be.chiahpa.khiin.utils.loggerFor
 import khiin.proto.Command
+import khiin.proto.CommandType
 import khiin.proto.Request
 import khiin.proto.Response
 import khiin.proto.command
+import khiin.proto.request
 
 const val KHIIN_ANDROID_NATIVE_LIBRARY = "khiindroid"
 
-class EngineManager() {
+val log = loggerFor("EngineManager")
+
+object EngineManager {
     init {
         System.loadLibrary(KHIIN_ANDROID_NATIVE_LIBRARY)
     }
 
-    constructor(dbFileName: String) : this() {
-        this.dbFileName = dbFileName
-        enginePtr = load(dbFileName)
+    fun startup(dbPath: String) {
+        if (enginePtr != 0L) {
+            reset()
+        } else {
+            dbFileName = dbPath
+            enginePtr = load(dbFileName)
+        }
     }
 
     fun sendCommand(req: Request): Command {
@@ -25,7 +34,13 @@ class EngineManager() {
         }
     }
 
+    fun reset() {
+        val req = request { type = CommandType.CMD_RESET }
+        sendCommand(req)
+    }
+
     fun shutdown() {
+        log("Khiin engine shutting down...")
         shutdown(enginePtr)
     }
 
@@ -35,7 +50,6 @@ class EngineManager() {
 
     private external fun shutdown(enginePtr: Long)
 
-    private lateinit var dbFileName: String
-
+    private var dbFileName: String = ""
     private var enginePtr: Long = 0
 }

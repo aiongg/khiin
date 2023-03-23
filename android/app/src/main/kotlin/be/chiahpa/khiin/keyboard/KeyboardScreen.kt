@@ -13,6 +13,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import be.chiahpa.khiin.keyboard.components.KeyPosition
 import be.chiahpa.khiin.settings.Settings
 import khiin.proto.Command
 
@@ -63,7 +64,7 @@ fun KeyboardScreen(
                 }
 
                 row {
-                    key("a", 1.5f)
+                    key("a", 1.5f, KeyPosition.ALIGN_RIGHT)
                     key("s")
                     key("d")
                     key("f")
@@ -71,7 +72,7 @@ fun KeyboardScreen(
                     key("h")
                     key("j")
                     key("k")
-                    key("l", 1.5f)
+                    key("l", 1.5f, KeyPosition.ALIGN_LEFT)
                 }
 
                 row {
