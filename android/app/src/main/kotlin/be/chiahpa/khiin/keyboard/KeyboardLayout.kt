@@ -1,6 +1,8 @@
 package be.chiahpa.khiin.keyboard
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -8,6 +10,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -15,6 +18,7 @@ import be.chiahpa.khiin.R
 import be.chiahpa.khiin.keyboard.components.IconKey
 import be.chiahpa.khiin.keyboard.components.LetterKey
 import be.chiahpa.khiin.keyboard.components.SymbolsKey
+import be.chiahpa.khiin.utils.ImmutableList
 import be.chiahpa.khiin.utils.loggerFor
 
 
@@ -23,12 +27,12 @@ private val log = loggerFor("KeyboardLayout")
 @Composable
 fun KeyboardLayout(
     viewModel: KeyboardViewModel,
-    fontSize: TextUnit = 28.sp,
     content: KeyboardLayoutScope.() -> Unit
 ) {
     val scopeData = KeyboardLayoutScopeImpl().apply(content)
     val keyboardRows = scopeData.toImmutable()
     val rowHeight = scopeData.rowHeight
+    val totalHeight = rowHeight * keyboardRows.items.size
 
     val theme = KeyboardTheme(
         background = Color(0xFFEEEEEE),
@@ -50,6 +54,32 @@ fun KeyboardLayout(
         actionLabel = Color(0xff00363d),
     )
 
+    Box {
+        Column {
+            KeyboardLayoutImpl(
+                viewModel = viewModel,
+                keyboardRows = keyboardRows,
+                rowHeight = rowHeight,
+                theme = theme,
+                fontSize = 28.sp
+            )
+        }
+
+        KeyboardTouchDelegate(
+            viewModel = viewModel,
+            totalHeight = totalHeight
+        )
+    }
+}
+
+@Composable
+fun KeyboardLayoutImpl(
+    viewModel: KeyboardViewModel,
+    keyboardRows: ImmutableList<ImmutableList<KeyData>>,
+    rowHeight: Dp,
+    theme: KeyboardTheme,
+    fontSize: TextUnit = 28.sp
+) {
     keyboardRows.items.forEach { row ->
         Row(
             Modifier
@@ -67,8 +97,12 @@ fun KeyboardLayout(
                             keyColor = theme.key,
                             weight = key.weight,
                             keyPosition = key.position,
-                            onTouchTargetPositioned = { viewModel.setKeyTouchTarget(key, it) },
-                            onKeyPositioned = { viewModel.setKeyBounds(key, it) },
+                            onTouchTargetPositioned = {
+                                viewModel.setKeyBounds(key, touchTarget = it)
+                            },
+                            onKeyPositioned = {
+                                viewModel.setKeyBounds(key, key = it)
+                            },
                         )
                     }
 

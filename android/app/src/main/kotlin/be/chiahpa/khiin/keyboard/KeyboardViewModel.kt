@@ -22,16 +22,20 @@ sealed class CandidateState {
 }
 
 sealed class KeyHintState {
-    object None: KeyHintState()
+    object None : KeyHintState()
     class Showing(val key: KeyData, val bounds: Rect) : KeyHintState()
 }
 
+data class KeyBounds(
+    val touchTarget: Rect = Rect.Zero,
+    val key: Rect = Rect.Zero
+)
 
-typealias KeyCoordinateMap = Map<KeyData, Rect>
+typealias KeyCoordinateMap = Map<KeyData, KeyBounds>
 
 internal fun KeyCoordinateMap.keyAt(offset: Offset): KeyData? {
-    this.forEach { (key, rect) ->
-        if (rect.contains(offset)) {
+    this.forEach { (key, bounds) ->
+        if (bounds.touchTarget.contains(offset)) {
             return key
         }
     }
@@ -53,14 +57,11 @@ class KeyboardViewModel(dbPath: String) : ViewModel() {
         MutableStateFlow<CandidateState>(CandidateState.Empty)
     val candidateState = _candidateState.asStateFlow()
 
-    private val _keyTouchTargets =
-        MutableStateFlow<KeyCoordinateMap>(mapOf())
-    val keyTouchTargets = _keyTouchTargets.asStateFlow()
-
     private val _keyBounds = MutableStateFlow<KeyCoordinateMap>(mapOf())
     val keyBounds = _keyBounds.asStateFlow()
 
-    private val _keyHintState = MutableStateFlow<KeyHintState>(KeyHintState.None)
+    private val _keyHintState =
+        MutableStateFlow<KeyHintState>(KeyHintState.None)
     val keyHintState = _keyHintState.asStateFlow()
 
     fun sendKey(key: KeyData) {
@@ -79,24 +80,33 @@ class KeyboardViewModel(dbPath: String) : ViewModel() {
             viewModelScope.launch {
                 val res = EngineManager.sendCommand(req.build())
                 if (res.response.candidateList.candidatesList.isNotEmpty()) {
-                    _candidateState.value = CandidateState.Loaded(res.response.candidateList)
+                    _candidateState.value =
+                        CandidateState.Loaded(res.response.candidateList)
                 }
             }
         }
     }
 
-    fun setKeyTouchTarget(
+    fun setKeyBounds(
         keyData: KeyData,
-        bounds: Rect
+        touchTarget: Rect? = null,
+        key: Rect? = null
     ) {
-        val next = keyTouchTargets.value.toMutableMap()
-        next[keyData] = bounds
-        _keyTouchTargets.value = next
-    }
-
-    fun setKeyBounds(keyData: KeyData, bounds: Rect) {
         val next = keyBounds.value.toMutableMap()
-        next[keyData] = bounds
+
+        if (touchTarget != null) {
+            next[keyData] =
+                next[keyData]?.copy(touchTarget = touchTarget)
+                    ?: KeyBounds(touchTarget = touchTarget)
+            _keyBounds.value = next
+        }
+
+        if (key != null) {
+            next[keyData] =
+                next[keyData]?.copy(key = key)
+                    ?: KeyBounds(key = key)
+        }
+
         _keyBounds.value = next
     }
 

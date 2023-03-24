@@ -12,6 +12,7 @@ import kotlinx.coroutines.flow.map
 
 private const val PREFS_FILE = "settings"
 private val KBD_ROW_HEIGHT = floatPreferencesKey("keyboard_row_height")
+private val CANDIDATE_BAR_HEIGHT = floatPreferencesKey("candidate_bar_height")
 
 object Settings {
     private val Context.settingsDataStore: DataStore<Preferences> by preferencesDataStore(
@@ -29,5 +30,9 @@ object Settings {
 
     val rowHeightFlow: Flow<Float> = dataStore.data.map {
         it[KBD_ROW_HEIGHT] ?: 60f
+    }
+
+    val candidateBarHeight: Flow<Float> = dataStore.data.map {
+        it[CANDIDATE_BAR_HEIGHT] ?: 60f
     }
 }
