@@ -18,18 +18,20 @@ import be.chiahpa.khiin.keyboard.components.LetterKey
 import be.chiahpa.khiin.keyboard.components.SymbolsKey
 import be.chiahpa.khiin.utils.loggerFor
 
+
 private val log = loggerFor("KeyboardLayout")
 
 @Composable
 fun KeyboardLayout(
     viewModel: KeyboardViewModel,
-    rowHeight: Dp,
     fontSize: TextUnit = 28.sp,
     content: KeyboardLayoutScope.() -> Unit
 ) {
-    val scopeContent = KeyboardLayoutScopeImpl().apply(content)
+    val scopeData = KeyboardLayoutScopeImpl().apply(content)
+    val keyboardRows = scopeData.toImmutable()
+    val rowHeight = scopeData.rowHeight
 
-    val theme2 = KeyboardTheme(
+    val theme = KeyboardTheme(
         background = Color(0xFFEEEEEE),
         key = Color.White,
         label = Color.DarkGray,
@@ -39,7 +41,7 @@ fun KeyboardLayout(
         actionLabel = Color.DarkGray,
     )
 
-    val theme = KeyboardTheme(
+    val theme2 = KeyboardTheme(
         background = Color(0xff00363d),
         key = Color(0xff004f58),
         label = Color(0xffcde7ec),
@@ -49,26 +51,24 @@ fun KeyboardLayout(
         actionLabel = Color(0xff00363d),
     )
 
-    scopeContent.rows.forEach { row ->
+    keyboardRows.items.forEach { row ->
         Row(
             Modifier
                 .fillMaxWidth()
                 .height(rowHeight)
                 .background(theme.background)
         ) {
-            row.keys.forEach { key ->
+            row.items.forEach { key ->
                 when (key.type) {
-                    KeyType.LETTER -> key.label?.let {
+                    KeyType.LETTER -> key.label?.let { label ->
                         LetterKey(
-                            label = it,
+                            label = label,
                             fontSize = fontSize,
                             textColor = theme.label,
                             keyColor = theme.key,
                             weight = key.weight,
                             keyPosition = key.position,
-                            onClick = {
-                                viewModel.sendKey(key.label[0].code)
-                            }
+                            onLayout = { viewModel.setKeyBounds(key, it) }
                         )
                     }
 

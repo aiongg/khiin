@@ -1,5 +1,6 @@
 package be.chiahpa.khiin.keyboard
 
+import android.view.KeyEvent
 import be.chiahpa.khiin.keyboard.components.KeyPosition
 
 enum class KeyType {
@@ -17,5 +18,5 @@ data class KeyData(
     val label: String? = null,
     val weight: Float = 1f,
     val type: KeyType = KeyType.LETTER,
-    val position: KeyPosition = KeyPosition.FULL_WEIGHT
+    val position: KeyPosition = KeyPosition.FULL_WEIGHT,
 )

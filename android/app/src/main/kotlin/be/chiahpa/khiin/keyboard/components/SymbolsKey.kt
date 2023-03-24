@@ -36,7 +36,6 @@ fun RowScope.SymbolsKey(
         weight = weight,
         keyColor = keyColor,
         cornerSize = cornerSize,
-        onClick = onClick
     ) {
         val baseTextStyle = MaterialTheme.typography.bodySmall.copy(
             fontSize = fontSize,

@@ -6,7 +6,10 @@ import android.view.inputmethod.EditorInfo
 import be.chiahpa.khiin.keyboard.ComposeKeyboardView
 import be.chiahpa.khiin.service.KhiinServiceLifecycleOwner
 import be.chiahpa.khiin.service.copyAssetToFiles
+import be.chiahpa.khiin.utils.loggerFor
 import java.io.File
+
+private val logd = loggerFor("KhiinInputMethodService")
 
 class KhiinInputMethodService : InputMethodService() {
     private val lifecycleOwner = KhiinServiceLifecycleOwner()
@@ -21,15 +24,14 @@ class KhiinInputMethodService : InputMethodService() {
     }
 
     override fun onCreateInputView(): View {
-        lifecycleOwner.attachToDecorView(
-            window?.window?.decorView
-        )
-
+        val decorView = window?.window?.decorView
+        lifecycleOwner.attachToDecorView(decorView)
         return ComposeKeyboardView(this, dbPath)
     }
 
     override fun onStartInputView(info: EditorInfo?, restarting: Boolean) {
         lifecycleOwner.onResume()
+        window
     }
 
     override fun onFinishInputView(finishingInput: Boolean) {

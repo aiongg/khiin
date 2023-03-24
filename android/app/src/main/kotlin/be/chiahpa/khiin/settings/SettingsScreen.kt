@@ -17,6 +17,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -94,6 +95,13 @@ fun SettingsScreen(
                 },
                 valueRange = 48f..72f,
             )
+            TextButton(onClick = {
+                coroutinescope.launch {
+                    Settings.setRowHeight(60f)
+                }
+            }) {
+                Text("Reset")
+            }
         }
     }
 }

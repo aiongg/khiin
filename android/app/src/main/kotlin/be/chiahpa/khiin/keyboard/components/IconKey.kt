@@ -30,7 +30,6 @@ fun RowScope.IconKey(
         weight = weight,
         keyColor = keyColor,
         cornerSize = cornerSize,
-        onClick = onClick
     ) {
         Image(
             painterResource(id = icon),
