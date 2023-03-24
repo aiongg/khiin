@@ -6,10 +6,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.LayoutCoordinates
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import be.chiahpa.khiin.utils.loggerFor
 
@@ -23,14 +20,15 @@ fun RowScope.LetterKey(
     textColor: Color = MaterialTheme.colorScheme.onSurface,
     keyColor: Color = Color.Transparent,
     keyPosition: KeyPosition = KeyPosition.FULL_WEIGHT,
-    onLayout: (Rect) -> Unit = {},
-    onClick: () -> Unit = {}
+    onTouchTargetPositioned: (Rect) -> Unit = {},
+    onKeyPositioned: (Rect) -> Unit = {},
 ) {
     BaseKey(
         weight = weight,
         keyColor = keyColor,
         keyPosition = keyPosition,
-        onLayout = onLayout
+        onTouchTargetPositioned = onTouchTargetPositioned,
+        onKeyPositioned = onKeyPositioned
     ) {
         Text(
             text = label,

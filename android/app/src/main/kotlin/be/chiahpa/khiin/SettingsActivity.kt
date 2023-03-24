@@ -16,10 +16,4 @@ class SettingsActivity : ComponentActivity() {
             }
         }
     }
-
-    override fun onDestroy() {
-        super.onDestroy()
-    }
-
-    private lateinit var engineManager: EngineManager
 }

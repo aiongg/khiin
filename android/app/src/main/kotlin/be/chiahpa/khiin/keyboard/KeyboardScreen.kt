@@ -1,26 +1,46 @@
 package be.chiahpa.khiin.keyboard
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.gestures.detectDragGesturesAfterLongPress
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.IntRect
+import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.round
+import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Popup
+import androidx.compose.ui.window.PopupPositionProvider
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import be.chiahpa.khiin.keyboard.components.KeyPosition
+import be.chiahpa.khiin.keyboard.components.QwertyKeyboard
 import be.chiahpa.khiin.settings.Settings
 import be.chiahpa.khiin.utils.loggerFor
+import kotlin.math.roundToInt
 
 private val log = loggerFor("KeyboardScreen")
 
@@ -32,6 +52,8 @@ fun KeyboardScreen(
     val rowHeightDp by Settings.rowHeightFlow.collectAsStateWithLifecycle(
         initialValue = 60f
     )
+
+    val keyHintState by viewModel.keyHintState.collectAsStateWithLifecycle()
 
     val totalHeight = rowHeightDp * 5
 
@@ -49,6 +71,14 @@ fun KeyboardScreen(
             }
         }
 
+        when (val state = keyHintState) {
+            is KeyHintState.Showing -> {
+                KeyHintPopup(state)
+            }
+
+            else -> {}
+        }
+
         KeyboardTouchDelegate(
             viewModel = viewModel,
             totalHeight = totalHeight.dp
@@ -58,6 +88,7 @@ fun KeyboardScreen(
 
 @Composable
 fun KeyboardTouchDelegate(viewModel: KeyboardViewModel, totalHeight: Dp) {
+    val keyTouchTargets by viewModel.keyTouchTargets.collectAsStateWithLifecycle()
     val keyBounds by viewModel.keyBounds.collectAsStateWithLifecycle()
     var currentKey by remember { mutableStateOf(KeyData()) }
     var currentOffset by remember { mutableStateOf(Offset.Zero) }
@@ -68,33 +99,70 @@ fun KeyboardTouchDelegate(viewModel: KeyboardViewModel, totalHeight: Dp) {
             .height(totalHeight)
             .pointerInput(Unit) {
                 detectTapGestures(
-                    onTap = {
-                        keyBounds.keyAt(it)?.also { key ->
-                            currentKey = key
-                            log("Pressed key: ${key.label}")
-                            viewModel.sendKey(key)
-                        }
+                    onPress = {
+                        keyTouchTargets
+                            .keyAt(it)
+                            ?.also { key ->
+                                currentKey = key
+                                log("Pressed key: ${key.label}")
+                                viewModel.showKeyHint(key, keyBounds[key]!!)
+                            }
                     },
+                    onTap = {
+                        viewModel.sendKey(currentKey)
+                        viewModel.hideKeyHint()
+                    }
+                )
+            }
+            .pointerInput(Unit) {
+                detectDragGestures(
+                    onDragStart = {
+                        currentOffset = it
+                        keyTouchTargets
+                            .keyAt(it)
+                            ?.also { key ->
+                                currentKey = key
+                            }
+                    },
+                    onDragEnd = {
+                        viewModel.sendKey(currentKey)
+                        viewModel.hideKeyHint()
+                    },
+                    onDrag = { _, dragAmount ->
+                        currentOffset += dragAmount
+                        keyTouchTargets
+                            .keyAt(currentOffset)
+                            ?.also { key ->
+                                if (key != currentKey) {
+                                    currentKey = key
+                                    viewModel.showKeyHint(key, keyBounds[key]!!)
+                                }
+                            }
+                    }
                 )
             }
             .pointerInput(Unit) {
                 detectDragGesturesAfterLongPress(
                     onDragStart = {
+                        viewModel.hideKeyHint()
                         currentOffset = it
-
-                        keyBounds.keyAt(it)?.also { key ->
-                            currentKey = key
-                            log("Long pressed key: ${key.label}")
-                        }
+                        keyTouchTargets
+                            .keyAt(it)
+                            ?.also { key ->
+                                currentKey = key
+                                log("Long pressed key: ${key.label}")
+                            }
                     },
                     onDrag = { _, dragAmount ->
                         currentOffset += dragAmount
-                        keyBounds.keyAt(currentOffset)?.also { key ->
-                            if (key != currentKey) {
-                                currentKey = key
-                                log("Dragged to key: ${key.label}")
+                        keyTouchTargets
+                            .keyAt(currentOffset)
+                            ?.also { key ->
+                                if (key != currentKey) {
+                                    currentKey = key
+                                    log("Dragged to key: ${key.label}")
+                                }
                             }
-                        }
                     }
                 )
             }
@@ -102,55 +170,39 @@ fun KeyboardTouchDelegate(viewModel: KeyboardViewModel, totalHeight: Dp) {
 }
 
 @Composable
-fun QwertyKeyboard(viewModel: KeyboardViewModel, rowHeight: Dp) {
-    KeyboardLayout(
-        viewModel = viewModel
-    ) {
-        this.rowHeight = rowHeight
+fun KeyHintPopup(state: KeyHintState.Showing) {
+    val width = with(LocalDensity.current) { state.bounds.width.toDp() }
+    val height = with(LocalDensity.current) { state.bounds.height.toDp() }
 
-        row {
-            alpha("q")
-            alpha("w")
-            alpha("e")
-            alpha("r")
-            alpha("t")
-            alpha("y")
-            alpha("u")
-            alpha("i")
-            alpha("o")
-            alpha("p")
+    Popup(popupPositionProvider = object : PopupPositionProvider {
+        override fun calculatePosition(
+            anchorBounds: IntRect,
+            windowSize: IntSize,
+            layoutDirection: LayoutDirection,
+            popupContentSize: IntSize
+        ): IntOffset {
+            return (state.bounds.topLeft + Offset(0f, -state.bounds.height)).round()
         }
-
-        row {
-            alpha("a", 1.5f, KeyPosition.ALIGN_RIGHT)
-            alpha("s")
-            alpha("d")
-            alpha("f")
-            alpha("g")
-            alpha("h")
-            alpha("j")
-            alpha("k")
-            alpha("l", 1.5f, KeyPosition.ALIGN_LEFT)
-        }
-
-        row {
-            shift(1.5f)
-            alpha("z")
-            alpha("x")
-            alpha("c")
-            alpha("v")
-            alpha("b")
-            alpha("n")
-            alpha("m")
-            backspace(1.5f)
-        }
-
-        row {
-            symbols(1.5f)
-            alpha(",")
-            spacebar(5f)
-            alpha(".")
-            enter(1.5f)
+    }) {
+        Surface(
+            modifier = Modifier
+                .height(height * 2)
+                .width(width)
+                .clip(RoundedCornerShape(16.dp)),
+            shadowElevation = 16.dp,
+        ) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color.Transparent)
+                    .padding(0.dp, 8.dp),
+                contentAlignment = Alignment.TopCenter
+            ) {
+                Text(
+                    text = state.key.label ?: "",
+                    fontSize = 28.sp
+                )
+            }
         }
     }
 }

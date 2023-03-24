@@ -11,7 +11,6 @@ import khiin.proto.CommandType
 import khiin.proto.Request
 import khiin.proto.keyEvent
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
@@ -21,6 +20,12 @@ sealed class CandidateState {
     object Empty : CandidateState()
     class Loaded(val candidates: CandidateList) : CandidateState()
 }
+
+sealed class KeyHintState {
+    object None: KeyHintState()
+    class Showing(val key: KeyData, val bounds: Rect) : KeyHintState()
+}
+
 
 typealias KeyCoordinateMap = Map<KeyData, Rect>
 
@@ -46,15 +51,17 @@ class KeyboardViewModel(dbPath: String) : ViewModel() {
 
     private val _candidateState =
         MutableStateFlow<CandidateState>(CandidateState.Empty)
+    val candidateState = _candidateState.asStateFlow()
 
-    val candidateState: StateFlow<CandidateState> =
-        _candidateState.asStateFlow()
-
-    private val _keyBounds =
+    private val _keyTouchTargets =
         MutableStateFlow<KeyCoordinateMap>(mapOf())
+    val keyTouchTargets = _keyTouchTargets.asStateFlow()
 
-    val keyBounds: StateFlow<KeyCoordinateMap> =
-        _keyBounds.asStateFlow()
+    private val _keyBounds = MutableStateFlow<KeyCoordinateMap>(mapOf())
+    val keyBounds = _keyBounds.asStateFlow()
+
+    private val _keyHintState = MutableStateFlow<KeyHintState>(KeyHintState.None)
+    val keyHintState = _keyHintState.asStateFlow()
 
     fun sendKey(key: KeyData) {
         val req = Request.newBuilder()
@@ -78,12 +85,26 @@ class KeyboardViewModel(dbPath: String) : ViewModel() {
         }
     }
 
-    fun setKeyBounds(
+    fun setKeyTouchTarget(
         keyData: KeyData,
         bounds: Rect
     ) {
+        val next = keyTouchTargets.value.toMutableMap()
+        next[keyData] = bounds
+        _keyTouchTargets.value = next
+    }
+
+    fun setKeyBounds(keyData: KeyData, bounds: Rect) {
         val next = keyBounds.value.toMutableMap()
         next[keyData] = bounds
         _keyBounds.value = next
+    }
+
+    fun showKeyHint(key: KeyData, bounds: Rect) {
+        _keyHintState.value = KeyHintState.Showing(key, bounds)
+    }
+
+    fun hideKeyHint() {
+        _keyHintState.value = KeyHintState.None
     }
 }
